@@ -22,6 +22,15 @@ using SqlStreamStore.Subscriptions;
 public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     where TDbContext : RunnerDbContext<TDbContext>
 {
+    private const int CatchUpBatchSize = 5000;
+    private const int CatchUpThreshold = 1000;
+
+    private const int RecordPositionThreshold = 1000;
+    public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+
+    private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
+
+    public static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     private readonly ILogger<DbContextEventProcessor<TDbContext>> _logger;
 
     private readonly Channel<object> _messageChannel;
@@ -340,10 +349,6 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         public int BatchSize { get; }
     }
 
-    private const int CatchUpBatchSize = 5000;
-    private const int CatchUpThreshold = 1000;
-    public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
-
     private sealed class ProcessStreamMessage
     {
         private readonly TaskCompletionSource<object> _source;
@@ -379,15 +384,9 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         public StreamMessage Message { get; }
     }
 
-    private const int RecordPositionThreshold = 1000;
-
-    private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
-
     private sealed class Resume
     {
     }
-
-    public static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {

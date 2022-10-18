@@ -27,6 +27,7 @@ using Wms.Schema;
 /// <summary>Represents the startup process for the application.</summary>
 public class Startup
 {
+    private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
     private readonly ILoggerFactory _loggerFactory;
 
@@ -180,8 +181,6 @@ public class Startup
 
         return new AutofacServiceProvider(_applicationContainer);
     }
-
-    private const string DatabaseTag = "db";
 
     private static string GetApiLeadingText(ApiVersionDescription description)
     {

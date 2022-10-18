@@ -12,6 +12,7 @@ using Xunit;
 
 public class ArchiveIdTests
 {
+    private static readonly JsonSerializerSettings _serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     private readonly Fixture _fixture;
 
     public ArchiveIdTests()
@@ -19,8 +20,6 @@ public class ArchiveIdTests
         _fixture = new Fixture();
         _fixture.CustomizeArchiveId();
     }
-
-    private static readonly JsonSerializerSettings _serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     [Theory]
     [InlineData(null, false)]

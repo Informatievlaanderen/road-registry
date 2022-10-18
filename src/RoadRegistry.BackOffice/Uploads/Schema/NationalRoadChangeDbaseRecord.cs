@@ -4,6 +4,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class NationalRoadChangeDbaseRecord : DbaseRecord
 {
+    public static readonly NationalRoadChangeDbaseSchema Schema = new();
+
     public NationalRoadChangeDbaseRecord()
     {
         NW_OIDN = new DbaseInt32(Schema.NW_OIDN);
@@ -27,7 +29,6 @@ public class NationalRoadChangeDbaseRecord : DbaseRecord
     public DbaseInt32 NW_OIDN { get; }
 
     public DbaseInt16 RECORDTYPE { get; }
-    public static readonly NationalRoadChangeDbaseSchema Schema = new();
 
     public DbaseInt16 TRANSACTID { get; }
 

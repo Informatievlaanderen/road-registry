@@ -9,6 +9,13 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
 {
+    public static readonly TranslatedChanges Empty = new(
+        Reason.None,
+        OperatorName.None,
+        OrganizationId.Unknown,
+        ImmutableList<ITranslatedChange>.Empty,
+        ImmutableList<ITranslatedChange>.Empty);
+
     private readonly ImmutableList<ITranslatedChange> _changes;
     private readonly ImmutableList<ITranslatedChange> _provisionalChanges;
 
@@ -112,13 +119,6 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
     }
 
     public int Count => _changes.Count;
-
-    public static readonly TranslatedChanges Empty = new(
-        Reason.None,
-        OperatorName.None,
-        OrganizationId.Unknown,
-        ImmutableList<ITranslatedChange>.Empty,
-        ImmutableList<ITranslatedChange>.Empty);
 
     public IEnumerator<ITranslatedChange> GetEnumerator()
     {

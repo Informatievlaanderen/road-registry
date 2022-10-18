@@ -16,6 +16,9 @@ using Newtonsoft.Json;
 
 internal class LegacyStreamArchiveWriter
 {
+    private static readonly JsonSerializerSettings SerializerSettings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
     private readonly IBlobClient _client;
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly JsonSerializer _serializer;
@@ -26,9 +29,6 @@ internal class LegacyStreamArchiveWriter
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _serializer = JsonSerializer.Create(SerializerSettings);
     }
-
-    private static readonly JsonSerializerSettings SerializerSettings =
-        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     public async Task WriteAsync(IEnumerable<StreamEvent> events, CancellationToken cancellationToken = default)
     {

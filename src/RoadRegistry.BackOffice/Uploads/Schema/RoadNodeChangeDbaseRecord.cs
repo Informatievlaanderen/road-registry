@@ -4,6 +4,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadNodeChangeDbaseRecord : DbaseRecord
 {
+    public static readonly RoadNodeChangeDbaseSchema Schema = new();
+
     public RoadNodeChangeDbaseRecord()
     {
         WEGKNOOPID = new DbaseInt32(Schema.WEGKNOOPID);
@@ -21,7 +23,6 @@ public class RoadNodeChangeDbaseRecord : DbaseRecord
     }
 
     public DbaseInt16 RECORDTYPE { get; }
-    public static readonly RoadNodeChangeDbaseSchema Schema = new();
 
     public DbaseInt16 TRANSACTID { get; }
 

@@ -6,6 +6,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentAccessRestrictionDbaseRecord : DbaseRecord
 {
+    public static readonly RoadSegmentAccessRestrictionDbaseSchema Schema = new();
+
     public RoadSegmentAccessRestrictionDbaseRecord()
     {
         TYPE = new DbaseInt32(Schema.TYPE);
@@ -20,7 +22,6 @@ public class RoadSegmentAccessRestrictionDbaseRecord : DbaseRecord
 
     public DbaseString DEFTYPE { get; }
     public DbaseString LBLTYPE { get; }
-    public static readonly RoadSegmentAccessRestrictionDbaseSchema Schema = new();
 
     public DbaseInt32 TYPE { get; }
 }

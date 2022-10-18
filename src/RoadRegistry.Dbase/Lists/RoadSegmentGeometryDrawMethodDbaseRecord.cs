@@ -6,6 +6,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
 {
+    public static readonly RoadSegmentGeometryDrawMethodDbaseSchema Schema = new();
+
     public RoadSegmentGeometryDrawMethodDbaseRecord()
     {
         METHODE = new DbaseInt32(Schema.METHODE);
@@ -22,5 +24,4 @@ public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
     public DbaseString LBLMETHOD { get; }
 
     public DbaseInt32 METHODE { get; }
-    public static readonly RoadSegmentGeometryDrawMethodDbaseSchema Schema = new();
 }

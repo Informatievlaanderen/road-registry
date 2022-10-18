@@ -8,6 +8,7 @@ using System.Linq;
 
 public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEquatable<ZipArchiveProblems>
 {
+    public static readonly ZipArchiveProblems None = new(ImmutableList<FileProblem>.Empty);
     private readonly ImmutableList<FileProblem> _problems;
 
     private ZipArchiveProblems(ImmutableList<FileProblem> problems)
@@ -69,8 +70,6 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
 
         return None.AddRange(problems);
     }
-
-    public static readonly ZipArchiveProblems None = new(ImmutableList<FileProblem>.Empty);
 
     public static ZipArchiveProblems operator +(ZipArchiveProblems left, FileProblem right)
     {

@@ -6,14 +6,6 @@ using System.Linq;
 
 public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 {
-    private readonly string _value;
-
-    private RoadSegmentStatus(string value, DutchTranslation dutchTranslation)
-    {
-        _value = value;
-        Translation = dutchTranslation;
-    }
-
     public static readonly RoadSegmentStatus BuildingPermitGranted =
         new(
             nameof(BuildingPermitGranted),
@@ -82,6 +74,14 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentStatus> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
+
+    private readonly string _value;
+
+    private RoadSegmentStatus(string value, DutchTranslation dutchTranslation)
+    {
+        _value = value;
+        Translation = dutchTranslation;
+    }
 
     public static bool CanParse(string value)
     {

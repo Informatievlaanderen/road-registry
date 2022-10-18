@@ -8,14 +8,6 @@ using System.Linq;
 
 public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 {
-    private readonly string _value;
-
-    private RoadSegmentMorphology(string value, DutchTranslation dutchTranslation)
-    {
-        _value = value;
-        Translation = dutchTranslation;
-    }
-
     public static readonly RoadSegmentMorphology Entry_or_exit_of_a_car_park =
         new(
             nameof(Entry_or_exit_of_a_car_park),
@@ -231,6 +223,14 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentMorphology> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
+
+    private readonly string _value;
+
+    private RoadSegmentMorphology(string value, DutchTranslation dutchTranslation)
+    {
+        _value = value;
+        Translation = dutchTranslation;
+    }
 
     public static bool CanParse(string value)
     {

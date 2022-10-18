@@ -5,6 +5,8 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 
 internal class FakeSqsQueue
 {
+    private static readonly ConcurrentDictionary<string, Queue<SqsJsonMessage>> Queues = new();
+
     public static SqsJsonMessage Consume(string queueUrl)
     {
         var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
@@ -28,6 +30,4 @@ internal class FakeSqsQueue
         var queue = Queues.GetOrAdd(queueName, name => new Queue<SqsJsonMessage>());
         queue.Enqueue(message);
     }
-
-    private static readonly ConcurrentDictionary<string, Queue<SqsJsonMessage>> Queues = new();
 }

@@ -19,6 +19,12 @@ using SqlStreamStore.Subscriptions;
 public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> : IHostedService
     where TEventProcessorPositionStore : IEventProcessorPositionStore
 {
+    private const int RecordPositionThreshold = 1000;
+
+    public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+
+    private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
+    private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     private readonly ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> _logger;
 
     private readonly Channel<object> _messageChannel;
@@ -89,8 +95,6 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         const int timeout = -2;
         return dropped.Exception is SqlException { Number: timeout } or IOException { InnerException: SqlException { Number: timeout } };
     }
-
-    public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
     private async Task ProcessMessage(
         string queueName,
@@ -258,8 +262,6 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         public StreamMessage Message { get; }
     }
 
-    private const int RecordPositionThreshold = 1000;
-
     public sealed class Ref<T>
     {
         public Ref(T value)
@@ -269,9 +271,6 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
 
         public T Value { get; set; }
     }
-
-    private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
-    private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {

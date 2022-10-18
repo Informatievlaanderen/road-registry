@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 
 public class SqlServerEmbeddedContainer : DockerContainer, ISqlServerDatabase
 {
+    private const string Password = "E@syP@ssw0rd";
     private readonly int _hostPort;
 
     private int _db;
@@ -53,8 +54,6 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
     {
         return CreateConnectionStringBuilder("master", _hostPort);
     }
-
-    private const string Password = "E@syP@ssw0rd";
 
     private class SqlServerContainerConfiguration : DockerContainerConfiguration
     {

@@ -33,6 +33,8 @@ public class ZipArchiveDbaseEntryTranslatorTests
 
     private class FakeDbaseRecord : DbaseRecord
     {
+        private static readonly FakeDbaseSchema Schema = new();
+
         public FakeDbaseRecord()
         {
             Field = new DbaseNumber(Schema.Field);
@@ -56,8 +58,6 @@ public class ZipArchiveDbaseEntryTranslatorTests
         {
             return Field.GetHashCode();
         }
-
-        private static readonly FakeDbaseSchema Schema = new();
     }
 
     private class FakeDbaseRecordTranslator : IZipArchiveDbaseRecordsTranslator<FakeDbaseRecord>

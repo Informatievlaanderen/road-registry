@@ -35,6 +35,8 @@ using SqlStreamStore;
 
 public class Program
 {
+    private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);
+
     protected Program()
     {
     }
@@ -250,6 +252,4 @@ public class Program
             Log.CloseAndFlush();
         }
     }
-
-    private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);
 }

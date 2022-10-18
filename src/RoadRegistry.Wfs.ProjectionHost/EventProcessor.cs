@@ -21,6 +21,23 @@ using SqlStreamStore.Streams;
 
 public class EventProcessor
 {
+    private const int CatchUpBatchSize = 5000;
+
+    private const string QueueName = "roadregistry-wfs-projectionhost";
+
+    private const int SynchronizeWithCacheBatchSize = 5000;
+
+    public static readonly EventMapping EventMapping =
+        new(
+            new List<IReadOnlyDictionary<string, Type>>
+            {
+                EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly),
+                EventMapping.DiscoverEventNamesInAssembly(typeof(SynchronizeWithStreetNameCache).Assembly)
+            }.SelectMany(dict => dict).ToDictionary(x => x.Key, x => x.Value));
+
+    public static readonly JsonSerializerSettings SerializerSettings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
     private readonly Func<WfsContext> _dbContextFactory;
     private readonly EnvelopeFactory _envelopeFactory;
     private readonly AcceptStreamMessageFilter _filter;
@@ -132,18 +149,6 @@ public class EventProcessor
         await context.DisposeAsync().ConfigureAwait(false);
     }
 
-    private const int CatchUpBatchSize = 5000;
-
-    public static readonly EventMapping EventMapping =
-        new(
-            new List<IReadOnlyDictionary<string, Type>>
-            {
-                EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly),
-                EventMapping.DiscoverEventNamesInAssembly(typeof(SynchronizeWithStreetNameCache).Assembly)
-            }.SelectMany(dict => dict).ToDictionary(x => x.Key, x => x.Value));
-
-    private const string QueueName = "roadregistry-wfs-projectionhost";
-
     public async Task Resume(CancellationToken token)
     {
         _logger.LogInformation("Resuming ...");
@@ -165,9 +170,6 @@ public class EventProcessor
             await _metadataUpdater.UpdateAsync(token).ConfigureAwait(false);
         }
     }
-
-    public static readonly JsonSerializerSettings SerializerSettings =
-        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     private async Task SynchronizeWithCache(CancellationToken token)
     {
@@ -235,6 +237,4 @@ public class EventProcessor
         _logger.LogInformation("No more updates in street name cache.");
         await syncWithCacheContext.DisposeAsync().ConfigureAwait(false);
     }
-
-    private const int SynchronizeWithCacheBatchSize = 5000;
 }

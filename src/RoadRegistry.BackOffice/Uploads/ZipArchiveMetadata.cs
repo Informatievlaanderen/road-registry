@@ -4,13 +4,14 @@ using System;
 
 public sealed class ZipArchiveMetadata
 {
+    public static readonly ZipArchiveMetadata Empty = new(null);
+
     private ZipArchiveMetadata(DownloadId? downloadId)
     {
         DownloadId = downloadId;
     }
 
     public DownloadId? DownloadId { get; }
-    public static readonly ZipArchiveMetadata Empty = new(null);
 
     public override bool Equals(object obj)
     {

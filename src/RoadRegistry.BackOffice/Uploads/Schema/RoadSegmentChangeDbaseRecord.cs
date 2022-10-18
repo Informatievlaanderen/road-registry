@@ -4,6 +4,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentChangeDbaseRecord : DbaseRecord
 {
+    public static readonly RoadSegmentChangeDbaseSchema Schema = new();
+
     public RoadSegmentChangeDbaseRecord()
     {
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
@@ -59,7 +61,6 @@ public class RoadSegmentChangeDbaseRecord : DbaseRecord
     public DbaseInt16 RECORDTYPE { get; }
 
     public DbaseNullableInt32 RSTRNMID { get; }
-    public static readonly RoadSegmentChangeDbaseSchema Schema = new();
 
     public DbaseInt32 STATUS { get; }
 

@@ -8,12 +8,12 @@ using Messages;
 
 public class RoadNetworkChangesArchive : EventSourcedEntity
 {
+    public static readonly Func<RoadNetworkChangesArchive> Factory = () => new RoadNetworkChangesArchive();
+
     private RoadNetworkChangesArchive()
     {
         On<RoadNetworkChangesArchiveUploaded>(e => { Id = new ArchiveId(e.ArchiveId); });
     }
-
-    public static readonly Func<RoadNetworkChangesArchive> Factory = () => new RoadNetworkChangesArchive();
 
     public ArchiveId Id { get; private set; }
 

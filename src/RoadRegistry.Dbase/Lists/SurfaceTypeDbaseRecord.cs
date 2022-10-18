@@ -6,6 +6,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class SurfaceTypeDbaseRecord : DbaseRecord
 {
+    public static readonly SurfaceTypeDbaseSchema Schema = new();
+
     public SurfaceTypeDbaseRecord()
     {
         TYPE = new DbaseInt32(Schema.TYPE);
@@ -20,7 +22,6 @@ public class SurfaceTypeDbaseRecord : DbaseRecord
 
     public DbaseString DEFTYPE { get; }
     public DbaseString LBLTYPE { get; }
-    public static readonly SurfaceTypeDbaseSchema Schema = new();
 
     public DbaseInt32 TYPE { get; }
 }

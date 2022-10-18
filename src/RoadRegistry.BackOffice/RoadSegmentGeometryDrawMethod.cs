@@ -8,14 +8,6 @@ using System.Linq;
 
 public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeometryDrawMethod>
 {
-    private readonly string _value;
-
-    private RoadSegmentGeometryDrawMethod(string value, DutchTranslation dutchTranslation)
-    {
-        _value = value;
-        Translation = dutchTranslation;
-    }
-
     public static readonly RoadSegmentGeometryDrawMethod Measured =
         new(
             nameof(Measured),
@@ -53,6 +45,14 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentGeometryDrawMethod> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
+
+    private readonly string _value;
+
+    private RoadSegmentGeometryDrawMethod(string value, DutchTranslation dutchTranslation)
+    {
+        _value = value;
+        Translation = dutchTranslation;
+    }
 
     public static bool CanParse(string value)
     {

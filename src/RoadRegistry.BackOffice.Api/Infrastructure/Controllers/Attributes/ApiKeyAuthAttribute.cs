@@ -17,6 +17,10 @@ using Newtonsoft.Json;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
 {
+    private const string ApiKeyHeaderName = "x-api-key";
+    private const string ApiKeyQueryName = "apikey";
+    private const string ApiTokenHeaderName = "x-api-token";
+
     private readonly string _requiredAccess;
 
     public ApiKeyAuthAttribute(string requiredAccess)
@@ -24,12 +28,7 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
         _requiredAccess = requiredAccess;
     }
 
-    private const string ApiKeyHeaderName = "x-api-key";
-    private const string ApiKeyQueryName = "apikey";
-
     internal record ApiToken([JsonProperty("clientname")] string ClientName, [JsonProperty("apikey")] string ApiKey, [JsonProperty("metadata")] ApiTokenMetadata Metadata);
-
-    private const string ApiTokenHeaderName = "x-api-token";
 
     internal record ApiTokenMetadata([JsonProperty("wraccess")] bool WrAccess, [JsonProperty("syncaccess")] bool SyncAccess, [JsonProperty("ticketsaccess")] bool TicketsAccess = false);
 

@@ -6,6 +6,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class GradeSeparatedJunctionTypeDbaseRecord : DbaseRecord
 {
+    public static readonly GradeSeparatedJunctionTypeDbaseSchema Schema = new();
+
     public GradeSeparatedJunctionTypeDbaseRecord()
     {
         TYPE = new DbaseInt32(Schema.TYPE);
@@ -20,7 +22,6 @@ public class GradeSeparatedJunctionTypeDbaseRecord : DbaseRecord
 
     public DbaseString DEFTYPE { get; }
     public DbaseString LBLTYPE { get; }
-    public static readonly GradeSeparatedJunctionTypeDbaseSchema Schema = new();
 
     public DbaseInt32 TYPE { get; }
 }

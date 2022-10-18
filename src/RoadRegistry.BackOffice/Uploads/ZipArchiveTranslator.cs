@@ -11,6 +11,23 @@ using Schema.V1;
 
 public class ZipArchiveTranslator : IZipArchiveTranslator
 {
+    private static readonly string[] TranslationOrder =
+    {
+        // MC Hammer Style
+        "TRANSACTIEZONES.DBF",
+        "WEGKNOOP_ALL.DBF",
+        "WEGKNOOP_ALL.SHP",
+        "WEGSEGMENT_ALL.DBF",
+        "ATTRIJSTROKEN_ALL.DBF",
+        "ATTWEGBREEDTE_ALL.DBF",
+        "ATTWEGVERHARDING_ALL.DBF",
+        "WEGSEGMENT_ALL.SHP",
+        "ATTEUROPWEG_ALL.DBF",
+        "ATTNATIONWEG_ALL.DBF",
+        "ATTGENUMWEG_ALL.DBF",
+        "RLTOGKRUISING_ALL.DBF"
+    };
+
     private readonly Dictionary<string, IZipArchiveEntryTranslator> _translators;
 
     public ZipArchiveTranslator(Encoding encoding)
@@ -132,21 +149,4 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                 TranslatedChanges.Empty,
                 (changes, entry) => _translators[entry.FullName].Translate(entry, changes));
     }
-
-    private static readonly string[] TranslationOrder =
-    {
-        // MC Hammer Style
-        "TRANSACTIEZONES.DBF",
-        "WEGKNOOP_ALL.DBF",
-        "WEGKNOOP_ALL.SHP",
-        "WEGSEGMENT_ALL.DBF",
-        "ATTRIJSTROKEN_ALL.DBF",
-        "ATTWEGBREEDTE_ALL.DBF",
-        "ATTWEGVERHARDING_ALL.DBF",
-        "WEGSEGMENT_ALL.SHP",
-        "ATTEUROPWEG_ALL.DBF",
-        "ATTNATIONWEG_ALL.DBF",
-        "ATTGENUMWEG_ALL.DBF",
-        "RLTOGKRUISING_ALL.DBF"
-    };
 }

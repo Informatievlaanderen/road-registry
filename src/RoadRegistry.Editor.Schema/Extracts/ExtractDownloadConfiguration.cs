@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDownloadRecord>
 {
+    private const string TableName = "ExtractDownload";
+
     public void Configure(EntityTypeBuilder<ExtractDownloadRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.EditorSchema)
@@ -20,6 +22,4 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
         b.Property(p => p.Available).IsRequired();
         b.Property(p => p.AvailableOn).IsRequired();
     }
-
-    private const string TableName = "ExtractDownload";
 }

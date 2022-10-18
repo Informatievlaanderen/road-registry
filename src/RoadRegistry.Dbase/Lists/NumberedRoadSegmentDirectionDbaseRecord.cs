@@ -6,6 +6,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class NumberedRoadSegmentDirectionDbaseRecord : DbaseRecord
 {
+    public static readonly NumberedRoadSegmentDirectionDbaseSchema Schema = new();
+
     public NumberedRoadSegmentDirectionDbaseRecord()
     {
         RICHTING = new DbaseInt32(Schema.RICHTING);
@@ -22,5 +24,4 @@ public class NumberedRoadSegmentDirectionDbaseRecord : DbaseRecord
     public DbaseString LBLRICHT { get; }
 
     public DbaseInt32 RICHTING { get; }
-    public static readonly NumberedRoadSegmentDirectionDbaseSchema Schema = new();
 }

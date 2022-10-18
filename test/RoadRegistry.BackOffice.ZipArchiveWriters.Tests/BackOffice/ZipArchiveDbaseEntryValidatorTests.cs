@@ -42,6 +42,8 @@ public class ZipArchiveDbaseEntryValidatorTests
 
     private class FakeDbaseRecord : DbaseRecord
     {
+        private static readonly FakeDbaseSchema Schema = new();
+
         public FakeDbaseRecord()
         {
             Field = new DbaseNumber(Schema.Field);
@@ -65,8 +67,6 @@ public class ZipArchiveDbaseEntryValidatorTests
         {
             return Field.GetHashCode();
         }
-
-        private static readonly FakeDbaseSchema Schema = new();
     }
 
     private class FakeDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>

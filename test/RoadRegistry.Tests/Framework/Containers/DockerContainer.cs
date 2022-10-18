@@ -7,6 +7,20 @@ using Xunit;
 
 public abstract class DockerContainer : IAsyncLifetime
 {
+    private const string UnixPipe = "unix:///var/run/docker.sock";
+    private const string WindowsPipe = "npipe://./pipe/docker_engine";
+
+    private static readonly Uri DockerUri =
+        new(
+            Environment.GetEnvironmentVariable("DOCKER_HOST") ??
+            (
+                Environment.OSVersion.Platform.Equals(PlatformID.Unix)
+                    ? UnixPipe
+                    : WindowsPipe
+            )
+        );
+
+    private static readonly DockerClientConfiguration DockerClientConfiguration = new(DockerUri);
     private readonly DockerClient _client;
 
     protected DockerContainer()
@@ -74,18 +88,6 @@ public abstract class DockerContainer : IAsyncLifetime
 
         _client.Dispose();
     }
-
-    private static readonly Uri DockerUri =
-        new(
-            Environment.GetEnvironmentVariable("DOCKER_HOST") ??
-            (
-                Environment.OSVersion.Platform.Equals(PlatformID.Unix)
-                    ? UnixPipe
-                    : WindowsPipe
-            )
-        );
-
-    private static readonly DockerClientConfiguration DockerClientConfiguration = new(DockerUri);
 
 
     private async Task<bool> ImageExists()
@@ -189,7 +191,4 @@ public abstract class DockerContainer : IAsyncLifetime
             .FirstOrDefault(container => container.State != "exited")
             ?.ID;
     }
-
-    private const string UnixPipe = "unix:///var/run/docker.sock";
-    private const string WindowsPipe = "npipe://./pipe/docker_engine";
 }

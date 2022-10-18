@@ -37,11 +37,11 @@ using ZipArchiveWriters.Validation;
 
 public class Program
 {
+    private static IServiceCollection _serviceCollection = new ServiceCollection();
+
     protected Program()
     {
     }
-
-    private static IServiceCollection _serviceCollection = new ServiceCollection();
 
     private static void ConfigureContainer(ContainerBuilder builder)
     {

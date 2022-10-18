@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class OrganizationConfiguration : IEntityTypeConfiguration<OrganizationRecord>
 {
+    public const string TableName = "Organization";
+
     public void Configure(EntityTypeBuilder<OrganizationRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.ProductSchema)
@@ -17,6 +19,4 @@ public class OrganizationConfiguration : IEntityTypeConfiguration<OrganizationRe
         b.Property(p => p.SortableCode).IsRequired();
         b.Property(p => p.DbaseRecord).IsRequired();
     }
-
-    public const string TableName = "Organization";
 }

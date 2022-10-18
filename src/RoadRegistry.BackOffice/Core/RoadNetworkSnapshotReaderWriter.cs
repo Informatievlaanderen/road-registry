@@ -11,6 +11,11 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoadNetworkSnapshotWriter
 {
+    public static readonly MetadataKey AtVersionKey = new("at-version");
+    private static readonly ContentType MessagePackContentType = ContentType.Parse("application/msgpack");
+
+    private static readonly BlobName SnapshotHead = new("roadnetworksnapshot-HEAD");
+    private static readonly BlobName SnapshotPrefix = new("roadnetworksnapshot-");
     private readonly IBlobClient _client;
     private readonly RecyclableMemoryStreamManager _streamManager;
 
@@ -19,9 +24,6 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _streamManager = streamManager ?? throw new ArgumentNullException(nameof(streamManager));
     }
-
-    public static readonly MetadataKey AtVersionKey = new("at-version");
-    private static readonly ContentType MessagePackContentType = ContentType.Parse("application/msgpack");
 
     public async Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
     {
@@ -78,9 +80,6 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
                 cancellationToken);
         }
     }
-
-    private static readonly BlobName SnapshotHead = new("roadnetworksnapshot-HEAD");
-    private static readonly BlobName SnapshotPrefix = new("roadnetworksnapshot-");
 
     public async Task WriteSnapshot(RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken)
     {

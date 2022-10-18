@@ -9,6 +9,9 @@ using Messages;
 
 public class RoadNetwork : EventSourcedEntity
 {
+    public static readonly Func<IRoadNetworkView, RoadNetwork> Factory =
+        view => new RoadNetwork(view);
+
     private IRoadNetworkView _view;
 
     private RoadNetwork(IRoadNetworkView view)
@@ -87,9 +90,6 @@ public class RoadNetwork : EventSourcedEntity
                     .ToArray()
             });
     }
-
-    public static readonly Func<IRoadNetworkView, RoadNetwork> Factory =
-        view => new RoadNetwork(view);
 
     private sealed class NextAttributeIdProvider
     {

@@ -21,6 +21,7 @@ public interface IRegistryAtomFeedReader
 
 public class RegistryAtomFeedReader : IRegistryAtomFeedReader
 {
+    public const string HttpClientName = "registryFeedClient";
     private readonly HttpClient _httpClient;
     private readonly ILogger _logger;
 
@@ -29,8 +30,6 @@ public class RegistryAtomFeedReader : IRegistryAtomFeedReader
         _logger = loggerFactory.CreateLogger<RegistryAtomFeedReader>();
         _httpClient = httpClientFactory.CreateClient(HttpClientName);
     }
-
-    public const string HttpClientName = "registryFeedClient";
 
     public async Task<IEnumerable<IAtomEntry>> ReadEntriesAsync(
         Uri feedUrl,

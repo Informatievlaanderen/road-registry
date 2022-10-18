@@ -6,14 +6,6 @@ using System.Linq;
 
 public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJunctionType>
 {
-    private readonly string _value;
-
-    private GradeSeparatedJunctionType(string value, DutchTranslation dutchTranslation)
-    {
-        _value = value;
-        Translation = dutchTranslation;
-    }
-
     public static readonly GradeSeparatedJunctionType Bridge =
         new(
             nameof(Bridge),
@@ -52,6 +44,14 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
 
     public static readonly IReadOnlyDictionary<int, GradeSeparatedJunctionType> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
+
+    private readonly string _value;
+
+    private GradeSeparatedJunctionType(string value, DutchTranslation dutchTranslation)
+    {
+        _value = value;
+        Translation = dutchTranslation;
+    }
 
     public static bool CanParse(string value)
     {

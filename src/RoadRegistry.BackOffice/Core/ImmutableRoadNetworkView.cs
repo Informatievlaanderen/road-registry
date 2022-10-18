@@ -9,6 +9,24 @@ using NetTopologySuite.Geometries;
 
 public class ImmutableRoadNetworkView : IRoadNetworkView
 {
+    public static readonly ImmutableRoadNetworkView Empty = new(
+        ImmutableDictionary<RoadNodeId, RoadNode>.Empty,
+        ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty,
+        ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction>.Empty,
+        new TransactionId(0),
+        new RoadNodeId(0),
+        new RoadSegmentId(0),
+        new GradeSeparatedJunctionId(0),
+        new AttributeId(0),
+        new AttributeId(0),
+        new AttributeId(0),
+        new AttributeId(0),
+        new AttributeId(0),
+        new AttributeId(0),
+        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
+        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
+        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty);
+
     private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
     private readonly AttributeId _maximumEuropeanRoadAttributeId;
     private readonly GradeSeparatedJunctionId _maximumGradeSeparatedJunctionId;
@@ -1031,24 +1049,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             junctions,
             this);
     }
-
-    public static readonly ImmutableRoadNetworkView Empty = new(
-        ImmutableDictionary<RoadNodeId, RoadNode>.Empty,
-        ImmutableDictionary<RoadSegmentId, RoadSegment>.Empty,
-        ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction>.Empty,
-        new TransactionId(0),
-        new RoadNodeId(0),
-        new RoadSegmentId(0),
-        new GradeSeparatedJunctionId(0),
-        new AttributeId(0),
-        new AttributeId(0),
-        new AttributeId(0),
-        new AttributeId(0),
-        new AttributeId(0),
-        new AttributeId(0),
-        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
-        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty,
-        ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Empty);
 
     private ImmutableRoadNetworkView Given(ImportedRoadNode @event)
     {

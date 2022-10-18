@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
 {
+    public const string TableName = "Wegknoop";
+
     public void Configure(EntityTypeBuilder<RoadNodeRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.WfsSchema)
@@ -29,6 +31,4 @@ public class RoadNodeConfiguration : IEntityTypeConfiguration<RoadNodeRecord>
             .HasColumnName("puntGeometrie")
             .HasColumnType("Geometry");
     }
-
-    public const string TableName = "Wegknoop";
 }

@@ -14,6 +14,12 @@ using Microsoft.Extensions.Logging;
 /// <exception cref="UnsupportedMediaTypeException"></exception>
 public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractRequest, UploadExtractResponse>
 {
+    private static readonly ContentType[] SupportedContentTypes =
+    {
+        ContentType.Parse("application/zip"),
+        ContentType.Parse("application/x-zip-compressed")
+    };
+
     private readonly RoadNetworkFeatureCompareBlobClient _client;
 
     public UploadExtractRequestHandler(
@@ -54,10 +60,4 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
         return new UploadExtractResponse(archiveId);
     }
-
-    private static readonly ContentType[] SupportedContentTypes =
-    {
-        ContentType.Parse("application/zip"),
-        ContentType.Parse("application/x-zip-compressed")
-    };
 }

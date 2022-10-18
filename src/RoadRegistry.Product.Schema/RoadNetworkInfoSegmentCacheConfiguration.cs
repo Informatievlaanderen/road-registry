@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class RoadNetworkInfoSegmentCacheConfiguration : IEntityTypeConfiguration<RoadNetworkInfoSegmentCache>
 {
+    public const string TableName = "RoadNetworkInfoSegmentCache";
+
     public void Configure(EntityTypeBuilder<RoadNetworkInfoSegmentCache> b)
     {
         b.ToTable(TableName, WellknownSchemas.ProductSchema)
@@ -23,6 +25,4 @@ public class RoadNetworkInfoSegmentCacheConfiguration : IEntityTypeConfiguration
         b.Property(p => p.PartOfNationalRoadsLength);
         b.Property(p => p.PartOfNumberedRoadsLength);
     }
-
-    public const string TableName = "RoadNetworkInfoSegmentCache";
 }

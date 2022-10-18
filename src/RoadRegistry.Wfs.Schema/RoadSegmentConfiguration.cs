@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentRecord>
 {
+    public const string TableName = "Wegsegment";
+
     public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.WfsSchema)
@@ -73,6 +75,4 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
             .HasColumnName("labelWegbeheerder")
             .HasColumnType("varchar(64)");
     }
-
-    public const string TableName = "Wegsegment";
 }

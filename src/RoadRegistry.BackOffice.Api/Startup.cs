@@ -24,6 +24,7 @@ using Microsoft.OpenApi.Models;
 
 public class Startup
 {
+    private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
 
     private IContainer _applicationContainer;
@@ -174,8 +175,6 @@ public class Startup
 
         return new AutofacServiceProvider(_applicationContainer);
     }
-
-    private const string DatabaseTag = "db";
 
     private static string GetApiLeadingText(ApiVersionDescription description)
     {

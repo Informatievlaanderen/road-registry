@@ -6,14 +6,6 @@ using System.Linq;
 
 public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirection>
 {
-    private readonly string _value;
-
-    private RoadSegmentLaneDirection(string value, DutchTranslation dutchTranslation)
-    {
-        _value = value;
-        Translation = dutchTranslation;
-    }
-
     public static readonly RoadSegmentLaneDirection Backward =
         new(
             nameof(Backward),
@@ -62,6 +54,14 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentLaneDirection> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
+
+    private readonly string _value;
+
+    private RoadSegmentLaneDirection(string value, DutchTranslation dutchTranslation)
+    {
+        _value = value;
+        Translation = dutchTranslation;
+    }
 
     public static bool CanParse(string value)
     {

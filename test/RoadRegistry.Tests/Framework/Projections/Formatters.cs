@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 
 public static class Formatters
 {
+    private static readonly JsonConverter[] Converters;
+
     static Formatters()
     {
         Converters = new JsonConverter[]
@@ -13,8 +15,6 @@ public static class Formatters
             new CoordinateConverter()
         };
     }
-
-    private static readonly JsonConverter[] Converters;
 
     public static string NamedJsonMessage<T>(T message)
     {

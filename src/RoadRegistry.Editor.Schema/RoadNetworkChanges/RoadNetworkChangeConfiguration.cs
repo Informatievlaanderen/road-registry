@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class RoadNetworkChangeConfiguration : IEntityTypeConfiguration<RoadNetworkChange>
 {
+    public const string TableName = "RoadNetworkChange";
+
     public void Configure(EntityTypeBuilder<RoadNetworkChange> b)
     {
         b.ToTable(TableName, WellknownSchemas.EditorSchema)
@@ -18,6 +20,4 @@ public class RoadNetworkChangeConfiguration : IEntityTypeConfiguration<RoadNetwo
         b.Property(p => p.Content).IsRequired(false);
         b.Property(p => p.When).IsRequired();
     }
-
-    public const string TableName = "RoadNetworkChange";
 }

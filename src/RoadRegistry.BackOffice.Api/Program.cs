@@ -42,6 +42,8 @@ using ZipArchiveWriters.Validation;
 
 public class Program
 {
+    public const int HostingPort = 10002;
+
     protected Program()
     {
     }
@@ -266,8 +268,6 @@ public class Program
             });
         return webHostBuilder;
     }
-
-    public const int HostingPort = 10002;
 
     public static async Task Main(string[] args)
     {

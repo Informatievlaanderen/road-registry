@@ -12,6 +12,9 @@ using SqlStreamStore.Streams;
 
 public class Organizations : IOrganizations
 {
+    public static readonly Func<OrganizationId, StreamName> ToStreamName =
+        id => new StreamName(id.ToString()).WithPrefix("organization-");
+
     private readonly EventSourcedEntityMap _map;
     private readonly EventMapping _mapping;
     private readonly JsonSerializerSettings _settings;
@@ -24,9 +27,6 @@ public class Organizations : IOrganizations
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
     }
-
-    public static readonly Func<OrganizationId, StreamName> ToStreamName =
-        id => new StreamName(id.ToString()).WithPrefix("organization-");
 
     public async Task<Organization> TryGet(OrganizationId id, CancellationToken ct = default)
     {

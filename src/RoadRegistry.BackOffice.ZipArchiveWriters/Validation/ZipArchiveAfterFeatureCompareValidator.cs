@@ -12,6 +12,24 @@ using Uploads.Schema.V1;
 /// </summary>
 public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCompareValidator
 {
+    private static readonly string[] ValidationOrder =
+    {
+        "TRANSACTIEZONES.DBF",
+        "WEGKNOOP_ALL.DBF",
+        "WEGKNOOP_ALL.SHP",
+        "WEGKNOOP_ALL.PRJ",
+        "WEGSEGMENT_ALL.DBF",
+        "ATTRIJSTROKEN_ALL.DBF",
+        "ATTWEGBREEDTE_ALL.DBF",
+        "ATTWEGVERHARDING_ALL.DBF",
+        "WEGSEGMENT_ALL.SHP",
+        "WEGSEGMENT_ALL.PRJ",
+        "ATTEUROPWEG_ALL.DBF",
+        "ATTNATIONWEG_ALL.DBF",
+        "ATTGENUMWEG_ALL.DBF",
+        "RLTOGKRUISING_ALL.DBF"
+    };
+
     private readonly Dictionary<string, IZipArchiveEntryValidator> _validators;
 
     public ZipArchiveAfterFeatureCompareValidator(Encoding encoding)
@@ -191,22 +209,4 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
 
         return problems;
     }
-
-    private static readonly string[] ValidationOrder =
-    {
-        "TRANSACTIEZONES.DBF",
-        "WEGKNOOP_ALL.DBF",
-        "WEGKNOOP_ALL.SHP",
-        "WEGKNOOP_ALL.PRJ",
-        "WEGSEGMENT_ALL.DBF",
-        "ATTRIJSTROKEN_ALL.DBF",
-        "ATTWEGBREEDTE_ALL.DBF",
-        "ATTWEGVERHARDING_ALL.DBF",
-        "WEGSEGMENT_ALL.SHP",
-        "WEGSEGMENT_ALL.PRJ",
-        "ATTEUROPWEG_ALL.DBF",
-        "ATTNATIONWEG_ALL.DBF",
-        "ATTGENUMWEG_ALL.DBF",
-        "RLTOGKRUISING_ALL.DBF"
-    };
 }

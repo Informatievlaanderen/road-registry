@@ -8,6 +8,7 @@ using NetTopologySuite.Geometries;
 
 public class RoadNetworkExtract : EventSourcedEntity
 {
+    public static readonly Func<RoadNetworkExtract> Factory = () => new RoadNetworkExtract();
     private readonly HashSet<DownloadId> _announcedDownloads;
     private readonly HashSet<UploadId> _knownUploads;
 
@@ -52,8 +53,6 @@ public class RoadNetworkExtract : EventSourcedEntity
                 ArchiveId = archiveId
             });
     }
-
-    public static readonly Func<RoadNetworkExtract> Factory = () => new RoadNetworkExtract();
 
     public ExtractRequestId Id { get; private set; }
 

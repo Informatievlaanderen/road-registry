@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentRecord>
 {
+    public const string TableName = "wegsegmentDenorm";
+
     public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.WmsSchema)
@@ -61,6 +63,4 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
         b.HasIndex(p => p.StreetNameCachePosition).IsClustered(false);
     }
-
-    public const string TableName = "wegsegmentDenorm";
 }

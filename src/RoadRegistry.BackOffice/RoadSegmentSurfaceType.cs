@@ -6,14 +6,6 @@ using System.Linq;
 
 public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
 {
-    private readonly string _value;
-
-    private RoadSegmentSurfaceType(string value, DutchTranslation dutchTranslation)
-    {
-        _value = value;
-        Translation = dutchTranslation;
-    }
-
     public static readonly RoadSegmentSurfaceType LooseSurface =
         new(
             nameof(LooseSurface),
@@ -61,6 +53,14 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentSurfaceType> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
+
+    private readonly string _value;
+
+    private RoadSegmentSurfaceType(string value, DutchTranslation dutchTranslation)
+    {
+        _value = value;
+        Translation = dutchTranslation;
+    }
 
     public static bool CanParse(string value)
     {

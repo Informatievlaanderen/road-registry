@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 
 public class Problems : IReadOnlyCollection<Problem>
 {
+    public static readonly Problems None = new(ImmutableList<Problem>.Empty);
     private readonly ImmutableList<Problem> _problems;
 
     private Problems(ImmutableList<Problem> problems)
@@ -57,8 +58,6 @@ public class Problems : IReadOnlyCollection<Problem>
 
         return None.AddRange(problems);
     }
-
-    public static readonly Problems None = new(ImmutableList<Problem>.Empty);
 
     public static Problems operator +(Problems left, Problem right)
     {

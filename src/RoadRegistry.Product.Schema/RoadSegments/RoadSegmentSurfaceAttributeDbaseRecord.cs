@@ -4,6 +4,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
 {
+    public static readonly RoadSegmentSurfaceAttributeDbaseSchema Schema = new();
+
     public RoadSegmentSurfaceAttributeDbaseRecord()
     {
         WV_OIDN = new DbaseInt32(Schema.WV_OIDN);
@@ -36,7 +38,6 @@ public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
     public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseString LBLBGNORG { get; set; }
     public DbaseString LBLTYPE { get; set; }
-    public static readonly RoadSegmentSurfaceAttributeDbaseSchema Schema = new();
     public DbaseDouble TOTPOS { get; set; }
     public DbaseInt32 TYPE { get; set; }
     public DbaseDouble VANPOS { get; set; }

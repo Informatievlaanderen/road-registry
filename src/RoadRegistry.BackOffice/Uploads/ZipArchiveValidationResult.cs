@@ -8,6 +8,10 @@ using System.Linq;
 
 public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem>, IEquatable<ZipArchiveValidationResult>
 {
+    public static readonly ZipArchiveValidationResult Ok = new(
+        ZipArchiveProblems.None,
+        ImmutableHashSet<RoadSegmentId>.Empty);
+
     private readonly ZipArchiveProblems _problems;
     private readonly ImmutableHashSet<RoadSegmentId> _segments;
 
@@ -71,10 +75,6 @@ public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem
                ^
                _segments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode());
     }
-
-    public static readonly ZipArchiveValidationResult Ok = new(
-        ZipArchiveProblems.None,
-        ImmutableHashSet<RoadSegmentId>.Empty);
 
     public static ZipArchiveValidationResult operator +(ZipArchiveValidationResult left, FileProblem right)
     {

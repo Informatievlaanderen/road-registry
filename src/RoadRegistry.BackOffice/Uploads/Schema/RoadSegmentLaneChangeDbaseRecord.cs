@@ -4,6 +4,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentLaneChangeDbaseRecord : DbaseRecord
 {
+    public static readonly RoadSegmentLaneChangeDbaseSchema Schema = new();
+
     public RoadSegmentLaneChangeDbaseRecord()
     {
         RS_OIDN = new DbaseInt32(Schema.RS_OIDN);
@@ -35,7 +37,6 @@ public class RoadSegmentLaneChangeDbaseRecord : DbaseRecord
     public DbaseInt16 RICHTING { get; }
 
     public DbaseInt32 RS_OIDN { get; }
-    public static readonly RoadSegmentLaneChangeDbaseSchema Schema = new();
 
     public DbaseDouble TOTPOSITIE { get; }
 

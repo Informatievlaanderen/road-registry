@@ -6,6 +6,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentCategoryDbaseRecord : DbaseRecord
 {
+    public static readonly RoadSegmentCategoryDbaseSchema Schema = new();
+
     public RoadSegmentCategoryDbaseRecord()
     {
         WEGCAT = new DbaseString(Schema.WEGCAT);
@@ -20,7 +22,6 @@ public class RoadSegmentCategoryDbaseRecord : DbaseRecord
 
     public DbaseString DEFWEGCAT { get; }
     public DbaseString LBLWEGCAT { get; }
-    public static readonly RoadSegmentCategoryDbaseSchema Schema = new();
 
     public DbaseString WEGCAT { get; }
 }

@@ -6,6 +6,17 @@ using System.Linq;
 
 public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidationContext>
 {
+    public static readonly ZipArchiveValidationContext Empty = new(
+        ImmutableHashSet<RoadSegmentId>.Empty,
+        ImmutableHashSet<RoadSegmentId>.Empty,
+        ImmutableHashSet<RoadSegmentId>.Empty,
+        ImmutableHashSet<RoadSegmentId>.Empty,
+        ImmutableHashSet<RoadNodeId>.Empty,
+        ImmutableHashSet<RoadNodeId>.Empty,
+        ImmutableHashSet<RoadNodeId>.Empty,
+        ImmutableHashSet<RoadNodeId>.Empty,
+        ZipArchiveMetadata.Empty);
+
     private readonly ImmutableHashSet<RoadNodeId> _addedNodes;
     private readonly ImmutableHashSet<RoadSegmentId> _addedSegments;
 
@@ -36,17 +47,6 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
         _removedNodes = removedNodes;
         ZipArchiveMetadata = zipArchiveMetadata;
     }
-
-    public static readonly ZipArchiveValidationContext Empty = new(
-        ImmutableHashSet<RoadSegmentId>.Empty,
-        ImmutableHashSet<RoadSegmentId>.Empty,
-        ImmutableHashSet<RoadSegmentId>.Empty,
-        ImmutableHashSet<RoadSegmentId>.Empty,
-        ImmutableHashSet<RoadNodeId>.Empty,
-        ImmutableHashSet<RoadNodeId>.Empty,
-        ImmutableHashSet<RoadNodeId>.Empty,
-        ImmutableHashSet<RoadNodeId>.Empty,
-        ZipArchiveMetadata.Empty);
 
     public override bool Equals(object obj)
     {

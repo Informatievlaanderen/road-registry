@@ -5,6 +5,8 @@ using FluentValidation;
 
 public class RebuildSnapshotParametersValidator : AbstractValidator<RebuildSnapshotParameters>
 {
+    private static readonly BlobName SnapshotPrefix = new("roadnetworksnapshot-");
+
     public RebuildSnapshotParametersValidator(IBlobClient client)
     {
         RuleFor(x => x.StartFromVersion)
@@ -15,6 +17,4 @@ public class RebuildSnapshotParametersValidator : AbstractValidator<RebuildSnaps
                 return client.BlobExistsAsync(snapshotBlobName, ct);
             });
     }
-
-    private static readonly BlobName SnapshotPrefix = new("roadnetworksnapshot-");
 }

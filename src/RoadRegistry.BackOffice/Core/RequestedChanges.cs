@@ -9,6 +9,21 @@ using NetTopologySuite.Geometries;
 
 public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequestedChangeIdentityTranslator
 {
+    private static readonly HashSet<Type> GradeSeparatedJunctionChanges = new(new[]
+    {
+        typeof(AddGradeSeparatedJunction), typeof(ModifyGradeSeparatedJunction), typeof(RemoveGradeSeparatedJunction)
+    });
+
+    private static readonly HashSet<Type> RoadNodeChanges = new(new[]
+    {
+        typeof(AddRoadNode), typeof(ModifyRoadNode), typeof(RemoveRoadNode)
+    });
+
+    private static readonly HashSet<Type> RoadSegmentChanges = new(new[]
+    {
+        typeof(AddRoadSegment), typeof(ModifyRoadSegment), typeof(RemoveRoadSegment)
+    });
+
     private readonly ImmutableList<IRequestedChange> _changes;
     private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId> _mapToPermanentGradeSeparatedJunctionIdentifiers;
     private readonly ImmutableDictionary<RoadNodeId, RoadNodeId> _mapToPermanentNodeIdentifiers;
@@ -442,21 +457,6 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
     {
         return GetEnumerator();
     }
-
-    private static readonly HashSet<Type> GradeSeparatedJunctionChanges = new(new[]
-    {
-        typeof(AddGradeSeparatedJunction), typeof(ModifyGradeSeparatedJunction), typeof(RemoveGradeSeparatedJunction)
-    });
-
-    private static readonly HashSet<Type> RoadNodeChanges = new(new[]
-    {
-        typeof(AddRoadNode), typeof(ModifyRoadNode), typeof(RemoveRoadNode)
-    });
-
-    private static readonly HashSet<Type> RoadSegmentChanges = new(new[]
-    {
-        typeof(AddRoadSegment), typeof(ModifyRoadSegment), typeof(RemoveRoadSegment)
-    });
 
     public static RequestedChanges Start(TransactionId transactionId)
     {

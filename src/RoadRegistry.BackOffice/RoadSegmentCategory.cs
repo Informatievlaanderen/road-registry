@@ -8,14 +8,6 @@ using System.Linq;
 
 public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 {
-    private readonly string _value;
-
-    private RoadSegmentCategory(string value, DutchTranslation dutchTranslation)
-    {
-        _value = value;
-        Translation = dutchTranslation;
-    }
-
     public static readonly RoadSegmentCategory LocalRoad =
         new(
             nameof(LocalRoad),
@@ -220,6 +212,14 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 
     public static readonly IReadOnlyDictionary<string, RoadSegmentCategory> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier, StringComparer.InvariantCultureIgnoreCase);
+
+    private readonly string _value;
+
+    private RoadSegmentCategory(string value, DutchTranslation dutchTranslation)
+    {
+        _value = value;
+        Translation = dutchTranslation;
+    }
 
     public static bool CanParse(string value)
     {

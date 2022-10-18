@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class RoadNetworkInfoConfiguration : IEntityTypeConfiguration<RoadNetworkInfo>
 {
+    public const string TableName = "RoadNetworkInfo";
+
     public void Configure(EntityTypeBuilder<RoadNetworkInfo> b)
     {
         b.ToTable(TableName, WellknownSchemas.ProductSchema)
@@ -26,6 +28,4 @@ public class RoadNetworkInfoConfiguration : IEntityTypeConfiguration<RoadNetwork
         b.Property(p => p.RoadSegmentNumberedRoadAttributeCount).HasDefaultValue(0).IsRequired();
         b.Property(p => p.GradeSeparatedJunctionCount).HasDefaultValue(0).IsRequired();
     }
-
-    public const string TableName = "RoadNetworkInfo";
 }

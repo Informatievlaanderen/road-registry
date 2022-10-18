@@ -6,6 +6,8 @@ using Messages;
 
 public class Organization : EventSourcedEntity
 {
+    public static readonly Func<Organization> Factory = () => new Organization();
+
     private Organization()
     {
         On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
@@ -22,8 +24,6 @@ public class Organization : EventSourcedEntity
         public OrganizationId Identifier { get; }
         public OrganizationName Name { get; }
     }
-
-    public static readonly Func<Organization> Factory = () => new Organization();
 
     public static class PredefinedTranslations
     {

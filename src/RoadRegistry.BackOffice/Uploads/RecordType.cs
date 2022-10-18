@@ -6,13 +6,16 @@ using System.Linq;
 
 public sealed class RecordType : IEquatable<RecordType>
 {
-    private readonly string _value;
+    public const int AddedIdentifier = 2;
 
-    private RecordType(string value, DutchTranslation dutchTranslation)
-    {
-        _value = value;
-        Translation = dutchTranslation;
-    }
+
+    public const int IdenticalIdentifier = 1;
+
+
+    public const int ModifiedIdentifier = 3;
+
+
+    public const int RemovedIdentifier = 4;
 
     public static readonly RecordType Identical =
         new(
@@ -33,8 +36,6 @@ public sealed class RecordType : IEquatable<RecordType>
                 "Het record werd toegevoegd."
             )
         );
-
-    public const int AddedIdentifier = 2;
 
     public static readonly RecordType Modified =
         new(
@@ -63,6 +64,14 @@ public sealed class RecordType : IEquatable<RecordType>
 
     public static readonly IReadOnlyDictionary<int, RecordType> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
+
+    private readonly string _value;
+
+    private RecordType(string value, DutchTranslation dutchTranslation)
+    {
+        _value = value;
+        Translation = dutchTranslation;
+    }
 
     public static bool CanParse(string value)
     {
@@ -102,16 +111,10 @@ public sealed class RecordType : IEquatable<RecordType>
         return _value.GetHashCode();
     }
 
-
-    public const int IdenticalIdentifier = 1;
-
     public bool IsAnyOf(params RecordType[] these)
     {
         return Array.Exists(these, candidate => candidate == this);
     }
-
-
-    public const int ModifiedIdentifier = 3;
 
     public static bool operator ==(RecordType left, RecordType right)
     {
@@ -135,9 +138,6 @@ public sealed class RecordType : IEquatable<RecordType>
         if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known type of grade separated junction.");
         return parsed;
     }
-
-
-    public const int RemovedIdentifier = 4;
 
     public override string ToString()
     {

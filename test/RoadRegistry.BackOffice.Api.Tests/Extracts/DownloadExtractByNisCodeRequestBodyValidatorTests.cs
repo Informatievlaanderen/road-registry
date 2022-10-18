@@ -11,6 +11,8 @@ using NetTopologySuite.Geometries;
 [Collection(nameof(SqlServerCollection))]
 public class DownloadExtractByNisCodeRequestBodyValidatorTests
 {
+    private const int ValidBuffer = 50;
+    private const string ValidDescription = "description";
     private readonly SqlServer _sqlServerFixture;
 
     public DownloadExtractByNisCodeRequestBodyValidatorTests(SqlServer sqlServerFixture)
@@ -133,9 +135,6 @@ public class DownloadExtractByNisCodeRequestBodyValidatorTests
             await act.Should().ThrowAsync<ValidationException>();
         }
     }
-
-    private const int ValidBuffer = 50;
-    private const string ValidDescription = "description";
 
     public static IEnumerable<object[]> ValidDescriptionCases()
     {

@@ -21,6 +21,14 @@ using SqlStreamStore.Subscriptions;
 
 public class CommandProcessor : IHostedService
 {
+    private static readonly EventMapping CommandMapping =
+        new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
+
+    private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
+
+    private static readonly JsonSerializerSettings SerializerSettings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
     private readonly ILogger<CommandProcessor> _logger;
 
     private readonly Channel<object> _messageChannel;
@@ -181,9 +189,6 @@ public class CommandProcessor : IHostedService
                    dropped.Exception is IOException { InnerException: SqlException { Number: timeout } });
     }
 
-    private static readonly EventMapping CommandMapping =
-        new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
-
     private sealed class ProcessStreamMessage
     {
         private readonly TaskCompletionSource<object> _source;
@@ -208,11 +213,6 @@ public class CommandProcessor : IHostedService
 
         public StreamMessage Message { get; }
     }
-
-    private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
-
-    private static readonly JsonSerializerSettings SerializerSettings =
-        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {

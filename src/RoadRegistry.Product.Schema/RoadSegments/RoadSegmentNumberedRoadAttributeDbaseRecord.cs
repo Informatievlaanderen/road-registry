@@ -4,6 +4,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentNumberedRoadAttributeDbaseRecord : DbaseRecord
 {
+    public static readonly RoadSegmentNumberedRoadAttributeDbaseSchema Schema = new();
+
     public RoadSegmentNumberedRoadAttributeDbaseRecord()
     {
         GW_OIDN = new DbaseInt32(Schema.GW_OIDN);
@@ -38,7 +40,6 @@ public class RoadSegmentNumberedRoadAttributeDbaseRecord : DbaseRecord
     public DbaseString LBLBGNORG { get; }
     public DbaseString LBLRICHT { get; }
     public DbaseInt32 RICHTING { get; }
-    public static readonly RoadSegmentNumberedRoadAttributeDbaseSchema Schema = new();
     public DbaseInt32 VOLGNUMMER { get; }
     public DbaseInt32 WS_OIDN { get; }
 }

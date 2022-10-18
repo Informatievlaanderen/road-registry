@@ -39,11 +39,28 @@ public static class CustomTags
 
 public class Program
 {
+    private const string PersonUserName = "Gebruiker";
+
+    private const string WorkspaceUrlFormat = "https://structurizr.com/workspace/{0}";
     private static string _apiKey;
     private static string _apiSecret;
     private static long _workspaceId;
 
     private static string _workspaceUrlViewFormat;
+
+    private static readonly string ContainerAggregateRootId = Ids.ContainerAggregateRoot.ToString();
+    private static readonly string ContainerApiId = Ids.ContainerApi.ToString();
+    private static readonly string ContainerApiRunnerId = Ids.ContainerApiRunner.ToString();
+    private static readonly string ContainerApiStoreId = Ids.ContainerApiStore.ToString();
+    private static readonly string ContainerEventStoreId = Ids.ContainerEventStore.ToString();
+
+    // This crap is because structurizr.com expects integers for ids, while structurizr.net wants strings
+    private static readonly string PersonUserId = Ids.PersonUser.ToString();
+
+    private static readonly string SoftwareSystemApiId = Ids.SoftwareSystemApi.ToString();
+
+    private static readonly string SoftwareSystemProjectionProducerId = Ids.SoftwareSystemProjectionProducer.ToString();
+    private static readonly string SoftwareSystemRoadRegistryId = Ids.SoftwareSystemRoadRegistry.ToString();
 
     private static void ConfigureStyles(ViewSet views)
     {
@@ -80,12 +97,6 @@ public class Program
         styles.Add(new RelationshipStyle(CustomTags.EntityFramework) { Color = "#9b4473" });
         styles.Add(new RelationshipStyle(CustomTags.SqlStreamStore) { Color = "#448d9b" });
     }
-
-    private static readonly string ContainerAggregateRootId = Ids.ContainerAggregateRoot.ToString();
-    private static readonly string ContainerApiId = Ids.ContainerApi.ToString();
-    private static readonly string ContainerApiRunnerId = Ids.ContainerApiRunner.ToString();
-    private static readonly string ContainerApiStoreId = Ids.ContainerApiStore.ToString();
-    private static readonly string ContainerEventStoreId = Ids.ContainerEventStore.ToString();
 
     private static void CreateApiContainerView(ViewSet views, Model model)
     {
@@ -512,11 +523,6 @@ public class Program
         UploadWorkspaceToStructurizr(workspace);
     }
 
-    // This crap is because structurizr.com expects integers for ids, while structurizr.net wants strings
-    private static readonly string PersonUserId = Ids.PersonUser.ToString();
-
-    private const string PersonUserName = "Gebruiker";
-
     private static void SetPosition(View view, string id, int x, int y)
     {
         var element = view.Elements.Single(e => e.Id == id);
@@ -524,17 +530,10 @@ public class Program
         element.Y = y;
     }
 
-    private static readonly string SoftwareSystemApiId = Ids.SoftwareSystemApi.ToString();
-
-    private static readonly string SoftwareSystemProjectionProducerId = Ids.SoftwareSystemProjectionProducer.ToString();
-    private static readonly string SoftwareSystemRoadRegistryId = Ids.SoftwareSystemRoadRegistry.ToString();
-
     private static void UploadWorkspaceToStructurizr(Workspace workspace)
     {
         var structurizrClient = new StructurizrClient(_apiKey, _apiSecret) { MergeFromRemote = false };
         structurizrClient.PutWorkspace(_workspaceId, workspace);
         Console.WriteLine($"Workspace can be viewed at {string.Format(WorkspaceUrlFormat, _workspaceId)}");
     }
-
-    private const string WorkspaceUrlFormat = "https://structurizr.com/workspace/{0}";
 }

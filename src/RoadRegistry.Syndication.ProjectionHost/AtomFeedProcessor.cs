@@ -14,6 +14,11 @@ using Schema;
 
 public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedService where TConfiguration : ISyndicationFeedConfiguration
 {
+    private const int CatchUpBatchSize = 5000;
+
+    private static readonly TimeSpan CatchUpAfter = TimeSpan.FromMinutes(5);
+
+    private static readonly TimeSpan ResumeAfter = TimeSpan.FromMinutes(5);
     private readonly ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> _logger;
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
@@ -217,14 +222,9 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
         private int BatchSize { get; }
     }
 
-    private static readonly TimeSpan CatchUpAfter = TimeSpan.FromMinutes(5);
-    private const int CatchUpBatchSize = 5000;
-
     private sealed class Resume
     {
     }
-
-    private static readonly TimeSpan ResumeAfter = TimeSpan.FromMinutes(5);
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {

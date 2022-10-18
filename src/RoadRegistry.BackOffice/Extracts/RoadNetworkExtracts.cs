@@ -12,6 +12,7 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworkExtracts : IRoadNetworkExtracts
 {
+    public static readonly StreamName Prefix = new("extract-");
     private readonly EventSourcedEntityMap _map;
     private readonly EventMapping _mapping;
     private readonly JsonSerializerSettings _settings;
@@ -65,8 +66,6 @@ public class RoadNetworkExtracts : IRoadNetworkExtracts
         _map.Attach(new EventSourcedEntityMapEntry(entity, stream, page.LastStreamVersion));
         return (RoadNetworkExtract)entity;
     }
-
-    public static readonly StreamName Prefix = new("extract-");
 
     public static StreamName ToStreamName(ExtractRequestId id)
     {

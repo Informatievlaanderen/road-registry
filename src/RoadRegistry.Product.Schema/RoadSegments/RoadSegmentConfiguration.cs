@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentRecord>
 {
+    private const string TableName = "RoadSegment";
+
     public void Configure(EntityTypeBuilder<RoadSegmentRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.ProductSchema)
@@ -19,6 +21,4 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
         b.OwnsOne(p => p.BoundingBox);
     }
-
-    private const string TableName = "RoadSegment";
 }

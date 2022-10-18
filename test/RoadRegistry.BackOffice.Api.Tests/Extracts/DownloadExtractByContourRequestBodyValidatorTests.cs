@@ -9,6 +9,9 @@ using NetTopologySuite.IO;
 
 public class DownloadExtractByContourRequestBodyValidatorTests
 {
+    private const int ValidBuffer = 50;
+    private const string ValidContour = "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))";
+    private const string ValidDescription = "description";
     private readonly DownloadExtractByContourRequestValidator _validator;
 
     public DownloadExtractByContourRequestBodyValidatorTests()
@@ -87,10 +90,6 @@ public class DownloadExtractByContourRequestBodyValidatorTests
         var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest("invalid", ValidBuffer, ValidDescription));
         await act.Should().ThrowAsync<ValidationException>();
     }
-
-    private const int ValidBuffer = 50;
-    private const string ValidContour = "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))";
-    private const string ValidDescription = "description";
 
     public static IEnumerable<object[]> ValidDescriptionCases()
     {

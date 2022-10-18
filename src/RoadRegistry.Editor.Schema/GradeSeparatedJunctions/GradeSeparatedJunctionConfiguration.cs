@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class GradeSeparatedJunctionConfiguration : IEntityTypeConfiguration<GradeSeparatedJunctionRecord>
 {
+    private const string TableName = "GradeSeparatedJunction";
+
     public void Configure(EntityTypeBuilder<GradeSeparatedJunctionRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.EditorSchema)
@@ -17,6 +19,4 @@ public class GradeSeparatedJunctionConfiguration : IEntityTypeConfiguration<Grad
         b.Property(p => p.LowerRoadSegmentId).IsRequired();
         b.Property(p => p.DbaseRecord).IsRequired();
     }
-
-    private const string TableName = "GradeSeparatedJunction";
 }

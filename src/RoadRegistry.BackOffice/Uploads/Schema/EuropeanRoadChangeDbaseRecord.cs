@@ -4,6 +4,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class EuropeanRoadChangeDbaseRecord : DbaseRecord
 {
+    public static readonly EuropeanRoadChangeDbaseSchema Schema = new();
+
     public EuropeanRoadChangeDbaseRecord()
     {
         EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
@@ -27,7 +29,6 @@ public class EuropeanRoadChangeDbaseRecord : DbaseRecord
     public DbaseString EUNUMMER { get; }
 
     public DbaseInt16 RECORDTYPE { get; }
-    public static readonly EuropeanRoadChangeDbaseSchema Schema = new();
 
     public DbaseInt16 TRANSACTID { get; }
 

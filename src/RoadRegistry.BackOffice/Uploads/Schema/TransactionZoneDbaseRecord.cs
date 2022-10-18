@@ -6,6 +6,8 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public class TransactionZoneDbaseRecord : DbaseRecord
         {
+            public static readonly TransactionZoneDbaseSchema Schema = new();
+
             public TransactionZoneDbaseRecord()
             {
                 SOURCEID = new DbaseInt32(Schema.SOURCEID);
@@ -25,7 +27,6 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             public DbaseString BESCHRIJV { get; }
             public DbaseString OPERATOR { get; }
             public DbaseString ORG { get; }
-            public static readonly TransactionZoneDbaseSchema Schema = new();
 
             public DbaseInt32 SOURCEID { get; }
             public DbaseInt32 TYPE { get; }
@@ -38,6 +39,8 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
 
         public class TransactionZoneDbaseRecord : DbaseRecord
         {
+            public static readonly TransactionZoneDbaseSchema Schema = new();
+
             public TransactionZoneDbaseRecord()
             {
                 SOURCEID = new DbaseInt32(Schema.SOURCEID);
@@ -59,7 +62,6 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             public DbaseString DOWNLOADID { get; }
             public DbaseString OPERATOR { get; }
             public DbaseString ORG { get; }
-            public static readonly TransactionZoneDbaseSchema Schema = new();
 
             public DbaseInt32 SOURCEID { get; }
             public DbaseInt32 TYPE { get; }

@@ -56,19 +56,6 @@ internal class RequestedChangeTranslator
 
     private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>
     {
-        public int Compare(SortableChange left, SortableChange right)
-        {
-            if (left == null) throw new ArgumentNullException(nameof(left));
-            if (right == null) throw new ArgumentNullException(nameof(right));
-
-            var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.Change.GetType());
-            var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.Change.GetType());
-            var comparison = leftRank.CompareTo(rightRank);
-            return comparison != 0
-                ? comparison
-                : left.Ordinal.CompareTo(right.Ordinal);
-        }
-
         private static readonly Type[] SequenceByTypeOfChange =
         {
             typeof(Messages.AddRoadNode),
@@ -87,6 +74,19 @@ internal class RequestedChangeTranslator
             typeof(Messages.RemoveRoadSegment),
             typeof(Messages.RemoveRoadNode)
         };
+
+        public int Compare(SortableChange left, SortableChange right)
+        {
+            if (left == null) throw new ArgumentNullException(nameof(left));
+            if (right == null) throw new ArgumentNullException(nameof(right));
+
+            var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.Change.GetType());
+            var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.Change.GetType());
+            var comparison = leftRank.CompareTo(rightRank);
+            return comparison != 0
+                ? comparison
+                : left.Ordinal.CompareTo(right.Ordinal);
+        }
     }
 
     private sealed class SortableChange

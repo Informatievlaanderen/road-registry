@@ -11,6 +11,7 @@ using NodaTime;
 
 public class Scheduler
 {
+    private static readonly TimeSpan DefaultFrequency = TimeSpan.FromSeconds(1);
     private readonly IClock _clock;
     private readonly ILogger<Scheduler> _logger;
     private readonly Channel<object> _messageChannel;
@@ -96,8 +97,6 @@ public class Scheduler
             }
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
-
-    private static readonly TimeSpan DefaultFrequency = TimeSpan.FromSeconds(1);
 
     public async Task Schedule(Func<CancellationToken, Task> action, TimeSpan due)
     {

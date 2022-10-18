@@ -7,6 +7,8 @@ using Dbase;
 
 public class RoadSegmentDbaseRecord : DbaseRecord
 {
+    public static readonly RoadSegmentDbaseSchema Schema = new();
+
     public RoadSegmentDbaseRecord()
     {
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
@@ -84,7 +86,6 @@ public class RoadSegmentDbaseRecord : DbaseRecord
     public DbaseDateTime OPNDATUM { get; }
     public DbaseString RSTRNM { get; }
     public DbaseNullableInt32 RSTRNMID { get; }
-    public static readonly RoadSegmentDbaseSchema Schema = new();
     public DbaseInt32 STATUS { get; }
     public DbaseInt32 TGBEP { get; }
     public DbaseString WEGCAT { get; }

@@ -4,13 +4,6 @@ using System;
 
 public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
 {
-    private readonly string _value;
-
-    private EuropeanRoadNumber(string value)
-    {
-        _value = value;
-    }
-
     public static readonly EuropeanRoadNumber E17 = new(nameof(E17));
     public static readonly EuropeanRoadNumber E19 = new(nameof(E19));
     public static readonly EuropeanRoadNumber E25 = new(nameof(E25));
@@ -27,6 +20,13 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
         E17, E19, E25, E313, E314, E34,
         E40, E403, E411, E429
     };
+
+    private readonly string _value;
+
+    private EuropeanRoadNumber(string value)
+    {
+        _value = value;
+    }
 
     public static bool CanParse(string value)
     {

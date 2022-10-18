@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 public class TimedEventReader : IEventReader
 {
+    public static readonly int DefaultThreshold = 1000;
     private readonly IEventReader _inner;
     private readonly ILogger<TimedEventReader> _logger;
     private readonly string _name;
@@ -25,8 +26,6 @@ public class TimedEventReader : IEventReader
             ? inner.GetType().Name.Substring(0, inner.GetType().Name.Length - 6)
             : inner.GetType().Name;
     }
-
-    public static readonly int DefaultThreshold = 1000;
 
     public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
     {

@@ -9,6 +9,11 @@ using Core;
 
 public static class DbaseFileProblems
 {
+    private static readonly NumberFormatInfo Provider = new()
+    {
+        NumberDecimalSeparator = "."
+    };
+
     public static FileError BeginRoadNodeIdEqualsEndRoadNode(this IDbaseFileRecordProblemBuilder builder,
         int beginNode,
         int endNode)
@@ -345,11 +350,6 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", value))
             .Build();
     }
-
-    private static readonly NumberFormatInfo Provider = new()
-    {
-        NumberDecimalSeparator = "."
-    };
 
     // record type
 

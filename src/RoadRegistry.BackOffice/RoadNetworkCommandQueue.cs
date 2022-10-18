@@ -13,6 +13,13 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworkCommandQueue : IRoadNetworkCommandQueue
 {
+    private static readonly EventMapping CommandMapping =
+        new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
+
+    private static readonly JsonSerializerSettings SerializerSettings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
+    public static readonly StreamName Stream = new("roadnetwork-command-queue");
     private readonly IStreamStore _store;
 
     public RoadNetworkCommandQueue(IStreamStore store)
@@ -26,18 +33,10 @@ public class RoadNetworkCommandQueue : IRoadNetworkCommandQueue
         public string Value { get; set; }
     }
 
-    private static readonly EventMapping CommandMapping =
-        new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
-
     private sealed class CommandMetadata
     {
         public Claim[] Principal { get; set; }
     }
-
-    private static readonly JsonSerializerSettings SerializerSettings =
-        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
-    public static readonly StreamName Stream = new("roadnetwork-command-queue");
 
     public async Task Write(Command command, CancellationToken cancellationToken)
     {
