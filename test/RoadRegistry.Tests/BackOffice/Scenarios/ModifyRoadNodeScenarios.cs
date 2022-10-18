@@ -629,58 +629,59 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
         TransactionId = Fixture.Create<TransactionId>();
     }
 
+    public AddRoadNode AddEndNode1 { get; }
+    public AddRoadNode AddEndNode2 { get; }
+    public AddRoadNode AddEndNode3 { get; }
+    public AddRoadSegment AddSegment1 { get; }
+    public AddRoadSegment AddSegment2 { get; }
+    public AddRoadSegment AddSegment3 { get; }
+
+    public AddRoadNode AddStartNode1 { get; }
+
+    public AddRoadNode AddStartNode2 { get; }
+
+    public AddRoadNode AddStartNode3 { get; }
+
     public ArchiveId ArchiveId { get; }
-    public ChangeRequestId RequestId { get; }
-    public Reason ReasonForChange { get; }
     public OperatorName ChangedByOperator { get; }
     public OrganizationId ChangedByOrganization { get; }
     public OrganizationName ChangedByOrganizationName { get; }
-    public TransactionId TransactionId { get; }
-
-    public Point StartPoint1 { get; }
-    public Point MiddlePoint1 { get; }
+    public RoadNodeAdded EndNode1Added { get; }
+    public RoadNodeModified EndNode1Modified { get; }
+    public RoadNodeAdded EndNode2Added { get; }
+    public RoadNodeAdded EndNode3Added { get; }
     public Point EndPoint1 { get; }
-    public MultiLineString MultiLineString1 { get; }
-
-    public Point StartPoint2 { get; }
-    public Point MiddlePoint2 { get; }
     public Point EndPoint2 { get; }
-    public MultiLineString MultiLineString2 { get; }
-
-    public Point StartPoint3 { get; }
-    public Point MiddlePoint3 { get; }
     public Point EndPoint3 { get; }
-    public MultiLineString MultiLineString3 { get; }
-
-    public AddRoadNode AddStartNode1 { get; }
-    public AddRoadNode AddEndNode1 { get; }
-    public AddRoadSegment AddSegment1 { get; }
-
-    public ModifyRoadNode ModifyStartNode1 { get; }
-    public RoadNodeModified StartNode1Modified { get; }
+    public Point MiddlePoint1 { get; }
+    public Point MiddlePoint2 { get; }
+    public Point MiddlePoint3 { get; }
 
     public ModifyRoadNode ModifyEndNode1 { get; }
-    public RoadNodeModified EndNode1Modified { get; }
+
+    public ModifyRoadNode ModifyStartNode1 { get; }
+    public MultiLineString MultiLineString1 { get; }
+    public MultiLineString MultiLineString2 { get; }
+    public MultiLineString MultiLineString3 { get; }
+    public Reason ReasonForChange { get; }
+    public ChangeRequestId RequestId { get; }
+    public RoadSegmentAdded Segment1Added { get; }
+    public RoadSegmentAdded Segment2Added { get; }
+    public RoadSegmentAdded Segment3Added { get; }
 
     public RoadNodeAdded StartNode1Added { get; }
-    public RoadNodeAdded EndNode1Added { get; }
-    public RoadSegmentAdded Segment1Added { get; }
-
-    public AddRoadNode AddStartNode2 { get; }
-    public AddRoadNode AddEndNode2 { get; }
-    public AddRoadSegment AddSegment2 { get; }
+    public RoadNodeModified StartNode1Modified { get; }
 
     public RoadNodeAdded StartNode2Added { get; }
-    public RoadNodeAdded EndNode2Added { get; }
-    public RoadSegmentAdded Segment2Added { get; }
-
-    public AddRoadNode AddStartNode3 { get; }
-    public AddRoadNode AddEndNode3 { get; }
-    public AddRoadSegment AddSegment3 { get; }
 
     public RoadNodeAdded StartNode3Added { get; }
-    public RoadNodeAdded EndNode3Added { get; }
-    public RoadSegmentAdded Segment3Added { get; }
+
+    public Point StartPoint1 { get; }
+
+    public Point StartPoint2 { get; }
+
+    public Point StartPoint3 { get; }
+    public TransactionId TransactionId { get; }
 
     [Fact]
     public Task when_modifying_a_node_with_the_same_values()
@@ -835,427 +836,6 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 },
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }));
-    }
-
-    [Fact]
-    public Task when_modifying_an_end_node_connected_to_a_single_segment_to_a_type_other_than_end_node()
-    {
-        ModifyEndNode1.Type = new Generator<RoadNodeType>(Fixture)
-            .First(type => type != RoadNodeType.EndNode)
-            .ToString();
-        return Run(scenario => scenario
-            .Given(Organizations.ToStreamName(ChangedByOrganization),
-                new ImportedOrganization
-                {
-                    Code = ChangedByOrganization,
-                    Name = ChangedByOrganizationName,
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-            {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                TransactionId = new TransactionId(1),
-                Changes = new[]
-                {
-                    new AcceptedChange
-                    {
-                        RoadNodeAdded = StartNode1Added,
-                        Problems = Array.Empty<Problem>()
-                    },
-                    new AcceptedChange
-                    {
-                        RoadNodeAdded = EndNode1Added,
-                        Problems = Array.Empty<Problem>()
-                    },
-                    new AcceptedChange
-                    {
-                        RoadSegmentAdded = Segment1Added,
-                        Problems = Array.Empty<Problem>()
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            })
-            .When(TheOperator.ChangesTheRoadNetwork(
-                RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
-                new RequestedChange
-                {
-                    ModifyRoadNode = ModifyEndNode1
-                }
-            ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-            {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                TransactionId = new TransactionId(2),
-                Changes = new[]
-                {
-                    new RejectedChange
-                    {
-                        ModifyRoadNode = ModifyEndNode1,
-                        Problems = new[]
-                        {
-                            new Problem
-                            {
-                                Reason = "RoadNodeTypeMismatch",
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "RoadNodeId",
-                                        Value = ModifyEndNode1.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "ConnectedSegmentCount",
-                                        Value = "1"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "ConnectedSegmentId",
-                                        Value = Segment1Added.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Actual",
-                                        Value = ModifyEndNode1.Type
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Expected",
-                                        Value = "EndNode"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            }));
-    }
-
-    [Fact]
-    public Task when_modifying_a_start_node_connecting_two_segments_as_a_node_other_than_a_fake_node_or_turning_loop_node()
-    {
-        var startPoint = new Point(new CoordinateM(10.0, 0.0, 0.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var endPoint1 = new Point(new CoordinateM(10.0, 10.0, 10.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var endPoint2 = new Point(new CoordinateM(20.0, 0.0, 10.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-
-        ModifyStartNode1.Type = new Generator<RoadNodeType>(Fixture)
-            .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
-            .ToString();
-        ModifyStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-
-        StartNode1Added.Type = RoadNodeType.FakeNode;
-        StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint);
-        EndNode1Added.Type = RoadNodeType.EndNode;
-        EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint1);
-        EndNode2Added.Type = RoadNodeType.EndNode;
-        EndNode2Added.Geometry = GeometryTranslator.Translate(endPoint2);
-        Segment1Added.StartNodeId = StartNode1Added.Id;
-        Segment1Added.EndNodeId = EndNode1Added.Id;
-        Segment1Added.Lanes = Array.Empty<RoadSegmentLaneAttributes>();
-        Segment1Added.Widths = Array.Empty<RoadSegmentWidthAttributes>();
-        Segment1Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
-        Segment1Added.Geometry = GeometryTranslator.Translate(
-            new MultiLineString(new[]
-            {
-                new LineString(new CoordinateArraySequence(new[]
-                {
-                    startPoint.Coordinate, endPoint1.Coordinate
-                }), GeometryConfiguration.GeometryFactory)
-            })
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            });
-        Segment2Added.StartNodeId = StartNode1Added.Id;
-        Segment2Added.EndNodeId = EndNode2Added.Id;
-        Segment2Added.Lanes = Array.Empty<RoadSegmentLaneAttributes>();
-        Segment2Added.Widths = Array.Empty<RoadSegmentWidthAttributes>();
-        Segment2Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
-        Segment2Added.Geometry = GeometryTranslator.Translate(
-            new MultiLineString(new[]
-            {
-                new LineString(new CoordinateArraySequence(new[]
-                {
-                    startPoint.Coordinate, endPoint2.Coordinate
-                }), GeometryConfiguration.GeometryFactory)
-            })
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            });
-
-        return Run(scenario => scenario
-            .Given(Organizations.ToStreamName(ChangedByOrganization),
-                new ImportedOrganization
-                {
-                    Code = ChangedByOrganization,
-                    Name = ChangedByOrganizationName,
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-                {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                    TransactionId = new TransactionId(1),
-                    Changes = new[]
-                    {
-                        new AcceptedChange
-                        {
-                            RoadNodeAdded = StartNode1Added, Problems = Array.Empty<Problem>()
-                        },
-                        new AcceptedChange
-                        {
-                            RoadNodeAdded = EndNode1Added, Problems = Array.Empty<Problem>()
-                        },
-                        new AcceptedChange
-                        {
-                            RoadNodeAdded = EndNode2Added, Problems = Array.Empty<Problem>()
-                        },
-                        new AcceptedChange
-                        {
-                            RoadSegmentAdded = Segment1Added, Problems = Array.Empty<Problem>()
-                        },
-                        new AcceptedChange
-                        {
-                            RoadSegmentAdded = Segment2Added, Problems = Array.Empty<Problem>()
-                        }
-                    }
-                }
-            )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
-                new RequestedChange
-                {
-                    ModifyRoadNode = ModifyStartNode1
-                }
-            ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-            {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                TransactionId = new TransactionId(2),
-                Changes = new[]
-                {
-                    new RejectedChange
-                    {
-                        ModifyRoadNode = ModifyStartNode1,
-                        Problems = new[]
-                        {
-                            new Problem
-                            {
-                                Reason = "RoadNodeTypeMismatch",
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "RoadNodeId",
-                                        Value = ModifyStartNode1.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "ConnectedSegmentCount",
-                                        Value = "2"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "ConnectedSegmentId",
-                                        Value = Segment1Added.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "ConnectedSegmentId",
-                                        Value = Segment2Added.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Actual",
-                                        Value = ModifyStartNode1.Type
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Expected",
-                                        Value = "FakeNode"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Expected",
-                                        Value = "TurningLoopNode"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            })
-        );
-    }
-
-    [Fact]
-    public Task when_modifying_a_start_node_connecting_two_segments_as_a_fake_node_but_the_segments_do_not_differ_by_any_attribute()
-    {
-        var startPoint = new Point(new CoordinateM(10.0, 0.0, 0.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var endPoint1 = new Point(new CoordinateM(10.0, 10.0, 10.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var endPoint2 = new Point(new CoordinateM(20.0, 0.0, 10.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-
-        ModifyStartNode1.Type = RoadNodeType.FakeNode;
-        ModifyStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-        StartNode1Modified.Type = RoadNodeType.FakeNode;
-        StartNode1Modified.Geometry = GeometryTranslator.Translate(startPoint);
-
-        StartNode1Added.Type = RoadNodeType.FakeNode;
-        StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint);
-        EndNode1Added.Type = RoadNodeType.EndNode;
-        EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint1);
-        EndNode2Added.Type = RoadNodeType.EndNode;
-        EndNode2Added.Geometry = GeometryTranslator.Translate(endPoint2);
-        Segment1Added.StartNodeId = StartNode1Added.Id;
-        Segment1Added.EndNodeId = EndNode1Added.Id;
-        Segment1Added.Lanes = Array.Empty<RoadSegmentLaneAttributes>();
-        Segment1Added.Widths = Array.Empty<RoadSegmentWidthAttributes>();
-        Segment1Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
-        Segment1Added.Geometry = GeometryTranslator.Translate(
-            new MultiLineString(new[]
-            {
-                new LineString(new CoordinateArraySequence(new[]
-                {
-                    startPoint.Coordinate, endPoint1.Coordinate
-                }), GeometryConfiguration.GeometryFactory)
-            })
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            });
-        Segment2Added.StartNodeId = StartNode1Added.Id;
-        Segment2Added.EndNodeId = EndNode2Added.Id;
-        Segment2Added.Lanes = Array.Empty<RoadSegmentLaneAttributes>();
-        Segment2Added.Widths = Array.Empty<RoadSegmentWidthAttributes>();
-        Segment2Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
-        Segment2Added.Geometry = GeometryTranslator.Translate(
-            new MultiLineString(new[]
-            {
-                new LineString(new CoordinateArraySequence(new[]
-                {
-                    startPoint.Coordinate, endPoint2.Coordinate
-                }), GeometryConfiguration.GeometryFactory)
-            })
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            });
-        Segment2Added.Status = Segment1Added.Status;
-        Segment2Added.Morphology = Segment1Added.Morphology;
-        Segment2Added.Category = Segment1Added.Category;
-        Segment2Added.MaintenanceAuthority.Code = Segment1Added.MaintenanceAuthority.Code;
-        Segment2Added.MaintenanceAuthority.Name = Segment1Added.MaintenanceAuthority.Name;
-        Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
-        Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
-        Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;
-
-        return Run(scenario => scenario
-            .Given(Organizations.ToStreamName(ChangedByOrganization),
-                new ImportedOrganization
-                {
-                    Code = ChangedByOrganization,
-                    Name = ChangedByOrganizationName,
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-                {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                    TransactionId = new TransactionId(1),
-                    Changes = new[]
-                    {
-                        new AcceptedChange
-                        {
-                            RoadNodeAdded = StartNode1Added, Problems = Array.Empty<Problem>()
-                        },
-                        new AcceptedChange
-                        {
-                            RoadNodeAdded = EndNode1Added, Problems = Array.Empty<Problem>()
-                        },
-                        new AcceptedChange
-                        {
-                            RoadNodeAdded = EndNode2Added, Problems = Array.Empty<Problem>()
-                        },
-                        new AcceptedChange
-                        {
-                            RoadSegmentAdded = Segment1Added, Problems = Array.Empty<Problem>()
-                        },
-                        new AcceptedChange
-                        {
-                            RoadSegmentAdded = Segment2Added, Problems = Array.Empty<Problem>()
-                        }
-                    }
-                }
-            )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
-                new RequestedChange
-                {
-                    ModifyRoadNode = ModifyStartNode1
-                }
-            ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
-            {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                TransactionId = new TransactionId(2),
-                Changes = new[]
-                {
-                    new AcceptedChange
-                    {
-                        RoadNodeModified = StartNode1Modified,
-                        Problems = new[]
-                        {
-                            new Problem
-                            {
-                                Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
-                                Severity = ProblemSeverity.Warning,
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "RoadNodeId",
-                                        Value = ModifyStartNode1.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "SegmentId",
-                                        Value = Segment1Added.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "SegmentId",
-                                        Value = Segment2Added.Id.ToString()
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            })
-        );
     }
 
     [Fact]
@@ -1428,7 +1008,428 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
     }
 
     [Fact]
-    public Task when_modifying_an_end_node_connecting_two_segments_as_a_node_other_than_a_fake_node_or_turning_loop_node()
+    public Task when_modifying_a_start_node_connecting_two_segments_as_a_fake_node_but_the_segments_do_not_differ_by_any_attribute()
+    {
+        var startPoint = new Point(new CoordinateM(10.0, 0.0, 0.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var endPoint1 = new Point(new CoordinateM(10.0, 10.0, 10.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var endPoint2 = new Point(new CoordinateM(20.0, 0.0, 10.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+
+        ModifyStartNode1.Type = RoadNodeType.FakeNode;
+        ModifyStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+        StartNode1Modified.Type = RoadNodeType.FakeNode;
+        StartNode1Modified.Geometry = GeometryTranslator.Translate(startPoint);
+
+        StartNode1Added.Type = RoadNodeType.FakeNode;
+        StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint);
+        EndNode1Added.Type = RoadNodeType.EndNode;
+        EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint1);
+        EndNode2Added.Type = RoadNodeType.EndNode;
+        EndNode2Added.Geometry = GeometryTranslator.Translate(endPoint2);
+        Segment1Added.StartNodeId = StartNode1Added.Id;
+        Segment1Added.EndNodeId = EndNode1Added.Id;
+        Segment1Added.Lanes = Array.Empty<RoadSegmentLaneAttributes>();
+        Segment1Added.Widths = Array.Empty<RoadSegmentWidthAttributes>();
+        Segment1Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
+        Segment1Added.Geometry = GeometryTranslator.Translate(
+            new MultiLineString(new[]
+            {
+                new LineString(new CoordinateArraySequence(new[]
+                {
+                    startPoint.Coordinate, endPoint1.Coordinate
+                }), GeometryConfiguration.GeometryFactory)
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+        Segment2Added.StartNodeId = StartNode1Added.Id;
+        Segment2Added.EndNodeId = EndNode2Added.Id;
+        Segment2Added.Lanes = Array.Empty<RoadSegmentLaneAttributes>();
+        Segment2Added.Widths = Array.Empty<RoadSegmentWidthAttributes>();
+        Segment2Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
+        Segment2Added.Geometry = GeometryTranslator.Translate(
+            new MultiLineString(new[]
+            {
+                new LineString(new CoordinateArraySequence(new[]
+                {
+                    startPoint.Coordinate, endPoint2.Coordinate
+                }), GeometryConfiguration.GeometryFactory)
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+        Segment2Added.Status = Segment1Added.Status;
+        Segment2Added.Morphology = Segment1Added.Morphology;
+        Segment2Added.Category = Segment1Added.Category;
+        Segment2Added.MaintenanceAuthority.Code = Segment1Added.MaintenanceAuthority.Code;
+        Segment2Added.MaintenanceAuthority.Name = Segment1Added.MaintenanceAuthority.Name;
+        Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
+        Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
+        Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;
+
+        return Run(scenario => scenario
+            .Given(Organizations.ToStreamName(ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = ChangedByOrganization,
+                    Name = ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes = new[]
+                    {
+                        new AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added, Problems = Array.Empty<Problem>()
+                        },
+                        new AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added, Problems = Array.Empty<Problem>()
+                        },
+                        new AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode2Added, Problems = Array.Empty<Problem>()
+                        },
+                        new AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added, Problems = Array.Empty<Problem>()
+                        },
+                        new AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment2Added, Problems = Array.Empty<Problem>()
+                        }
+                    }
+                }
+            )
+            .When(TheOperator.ChangesTheRoadNetwork(
+                RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                new RequestedChange
+                {
+                    ModifyRoadNode = ModifyStartNode1
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                TransactionId = new TransactionId(2),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeModified = StartNode1Modified,
+                        Problems = new[]
+                        {
+                            new Problem
+                            {
+                                Reason = "FakeRoadNodeConnectedSegmentsDoNotDiffer",
+                                Severity = ProblemSeverity.Warning,
+                                Parameters = new[]
+                                {
+                                    new ProblemParameter
+                                    {
+                                        Name = "RoadNodeId",
+                                        Value = ModifyStartNode1.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "SegmentId",
+                                        Value = Segment1Added.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "SegmentId",
+                                        Value = Segment2Added.Id.ToString()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+        );
+    }
+
+    [Fact]
+    public Task when_modifying_a_start_node_connecting_two_segments_as_a_node_other_than_a_fake_node_or_turning_loop_node()
+    {
+        var startPoint = new Point(new CoordinateM(10.0, 0.0, 0.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var endPoint1 = new Point(new CoordinateM(10.0, 10.0, 10.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var endPoint2 = new Point(new CoordinateM(20.0, 0.0, 10.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+
+        ModifyStartNode1.Type = new Generator<RoadNodeType>(Fixture)
+            .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
+            .ToString();
+        ModifyStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
+
+        StartNode1Added.Type = RoadNodeType.FakeNode;
+        StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint);
+        EndNode1Added.Type = RoadNodeType.EndNode;
+        EndNode1Added.Geometry = GeometryTranslator.Translate(endPoint1);
+        EndNode2Added.Type = RoadNodeType.EndNode;
+        EndNode2Added.Geometry = GeometryTranslator.Translate(endPoint2);
+        Segment1Added.StartNodeId = StartNode1Added.Id;
+        Segment1Added.EndNodeId = EndNode1Added.Id;
+        Segment1Added.Lanes = Array.Empty<RoadSegmentLaneAttributes>();
+        Segment1Added.Widths = Array.Empty<RoadSegmentWidthAttributes>();
+        Segment1Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
+        Segment1Added.Geometry = GeometryTranslator.Translate(
+            new MultiLineString(new[]
+            {
+                new LineString(new CoordinateArraySequence(new[]
+                {
+                    startPoint.Coordinate, endPoint1.Coordinate
+                }), GeometryConfiguration.GeometryFactory)
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+        Segment2Added.StartNodeId = StartNode1Added.Id;
+        Segment2Added.EndNodeId = EndNode2Added.Id;
+        Segment2Added.Lanes = Array.Empty<RoadSegmentLaneAttributes>();
+        Segment2Added.Widths = Array.Empty<RoadSegmentWidthAttributes>();
+        Segment2Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
+        Segment2Added.Geometry = GeometryTranslator.Translate(
+            new MultiLineString(new[]
+            {
+                new LineString(new CoordinateArraySequence(new[]
+                {
+                    startPoint.Coordinate, endPoint2.Coordinate
+                }), GeometryConfiguration.GeometryFactory)
+            })
+            {
+                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            });
+
+        return Run(scenario => scenario
+            .Given(Organizations.ToStreamName(ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = ChangedByOrganization,
+                    Name = ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes = new[]
+                    {
+                        new AcceptedChange
+                        {
+                            RoadNodeAdded = StartNode1Added, Problems = Array.Empty<Problem>()
+                        },
+                        new AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode1Added, Problems = Array.Empty<Problem>()
+                        },
+                        new AcceptedChange
+                        {
+                            RoadNodeAdded = EndNode2Added, Problems = Array.Empty<Problem>()
+                        },
+                        new AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment1Added, Problems = Array.Empty<Problem>()
+                        },
+                        new AcceptedChange
+                        {
+                            RoadSegmentAdded = Segment2Added, Problems = Array.Empty<Problem>()
+                        }
+                    }
+                }
+            )
+            .When(TheOperator.ChangesTheRoadNetwork(
+                RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                new RequestedChange
+                {
+                    ModifyRoadNode = ModifyStartNode1
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+            {
+                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                TransactionId = new TransactionId(2),
+                Changes = new[]
+                {
+                    new RejectedChange
+                    {
+                        ModifyRoadNode = ModifyStartNode1,
+                        Problems = new[]
+                        {
+                            new Problem
+                            {
+                                Reason = "RoadNodeTypeMismatch",
+                                Parameters = new[]
+                                {
+                                    new ProblemParameter
+                                    {
+                                        Name = "RoadNodeId",
+                                        Value = ModifyStartNode1.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "ConnectedSegmentCount",
+                                        Value = "2"
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "ConnectedSegmentId",
+                                        Value = Segment1Added.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "ConnectedSegmentId",
+                                        Value = Segment2Added.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "Actual",
+                                        Value = ModifyStartNode1.Type
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "Expected",
+                                        Value = "FakeNode"
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "Expected",
+                                        Value = "TurningLoopNode"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+        );
+    }
+
+    [Fact]
+    public Task when_modifying_an_end_node_connected_to_a_single_segment_to_a_type_other_than_end_node()
+    {
+        ModifyEndNode1.Type = new Generator<RoadNodeType>(Fixture)
+            .First(type => type != RoadNodeType.EndNode)
+            .ToString();
+        return Run(scenario => scenario
+            .Given(Organizations.ToStreamName(ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = ChangedByOrganization,
+                    Name = ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = StartNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = EndNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = Segment1Added,
+                        Problems = Array.Empty<Problem>()
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .When(TheOperator.ChangesTheRoadNetwork(
+                RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                new RequestedChange
+                {
+                    ModifyRoadNode = ModifyEndNode1
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+            {
+                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                TransactionId = new TransactionId(2),
+                Changes = new[]
+                {
+                    new RejectedChange
+                    {
+                        ModifyRoadNode = ModifyEndNode1,
+                        Problems = new[]
+                        {
+                            new Problem
+                            {
+                                Reason = "RoadNodeTypeMismatch",
+                                Parameters = new[]
+                                {
+                                    new ProblemParameter
+                                    {
+                                        Name = "RoadNodeId",
+                                        Value = ModifyEndNode1.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "ConnectedSegmentCount",
+                                        Value = "1"
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "ConnectedSegmentId",
+                                        Value = Segment1Added.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "Actual",
+                                        Value = ModifyEndNode1.Type
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "Expected",
+                                        Value = "EndNode"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            }));
+    }
+
+    [Fact]
+    public Task when_modifying_an_end_node_connecting_two_segments_as_a_fake_node_and_the_segments_differ_by_one_attribute()
     {
         var endPoint = new Point(new CoordinateM(10.0, 0.0, 0.0))
         {
@@ -1443,10 +1444,10 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
 
-        ModifyEndNode1.Type = new Generator<RoadNodeType>(Fixture)
-            .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
-            .ToString();
+        ModifyEndNode1.Type = RoadNodeType.FakeNode;
         ModifyEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
+        EndNode1Modified.Type = RoadNodeType.FakeNode;
+        EndNode1Modified.Geometry = GeometryTranslator.Translate(endPoint);
 
         StartNode1Added.Type = RoadNodeType.EndNode;
         StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint1);
@@ -1487,6 +1488,46 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             });
+        Segment2Added.Status = Segment1Added.Status;
+        Segment2Added.Morphology = Segment1Added.Morphology;
+        Segment2Added.Category = Segment1Added.Category;
+        Segment2Added.MaintenanceAuthority.Code = Segment1Added.MaintenanceAuthority.Code;
+        Segment2Added.MaintenanceAuthority.Name = Segment1Added.MaintenanceAuthority.Name;
+        Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
+        Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
+        Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;
+
+        switch (new Random().Next(0, 7))
+        {
+            case 0:
+                Segment2Added.Status = new Generator<RoadSegmentStatus>(Fixture)
+                    .First(candidate => candidate != RoadSegmentStatus.Parse(Segment1Added.Status));
+                break;
+            case 1:
+                Segment2Added.Morphology = new Generator<RoadSegmentMorphology>(Fixture)
+                    .First(candidate => candidate != RoadSegmentMorphology.Parse(Segment1Added.Morphology));
+                break;
+            case 2:
+                Segment2Added.Category = new Generator<RoadSegmentCategory>(Fixture)
+                    .First(candidate => candidate != RoadSegmentCategory.Parse(Segment1Added.Category));
+                break;
+            case 3:
+                Segment2Added.MaintenanceAuthority.Code = new Generator<OrganizationId>(Fixture)
+                    .First(candidate => candidate != new OrganizationId(Segment1Added.MaintenanceAuthority.Code));
+                break;
+            case 4:
+                Segment2Added.AccessRestriction = new Generator<RoadSegmentAccessRestriction>(Fixture)
+                    .First(candidate => candidate != RoadSegmentAccessRestriction.Parse(Segment1Added.AccessRestriction));
+                break;
+            case 5:
+                Segment2Added.LeftSide.StreetNameId = new Generator<CrabStreetnameId?>(Fixture)
+                    .First(candidate => candidate != (Segment1Added.LeftSide.StreetNameId.HasValue ? new CrabStreetnameId(Segment1Added.LeftSide.StreetNameId.Value) : new CrabStreetnameId?()));
+                break;
+            case 6:
+                Segment2Added.RightSide.StreetNameId = new Generator<CrabStreetnameId?>(Fixture)
+                    .First(candidate => candidate != (Segment1Added.RightSide.StreetNameId.HasValue ? new CrabStreetnameId(Segment1Added.RightSide.StreetNameId.Value) : new CrabStreetnameId?()));
+                break;
+        }
 
         return Run(scenario => scenario
             .Given(Organizations.ToStreamName(ChangedByOrganization),
@@ -1534,61 +1575,17 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                     ModifyRoadNode = ModifyEndNode1
                 }
             ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
                 RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
                 OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
-                    new RejectedChange
+                    new AcceptedChange
                     {
-                        ModifyRoadNode = ModifyEndNode1,
-                        Problems = new[]
-                        {
-                            new Problem
-                            {
-                                Reason = "RoadNodeTypeMismatch",
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "RoadNodeId",
-                                        Value = ModifyEndNode1.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "ConnectedSegmentCount",
-                                        Value = "2"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "ConnectedSegmentId",
-                                        Value = Segment1Added.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "ConnectedSegmentId",
-                                        Value = Segment2Added.Id.ToString()
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Actual",
-                                        Value = ModifyEndNode1.Type
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Expected",
-                                        Value = "FakeNode"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Expected",
-                                        Value = "TurningLoopNode"
-                                    }
-                                }
-                            }
-                        }
+                        RoadNodeModified = EndNode1Modified,
+                        Problems = Array.Empty<Problem>()
                     }
                 },
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -1755,7 +1752,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
     }
 
     [Fact]
-    public Task when_modifying_an_end_node_connecting_two_segments_as_a_fake_node_and_the_segments_differ_by_one_attribute()
+    public Task when_modifying_an_end_node_connecting_two_segments_as_a_node_other_than_a_fake_node_or_turning_loop_node()
     {
         var endPoint = new Point(new CoordinateM(10.0, 0.0, 0.0))
         {
@@ -1770,10 +1767,10 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
 
-        ModifyEndNode1.Type = RoadNodeType.FakeNode;
+        ModifyEndNode1.Type = new Generator<RoadNodeType>(Fixture)
+            .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
+            .ToString();
         ModifyEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
-        EndNode1Modified.Type = RoadNodeType.FakeNode;
-        EndNode1Modified.Geometry = GeometryTranslator.Translate(endPoint);
 
         StartNode1Added.Type = RoadNodeType.EndNode;
         StartNode1Added.Geometry = GeometryTranslator.Translate(startPoint1);
@@ -1814,46 +1811,6 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             });
-        Segment2Added.Status = Segment1Added.Status;
-        Segment2Added.Morphology = Segment1Added.Morphology;
-        Segment2Added.Category = Segment1Added.Category;
-        Segment2Added.MaintenanceAuthority.Code = Segment1Added.MaintenanceAuthority.Code;
-        Segment2Added.MaintenanceAuthority.Name = Segment1Added.MaintenanceAuthority.Name;
-        Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
-        Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
-        Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;
-
-        switch (new Random().Next(0, 7))
-        {
-            case 0:
-                Segment2Added.Status = new Generator<RoadSegmentStatus>(Fixture)
-                    .First(candidate => candidate != RoadSegmentStatus.Parse(Segment1Added.Status));
-                break;
-            case 1:
-                Segment2Added.Morphology = new Generator<RoadSegmentMorphology>(Fixture)
-                    .First(candidate => candidate != RoadSegmentMorphology.Parse(Segment1Added.Morphology));
-                break;
-            case 2:
-                Segment2Added.Category = new Generator<RoadSegmentCategory>(Fixture)
-                    .First(candidate => candidate != RoadSegmentCategory.Parse(Segment1Added.Category));
-                break;
-            case 3:
-                Segment2Added.MaintenanceAuthority.Code = new Generator<OrganizationId>(Fixture)
-                    .First(candidate => candidate != new OrganizationId(Segment1Added.MaintenanceAuthority.Code));
-                break;
-            case 4:
-                Segment2Added.AccessRestriction = new Generator<RoadSegmentAccessRestriction>(Fixture)
-                    .First(candidate => candidate != RoadSegmentAccessRestriction.Parse(Segment1Added.AccessRestriction));
-                break;
-            case 5:
-                Segment2Added.LeftSide.StreetNameId = new Generator<CrabStreetnameId?>(Fixture)
-                    .First(candidate => candidate != (Segment1Added.LeftSide.StreetNameId.HasValue ? new CrabStreetnameId(Segment1Added.LeftSide.StreetNameId.Value) : new CrabStreetnameId?()));
-                break;
-            case 6:
-                Segment2Added.RightSide.StreetNameId = new Generator<CrabStreetnameId?>(Fixture)
-                    .First(candidate => candidate != (Segment1Added.RightSide.StreetNameId.HasValue ? new CrabStreetnameId(Segment1Added.RightSide.StreetNameId.Value) : new CrabStreetnameId?()));
-                break;
-        }
 
         return Run(scenario => scenario
             .Given(Organizations.ToStreamName(ChangedByOrganization),
@@ -1901,17 +1858,61 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                     ModifyRoadNode = ModifyEndNode1
                 }
             ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
             {
                 RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
                 OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
-                    new AcceptedChange
+                    new RejectedChange
                     {
-                        RoadNodeModified = EndNode1Modified,
-                        Problems = Array.Empty<Problem>()
+                        ModifyRoadNode = ModifyEndNode1,
+                        Problems = new[]
+                        {
+                            new Problem
+                            {
+                                Reason = "RoadNodeTypeMismatch",
+                                Parameters = new[]
+                                {
+                                    new ProblemParameter
+                                    {
+                                        Name = "RoadNodeId",
+                                        Value = ModifyEndNode1.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "ConnectedSegmentCount",
+                                        Value = "2"
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "ConnectedSegmentId",
+                                        Value = Segment1Added.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "ConnectedSegmentId",
+                                        Value = Segment2Added.Id.ToString()
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "Actual",
+                                        Value = ModifyEndNode1.Type
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "Expected",
+                                        Value = "FakeNode"
+                                    },
+                                    new ProblemParameter
+                                    {
+                                        Name = "Expected",
+                                        Value = "TurningLoopNode"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())

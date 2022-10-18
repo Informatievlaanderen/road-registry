@@ -20,13 +20,13 @@ public abstract class SqsMessageRequestHandler<TRequest, TResponse> : IRequestHa
     where TRequest : SqsMessageRequest<TResponse>
     where TResponse : SqsMessageResponse
 {
-    protected readonly ILogger _logger;
-
     protected SqsMessageRequestHandler(CommandHandlerDispatcher dispatcher, ILogger logger)
     {
         Dispatcher = dispatcher;
         _logger = logger;
     }
+
+    protected readonly ILogger _logger;
 
     protected CommandHandlerDispatcher Dispatcher { get; init; }
 

@@ -20,33 +20,10 @@ public class ModifyRoadSegmentOnNumberedRoad : IRequestedChange
     }
 
     public AttributeId AttributeId { get; }
-    public RoadSegmentId SegmentId { get; }
-    public NumberedRoadNumber Number { get; }
     public RoadSegmentNumberedRoadDirection Direction { get; }
+    public NumberedRoadNumber Number { get; }
     public RoadSegmentNumberedRoadOrdinal Ordinal { get; }
-
-    public Problems VerifyBefore(BeforeVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        var problems = Problems.None;
-
-        if (!context.BeforeView.View.Segments.ContainsKey(SegmentId)) problems = problems.Add(new RoadSegmentMissing(SegmentId));
-
-        return problems;
-    }
-
-    public Problems VerifyAfter(AfterVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        var problems = Problems.None;
-
-        var segment = context.AfterView.View.Segments[SegmentId];
-        if (!segment.PartOfNumberedRoads.Contains(Number)) problems = problems.Add(new NumberedRoadNumberNotFound(Number));
-
-        return problems;
-    }
+    public RoadSegmentId SegmentId { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -74,5 +51,28 @@ public class ModifyRoadSegmentOnNumberedRoad : IRequestedChange
             Direction = Direction,
             Ordinal = Ordinal
         };
+    }
+
+    public Problems VerifyAfter(AfterVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        var segment = context.AfterView.View.Segments[SegmentId];
+        if (!segment.PartOfNumberedRoads.Contains(Number)) problems = problems.Add(new NumberedRoadNumberNotFound(Number));
+
+        return problems;
+    }
+
+    public Problems VerifyBefore(BeforeVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        if (!context.BeforeView.View.Segments.ContainsKey(SegmentId)) problems = problems.Add(new RoadSegmentMissing(SegmentId));
+
+        return problems;
     }
 }

@@ -5,14 +5,9 @@ public static class StreamNameConversions
     public static StreamNameConverter PassThru =>
         name => name;
 
-    public static StreamNameConverter WithSuffix(string suffix)
+    public static StreamNameConverter WithoutPrefix(string prefix)
     {
-        return name => name.WithSuffix(suffix);
-    }
-
-    public static StreamNameConverter WithPrefix(string prefix)
-    {
-        return name => name.WithPrefix(prefix);
+        return name => name.WithoutPrefix(prefix);
     }
 
     public static StreamNameConverter WithoutSuffix(string suffix)
@@ -20,8 +15,13 @@ public static class StreamNameConversions
         return name => name.WithoutSuffix(suffix);
     }
 
-    public static StreamNameConverter WithoutPrefix(string prefix)
+    public static StreamNameConverter WithPrefix(string prefix)
     {
-        return name => name.WithoutPrefix(prefix);
+        return name => name.WithPrefix(prefix);
+    }
+
+    public static StreamNameConverter WithSuffix(string suffix)
+    {
+        return name => name.WithSuffix(suffix);
     }
 }

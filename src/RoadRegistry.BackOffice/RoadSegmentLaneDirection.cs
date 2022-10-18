@@ -6,13 +6,21 @@ using System.Linq;
 
 public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirection>
 {
-    public static readonly RoadSegmentLaneDirection Unknown =
+    private RoadSegmentLaneDirection(string value, DutchTranslation dutchTranslation)
+    {
+        _value = value;
+        Translation = dutchTranslation;
+    }
+
+    private readonly string _value;
+
+    public static readonly RoadSegmentLaneDirection Backward =
         new(
-            nameof(Unknown),
+            nameof(Backward),
             new DutchTranslation(
-                -8,
-                "niet gekend",
-                "Geen informatie beschikbaar"
+                2,
+                "tegengesteld aan de digitalisatiezin",
+                "Aantal rijstroken slaat op de richting die tegengesteld loopt aan de digitalisatiezin van het wegsegment."
             )
         );
 
@@ -26,16 +34,6 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
             )
         );
 
-    public static readonly RoadSegmentLaneDirection Backward =
-        new(
-            nameof(Backward),
-            new DutchTranslation(
-                2,
-                "tegengesteld aan de digitalisatiezin",
-                "Aantal rijstroken slaat op de richting die tegengesteld loopt aan de digitalisatiezin van het wegsegment."
-            )
-        );
-
     public static readonly RoadSegmentLaneDirection Independent =
         new(
             nameof(Independent),
@@ -46,23 +44,24 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
             )
         );
 
+    public static readonly RoadSegmentLaneDirection Unknown =
+        new(
+            nameof(Unknown),
+            new DutchTranslation(
+                -8,
+                "niet gekend",
+                "Geen informatie beschikbaar"
+            )
+        );
+
     public static readonly RoadSegmentLaneDirection[] All =
     {
         Unknown, Forward, Backward, Independent
     };
 
+
     public static readonly IReadOnlyDictionary<int, RoadSegmentLaneDirection> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
-
-    private readonly string _value;
-
-    private RoadSegmentLaneDirection(string value, DutchTranslation dutchTranslation)
-    {
-        _value = value;
-        Translation = dutchTranslation;
-    }
-
-    public DutchTranslation Translation { get; }
 
     public static bool CanParse(string value)
     {
@@ -71,20 +70,20 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public static bool TryParse(string value, out RoadSegmentLaneDirection parsed)
+    public class DutchTranslation
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        internal DutchTranslation(int identifier, string name, string description)
+        {
+            Identifier = identifier;
+            Name = name;
+            Description = description;
+        }
 
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
-    }
+        public string Description { get; }
 
-    public static RoadSegmentLaneDirection Parse(string value)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        public int Identifier { get; }
 
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known lane direction.");
-        return parsed;
+        public string Name { get; }
     }
 
     public bool Equals(RoadSegmentLaneDirection other)
@@ -97,14 +96,16 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
         return obj is RoadSegmentLaneDirection type && Equals(type);
     }
 
+
     public override int GetHashCode()
     {
         return _value.GetHashCode();
     }
 
-    public override string ToString()
+
+    public static bool operator ==(RoadSegmentLaneDirection left, RoadSegmentLaneDirection right)
     {
-        return _value;
+        return Equals(left, right);
     }
 
     public static implicit operator string(RoadSegmentLaneDirection instance)
@@ -112,29 +113,31 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
         return instance.ToString();
     }
 
-    public static bool operator ==(RoadSegmentLaneDirection left, RoadSegmentLaneDirection right)
-    {
-        return Equals(left, right);
-    }
-
     public static bool operator !=(RoadSegmentLaneDirection left, RoadSegmentLaneDirection right)
     {
         return !Equals(left, right);
     }
 
-    public class DutchTranslation
+    public static RoadSegmentLaneDirection Parse(string value)
     {
-        internal DutchTranslation(int identifier, string name, string description)
-        {
-            Identifier = identifier;
-            Name = name;
-            Description = description;
-        }
+        if (value == null) throw new ArgumentNullException(nameof(value));
 
-        public int Identifier { get; }
+        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known lane direction.");
+        return parsed;
+    }
 
-        public string Name { get; }
+    public override string ToString()
+    {
+        return _value;
+    }
 
-        public string Description { get; }
+    public DutchTranslation Translation { get; }
+
+    public static bool TryParse(string value, out RoadSegmentLaneDirection parsed)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 }

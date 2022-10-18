@@ -9,10 +9,11 @@ public sealed class UploadExtractBlobClientNotFoundException : ApplicationExcept
     {
         ArgumentName = argumentName;
     }
-    
+
     private UploadExtractBlobClientNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public string ArgumentName { get; init; }
 }

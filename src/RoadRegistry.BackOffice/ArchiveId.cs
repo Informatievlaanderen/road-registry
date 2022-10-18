@@ -2,8 +2,6 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 
-
-
 public readonly struct ArchiveId : IEquatable<ArchiveId>
 {
     public const int MaxLength = 32;
@@ -66,5 +64,4 @@ public readonly struct ArchiveId : IEquatable<ArchiveId>
     {
         return Guid.Parse(instance._value);
     }
-
 }

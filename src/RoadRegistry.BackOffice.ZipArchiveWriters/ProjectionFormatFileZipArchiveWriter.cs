@@ -6,14 +6,14 @@ using Microsoft.EntityFrameworkCore;
 
 public class ProjectionFormatFileZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {
-    private readonly Encoding _encoding;
-    private readonly string _filename;
-
     public ProjectionFormatFileZipArchiveWriter(string filename, Encoding encoding)
     {
         _filename = filename ?? throw new ArgumentNullException(nameof(filename));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
+
+    private readonly Encoding _encoding;
+    private readonly string _filename;
 
     public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
     {

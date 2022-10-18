@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class MunicipalityGeometryConfiguration : IEntityTypeConfiguration<MunicipalityGeometry>
 {
-    public const string TableName = "MunicipalityGeometry";
-
     public void Configure(EntityTypeBuilder<MunicipalityGeometry> b)
     {
         b.ToTable(TableName, WellknownSchemas.EditorSchema)
@@ -17,4 +15,6 @@ public class MunicipalityGeometryConfiguration : IEntityTypeConfiguration<Munici
         b.Property(p => p.NisCode).ValueGeneratedNever().IsRequired().HasMaxLength(5).IsFixedLength();
         b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
     }
+
+    public const string TableName = "MunicipalityGeometry";
 }

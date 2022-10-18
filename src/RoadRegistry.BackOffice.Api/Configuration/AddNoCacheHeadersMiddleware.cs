@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Http;
 /// </summary>
 public class AddNoCacheHeadersMiddleware
 {
-    private readonly RequestDelegate _next;
-
     public AddNoCacheHeadersMiddleware(RequestDelegate next)
     {
         _next = next;
     }
+
+    private readonly RequestDelegate _next;
 
     public Task Invoke(HttpContext context)
     {

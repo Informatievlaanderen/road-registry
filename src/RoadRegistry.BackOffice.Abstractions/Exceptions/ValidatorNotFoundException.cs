@@ -9,10 +9,11 @@ public sealed class ValidatorNotFoundException : ApplicationException
     {
         ArgumentName = argumentName;
     }
-    
+
     private ValidatorNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public string ArgumentName { get; init; }
 }

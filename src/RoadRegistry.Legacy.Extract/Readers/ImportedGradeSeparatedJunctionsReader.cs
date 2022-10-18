@@ -12,14 +12,14 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
     public class ImportedGradeSeparatedJunctionsReader : IEventReader
     {
-        private readonly IClock _clock;
-        private readonly ILogger<ImportedGradeSeparatedJunctionsReader> _logger;
-
         public ImportedGradeSeparatedJunctionsReader(IClock clock, ILogger<ImportedGradeSeparatedJunctionsReader> logger)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        private readonly IClock _clock;
+        private readonly ILogger<ImportedGradeSeparatedJunctionsReader> _logger;
 
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {

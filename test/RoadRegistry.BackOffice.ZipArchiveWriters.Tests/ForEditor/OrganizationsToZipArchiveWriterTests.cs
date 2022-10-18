@@ -7,18 +7,17 @@ using Core;
 using Editor.Schema;
 using Editor.Schema.Organizations;
 using Framework.Containers;
-using Xunit;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]
 public class OrganizationsToZipArchiveWriterTests
 {
-    private readonly SqlServer _fixture;
-
     public OrganizationsToZipArchiveWriterTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }
+
+    private readonly SqlServer _fixture;
 
     [Fact]
     public Task ArchiveCanNotBeNull()

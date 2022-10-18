@@ -9,17 +9,6 @@ using Messages;
 
 internal class RequestedChangeTranslator
 {
-    private readonly Func<AttributeId> _nextEuropeanRoadAttributeId;
-    private readonly Func<GradeSeparatedJunctionId> _nextGradeSeparatedJunctionId;
-    private readonly Func<AttributeId> _nextNationalRoadAttributeId;
-    private readonly Func<AttributeId> _nextNumberedRoadAttributeId;
-    private readonly Func<RoadNodeId> _nextRoadNodeId;
-    private readonly Func<RoadSegmentId> _nextRoadSegmentId;
-    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentLaneAttributeId;
-    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentSurfaceAttributeId;
-    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentWidthAttributeId;
-    private readonly Func<TransactionId> _nextTransactionId;
-
     public RequestedChangeTranslator(
         Func<TransactionId> nextTransactionId,
         Func<RoadNodeId> nextRoadNodeId,
@@ -52,6 +41,65 @@ internal class RequestedChangeTranslator
             nextRoadSegmentWidthAttributeId ?? throw new ArgumentNullException(nameof(nextRoadSegmentWidthAttributeId));
         _nextRoadSegmentSurfaceAttributeId =
             nextRoadSegmentSurfaceAttributeId ?? throw new ArgumentNullException(nameof(nextRoadSegmentSurfaceAttributeId));
+    }
+
+    private readonly Func<AttributeId> _nextEuropeanRoadAttributeId;
+    private readonly Func<GradeSeparatedJunctionId> _nextGradeSeparatedJunctionId;
+    private readonly Func<AttributeId> _nextNationalRoadAttributeId;
+    private readonly Func<AttributeId> _nextNumberedRoadAttributeId;
+    private readonly Func<RoadNodeId> _nextRoadNodeId;
+    private readonly Func<RoadSegmentId> _nextRoadSegmentId;
+    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentLaneAttributeId;
+    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentSurfaceAttributeId;
+    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentWidthAttributeId;
+    private readonly Func<TransactionId> _nextTransactionId;
+
+    private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>
+    {
+        public int Compare(SortableChange left, SortableChange right)
+        {
+            if (left == null) throw new ArgumentNullException(nameof(left));
+            if (right == null) throw new ArgumentNullException(nameof(right));
+
+            var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.Change.GetType());
+            var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.Change.GetType());
+            var comparison = leftRank.CompareTo(rightRank);
+            return comparison != 0
+                ? comparison
+                : left.Ordinal.CompareTo(right.Ordinal);
+        }
+
+        private static readonly Type[] SequenceByTypeOfChange =
+        {
+            typeof(Messages.AddRoadNode),
+            typeof(Messages.AddRoadSegment),
+            typeof(Messages.AddRoadSegmentToEuropeanRoad),
+            typeof(Messages.AddRoadSegmentToNationalRoad),
+            typeof(Messages.AddRoadSegmentToNumberedRoad),
+            typeof(Messages.AddGradeSeparatedJunction),
+            typeof(Messages.ModifyRoadNode),
+            typeof(Messages.ModifyRoadSegment),
+            typeof(Messages.ModifyGradeSeparatedJunction),
+            typeof(Messages.RemoveRoadSegmentFromEuropeanRoad),
+            typeof(Messages.RemoveRoadSegmentFromNationalRoad),
+            typeof(Messages.RemoveRoadSegmentFromNumberedRoad),
+            typeof(Messages.RemoveGradeSeparatedJunction),
+            typeof(Messages.RemoveRoadSegment),
+            typeof(Messages.RemoveRoadNode)
+        };
+    }
+
+    private sealed class SortableChange
+    {
+        public SortableChange(object change, int ordinal)
+        {
+            Ordinal = ordinal;
+            Change = change;
+        }
+
+        public object Change { get; }
+
+        public int Ordinal { get; }
     }
 
     public async Task<RequestedChanges> Translate(IReadOnlyCollection<RequestedChange> changes, IOrganizations organizations, CancellationToken ct = default)
@@ -599,52 +647,5 @@ internal class RequestedChangeTranslator
         var permanent = new GradeSeparatedJunctionId(command.Id);
 
         return new RemoveGradeSeparatedJunction(permanent);
-    }
-
-    private sealed class SortableChange
-    {
-        public SortableChange(object change, int ordinal)
-        {
-            Ordinal = ordinal;
-            Change = change;
-        }
-
-        public int Ordinal { get; }
-        public object Change { get; }
-    }
-
-    private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>
-    {
-        private static readonly Type[] SequenceByTypeOfChange =
-        {
-            typeof(Messages.AddRoadNode),
-            typeof(Messages.AddRoadSegment),
-            typeof(Messages.AddRoadSegmentToEuropeanRoad),
-            typeof(Messages.AddRoadSegmentToNationalRoad),
-            typeof(Messages.AddRoadSegmentToNumberedRoad),
-            typeof(Messages.AddGradeSeparatedJunction),
-            typeof(Messages.ModifyRoadNode),
-            typeof(Messages.ModifyRoadSegment),
-            typeof(Messages.ModifyGradeSeparatedJunction),
-            typeof(Messages.RemoveRoadSegmentFromEuropeanRoad),
-            typeof(Messages.RemoveRoadSegmentFromNationalRoad),
-            typeof(Messages.RemoveRoadSegmentFromNumberedRoad),
-            typeof(Messages.RemoveGradeSeparatedJunction),
-            typeof(Messages.RemoveRoadSegment),
-            typeof(Messages.RemoveRoadNode)
-        };
-
-        public int Compare(SortableChange left, SortableChange right)
-        {
-            if (left == null) throw new ArgumentNullException(nameof(left));
-            if (right == null) throw new ArgumentNullException(nameof(right));
-
-            var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.Change.GetType());
-            var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.Change.GetType());
-            var comparison = leftRank.CompareTo(rightRank);
-            return comparison != 0
-                ? comparison
-                : left.Ordinal.CompareTo(right.Ordinal);
-        }
     }
 }

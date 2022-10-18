@@ -9,12 +9,45 @@ using Xunit;
 
 public class OperatorNameTests
 {
-    private readonly Fixture _fixture;
-
     public OperatorNameTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeOperatorName();
+    }
+
+    private readonly Fixture _fixture;
+
+    [Fact]
+    public void NoneGetHashCodeReturnsExpectedResult()
+    {
+        Assert.Equal(0, OperatorName.None.GetHashCode());
+    }
+
+    [Fact]
+    public void NoneToStringReturnsExpectedResult()
+    {
+        Assert.Null(OperatorName.None.ToString());
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = new string(
+            (char)new Random().Next(97, 123), // a-z
+            new Random().Next(1, OperatorName.MaxLength + 1)
+        );
+        var sut = new OperatorName(value);
+
+        Assert.Equal(value, sut.ToString());
+    }
+
+    [Fact]
+    public void ValueCanNotBeLongerThan18Chars()
+    {
+        const int length = OperatorName.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new OperatorName(value));
     }
 
     [Fact]
@@ -51,38 +84,5 @@ public class OperatorNameTests
             new EqualsSuccessiveAssertion(_fixture),
             new GetHashCodeSuccessiveAssertion(_fixture)
         ).Verify(typeof(OperatorName));
-    }
-
-    [Fact]
-    public void NoneGetHashCodeReturnsExpectedResult()
-    {
-        Assert.Equal(0, OperatorName.None.GetHashCode());
-    }
-
-    [Fact]
-    public void NoneToStringReturnsExpectedResult()
-    {
-        Assert.Null(OperatorName.None.ToString());
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = new string(
-            (char)new Random().Next(97, 123), // a-z
-            new Random().Next(1, OperatorName.MaxLength + 1)
-        );
-        var sut = new OperatorName(value);
-
-        Assert.Equal(value, sut.ToString());
-    }
-
-    [Fact]
-    public void ValueCanNotBeLongerThan18Chars()
-    {
-        const int length = OperatorName.MaxLength + 1;
-
-        var value = new string((char)new Random().Next(97, 123), length);
-        Assert.Throws<ArgumentOutOfRangeException>(() => new OperatorName(value));
     }
 }

@@ -14,19 +14,43 @@ public class ModifyRoadNode : IRequestedChange
         Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
     }
 
-    public RoadNodeId Id { get; }
-    public RoadNodeType Type { get; }
     public Point Geometry { get; }
 
-    public Problems VerifyBefore(BeforeVerificationContext context)
+    public RoadNodeId Id { get; }
+
+    public void TranslateTo(Messages.AcceptedChange message)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-        var problems = Problems.None;
+        if (message == null) throw new ArgumentNullException(nameof(message));
 
-        if (!context.BeforeView.Nodes.ContainsKey(Id)) problems = problems.Add(new RoadNodeNotFound());
-
-        return problems;
+        message.RoadNodeModified = new RoadNodeModified
+        {
+            Id = Id,
+            Type = Type.ToString(),
+            Geometry = new RoadNodeGeometry
+            {
+                SpatialReferenceSystemIdentifier = Geometry.SRID,
+                Point = new Messages.Point
+                {
+                    X = Geometry.X,
+                    Y = Geometry.Y
+                }
+            }
+        };
     }
+
+    public void TranslateTo(Messages.RejectedChange message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
+
+        message.ModifyRoadNode = new Messages.ModifyRoadNode
+        {
+            Id = Id,
+            Type = Type.ToString(),
+            Geometry = GeometryTranslator.Translate(Geometry)
+        };
+    }
+
+    public RoadNodeType Type { get; }
 
     public Problems VerifyAfter(AfterVerificationContext context)
     {
@@ -59,35 +83,13 @@ public class ModifyRoadNode : IRequestedChange
         return problems;
     }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public Problems VerifyBefore(BeforeVerificationContext context)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        if (context == null) throw new ArgumentNullException(nameof(context));
+        var problems = Problems.None;
 
-        message.RoadNodeModified = new RoadNodeModified
-        {
-            Id = Id,
-            Type = Type.ToString(),
-            Geometry = new RoadNodeGeometry
-            {
-                SpatialReferenceSystemIdentifier = Geometry.SRID,
-                Point = new Messages.Point
-                {
-                    X = Geometry.X,
-                    Y = Geometry.Y
-                }
-            }
-        };
-    }
+        if (!context.BeforeView.Nodes.ContainsKey(Id)) problems = problems.Add(new RoadNodeNotFound());
 
-    public void TranslateTo(Messages.RejectedChange message)
-    {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.ModifyRoadNode = new Messages.ModifyRoadNode
-        {
-            Id = Id,
-            Type = Type.ToString(),
-            Geometry = GeometryTranslator.Translate(Geometry)
-        };
+        return problems;
     }
 }

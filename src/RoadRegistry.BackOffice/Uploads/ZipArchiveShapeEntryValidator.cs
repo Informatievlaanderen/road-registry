@@ -8,14 +8,14 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class ZipArchiveShapeEntryValidator : IZipArchiveEntryValidator
 {
-    private readonly Encoding _encoding;
-    private readonly IZipArchiveShapeRecordsValidator _recordValidator;
-
     public ZipArchiveShapeEntryValidator(Encoding encoding, IZipArchiveShapeRecordsValidator recordValidator)
     {
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
     }
+
+    private readonly Encoding _encoding;
+    private readonly IZipArchiveShapeRecordsValidator _recordValidator;
 
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
     {

@@ -1,5 +1,5 @@
 namespace RoadRegistry.BackOffice.Uploads;
 
-public interface IZipArchiveAfterFeatureCompareValidator: IZipArchiveValidator
+public interface IZipArchiveAfterFeatureCompareValidator : IZipArchiveValidator
 {
 }

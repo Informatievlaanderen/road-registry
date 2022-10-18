@@ -8,13 +8,6 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
     public class TimedEventReader : IEventReader
     {
-        public static readonly int DefaultThreshold = 1000;
-
-        private readonly IEventReader _inner;
-        private readonly ILogger<TimedEventReader> _logger;
-        private readonly string _name;
-        private readonly int _threshold;
-
         public TimedEventReader(IEventReader inner, int threshold, ILogger<TimedEventReader> logger)
         {
             if (threshold <= 0) throw new ArgumentOutOfRangeException(nameof(threshold), "The threshold needs to be greater than or equal to 1.");
@@ -27,6 +20,12 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 ? inner.GetType().Name.Substring(0, inner.GetType().Name.Length - 6)
                 : inner.GetType().Name;
         }
+
+        private readonly IEventReader _inner;
+        private readonly ILogger<TimedEventReader> _logger;
+        private readonly string _name;
+        private readonly int _threshold;
+        public static readonly int DefaultThreshold = 1000;
 
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {

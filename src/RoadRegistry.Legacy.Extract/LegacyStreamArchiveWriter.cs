@@ -16,19 +16,19 @@ namespace RoadRegistry.Legacy.Extract
 
     internal class LegacyStreamArchiveWriter
     {
-        private static readonly JsonSerializerSettings SerializerSettings =
-            EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
-        private readonly IBlobClient _client;
-        private readonly RecyclableMemoryStreamManager _manager;
-        private readonly JsonSerializer _serializer;
-
         public LegacyStreamArchiveWriter(IBlobClient client, RecyclableMemoryStreamManager manager)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _serializer = JsonSerializer.Create(SerializerSettings);
         }
+
+        private readonly IBlobClient _client;
+        private readonly RecyclableMemoryStreamManager _manager;
+        private readonly JsonSerializer _serializer;
+
+        private static readonly JsonSerializerSettings SerializerSettings =
+            EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
         public async Task WriteAsync(IEnumerable<StreamEvent> events, CancellationToken cancellationToken = default)
         {
@@ -90,14 +90,6 @@ namespace RoadRegistry.Legacy.Extract
             }
         }
 
-        private async Task WriteEvent(object @event, JsonWriter writer, CancellationToken cancellationToken)
-        {
-            await writer.WriteStartObjectAsync(cancellationToken); // begin event
-            await writer.WritePropertyNameAsync(@event.GetType().Name, cancellationToken);
-            _serializer.Serialize(writer, @event);
-            await writer.WriteEndObjectAsync(cancellationToken); // end event
-        }
-
         private static async Task WriteBeginStream(
             StreamName stream,
             JsonWriter writer,
@@ -118,6 +110,14 @@ namespace RoadRegistry.Legacy.Extract
             await writer.WriteEndArrayAsync(); // end events
 
             await writer.WriteEndObjectAsync(); // end stream
+        }
+
+        private async Task WriteEvent(object @event, JsonWriter writer, CancellationToken cancellationToken)
+        {
+            await writer.WriteStartObjectAsync(cancellationToken); // begin event
+            await writer.WritePropertyNameAsync(@event.GetType().Name, cancellationToken);
+            _serializer.Serialize(writer, @event);
+            await writer.WriteEndObjectAsync(cancellationToken); // end event
         }
     }
 }

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 public interface ICommandHandlerBuilder<TCommand>
 {
+    void Handle(Func<Command<TCommand>, CancellationToken, Task> handler);
+
     ICommandHandlerBuilder<TCommand> Pipe(
         Func<
             Func<Command<TCommand>, CancellationToken, Task>,
@@ -15,16 +17,14 @@ public interface ICommandHandlerBuilder<TCommand>
         Func<
             Func<TContext, Command<TCommand>, CancellationToken, Task>,
             Func<Command<TCommand>, CancellationToken, Task>> pipe);
-
-    void Handle(Func<Command<TCommand>, CancellationToken, Task> handler);
 }
 
 public interface ICommandHandlerBuilder<TContext, TCommand>
 {
+    void Handle(Func<TContext, Command<TCommand>, CancellationToken, Task> handler);
+
     ICommandHandlerBuilder<TContext, TCommand> Pipe(
         Func<
             Func<TContext, Command<TCommand>, CancellationToken, Task>,
             Func<TContext, Command<TCommand>, CancellationToken, Task>> pipe);
-
-    void Handle(Func<TContext, Command<TCommand>, CancellationToken, Task> handler);
 }

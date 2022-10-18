@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class MunicipalityConfiguration : IEntityTypeConfiguration<MunicipalityRecord>
 {
-    public const string TableName = "Municipality";
-
     public void Configure(EntityTypeBuilder<MunicipalityRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.SyndicationSchema)
@@ -27,4 +25,6 @@ public class MunicipalityConfiguration : IEntityTypeConfiguration<MunicipalityRe
         b.Property(p => p.EnglishName);
         b.Property(p => p.MunicipalityStatus);
     }
+
+    public const string TableName = "Municipality";
 }

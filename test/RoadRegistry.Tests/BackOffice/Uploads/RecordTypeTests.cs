@@ -8,48 +8,14 @@ using Xunit;
 
 public class RecordTypeTests
 {
-    private readonly Fixture _fixture;
-    private readonly string[] _knownValues;
-
     public RecordTypeTests()
     {
         _fixture = new Fixture();
         _knownValues = Array.ConvertAll(RecordType.All, type => type.ToString());
     }
 
-    [Fact]
-    public void VerifyBehavior()
-    {
-        _fixture.Customizations.Add(
-            new FiniteSequenceGenerator<string>(_knownValues));
-        new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<string>(_fixture),
-            new EquatableEqualsSelfAssertion(_fixture),
-            new EquatableEqualsOtherAssertion(_fixture),
-            new EqualityOperatorEqualsSelfAssertion(_fixture),
-            new EqualityOperatorEqualsOtherAssertion(_fixture),
-            new InequalityOperatorEqualsSelfAssertion(_fixture),
-            new InequalityOperatorEqualsOtherAssertion(_fixture),
-            new EqualsNewObjectAssertion(_fixture),
-            new EqualsNullAssertion(_fixture),
-            new EqualsSelfAssertion(_fixture),
-            new EqualsOtherAssertion(_fixture),
-            new EqualsSuccessiveAssertion(_fixture),
-            new GetHashCodeSuccessiveAssertion(_fixture)
-        ).Verify(typeof(RecordType));
-    }
-
-    [Fact]
-    public void IdenticalReturnsExpectedResult()
-    {
-        Assert.Equal("Identical", RecordType.Identical);
-    }
-
-    [Fact]
-    public void EqualTranslationReturnsExpectedResult()
-    {
-        Assert.Equal(1, RecordType.Identical.Translation.Identifier);
-    }
+    private readonly Fixture _fixture;
+    private readonly string[] _knownValues;
 
     [Fact]
     public void AddedReturnsExpectedResult()
@@ -64,30 +30,6 @@ public class RecordTypeTests
     }
 
     [Fact]
-    public void ModifiedReturnsExpectedResult()
-    {
-        Assert.Equal("Modified", RecordType.Modified);
-    }
-
-    [Fact]
-    public void ModifiedTranslationReturnsExpectedResult()
-    {
-        Assert.Equal(3, RecordType.Modified.Translation.Identifier);
-    }
-
-    [Fact]
-    public void RemovedReturnsExpectedResult()
-    {
-        Assert.Equal("Removed", RecordType.Removed);
-    }
-
-    [Fact]
-    public void RemovedTranslationReturnsExpectedResult()
-    {
-        Assert.Equal(4, RecordType.Removed.Translation.Identifier);
-    }
-
-    [Fact]
     public void AllReturnsExpectedResult()
     {
         Assert.Equal(
@@ -99,6 +41,40 @@ public class RecordTypeTests
                 RecordType.Removed
             },
             RecordType.All);
+    }
+
+    [Fact]
+    public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+    {
+        var value = _fixture.Create<string>();
+        var result = RecordType.CanParse(value);
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+    {
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        var result = RecordType.CanParse(value);
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void CanParseValueCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => RecordType.CanParse(null));
+    }
+
+    [Fact]
+    public void EqualTranslationReturnsExpectedResult()
+    {
+        Assert.Equal(1, RecordType.Identical.Translation.Identifier);
+    }
+
+    [Fact]
+    public void IdenticalReturnsExpectedResult()
+    {
+        Assert.Equal("Identical", RecordType.Identical);
     }
 
     [Fact]
@@ -122,26 +98,15 @@ public class RecordTypeTests
     }
 
     [Fact]
-    public void ToStringReturnsExpectedResult()
+    public void ModifiedReturnsExpectedResult()
     {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        var sut = RecordType.Parse(value);
-        var result = sut.ToString();
-
-        Assert.Equal(value, result);
+        Assert.Equal("Modified", RecordType.Modified);
     }
 
     [Fact]
-    public void ParseValueCanNotBeNull()
+    public void ModifiedTranslationReturnsExpectedResult()
     {
-        Assert.Throws<ArgumentNullException>(() => RecordType.Parse(null));
-    }
-
-    [Fact]
-    public void ParseReturnsExpectedResultWhenValueIsWellKnown()
-    {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        Assert.NotNull(RecordType.Parse(value));
+        Assert.Equal(3, RecordType.Modified.Translation.Identifier);
     }
 
     [Fact]
@@ -152,9 +117,47 @@ public class RecordTypeTests
     }
 
     [Fact]
-    public void TryParseValueCanNotBeNull()
+    public void ParseReturnsExpectedResultWhenValueIsWellKnown()
     {
-        Assert.Throws<ArgumentNullException>(() => RecordType.TryParse(null, out _));
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        Assert.NotNull(RecordType.Parse(value));
+    }
+
+    [Fact]
+    public void ParseValueCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => RecordType.Parse(null));
+    }
+
+    [Fact]
+    public void RemovedReturnsExpectedResult()
+    {
+        Assert.Equal("Removed", RecordType.Removed);
+    }
+
+    [Fact]
+    public void RemovedTranslationReturnsExpectedResult()
+    {
+        Assert.Equal(4, RecordType.Removed.Translation.Identifier);
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        var sut = RecordType.Parse(value);
+        var result = sut.ToString();
+
+        Assert.Equal(value, result);
+    }
+
+    [Fact]
+    public void TryParseReturnsExpectedResultWhenValueIsUnknown()
+    {
+        var value = _fixture.Create<string>();
+        var result = RecordType.TryParse(value, out var parsed);
+        Assert.False(result);
+        Assert.Null(parsed);
     }
 
     [Fact]
@@ -168,33 +171,30 @@ public class RecordTypeTests
     }
 
     [Fact]
-    public void TryParseReturnsExpectedResultWhenValueIsUnknown()
+    public void TryParseValueCanNotBeNull()
     {
-        var value = _fixture.Create<string>();
-        var result = RecordType.TryParse(value, out var parsed);
-        Assert.False(result);
-        Assert.Null(parsed);
+        Assert.Throws<ArgumentNullException>(() => RecordType.TryParse(null, out _));
     }
 
     [Fact]
-    public void CanParseValueCanNotBeNull()
+    public void VerifyBehavior()
     {
-        Assert.Throws<ArgumentNullException>(() => RecordType.CanParse(null));
-    }
-
-    [Fact]
-    public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
-    {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        var result = RecordType.CanParse(value);
-        Assert.True(result);
-    }
-
-    [Fact]
-    public void CanParseReturnsExpectedResultWhenValueIsUnknown()
-    {
-        var value = _fixture.Create<string>();
-        var result = RecordType.CanParse(value);
-        Assert.False(result);
+        _fixture.Customizations.Add(
+            new FiniteSequenceGenerator<string>(_knownValues));
+        new CompositeIdiomaticAssertion(
+            new ImplicitConversionOperatorAssertion<string>(_fixture),
+            new EquatableEqualsSelfAssertion(_fixture),
+            new EquatableEqualsOtherAssertion(_fixture),
+            new EqualityOperatorEqualsSelfAssertion(_fixture),
+            new EqualityOperatorEqualsOtherAssertion(_fixture),
+            new InequalityOperatorEqualsSelfAssertion(_fixture),
+            new InequalityOperatorEqualsOtherAssertion(_fixture),
+            new EqualsNewObjectAssertion(_fixture),
+            new EqualsNullAssertion(_fixture),
+            new EqualsSelfAssertion(_fixture),
+            new EqualsOtherAssertion(_fixture),
+            new EqualsSuccessiveAssertion(_fixture),
+            new GetHashCodeSuccessiveAssertion(_fixture)
+        ).Verify(typeof(RecordType));
     }
 }

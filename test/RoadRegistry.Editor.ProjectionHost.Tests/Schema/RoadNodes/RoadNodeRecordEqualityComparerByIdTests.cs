@@ -5,12 +5,12 @@ using FluentAssertions;
 
 public class RoadNodeRecordEqualityComparerByIdTests
 {
-    private readonly RoadNodeRecordEqualityComparerById _sut;
-
     public RoadNodeRecordEqualityComparerByIdTests()
     {
         _sut = new RoadNodeRecordEqualityComparerById();
     }
+
+    private readonly RoadNodeRecordEqualityComparerById _sut;
 
     [Theory]
     [MemberData(nameof(GetTestCases))]

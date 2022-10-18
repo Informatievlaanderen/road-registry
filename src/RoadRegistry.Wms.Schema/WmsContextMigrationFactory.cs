@@ -12,21 +12,21 @@ public class WmsContextMigrationFactory : RunnerDbContextMigrationFactory<WmsCon
     {
     }
 
-    private static MigrationHistoryConfiguration HistoryConfiguration =>
-        new()
-        {
-            Schema = WellknownSchemas.WmsSchema,
-            Table = MigrationTables.Wms
-        };
+    protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
+    {
+        sqlServerOptions.UseNetTopologySuite();
+        base.ConfigureSqlServerOptions(sqlServerOptions);
+    }
 
     protected override WmsContext CreateContext(DbContextOptions<WmsContext> migrationContextOptions)
     {
         return new WmsContext(migrationContextOptions);
     }
 
-    protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
-    {
-        sqlServerOptions.UseNetTopologySuite();
-        base.ConfigureSqlServerOptions(sqlServerOptions);
-    }
+    private static MigrationHistoryConfiguration HistoryConfiguration =>
+        new()
+        {
+            Schema = WellknownSchemas.WmsSchema,
+            Table = MigrationTables.Wms
+        };
 }

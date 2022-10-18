@@ -14,7 +14,8 @@ public class SqsQueuePublisherNotFoundException : ApplicationException
 
     protected SqsQueuePublisherNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public string ArgumentName { get; init; }
 }

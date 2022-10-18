@@ -8,71 +8,63 @@ using Xunit;
 
 public class RoadSegmentCategoryTests
 {
-    private readonly Fixture _fixture;
-    private readonly string[] _knownValues;
-
     public RoadSegmentCategoryTests()
     {
         _fixture = new Fixture();
         _knownValues = Array.ConvertAll(RoadSegmentCategory.All, type => type.ToString());
     }
 
+    private readonly Fixture _fixture;
+    private readonly string[] _knownValues;
+
     [Fact]
-    public void VerifyBehavior()
+    public void AllReturnsExpectedResult()
     {
-        _fixture.Customizations.Add(
-            new FiniteSequenceGenerator<string>(_knownValues));
-        new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<string>(_fixture),
-            new EquatableEqualsSelfAssertion(_fixture),
-            new EquatableEqualsOtherAssertion(_fixture),
-            new EqualityOperatorEqualsSelfAssertion(_fixture),
-            new EqualityOperatorEqualsOtherAssertion(_fixture),
-            new InequalityOperatorEqualsSelfAssertion(_fixture),
-            new InequalityOperatorEqualsOtherAssertion(_fixture),
-            new EqualsNewObjectAssertion(_fixture),
-            new EqualsNullAssertion(_fixture),
-            new EqualsSelfAssertion(_fixture),
-            new EqualsOtherAssertion(_fixture),
-            new EqualsSuccessiveAssertion(_fixture),
-            new GetHashCodeSuccessiveAssertion(_fixture)
-        ).Verify(typeof(RoadSegmentCategory));
+        Assert.Equal(
+            new[]
+            {
+                RoadSegmentCategory.Unknown,
+                RoadSegmentCategory.NotApplicable,
+                RoadSegmentCategory.MainRoad,
+                RoadSegmentCategory.LocalRoad,
+                RoadSegmentCategory.LocalRoadType1,
+                RoadSegmentCategory.LocalRoadType2,
+                RoadSegmentCategory.LocalRoadType3,
+                RoadSegmentCategory.PrimaryRoadI,
+                RoadSegmentCategory.PrimaryRoadII,
+                RoadSegmentCategory.PrimaryRoadIIType1,
+                RoadSegmentCategory.PrimaryRoadIIType2,
+                RoadSegmentCategory.PrimaryRoadIIType3,
+                RoadSegmentCategory.PrimaryRoadIIType4,
+                RoadSegmentCategory.SecondaryRoad,
+                RoadSegmentCategory.SecondaryRoadType1,
+                RoadSegmentCategory.SecondaryRoadType2,
+                RoadSegmentCategory.SecondaryRoadType3,
+                RoadSegmentCategory.SecondaryRoadType4
+            },
+            RoadSegmentCategory.All);
     }
 
     [Fact]
-    public void UnknownReturnsExpectedResult()
+    public void CanParseReturnsExpectedResultWhenValueIsUnknown()
     {
-        Assert.Equal("Unknown", RoadSegmentCategory.Unknown);
+        var value = _fixture.Create<string>();
+        var result = RoadSegmentCategory.CanParse(value);
+        Assert.False(result);
     }
 
     [Fact]
-    public void UnknownTranslationReturnsExpectedResult()
+    public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
     {
-        Assert.Equal("-8", RoadSegmentCategory.Unknown.Translation.Identifier);
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        var result = RoadSegmentCategory.CanParse(value);
+        Assert.True(result);
     }
 
     [Fact]
-    public void NotApplicableReturnsExpectedResult()
+    public void CanParseValueCanNotBeNull()
     {
-        Assert.Equal("NotApplicable", RoadSegmentCategory.NotApplicable);
-    }
-
-    [Fact]
-    public void NotApplicableTranslationReturnsExpectedResult()
-    {
-        Assert.Equal("-9", RoadSegmentCategory.NotApplicable.Translation.Identifier);
-    }
-
-    [Fact]
-    public void MainRoadReturnsExpectedResult()
-    {
-        Assert.Equal("MainRoad", RoadSegmentCategory.MainRoad);
-    }
-
-    [Fact]
-    public void MainRoadTranslationReturnsExpectedResult()
-    {
-        Assert.Equal("H", RoadSegmentCategory.MainRoad.Translation.Identifier);
+        Assert.Throws<ArgumentNullException>(() => RoadSegmentCategory.CanParse(null));
     }
 
     [Fact]
@@ -124,15 +116,47 @@ public class RoadSegmentCategoryTests
     }
 
     [Fact]
-    public void PrimaryRoadIReturnsExpectedResult()
+    public void MainRoadReturnsExpectedResult()
     {
-        Assert.Equal("PrimaryRoadI", RoadSegmentCategory.PrimaryRoadI);
+        Assert.Equal("MainRoad", RoadSegmentCategory.MainRoad);
     }
 
     [Fact]
-    public void PrimaryRoadITranslationReturnsExpectedResult()
+    public void MainRoadTranslationReturnsExpectedResult()
     {
-        Assert.Equal("PI", RoadSegmentCategory.PrimaryRoadI.Translation.Identifier);
+        Assert.Equal("H", RoadSegmentCategory.MainRoad.Translation.Identifier);
+    }
+
+    [Fact]
+    public void NotApplicableReturnsExpectedResult()
+    {
+        Assert.Equal("NotApplicable", RoadSegmentCategory.NotApplicable);
+    }
+
+    [Fact]
+    public void NotApplicableTranslationReturnsExpectedResult()
+    {
+        Assert.Equal("-9", RoadSegmentCategory.NotApplicable.Translation.Identifier);
+    }
+
+    [Fact]
+    public void ParseReturnsExpectedResultWhenValueIsUnknown()
+    {
+        var value = _fixture.Create<string>();
+        Assert.Throws<FormatException>(() => RoadSegmentCategory.Parse(value));
+    }
+
+    [Fact]
+    public void ParseReturnsExpectedResultWhenValueIsWellKnown()
+    {
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        Assert.NotNull(RoadSegmentCategory.Parse(value));
+    }
+
+    [Fact]
+    public void ParseValueCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => RoadSegmentCategory.Parse(null));
     }
 
     [Fact]
@@ -193,6 +217,18 @@ public class RoadSegmentCategoryTests
     public void PrimaryRoadIIType4TranslationReturnsExpectedResult()
     {
         Assert.Equal("PII-4", RoadSegmentCategory.PrimaryRoadIIType4.Translation.Identifier);
+    }
+
+    [Fact]
+    public void PrimaryRoadIReturnsExpectedResult()
+    {
+        Assert.Equal("PrimaryRoadI", RoadSegmentCategory.PrimaryRoadI);
+    }
+
+    [Fact]
+    public void PrimaryRoadITranslationReturnsExpectedResult()
+    {
+        Assert.Equal("PI", RoadSegmentCategory.PrimaryRoadI.Translation.Identifier);
     }
 
     [Fact]
@@ -257,34 +293,6 @@ public class RoadSegmentCategoryTests
     }
 
     [Fact]
-    public void AllReturnsExpectedResult()
-    {
-        Assert.Equal(
-            new[]
-            {
-                RoadSegmentCategory.Unknown,
-                RoadSegmentCategory.NotApplicable,
-                RoadSegmentCategory.MainRoad,
-                RoadSegmentCategory.LocalRoad,
-                RoadSegmentCategory.LocalRoadType1,
-                RoadSegmentCategory.LocalRoadType2,
-                RoadSegmentCategory.LocalRoadType3,
-                RoadSegmentCategory.PrimaryRoadI,
-                RoadSegmentCategory.PrimaryRoadII,
-                RoadSegmentCategory.PrimaryRoadIIType1,
-                RoadSegmentCategory.PrimaryRoadIIType2,
-                RoadSegmentCategory.PrimaryRoadIIType3,
-                RoadSegmentCategory.PrimaryRoadIIType4,
-                RoadSegmentCategory.SecondaryRoad,
-                RoadSegmentCategory.SecondaryRoadType1,
-                RoadSegmentCategory.SecondaryRoadType2,
-                RoadSegmentCategory.SecondaryRoadType3,
-                RoadSegmentCategory.SecondaryRoadType4
-            },
-            RoadSegmentCategory.All);
-    }
-
-    [Fact]
     public void ToStringReturnsExpectedResult()
     {
         var value = _knownValues[new Random().Next(0, _knownValues.Length)];
@@ -295,29 +303,12 @@ public class RoadSegmentCategoryTests
     }
 
     [Fact]
-    public void ParseValueCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => RoadSegmentCategory.Parse(null));
-    }
-
-    [Fact]
-    public void ParseReturnsExpectedResultWhenValueIsWellKnown()
-    {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        Assert.NotNull(RoadSegmentCategory.Parse(value));
-    }
-
-    [Fact]
-    public void ParseReturnsExpectedResultWhenValueIsUnknown()
+    public void TryParseReturnsExpectedResultWhenValueIsUnknown()
     {
         var value = _fixture.Create<string>();
-        Assert.Throws<FormatException>(() => RoadSegmentCategory.Parse(value));
-    }
-
-    [Fact]
-    public void TryParseValueCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => RoadSegmentCategory.TryParse(null, out _));
+        var result = RoadSegmentCategory.TryParse(value, out var parsed);
+        Assert.False(result);
+        Assert.Null(parsed);
     }
 
     [Fact]
@@ -331,33 +322,42 @@ public class RoadSegmentCategoryTests
     }
 
     [Fact]
-    public void TryParseReturnsExpectedResultWhenValueIsUnknown()
+    public void TryParseValueCanNotBeNull()
     {
-        var value = _fixture.Create<string>();
-        var result = RoadSegmentCategory.TryParse(value, out var parsed);
-        Assert.False(result);
-        Assert.Null(parsed);
+        Assert.Throws<ArgumentNullException>(() => RoadSegmentCategory.TryParse(null, out _));
     }
 
     [Fact]
-    public void CanParseValueCanNotBeNull()
+    public void UnknownReturnsExpectedResult()
     {
-        Assert.Throws<ArgumentNullException>(() => RoadSegmentCategory.CanParse(null));
+        Assert.Equal("Unknown", RoadSegmentCategory.Unknown);
     }
 
     [Fact]
-    public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+    public void UnknownTranslationReturnsExpectedResult()
     {
-        var value = _fixture.Create<string>();
-        var result = RoadSegmentCategory.CanParse(value);
-        Assert.False(result);
+        Assert.Equal("-8", RoadSegmentCategory.Unknown.Translation.Identifier);
     }
 
     [Fact]
-    public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+    public void VerifyBehavior()
     {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        var result = RoadSegmentCategory.CanParse(value);
-        Assert.True(result);
+        _fixture.Customizations.Add(
+            new FiniteSequenceGenerator<string>(_knownValues));
+        new CompositeIdiomaticAssertion(
+            new ImplicitConversionOperatorAssertion<string>(_fixture),
+            new EquatableEqualsSelfAssertion(_fixture),
+            new EquatableEqualsOtherAssertion(_fixture),
+            new EqualityOperatorEqualsSelfAssertion(_fixture),
+            new EqualityOperatorEqualsOtherAssertion(_fixture),
+            new InequalityOperatorEqualsSelfAssertion(_fixture),
+            new InequalityOperatorEqualsOtherAssertion(_fixture),
+            new EqualsNewObjectAssertion(_fixture),
+            new EqualsNullAssertion(_fixture),
+            new EqualsSelfAssertion(_fixture),
+            new EqualsOtherAssertion(_fixture),
+            new EqualsSuccessiveAssertion(_fixture),
+            new GetHashCodeSuccessiveAssertion(_fixture)
+        ).Verify(typeof(RoadSegmentCategory));
     }
 }

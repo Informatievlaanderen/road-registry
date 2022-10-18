@@ -4,10 +4,6 @@ using Microsoft.Data.SqlClient;
 
 public class SqlServerComposedContainer : ISqlServerDatabase
 {
-    private readonly string _serviceName;
-    private readonly SqlConnectionStringBuilder _builder;
-    private int _db;
-
     public SqlServerComposedContainer(string serviceName)
     {
         _serviceName = serviceName;
@@ -25,6 +21,52 @@ public class SqlServerComposedContainer : ISqlServerDatabase
                 IntegratedSecurity = false
             };
         ;
+    }
+
+    private readonly SqlConnectionStringBuilder _builder;
+    private int _db;
+    private readonly string _serviceName;
+
+    private SqlConnectionStringBuilder CreateConnectionStringBuilder(string database)
+    {
+        return new SqlConnectionStringBuilder(_builder.ConnectionString)
+        {
+            InitialCatalog = database
+        };
+    }
+
+    public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
+    {
+        var database = $"DB-{_serviceName}-{Interlocked.Increment(ref _db)}";
+        var text = $@"
+CREATE DATABASE [{database}]
+ALTER DATABASE [{database}] SET ALLOW_SNAPSHOT_ISOLATION ON
+ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
+        await using (var connection = new SqlConnection(CreateMasterConnectionStringBuilder().ConnectionString))
+        {
+            await connection.OpenAsync();
+            await using (var command = new SqlCommand(text, connection))
+            {
+                await command.ExecuteNonQueryAsync();
+            }
+
+            connection.Close();
+        }
+
+        return CreateConnectionStringBuilder(database);
+    }
+
+    private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
+    {
+        return new SqlConnectionStringBuilder(_builder.ConnectionString)
+        {
+            InitialCatalog = "master"
+        };
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     public async Task InitializeAsync()
@@ -63,47 +105,5 @@ public class SqlServerComposedContainer : ISqlServerDatabase
             await Task.Delay(result);
             result = await WaitUntilAvailable(attempt++);
         }
-    }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
-    }
-
-    public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
-    {
-        var database = $"DB-{_serviceName}-{Interlocked.Increment(ref _db)}";
-        var text = $@"
-CREATE DATABASE [{database}]
-ALTER DATABASE [{database}] SET ALLOW_SNAPSHOT_ISOLATION ON
-ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
-        await using (var connection = new SqlConnection(CreateMasterConnectionStringBuilder().ConnectionString))
-        {
-            await connection.OpenAsync();
-            await using (var command = new SqlCommand(text, connection))
-            {
-                await command.ExecuteNonQueryAsync();
-            }
-
-            connection.Close();
-        }
-
-        return CreateConnectionStringBuilder(database);
-    }
-
-    private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
-    {
-        return new SqlConnectionStringBuilder(_builder.ConnectionString)
-        {
-            InitialCatalog = "master"
-        };
-    }
-
-    private SqlConnectionStringBuilder CreateConnectionStringBuilder(string database)
-    {
-        return new SqlConnectionStringBuilder(_builder.ConnectionString)
-        {
-            InitialCatalog = database
-        };
     }
 }

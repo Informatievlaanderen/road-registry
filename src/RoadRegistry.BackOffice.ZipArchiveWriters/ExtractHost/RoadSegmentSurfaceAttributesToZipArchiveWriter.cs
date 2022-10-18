@@ -7,19 +7,18 @@ using Editor.Schema;
 using Editor.Schema.RoadSegments;
 using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 
 public class RoadSegmentSurfaceAttributesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
-    private readonly Encoding _encoding;
-    private readonly RecyclableMemoryStreamManager _manager;
-
     public RoadSegmentSurfaceAttributesToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
     {
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
+
+    private readonly Encoding _encoding;
+    private readonly RecyclableMemoryStreamManager _manager;
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
         EditorContext context,

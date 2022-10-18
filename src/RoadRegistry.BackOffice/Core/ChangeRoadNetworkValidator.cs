@@ -94,66 +94,28 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
                 .Count(_ => !ReferenceEquals(_, null)) == 1;
     }
 
-    private static bool OnlyHaveUniqueTemporaryRoadNodeIdentifiers(RequestedChange[] changes)
+    private static bool OnlyHaveUniqueLaneAttributeIdentifiers(RequestedChange[] changes)
     {
         if (changes == null) return true;
 
         var identifiers = changes
-            .Where(change => change?.AddRoadNode != null)
-            .Select(change => change.AddRoadNode.TemporaryId)
-            .ToArray();
-        return identifiers.Length == identifiers.Distinct().Count();
-    }
-
-    private static bool OnlyHaveUniquePermanentRoadNodeIdentifiers(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        var identifiers = changes
-            .Where(change => change?.ModifyRoadNode != null)
-            .Select(change => change.ModifyRoadNode.Id)
-            .Union(
-                changes
-                    .Where(change => change?.RemoveRoadNode != null)
-                    .Select(change => change.RemoveRoadNode.Id)
+            .Where(change => change?.AddRoadSegment?.Lanes != null)
+            .SelectMany(change => change.AddRoadSegment.Lanes.Where(item => item != null).Select(lane => lane.AttributeId))
+            .Union(changes
+                .Where(change => change?.ModifyRoadSegment?.Lanes != null)
+                .SelectMany(change => change.ModifyRoadSegment.Lanes.Where(item => item != null).Select(lane => lane.AttributeId))
             )
             .ToArray();
         return identifiers.Length == identifiers.Distinct().Count();
     }
 
-    private static bool OnlyHaveUniqueTemporaryRoadSegmentIdentifiers(RequestedChange[] changes)
+    private static bool OnlyHaveUniquePermanentEuropeanRoadAttributeIdentifiers(RequestedChange[] changes)
     {
         if (changes == null) return true;
 
         var identifiers = changes
-            .Where(change => change?.AddRoadSegment != null)
-            .Select(change => change.AddRoadSegment.TemporaryId)
-            .ToArray();
-        return identifiers.Length == identifiers.Distinct().Count();
-    }
-
-    private static bool OnlyHaveUniquePermanentRoadSegmentIdentifiers(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        var identifiers = changes
-            .Where(change => change?.ModifyRoadSegment != null)
-            .Select(change => change.ModifyRoadSegment.Id)
-            .Union(
-                changes
-                    .Where(change => change?.RemoveRoadSegment != null)
-                    .Select(change => change.RemoveRoadSegment.Id))
-            .ToArray();
-        return identifiers.Length == identifiers.Distinct().Count();
-    }
-
-    private static bool OnlyHaveUniqueTemporaryGradeSeparatedIdentifiers(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        var identifiers = changes
-            .Where(change => change?.AddGradeSeparatedJunction != null)
-            .Select(change => change.AddGradeSeparatedJunction.TemporaryId)
+            .Where(change => change?.RemoveRoadSegmentFromEuropeanRoad != null)
+            .Select(change => change.RemoveRoadSegmentFromEuropeanRoad.AttributeId)
             .ToArray();
         return identifiers.Length == identifiers.Distinct().Count();
     }
@@ -174,39 +136,6 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
         return identifiers.Length == identifiers.Distinct().Count();
     }
 
-    private static bool OnlyHaveUniqueTemporaryEuropeanRoadAttributeIdentifiers(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        var identifiers = changes
-            .Where(change => change?.AddRoadSegmentToEuropeanRoad != null)
-            .Select(change => change.AddRoadSegmentToEuropeanRoad.TemporaryAttributeId)
-            .ToArray();
-        return identifiers.Length == identifiers.Distinct().Count();
-    }
-
-    private static bool OnlyHaveUniquePermanentEuropeanRoadAttributeIdentifiers(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        var identifiers = changes
-            .Where(change => change?.RemoveRoadSegmentFromEuropeanRoad != null)
-            .Select(change => change.RemoveRoadSegmentFromEuropeanRoad.AttributeId)
-            .ToArray();
-        return identifiers.Length == identifiers.Distinct().Count();
-    }
-
-    private static bool OnlyHaveUniqueTemporaryNationalRoadAttributeIdentifiers(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        var identifiers = changes
-            .Where(change => change?.AddRoadSegmentToNationalRoad != null)
-            .Select(change => change.AddRoadSegmentToNationalRoad.TemporaryAttributeId)
-            .ToArray();
-        return identifiers.Length == identifiers.Distinct().Count();
-    }
-
     private static bool OnlyHaveUniquePermanentNationalRoadAttributeIdentifiers(RequestedChange[] changes)
     {
         if (changes == null) return true;
@@ -214,17 +143,6 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
         var identifiers = changes
             .Where(change => change?.RemoveRoadSegmentFromNationalRoad != null)
             .Select(change => change.RemoveRoadSegmentFromNationalRoad.AttributeId)
-            .ToArray();
-        return identifiers.Length == identifiers.Distinct().Count();
-    }
-
-    private static bool OnlyHaveUniqueTemporaryNumberedRoadAttributeIdentifiers(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        var identifiers = changes
-            .Where(change => change?.AddRoadSegmentToNumberedRoad != null)
-            .Select(change => change.AddRoadSegmentToNumberedRoad.TemporaryAttributeId)
             .ToArray();
         return identifiers.Length == identifiers.Distinct().Count();
     }
@@ -244,32 +162,33 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
         return identifiers.Length == identifiers.Distinct().Count();
     }
 
-    private static bool OnlyHaveUniqueLaneAttributeIdentifiers(RequestedChange[] changes)
+    private static bool OnlyHaveUniquePermanentRoadNodeIdentifiers(RequestedChange[] changes)
     {
         if (changes == null) return true;
 
         var identifiers = changes
-            .Where(change => change?.AddRoadSegment?.Lanes != null)
-            .SelectMany(change => change.AddRoadSegment.Lanes.Where(item => item != null).Select(lane => lane.AttributeId))
-            .Union(changes
-                .Where(change => change?.ModifyRoadSegment?.Lanes != null)
-                .SelectMany(change => change.ModifyRoadSegment.Lanes.Where(item => item != null).Select(lane => lane.AttributeId))
+            .Where(change => change?.ModifyRoadNode != null)
+            .Select(change => change.ModifyRoadNode.Id)
+            .Union(
+                changes
+                    .Where(change => change?.RemoveRoadNode != null)
+                    .Select(change => change.RemoveRoadNode.Id)
             )
             .ToArray();
         return identifiers.Length == identifiers.Distinct().Count();
     }
 
-    private static bool OnlyHaveUniqueWidthAttributeIdentifiers(RequestedChange[] changes)
+    private static bool OnlyHaveUniquePermanentRoadSegmentIdentifiers(RequestedChange[] changes)
     {
         if (changes == null) return true;
 
         var identifiers = changes
-            .Where(change => change?.AddRoadSegment?.Widths != null)
-            .SelectMany(change => change.AddRoadSegment.Widths.Where(item => item != null).Select(width => width.AttributeId))
-            .Union(changes
-                .Where(change => change?.ModifyRoadSegment?.Widths != null)
-                .SelectMany(change => change.ModifyRoadSegment.Widths.Where(item => item != null).Select(width => width.AttributeId))
-            )
+            .Where(change => change?.ModifyRoadSegment != null)
+            .Select(change => change.ModifyRoadSegment.Id)
+            .Union(
+                changes
+                    .Where(change => change?.RemoveRoadSegment != null)
+                    .Select(change => change.RemoveRoadSegment.Id))
             .ToArray();
         return identifiers.Length == identifiers.Distinct().Count();
     }
@@ -285,6 +204,87 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
                 changes
                     .Where(change => change?.ModifyRoadSegment?.Surfaces != null)
                     .SelectMany(change => change.ModifyRoadSegment.Surfaces.Where(item => item != null).Select(surface => surface.AttributeId))
+            )
+            .ToArray();
+        return identifiers.Length == identifiers.Distinct().Count();
+    }
+
+    private static bool OnlyHaveUniqueTemporaryEuropeanRoadAttributeIdentifiers(RequestedChange[] changes)
+    {
+        if (changes == null) return true;
+
+        var identifiers = changes
+            .Where(change => change?.AddRoadSegmentToEuropeanRoad != null)
+            .Select(change => change.AddRoadSegmentToEuropeanRoad.TemporaryAttributeId)
+            .ToArray();
+        return identifiers.Length == identifiers.Distinct().Count();
+    }
+
+    private static bool OnlyHaveUniqueTemporaryGradeSeparatedIdentifiers(RequestedChange[] changes)
+    {
+        if (changes == null) return true;
+
+        var identifiers = changes
+            .Where(change => change?.AddGradeSeparatedJunction != null)
+            .Select(change => change.AddGradeSeparatedJunction.TemporaryId)
+            .ToArray();
+        return identifiers.Length == identifiers.Distinct().Count();
+    }
+
+    private static bool OnlyHaveUniqueTemporaryNationalRoadAttributeIdentifiers(RequestedChange[] changes)
+    {
+        if (changes == null) return true;
+
+        var identifiers = changes
+            .Where(change => change?.AddRoadSegmentToNationalRoad != null)
+            .Select(change => change.AddRoadSegmentToNationalRoad.TemporaryAttributeId)
+            .ToArray();
+        return identifiers.Length == identifiers.Distinct().Count();
+    }
+
+    private static bool OnlyHaveUniqueTemporaryNumberedRoadAttributeIdentifiers(RequestedChange[] changes)
+    {
+        if (changes == null) return true;
+
+        var identifiers = changes
+            .Where(change => change?.AddRoadSegmentToNumberedRoad != null)
+            .Select(change => change.AddRoadSegmentToNumberedRoad.TemporaryAttributeId)
+            .ToArray();
+        return identifiers.Length == identifiers.Distinct().Count();
+    }
+
+    private static bool OnlyHaveUniqueTemporaryRoadNodeIdentifiers(RequestedChange[] changes)
+    {
+        if (changes == null) return true;
+
+        var identifiers = changes
+            .Where(change => change?.AddRoadNode != null)
+            .Select(change => change.AddRoadNode.TemporaryId)
+            .ToArray();
+        return identifiers.Length == identifiers.Distinct().Count();
+    }
+
+    private static bool OnlyHaveUniqueTemporaryRoadSegmentIdentifiers(RequestedChange[] changes)
+    {
+        if (changes == null) return true;
+
+        var identifiers = changes
+            .Where(change => change?.AddRoadSegment != null)
+            .Select(change => change.AddRoadSegment.TemporaryId)
+            .ToArray();
+        return identifiers.Length == identifiers.Distinct().Count();
+    }
+
+    private static bool OnlyHaveUniqueWidthAttributeIdentifiers(RequestedChange[] changes)
+    {
+        if (changes == null) return true;
+
+        var identifiers = changes
+            .Where(change => change?.AddRoadSegment?.Widths != null)
+            .SelectMany(change => change.AddRoadSegment.Widths.Where(item => item != null).Select(width => width.AttributeId))
+            .Union(changes
+                .Where(change => change?.ModifyRoadSegment?.Widths != null)
+                .SelectMany(change => change.ModifyRoadSegment.Widths.Where(item => item != null).Select(width => width.AttributeId))
             )
             .ToArray();
         return identifiers.Length == identifiers.Distinct().Count();

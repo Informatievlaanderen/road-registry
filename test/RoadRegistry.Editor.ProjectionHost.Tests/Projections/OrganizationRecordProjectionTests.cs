@@ -2,19 +2,16 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using System.Text;
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Editor.Projections;
+using Editor.Schema.Organizations;
 using Microsoft.IO;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Editor.Schema.Organizations;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 
 public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
-
     public OrganizationRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -33,6 +30,9 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
                 ).OmitAutoProperties()
         );
     }
+
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
 
     [Fact]
     public Task When_organizations_are_imported()

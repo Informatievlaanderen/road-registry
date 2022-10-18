@@ -12,21 +12,21 @@ public class EditorContextMigrationFactory : RunnerDbContextMigrationFactory<Edi
     {
     }
 
-    private static MigrationHistoryConfiguration HistoryConfiguration =>
-        new()
-        {
-            Schema = WellknownSchemas.EditorSchema,
-            Table = MigrationTables.Editor
-        };
+    protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
+    {
+        sqlServerOptions.UseNetTopologySuite();
+        base.ConfigureSqlServerOptions(sqlServerOptions);
+    }
 
     protected override EditorContext CreateContext(DbContextOptions<EditorContext> migrationContextOptions)
     {
         return new EditorContext(migrationContextOptions);
     }
 
-    protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
-    {
-        sqlServerOptions.UseNetTopologySuite();
-        base.ConfigureSqlServerOptions(sqlServerOptions);
-    }
+    private static MigrationHistoryConfiguration HistoryConfiguration =>
+        new()
+        {
+            Schema = WellknownSchemas.EditorSchema,
+            Table = MigrationTables.Editor
+        };
 }

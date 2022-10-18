@@ -7,8 +7,6 @@ using Dbase;
 
 public class RoadSegmentDbaseRecord : DbaseRecord
 {
-    public static readonly RoadSegmentDbaseSchema Schema = new();
-
     public RoadSegmentDbaseRecord()
     {
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
@@ -67,29 +65,31 @@ public class RoadSegmentDbaseRecord : DbaseRecord
         };
     }
 
+    public DbaseInt32 B_WK_OIDN { get; }
+    public DbaseString BEGINORG { get; }
+    public DbaseDateTime BEGINTIJD { get; }
+    public DbaseString BEHEER { get; }
+    public DbaseInt32 E_WK_OIDN { get; }
+    public DbaseString LBLBEHEER { get; }
+    public DbaseString LBLBGNORG { get; }
+    public DbaseString LBLMETHOD { get; }
+    public DbaseString LBLMORF { get; }
+    public DbaseString LBLSTATUS { get; }
+    public DbaseString LBLTGBEP { get; }
+    public DbaseString LBLWEGCAT { get; }
+    public DbaseString LSTRNM { get; }
+    public DbaseNullableInt32 LSTRNMID { get; }
+    public DbaseInt32 METHODE { get; }
+    public DbaseInt32 MORF { get; }
+    public DbaseDateTime OPNDATUM { get; }
+    public DbaseString RSTRNM { get; }
+    public DbaseNullableInt32 RSTRNMID { get; }
+    public static readonly RoadSegmentDbaseSchema Schema = new();
+    public DbaseInt32 STATUS { get; }
+    public DbaseInt32 TGBEP { get; }
+    public DbaseString WEGCAT { get; }
+    public DbaseString WS_GIDN { get; }
+
     public DbaseInt32 WS_OIDN { get; }
     public DbaseString WS_UIDN { get; }
-    public DbaseString WS_GIDN { get; }
-    public DbaseInt32 B_WK_OIDN { get; }
-    public DbaseInt32 E_WK_OIDN { get; }
-    public DbaseInt32 STATUS { get; }
-    public DbaseString LBLSTATUS { get; }
-    public DbaseInt32 MORF { get; }
-    public DbaseString LBLMORF { get; }
-    public DbaseString WEGCAT { get; }
-    public DbaseString LBLWEGCAT { get; }
-    public DbaseNullableInt32 LSTRNMID { get; }
-    public DbaseString LSTRNM { get; }
-    public DbaseNullableInt32 RSTRNMID { get; }
-    public DbaseString RSTRNM { get; }
-    public DbaseString BEHEER { get; }
-    public DbaseString LBLBEHEER { get; }
-    public DbaseInt32 METHODE { get; }
-    public DbaseString LBLMETHOD { get; }
-    public DbaseDateTime OPNDATUM { get; }
-    public DbaseDateTime BEGINTIJD { get; }
-    public DbaseString BEGINORG { get; }
-    public DbaseString LBLBGNORG { get; }
-    public DbaseInt32 TGBEP { get; }
-    public DbaseString LBLTGBEP { get; }
 }

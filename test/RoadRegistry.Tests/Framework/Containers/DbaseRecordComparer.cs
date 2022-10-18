@@ -5,28 +5,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 public class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>
     where TDbaseRecord : DbaseRecord
 {
-    public bool Equals(TDbaseRecord x, TDbaseRecord y)
-    {
-        if (null == x && null == y)
-            return true;
-
-        if (null == x || null == y || x.GetType() != y.GetType())
-            return false;
-
-        return x.IsDeleted == y.IsDeleted && Equal(x.Values, y.Values);
-    }
-
-    public int GetHashCode(TDbaseRecord obj)
-    {
-        unchecked
-        {
-            return
-                typeof(TDbaseRecord).Name.GetHashCode()
-                ^ (obj?.IsDeleted.GetHashCode() ?? 0 * 397)
-                ^ GetValuesHash(obj?.Values);
-        }
-    }
-
     private bool Equal(DbaseFieldValue[] xValues, DbaseFieldValue[] yValues)
     {
         if (null == xValues && null == yValues)
@@ -38,6 +16,17 @@ public class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>
         return xValues
             .Select<DbaseFieldValue, Func<bool>>((_, i) => { return () => Equals(xValues[i], yValues[i]); })
             .All(areEqual => areEqual());
+    }
+
+    public bool Equals(TDbaseRecord x, TDbaseRecord y)
+    {
+        if (null == x && null == y)
+            return true;
+
+        if (null == x || null == y || x.GetType() != y.GetType())
+            return false;
+
+        return x.IsDeleted == y.IsDeleted && Equal(x.Values, y.Values);
     }
 
     private static bool Equals(DbaseFieldValue x, DbaseFieldValue y)
@@ -70,14 +59,15 @@ public class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>
         throw new NotImplementedException($"No equality impelemented for {x.GetType().FullName}");
     }
 
-    private static int GetValuesHash(DbaseFieldValue[] values)
+    public int GetHashCode(TDbaseRecord obj)
     {
-        if (null == values || 0 == values.Length)
-            return 0;
-
-        return values
-            .Select(GetHashCode)
-            .Aggregate((i, j) => { return i ^ j; });
+        unchecked
+        {
+            return
+                typeof(TDbaseRecord).Name.GetHashCode()
+                ^ (obj?.IsDeleted.GetHashCode() ?? 0 * 397)
+                ^ GetValuesHash(obj?.Values);
+        }
     }
 
     private static int GetHashCode(DbaseFieldValue fieldValue)
@@ -109,5 +99,15 @@ public class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>
             return CreateFieldHashForValue(dbaseString.Value);
 
         throw new NotImplementedException($"No GetHashCode implementation for {fieldValue.GetType().FullName}");
+    }
+
+    private static int GetValuesHash(DbaseFieldValue[] values)
+    {
+        if (null == values || 0 == values.Length)
+            return 0;
+
+        return values
+            .Select(GetHashCode)
+            .Aggregate((i, j) => { return i ^ j; });
     }
 }

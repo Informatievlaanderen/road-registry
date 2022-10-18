@@ -12,41 +12,32 @@ using Xunit.Sdk;
 
 public static class WmsContextScenarioExtensions
 {
-    public static ConnectedProjectionScenario<WmsContext> Scenario(this ConnectedProjection<WmsContext> projection)
+    private static async Task<object[]> AllRecords(this WmsContext context)
     {
-        return new ConnectedProjectionScenario<WmsContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        var records = new List<object>();
+        records.AddRange(await context.RoadSegments.ToArrayAsync());
+        return records.ToArray();
     }
 
-    public static async Task ExpectNone(this ConnectedProjectionScenario<WmsContext> scenario)
+    private static WmsContext CreateContextFor(string database)
     {
-        var database = Guid.NewGuid().ToString("N");
+        var options = new DbContextOptionsBuilder<WmsContext>()
+            .UseInMemoryDatabase(database)
+            .EnableSensitiveDataLogging()
+            .Options;
 
-        var specification = scenario.Verify(async context =>
-        {
-            var actualRecords = await context.AllRecords();
-            return actualRecords.Length == 0
-                ? VerificationResult.Pass()
-                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
-        });
+        return new WmsContext(options);
+    }
 
-        await using (var context = CreateContextFor(database))
-        {
-            var projector = new ConnectedProjector<WmsContext>(specification.Resolver);
-            foreach (var message in specification.Messages)
-            {
-                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
-                await projector.ProjectAsync(context, envelope);
-            }
+    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<WmsContext> specification, VerificationResult result)
+    {
+        var title = string.Empty;
+        var exceptionMessage = new StringBuilder()
+            .AppendLine(title)
+            .AppendTitleBlock("Given", specification.Messages, Formatters.NamedJsonMessage)
+            .Append(result.Message);
 
-            await context.SaveChangesAsync();
-        }
-
-        await using (var context = CreateContextFor(database))
-        {
-            var result = await specification.Verification(context, CancellationToken.None);
-
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
-        }
+        return new XunitException(exceptionMessage.ToString());
     }
 
     public static Task Expect(
@@ -107,31 +98,40 @@ public static class WmsContextScenarioExtensions
         }
     }
 
-    private static async Task<object[]> AllRecords(this WmsContext context)
+    public static async Task ExpectNone(this ConnectedProjectionScenario<WmsContext> scenario)
     {
-        var records = new List<object>();
-        records.AddRange(await context.RoadSegments.ToArrayAsync());
-        return records.ToArray();
+        var database = Guid.NewGuid().ToString("N");
+
+        var specification = scenario.Verify(async context =>
+        {
+            var actualRecords = await context.AllRecords();
+            return actualRecords.Length == 0
+                ? VerificationResult.Pass()
+                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
+        });
+
+        await using (var context = CreateContextFor(database))
+        {
+            var projector = new ConnectedProjector<WmsContext>(specification.Resolver);
+            foreach (var message in specification.Messages)
+            {
+                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
+                await projector.ProjectAsync(context, envelope);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = CreateContextFor(database))
+        {
+            var result = await specification.Verification(context, CancellationToken.None);
+
+            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+        }
     }
 
-    private static WmsContext CreateContextFor(string database)
+    public static ConnectedProjectionScenario<WmsContext> Scenario(this ConnectedProjection<WmsContext> projection)
     {
-        var options = new DbContextOptionsBuilder<WmsContext>()
-            .UseInMemoryDatabase(database)
-            .EnableSensitiveDataLogging()
-            .Options;
-
-        return new WmsContext(options);
-    }
-
-    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<WmsContext> specification, VerificationResult result)
-    {
-        var title = string.Empty;
-        var exceptionMessage = new StringBuilder()
-            .AppendLine(title)
-            .AppendTitleBlock("Given", specification.Messages, Formatters.NamedJsonMessage)
-            .Append(result.Message);
-
-        return new XunitException(exceptionMessage.ToString());
+        return new ConnectedProjectionScenario<WmsContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
 }

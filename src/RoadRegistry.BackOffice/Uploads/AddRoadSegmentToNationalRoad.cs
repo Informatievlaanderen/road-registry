@@ -18,10 +18,11 @@ public class AddRoadSegmentToNationalRoad : ITranslatedChange
         Number = number;
     }
 
-    public RecordNumber RecordNumber { get; }
-    public AttributeId TemporaryAttributeId { get; }
-    public RoadSegmentId SegmentId { get; }
     public NationalRoadNumber Number { get; }
+
+    public RecordNumber RecordNumber { get; }
+    public RoadSegmentId SegmentId { get; }
+    public AttributeId TemporaryAttributeId { get; }
 
     public void TranslateTo(RequestedChange message)
     {

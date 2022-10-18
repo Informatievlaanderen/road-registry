@@ -9,10 +9,11 @@ public sealed class EditorContextNotFoundException : ApplicationException
     {
         ArgumentName = argumentName;
     }
-    
+
     private EditorContextNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public string ArgumentName { get; init; }
 }

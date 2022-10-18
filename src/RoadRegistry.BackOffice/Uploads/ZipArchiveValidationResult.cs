@@ -8,51 +8,14 @@ using System.Linq;
 
 public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem>, IEquatable<ZipArchiveValidationResult>
 {
-    public static readonly ZipArchiveValidationResult Ok = new(
-        ZipArchiveProblems.None,
-        ImmutableHashSet<RoadSegmentId>.Empty);
-
-    private readonly ZipArchiveProblems _problems;
-    private readonly ImmutableHashSet<RoadSegmentId> _segments;
-
     private ZipArchiveValidationResult(ZipArchiveProblems problems, ImmutableHashSet<RoadSegmentId> segments)
     {
         _problems = problems;
         _segments = segments;
     }
 
-    public IReadOnlyCollection<RoadSegmentId> RoadSegments => _segments;
-
-    public bool Equals(ZipArchiveValidationResult other)
-    {
-        return other != null
-               && _problems.SequenceEqual(other._problems)
-               && _segments.SetEquals(other._segments);
-    }
-
-    public IEnumerator<FileProblem> GetEnumerator()
-    {
-        return _problems.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
-    public int Count => _problems.Count;
-
-    public override bool Equals(object obj)
-    {
-        return obj is ZipArchiveValidationResult other && Equals(other);
-    }
-
-    public override int GetHashCode()
-    {
-        return _problems.Aggregate(0, (current, error) => current ^ error.GetHashCode())
-               ^
-               _segments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode());
-    }
+    private readonly ZipArchiveProblems _problems;
+    private readonly ImmutableHashSet<RoadSegmentId> _segments;
 
     public ZipArchiveValidationResult Add(FileProblem problem)
     {
@@ -78,6 +41,41 @@ public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem
         return _segments.Contains(id);
     }
 
+    public int Count => _problems.Count;
+
+    public bool Equals(ZipArchiveValidationResult other)
+    {
+        return other != null
+               && _problems.SequenceEqual(other._problems)
+               && _segments.SetEquals(other._segments);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is ZipArchiveValidationResult other && Equals(other);
+    }
+
+    public IEnumerator<FileProblem> GetEnumerator()
+    {
+        return _problems.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public override int GetHashCode()
+    {
+        return _problems.Aggregate(0, (current, error) => current ^ error.GetHashCode())
+               ^
+               _segments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode());
+    }
+
+    public static readonly ZipArchiveValidationResult Ok = new(
+        ZipArchiveProblems.None,
+        ImmutableHashSet<RoadSegmentId>.Empty);
+
     public static ZipArchiveValidationResult operator +(ZipArchiveValidationResult left, FileProblem right)
     {
         return left.Add(right);
@@ -102,4 +100,6 @@ public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem
             _segments
         );
     }
+
+    public IReadOnlyCollection<RoadSegmentId> RoadSegments => _segments;
 }

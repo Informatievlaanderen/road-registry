@@ -10,6 +10,7 @@ public class ScenarioExpectedEventsButRecordedOtherEvents
         Actual = actual ?? throw new ArgumentNullException(nameof(actual));
     }
 
-    public ExpectEventsScenario Scenario { get; }
     public RecordedEvent[] Actual { get; }
+
+    public ExpectEventsScenario Scenario { get; }
 }

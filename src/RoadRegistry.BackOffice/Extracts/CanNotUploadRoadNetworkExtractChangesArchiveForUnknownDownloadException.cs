@@ -20,8 +20,9 @@ public class CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadExcep
     {
     }
 
+    public DownloadId AttemptedDownloadId { get; }
+
     public ExternalExtractRequestId ExternalRequestId { get; }
     public ExtractRequestId RequestId { get; }
-    public DownloadId AttemptedDownloadId { get; }
     public UploadId UploadId { get; }
 }

@@ -7,6 +7,29 @@ using System.Linq;
 
 internal static class ImmutableDictionaryExtensions
 {
+    public static ImmutableDictionary<TKey, IReadOnlyList<TValue>> Merge<TKey, TValue>(
+        this ImmutableDictionary<TKey, IReadOnlyList<TValue>> dictionary,
+        TKey key,
+        IEnumerable<TValue> values)
+    {
+        if (dictionary.TryGetValue(key, out var mergeable))
+            return dictionary
+                .Remove(key)
+                .Add(key, values.Concat(mergeable).Distinct().ToArray());
+
+        return dictionary.Add(key, values.Distinct().ToArray());
+    }
+
+    public static void Merge<TKey, TValue>(this ImmutableDictionary<TKey, IReadOnlyList<TValue>>.Builder dictionary,
+        TKey key,
+        IEnumerable<TValue> values)
+    {
+        if (dictionary.TryGetValue(key, out var mergeable))
+            dictionary[key] = values.Concat(mergeable).Distinct().ToArray();
+        else
+            dictionary.Add(key, values.Distinct().ToArray());
+    }
+
     public static ImmutableDictionary<TKey, TValue> TryReplace<TKey, TValue>(
         this ImmutableDictionary<TKey, TValue> dictionary,
         TKey key,
@@ -55,28 +78,5 @@ internal static class ImmutableDictionaryExtensions
         if (dictionary.TryGetValue(key, out var value) && predicate(value)) dictionary[key] = replacer(value);
 
         return dictionary;
-    }
-
-    public static ImmutableDictionary<TKey, IReadOnlyList<TValue>> Merge<TKey, TValue>(
-        this ImmutableDictionary<TKey, IReadOnlyList<TValue>> dictionary,
-        TKey key,
-        IEnumerable<TValue> values)
-    {
-        if (dictionary.TryGetValue(key, out var mergeable))
-            return dictionary
-                .Remove(key)
-                .Add(key, values.Concat(mergeable).Distinct().ToArray());
-
-        return dictionary.Add(key, values.Distinct().ToArray());
-    }
-
-    public static void Merge<TKey, TValue>(this ImmutableDictionary<TKey, IReadOnlyList<TValue>>.Builder dictionary,
-        TKey key,
-        IEnumerable<TValue> values)
-    {
-        if (dictionary.TryGetValue(key, out var mergeable))
-            dictionary[key] = values.Concat(mergeable).Distinct().ToArray();
-        else
-            dictionary.Add(key, values.Distinct().ToArray());
     }
 }

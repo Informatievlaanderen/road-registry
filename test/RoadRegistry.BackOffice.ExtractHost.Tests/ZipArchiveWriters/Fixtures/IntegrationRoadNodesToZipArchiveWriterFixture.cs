@@ -1,11 +1,8 @@
 namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters.Fixtures;
 
 using System.Diagnostics;
-using System.Reflection;
 using System.Text;
-using Azure.Core;
 using BackOffice.ZipArchiveWriters.ExtractHost;
-using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
 using Extracts;
 using Microsoft.IO;
@@ -14,16 +11,6 @@ using NetTopologySuite.IO;
 
 public class IntegrationRoadNodesToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyncLifetime
 {
-    private readonly IRoadNetworkExtractArchiveAssembler _assembler;
-
-    public override FileInfo FileInfo => new(Path.Combine("ZipArchiveWriters", "Fixtures", "RoadNodesToZipArchiveWriterFixture.wkt"));
-
-    public override RoadNetworkExtractAssemblyRequest Request => new(
-        new ExternalExtractRequestId("TEST"),
-        new DownloadId(),
-        new ExtractDescription("TEST"),
-        (IPolygonal)Result.Single());
-
     public IntegrationRoadNodesToZipArchiveWriterFixture(WKTReader wktReader, RecyclableMemoryStreamManager memoryStreamManager, Func<EditorContext> contextFactory)
         : base(wktReader)
     {
@@ -32,6 +19,17 @@ public class IntegrationRoadNodesToZipArchiveWriterFixture : ZipArchiveWriterFix
             contextFactory,
             new IntegrationRoadNodesToZipArchiveWriter(memoryStreamManager, Encoding.UTF8));
     }
+
+    private readonly IRoadNetworkExtractArchiveAssembler _assembler;
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    public TimeSpan ElapsedTimeSpan { get; private set; }
+
+    public override FileInfo FileInfo => new(Path.Combine("ZipArchiveWriters", "Fixtures", "RoadNodesToZipArchiveWriterFixture.wkt"));
 
     public async Task InitializeAsync()
     {
@@ -49,10 +47,9 @@ public class IntegrationRoadNodesToZipArchiveWriterFixture : ZipArchiveWriterFix
         }
     }
 
-    public TimeSpan ElapsedTimeSpan { get; private set; }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
-    }
+    public override RoadNetworkExtractAssemblyRequest Request => new(
+        new ExternalExtractRequestId("TEST"),
+        new DownloadId(),
+        new ExtractDescription("TEST"),
+        (IPolygonal)Result.Single());
 }

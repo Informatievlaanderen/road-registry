@@ -33,6 +33,21 @@ namespace RoadRegistry.Legacy.Import
         {
         }
 
+        private static async Task CreateExtraSqlStreamStoreIndexes(SqlConnectionStringBuilder eventsConnectionStringBuilder)
+        {
+            using (var connection = new SqlConnection(eventsConnectionStringBuilder.ConnectionString))
+            {
+                var sqlCommand = new SqlCommand(
+                    $@"IF NOT EXISTS(SELECT * FROM sys.indexes WHERE [name] = 'IX_Messages_StreamIdInternal' AND object_id = OBJECT_ID('{WellknownSchemas.EventSchema}.Messages'))
+                                BEGIN
+                                    CREATE NONCLUSTERED INDEX [IX_Messages_StreamIdInternal] ON {WellknownSchemas.EventSchema}.Messages ([StreamIdInternal])
+                                END",
+                    connection);
+
+                await sqlCommand.ExecuteNonQueryAsync(CancellationToken.None).ConfigureAwait(false);
+            }
+        }
+
         public static async Task Main(string[] args)
         {
             AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
@@ -251,21 +266,6 @@ namespace RoadRegistry.Legacy.Import
             finally
             {
                 Log.CloseAndFlush();
-            }
-        }
-
-        private static async Task CreateExtraSqlStreamStoreIndexes(SqlConnectionStringBuilder eventsConnectionStringBuilder)
-        {
-            using (var connection = new SqlConnection(eventsConnectionStringBuilder.ConnectionString))
-            {
-                var sqlCommand = new SqlCommand(
-                    $@"IF NOT EXISTS(SELECT * FROM sys.indexes WHERE [name] = 'IX_Messages_StreamIdInternal' AND object_id = OBJECT_ID('{WellknownSchemas.EventSchema}.Messages'))
-                                BEGIN
-                                    CREATE NONCLUSTERED INDEX [IX_Messages_StreamIdInternal] ON {WellknownSchemas.EventSchema}.Messages ([StreamIdInternal])
-                                END",
-                    connection);
-
-                await sqlCommand.ExecuteNonQueryAsync(CancellationToken.None).ConfigureAwait(false);
             }
         }
     }

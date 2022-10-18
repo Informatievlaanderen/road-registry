@@ -1,34 +1,24 @@
 using Amazon.Lambda.Core;
-using Amazon.Lambda.SQSEvents;
+using Amazon.Lambda.Serialization.SystemTextJson;
 
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
+[assembly: LambdaSerializer(typeof(DefaultLambdaJsonSerializer))]
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using System.Text;
+using Amazon.Lambda.Core;
+using Amazon.Lambda.SQSEvents;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Commands;
-using Core;
-using Extracts;
-using Hosts;
 using MediatR;
 using Messages;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using NodaTime;
-using RoadRegistry.BackOffice.Framework;
-using SqlStreamStore;
-using Uploads;
-using ZipArchiveWriters.Validation;
 
 public class SqsBackOfficeHandlerFunctions
 {
-    private readonly JsonSerializerSettings _serializerSettings;
-    private readonly IServiceProvider _serviceProvider;
-
     public SqsBackOfficeHandlerFunctions()
     {
         var services = new ServiceCollection();
@@ -39,29 +29,17 @@ public class SqsBackOfficeHandlerFunctions
         _serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     }
 
-    /// <summary>
-    /// Initiates the feature compare docker container.
-    /// </summary>
-    /// <param name="event">The event.</param>
-    /// <param name="context">The context.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-    public async Task InitiateFeatureCompareDockerContainer(SQSEvent @event, ILambdaContext context, CancellationToken cancellationToken)
-    {
-        var message = JsonConvert.DeserializeObject<SqsJsonMessage>(@event.Records.Single().Body, _serializerSettings).Map();
-
-        await _serviceProvider
-            .GetRequiredService<IMediator>()
-            .Send(new InitiateFeatureCompareDockerContainerCommand(context)
-            {
-                ArchiveId = RetrieveArchiveId(message)
-            }, cancellationToken);
-    }
+    private readonly JsonSerializerSettings _serializerSettings;
+    private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
-    /// Checks the feature compare docker container.
+    ///     Checks the feature compare docker container.
     /// </summary>
     /// <param name="context">The context.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     public async Task CheckFeatureCompareDockerContainer(ILambdaContext context, CancellationToken cancellationToken)
     {
         try
@@ -76,11 +54,32 @@ public class SqsBackOfficeHandlerFunctions
     }
 
     /// <summary>
-    /// Retrieves the archive identifier.
+    ///     Initiates the feature compare docker container.
+    /// </summary>
+    /// <param name="event">The event.</param>
+    /// <param name="context">The context.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
+    public async Task InitiateFeatureCompareDockerContainer(SQSEvent @event, ILambdaContext context, CancellationToken cancellationToken)
+    {
+        var message = JsonConvert.DeserializeObject<SqsJsonMessage>(@event.Records.Single().Body, _serializerSettings).Map();
+
+        await _serviceProvider
+            .GetRequiredService<IMediator>()
+            .Send(new InitiateFeatureCompareDockerContainerCommand(context)
+            {
+                ArchiveId = RetrieveArchiveId(message)
+            }, cancellationToken);
+    }
+
+    /// <summary>
+    ///     Retrieves the archive identifier.
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="context">The context.</param>
-    /// <returns><see cref="ArchiveId"/> which will be used to find blob inside the bucket.</returns>
+    /// <returns><see cref="ArchiveId" /> which will be used to find blob inside the bucket.</returns>
     private static ArchiveId RetrieveArchiveId(object message)
     {
         var archiveId = message switch

@@ -7,25 +7,12 @@ using System.Threading.Tasks;
 
 public abstract class EventHandlerModule
 {
-    private readonly List<EventHandler> _handlers;
-
     protected EventHandlerModule()
     {
         _handlers = new List<EventHandler>();
     }
 
-    public EventHandler[] Handlers => _handlers.ToArray();
-
-    protected void Handle<TEvent>(Func<Event<TEvent>, CancellationToken, Task> handler)
-    {
-        if (handler == null)
-            throw new ArgumentNullException(nameof(handler));
-        _handlers.Add(
-            new EventHandler(
-                typeof(TEvent),
-                (message, ct) => handler(new Event<TEvent>(message), ct)
-            ));
-    }
+    private readonly List<EventHandler> _handlers;
 
     protected IEventHandlerBuilder<TEvent> For<TEvent>()
     {
@@ -38,4 +25,17 @@ public abstract class EventHandlerModule
                 ));
         });
     }
+
+    protected void Handle<TEvent>(Func<Event<TEvent>, CancellationToken, Task> handler)
+    {
+        if (handler == null)
+            throw new ArgumentNullException(nameof(handler));
+        _handlers.Add(
+            new EventHandler(
+                typeof(TEvent),
+                (message, ct) => handler(new Event<TEvent>(message), ct)
+            ));
+    }
+
+    public EventHandler[] Handlers => _handlers.ToArray();
 }

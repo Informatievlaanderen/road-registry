@@ -4,8 +4,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentChangeDbaseRecord : DbaseRecord
 {
-    public static readonly RoadSegmentChangeDbaseSchema Schema = new();
-
     public RoadSegmentChangeDbaseRecord()
     {
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
@@ -42,31 +40,32 @@ public class RoadSegmentChangeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 WS_OIDN { get; }
-
-    public DbaseInt16 METHODE { get; }
+    public DbaseInt32 B_WK_OIDN { get; }
 
     public DbaseString BEHEERDER { get; }
 
-    public DbaseInt16 MORFOLOGIE { get; }
-
-    public DbaseInt32 STATUS { get; }
-
     public DbaseString CATEGORIE { get; }
-
-    public DbaseInt32 B_WK_OIDN { get; }
 
     public DbaseInt32 E_WK_OIDN { get; }
 
+    public DbaseInt32 EVENTIDN { get; }
+
     public DbaseNullableInt32 LSTRNMID { get; }
 
+    public DbaseInt16 METHODE { get; }
+
+    public DbaseInt16 MORFOLOGIE { get; }
+
+    public DbaseInt16 RECORDTYPE { get; }
+
     public DbaseNullableInt32 RSTRNMID { get; }
+    public static readonly RoadSegmentChangeDbaseSchema Schema = new();
+
+    public DbaseInt32 STATUS { get; }
 
     public DbaseInt16 TGBEP { get; }
 
     public DbaseInt16 TRANSACTID { get; }
 
-    public DbaseInt16 RECORDTYPE { get; }
-
-    public DbaseInt32 EVENTIDN { get; }
+    public DbaseInt32 WS_OIDN { get; }
 }

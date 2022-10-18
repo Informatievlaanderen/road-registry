@@ -4,6 +4,15 @@ using System.Text;
 
 public static class StringBuilderExtensions
 {
+    public static StringBuilder AppendLines<T>(
+        this StringBuilder builder,
+        IEnumerable<T> collection,
+        Func<T, string> formatter)
+    {
+        foreach (var item in collection) builder.AppendLine(formatter(item));
+        return builder;
+    }
+
     public static StringBuilder AppendTitleBlock(
         this StringBuilder builder,
         string title,
@@ -31,14 +40,5 @@ public static class StringBuilderExtensions
         Func<T, string> formatter)
     {
         return builder.AppendTitleBlock(title, b => b.AppendLines(collection, formatter));
-    }
-
-    public static StringBuilder AppendLines<T>(
-        this StringBuilder builder,
-        IEnumerable<T> collection,
-        Func<T, string> formatter)
-    {
-        foreach (var item in collection) builder.AppendLine(formatter(item));
-        return builder;
     }
 }

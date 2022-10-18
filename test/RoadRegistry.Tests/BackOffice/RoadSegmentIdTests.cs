@@ -10,11 +10,86 @@ using Xunit;
 
 public class RoadSegmentIdTests
 {
-    private readonly Fixture _fixture;
-
     public RoadSegmentIdTests()
     {
         _fixture = new Fixture();
+    }
+
+    private readonly Fixture _fixture;
+
+    [Theory]
+    [InlineData(int.MinValue, false)]
+    [InlineData(-1, false)]
+    [InlineData(0, true)]
+    [InlineData(1, true)]
+    [InlineData(int.MaxValue, true)]
+    public void AcceptsReturnsExpectedResult(int value, bool expected)
+    {
+        var result = RoadSegmentId.Accepts(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(1, 2, -1)]
+    [InlineData(2, 1, 1)]
+    public void CompareToReturnsExpectedResult(int left, int right, int expected)
+    {
+        var sut = new RoadSegmentId(left);
+
+        var result = sut.CompareTo(new RoadSegmentId(right));
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(1, 2, 2)]
+    [InlineData(2, 1, 2)]
+    [InlineData(2, 2, 2)]
+    public void MaxHasExpectedResult(int left, int right, int expected)
+    {
+        var result = RoadSegmentId.Max(new RoadSegmentId(left), new RoadSegmentId(right));
+
+        Assert.Equal(new RoadSegmentId(expected), result);
+    }
+
+    [Theory]
+    [InlineData(1, 2, 1)]
+    [InlineData(2, 1, 1)]
+    [InlineData(1, 1, 1)]
+    public void MinHasExpectedResult(int left, int right, int expected)
+    {
+        var result = RoadSegmentId.Min(new RoadSegmentId(left), new RoadSegmentId(right));
+
+        Assert.Equal(new RoadSegmentId(expected), result);
+    }
+
+    [Fact]
+    public void NextHasExpectedResult()
+    {
+        var value = new Generator<int>(_fixture).First(candidate => candidate >= 0 && candidate < int.MaxValue);
+        var sut = new RoadSegmentId(value);
+
+        var result = sut.Next();
+
+        Assert.Equal(new RoadSegmentId(value + 1), result);
+    }
+
+    [Fact]
+    public void NextThrowsWhenMaximumHasBeenReached()
+    {
+        var sut = new RoadSegmentId(int.MaxValue);
+
+        Assert.Throws<NotSupportedException>(() => sut.Next());
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _fixture.Create<int>();
+        var sut = new RoadSegmentId(value);
+
+        Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
     }
 
     [Fact]
@@ -40,80 +115,5 @@ public class RoadSegmentIdTests
 
         new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation())
             .Verify(Constructors.Select(() => new RoadSegmentId(0)));
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = _fixture.Create<int>();
-        var sut = new RoadSegmentId(value);
-
-        Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
-    }
-
-    [Theory]
-    [InlineData(1, 2, -1)]
-    [InlineData(2, 1, 1)]
-    public void CompareToReturnsExpectedResult(int left, int right, int expected)
-    {
-        var sut = new RoadSegmentId(left);
-
-        var result = sut.CompareTo(new RoadSegmentId(right));
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void NextHasExpectedResult()
-    {
-        var value = new Generator<int>(_fixture).First(candidate => candidate >= 0 && candidate < int.MaxValue);
-        var sut = new RoadSegmentId(value);
-
-        var result = sut.Next();
-
-        Assert.Equal(new RoadSegmentId(value + 1), result);
-    }
-
-    [Fact]
-    public void NextThrowsWhenMaximumHasBeenReached()
-    {
-        var sut = new RoadSegmentId(int.MaxValue);
-
-        Assert.Throws<NotSupportedException>(() => sut.Next());
-    }
-
-    [Theory]
-    [InlineData(int.MinValue, false)]
-    [InlineData(-1, false)]
-    [InlineData(0, true)]
-    [InlineData(1, true)]
-    [InlineData(int.MaxValue, true)]
-    public void AcceptsReturnsExpectedResult(int value, bool expected)
-    {
-        var result = RoadSegmentId.Accepts(value);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Theory]
-    [InlineData(1, 2, 2)]
-    [InlineData(2, 1, 2)]
-    [InlineData(2, 2, 2)]
-    public void MaxHasExpectedResult(int left, int right, int expected)
-    {
-        var result = RoadSegmentId.Max(new RoadSegmentId(left), new RoadSegmentId(right));
-
-        Assert.Equal(new RoadSegmentId(expected), result);
-    }
-
-    [Theory]
-    [InlineData(1, 2, 1)]
-    [InlineData(2, 1, 1)]
-    [InlineData(1, 1, 1)]
-    public void MinHasExpectedResult(int left, int right, int expected)
-    {
-        var result = RoadSegmentId.Min(new RoadSegmentId(left), new RoadSegmentId(right));
-
-        Assert.Equal(new RoadSegmentId(expected), result);
     }
 }

@@ -5,11 +5,11 @@ using NetTopologySuite.Geometries;
 
 public interface IScopedRoadNetworkView
 {
-    Envelope Scope { get; }
+    IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
 
     IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes { get; }
+    Envelope Scope { get; }
     IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments { get; }
-    IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
 
     IRoadNetworkView View { get; }
 }

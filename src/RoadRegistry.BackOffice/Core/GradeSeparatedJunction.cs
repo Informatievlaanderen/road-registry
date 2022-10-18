@@ -17,9 +17,14 @@ public class GradeSeparatedJunction
     }
 
     public GradeSeparatedJunctionId Id { get; }
+    public RoadSegmentId LowerSegment { get; }
     public GradeSeparatedJunctionType Type { get; }
     public RoadSegmentId UpperSegment { get; }
-    public RoadSegmentId LowerSegment { get; }
+
+    public GradeSeparatedJunction WithLowerSegment(RoadSegmentId value)
+    {
+        return new GradeSeparatedJunction(Id, Type, UpperSegment, value);
+    }
 
     public GradeSeparatedJunction WithType(GradeSeparatedJunctionType type)
     {
@@ -29,10 +34,5 @@ public class GradeSeparatedJunction
     public GradeSeparatedJunction WithUpperSegment(RoadSegmentId value)
     {
         return new GradeSeparatedJunction(Id, Type, value, LowerSegment);
-    }
-
-    public GradeSeparatedJunction WithLowerSegment(RoadSegmentId value)
-    {
-        return new GradeSeparatedJunction(Id, Type, UpperSegment, value);
     }
 }

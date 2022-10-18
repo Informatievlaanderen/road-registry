@@ -12,15 +12,24 @@ public class RemoveRoadNode : IRequestedChange
 
     public RoadNodeId Id { get; }
 
-    public Problems VerifyBefore(BeforeVerificationContext context)
+    public void TranslateTo(Messages.AcceptedChange message)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        if (message == null) throw new ArgumentNullException(nameof(message));
 
-        var problems = Problems.None;
+        message.RoadNodeRemoved = new RoadNodeRemoved
+        {
+            Id = Id
+        };
+    }
 
-        if (!context.BeforeView.View.Nodes.ContainsKey(Id)) problems = problems.Add(new RoadNodeNotFound());
+    public void TranslateTo(Messages.RejectedChange message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
 
-        return problems;
+        message.RemoveRoadNode = new Messages.RemoveRoadNode
+        {
+            Id = Id
+        };
     }
 
     public Problems VerifyAfter(AfterVerificationContext context)
@@ -42,23 +51,14 @@ public class RemoveRoadNode : IRequestedChange
         return problems;
     }
 
-    public void TranslateTo(Messages.AcceptedChange message)
+    public Problems VerifyBefore(BeforeVerificationContext context)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        if (context == null) throw new ArgumentNullException(nameof(context));
 
-        message.RoadNodeRemoved = new RoadNodeRemoved
-        {
-            Id = Id
-        };
-    }
+        var problems = Problems.None;
 
-    public void TranslateTo(Messages.RejectedChange message)
-    {
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        if (!context.BeforeView.View.Nodes.ContainsKey(Id)) problems = problems.Add(new RoadNodeNotFound());
 
-        message.RemoveRoadNode = new Messages.RemoveRoadNode
-        {
-            Id = Id
-        };
+        return problems;
     }
 }

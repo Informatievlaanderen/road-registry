@@ -22,29 +22,6 @@ public class RoadSegmentGeometryValidatorTests
 
     public Fixture Fixture { get; }
 
-    public RoadSegmentGeometryValidator Validator { get; }
-
-    [Theory]
-    [InlineData(int.MinValue)]
-    [InlineData(-1)]
-    public void SpatialReferenceSystemIdentifierMustBeGreaterThan(int value)
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.SpatialReferenceSystemIdentifier, value);
-    }
-
-    [Fact]
-    public void MultiLineStringCanNotBeNull()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.MultiLineString, (LineString[])null);
-    }
-
-    [Fact]
-    public void MultiLineStringCanOnlyHaveOneLineString()
-    {
-        var lineStrings = Fixture.CreateMany<LineString>(new Random().Next(2, 10)).ToArray();
-        Validator.ShouldHaveValidationErrorFor(c => c.MultiLineString, lineStrings);
-    }
-
     [Fact]
     public void LineStringCanNotBeNull()
     {
@@ -60,6 +37,29 @@ public class RoadSegmentGeometryValidatorTests
     {
         Validator.ShouldHaveChildValidator(c => c.MultiLineString, typeof(LineStringValidator));
     }
+
+    [Fact]
+    public void MultiLineStringCanNotBeNull()
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.MultiLineString, (LineString[])null);
+    }
+
+    [Fact]
+    public void MultiLineStringCanOnlyHaveOneLineString()
+    {
+        var lineStrings = Fixture.CreateMany<LineString>(new Random().Next(2, 10)).ToArray();
+        Validator.ShouldHaveValidationErrorFor(c => c.MultiLineString, lineStrings);
+    }
+
+    [Theory]
+    [InlineData(int.MinValue)]
+    [InlineData(-1)]
+    public void SpatialReferenceSystemIdentifierMustBeGreaterThan(int value)
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.SpatialReferenceSystemIdentifier, value);
+    }
+
+    public RoadSegmentGeometryValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

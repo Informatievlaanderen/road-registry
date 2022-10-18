@@ -10,13 +10,6 @@ using Xunit;
 
 public class RoadNodeChangeDbaseRecordsTranslatorTests : IDisposable
 {
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly RoadNodeChangeDbaseRecordsTranslator _sut;
-
     public RoadNodeChangeDbaseRecordsTranslatorTests()
     {
         _fixture = new Fixture();
@@ -41,6 +34,13 @@ public class RoadNodeChangeDbaseRecordsTranslatorTests : IDisposable
         _entry = _archive.CreateEntry("wegknoop_all.dbf");
     }
 
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly RoadNodeChangeDbaseRecordsTranslator _sut;
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -54,6 +54,12 @@ public class RoadNodeChangeDbaseRecordsTranslatorTests : IDisposable
     }
 
     [Fact]
+    public void TranslateChangesCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void TranslateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(null, _enumerator, TranslatedChanges.Empty));
@@ -63,12 +69,6 @@ public class RoadNodeChangeDbaseRecordsTranslatorTests : IDisposable
     public void TranslateRecordsCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, null, TranslatedChanges.Empty));
-    }
-
-    [Fact]
-    public void TranslateChangesCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
     }
 
     [Fact]

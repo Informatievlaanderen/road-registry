@@ -6,11 +6,13 @@ public class DownloadExtractByNisCodeNotFoundException : DownloadExtractNotFound
 {
     public DownloadExtractByNisCodeNotFoundException(string message)
         : base(message ?? "Could not find download extract with the specified NIS code")
-    { }
-    
+    {
+    }
+
     private DownloadExtractByNisCodeNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public string NisCode { get; set; }
 }

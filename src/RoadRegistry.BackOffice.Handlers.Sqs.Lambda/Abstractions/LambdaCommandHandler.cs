@@ -1,9 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Abstractions;
 
 using Amazon.Lambda.Core;
-using Framework;
 using MediatR;
-using Microsoft.Extensions.Logging;
 
 public abstract class LambdaCommandHandler<TCommand> : IRequestHandler<TCommand>
     where TCommand : LambdaCommand

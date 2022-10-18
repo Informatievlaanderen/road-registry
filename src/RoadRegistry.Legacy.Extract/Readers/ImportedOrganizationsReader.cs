@@ -11,14 +11,14 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
     public class ImportedOrganizationsReader : IEventReader
     {
-        private readonly IClock _clock;
-        private readonly ILogger<ImportedOrganizationsReader> _logger;
-
         public ImportedOrganizationsReader(IClock clock, ILogger<ImportedOrganizationsReader> logger)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        private readonly IClock _clock;
+        private readonly ILogger<ImportedOrganizationsReader> _logger;
 
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {

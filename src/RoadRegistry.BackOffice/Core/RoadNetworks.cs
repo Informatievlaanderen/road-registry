@@ -12,16 +12,6 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworks : IRoadNetworks
 {
-    private const int StreamPageSize = 100;
-
-    public static readonly StreamName Stream = new("roadnetwork");
-
-    private readonly EventSourcedEntityMap _map;
-    private readonly EventMapping _mapping;
-    private readonly JsonSerializerSettings _settings;
-    private readonly IRoadNetworkSnapshotReader _snapshotReader;
-    private readonly IStreamStore _store;
-
     public RoadNetworks(EventSourcedEntityMap map, IStreamStore store, IRoadNetworkSnapshotReader snapshotReader,
         JsonSerializerSettings settings, EventMapping mapping)
     {
@@ -31,6 +21,12 @@ public class RoadNetworks : IRoadNetworks
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
         _snapshotReader = snapshotReader ?? throw new ArgumentNullException(nameof(snapshotReader));
     }
+
+    private readonly EventSourcedEntityMap _map;
+    private readonly EventMapping _mapping;
+    private readonly JsonSerializerSettings _settings;
+    private readonly IRoadNetworkSnapshotReader _snapshotReader;
+    private readonly IStreamStore _store;
 
     public async Task<RoadNetwork> Get(CancellationToken ct = default)
     {
@@ -144,4 +140,7 @@ public class RoadNetworks : IRoadNetworks
         _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, page.LastStreamVersion));
         return (roadNetwork, page.LastStreamVersion);
     }
+
+    public static readonly StreamName Stream = new("roadnetwork");
+    private const int StreamPageSize = 100;
 }

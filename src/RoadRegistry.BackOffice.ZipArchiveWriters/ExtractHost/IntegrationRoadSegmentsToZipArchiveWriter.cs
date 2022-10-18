@@ -4,22 +4,15 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
 using Editor.Schema.RoadSegments;
 using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 
 public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
-    private readonly Encoding _encoding;
-    private readonly RecyclableMemoryStreamManager _manager;
-    private readonly IStreetNameCache _streetNameCache;
-    private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
-
     public IntegrationRoadSegmentsToZipArchiveWriter(
         ZipArchiveWriterOptions zipArchiveWriterOptions,
         IStreetNameCache streetNameCache,
@@ -31,6 +24,11 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
+
+    private readonly Encoding _encoding;
+    private readonly RecyclableMemoryStreamManager _manager;
+    private readonly IStreetNameCache _streetNameCache;
+    private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
         EditorContext context,
@@ -53,7 +51,7 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
                 (dbSet, polygon) => dbSet.InsideContour((IPolygonal)((Geometry)polygon).Buffer(integrationBufferInMeters)),
                 x => x.Id,
                 cancellationToken);
-        
+
         var integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
 
         var dbfEntry = archive.CreateEntry("iWegsegment.dbf");

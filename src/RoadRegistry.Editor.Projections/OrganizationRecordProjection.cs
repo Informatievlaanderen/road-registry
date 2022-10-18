@@ -12,13 +12,6 @@ namespace RoadRegistry.Editor.Projections
 
     public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
     {
-        private static readonly IDictionary<string, string> SortableCodeAnomalies =
-            new Dictionary<string, string>
-            {
-                { "-7", "00007" },
-                { "-8", "00008" }
-            };
-
         public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
         {
             if (manager == null) throw new ArgumentNullException(nameof(manager));
@@ -47,5 +40,12 @@ namespace RoadRegistry.Editor.Projections
                 ? SortableCodeAnomalies[code]
                 : code;
         }
+
+        private static readonly IDictionary<string, string> SortableCodeAnomalies =
+            new Dictionary<string, string>
+            {
+                { "-7", "00007" },
+                { "-8", "00008" }
+            };
     }
 }

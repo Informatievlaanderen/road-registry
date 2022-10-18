@@ -12,13 +12,6 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
 {
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IEnumerator<ShapeRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly RoadSegmentChangeShapeRecordsTranslator _sut;
-
     public RoadSegmentChangeShapeRecordsTranslatorTests()
     {
         _fixture = new Fixture();
@@ -72,6 +65,13 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
         _entry = _archive.CreateEntry("wegsegment_all.shp");
     }
 
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IEnumerator<ShapeRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly RoadSegmentChangeShapeRecordsTranslator _sut;
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -85,6 +85,12 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
     }
 
     [Fact]
+    public void TranslateChangesCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void TranslateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(null, _enumerator, TranslatedChanges.Empty));
@@ -94,22 +100,6 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
     public void TranslateRecordsCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, null, TranslatedChanges.Empty));
-    }
-
-    [Fact]
-    public void TranslateChangesCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
-    }
-
-    [Fact]
-    public void TranslateWithoutRecordsReturnsExpectedResult()
-    {
-        var result = _sut.Translate(_entry, _enumerator, TranslatedChanges.Empty);
-
-        Assert.Equal(
-            TranslatedChanges.Empty,
-            result);
     }
 
     [Fact]
@@ -176,6 +166,16 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
         );
 
         Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
+    }
+
+    [Fact]
+    public void TranslateWithoutRecordsReturnsExpectedResult()
+    {
+        var result = _sut.Translate(_entry, _enumerator, TranslatedChanges.Empty);
+
+        Assert.Equal(
+            TranslatedChanges.Empty,
+            result);
     }
 
     [Fact]

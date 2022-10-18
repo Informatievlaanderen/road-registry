@@ -31,6 +31,7 @@ src/RoadRegistry.LegacyDatabase/*.sh
 src/RoadRegistry.MunicipalityDatabase/filled/*.bcp
 src/RoadRegistry.StreetNameDatabase/filled/*.bcp
 src/RoadRegistry.BackupDatabase/filled/*.bak
+RoadRegistry.*.xml
 
 *.suo
 *.user

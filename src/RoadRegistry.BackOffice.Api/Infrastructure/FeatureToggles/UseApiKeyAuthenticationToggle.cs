@@ -1,14 +1,13 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.FeatureToggles
+namespace RoadRegistry.BackOffice.Api.Infrastructure.FeatureToggles;
+
+using FeatureToggle;
+
+public sealed class UseApiKeyAuthenticationToggle : IFeatureToggle
 {
-    using FeatureToggle;
-
-    public sealed class UseApiKeyAuthenticationToggle : IFeatureToggle
+    public UseApiKeyAuthenticationToggle(bool featureEnabled)
     {
-        public bool FeatureEnabled { get; }
-
-        public UseApiKeyAuthenticationToggle(bool featureEnabled)
-        {
-            FeatureEnabled = featureEnabled;
-        }
+        FeatureEnabled = featureEnabled;
     }
+
+    public bool FeatureEnabled { get; }
 }

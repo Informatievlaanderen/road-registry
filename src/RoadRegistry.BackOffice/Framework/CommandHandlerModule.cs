@@ -7,25 +7,12 @@ using System.Threading.Tasks;
 
 public abstract class CommandHandlerModule
 {
-    private readonly List<CommandHandler> _handlers;
-
     protected CommandHandlerModule()
     {
         _handlers = new List<CommandHandler>();
     }
 
-    public CommandHandler[] Handlers => _handlers.ToArray();
-
-    protected void Handle<TCommand>(Func<Command<TCommand>, CancellationToken, Task> handler)
-    {
-        if (handler == null)
-            throw new ArgumentNullException(nameof(handler));
-        _handlers.Add(
-            new CommandHandler(
-                typeof(TCommand),
-                (message, ct) => handler(new Command<TCommand>(message), ct)
-            ));
-    }
+    private readonly List<CommandHandler> _handlers;
 
     protected ICommandHandlerBuilder<TCommand> For<TCommand>()
     {
@@ -38,4 +25,17 @@ public abstract class CommandHandlerModule
                 ));
         });
     }
+
+    protected void Handle<TCommand>(Func<Command<TCommand>, CancellationToken, Task> handler)
+    {
+        if (handler == null)
+            throw new ArgumentNullException(nameof(handler));
+        _handlers.Add(
+            new CommandHandler(
+                typeof(TCommand),
+                (message, ct) => handler(new Command<TCommand>(message), ct)
+            ));
+    }
+
+    public CommandHandler[] Handlers => _handlers.ToArray();
 }

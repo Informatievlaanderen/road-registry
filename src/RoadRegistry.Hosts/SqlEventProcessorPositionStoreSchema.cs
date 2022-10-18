@@ -8,12 +8,12 @@ using Microsoft.Data.SqlClient;
 
 public class SqlEventProcessorPositionStoreSchema
 {
-    private readonly SqlConnectionStringBuilder _builder;
-
     public SqlEventProcessorPositionStoreSchema(SqlConnectionStringBuilder builder)
     {
         _builder = builder ?? throw new ArgumentNullException(nameof(builder));
     }
+
+    private readonly SqlConnectionStringBuilder _builder;
 
     public async Task CreateSchemaIfNotExists(string schema, CancellationToken cancellationToken = default)
     {

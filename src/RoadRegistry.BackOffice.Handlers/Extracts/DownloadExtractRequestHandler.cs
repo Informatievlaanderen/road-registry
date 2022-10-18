@@ -10,12 +10,12 @@ using NetTopologySuite.IO;
 
 public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtractRequest, DownloadExtractResponse>
 {
-    private readonly WKTReader _reader;
-
     public DownloadExtractRequestHandler(CommandHandlerDispatcher dispatcher, WKTReader reader, ILogger<DownloadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }
+
+    private readonly WKTReader _reader;
 
     public override async Task<DownloadExtractResponse> HandleAsync(DownloadExtractRequest request, CancellationToken cancellationToken)
     {

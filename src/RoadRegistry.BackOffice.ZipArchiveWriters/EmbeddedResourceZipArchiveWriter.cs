@@ -6,16 +6,16 @@ using Microsoft.EntityFrameworkCore;
 
 public class EmbeddedResourceZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {
-    private readonly Assembly _assembly;
-    private readonly string _filename;
-    private readonly string _resourceName;
-
     public EmbeddedResourceZipArchiveWriter(Assembly assembly, string resourceName, string filename)
     {
         _assembly = assembly ?? throw new ArgumentNullException(nameof(assembly));
         _resourceName = resourceName ?? throw new ArgumentNullException(nameof(resourceName));
         _filename = filename ?? throw new ArgumentNullException(nameof(filename));
     }
+
+    private readonly Assembly _assembly;
+    private readonly string _filename;
+    private readonly string _resourceName;
 
     public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
     {

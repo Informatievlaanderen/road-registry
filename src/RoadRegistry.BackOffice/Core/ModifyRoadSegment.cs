@@ -49,24 +49,198 @@ public class ModifyRoadSegment : IRequestedChange
         Surfaces = surfaces ?? throw new ArgumentNullException(nameof(surfaces));
     }
 
-    public RoadSegmentId Id { get; }
-    public RoadNodeId StartNodeId { get; }
-    public RoadNodeId? TemporaryStartNodeId { get; }
+    public RoadSegmentAccessRestriction AccessRestriction { get; }
+    public RoadSegmentCategory Category { get; }
     public RoadNodeId EndNodeId { get; }
-    public RoadNodeId? TemporaryEndNodeId { get; }
     public MultiLineString Geometry { get; }
+    public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
+
+    public RoadSegmentId Id { get; }
+    public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
+    public CrabStreetnameId? LeftSideStreetNameId { get; }
     public OrganizationId MaintenanceAuthorityId { get; }
     public OrganizationName? MaintenanceAuthorityName { get; }
-    public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
     public RoadSegmentMorphology Morphology { get; }
-    public RoadSegmentStatus Status { get; }
-    public RoadSegmentCategory Category { get; }
-    public RoadSegmentAccessRestriction AccessRestriction { get; }
-    public CrabStreetnameId? LeftSideStreetNameId { get; }
     public CrabStreetnameId? RightSideStreetNameId { get; }
-    public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
-    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
+    public RoadNodeId StartNodeId { get; }
+    public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
+    public RoadNodeId? TemporaryEndNodeId { get; }
+    public RoadNodeId? TemporaryStartNodeId { get; }
+
+    public void TranslateTo(Messages.AcceptedChange message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
+
+        message.RoadSegmentModified = new RoadSegmentModified
+        {
+            Id = Id,
+            StartNodeId = StartNodeId,
+            EndNodeId = EndNodeId,
+            Geometry = GeometryTranslator.Translate(Geometry),
+            MaintenanceAuthority = new MaintenanceAuthority
+            {
+                Code = MaintenanceAuthorityId,
+                Name = MaintenanceAuthorityName ?? ""
+            },
+            GeometryDrawMethod = GeometryDrawMethod,
+            Morphology = Morphology,
+            Status = Status,
+            Category = Category,
+            AccessRestriction = AccessRestriction,
+            LeftSide = new RoadSegmentSideAttributes
+            {
+                StreetNameId = LeftSideStreetNameId.GetValueOrDefault()
+            },
+            RightSide = new RoadSegmentSideAttributes
+            {
+                StreetNameId = RightSideStreetNameId.GetValueOrDefault()
+            },
+            Lanes = Lanes
+                .Select(item => new Messages.RoadSegmentLaneAttributes
+                {
+                    AttributeId = item.Id,
+                    AsOfGeometryVersion = 1,
+                    Count = item.Count,
+                    Direction = item.Direction,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Widths = Widths
+                .Select(item => new Messages.RoadSegmentWidthAttributes
+                {
+                    AttributeId = item.Id,
+                    AsOfGeometryVersion = 1,
+                    Width = item.Width,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Surfaces = Surfaces
+                .Select(item => new Messages.RoadSegmentSurfaceAttributes
+                {
+                    AttributeId = item.Id,
+                    AsOfGeometryVersion = 1,
+                    Type = item.Type,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray()
+        };
+    }
+
+    public void TranslateTo(Messages.RejectedChange message)
+    {
+        if (message == null) throw new ArgumentNullException(nameof(message));
+
+        message.ModifyRoadSegment = new Messages.ModifyRoadSegment
+        {
+            Id = Id,
+            StartNodeId = TemporaryStartNodeId ?? StartNodeId,
+            EndNodeId = TemporaryEndNodeId ?? EndNodeId,
+            Geometry = GeometryTranslator.Translate(Geometry),
+            MaintenanceAuthority = MaintenanceAuthorityId,
+            GeometryDrawMethod = GeometryDrawMethod,
+            Morphology = Morphology,
+            Status = Status,
+            Category = Category,
+            AccessRestriction = AccessRestriction,
+            LeftSideStreetNameId = LeftSideStreetNameId.GetValueOrDefault(),
+            RightSideStreetNameId = RightSideStreetNameId.GetValueOrDefault(),
+            Lanes = Lanes
+                .Select(item => new RequestedRoadSegmentLaneAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Count = item.Count,
+                    Direction = item.Direction,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Widths = Widths
+                .Select(item => new RequestedRoadSegmentWidthAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Width = item.Width,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Surfaces = Surfaces
+                .Select(item => new RequestedRoadSegmentSurfaceAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Type = item.Type,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray()
+        };
+    }
+
+    public Problems VerifyAfter(AfterVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        var byOtherSegment =
+            context.AfterView.Segments.Values.FirstOrDefault(segment =>
+                segment.Id != Id &&
+                segment.Geometry.EqualsWithinTolerance(Geometry, context.Tolerances.GeometryTolerance));
+        if (byOtherSegment != null)
+            problems = problems.Add(new RoadSegmentGeometryTaken(
+                context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
+            ));
+
+        var line = Geometry.Geometries
+            .OfType<LineString>()
+            .Single();
+
+        var segmentBefore = context.BeforeView.Segments[Id];
+
+        if (segmentBefore.Start != StartNodeId && segmentBefore.Start != EndNodeId &&
+            context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
+            problems = problems.AddRange(
+                beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+
+        if (segmentBefore.End != StartNodeId && segmentBefore.End != EndNodeId &&
+            context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
+            problems = problems.AddRange(
+                beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+
+        if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
+        {
+            problems = problems.Add(new RoadSegmentStartNodeMissing());
+        }
+        else
+        {
+            problems = problems.AddRange(startNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+            if (line.StartPoint != null && !line.StartPoint.EqualsWithinTolerance(startNode.Geometry, context.Tolerances.GeometryTolerance)) problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
+        }
+
+        if (!context.AfterView.View.Nodes.TryGetValue(EndNodeId, out var endNode))
+        {
+            problems = problems.Add(new RoadSegmentEndNodeMissing());
+        }
+        else
+        {
+            problems = problems.AddRange(endNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+            if (line.EndPoint != null && !line.EndPoint.EqualsWithinTolerance(endNode.Geometry, context.Tolerances.GeometryTolerance)) problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());
+        }
+
+        var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal).FindIntersectingRoadSegments(this);
+        var intersectingSegmentsWithoutJunction = intersectingSegments.Where(intersectingSegment =>
+            !context.AfterView.GradeSeparatedJunctions.Any(junction =>
+                (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
+                (junction.Value.LowerSegment == intersectingSegment.Key && junction.Value.UpperSegment == Id)));
+
+        problems = problems.AddRange(intersectingSegmentsWithoutJunction.Select(i =>
+            new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(Id, i.Key)));
+
+        return problems;
+    }
 
     public Problems VerifyBefore(BeforeVerificationContext context)
     {
@@ -240,177 +414,5 @@ public class ModifyRoadSegment : IRequestedChange
         return problems;
     }
 
-    public Problems VerifyAfter(AfterVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        var problems = Problems.None;
-
-        var byOtherSegment =
-            context.AfterView.Segments.Values.FirstOrDefault(segment =>
-                segment.Id != Id &&
-                segment.Geometry.EqualsWithinTolerance(Geometry, context.Tolerances.GeometryTolerance));
-        if (byOtherSegment != null)
-            problems = problems.Add(new RoadSegmentGeometryTaken(
-                context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
-            ));
-
-        var line = Geometry.Geometries
-            .OfType<LineString>()
-            .Single();
-
-        var segmentBefore = context.BeforeView.Segments[Id];
-
-        if (segmentBefore.Start != StartNodeId && segmentBefore.Start != EndNodeId &&
-            context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
-            problems = problems.AddRange(
-                beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-
-        if (segmentBefore.End != StartNodeId && segmentBefore.End != EndNodeId &&
-            context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
-            problems = problems.AddRange(
-                beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-
-        if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
-        {
-            problems = problems.Add(new RoadSegmentStartNodeMissing());
-        }
-        else
-        {
-            problems = problems.AddRange(startNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-            if (line.StartPoint != null && !line.StartPoint.EqualsWithinTolerance(startNode.Geometry, context.Tolerances.GeometryTolerance)) problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
-        }
-
-        if (!context.AfterView.View.Nodes.TryGetValue(EndNodeId, out var endNode))
-        {
-            problems = problems.Add(new RoadSegmentEndNodeMissing());
-        }
-        else
-        {
-            problems = problems.AddRange(endNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-            if (line.EndPoint != null && !line.EndPoint.EqualsWithinTolerance(endNode.Geometry, context.Tolerances.GeometryTolerance)) problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());
-        }
-
-        var intersectingSegments = context.AfterView.View.CreateScopedView(Geometry.EnvelopeInternal).FindIntersectingRoadSegments(this);
-        var intersectingSegmentsWithoutJunction = intersectingSegments.Where(intersectingSegment =>
-            !context.AfterView.GradeSeparatedJunctions.Any(junction =>
-                (junction.Value.LowerSegment == Id && junction.Value.UpperSegment == intersectingSegment.Key) ||
-                (junction.Value.LowerSegment == intersectingSegment.Key && junction.Value.UpperSegment == Id)));
-
-        problems = problems.AddRange(intersectingSegmentsWithoutJunction.Select(i =>
-            new IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction(Id, i.Key)));
-
-        return problems;
-    }
-
-    public void TranslateTo(Messages.AcceptedChange message)
-    {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.RoadSegmentModified = new RoadSegmentModified
-        {
-            Id = Id,
-            StartNodeId = StartNodeId,
-            EndNodeId = EndNodeId,
-            Geometry = GeometryTranslator.Translate(Geometry),
-            MaintenanceAuthority = new MaintenanceAuthority
-            {
-                Code = MaintenanceAuthorityId,
-                Name = MaintenanceAuthorityName ?? ""
-            },
-            GeometryDrawMethod = GeometryDrawMethod,
-            Morphology = Morphology,
-            Status = Status,
-            Category = Category,
-            AccessRestriction = AccessRestriction,
-            LeftSide = new RoadSegmentSideAttributes
-            {
-                StreetNameId = LeftSideStreetNameId.GetValueOrDefault()
-            },
-            RightSide = new RoadSegmentSideAttributes
-            {
-                StreetNameId = RightSideStreetNameId.GetValueOrDefault()
-            },
-            Lanes = Lanes
-                .Select(item => new Messages.RoadSegmentLaneAttributes
-                {
-                    AttributeId = item.Id,
-                    AsOfGeometryVersion = 1,
-                    Count = item.Count,
-                    Direction = item.Direction,
-                    FromPosition = item.From,
-                    ToPosition = item.To
-                })
-                .ToArray(),
-            Widths = Widths
-                .Select(item => new Messages.RoadSegmentWidthAttributes
-                {
-                    AttributeId = item.Id,
-                    AsOfGeometryVersion = 1,
-                    Width = item.Width,
-                    FromPosition = item.From,
-                    ToPosition = item.To
-                })
-                .ToArray(),
-            Surfaces = Surfaces
-                .Select(item => new Messages.RoadSegmentSurfaceAttributes
-                {
-                    AttributeId = item.Id,
-                    AsOfGeometryVersion = 1,
-                    Type = item.Type,
-                    FromPosition = item.From,
-                    ToPosition = item.To
-                })
-                .ToArray()
-        };
-    }
-
-    public void TranslateTo(Messages.RejectedChange message)
-    {
-        if (message == null) throw new ArgumentNullException(nameof(message));
-
-        message.ModifyRoadSegment = new Messages.ModifyRoadSegment
-        {
-            Id = Id,
-            StartNodeId = TemporaryStartNodeId ?? StartNodeId,
-            EndNodeId = TemporaryEndNodeId ?? EndNodeId,
-            Geometry = GeometryTranslator.Translate(Geometry),
-            MaintenanceAuthority = MaintenanceAuthorityId,
-            GeometryDrawMethod = GeometryDrawMethod,
-            Morphology = Morphology,
-            Status = Status,
-            Category = Category,
-            AccessRestriction = AccessRestriction,
-            LeftSideStreetNameId = LeftSideStreetNameId.GetValueOrDefault(),
-            RightSideStreetNameId = RightSideStreetNameId.GetValueOrDefault(),
-            Lanes = Lanes
-                .Select(item => new RequestedRoadSegmentLaneAttribute
-                {
-                    AttributeId = item.TemporaryId,
-                    Count = item.Count,
-                    Direction = item.Direction,
-                    FromPosition = item.From,
-                    ToPosition = item.To
-                })
-                .ToArray(),
-            Widths = Widths
-                .Select(item => new RequestedRoadSegmentWidthAttribute
-                {
-                    AttributeId = item.TemporaryId,
-                    Width = item.Width,
-                    FromPosition = item.From,
-                    ToPosition = item.To
-                })
-                .ToArray(),
-            Surfaces = Surfaces
-                .Select(item => new RequestedRoadSegmentSurfaceAttribute
-                {
-                    AttributeId = item.TemporaryId,
-                    Type = item.Type,
-                    FromPosition = item.From,
-                    ToPosition = item.To
-                })
-                .ToArray()
-        };
-    }
+    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 }

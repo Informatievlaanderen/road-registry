@@ -8,8 +8,6 @@ using NetTopologySuite.Geometries;
 
 public class RoadNode
 {
-    private readonly ImmutableHashSet<RoadSegmentId> _segments;
-
     public RoadNode(RoadNodeId id, RoadNodeType type, Point geometry)
     {
         Id = id;
@@ -26,9 +24,21 @@ public class RoadNode
         _segments = segments;
     }
 
-    public RoadNodeId Id { get; }
-    public RoadNodeType Type { get; }
+    private readonly ImmutableHashSet<RoadSegmentId> _segments;
+
+    public RoadNode ConnectWith(RoadSegmentId segment)
+    {
+        return new RoadNode(Id, Type, Geometry, _segments.Add(segment));
+    }
+
+    public RoadNode DisconnectFrom(RoadSegmentId segment)
+    {
+        return new RoadNode(Id, Type, Geometry, _segments.Remove(segment));
+    }
+
     public Point Geometry { get; }
+
+    public RoadNodeId Id { get; }
 
     public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
 
@@ -45,27 +55,7 @@ public class RoadNode
         }
     }
 
-    public RoadNode WithGeometry(Point geometry)
-    {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
-        return new RoadNode(Id, Type, geometry, _segments);
-    }
-
-    public RoadNode WithType(RoadNodeType type)
-    {
-        if (type == null) throw new ArgumentNullException(nameof(type));
-        return new RoadNode(Id, type, Geometry, _segments);
-    }
-
-    public RoadNode ConnectWith(RoadSegmentId segment)
-    {
-        return new RoadNode(Id, Type, Geometry, _segments.Add(segment));
-    }
-
-    public RoadNode DisconnectFrom(RoadSegmentId segment)
-    {
-        return new RoadNode(Id, Type, Geometry, _segments.Remove(segment));
-    }
+    public RoadNodeType Type { get; }
 
     public Problems VerifyTypeMatchesConnectedSegmentCount(IRoadNetworkView view, IRequestedChangeIdentityTranslator translator)
     {
@@ -107,5 +97,17 @@ public class RoadNode
         }
 
         return problems;
+    }
+
+    public RoadNode WithGeometry(Point geometry)
+    {
+        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+        return new RoadNode(Id, Type, geometry, _segments);
+    }
+
+    public RoadNode WithType(RoadNodeType type)
+    {
+        if (type == null) throw new ArgumentNullException(nameof(type));
+        return new RoadNode(Id, type, Geometry, _segments);
     }
 }

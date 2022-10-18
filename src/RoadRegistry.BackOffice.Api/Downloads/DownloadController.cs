@@ -18,12 +18,12 @@ using Microsoft.AspNetCore.Mvc;
 [ApiKeyAuth("Road")]
 public class DownloadController : ControllerBase
 {
-    private readonly IMediator _mediator;
-
     public DownloadController(IMediator mediator)
     {
         _mediator = mediator;
     }
+
+    private readonly IMediator _mediator;
 
     [HttpGet("for-editor")]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
@@ -49,7 +49,8 @@ public class DownloadController : ControllerBase
             var response = await _mediator.Send(request, cancellationToken);
             return new FileCallbackResult(response);
         }
-        catch (DownloadProductNotFoundException) {
+        catch (DownloadProductNotFoundException)
+        {
             return NotFound();
         }
     }

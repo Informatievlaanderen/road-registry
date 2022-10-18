@@ -10,13 +10,6 @@ using Xunit;
 
 public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
 {
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<RoadSegmentChangeDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly RoadSegmentChangeDbaseRecordsTranslator _sut;
-
     public RoadSegmentChangeDbaseRecordsTranslatorTests()
     {
         _fixture = new Fixture();
@@ -57,6 +50,13 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
         _entry = _archive.CreateEntry("wegsegment_all.dbf");
     }
 
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<RoadSegmentChangeDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly RoadSegmentChangeDbaseRecordsTranslator _sut;
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -67,6 +67,12 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
     public void IsZipArchiveDbaseRecordsTranslator()
     {
         Assert.IsAssignableFrom<IZipArchiveDbaseRecordsTranslator<RoadSegmentChangeDbaseRecord>>(_sut);
+    }
+
+    [Fact]
+    public void TranslateChangesCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
     }
 
     [Fact]
@@ -82,9 +88,48 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
     }
 
     [Fact]
-    public void TranslateChangesCanNotBeNull()
+    public void TranslateWithIdenticalRecordsReturnsExpectedResult()
     {
-        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
+        var records = _fixture
+            .CreateMany<RoadSegmentChangeDbaseRecord>(1)
+            .Select((record, index) =>
+            {
+                record.WS_OIDN.Value = index + 1;
+                record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
+                return record;
+            })
+            .ToArray();
+        var enumerator = records.ToDbaseRecordEnumerator();
+
+        var result = _sut.Translate(_entry, enumerator, TranslatedChanges.Empty);
+
+        foreach (var current in records)
+        {
+            var id = new RoadSegmentId(current.WS_OIDN.Value);
+            Assert.True(result.TryFindRoadSegmentProvisionalChange(id, out var foundChange));
+            Assert.NotNull(foundChange);
+            var actual = Assert.IsAssignableFrom<ITranslatedChange>(foundChange);
+            ITranslatedChange expected = new ModifyRoadSegment(
+                new RecordNumber(Array.IndexOf(records, current) + 1),
+                new RoadSegmentId(current.WS_OIDN.Value),
+                new RoadNodeId(current.B_WK_OIDN.Value),
+                new RoadNodeId(current.E_WK_OIDN.Value),
+                new OrganizationId(current.BEHEERDER.Value),
+                RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value],
+                RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value],
+                RoadSegmentStatus.ByIdentifier[current.STATUS.Value],
+                RoadSegmentCategory.ByIdentifier[current.CATEGORIE.Value],
+                RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
+                current.LSTRNMID.Value.HasValue
+                    ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())
+                    : default,
+                current.RSTRNMID.Value.HasValue
+                    ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault())
+                    : default
+            );
+
+            Assert.Equal(expected, actual, new TranslatedChangeEqualityComparer());
+        }
     }
 
     [Fact]
@@ -191,50 +236,5 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
                 return nextChanges;
             });
         Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
-    }
-
-    [Fact]
-    public void TranslateWithIdenticalRecordsReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<RoadSegmentChangeDbaseRecord>(1)
-            .Select((record, index) =>
-            {
-                record.WS_OIDN.Value = index + 1;
-                record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
-                return record;
-            })
-            .ToArray();
-        var enumerator = records.ToDbaseRecordEnumerator();
-
-        var result = _sut.Translate(_entry, enumerator, TranslatedChanges.Empty);
-
-        foreach (var current in records)
-        {
-            var id = new RoadSegmentId(current.WS_OIDN.Value);
-            Assert.True(result.TryFindRoadSegmentProvisionalChange(id, out var foundChange));
-            Assert.NotNull(foundChange);
-            var actual = Assert.IsAssignableFrom<ITranslatedChange>(foundChange);
-            ITranslatedChange expected = new ModifyRoadSegment(
-                new RecordNumber(Array.IndexOf(records, current) + 1),
-                new RoadSegmentId(current.WS_OIDN.Value),
-                new RoadNodeId(current.B_WK_OIDN.Value),
-                new RoadNodeId(current.E_WK_OIDN.Value),
-                new OrganizationId(current.BEHEERDER.Value),
-                RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value],
-                RoadSegmentMorphology.ByIdentifier[current.MORFOLOGIE.Value],
-                RoadSegmentStatus.ByIdentifier[current.STATUS.Value],
-                RoadSegmentCategory.ByIdentifier[current.CATEGORIE.Value],
-                RoadSegmentAccessRestriction.ByIdentifier[current.TGBEP.Value],
-                current.LSTRNMID.Value.HasValue
-                    ? new CrabStreetnameId(current.LSTRNMID.Value.GetValueOrDefault())
-                    : default,
-                current.RSTRNMID.Value.HasValue
-                    ? new CrabStreetnameId(current.RSTRNMID.Value.GetValueOrDefault())
-                    : default
-            );
-
-            Assert.Equal(expected, actual, new TranslatedChangeEqualityComparer());
-        }
     }
 }

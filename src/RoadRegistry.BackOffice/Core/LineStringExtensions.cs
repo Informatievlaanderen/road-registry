@@ -8,6 +8,14 @@ using NetTopologySuite.Geometries.Implementation;
 
 internal static class LineStringExtensions
 {
+    public static bool SelfIntersects(this LineString instance)
+    {
+        if (instance.Length <= 0.0 || instance.NumPoints <= 2)
+            return false;
+
+        return !instance.IsSimple;
+    }
+
     public static bool SelfOverlaps(this LineString instance)
     {
         if (instance.Length <= 0.0 || instance.NumPoints <= 2)
@@ -37,13 +45,5 @@ internal static class LineStringExtensions
             where !ReferenceEquals(left, right)
             select left.Overlaps(right) || left.Covers(right)
         ).Any(overlaps => overlaps);
-    }
-
-    public static bool SelfIntersects(this LineString instance)
-    {
-        if (instance.Length <= 0.0 || instance.NumPoints <= 2)
-            return false;
-
-        return !instance.IsSimple;
     }
 }

@@ -8,15 +8,6 @@ using NetTopologySuite.Geometries;
 
 public class RoadNetworkExtract : EventSourcedEntity
 {
-    public static readonly Func<RoadNetworkExtract> Factory = () => new RoadNetworkExtract();
-    private readonly HashSet<DownloadId> _announcedDownloads;
-    private readonly HashSet<UploadId> _knownUploads;
-
-    private readonly List<DownloadId> _requestedDownloads;
-
-    private ExternalExtractRequestId _externalExtractRequestId;
-    private ExtractDescription _extractDescription;
-
     private RoadNetworkExtract()
     {
         _requestedDownloads = new List<DownloadId>();
@@ -40,6 +31,29 @@ public class RoadNetworkExtract : EventSourcedEntity
         On<RoadNetworkExtractDownloadBecameAvailable>(e => { _announcedDownloads.Add(new DownloadId(e.DownloadId)); });
         On<RoadNetworkExtractChangesArchiveUploaded>(e => { _knownUploads.Add(new UploadId(e.UploadId)); });
     }
+
+    private readonly HashSet<DownloadId> _announcedDownloads;
+
+    private ExternalExtractRequestId _externalExtractRequestId;
+    private ExtractDescription _extractDescription;
+    private readonly HashSet<UploadId> _knownUploads;
+
+    private readonly List<DownloadId> _requestedDownloads;
+
+    public void Announce(DownloadId downloadId, ArchiveId archiveId)
+    {
+        if (_requestedDownloads.Contains(downloadId) && !_announcedDownloads.Contains(downloadId))
+            Apply(new RoadNetworkExtractDownloadBecameAvailable
+            {
+                RequestId = Id.ToString(),
+                ExternalRequestId = _externalExtractRequestId,
+                Description = _extractDescription,
+                DownloadId = downloadId,
+                ArchiveId = archiveId
+            });
+    }
+
+    public static readonly Func<RoadNetworkExtract> Factory = () => new RoadNetworkExtract();
 
     public ExtractRequestId Id { get; private set; }
 
@@ -71,19 +85,6 @@ public class RoadNetworkExtract : EventSourcedEntity
                 Description = _extractDescription,
                 DownloadId = downloadId,
                 Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour)
-            });
-    }
-
-    public void Announce(DownloadId downloadId, ArchiveId archiveId)
-    {
-        if (_requestedDownloads.Contains(downloadId) && !_announcedDownloads.Contains(downloadId))
-            Apply(new RoadNetworkExtractDownloadBecameAvailable
-            {
-                RequestId = Id.ToString(),
-                ExternalRequestId = _externalExtractRequestId,
-                Description = _extractDescription,
-                DownloadId = downloadId,
-                ArchiveId = archiveId
             });
     }
 

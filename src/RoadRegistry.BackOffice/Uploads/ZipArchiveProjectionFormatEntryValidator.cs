@@ -7,12 +7,12 @@ using System.Text;
 
 public class ZipArchiveProjectionFormatEntryValidator : IZipArchiveEntryValidator
 {
-    private readonly Encoding _encoding;
-
     public ZipArchiveProjectionFormatEntryValidator(Encoding encoding)
     {
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
+
+    private readonly Encoding _encoding;
 
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
     {

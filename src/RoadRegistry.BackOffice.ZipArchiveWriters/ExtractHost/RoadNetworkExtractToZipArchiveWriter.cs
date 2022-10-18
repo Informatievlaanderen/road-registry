@@ -10,8 +10,6 @@ using Microsoft.IO;
 
 public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
-    private readonly IZipArchiveWriter<EditorContext> _writer;
-
     public RoadNetworkExtractToZipArchiveWriter(
         ZipArchiveWriterOptions zipArchiveWriterOptions,
         IStreetNameCache streetNameCache,
@@ -61,6 +59,8 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorCont
             new ProjectionFormatFileZipArchiveWriter<EditorContext>("iWegsegment.prj", encoding)
         );
     }
+
+    private readonly IZipArchiveWriter<EditorContext> _writer;
 
     public Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, EditorContext context,
         CancellationToken cancellationToken)

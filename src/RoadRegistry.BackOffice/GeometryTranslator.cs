@@ -13,6 +13,31 @@ using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public static class GeometryTranslator
 {
+    private static Geometry ApplyBuffer(IPolygonal geometry, double buffer)
+    {
+        switch (geometry)
+        {
+            case MultiPolygon multiPolygon:
+                return multiPolygon.Buffer(buffer);
+            case Polygon polygon:
+                return polygon.Buffer(buffer);
+            default:
+                throw new InvalidOperationException(
+                    $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");
+        }
+    }
+
+    private static object Flatten(this RoadNetworkExtractGeometry geometry)
+    {
+        if (geometry.MultiPolygon != null && geometry.Polygon != null) return null;
+
+        return new object[]
+        {
+            geometry.MultiPolygon,
+            geometry.Polygon
+        }.SingleOrDefault(value => !ReferenceEquals(value, null));
+    }
+
     public static Point Translate(RoadNodeGeometry geometry)
     {
         if (geometry == null) throw new ArgumentNullException(nameof(geometry));
@@ -114,17 +139,6 @@ public static class GeometryTranslator
                     , GeometryConfiguration.GeometryFactory))
                 , GeometryConfiguration.GeometryFactory))
             , GeometryConfiguration.GeometryFactory);
-    }
-
-    private static object Flatten(this RoadNetworkExtractGeometry geometry)
-    {
-        if (geometry.MultiPolygon != null && geometry.Polygon != null) return null;
-
-        return new object[]
-        {
-            geometry.MultiPolygon,
-            geometry.Polygon
-        }.SingleOrDefault(value => !ReferenceEquals(value, null));
     }
 
     public static IPolygonal Translate(RoadNetworkExtractGeometry geometry)
@@ -265,20 +279,6 @@ public static class GeometryTranslator
                     }
                 };
             }
-            default:
-                throw new InvalidOperationException(
-                    $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");
-        }
-    }
-
-    private static Geometry ApplyBuffer(IPolygonal geometry, double buffer)
-    {
-        switch (geometry)
-        {
-            case MultiPolygon multiPolygon:
-                return multiPolygon.Buffer(buffer);
-            case Polygon polygon:
-                return polygon.Buffer(buffer);
             default:
                 throw new InvalidOperationException(
                     $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");

@@ -14,7 +14,8 @@ public class UnknownSqsMessageTypeException : ApplicationException
 
     protected UnknownSqsMessageTypeException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public string MessageType { get; }
 }

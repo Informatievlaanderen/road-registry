@@ -12,17 +12,25 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworkChangesArchives : IRoadNetworkChangesArchives
 {
-    private readonly EventSourcedEntityMap _map;
-    private readonly EventMapping _mapping;
-    private readonly JsonSerializerSettings _settings;
-    private readonly IStreamStore _store;
-
     public RoadNetworkChangesArchives(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
     {
         _map = map ?? throw new ArgumentNullException(nameof(map));
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
+    }
+
+    private readonly EventSourcedEntityMap _map;
+    private readonly EventMapping _mapping;
+    private readonly JsonSerializerSettings _settings;
+    private readonly IStreamStore _store;
+
+    public void Add(RoadNetworkChangesArchive archive)
+    {
+        if (archive == null)
+            throw new ArgumentNullException(nameof(archive));
+
+        _map.Attach(new EventSourcedEntityMapEntry(archive, new StreamName(archive.Id), ExpectedVersion.NoStream));
     }
 
     public async Task<RoadNetworkChangesArchive> Get(ArchiveId id, CancellationToken ct = default)
@@ -68,13 +76,5 @@ public class RoadNetworkChangesArchives : IRoadNetworkChangesArchives
 
         _map.Attach(new EventSourcedEntityMapEntry(entity, stream, page.LastStreamVersion));
         return (RoadNetworkChangesArchive)entity;
-    }
-
-    public void Add(RoadNetworkChangesArchive archive)
-    {
-        if (archive == null)
-            throw new ArgumentNullException(nameof(archive));
-
-        _map.Attach(new EventSourcedEntityMapEntry(archive, new StreamName(archive.Id), ExpectedVersion.NoStream));
     }
 }

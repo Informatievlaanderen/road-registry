@@ -8,17 +8,12 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 
 public class RoadNetworkSnapshotsBlobClient : IBlobClient
 {
-    private readonly IBlobClient _client;
-
     public RoadNetworkSnapshotsBlobClient(IBlobClient client)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
     }
 
-    public Task<BlobObject> GetBlobAsync(BlobName name, CancellationToken cancellationToken = default)
-    {
-        return _client.GetBlobAsync(name, cancellationToken);
-    }
+    private readonly IBlobClient _client;
 
     public Task<bool> BlobExistsAsync(BlobName name, CancellationToken cancellationToken = default)
     {
@@ -34,5 +29,10 @@ public class RoadNetworkSnapshotsBlobClient : IBlobClient
     public Task DeleteBlobAsync(BlobName name, CancellationToken cancellationToken = default)
     {
         return _client.DeleteBlobAsync(name, cancellationToken);
+    }
+
+    public Task<BlobObject> GetBlobAsync(BlobName name, CancellationToken cancellationToken = default)
+    {
+        return _client.GetBlobAsync(name, cancellationToken);
     }
 }

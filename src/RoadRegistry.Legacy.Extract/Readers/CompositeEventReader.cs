@@ -6,12 +6,12 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
     public class CompositeEventReader : IEventReader
     {
-        private readonly IEventReader[] _readers;
-
         public CompositeEventReader(params IEventReader[] readers)
         {
             _readers = readers ?? throw new ArgumentNullException(nameof(readers));
         }
+
+        private readonly IEventReader[] _readers;
 
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {

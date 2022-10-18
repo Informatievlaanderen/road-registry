@@ -9,11 +9,34 @@ using Xunit;
 
 public class RoadSegmentNumberedRoadOrdinalTests
 {
-    private readonly Fixture _fixture;
-
     public RoadSegmentNumberedRoadOrdinalTests()
     {
         _fixture = new Fixture();
+    }
+
+    private readonly Fixture _fixture;
+
+    [Theory]
+    [InlineData(int.MinValue, false)]
+    [InlineData(-1, false)]
+    [InlineData(0, true)]
+    [InlineData(1, true)]
+    [InlineData(RoadSegmentNumberedRoadOrdinal.WellKnownValues.NotKnown, true)]
+    [InlineData(int.MaxValue, true)]
+    public void AcceptsReturnsExpectedResult(int value, bool expected)
+    {
+        var result = RoadSegmentNumberedRoadOrdinal.Accepts(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _fixture.Create<int>();
+        var sut = new RoadSegmentNumberedRoadOrdinal(value);
+
+        Assert.Equal(value.ToString(), sut.ToString());
     }
 
     [Fact]
@@ -38,28 +61,5 @@ public class RoadSegmentNumberedRoadOrdinalTests
 
         new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation())
             .Verify(Constructors.Select(() => new RoadSegmentNumberedRoadOrdinal(0)));
-    }
-
-    [Theory]
-    [InlineData(int.MinValue, false)]
-    [InlineData(-1, false)]
-    [InlineData(0, true)]
-    [InlineData(1, true)]
-    [InlineData(RoadSegmentNumberedRoadOrdinal.WellKnownValues.NotKnown, true)]
-    [InlineData(int.MaxValue, true)]
-    public void AcceptsReturnsExpectedResult(int value, bool expected)
-    {
-        var result = RoadSegmentNumberedRoadOrdinal.Accepts(value);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = _fixture.Create<int>();
-        var sut = new RoadSegmentNumberedRoadOrdinal(value);
-
-        Assert.Equal(value.ToString(), sut.ToString());
     }
 }

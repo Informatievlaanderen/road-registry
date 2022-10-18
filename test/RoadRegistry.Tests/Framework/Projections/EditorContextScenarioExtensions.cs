@@ -4,10 +4,10 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Editor.Schema;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.Editor.Schema;
 using Xunit.Sdk;
 
 public class MemoryEditorContext : EditorContext
@@ -55,41 +55,50 @@ public class MemoryEditorContext : EditorContext
 
 public static class EditorContextScenarioExtensions
 {
-    public static ConnectedProjectionScenario<EditorContext> Scenario(this ConnectedProjection<EditorContext> projection)
+    //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
+    //
+    private static async Task<object[]> AllRecords(this EditorContext context)
     {
-        return new ConnectedProjectionScenario<EditorContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        var records = new List<object>();
+        records.AddRange(await context.RoadNodes.ToArrayAsync());
+        records.AddRange(await context.RoadSegments.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentLaneAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentWidthAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentSurfaceAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentEuropeanRoadAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentNationalRoadAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentNumberedRoadAttributes.ToArrayAsync());
+        records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
+        records.AddRange(await context.Organizations.ToArrayAsync());
+        records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
+        records.AddRange(await context.RoadNetworkChanges.ToArrayAsync());
+        records.AddRange(await context.RoadNetworkChangeRequestsBasedOnArchive.ToArrayAsync());
+        records.AddRange(await context.MunicipalityGeometries.ToArrayAsync());
+        records.AddRange(await context.ExtractDownloads.ToArrayAsync());
+        records.AddRange(await context.ExtractUploads.ToArrayAsync());
+
+        return records.ToArray();
     }
 
-    public static async Task ExpectNone(this ConnectedProjectionScenario<EditorContext> scenario)
+    private static EditorContext CreateContextFor(string database)
     {
-        var database = Guid.NewGuid().ToString("N");
+        var options = new DbContextOptionsBuilder<EditorContext>()
+            .UseInMemoryDatabase(database)
+            .EnableSensitiveDataLogging()
+            .Options;
 
-        var specification = scenario.Verify(async context =>
-        {
-            var actualRecords = await context.AllRecords();
-            return actualRecords.Length == 0
-                ? VerificationResult.Pass()
-                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
-        });
+        return new MemoryEditorContext(options);
+    }
 
-        await using (var context = CreateContextFor(database))
-        {
-            var projector = new ConnectedProjector<EditorContext>(specification.Resolver);
-            foreach (var message in specification.Messages)
-            {
-                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
-                await projector.ProjectAsync(context, envelope);
-            }
+    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<EditorContext> specification, VerificationResult result)
+    {
+        var title = string.Empty;
+        var exceptionMessage = new StringBuilder()
+            .AppendLine(title)
+            .AppendTitleBlock("Given", specification.Messages, Formatters.NamedJsonMessage)
+            .Append(result.Message);
 
-            await context.SaveChangesAsync();
-        }
-
-        await using (var context = CreateContextFor(database))
-        {
-            var result = await specification.Verification(context, CancellationToken.None);
-
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
-        }
+        return new XunitException(exceptionMessage.ToString());
     }
 
     public static Task Expect(
@@ -263,49 +272,40 @@ public static class EditorContextScenarioExtensions
         }
     }
 
-    //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
-    //
-    private static async Task<object[]> AllRecords(this EditorContext context)
+    public static async Task ExpectNone(this ConnectedProjectionScenario<EditorContext> scenario)
     {
-        var records = new List<object>();
-        records.AddRange(await context.RoadNodes.ToArrayAsync());
-        records.AddRange(await context.RoadSegments.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentLaneAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentWidthAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentSurfaceAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentEuropeanRoadAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentNationalRoadAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentNumberedRoadAttributes.ToArrayAsync());
-        records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
-        records.AddRange(await context.Organizations.ToArrayAsync());
-        records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
-        records.AddRange(await context.RoadNetworkChanges.ToArrayAsync());
-        records.AddRange(await context.RoadNetworkChangeRequestsBasedOnArchive.ToArrayAsync());
-        records.AddRange(await context.MunicipalityGeometries.ToArrayAsync());
-        records.AddRange(await context.ExtractDownloads.ToArrayAsync());
-        records.AddRange(await context.ExtractUploads.ToArrayAsync());
+        var database = Guid.NewGuid().ToString("N");
 
-        return records.ToArray();
+        var specification = scenario.Verify(async context =>
+        {
+            var actualRecords = await context.AllRecords();
+            return actualRecords.Length == 0
+                ? VerificationResult.Pass()
+                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
+        });
+
+        await using (var context = CreateContextFor(database))
+        {
+            var projector = new ConnectedProjector<EditorContext>(specification.Resolver);
+            foreach (var message in specification.Messages)
+            {
+                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
+                await projector.ProjectAsync(context, envelope);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = CreateContextFor(database))
+        {
+            var result = await specification.Verification(context, CancellationToken.None);
+
+            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+        }
     }
 
-    private static EditorContext CreateContextFor(string database)
+    public static ConnectedProjectionScenario<EditorContext> Scenario(this ConnectedProjection<EditorContext> projection)
     {
-        var options = new DbContextOptionsBuilder<EditorContext>()
-            .UseInMemoryDatabase(database)
-            .EnableSensitiveDataLogging()
-            .Options;
-
-        return new MemoryEditorContext(options);
-    }
-
-    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<EditorContext> specification, VerificationResult result)
-    {
-        var title = string.Empty;
-        var exceptionMessage = new StringBuilder()
-            .AppendLine(title)
-            .AppendTitleBlock("Given", specification.Messages, Formatters.NamedJsonMessage)
-            .Append(result.Message);
-
-        return new XunitException(exceptionMessage.ToString());
+        return new ConnectedProjectionScenario<EditorContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
 }

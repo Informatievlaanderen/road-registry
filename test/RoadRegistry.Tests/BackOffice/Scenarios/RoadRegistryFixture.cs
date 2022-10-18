@@ -17,14 +17,6 @@ using SqlStreamStore;
 
 public abstract class RoadRegistryFixture : IDisposable
 {
-    private static readonly JsonSerializerSettings Settings =
-        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
-    private static readonly EventMapping Mapping =
-        new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
-
-    private readonly ScenarioRunner _runner;
-
     protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null)
     {
         Fixture = new Fixture();
@@ -49,16 +41,19 @@ public abstract class RoadRegistryFixture : IDisposable
         };
     }
 
-    protected Fixture Fixture { get; }
-    protected IStreamStore Store { get; }
-    protected FakeClock Clock { get; }
+    private readonly ScenarioRunner _runner;
     protected MemoryBlobClient Client { get; }
-    protected IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
+    protected FakeClock Clock { get; }
 
     public void Dispose()
     {
         Store?.Dispose();
     }
+
+    protected Fixture Fixture { get; }
+
+    private static readonly EventMapping Mapping =
+        new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
     protected Task Run(Func<Scenario, IExpectExceptionScenarioBuilder> builder)
     {
@@ -71,4 +66,10 @@ public abstract class RoadRegistryFixture : IDisposable
         if (builder == null) throw new ArgumentNullException(nameof(builder));
         return builder(new Scenario()).AssertAsync(_runner);
     }
+
+    private static readonly JsonSerializerSettings Settings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
+    protected IStreamStore Store { get; }
+    protected IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
 }

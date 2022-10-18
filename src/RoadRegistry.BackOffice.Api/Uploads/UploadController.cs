@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
@@ -13,57 +12,26 @@ using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentValidation;
 using Framework;
+using Infrastructure.Controllers.Attributes;
 using Infrastructure.FeatureToggles;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using Version = Infrastructure.Version;
 
-[ApiVersion(Infrastructure.Version.Current)]
+[ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("upload")]
 [ApiExplorerSettings(GroupName = "Uploads")]
 [ApiKeyAuth("Road")]
 public class UploadController : ControllerBase
 {
-    private readonly IMediator _mediator;
-
     public UploadController(IMediator mediator)
     {
         _mediator = mediator;
     }
 
-    [HttpPost("")]
-    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadAfterFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
-    {
-        return await Post(archive, async () =>
-        {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractRequest(archive.FileName, requestArchive);
-            await _mediator.Send(request, cancellationToken);
-            return Ok();
-        }, cancellationToken);
-    }
-
-    [HttpPost("fc")]
-    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
-    {
-        if (!useFeatureCompareToggle.FeatureEnabled)
-        {
-            return NotFound();
-        }
-
-        return await Post(archive, async () =>
-        {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Ok(response);
-        }, cancellationToken);
-    }
+    private readonly IMediator _mediator;
 
     [HttpGet("{identifier}")]
     public async Task<IActionResult> Get(string identifier, CancellationToken cancellationToken)
@@ -113,5 +81,33 @@ public class UploadController : ControllerBase
                 409,
                 new ExceptionProblemDetails(exception), exception);
         }
+    }
+
+    [HttpPost("")]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public async Task<IActionResult> PostUploadAfterFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
+    {
+        return await Post(archive, async () =>
+        {
+            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractRequest(archive.FileName, requestArchive);
+            await _mediator.Send(request, cancellationToken);
+            return Ok();
+        }, cancellationToken);
+    }
+
+    [HttpPost("fc")]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
+    {
+        if (!useFeatureCompareToggle.FeatureEnabled) return NotFound();
+
+        return await Post(archive, async () =>
+        {
+            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Ok(response);
+        }, cancellationToken);
     }
 }

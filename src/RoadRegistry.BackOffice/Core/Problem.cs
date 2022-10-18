@@ -12,10 +12,6 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
         Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
     }
 
-    public string Reason { get; }
-
-    public IReadOnlyCollection<ProblemParameter> Parameters { get; }
-
     public bool Equals(Problem x, Problem y)
     {
         if (ReferenceEquals(x, y)) return true;
@@ -53,6 +49,10 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
             Reason.GetHashCode(),
             (current, parameter) => current ^ parameter.GetHashCode());
     }
+
+    public IReadOnlyCollection<ProblemParameter> Parameters { get; }
+
+    public string Reason { get; }
 
     public abstract Messages.Problem Translate();
 }

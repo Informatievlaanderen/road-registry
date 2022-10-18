@@ -3,15 +3,9 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 using Amazon.Lambda.TestUtilities;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Newtonsoft.Json;
-using Xunit;
 
 public class CheckFeatureCompareDockerContainerTests
 {
-    private readonly CancellationTokenSource _cancellationTokenSource;
-    private readonly TestLambdaContext _context;
-    private readonly SqsBackOfficeHandlerFunctions _functions;
-    private readonly JsonSerializerSettings _jsonSerializerSettings;
-
     public CheckFeatureCompareDockerContainerTests()
     {
         _context = new TestLambdaContext
@@ -24,6 +18,11 @@ public class CheckFeatureCompareDockerContainerTests
         _jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         _cancellationTokenSource = new CancellationTokenSource();
     }
+
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly TestLambdaContext _context;
+    private readonly SqsBackOfficeHandlerFunctions _functions;
+    private readonly JsonSerializerSettings _jsonSerializerSettings;
 
     [Fact(Skip = "TODO: Configuration pipeline")]
     public async Task When_checking_message_dequeue_availability()

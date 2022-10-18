@@ -8,14 +8,19 @@ using Microsoft.Data.SqlClient;
 [Collection(nameof(SqlServerCollection))]
 public class SqlEventProcessorPositionStoreTests : IAsyncLifetime
 {
-    private readonly IFixture _fixture;
-    private readonly SqlServer _server;
-    private SqlConnectionStringBuilder _builder;
-
     public SqlEventProcessorPositionStoreTests(SqlServer server)
     {
         _server = server ?? throw new ArgumentNullException(nameof(server));
         _fixture = new Fixture();
+    }
+
+    private SqlConnectionStringBuilder _builder;
+    private readonly IFixture _fixture;
+    private readonly SqlServer _server;
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
     }
 
     public async Task InitializeAsync()
@@ -23,11 +28,6 @@ public class SqlEventProcessorPositionStoreTests : IAsyncLifetime
         _builder = await _server.CreateDatabaseAsync();
 
         await new SqlEventProcessorPositionStoreSchema(_builder).CreateSchemaIfNotExists("schema");
-    }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
     }
 
     [Fact]

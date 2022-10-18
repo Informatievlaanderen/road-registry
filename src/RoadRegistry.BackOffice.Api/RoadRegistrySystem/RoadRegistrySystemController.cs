@@ -6,9 +6,9 @@ using Be.Vlaanderen.Basisregisters.Api;
 using FluentValidation;
 using Hosts;
 using Infrastructure;
+using Infrastructure.Controllers.Attributes;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using SqlStreamStore;
 
 [ApiVersion(Version.Current)]
@@ -17,10 +17,6 @@ using SqlStreamStore;
 [ApiKeyAuth("Road")]
 public class RoadRegistrySystemController : ControllerBase
 {
-    private readonly IValidator<RebuildSnapshotParameters> _rebuildSnapshotParametersValidator;
-    private readonly UseSnapshotRebuildFeatureToggle _snapshotRebuildFeatureToggle;
-    private readonly IStreamStore _store;
-
     public RoadRegistrySystemController(
         IStreamStore store,
         IValidator<RebuildSnapshotParameters> rebuildSnapshotParametersValidator,
@@ -30,6 +26,10 @@ public class RoadRegistrySystemController : ControllerBase
         _rebuildSnapshotParametersValidator = rebuildSnapshotParametersValidator;
         _snapshotRebuildFeatureToggle = snapshotRebuildFeatureToggle;
     }
+
+    private readonly IValidator<RebuildSnapshotParameters> _rebuildSnapshotParametersValidator;
+    private readonly UseSnapshotRebuildFeatureToggle _snapshotRebuildFeatureToggle;
+    private readonly IStreamStore _store;
 
     [HttpPost("snapshots/refresh")]
     [ApiExplorerSettings(IgnoreApi = true)]

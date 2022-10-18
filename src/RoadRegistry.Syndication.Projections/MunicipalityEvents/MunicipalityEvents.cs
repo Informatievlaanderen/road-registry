@@ -16,46 +16,45 @@ namespace RoadRegistry.Syndication.Projections.MunicipalityEvents
     [DataContract(Name = "MunicipalityWasNamed", Namespace = "")]
     public class MunicipalityWasNamed
     {
+        [DataMember(Name = "Language", Order = 3)]
+        public MunicipalityLanguage Language { get; set; }
+
         [DataMember(Name = "MunicipalityId", Order = 1)]
         public Guid MunicipalityId { get; set; }
 
         [DataMember(Name = "Name", Order = 2)] public string Name { get; set; }
-
-        [DataMember(Name = "Language", Order = 3)]
-        public MunicipalityLanguage Language { get; set; }
     }
 
     [DataContract(Name = "MunicipalityNameWasCleared", Namespace = "")]
     public class MunicipalityNameWasCleared
     {
-        [DataMember(Name = "MunicipalityId", Order = 1)]
-        public Guid MunicipalityId { get; set; }
-
         [DataMember(Name = "Language", Order = 2)]
         public MunicipalityLanguage Language { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 1)]
+        public Guid MunicipalityId { get; set; }
     }
 
     [DataContract(Name = "MunicipalityNameWasCorrected", Namespace = "")]
     public class MunicipalityNameWasCorrected
     {
+        [DataMember(Name = "Language", Order = 3)]
+        public MunicipalityLanguage Language { get; set; }
+
         [DataMember(Name = "MunicipalityId", Order = 1)]
         public Guid MunicipalityId { get; set; }
 
         [DataMember(Name = "Name", Order = 2)] public string Name { get; set; }
-
-        [DataMember(Name = "Language", Order = 3)]
-        public MunicipalityLanguage Language { get; set; }
     }
 
     [DataContract(Name = "MunicipalityNameWasCorrectedToCleared", Namespace = "")]
     public class MunicipalityNameWasCorrectedToCleared
     {
-        [DataMember(Name = "MunicipalityId", Order = 1)]
-        public Guid MunicipalityId { get; set; }
-
-
         [DataMember(Name = "Language", Order = 2)]
         public MunicipalityLanguage Language { get; set; }
+
+        [DataMember(Name = "MunicipalityId", Order = 1)]
+        public Guid MunicipalityId { get; set; }
     }
 
     [DataContract(Name = "MunicipalityNisCodeWasDefined", Namespace = "")]

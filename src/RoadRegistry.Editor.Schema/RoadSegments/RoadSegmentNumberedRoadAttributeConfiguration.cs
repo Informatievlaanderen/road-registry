@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class RoadSegmentNumberedRoadAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentNumberedRoadAttributeRecord>
 {
-    private const string TableName = "RoadSegmentNumberedRoadAttribute";
-
     public void Configure(EntityTypeBuilder<RoadSegmentNumberedRoadAttributeRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.EditorSchema)
@@ -20,4 +18,6 @@ public class RoadSegmentNumberedRoadAttributeConfiguration : IEntityTypeConfigur
 
         b.HasIndex(p => p.RoadSegmentId);
     }
+
+    private const string TableName = "RoadSegmentNumberedRoadAttribute";
 }

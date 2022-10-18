@@ -38,15 +38,11 @@ namespace RoadRegistry.Wfs.Projections
                 {
                     if (roadSegment.LeftSideStreetNameId.HasValue &&
                         streetNamesById.ContainsKey(roadSegment.LeftSideStreetNameId.Value))
-                    {
                         roadSegment.LeftSideStreetName = streetNamesById[roadSegment.LeftSideStreetNameId.Value];
-                    }
 
-                    if(roadSegment.RightSideStreetNameId.HasValue &&
-                       streetNamesById.ContainsKey(roadSegment.RightSideStreetNameId.Value))
-                    {
+                    if (roadSegment.RightSideStreetNameId.HasValue &&
+                        streetNamesById.ContainsKey(roadSegment.RightSideStreetNameId.Value))
                         roadSegment.RightSideStreetName = streetNamesById[roadSegment.RightSideStreetNameId.Value];
-                    }
 
                     roadSegment.StreetNameCachePosition = streetNameCachePosition;
                 }
@@ -89,9 +85,7 @@ namespace RoadRegistry.Wfs.Projections
 
             When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
             {
-
                 foreach (var change in envelope.Message.Changes.Flatten())
-                {
                     switch (change)
                     {
                         case RoadSegmentAdded roadSegmentAdded:
@@ -106,7 +100,6 @@ namespace RoadRegistry.Wfs.Projections
                             await RemoveRoadSegment(roadSegmentRemoved, context);
                             break;
                     }
-                }
             });
         }
 
@@ -116,7 +109,6 @@ namespace RoadRegistry.Wfs.Projections
             RoadSegmentAdded roadSegmentAdded,
             CancellationToken token)
         {
-
             var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
 
             var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
@@ -177,10 +169,7 @@ namespace RoadRegistry.Wfs.Projections
 
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id).ConfigureAwait(false);
 
-            if (roadSegmentRecord == null)
-            {
-                throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found!");
-            }
+            if (roadSegmentRecord == null) throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found!");
 
             roadSegmentRecord.Id = roadSegmentModified.Id;
             roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
@@ -204,10 +193,7 @@ namespace RoadRegistry.Wfs.Projections
         private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WfsContext context)
         {
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id).ConfigureAwait(false);
-            if (roadSegmentRecord == null)
-            {
-                return;
-            }
+            if (roadSegmentRecord == null) return;
             context.RoadSegments.Remove(roadSegmentRecord);
         }
 
@@ -216,9 +202,7 @@ namespace RoadRegistry.Wfs.Projections
             int? streetNameId,
             CancellationToken token)
         {
-            return streetNameId.HasValue ?
-                await streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) :
-                null;
+            return streetNameId.HasValue ? await streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
         }
     }
 }

@@ -7,6 +7,16 @@ public class EventPlayer
 {
     private readonly Dictionary<Type, Action<object>> _handlers = new();
 
+    public void Play(object @event)
+    {
+        if (@event == null)
+            throw new ArgumentNullException(nameof(@event));
+
+        if (_handlers.TryGetValue(@event.GetType(),
+                out var handler))
+            handler(@event);
+    }
+
     public void Register<TEvent>(Action<TEvent> handler)
     {
         if (handler == null)
@@ -33,15 +43,5 @@ public class EventPlayer
                 $"'{typeOfEvent.Name}'");
 
         _handlers.Add(typeOfEvent, handler);
-    }
-
-    public void Play(object @event)
-    {
-        if (@event == null)
-            throw new ArgumentNullException(nameof(@event));
-
-        if (_handlers.TryGetValue(@event.GetType(),
-                out var handler))
-            handler(@event);
     }
 }

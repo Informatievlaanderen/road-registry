@@ -13,21 +13,11 @@ using SqlStreamStore.Streams;
 
 internal static class CommandHandlerModulePipelines
 {
-    private static readonly JsonSerializerSettings SerializerSettings =
-        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
     private static readonly EventMapping EventMapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
-    public static ICommandHandlerBuilder<TCommand> UseValidator<TCommand>(
-        this ICommandHandlerBuilder<TCommand> builder, IValidator<TCommand> validator)
-    {
-        return builder.Pipe(next => async (message, ct) =>
-        {
-            await validator.ValidateAndThrowAsync(message.Body, cancellationToken: ct);
-            await next(message, ct);
-        });
-    }
+    private static readonly JsonSerializerSettings SerializerSettings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     public static ICommandHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
         this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, IRoadNetworkSnapshotReader snapshotReader, EventEnricher enricher)
@@ -100,5 +90,15 @@ internal static class CommandHandlerModulePipelines
                 }
             }
         );
+    }
+
+    public static ICommandHandlerBuilder<TCommand> UseValidator<TCommand>(
+        this ICommandHandlerBuilder<TCommand> builder, IValidator<TCommand> validator)
+    {
+        return builder.Pipe(next => async (message, ct) =>
+        {
+            await validator.ValidateAndThrowAsync(message.Body, cancellationToken: ct);
+            await next(message, ct);
+        });
     }
 }

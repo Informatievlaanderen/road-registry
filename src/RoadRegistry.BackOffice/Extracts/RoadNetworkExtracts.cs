@@ -12,18 +12,25 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworkExtracts : IRoadNetworkExtracts
 {
-    public static readonly StreamName Prefix = new("extract-");
-    private readonly EventSourcedEntityMap _map;
-    private readonly EventMapping _mapping;
-    private readonly JsonSerializerSettings _settings;
-    private readonly IStreamStore _store;
-
     public RoadNetworkExtracts(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
     {
         _map = map ?? throw new ArgumentNullException(nameof(map));
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
+    }
+
+    private readonly EventSourcedEntityMap _map;
+    private readonly EventMapping _mapping;
+    private readonly JsonSerializerSettings _settings;
+    private readonly IStreamStore _store;
+
+    public void Add(RoadNetworkExtract extract)
+    {
+        if (extract == null)
+            throw new ArgumentNullException(nameof(extract));
+
+        _map.Attach(new EventSourcedEntityMapEntry(extract, ToStreamName(extract.Id), ExpectedVersion.NoStream));
     }
 
     public async Task<RoadNetworkExtract> Get(ExtractRequestId id, CancellationToken ct = default)
@@ -59,13 +66,7 @@ public class RoadNetworkExtracts : IRoadNetworkExtracts
         return (RoadNetworkExtract)entity;
     }
 
-    public void Add(RoadNetworkExtract extract)
-    {
-        if (extract == null)
-            throw new ArgumentNullException(nameof(extract));
-
-        _map.Attach(new EventSourcedEntityMapEntry(extract, ToStreamName(extract.Id), ExpectedVersion.NoStream));
-    }
+    public static readonly StreamName Prefix = new("extract-");
 
     public static StreamName ToStreamName(ExtractRequestId id)
     {

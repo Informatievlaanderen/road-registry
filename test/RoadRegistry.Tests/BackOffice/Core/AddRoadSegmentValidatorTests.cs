@@ -8,6 +8,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
+using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;
 
 public class AddRoadSegmentValidatorTests
 {
@@ -84,24 +85,16 @@ public class AddRoadSegmentValidatorTests
         Validator = new AddRoadSegmentValidator();
     }
 
-    public Fixture Fixture { get; }
-
-    public AddRoadSegmentValidator Validator { get; }
-
-    [Theory]
-    [InlineData(int.MinValue)]
-    [InlineData(-1)]
-    public void TemporaryIdMustBeGreaterThan(int value)
+    [Fact]
+    public void AccessRestrictionMustBeWithinDomain()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
+        Validator.ShouldHaveValidationErrorFor(c => c.AccessRestriction, Fixture.Create<string>());
     }
 
-    [Theory]
-    [InlineData(int.MinValue)]
-    [InlineData(-1)]
-    public void StartNodeIdMustBeGreaterThan(int value)
+    [Fact]
+    public void CategoryMustBeWithinDomain()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.StartNodeId, value);
+        Validator.ShouldHaveValidationErrorFor(c => c.Category, Fixture.Create<string>());
     }
 
     [Theory]
@@ -112,21 +105,12 @@ public class AddRoadSegmentValidatorTests
         Validator.ShouldHaveValidationErrorFor(c => c.EndNodeId, value);
     }
 
-    [Fact]
-    public void StartNodeMustNotBeEndNodeId()
-    {
-        var id = Fixture.Create<RoadNodeId>();
-        var data = new RoadRegistry.BackOffice.Messages.AddRoadSegment
-        {
-            StartNodeId = id, EndNodeId = id
-        };
-        Validator.ShouldHaveValidationErrorFor(c => c.EndNodeId, data);
-    }
+    public Fixture Fixture { get; }
 
     [Fact]
-    public void GeometryMustNotBeNull()
+    public void GeometryDrawMethodMustBeWithinDomain()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (RoadSegmentGeometry)null);
+        Validator.ShouldHaveValidationErrorFor(c => c.GeometryDrawMethod, Fixture.Create<string>());
     }
 
     [Fact]
@@ -136,33 +120,25 @@ public class AddRoadSegmentValidatorTests
     }
 
     [Fact]
-    public void GeometryDrawMethodMustBeWithinDomain()
+    public void GeometryMustNotBeNull()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.GeometryDrawMethod, Fixture.Create<string>());
+        Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (RoadSegmentGeometry)null);
     }
 
     [Fact]
-    public void MorphologyMustBeWithinDomain()
+    public void LaneMustNotBeNull()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Morphology, Fixture.Create<string>());
+        var data = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray();
+        var index = new Random().Next(0, data.Length);
+        data[index] = null;
+
+        Validator.ShouldHaveValidationErrorFor(c => c.Lanes, data);
     }
 
     [Fact]
-    public void StatusMustBeWithinDomain()
+    public void LanesHasExpectedValidator()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Status, Fixture.Create<string>());
-    }
-
-    [Fact]
-    public void CategoryMustBeWithinDomain()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Category, Fixture.Create<string>());
-    }
-
-    [Fact]
-    public void AccessRestrictionMustBeWithinDomain()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.AccessRestriction, Fixture.Create<string>());
+        Validator.ShouldHaveChildValidator(c => c.Lanes, typeof(RequestedRoadSegmentLaneAttributeValidator));
     }
 
 //        [Fact]
@@ -238,47 +214,34 @@ public class AddRoadSegmentValidatorTests
     }
 
     [Fact]
-    public void LaneMustNotBeNull()
+    public void MorphologyMustBeWithinDomain()
     {
-        var data = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray();
-        var index = new Random().Next(0, data.Length);
-        data[index] = null;
+        Validator.ShouldHaveValidationErrorFor(c => c.Morphology, Fixture.Create<string>());
+    }
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Lanes, data);
+    [Theory]
+    [InlineData(int.MinValue)]
+    [InlineData(-1)]
+    public void StartNodeIdMustBeGreaterThan(int value)
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.StartNodeId, value);
     }
 
     [Fact]
-    public void LanesHasExpectedValidator()
+    public void StartNodeMustNotBeEndNodeId()
     {
-        Validator.ShouldHaveChildValidator(c => c.Lanes, typeof(RequestedRoadSegmentLaneAttributeValidator));
+        var id = Fixture.Create<RoadNodeId>();
+        var data = new AddRoadSegment
+        {
+            StartNodeId = id, EndNodeId = id
+        };
+        Validator.ShouldHaveValidationErrorFor(c => c.EndNodeId, data);
     }
 
     [Fact]
-    public void WidthsMustNotBeNull()
+    public void StatusMustBeWithinDomain()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Widths, (RequestedRoadSegmentWidthAttribute[])null);
-    }
-
-    [Fact]
-    public void WidthMustNotBeNull()
-    {
-        var data = Fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray();
-        var index = new Random().Next(0, data.Length);
-        data[index] = null;
-
-        Validator.ShouldHaveValidationErrorFor(c => c.Widths, data);
-    }
-
-    [Fact]
-    public void WidthsHasExpectedValidator()
-    {
-        Validator.ShouldHaveChildValidator(c => c.Widths, typeof(RequestedRoadSegmentWidthAttributeValidator));
-    }
-
-    [Fact]
-    public void SurfacesMustNotBeNull()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Surfaces, (RequestedRoadSegmentSurfaceAttribute[])null);
+        Validator.ShouldHaveValidationErrorFor(c => c.Status, Fixture.Create<string>());
     }
 
     [Fact]
@@ -298,11 +261,27 @@ public class AddRoadSegmentValidatorTests
     }
 
     [Fact]
+    public void SurfacesMustNotBeNull()
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Surfaces, (RequestedRoadSegmentSurfaceAttribute[])null);
+    }
+
+    [Theory]
+    [InlineData(int.MinValue)]
+    [InlineData(-1)]
+    public void TemporaryIdMustBeGreaterThan(int value)
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
+    }
+
+    public AddRoadSegmentValidator Validator { get; }
+
+    [Fact]
     public void VerifyValid()
     {
         Fixture.CustomizePolylineM();
 
-        var data = new RoadRegistry.BackOffice.Messages.AddRoadSegment
+        var data = new AddRoadSegment
         {
             TemporaryId = Fixture.Create<RoadSegmentId>(),
             StartNodeId = Fixture.Create<RoadNodeId>(),
@@ -322,5 +301,27 @@ public class AddRoadSegmentValidatorTests
         };
 
         Validator.ValidateAndThrow(data);
+    }
+
+    [Fact]
+    public void WidthMustNotBeNull()
+    {
+        var data = Fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray();
+        var index = new Random().Next(0, data.Length);
+        data[index] = null;
+
+        Validator.ShouldHaveValidationErrorFor(c => c.Widths, data);
+    }
+
+    [Fact]
+    public void WidthsHasExpectedValidator()
+    {
+        Validator.ShouldHaveChildValidator(c => c.Widths, typeof(RequestedRoadSegmentWidthAttributeValidator));
+    }
+
+    [Fact]
+    public void WidthsMustNotBeNull()
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Widths, (RequestedRoadSegmentWidthAttribute[])null);
     }
 }

@@ -20,30 +20,6 @@ public class LineStringValidatorTests
 
     public Fixture Fixture { get; }
 
-    public LineStringValidator Validator { get; }
-
-    [Fact]
-    public void PointsCanNotBeNull()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Points, (Point[])null);
-    }
-
-    [Fact]
-    public void PointCanNotBeNull()
-    {
-        var data = Fixture.CreateMany<Point>(10).ToArray();
-        var index = new Random().Next(0, data.Length);
-        data[index] = null;
-
-        Validator.ShouldHaveValidationErrorFor(c => c.Points, data);
-    }
-
-    [Fact]
-    public void MeasuresCanNotBeNull()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Measures, (double[])null);
-    }
-
     [Fact]
     public void MeasureCanNotBeNaN()
     {
@@ -73,6 +49,30 @@ public class LineStringValidatorTests
 
         Validator.ShouldHaveValidationErrorFor(c => c.Measures, data);
     }
+
+    [Fact]
+    public void MeasuresCanNotBeNull()
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Measures, (double[])null);
+    }
+
+    [Fact]
+    public void PointCanNotBeNull()
+    {
+        var data = Fixture.CreateMany<Point>(10).ToArray();
+        var index = new Random().Next(0, data.Length);
+        data[index] = null;
+
+        Validator.ShouldHaveValidationErrorFor(c => c.Points, data);
+    }
+
+    [Fact]
+    public void PointsCanNotBeNull()
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Points, (Point[])null);
+    }
+
+    public LineStringValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

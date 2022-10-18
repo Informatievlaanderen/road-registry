@@ -6,8 +6,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class LaneDirectionDbaseRecord : DbaseRecord
 {
-    public static readonly LaneDirectionDbaseSchema Schema = new();
-
     public LaneDirectionDbaseRecord()
     {
         RICHTING = new DbaseInt32(Schema.RICHTING);
@@ -20,7 +18,9 @@ public class LaneDirectionDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 RICHTING { get; }
-    public DbaseString LBLRICHT { get; }
     public DbaseString DEFRICHT { get; }
+    public DbaseString LBLRICHT { get; }
+
+    public DbaseInt32 RICHTING { get; }
+    public static readonly LaneDirectionDbaseSchema Schema = new();
 }

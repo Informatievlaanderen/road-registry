@@ -19,192 +19,12 @@ using RejectedChange = Editor.Schema.RoadNetworkChanges.RejectedChange;
 [Collection(nameof(SqlServerCollection))]
 public class ChangeFeedGetNextTests
 {
-    private readonly SqlServer _fixture;
-
     public ChangeFeedGetNextTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }
 
-    [Fact]
-    public async Task When_downloading_next_changes_without_specifying_a_max_entry_count()
-    {
-        var controller = new ChangeFeedController
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    Request =
-                    {
-                        QueryString = new QueryString("?afterEntry=0")
-                    }
-                }
-            }
-        };
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
-        {
-            try
-            {
-                await controller.GetNext(new[] { "0" }, new string[] { }, context);
-                throw new XunitException("Expected a validation exception but did not receive any");
-            }
-            catch (ValidationException exception)
-            {
-                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
-            }
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_next_changes_with_too_many_max_entry_counts_specified()
-    {
-        var controller = new ChangeFeedController
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    Request =
-                    {
-                        QueryString = new QueryString("?afterEntry=0&maxEntryCount=5&maxEntryCount=10")
-                    }
-                }
-            }
-        };
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
-        {
-            try
-            {
-                await controller.GetNext(new[] { "0" }, new[] { "5", "10" }, context);
-                throw new XunitException("Expected a validation exception but did not receive any");
-            }
-            catch (ValidationException exception)
-            {
-                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
-            }
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_next_changes_with_a_max_entry_count_that_is_not_an_integer()
-    {
-        var controller = new ChangeFeedController
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    Request =
-                    {
-                        QueryString = new QueryString("?afterEntry=0&maxEntryCount=abc")
-                    }
-                }
-            }
-        };
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
-        {
-            try
-            {
-                await controller.GetNext(new[] { "0" }, new[] { "abc" }, context);
-                throw new XunitException("Expected a validation exception but did not receive any");
-            }
-            catch (ValidationException exception)
-            {
-                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
-            }
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_next_changes_without_specifying_an_after_entry()
-    {
-        var controller = new ChangeFeedController
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    Request =
-                    {
-                        QueryString = new QueryString("?maxEntryCount=0")
-                    }
-                }
-            }
-        };
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
-        {
-            try
-            {
-                await controller.GetNext(new string[] { }, new[] { "0" }, context);
-                throw new XunitException("Expected a validation exception but did not receive any");
-            }
-            catch (ValidationException exception)
-            {
-                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("AfterEntry", "AfterEntry query string parameter is missing.") });
-            }
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_next_changes_with_too_many_after_entries_specified()
-    {
-        var controller = new ChangeFeedController
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    Request =
-                    {
-                        QueryString = new QueryString("?afterEntry=1&afterEntry=2&maxEntryCount=10")
-                    }
-                }
-            }
-        };
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
-        {
-            try
-            {
-                await controller.GetNext(new[] { "1", "2" }, new[] { "0" }, context);
-                throw new XunitException("Expected a validation exception but did not receive any");
-            }
-            catch (ValidationException exception)
-            {
-                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("AfterEntry", "AfterEntry query string parameter requires exactly 1 value.") });
-            }
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_next_changes_with_an_after_entry_that_is_not_an_integer()
-    {
-        var controller = new ChangeFeedController
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    Request =
-                    {
-                        QueryString = new QueryString("?afterEntry=abc&maxEntryCount=0")
-                    }
-                }
-            }
-        };
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
-        {
-            try
-            {
-                await controller.GetNext(new[] { "abc" }, new[] { "0" }, context);
-                throw new XunitException("Expected a validation exception but did not receive any");
-            }
-            catch (ValidationException exception)
-            {
-                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("AfterEntry", "AfterEntry query string parameter value must be an integer.") });
-            }
-        }
-    }
+    private readonly SqlServer _fixture;
 
     [Fact]
     public async Task When_downloading_next_changes_of_an_empty_registry()
@@ -353,6 +173,186 @@ public class ChangeFeedGetNextTests
             // YR: Different versions of libicu use different casing
             Assert.Equal("jan.", item3.Month.ToLowerInvariant());
             Assert.Equal("01:00", item3.TimeOfDay);
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_next_changes_with_a_max_entry_count_that_is_not_an_integer()
+    {
+        var controller = new ChangeFeedController
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Request =
+                    {
+                        QueryString = new QueryString("?afterEntry=0&maxEntryCount=abc")
+                    }
+                }
+            }
+        };
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        {
+            try
+            {
+                await controller.GetNext(new[] { "0" }, new[] { "abc" }, context);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException exception)
+            {
+                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
+            }
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_next_changes_with_an_after_entry_that_is_not_an_integer()
+    {
+        var controller = new ChangeFeedController
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Request =
+                    {
+                        QueryString = new QueryString("?afterEntry=abc&maxEntryCount=0")
+                    }
+                }
+            }
+        };
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        {
+            try
+            {
+                await controller.GetNext(new[] { "abc" }, new[] { "0" }, context);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException exception)
+            {
+                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("AfterEntry", "AfterEntry query string parameter value must be an integer.") });
+            }
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_next_changes_with_too_many_after_entries_specified()
+    {
+        var controller = new ChangeFeedController
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Request =
+                    {
+                        QueryString = new QueryString("?afterEntry=1&afterEntry=2&maxEntryCount=10")
+                    }
+                }
+            }
+        };
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        {
+            try
+            {
+                await controller.GetNext(new[] { "1", "2" }, new[] { "0" }, context);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException exception)
+            {
+                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("AfterEntry", "AfterEntry query string parameter requires exactly 1 value.") });
+            }
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_next_changes_with_too_many_max_entry_counts_specified()
+    {
+        var controller = new ChangeFeedController
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Request =
+                    {
+                        QueryString = new QueryString("?afterEntry=0&maxEntryCount=5&maxEntryCount=10")
+                    }
+                }
+            }
+        };
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        {
+            try
+            {
+                await controller.GetNext(new[] { "0" }, new[] { "5", "10" }, context);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException exception)
+            {
+                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
+            }
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_next_changes_without_specifying_a_max_entry_count()
+    {
+        var controller = new ChangeFeedController
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Request =
+                    {
+                        QueryString = new QueryString("?afterEntry=0")
+                    }
+                }
+            }
+        };
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        {
+            try
+            {
+                await controller.GetNext(new[] { "0" }, new string[] { }, context);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException exception)
+            {
+                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
+            }
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_next_changes_without_specifying_an_after_entry()
+    {
+        var controller = new ChangeFeedController
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Request =
+                    {
+                        QueryString = new QueryString("?maxEntryCount=0")
+                    }
+                }
+            }
+        };
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        {
+            try
+            {
+                await controller.GetNext(new string[] { }, new[] { "0" }, context);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException exception)
+            {
+                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("AfterEntry", "AfterEntry query string parameter is missing.") });
+            }
         }
     }
 }

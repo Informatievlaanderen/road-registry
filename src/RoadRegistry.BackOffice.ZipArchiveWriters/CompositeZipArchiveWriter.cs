@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 
 public class CompositeZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {
-    private readonly IZipArchiveWriter<TContext>[] _writers;
-
     public CompositeZipArchiveWriter(params IZipArchiveWriter<TContext>[] writers)
     {
         _writers = writers ?? throw new ArgumentNullException(nameof(writers));
     }
+
+    private readonly IZipArchiveWriter<TContext>[] _writers;
 
     public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
     {

@@ -1,114 +1,111 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.Extensions
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Api;
-    using Microsoft.AspNetCore.Mvc.Formatters;
+namespace RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
 
-    public static class EndPointTypeExtensions
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Be.Vlaanderen.Basisregisters.Api;
+using Microsoft.AspNetCore.Mvc.Formatters;
+
+public static class EndPointTypeExtensions
+{
+    private sealed class AcceptTypeComparer : IComparer<string>
     {
-        public static IEnumerable<AcceptType> GetAcceptedTypes(this EndpointType endpointType)
+        public int Compare(string? x, string? y)
         {
-            return endpointType switch
-            {
-                EndpointType.Legacy
+            if (x == null || y == null) return DefaultCompare(x, y);
+
+            var problemResult = 0;
+            if (ContainsProblem(x)) problemResult -= 1;
+
+            if (ContainsProblem(y)) problemResult += 1;
+
+            return problemResult != 0 ? problemResult : string.CompareOrdinal(x, y);
+        }
+
+        private static bool ContainsProblem(string value)
+        {
+            return value.Contains("problem+", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static int DefaultCompare(string? x, string? y)
+        {
+            return string.CompareOrdinal(x, y);
+        }
+    }
+
+    public static MediaTypeCollection Consumes(this EndpointType endpointType)
+    {
+        return endpointType
+            .GetContentTypes()
+            .SelectMany(type =>
+                new[]
+                {
+                    type.ToMimeTypeString()
+                })
+            .Distinct()
+            .OrderBy(type => type, new AcceptTypeComparer())
+            .Aggregate(
+                new MediaTypeCollection(),
+                (collection, type) =>
+                {
+                    collection.Add(type);
+                    return collection;
+                });
+    }
+
+    public static IEnumerable<AcceptType> GetAcceptedTypes(this EndpointType endpointType)
+    {
+        return endpointType switch
+        {
+            EndpointType.Legacy
                 => new[]
                 {
                     AcceptType.Json,
                     AcceptType.Xml
                 },
-                EndpointType.Sync
+            EndpointType.Sync
                 => new[]
                 {
                     AcceptType.Atom,
                     AcceptType.Xml
                 },
-                EndpointType.BackOffice
-                    => new []
-                    {
-                        AcceptType.Json
-                    },
-                EndpointType.Oslo
-                    => new []
-                    {
-                        AcceptType.JsonLd
-                    },
-                _ => new[] { AcceptType.Json }
-            };
-        }
-
-        public static IEnumerable<AcceptType> GetContentTypes(this EndpointType endpointType) => new[] { AcceptType.Json };
-
-        public static MediaTypeCollection Produces(this EndpointType endpointType)
-        {
-            return endpointType
-                .GetAcceptedTypes()
-                .SelectMany(type =>
-                    new []
-                    {
-                        type.ToMimeTypeString(),
-                        type.ToProblemResponseMimeTypeString()
-                    })
-                .Distinct()
-                .OrderBy(type => type, new AcceptTypeComparer())
-                .Aggregate(
-                    new MediaTypeCollection(),
-                    (collection, type) =>
-                    {
-                        collection.Add(type);
-                        return collection;
-                    });
-        }
-
-        public static MediaTypeCollection Consumes(this EndpointType endpointType)
-        {
-            return endpointType
-                .GetContentTypes()
-                .SelectMany(type =>
-                    new []
-                    {
-                        type.ToMimeTypeString()
-                    })
-                .Distinct()
-                .OrderBy(type => type, new AcceptTypeComparer())
-                .Aggregate(
-                    new MediaTypeCollection(),
-                    (collection, type) =>
-                    {
-                        collection.Add(type);
-                        return collection;
-                    });
-        }
-
-        private sealed class AcceptTypeComparer : IComparer<string>
-        {
-            public int Compare(string? x, string? y)
-            {
-                if (x == null || y == null)
+            EndpointType.BackOffice
+                => new[]
                 {
-                    return DefaultCompare(x, y);
-                }
-
-                var problemResult = 0;
-                if (ContainsProblem(x))
+                    AcceptType.Json
+                },
+            EndpointType.Oslo
+                => new[]
                 {
-                    problemResult -= 1;
-                }
+                    AcceptType.JsonLd
+                },
+            _ => new[] { AcceptType.Json }
+        };
+    }
 
-                if (ContainsProblem(y))
+    public static IEnumerable<AcceptType> GetContentTypes(this EndpointType endpointType)
+    {
+        return new[] { AcceptType.Json };
+    }
+
+    public static MediaTypeCollection Produces(this EndpointType endpointType)
+    {
+        return endpointType
+            .GetAcceptedTypes()
+            .SelectMany(type =>
+                new[]
                 {
-                    problemResult += 1;
-                }
-
-                return problemResult != 0 ? problemResult : string.CompareOrdinal(x, y);
-            }
-
-            private static int DefaultCompare(string? x, string? y)
-                => string.CompareOrdinal(x, y);
-
-            private static bool ContainsProblem(string value) =>
-                value.Contains("problem+", StringComparison.OrdinalIgnoreCase);
-        }
+                    type.ToMimeTypeString(),
+                    type.ToProblemResponseMimeTypeString()
+                })
+            .Distinct()
+            .OrderBy(type => type, new AcceptTypeComparer())
+            .Aggregate(
+                new MediaTypeCollection(),
+                (collection, type) =>
+                {
+                    collection.Add(type);
+                    return collection;
+                });
     }
 }

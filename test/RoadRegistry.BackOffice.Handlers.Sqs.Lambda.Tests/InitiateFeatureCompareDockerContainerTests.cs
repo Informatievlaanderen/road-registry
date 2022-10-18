@@ -4,19 +4,11 @@ using Amazon.Lambda.SQSEvents;
 using Amazon.Lambda.TestUtilities;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Ductus.FluentDocker.Builders;
-using Framework;
 using Messages;
 using Newtonsoft.Json;
-using Xunit;
 
 public class InitiateFeatureCompareDockerContainerTests
 {
-    private readonly CancellationTokenSource _cancellationTokenSource;
-    private readonly TestLambdaContext _context;
-    private readonly SqsBackOfficeHandlerFunctions _functions;
-    private readonly JsonSerializerSettings _jsonSerializerSettings;
-
     public InitiateFeatureCompareDockerContainerTests()
     {
         _context = new TestLambdaContext
@@ -29,6 +21,11 @@ public class InitiateFeatureCompareDockerContainerTests
         _jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         _cancellationTokenSource = new CancellationTokenSource();
     }
+
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly TestLambdaContext _context;
+    private readonly SqsBackOfficeHandlerFunctions _functions;
+    private readonly JsonSerializerSettings _jsonSerializerSettings;
 
     [Fact(Skip = "TODO: Configuration pipeline")]
     public async Task When_container_instance_should_be_started_after_upload()

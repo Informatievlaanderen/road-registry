@@ -362,6 +362,14 @@ namespace RoadRegistry.Syndication.Projections
             });
         }
 
+        private static async Task<StreetNameRecord> FindOrThrow(SyndicationContext context, Guid streetNameId, CancellationToken token)
+        {
+            var streetNameRecord = await context.StreetNames.FindAsync(streetNameId, cancellationToken: token);
+            if (streetNameRecord == null) throw new InvalidOperationException($"No street name with id {streetNameId} was found.");
+
+            return streetNameRecord;
+        }
+
         private static async Task UpdateStreetNameRecord<T>(SyndicationContext context, Envelope<T> envelope, Guid streetNameId, Action<StreetNameRecord> update, CancellationToken token)
         {
             var streetNameRecord = await FindOrThrow(context, streetNameId, token);
@@ -369,14 +377,6 @@ namespace RoadRegistry.Syndication.Projections
             update(streetNameRecord);
 
             streetNameRecord.Position = envelope.Position;
-        }
-
-        private static async Task<StreetNameRecord> FindOrThrow(SyndicationContext context, Guid streetNameId, CancellationToken token)
-        {
-            var streetNameRecord = await context.StreetNames.FindAsync(streetNameId, cancellationToken: token);
-            if (streetNameRecord == null) throw new InvalidOperationException($"No street name with id {streetNameId} was found.");
-
-            return streetNameRecord;
         }
     }
 }

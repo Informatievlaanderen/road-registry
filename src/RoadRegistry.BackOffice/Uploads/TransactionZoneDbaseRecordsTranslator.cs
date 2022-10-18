@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Uploads
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using System;
-    using System.IO.Compression;
-
     namespace Schema.V1
     {
+        using System;
+        using System.IO.Compression;
+        using Be.Vlaanderen.Basisregisters.Shaperon;
+
         public class TransactionZoneDbaseRecordsTranslator : IZipArchiveDbaseRecordsTranslator<TransactionZoneDbaseRecord>
         {
             public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, TranslatedChanges changes)
@@ -15,14 +15,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 if (changes == null) throw new ArgumentNullException(nameof(changes));
 
                 if (records.MoveNext() && records.Current != null)
-                {
                     return changes
                         .WithReason(new Reason(records.Current.BESCHRIJV.Value))
                         .WithOperatorName(string.IsNullOrEmpty(records.Current.OPERATOR.Value)
                             ? new OperatorName("-8")
                             : new OperatorName(records.Current.OPERATOR.Value))
                         .WithOrganization(new OrganizationId(records.Current.ORG.Value));
-                }
                 return changes;
             }
         }
@@ -30,6 +28,10 @@ namespace RoadRegistry.BackOffice.Uploads
 
     namespace Schema.V2
     {
+        using System;
+        using System.IO.Compression;
+        using Be.Vlaanderen.Basisregisters.Shaperon;
+
         public class TransactionZoneDbaseRecordsTranslator : IZipArchiveDbaseRecordsTranslator<TransactionZoneDbaseRecord>
         {
             public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, TranslatedChanges changes)
@@ -39,14 +41,12 @@ namespace RoadRegistry.BackOffice.Uploads
                 if (changes == null) throw new ArgumentNullException(nameof(changes));
 
                 if (records.MoveNext() && records.Current != null)
-                {
                     return changes
                         .WithReason(new Reason(records.Current.BESCHRIJV.Value))
                         .WithOperatorName(string.IsNullOrEmpty(records.Current.OPERATOR.Value)
                             ? new OperatorName("-8")
                             : new OperatorName(records.Current.OPERATOR.Value))
                         .WithOrganization(new OrganizationId(records.Current.ORG.Value));
-                }
                 return changes;
             }
         }

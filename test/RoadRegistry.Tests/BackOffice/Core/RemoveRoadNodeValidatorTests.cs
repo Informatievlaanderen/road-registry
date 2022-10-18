@@ -6,6 +6,7 @@ using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using Xunit;
+using RemoveRoadNode = RoadRegistry.BackOffice.Messages.RemoveRoadNode;
 
 public class RemoveRoadNodeValidatorTests
 {
@@ -19,8 +20,6 @@ public class RemoveRoadNodeValidatorTests
 
     public Fixture Fixture { get; }
 
-    public RemoveRoadNodeValidator Validator { get; }
-
     [Theory]
     [InlineData(int.MinValue)]
     [InlineData(-1)]
@@ -30,10 +29,12 @@ public class RemoveRoadNodeValidatorTests
         Validator.ShouldHaveValidationErrorFor(c => c.Id, value);
     }
 
+    public RemoveRoadNodeValidator Validator { get; }
+
     [Fact]
     public void VerifyValid()
     {
-        var data = new RoadRegistry.BackOffice.Messages.RemoveRoadNode
+        var data = new RemoveRoadNode
         {
             Id = Fixture.Create<RoadNodeId>()
         };

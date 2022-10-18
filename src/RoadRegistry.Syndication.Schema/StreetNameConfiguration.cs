@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class StreetNameConfiguration : IEntityTypeConfiguration<StreetNameRecord>
 {
-    public const string TableName = "StreetName";
-
     public void Configure(EntityTypeBuilder<StreetNameRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.SyndicationSchema)
@@ -54,4 +52,6 @@ public class StreetNameConfiguration : IEntityTypeConfiguration<StreetNameRecord
         b.Property(p => p.EnglishNameWithHomonymAddition)
             .HasComputedColumnSql("COALESCE(EnglishName + COALESCE('_' + EnglishHomonymAddition,''), EnglishHomonymAddition) PERSISTED");
     }
+
+    public const string TableName = "StreetName";
 }

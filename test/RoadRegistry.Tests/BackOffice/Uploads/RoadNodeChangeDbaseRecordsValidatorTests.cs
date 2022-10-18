@@ -10,14 +10,6 @@ using Xunit;
 
 public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
 {
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveValidationContext _context;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly RoadNodeChangeDbaseRecordsValidator _sut;
-
     public RoadNodeChangeDbaseRecordsValidatorTests()
     {
         _fixture = new Fixture();
@@ -40,6 +32,90 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
         _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
         _entry = _archive.CreateEntry("wegknoop_all.dbf");
         _context = ZipArchiveValidationContext.Empty;
+    }
+
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveValidationContext _context;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly RoadNodeChangeDbaseRecordsValidator _sut;
+
+    private static ZipArchiveValidationContext BuildValidationContext(RoadNodeChangeDbaseRecord record, ZipArchiveValidationContext context)
+    {
+        if (!record.WEGKNOOPID.HasValue || !record.RECORDTYPE.HasValue) return context;
+
+        if (RecordType.ByIdentifier.TryGetValue(record.RECORDTYPE.Value, out var recordType)) return context.WithRoadNode(new RoadNodeId(record.WEGKNOOPID.Value), recordType);
+
+        return context;
+    }
+
+    public void Dispose()
+    {
+        _archive?.Dispose();
+        _stream?.Dispose();
+    }
+
+    [Fact]
+    public void IsZipArchiveDbaseRecordsValidator()
+    {
+        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<RoadNodeChangeDbaseRecord>>(_sut);
+    }
+
+    [Fact]
+    public void ValidateContextCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
+    }
+
+    [Fact]
+    public void ValidateEntryCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
+    }
+
+    [Fact]
+    public void ValidateRecordsCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
+    }
+
+    [Fact]
+    public void ValidateWithoutRecordsReturnsExpectedResult()
+    {
+        var (result, context) = _sut.Validate(_entry, _enumerator, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(false)),
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithProblematicRecordsReturnsExpectedResult()
+    {
+        const int failAt = 1;
+        var expectedContext = ZipArchiveValidationContext.Empty;
+        var records = _fixture
+            .CreateMany<RoadNodeChangeDbaseRecord>(2)
+            .Select((record, i) =>
+            {
+                if (i < failAt) expectedContext = BuildValidationContext(record, expectedContext);
+
+                return record;
+            })
+            .ToArray();
+        var exception = new Exception("problem");
+        var enumerator = new ProblematicDbaseRecordEnumerator<RoadNodeChangeDbaseRecord>(records, failAt, exception);
+
+        var (result, context) = _sut.Validate(_entry, enumerator, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)),
+            result,
+            new FileProblemComparer());
+        Assert.Equal(expectedContext, context);
     }
 
     public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
@@ -66,66 +142,20 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
         }
     }
 
-    public void Dispose()
-    {
-        _archive?.Dispose();
-        _stream?.Dispose();
-    }
-
-    [Fact]
-    public void IsZipArchiveDbaseRecordsValidator()
-    {
-        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<RoadNodeChangeDbaseRecord>>(_sut);
-    }
-
-    [Fact]
-    public void ValidateEntryCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
-    }
-
-    [Fact]
-    public void ValidateRecordsCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
-    }
-
-    [Fact]
-    public void ValidateContextCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
-    }
-
-    [Fact]
-    public void ValidateWithoutRecordsReturnsExpectedResult()
-    {
-        var (result, context) = _sut.Validate(_entry, _enumerator, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(false)),
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithValidRecordsReturnsExpectedResult()
+    [Theory]
+    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+        Action<RoadNodeChangeDbaseRecord> modifier, DbaseField field)
     {
         var expectedContext = ZipArchiveValidationContext.Empty;
-        var records = _fixture
-            .CreateMany<RoadNodeChangeDbaseRecord>(new Random().Next(1, 5))
-            .Select((record, index) =>
-            {
-                record.WEGKNOOPID.Value = index + 1;
-                expectedContext = BuildValidationContext(record, expectedContext);
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
+        var record = _fixture.Create<RoadNodeChangeDbaseRecord>();
+        modifier(record);
+        expectedContext = BuildValidationContext(record, expectedContext);
+        var records = new[] { record }.ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, _context);
 
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
+        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
         Assert.Equal(expectedContext, context);
     }
 
@@ -238,49 +268,6 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Same(_context, context);
     }
 
-    [Theory]
-    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
-    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
-        Action<RoadNodeChangeDbaseRecord> modifier, DbaseField field)
-    {
-        var expectedContext = ZipArchiveValidationContext.Empty;
-        var record = _fixture.Create<RoadNodeChangeDbaseRecord>();
-        modifier(record);
-        expectedContext = BuildValidationContext(record, expectedContext);
-        var records = new[] { record }.ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
-        Assert.Equal(expectedContext, context);
-    }
-
-    [Fact]
-    public void ValidateWithProblematicRecordsReturnsExpectedResult()
-    {
-        const int failAt = 1;
-        var expectedContext = ZipArchiveValidationContext.Empty;
-        var records = _fixture
-            .CreateMany<RoadNodeChangeDbaseRecord>(2)
-            .Select((record, i) =>
-            {
-                if (i < failAt) expectedContext = BuildValidationContext(record, expectedContext);
-
-                return record;
-            })
-            .ToArray();
-        var exception = new Exception("problem");
-        var enumerator = new ProblematicDbaseRecordEnumerator<RoadNodeChangeDbaseRecord>(records, failAt, exception);
-
-        var (result, context) = _sut.Validate(_entry, enumerator, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)),
-            result,
-            new FileProblemComparer());
-        Assert.Equal(expectedContext, context);
-    }
-
     [Fact]
     public void ValidateWithRecordThatHasInvalidRoadNodeTypeReturnsExpectedResult()
     {
@@ -298,12 +285,25 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(expectedContext, context);
     }
 
-    private static ZipArchiveValidationContext BuildValidationContext(RoadNodeChangeDbaseRecord record, ZipArchiveValidationContext context)
+    [Fact]
+    public void ValidateWithValidRecordsReturnsExpectedResult()
     {
-        if (!record.WEGKNOOPID.HasValue || !record.RECORDTYPE.HasValue) return context;
+        var expectedContext = ZipArchiveValidationContext.Empty;
+        var records = _fixture
+            .CreateMany<RoadNodeChangeDbaseRecord>(new Random().Next(1, 5))
+            .Select((record, index) =>
+            {
+                record.WEGKNOOPID.Value = index + 1;
+                expectedContext = BuildValidationContext(record, expectedContext);
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
 
-        if (RecordType.ByIdentifier.TryGetValue(record.RECORDTYPE.Value, out var recordType)) return context.WithRoadNode(new RoadNodeId(record.WEGKNOOPID.Value), recordType);
+        var (result, context) = _sut.Validate(_entry, records, _context);
 
-        return context;
+        Assert.Equal(
+            ZipArchiveProblems.None,
+            result);
+        Assert.Equal(expectedContext, context);
     }
 }

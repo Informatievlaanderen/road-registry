@@ -1,9 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
+using Abstractions;
 using Api.Downloads;
 using Api.Framework;
-using Autofac;
-using Autofac.Core;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Dbase;
@@ -12,19 +11,12 @@ using Framework.Containers;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.DependencyInjection;
 using Product.Schema;
-using RoadRegistry.BackOffice.Api.Tests.Abstractions;
 using SqlStreamStore;
 
 [Collection(nameof(SqlServerCollection))]
 public class DownloadControllerTests : ControllerTests<DownloadController>
 {
-    private readonly SqlServer _fixture;
-    private readonly EditorContext _editorContext;
-    private readonly ProductContext _productContext;
-    private readonly CancellationTokenSource _tokenSource;
-
     public DownloadControllerTests(
         SqlServer fixture,
         EditorContext editorContext,
@@ -40,6 +32,28 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
         _tokenSource = new CancellationTokenSource();
         _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
         _productContext = productContext ?? throw new ArgumentNullException(nameof(productContext));
+    }
+
+    private readonly EditorContext _editorContext;
+    private readonly SqlServer _fixture;
+    private readonly ProductContext _productContext;
+    private readonly CancellationTokenSource _tokenSource;
+
+    [Fact]
+    public async Task When_downloading_editor_archive_after_an_import()
+    {
+        _editorContext.RoadNetworkInfo.Add(new RoadNetworkInfo
+        {
+            Id = 0,
+            CompletedImport = true
+        });
+        await _editorContext.SaveChangesAsync();
+
+        var result = await Controller.Get(_tokenSource.Token);
+        var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
+
+        var filename = $"wegenregister-{DateTime.Today.ToString("yyyyMMdd")}.zip";
+        Assert.Equal(filename, fileCallbackResult.FileDownloadName);
     }
 
     [Fact]
@@ -66,20 +80,19 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
     }
 
     [Fact]
-    public async Task When_downloading_editor_archive_after_an_import()
+    public async Task When_downloading_product_archive_after_an_import()
     {
-        _editorContext.RoadNetworkInfo.Add(new RoadNetworkInfo
+        _productContext.RoadNetworkInfo.Add(new RoadNetworkInfo
         {
             Id = 0,
             CompletedImport = true
         });
-        await _editorContext.SaveChangesAsync();
+        await _productContext.SaveChangesAsync();
 
-        var result = await Controller.Get(_tokenSource.Token);
+        var version = DateTime.Today.ToString("yyyyMMdd");
+        var result = await Controller.Get(version, _tokenSource.Token);
         var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
-
-        var filename = $"wegenregister-{DateTime.Today.ToString("yyyyMMdd")}.zip";
-        Assert.Equal(filename, fileCallbackResult.FileDownloadName);
+        Assert.Equal($"wegenregister-{version}.zip", fileCallbackResult.FileDownloadName);
     }
 
     [Fact]
@@ -103,21 +116,5 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
         var result = await Controller.Get(_tokenSource.Token);
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
-    }
-
-    [Fact]
-    public async Task When_downloading_product_archive_after_an_import()
-    {
-        _productContext.RoadNetworkInfo.Add(new RoadNetworkInfo
-        {
-            Id = 0,
-            CompletedImport = true
-        });
-        await _productContext.SaveChangesAsync();
-
-        var version = DateTime.Today.ToString("yyyyMMdd");
-        var result = await Controller.Get(version, _tokenSource.Token);
-        var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
-        Assert.Equal($"wegenregister-{version}.zip", fileCallbackResult.FileDownloadName);
     }
 }

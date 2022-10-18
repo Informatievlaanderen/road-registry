@@ -4,6 +4,17 @@ using System;
 
 public abstract class EventSourcedEntity : IEventSourcedEntity
 {
+    protected void Apply(object @event)
+    {
+        Player.Play(@event);
+        Recorder.Record(@event);
+    }
+
+    protected void On<TEvent>(Action<TEvent> handler)
+    {
+        Player.Register(handler);
+    }
+
     private readonly EventPlayer Player = new();
 
     private readonly EventRecorder Recorder = new();
@@ -29,16 +40,5 @@ public abstract class EventSourcedEntity : IEventSourcedEntity
         var recorded = Recorder.RecordedEvents;
         Recorder.Reset();
         return recorded;
-    }
-
-    protected void On<TEvent>(Action<TEvent> handler)
-    {
-        Player.Register(handler);
-    }
-
-    protected void Apply(object @event)
-    {
-        Player.Play(@event);
-        Recorder.Record(@event);
     }
 }

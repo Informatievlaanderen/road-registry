@@ -21,15 +21,6 @@ using Microsoft.Extensions.Logging;
 /// <exception cref="ExtractDownloadNotFoundException"></exception>
 public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractRequest, UploadExtractResponse>
 {
-    private static readonly ContentType[] SupportedContentTypes =
-    {
-        ContentType.Parse("application/zip"),
-        ContentType.Parse("application/x-zip-compressed")
-    };
-
-    private readonly RoadNetworkExtractUploadsBlobClient _client;
-    private readonly EditorContext _context;
-
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
@@ -39,6 +30,9 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
     }
+
+    private readonly RoadNetworkExtractUploadsBlobClient _client;
+    private readonly EditorContext _context;
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
     {
@@ -82,4 +76,10 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
         throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
     }
+
+    private static readonly ContentType[] SupportedContentTypes =
+    {
+        ContentType.Parse("application/zip"),
+        ContentType.Parse("application/x-zip-compressed")
+    };
 }

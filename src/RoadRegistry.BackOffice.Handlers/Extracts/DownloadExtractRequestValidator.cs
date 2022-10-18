@@ -8,9 +8,6 @@ using NetTopologySuite.IO;
 
 public sealed class DownloadExtractRequestValidator : AbstractValidator<DownloadExtractRequest>
 {
-    private readonly ILogger<DownloadExtractRequestValidator> _logger;
-    private readonly WKTReader _reader;
-
     public DownloadExtractRequestValidator(WKTReader reader, ILogger<DownloadExtractRequestValidator> logger)
     {
         RuleFor(c => c.RequestId)
@@ -24,6 +21,9 @@ public sealed class DownloadExtractRequestValidator : AbstractValidator<Download
         _reader = reader;
         _logger = logger;
     }
+
+    private readonly ILogger<DownloadExtractRequestValidator> _logger;
+    private readonly WKTReader _reader;
 
     private bool BeMultiPolygonGeometryAsWellKnownText(string text)
     {

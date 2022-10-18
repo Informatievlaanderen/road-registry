@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Handlers.Uploads;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
-using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
@@ -15,14 +14,6 @@ using Microsoft.Extensions.Logging;
 /// <exception cref="UnsupportedMediaTypeException"></exception>
 public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractRequest, UploadExtractResponse>
 {
-    private static readonly ContentType[] SupportedContentTypes =
-    {
-        ContentType.Parse("application/zip"),
-        ContentType.Parse("application/x-zip-compressed")
-    };
-
-    private readonly RoadNetworkFeatureCompareBlobClient _client;
-
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkFeatureCompareBlobClient client,
@@ -30,6 +21,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
     }
+
+    private readonly RoadNetworkFeatureCompareBlobClient _client;
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
     {
@@ -61,4 +54,10 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
         return new UploadExtractResponse(archiveId);
     }
+
+    private static readonly ContentType[] SupportedContentTypes =
+    {
+        ContentType.Parse("application/zip"),
+        ContentType.Parse("application/x-zip-compressed")
+    };
 }

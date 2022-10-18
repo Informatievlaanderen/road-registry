@@ -39,11 +39,11 @@ public class EuropeanRoadChangeDbaseSchema : DbaseSchema
 
     public DbaseField EU_OIDN => Fields[0];
 
-    public DbaseField WS_OIDN => Fields[1];
-
     public DbaseField EUNUMMER => Fields[2];
+
+    public DbaseField RECORDTYPE => Fields[4];
 
     public DbaseField TRANSACTID => Fields[3];
 
-    public DbaseField RECORDTYPE => Fields[4];
+    public DbaseField WS_OIDN => Fields[1];
 }

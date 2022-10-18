@@ -18,6 +18,6 @@ public class VerificationContextTolerances
     }
 
     public double DynamicRoadSegmentAttributePositionTolerance { get; }
-    public double MeasurementTolerance { get; }
     public double GeometryTolerance { get; }
+    public double MeasurementTolerance { get; }
 }

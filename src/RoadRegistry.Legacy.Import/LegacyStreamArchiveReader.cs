@@ -15,8 +15,6 @@ namespace RoadRegistry.Legacy.Import
             Settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
-        public JsonSerializerSettings Settings { get; }
-
         public IEnumerable<StreamEvent> Read(Stream archiveStream)
         {
             if (archiveStream == null) throw new ArgumentNullException(nameof(archiveStream));
@@ -95,5 +93,7 @@ namespace RoadRegistry.Legacy.Import
                 }
             }
         }
+
+        public JsonSerializerSettings Settings { get; }
     }
 }

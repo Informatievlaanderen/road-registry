@@ -18,10 +18,6 @@ using RoadRegistry.Tests.Framework.Projections;
 
 public class TransactionZoneToZipArchiveWriterTests
 {
-    private readonly Fixture _fixture;
-    private readonly TransactionZoneToZipArchiveWriter _sut;
-
-
     public TransactionZoneToZipArchiveWriterTests()
     {
         _sut = new TransactionZoneToZipArchiveWriter(Encoding.UTF8);
@@ -30,22 +26,61 @@ public class TransactionZoneToZipArchiveWriterTests
         CustomizeRoadNetworkExtractAssemblyRequestFixture(_fixture);
     }
 
-    [Fact]
-    public Task WriteAsyncWritesExpectedDownloadId()
+    private readonly Fixture _fixture;
+    private readonly TransactionZoneToZipArchiveWriter _sut;
+
+    private static EditorContext CreateContextFor(string database)
     {
-        var editorContext = CreateContextFor(nameof(WriteAsyncWritesExpectedDownloadId));
-        var request = _fixture.Create<RoadNetworkExtractAssemblyRequest>();
+        var options = new DbContextOptionsBuilder<EditorContext>()
+            .UseInMemoryDatabase(database)
+            .EnableSensitiveDataLogging()
+            .Options;
 
-        return new ZipArchiveScenarioWithWriter<EditorContext>(new RecyclableMemoryStreamManager(), _sut)
-            .WithContext(editorContext)
-            .WithRequest(request)
-            .Assert(readArchive =>
-            {
-                var records = ReadFromArchive<TransactionZoneDbaseRecord>(readArchive, "Transactiezones.dbf").ToList();
+        return new MemoryEditorContext(options);
+    }
 
-                records.Count.Should().Be(1);
-                records[0].Item2.DOWNLOADID.Value.Should().Be(request.DownloadId.ToGuid().ToString("N"));
-            });
+    private RoadNetworkExtractAssemblyRequest CreateRoadNetworkExtractAssemblyRequest(ExtractDescription extractDescription, ExternalExtractRequestId externalRequestId)
+    {
+        var fixture = _fixture.Create<RoadNetworkExtractAssemblyRequest>();
+
+        return new RoadNetworkExtractAssemblyRequest(
+            externalRequestId,
+            fixture.DownloadId,
+            extractDescription,
+            fixture.Contour);
+    }
+
+    private static void CustomizeRoadNetworkExtractAssemblyRequestFixture(IFixture fixture)
+    {
+        fixture.CustomizeExternalExtractRequestId();
+        fixture.CustomizeDownloadId();
+        fixture.CustomizeExtractDescription();
+        fixture.Register(() => MultiPolygon.Empty);
+        fixture.CustomizeRoadNetworkExtractGeometry();
+
+        var geometry = fixture.Create<RoadNetworkExtractGeometry>();
+
+        fixture.Customize<RoadNetworkExtractAssemblyRequest>(customization =>
+            customization.FromFactory(composer => new RoadNetworkExtractAssemblyRequest(
+                fixture.Create<ExternalExtractRequestId>(),
+                fixture.Create<DownloadId>(),
+                fixture.Create<ExtractDescription>(),
+                GeometryTranslator.Translate(geometry))));
+    }
+
+    private static IEnumerable<(RecordNumber, TDbaseRecord)> ReadFromArchive<TDbaseRecord>(ZipArchive archive, string fileName) where TDbaseRecord : DbaseRecord, new()
+    {
+        var archiveFileEntry = archive.GetEntry(fileName);
+        Assert.NotNull(archiveFileEntry);
+
+        using (var entryStream = archiveFileEntry.Open())
+        using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+        {
+            var header = DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
+            var records = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader);
+
+            while (records.MoveNext()) yield return (records.CurrentRecordNumber, records.Current);
+        }
     }
 
     [Theory]
@@ -90,57 +125,21 @@ public class TransactionZoneToZipArchiveWriterTests
         //};
     }
 
-    private RoadNetworkExtractAssemblyRequest CreateRoadNetworkExtractAssemblyRequest(ExtractDescription extractDescription, ExternalExtractRequestId externalRequestId)
+    [Fact]
+    public Task WriteAsyncWritesExpectedDownloadId()
     {
-        var fixture = _fixture.Create<RoadNetworkExtractAssemblyRequest>();
+        var editorContext = CreateContextFor(nameof(WriteAsyncWritesExpectedDownloadId));
+        var request = _fixture.Create<RoadNetworkExtractAssemblyRequest>();
 
-        return new RoadNetworkExtractAssemblyRequest(
-            externalRequestId,
-            fixture.DownloadId,
-            extractDescription,
-            fixture.Contour);
-    }
+        return new ZipArchiveScenarioWithWriter<EditorContext>(new RecyclableMemoryStreamManager(), _sut)
+            .WithContext(editorContext)
+            .WithRequest(request)
+            .Assert(readArchive =>
+            {
+                var records = ReadFromArchive<TransactionZoneDbaseRecord>(readArchive, "Transactiezones.dbf").ToList();
 
-    private static IEnumerable<(RecordNumber, TDbaseRecord)> ReadFromArchive<TDbaseRecord>(ZipArchive archive, string fileName) where TDbaseRecord : DbaseRecord, new()
-    {
-        var archiveFileEntry = archive.GetEntry(fileName);
-        Assert.NotNull(archiveFileEntry);
-
-        using (var entryStream = archiveFileEntry.Open())
-        using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
-        {
-            var header = DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
-            var records = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader);
-
-            while (records.MoveNext()) yield return (records.CurrentRecordNumber, records.Current);
-        }
-    }
-
-    private static EditorContext CreateContextFor(string database)
-    {
-        var options = new DbContextOptionsBuilder<EditorContext>()
-            .UseInMemoryDatabase(database)
-            .EnableSensitiveDataLogging()
-            .Options;
-
-        return new MemoryEditorContext(options);
-    }
-
-    private static void CustomizeRoadNetworkExtractAssemblyRequestFixture(IFixture fixture)
-    {
-        fixture.CustomizeExternalExtractRequestId();
-        fixture.CustomizeDownloadId();
-        fixture.CustomizeExtractDescription();
-        fixture.Register(() => MultiPolygon.Empty);
-        fixture.CustomizeRoadNetworkExtractGeometry();
-
-        var geometry = fixture.Create<RoadNetworkExtractGeometry>();
-
-        fixture.Customize<RoadNetworkExtractAssemblyRequest>(customization =>
-            customization.FromFactory(composer => new RoadNetworkExtractAssemblyRequest(
-                fixture.Create<ExternalExtractRequestId>(),
-                fixture.Create<DownloadId>(),
-                fixture.Create<ExtractDescription>(),
-                GeometryTranslator.Translate(geometry))));
+                records.Count.Should().Be(1);
+                records[0].Item2.DOWNLOADID.Value.Should().Be(request.DownloadId.ToGuid().ToString("N"));
+            });
     }
 }

@@ -13,13 +13,6 @@ using NetTopologySuite.IO;
 // NOTE: If you change the properties of any of the entities used below, you will need to update these queries too!
 public static class ContourQueryExtensions
 {
-    private static SqlParameter ToSqlParameter(this IPolygonal contour)
-    {
-        var writer = new SqlServerBytesWriter { IsGeography = false };
-        var bytes = writer.Write((Geometry)contour);
-        return new SqlParameter("@contour", SqlDbType.Udt) { UdtTypeName = "geometry", SqlValue = new SqlBytes(bytes) };
-    }
-
     public static IQueryable<RoadNodeRecord> InsideContour(
         this DbSet<RoadNodeRecord> source, IPolygonal contour)
     {
@@ -137,5 +130,12 @@ WHERE [attribute].[RoadSegmentId] IN (
     SELECT [segment].[Id]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment]
     WHERE [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
+    }
+
+    private static SqlParameter ToSqlParameter(this IPolygonal contour)
+    {
+        var writer = new SqlServerBytesWriter { IsGeography = false };
+        var bytes = writer.Write((Geometry)contour);
+        return new SqlParameter("@contour", SqlDbType.Udt) { UdtTypeName = "geometry", SqlValue = new SqlBytes(bytes) };
     }
 }

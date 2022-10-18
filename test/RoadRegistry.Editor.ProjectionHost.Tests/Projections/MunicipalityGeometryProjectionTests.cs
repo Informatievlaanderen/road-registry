@@ -1,22 +1,22 @@
 namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Editor.Projections;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using MunicipalityGeometry = Editor.Schema.MunicipalityGeometry;
 
 public class MunicipalityGeometryProjectionTests : IClassFixture<ProjectionTestServices>
 {
-    private readonly Fixture _fixture;
-
     public MunicipalityGeometryProjectionTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeMunicipalityGeometry();
     }
+
+    private readonly Fixture _fixture;
 
     [Fact]
     public Task When_municipalities_are_imported()

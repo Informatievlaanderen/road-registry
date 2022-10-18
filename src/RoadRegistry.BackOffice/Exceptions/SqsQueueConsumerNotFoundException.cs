@@ -14,7 +14,8 @@ public class SqsQueueConsumerNotFoundException : ApplicationException
 
     protected SqsQueueConsumerNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public string ArgumentName { get; init; }
 }

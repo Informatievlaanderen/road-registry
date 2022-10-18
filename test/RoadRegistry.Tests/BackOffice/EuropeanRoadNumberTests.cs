@@ -8,35 +8,55 @@ using Xunit;
 
 public class EuropeanRoadNumberTests
 {
-    private readonly Fixture _fixture;
-    private readonly string[] _knownValues;
-
     public EuropeanRoadNumberTests()
     {
         _fixture = new Fixture();
         _knownValues = Array.ConvertAll(EuropeanRoadNumber.All, type => type.ToString());
     }
 
+    private readonly Fixture _fixture;
+    private readonly string[] _knownValues;
+
     [Fact]
-    public void VerifyBehavior()
+    public void AllReturnsExpectedResult()
     {
-        _fixture.Customizations.Add(
-            new FiniteSequenceGenerator<string>(_knownValues));
-        new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<string>(_fixture),
-            new EquatableEqualsSelfAssertion(_fixture),
-            new EquatableEqualsOtherAssertion(_fixture),
-            new EqualityOperatorEqualsSelfAssertion(_fixture),
-            new EqualityOperatorEqualsOtherAssertion(_fixture),
-            new InequalityOperatorEqualsSelfAssertion(_fixture),
-            new InequalityOperatorEqualsOtherAssertion(_fixture),
-            new EqualsNewObjectAssertion(_fixture),
-            new EqualsNullAssertion(_fixture),
-            new EqualsSelfAssertion(_fixture),
-            new EqualsOtherAssertion(_fixture),
-            new EqualsSuccessiveAssertion(_fixture),
-            new GetHashCodeSuccessiveAssertion(_fixture)
-        ).Verify(typeof(EuropeanRoadNumber));
+        Assert.Equal(
+            new[]
+            {
+                EuropeanRoadNumber.E17,
+                EuropeanRoadNumber.E19,
+                EuropeanRoadNumber.E25,
+                EuropeanRoadNumber.E313,
+                EuropeanRoadNumber.E314,
+                EuropeanRoadNumber.E34,
+                EuropeanRoadNumber.E40,
+                EuropeanRoadNumber.E403,
+                EuropeanRoadNumber.E411,
+                EuropeanRoadNumber.E429
+            },
+            EuropeanRoadNumber.All);
+    }
+
+    [Fact]
+    public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+    {
+        var value = _fixture.Create<string>();
+        var result = EuropeanRoadNumber.CanParse(value);
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+    {
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        var result = EuropeanRoadNumber.CanParse(value);
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void CanParseValueCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => EuropeanRoadNumber.CanParse(null));
     }
 
     [Fact]
@@ -76,15 +96,15 @@ public class EuropeanRoadNumberTests
     }
 
     [Fact]
-    public void E40ReturnsExpectedResult()
-    {
-        Assert.Equal("E40", EuropeanRoadNumber.E40);
-    }
-
-    [Fact]
     public void E403ReturnsExpectedResult()
     {
         Assert.Equal("E403", EuropeanRoadNumber.E403);
+    }
+
+    [Fact]
+    public void E40ReturnsExpectedResult()
+    {
+        Assert.Equal("E40", EuropeanRoadNumber.E40);
     }
 
     [Fact]
@@ -100,23 +120,23 @@ public class EuropeanRoadNumberTests
     }
 
     [Fact]
-    public void AllReturnsExpectedResult()
+    public void ParseReturnsExpectedResultWhenValueIsUnknown()
     {
-        Assert.Equal(
-            new[]
-            {
-                EuropeanRoadNumber.E17,
-                EuropeanRoadNumber.E19,
-                EuropeanRoadNumber.E25,
-                EuropeanRoadNumber.E313,
-                EuropeanRoadNumber.E314,
-                EuropeanRoadNumber.E34,
-                EuropeanRoadNumber.E40,
-                EuropeanRoadNumber.E403,
-                EuropeanRoadNumber.E411,
-                EuropeanRoadNumber.E429
-            },
-            EuropeanRoadNumber.All);
+        var value = _fixture.Create<string>();
+        Assert.Throws<FormatException>(() => EuropeanRoadNumber.Parse(value));
+    }
+
+    [Fact]
+    public void ParseReturnsExpectedResultWhenValueIsWellKnown()
+    {
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        Assert.NotNull(EuropeanRoadNumber.Parse(value));
+    }
+
+    [Fact]
+    public void ParseValueCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => EuropeanRoadNumber.Parse(null));
     }
 
     [Fact]
@@ -130,29 +150,12 @@ public class EuropeanRoadNumberTests
     }
 
     [Fact]
-    public void ParseValueCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => EuropeanRoadNumber.Parse(null));
-    }
-
-    [Fact]
-    public void ParseReturnsExpectedResultWhenValueIsWellKnown()
-    {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        Assert.NotNull(EuropeanRoadNumber.Parse(value));
-    }
-
-    [Fact]
-    public void ParseReturnsExpectedResultWhenValueIsUnknown()
+    public void TryParseReturnsExpectedResultWhenValueIsUnknown()
     {
         var value = _fixture.Create<string>();
-        Assert.Throws<FormatException>(() => EuropeanRoadNumber.Parse(value));
-    }
-
-    [Fact]
-    public void TryParseValueCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => EuropeanRoadNumber.TryParse(null, out _));
+        var result = EuropeanRoadNumber.TryParse(value, out var parsed);
+        Assert.False(result);
+        Assert.Null(parsed);
     }
 
     [Fact]
@@ -166,33 +169,30 @@ public class EuropeanRoadNumberTests
     }
 
     [Fact]
-    public void TryParseReturnsExpectedResultWhenValueIsUnknown()
+    public void TryParseValueCanNotBeNull()
     {
-        var value = _fixture.Create<string>();
-        var result = EuropeanRoadNumber.TryParse(value, out var parsed);
-        Assert.False(result);
-        Assert.Null(parsed);
+        Assert.Throws<ArgumentNullException>(() => EuropeanRoadNumber.TryParse(null, out _));
     }
 
     [Fact]
-    public void CanParseValueCanNotBeNull()
+    public void VerifyBehavior()
     {
-        Assert.Throws<ArgumentNullException>(() => EuropeanRoadNumber.CanParse(null));
-    }
-
-    [Fact]
-    public void CanParseReturnsExpectedResultWhenValueIsUnknown()
-    {
-        var value = _fixture.Create<string>();
-        var result = EuropeanRoadNumber.CanParse(value);
-        Assert.False(result);
-    }
-
-    [Fact]
-    public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
-    {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        var result = EuropeanRoadNumber.CanParse(value);
-        Assert.True(result);
+        _fixture.Customizations.Add(
+            new FiniteSequenceGenerator<string>(_knownValues));
+        new CompositeIdiomaticAssertion(
+            new ImplicitConversionOperatorAssertion<string>(_fixture),
+            new EquatableEqualsSelfAssertion(_fixture),
+            new EquatableEqualsOtherAssertion(_fixture),
+            new EqualityOperatorEqualsSelfAssertion(_fixture),
+            new EqualityOperatorEqualsOtherAssertion(_fixture),
+            new InequalityOperatorEqualsSelfAssertion(_fixture),
+            new InequalityOperatorEqualsOtherAssertion(_fixture),
+            new EqualsNewObjectAssertion(_fixture),
+            new EqualsNullAssertion(_fixture),
+            new EqualsSelfAssertion(_fixture),
+            new EqualsOtherAssertion(_fixture),
+            new EqualsSuccessiveAssertion(_fixture),
+            new GetHashCodeSuccessiveAssertion(_fixture)
+        ).Verify(typeof(EuropeanRoadNumber));
     }
 }

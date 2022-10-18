@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class RoadSegmentWidthAttributeConfiguration : IEntityTypeConfiguration<RoadSegmentWidthAttributeRecord>
 {
-    private const string TableName = "RoadSegmentWidthAttribute";
-
     public void Configure(EntityTypeBuilder<RoadSegmentWidthAttributeRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.EditorSchema)
@@ -20,4 +18,6 @@ public class RoadSegmentWidthAttributeConfiguration : IEntityTypeConfiguration<R
 
         b.HasIndex(p => p.RoadSegmentId);
     }
+
+    private const string TableName = "RoadSegmentWidthAttribute";
 }

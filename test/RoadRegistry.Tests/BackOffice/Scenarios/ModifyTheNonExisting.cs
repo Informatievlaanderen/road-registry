@@ -113,231 +113,11 @@ public class ModifyTheNonExisting : RoadRegistryFixture
     }
 
     public ArchiveId ArchiveId { get; }
-    public ChangeRequestId RequestId { get; }
-    public Reason ReasonForChange { get; }
     public OperatorName ChangedByOperator { get; }
     public OrganizationId ChangedByOrganization { get; }
     public OrganizationName ChangedByOrganizationName { get; }
-
-    [Fact]
-    public Task when_modifying_a_non_existent_node()
-    {
-        return Run(scenario =>
-        {
-            var roadNodeGeometry = Fixture.Create<RoadNodeGeometry>();
-            roadNodeGeometry.SpatialReferenceSystemIdentifier =
-                SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
-            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
-            return scenario
-                .Given(Organizations.ToStreamName(ChangedByOrganization),
-                    new ImportedOrganization
-                    {
-                        Code = ChangedByOrganization,
-                        Name = ChangedByOrganizationName,
-                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                    }
-                )
-                .When(
-                    TheOperator.ChangesTheRoadNetwork(
-                        RequestId,
-                        ReasonForChange,
-                        ChangedByOperator,
-                        ChangedByOrganization, new RequestedChange
-                        {
-                            ModifyRoadNode = new ModifyRoadNode
-                            {
-                                Id = 1,
-                                Geometry = roadNodeGeometry,
-                                Type = roadNodeType
-                            }
-                        }))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-                {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                    TransactionId = new TransactionId(1),
-                    Changes = new[]
-                    {
-                        new RejectedChange
-                        {
-                            ModifyRoadNode = new ModifyRoadNode
-                            {
-                                Id = 1,
-                                Geometry = roadNodeGeometry,
-                                Type = roadNodeType
-                            },
-                            Problems = new[]
-                            {
-                                new Problem
-                                {
-                                    Reason = "RoadNodeNotFound",
-                                    Severity = ProblemSeverity.Error,
-                                    Parameters = Array.Empty<ProblemParameter>()
-                                }
-                            }
-                        }
-                    },
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                });
-        });
-    }
-
-    [Fact]
-    public Task when_modifying_a_non_existent_segment()
-    {
-        return Run(scenario =>
-        {
-            var startRoadNodeGeometry = new RoadNodeGeometry
-            {
-                Point = new Point
-                {
-                    X = 0.0,
-                    Y = 0.0
-                },
-                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            };
-            var endRoadNodeGeometry = new RoadNodeGeometry
-            {
-                Point = new Point
-                {
-                    X = 10.0,
-                    Y = 10.0
-                },
-                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            };
-            var roadSegmentGeometry = new RoadSegmentGeometry
-            {
-                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                MultiLineString = new[]
-                {
-                    new LineString
-                    {
-                        Measures = new[]
-                        {
-                            0.0,
-                            Math.Sqrt(
-                                Math.Pow(
-                                    Math.Abs(startRoadNodeGeometry.Point.X - endRoadNodeGeometry.Point.X)
-                                    , 2.0)
-                                +
-                                Math.Pow(
-                                    Math.Abs(startRoadNodeGeometry.Point.Y - endRoadNodeGeometry.Point.Y)
-                                    , 2.0))
-                        },
-                        Points = new[] { startRoadNodeGeometry.Point, endRoadNodeGeometry.Point }
-                    }
-                }
-            };
-
-            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
-            var roadSegmentAccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>();
-            var roadSegmentCategory = Fixture.Create<RoadSegmentCategory>();
-            var roadSegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>();
-            var roadSegmentMorphology = Fixture.Create<RoadSegmentMorphology>();
-            var roadSegmentStatus = Fixture.Create<RoadSegmentStatus>();
-            var maintenanceAuthority = Fixture.Create<OrganizationId>();
-            return scenario
-                .Given(Organizations.ToStreamName(ChangedByOrganization),
-                    new ImportedOrganization
-                    {
-                        Code = ChangedByOrganization,
-                        Name = ChangedByOrganizationName,
-                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                    }
-                )
-                .Given(RoadNetworks.Stream, new ImportedRoadNode
-                {
-                    Id = 1, Version = 0, Geometry = startRoadNodeGeometry, Type = roadNodeType,
-                    Origin = new ImportedOriginProperties
-                    {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
-                        OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
-                        TransactionId = 0
-                    }
-                }, new ImportedRoadNode
-                {
-                    Id = 2, Version = 0, Geometry = endRoadNodeGeometry, Type = roadNodeType,
-                    Origin = new ImportedOriginProperties
-                    {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
-                        OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
-                        TransactionId = 0
-                    }
-                })
-                .When(
-                    TheOperator.ChangesTheRoadNetwork(
-                        RequestId,
-                        ReasonForChange,
-                        ChangedByOperator,
-                        ChangedByOrganization, new RequestedChange
-                        {
-                            ModifyRoadSegment = new ModifyRoadSegment
-                            {
-                                Id = 1,
-                                Geometry = roadSegmentGeometry,
-                                StartNodeId = 1,
-                                EndNodeId = 2,
-                                AccessRestriction = roadSegmentAccessRestriction,
-                                Category = roadSegmentCategory,
-                                GeometryDrawMethod = roadSegmentGeometryDrawMethod,
-                                Morphology = roadSegmentMorphology,
-                                Status = roadSegmentStatus,
-                                Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>(),
-                                Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>(),
-                                Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>(),
-                                LeftSideStreetNameId = 0,
-                                RightSideStreetNameId = 0,
-                                MaintenanceAuthority = maintenanceAuthority
-                            }
-                        }))
-                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-                {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
-                    TransactionId = new TransactionId(1),
-                    Changes = new[]
-                    {
-                        new RejectedChange
-                        {
-                            ModifyRoadSegment = new ModifyRoadSegment
-                            {
-                                Id = 1,
-                                Geometry = roadSegmentGeometry,
-                                StartNodeId = 1,
-                                EndNodeId = 2,
-                                AccessRestriction = roadSegmentAccessRestriction,
-                                Category = roadSegmentCategory,
-                                GeometryDrawMethod = roadSegmentGeometryDrawMethod,
-                                Morphology = roadSegmentMorphology,
-                                Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>(),
-                                Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>(),
-                                Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>(),
-                                Status = roadSegmentStatus,
-                                LeftSideStreetNameId = 0,
-                                RightSideStreetNameId = 0,
-                                MaintenanceAuthority = maintenanceAuthority
-                            },
-                            Problems = new[]
-                            {
-                                new Problem
-                                {
-                                    Reason = "RoadSegmentNotFound",
-                                    Severity = ProblemSeverity.Error,
-                                    Parameters = Array.Empty<ProblemParameter>()
-                                }
-                            }
-                        }
-                    },
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                });
-        });
-    }
+    public Reason ReasonForChange { get; }
+    public ChangeRequestId RequestId { get; }
 
     [Fact]
     public Task when_modifying_a_non_existent_grade_separated_junction()
@@ -617,6 +397,69 @@ public class ModifyTheNonExisting : RoadRegistryFixture
     }
 
     [Fact]
+    public Task when_modifying_a_non_existent_node()
+    {
+        return Run(scenario =>
+        {
+            var roadNodeGeometry = Fixture.Create<RoadNodeGeometry>();
+            roadNodeGeometry.SpatialReferenceSystemIdentifier =
+                SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
+            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
+            return scenario
+                .Given(Organizations.ToStreamName(ChangedByOrganization),
+                    new ImportedOrganization
+                    {
+                        Code = ChangedByOrganization,
+                        Name = ChangedByOrganizationName,
+                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                    }
+                )
+                .When(
+                    TheOperator.ChangesTheRoadNetwork(
+                        RequestId,
+                        ReasonForChange,
+                        ChangedByOperator,
+                        ChangedByOrganization, new RequestedChange
+                        {
+                            ModifyRoadNode = new ModifyRoadNode
+                            {
+                                Id = 1,
+                                Geometry = roadNodeGeometry,
+                                Type = roadNodeType
+                            }
+                        }))
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes = new[]
+                    {
+                        new RejectedChange
+                        {
+                            ModifyRoadNode = new ModifyRoadNode
+                            {
+                                Id = 1,
+                                Geometry = roadNodeGeometry,
+                                Type = roadNodeType
+                            },
+                            Problems = new[]
+                            {
+                                new Problem
+                                {
+                                    Reason = "RoadNodeNotFound",
+                                    Severity = ProblemSeverity.Error,
+                                    Parameters = Array.Empty<ProblemParameter>()
+                                }
+                            }
+                        }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                });
+        });
+    }
+
+    [Fact]
     public Task when_modifying_a_non_existent_numbered_road()
     {
         return Run(scenario =>
@@ -792,6 +635,163 @@ public class ModifyTheNonExisting : RoadRegistryFixture
                                             Value = numberedRoadNumber
                                         }
                                     }
+                                }
+                            }
+                        }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                });
+        });
+    }
+
+    [Fact]
+    public Task when_modifying_a_non_existent_segment()
+    {
+        return Run(scenario =>
+        {
+            var startRoadNodeGeometry = new RoadNodeGeometry
+            {
+                Point = new Point
+                {
+                    X = 0.0,
+                    Y = 0.0
+                },
+                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var endRoadNodeGeometry = new RoadNodeGeometry
+            {
+                Point = new Point
+                {
+                    X = 10.0,
+                    Y = 10.0
+                },
+                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+            };
+            var roadSegmentGeometry = new RoadSegmentGeometry
+            {
+                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+                MultiLineString = new[]
+                {
+                    new LineString
+                    {
+                        Measures = new[]
+                        {
+                            0.0,
+                            Math.Sqrt(
+                                Math.Pow(
+                                    Math.Abs(startRoadNodeGeometry.Point.X - endRoadNodeGeometry.Point.X)
+                                    , 2.0)
+                                +
+                                Math.Pow(
+                                    Math.Abs(startRoadNodeGeometry.Point.Y - endRoadNodeGeometry.Point.Y)
+                                    , 2.0))
+                        },
+                        Points = new[] { startRoadNodeGeometry.Point, endRoadNodeGeometry.Point }
+                    }
+                }
+            };
+
+            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
+            var roadSegmentAccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>();
+            var roadSegmentCategory = Fixture.Create<RoadSegmentCategory>();
+            var roadSegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>();
+            var roadSegmentMorphology = Fixture.Create<RoadSegmentMorphology>();
+            var roadSegmentStatus = Fixture.Create<RoadSegmentStatus>();
+            var maintenanceAuthority = Fixture.Create<OrganizationId>();
+            return scenario
+                .Given(Organizations.ToStreamName(ChangedByOrganization),
+                    new ImportedOrganization
+                    {
+                        Code = ChangedByOrganization,
+                        Name = ChangedByOrganizationName,
+                        When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                    }
+                )
+                .Given(RoadNetworks.Stream, new ImportedRoadNode
+                {
+                    Id = 1, Version = 0, Geometry = startRoadNodeGeometry, Type = roadNodeType,
+                    Origin = new ImportedOriginProperties
+                    {
+                        Application = Fixture.Create<string>(),
+                        Operator = Fixture.Create<OperatorName>(),
+                        Organization = Fixture.Create<OrganizationName>(),
+                        OrganizationId = maintenanceAuthority,
+                        Since = Fixture.Create<DateTime>(),
+                        TransactionId = 0
+                    }
+                }, new ImportedRoadNode
+                {
+                    Id = 2, Version = 0, Geometry = endRoadNodeGeometry, Type = roadNodeType,
+                    Origin = new ImportedOriginProperties
+                    {
+                        Application = Fixture.Create<string>(),
+                        Operator = Fixture.Create<OperatorName>(),
+                        Organization = Fixture.Create<OrganizationName>(),
+                        OrganizationId = maintenanceAuthority,
+                        Since = Fixture.Create<DateTime>(),
+                        TransactionId = 0
+                    }
+                })
+                .When(
+                    TheOperator.ChangesTheRoadNetwork(
+                        RequestId,
+                        ReasonForChange,
+                        ChangedByOperator,
+                        ChangedByOrganization, new RequestedChange
+                        {
+                            ModifyRoadSegment = new ModifyRoadSegment
+                            {
+                                Id = 1,
+                                Geometry = roadSegmentGeometry,
+                                StartNodeId = 1,
+                                EndNodeId = 2,
+                                AccessRestriction = roadSegmentAccessRestriction,
+                                Category = roadSegmentCategory,
+                                GeometryDrawMethod = roadSegmentGeometryDrawMethod,
+                                Morphology = roadSegmentMorphology,
+                                Status = roadSegmentStatus,
+                                Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>(),
+                                Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>(),
+                                Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>(),
+                                LeftSideStreetNameId = 0,
+                                RightSideStreetNameId = 0,
+                                MaintenanceAuthority = maintenanceAuthority
+                            }
+                        }))
+                .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
+                {
+                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    TransactionId = new TransactionId(1),
+                    Changes = new[]
+                    {
+                        new RejectedChange
+                        {
+                            ModifyRoadSegment = new ModifyRoadSegment
+                            {
+                                Id = 1,
+                                Geometry = roadSegmentGeometry,
+                                StartNodeId = 1,
+                                EndNodeId = 2,
+                                AccessRestriction = roadSegmentAccessRestriction,
+                                Category = roadSegmentCategory,
+                                GeometryDrawMethod = roadSegmentGeometryDrawMethod,
+                                Morphology = roadSegmentMorphology,
+                                Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>(),
+                                Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>(),
+                                Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>(),
+                                Status = roadSegmentStatus,
+                                LeftSideStreetNameId = 0,
+                                RightSideStreetNameId = 0,
+                                MaintenanceAuthority = maintenanceAuthority
+                            },
+                            Problems = new[]
+                            {
+                                new Problem
+                                {
+                                    Reason = "RoadSegmentNotFound",
+                                    Severity = ProblemSeverity.Error,
+                                    Parameters = Array.Empty<ProblemParameter>()
                                 }
                             }
                         }

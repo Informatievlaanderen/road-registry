@@ -11,8 +11,6 @@ using Point = RoadRegistry.BackOffice.Messages.Point;
 
 public class RoadNetworkViewSnapshotTests
 {
-    private readonly Fixture _fixture;
-
     public RoadNetworkViewSnapshotTests()
     {
         _fixture = new Fixture();
@@ -101,37 +99,7 @@ public class RoadNetworkViewSnapshotTests
             }).OmitAutoProperties());
     }
 
-    [Fact]
-    public void Taking_a_snapshot_of_an_immutable_view_restored_from_a_known_snapshot_results_in_a_snapshot_that_equals_the_known_snapshot()
-    {
-        var snapshotBefore = new RoadNetworkSnapshot
-        {
-            Nodes = _fixture.CreateMany<RoadNetworkSnapshotNode>(10).ToArray(),
-            Segments = _fixture.CreateMany<RoadNetworkSnapshotSegment>(10).ToArray(),
-            GradeSeparatedJunctions = _fixture.CreateMany<RoadNetworkSnapshotGradeSeparatedJunction>(10).ToArray(),
-            MaximumNodeId = _fixture.Create<RoadNodeId>(),
-            MaximumSegmentId = _fixture.Create<RoadSegmentId>(),
-            MaximumGradeSeparatedJunctionId = _fixture.Create<GradeSeparatedJunctionId>(),
-            MaximumTransactionId = _fixture.Create<TransactionId>(),
-            MaximumLaneAttributeId = _fixture.Create<AttributeId>(),
-            MaximumSurfaceAttributeId = _fixture.Create<AttributeId>(),
-            MaximumWidthAttributeId = _fixture.Create<AttributeId>(),
-            MaximumEuropeanRoadAttributeId = _fixture.Create<AttributeId>(),
-            MaximumNationalRoadAttributeId = _fixture.Create<AttributeId>(),
-            MaximumNumberedRoadAttributeId = _fixture.Create<AttributeId>(),
-            SegmentReusableLaneAttributeIdentifiers = _fixture.CreateMany<RoadNetworkSnapshotSegmentReusableAttributeIdentifiers>(10).ToArray(),
-            SegmentReusableSurfaceAttributeIdentifiers = _fixture.CreateMany<RoadNetworkSnapshotSegmentReusableAttributeIdentifiers>(10).ToArray(),
-            SegmentReusableWidthAttributeIdentifiers = _fixture.CreateMany<RoadNetworkSnapshotSegmentReusableAttributeIdentifiers>(10).ToArray()
-        };
-        var sut = ImmutableRoadNetworkView.Empty;
-        var restored = sut.RestoreFromSnapshot(snapshotBefore);
-
-        var snapshotAfter = restored.TakeSnapshot();
-
-        var comparer = new CompareLogic { Config = { MaxDifferences = int.MaxValue, IgnoreCollectionOrder = true, ComparePrivateFields = false, ComparePrivateProperties = false } };
-        var result = comparer.Compare(snapshotBefore, snapshotAfter);
-        Assert.True(result.AreEqual, result.DifferencesString);
-    }
+    private readonly Fixture _fixture;
 
     [Fact]
     public void Taking_a_snapshot_of_a_mutable_view_restored_from_a_known_snapshot_results_in_a_snapshot_that_equals_the_known_snapshot()
@@ -156,6 +124,38 @@ public class RoadNetworkViewSnapshotTests
             SegmentReusableWidthAttributeIdentifiers = _fixture.CreateMany<RoadNetworkSnapshotSegmentReusableAttributeIdentifiers>(10).ToArray()
         };
         var sut = ImmutableRoadNetworkView.Empty.ToBuilder();
+        var restored = sut.RestoreFromSnapshot(snapshotBefore);
+
+        var snapshotAfter = restored.TakeSnapshot();
+
+        var comparer = new CompareLogic { Config = { MaxDifferences = int.MaxValue, IgnoreCollectionOrder = true, ComparePrivateFields = false, ComparePrivateProperties = false } };
+        var result = comparer.Compare(snapshotBefore, snapshotAfter);
+        Assert.True(result.AreEqual, result.DifferencesString);
+    }
+
+    [Fact]
+    public void Taking_a_snapshot_of_an_immutable_view_restored_from_a_known_snapshot_results_in_a_snapshot_that_equals_the_known_snapshot()
+    {
+        var snapshotBefore = new RoadNetworkSnapshot
+        {
+            Nodes = _fixture.CreateMany<RoadNetworkSnapshotNode>(10).ToArray(),
+            Segments = _fixture.CreateMany<RoadNetworkSnapshotSegment>(10).ToArray(),
+            GradeSeparatedJunctions = _fixture.CreateMany<RoadNetworkSnapshotGradeSeparatedJunction>(10).ToArray(),
+            MaximumNodeId = _fixture.Create<RoadNodeId>(),
+            MaximumSegmentId = _fixture.Create<RoadSegmentId>(),
+            MaximumGradeSeparatedJunctionId = _fixture.Create<GradeSeparatedJunctionId>(),
+            MaximumTransactionId = _fixture.Create<TransactionId>(),
+            MaximumLaneAttributeId = _fixture.Create<AttributeId>(),
+            MaximumSurfaceAttributeId = _fixture.Create<AttributeId>(),
+            MaximumWidthAttributeId = _fixture.Create<AttributeId>(),
+            MaximumEuropeanRoadAttributeId = _fixture.Create<AttributeId>(),
+            MaximumNationalRoadAttributeId = _fixture.Create<AttributeId>(),
+            MaximumNumberedRoadAttributeId = _fixture.Create<AttributeId>(),
+            SegmentReusableLaneAttributeIdentifiers = _fixture.CreateMany<RoadNetworkSnapshotSegmentReusableAttributeIdentifiers>(10).ToArray(),
+            SegmentReusableSurfaceAttributeIdentifiers = _fixture.CreateMany<RoadNetworkSnapshotSegmentReusableAttributeIdentifiers>(10).ToArray(),
+            SegmentReusableWidthAttributeIdentifiers = _fixture.CreateMany<RoadNetworkSnapshotSegmentReusableAttributeIdentifiers>(10).ToArray()
+        };
+        var sut = ImmutableRoadNetworkView.Empty;
         var restored = sut.RestoreFromSnapshot(snapshotBefore);
 
         var snapshotAfter = restored.TakeSnapshot();

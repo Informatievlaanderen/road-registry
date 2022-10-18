@@ -7,13 +7,6 @@ using Microsoft.Extensions.Logging;
 
 public abstract class WhenMessageReceivedFixture : IAsyncLifetime
 {
-    private readonly FeatureCompareMessageResponseConsumer _backgroundService;
-    private readonly FeatureCompareMessagingOptions _messagingOptions;
-
-    private readonly ISqsQueuePublisher _sqsQueuePublisher;
-    private readonly SqsQueueOptions _sqsQueueOptions;
-    private readonly CancellationTokenSource _cancellationTokenSource;
-
     protected WhenMessageReceivedFixture(IMediator mediator, ISqsQueuePublisher sqsQueuePublisher, ISqsQueueConsumer sqsQueueConsumer, SqsQueueOptions sqsQueueOptions, ILoggerFactory loggerFactory)
     {
         _sqsQueuePublisher = sqsQueuePublisher;
@@ -34,20 +27,27 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
         _cancellationTokenSource = new CancellationTokenSource();
     }
 
-    public bool Result { get; set; }
+    private readonly FeatureCompareMessageResponseConsumer _backgroundService;
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly FeatureCompareMessagingOptions _messagingOptions;
+    private readonly SqsQueueOptions _sqsQueueOptions;
 
-    protected abstract object[] MessageRequestCollection { get; }
-
-    public async Task InitializeAsync()
-    {
-        foreach(var message in MessageRequestCollection)
-            await _sqsQueuePublisher.CopyToQueue(_messagingOptions.ResponseQueueName, message, _sqsQueueOptions, _cancellationTokenSource.Token);
-
-        await _backgroundService.StartAsync(_cancellationTokenSource.Token);
-    }
+    private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
     public async Task DisposeAsync()
     {
         await _backgroundService.StopAsync(_cancellationTokenSource.Token);
     }
+
+    public async Task InitializeAsync()
+    {
+        foreach (var message in MessageRequestCollection)
+            await _sqsQueuePublisher.CopyToQueue(_messagingOptions.ResponseQueueName, message, _sqsQueueOptions, _cancellationTokenSource.Token);
+
+        await _backgroundService.StartAsync(_cancellationTokenSource.Token);
+    }
+
+    protected abstract object[] MessageRequestCollection { get; }
+
+    public bool Result { get; set; }
 }

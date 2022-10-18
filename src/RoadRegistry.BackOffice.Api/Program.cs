@@ -42,39 +42,8 @@ using ZipArchiveWriters.Validation;
 
 public class Program
 {
-    public const int HostingPort = 10002;
-
     protected Program()
     {
-    }
-
-    public static async Task Main(string[] args)
-    {
-        var host = CreateWebHostBuilder(args).Build();
-        var configuration = host.Services.GetRequiredService<IConfiguration>();
-
-        var streamStore = host.Services.GetRequiredService<IStreamStore>();
-        var logger = host.Services.GetRequiredService<ILogger<Program>>();
-        try
-        {
-            await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
-            await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProductProjections);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
-
-            await host.RunAsync().ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
-        }
-        finally
-        {
-            Log.CloseAndFlush();
-        }
     }
 
     public static IWebHostBuilder CreateWebHostBuilder(string[] args)
@@ -296,5 +265,36 @@ public class Program
                             sp.GetRequiredService<TraceDbConnection<ProductContext>>()));
             });
         return webHostBuilder;
+    }
+
+    public const int HostingPort = 10002;
+
+    public static async Task Main(string[] args)
+    {
+        var host = CreateWebHostBuilder(args).Build();
+        var configuration = host.Services.GetRequiredService<IConfiguration>();
+
+        var streamStore = host.Services.GetRequiredService<IStreamStore>();
+        var logger = host.Services.GetRequiredService<ILogger<Program>>();
+        try
+        {
+            await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
+            await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProductProjections);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
+
+            await host.RunAsync().ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
     }
 }

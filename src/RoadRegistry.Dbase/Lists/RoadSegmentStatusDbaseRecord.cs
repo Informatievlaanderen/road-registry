@@ -6,8 +6,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentStatusDbaseRecord : DbaseRecord
 {
-    public static readonly RoadSegmentStatusDbaseSchema Schema = new();
-
     public RoadSegmentStatusDbaseRecord()
     {
         STATUS = new DbaseInt32(Schema.STATUS);
@@ -20,7 +18,9 @@ public class RoadSegmentStatusDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 STATUS { get; }
-    public DbaseString LBLSTATUS { get; }
     public DbaseString DEFSTATUS { get; }
+    public DbaseString LBLSTATUS { get; }
+    public static readonly RoadSegmentStatusDbaseSchema Schema = new();
+
+    public DbaseInt32 STATUS { get; }
 }

@@ -3,25 +3,23 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
 using Editor.Schema.RoadNodes;
 using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 
 public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
-    private readonly Encoding _encoding;
-    private readonly RecyclableMemoryStreamManager _manager;
-
     public IntegrationRoadNodesToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
     {
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
+
+    private readonly Encoding _encoding;
+    private readonly RecyclableMemoryStreamManager _manager;
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
         EditorContext context,
@@ -38,7 +36,7 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
                 (dbSet, polygon) => dbSet.InsideContour(polygon),
                 x => x.Id,
                 cancellationToken);
-        
+
         var nodesInIntegrationBuffer = await context.RoadNodes
             .ToListWithPolygonials(request.Contour,
                 (dbSet, polygon) => dbSet.InsideContour((IPolygonal)((Geometry)polygon).Buffer(integrationBufferInMeters)),

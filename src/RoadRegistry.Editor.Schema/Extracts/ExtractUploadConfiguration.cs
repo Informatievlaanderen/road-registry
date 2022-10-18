@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 public class ExtractUploadConfiguration : IEntityTypeConfiguration<ExtractUploadRecord>
 {
-    private const string TableName = "ExtractUpload";
-
     public void Configure(EntityTypeBuilder<ExtractUploadRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.EditorSchema)
@@ -26,4 +24,6 @@ public class ExtractUploadConfiguration : IEntityTypeConfiguration<ExtractUpload
 
         b.HasIndex(p => p.ChangeRequestId).IsUnique();
     }
+
+    private const string TableName = "ExtractUpload";
 }

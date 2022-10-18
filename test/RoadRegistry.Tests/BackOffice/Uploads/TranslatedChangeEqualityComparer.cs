@@ -4,8 +4,6 @@ using RoadRegistry.BackOffice.Uploads;
 
 public class TranslatedChangeEqualityComparer : IEqualityComparer<ITranslatedChange>
 {
-    private readonly Dictionary<(Type, Type), IEqualityComparer<ITranslatedChange>> _comparers;
-
     public TranslatedChangeEqualityComparer()
     {
         _comparers = new Dictionary<(Type, Type), IEqualityComparer<ITranslatedChange>>
@@ -108,6 +106,8 @@ public class TranslatedChangeEqualityComparer : IEqualityComparer<ITranslatedCha
             }
         };
     }
+
+    private readonly Dictionary<(Type, Type), IEqualityComparer<ITranslatedChange>> _comparers;
 
     public bool Equals(ITranslatedChange left, ITranslatedChange right)
     {

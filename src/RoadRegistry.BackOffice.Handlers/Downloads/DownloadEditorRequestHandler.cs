@@ -16,11 +16,6 @@ using ZipArchiveWriters.ForEditor;
 
 public class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEditorRequest, DownloadEditorResponse>
 {
-    private readonly IStreetNameCache _cache;
-    private readonly EditorContext _context;
-    private readonly RecyclableMemoryStreamManager _streamManager;
-    private readonly ZipArchiveWriterOptions _writerOptions;
-
     public DownloadEditorRequestHandler(
         CommandHandlerDispatcher dispatcher,
         EditorContext context,
@@ -34,6 +29,11 @@ public class DownloadEditorRequestHandler : EndpointRequestHandler<DownloadEdito
         _streamManager = streamManager;
         _cache = cache;
     }
+
+    private readonly IStreetNameCache _cache;
+    private readonly EditorContext _context;
+    private readonly RecyclableMemoryStreamManager _streamManager;
+    private readonly ZipArchiveWriterOptions _writerOptions;
 
     public override async Task<DownloadEditorResponse> HandleAsync(DownloadEditorRequest request, CancellationToken cancellationToken)
     {

@@ -1,12 +1,9 @@
 namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters.Fixtures;
 
 using System.Diagnostics;
-using System.Reflection;
 using System.Text;
 using Abstractions;
-using Azure.Core;
 using BackOffice.ZipArchiveWriters.ExtractHost;
-using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
 using Extracts;
 using Microsoft.IO;
@@ -15,16 +12,6 @@ using NetTopologySuite.IO;
 
 public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyncLifetime
 {
-    private readonly IRoadNetworkExtractArchiveAssembler _assembler;
-
-    public override FileInfo FileInfo => new(Path.Combine("ZipArchiveWriters", "Fixtures", "RoadNodesToZipArchiveWriterFixture.wkt"));
-
-    public override RoadNetworkExtractAssemblyRequest Request => new(
-        new ExternalExtractRequestId("TEST"),
-        new DownloadId(),
-        new ExtractDescription("TEST"),
-        (IPolygonal)Result.Single());
-
     public RoadNetworkExtractToZipArchiveWriterFixture(
         WKTReader wktReader,
         RecyclableMemoryStreamManager memoryStreamManager,
@@ -45,6 +32,17 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
             zipArchiveWriter);
     }
 
+    private readonly IRoadNetworkExtractArchiveAssembler _assembler;
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
+    public TimeSpan ElapsedTimeSpan { get; private set; }
+
+    public override FileInfo FileInfo => new(Path.Combine("ZipArchiveWriters", "Fixtures", "RoadNodesToZipArchiveWriterFixture.wkt"));
+
     public async Task InitializeAsync()
     {
         var sw = new Stopwatch();
@@ -61,10 +59,9 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
         }
     }
 
-    public TimeSpan ElapsedTimeSpan { get; private set; }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
-    }
+    public override RoadNetworkExtractAssemblyRequest Request => new(
+        new ExternalExtractRequestId("TEST"),
+        new DownloadId(),
+        new ExtractDescription("TEST"),
+        (IPolygonal)Result.Single());
 }

@@ -23,10 +23,10 @@ public class ModifyRoadNode : ITranslatedChange
         Geometry = geometry;
     }
 
-    public RecordNumber RecordNumber { get; }
-    public RoadNodeId Id { get; }
-    public RoadNodeType Type { get; }
     public Point Geometry { get; }
+    public RoadNodeId Id { get; }
+
+    public RecordNumber RecordNumber { get; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -39,6 +39,8 @@ public class ModifyRoadNode : ITranslatedChange
             Geometry = GeometryTranslator.Translate(Geometry)
         };
     }
+
+    public RoadNodeType Type { get; }
 
     public ModifyRoadNode WithGeometry(Point geometry)
     {

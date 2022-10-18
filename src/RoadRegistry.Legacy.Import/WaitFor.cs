@@ -17,9 +17,9 @@ namespace RoadRegistry.Legacy.Import
             Args = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
         }
 
-        public string Name { get; set; }
-
         public Dictionary<string, string> Args { get; set; }
+
+        public string Name { get; set; }
     }
 
     internal static class WaitFor
@@ -67,31 +67,6 @@ namespace RoadRegistry.Legacy.Import
             }
         }
 
-        public static async Task SqlServerToBecomeAvailable(
-            SqlConnectionStringBuilder masterConnectionStringBuilder,
-            ILogger<Program> logger,
-            CancellationToken token = default)
-        {
-            var exit = false;
-            while (!exit)
-                try
-                {
-                    logger.LogInformation("Waiting for sql server to become available");
-                    using (var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
-                    {
-                        await connection.OpenAsync(token).ConfigureAwait(false);
-                        await connection.CloseAsync().ConfigureAwait(false);
-                    }
-
-                    exit = true;
-                }
-                catch (Exception exception)
-                {
-                    logger.LogWarning(exception, "Encountered an exception while waiting for sql server to become available");
-                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                }
-        }
-
         public static async Task SqlServerDatabaseToBecomeAvailable(
             SqlConnectionStringBuilder masterConnectionStringBuilder,
             SqlConnectionStringBuilder eventsConnectionStringBuilder,
@@ -119,6 +94,31 @@ namespace RoadRegistry.Legacy.Import
                 catch (Exception exception)
                 {
                     logger.LogWarning(exception, $"Encountered exception while waiting for sql database {eventsConnectionStringBuilder.InitialCatalog} to become available");
+                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+                }
+        }
+
+        public static async Task SqlServerToBecomeAvailable(
+            SqlConnectionStringBuilder masterConnectionStringBuilder,
+            ILogger<Program> logger,
+            CancellationToken token = default)
+        {
+            var exit = false;
+            while (!exit)
+                try
+                {
+                    logger.LogInformation("Waiting for sql server to become available");
+                    using (var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
+                    {
+                        await connection.OpenAsync(token).ConfigureAwait(false);
+                        await connection.CloseAsync().ConfigureAwait(false);
+                    }
+
+                    exit = true;
+                }
+                catch (Exception exception)
+                {
+                    logger.LogWarning(exception, "Encountered an exception while waiting for sql server to become available");
                     await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
                 }
         }

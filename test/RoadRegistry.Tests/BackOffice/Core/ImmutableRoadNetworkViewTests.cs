@@ -6,6 +6,8 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
+using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
+using Problem = RoadRegistry.BackOffice.Messages.Problem;
 
 public class ImmutableRoadNetworkViewTests
 {
@@ -37,7 +39,7 @@ public class ImmutableRoadNetworkViewTests
                         OrganizationId = Fixture.Create<string>(),
                         RequestId = Fixture.Create<string>(),
                         TransactionId = Fixture.Create<int>(),
-                        Changes = Array.Empty<RoadRegistry.BackOffice.Messages.AcceptedChange>()
+                        Changes = Array.Empty<AcceptedChange>()
                     }));
 
         RoadNetworkFixtures = RoadNetworkTestHelpers.Create();
@@ -45,194 +47,6 @@ public class ImmutableRoadNetworkViewTests
 
     public Fixture Fixture { get; }
     public RoadNetworkTestHelpers RoadNetworkFixtures { get; }
-
-    [Fact]
-    public void RoadSegmentAddedToNationalRoad_AddsRoadSegmentToNationalRoad()
-    {
-        // GIVEN
-        IRoadNetworkView roadNetwork = ImmutableRoadNetworkView.Empty;
-
-        var given = Fixture.Create<RoadNetworkChangesAccepted>();
-        given.Changes = new[]
-        {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            }
-        };
-        roadNetwork = roadNetwork.RestoreFromEvent(given);
-
-        // WHEN
-        var roadSegmentAddedToNationalRoad = new RoadSegmentAddedToNationalRoad
-        {
-            Number = "A001",
-            AttributeId = 1,
-            SegmentId = RoadNetworkFixtures.Segment1Added.Id,
-            TemporaryAttributeId = 1
-        };
-        var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
-        acceptedChange.Changes = new[]
-        {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentAddedToNationalRoad = roadSegmentAddedToNationalRoad,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            }
-        };
-        var result = roadNetwork.RestoreFromEvent(acceptedChange);
-
-        // THEN
-        var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
-        actualSegment.PartOfNationalRoads.Contains(NationalRoadNumber.Parse(roadSegmentAddedToNationalRoad.Number)).Should().BeTrue();
-    }
-
-    [Fact]
-    public void RoadSegmentRemovedFromNationalRoad_RemovesRoadSegmentFromNationalRoad()
-    {
-        // GIVEN
-        IRoadNetworkView roadNetwork = ImmutableRoadNetworkView.Empty;
-
-        var given = Fixture.Create<RoadNetworkChangesAccepted>();
-        var roadSegmentAddedToNationalRoad = new RoadSegmentAddedToNationalRoad
-        {
-            Number = "A001",
-            AttributeId = 1,
-            SegmentId = RoadNetworkFixtures.Segment1Added.Id,
-            TemporaryAttributeId = 1
-        };
-
-        given.Changes = new[]
-        {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            },
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentAddedToNationalRoad = roadSegmentAddedToNationalRoad,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            }
-        };
-        roadNetwork = roadNetwork.RestoreFromEvent(given);
-
-        // WHEN
-        var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
-        var roadSegmentRemovedFromNationalRoad = new RoadSegmentRemovedFromNationalRoad
-        {
-            Number = roadSegmentAddedToNationalRoad.Number,
-            AttributeId = roadSegmentAddedToNationalRoad.AttributeId,
-            SegmentId = roadSegmentAddedToNationalRoad.SegmentId
-        };
-        acceptedChange.Changes = new[]
-        {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentRemovedFromNationalRoad = roadSegmentRemovedFromNationalRoad,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            }
-        };
-        var result = roadNetwork.RestoreFromEvent(acceptedChange);
-
-        // THEN
-        var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
-        actualSegment.PartOfNationalRoads.Contains(NationalRoadNumber.Parse(roadSegmentAddedToNationalRoad.Number)).Should().BeFalse();
-    }
-
-    [Fact]
-    public void RoadSegmentAddedToNumberedRoad_AddsRoadSegmentToNumberedRoad()
-    {
-        // GIVEN
-        IRoadNetworkView roadNetwork = ImmutableRoadNetworkView.Empty;
-
-        var given = Fixture.Create<RoadNetworkChangesAccepted>();
-        given.Changes = new[]
-        {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            }
-        };
-        roadNetwork = roadNetwork.RestoreFromEvent(given);
-
-        // WHEN
-        var roadSegmentAddedToNumberedRoad = new RoadSegmentAddedToNumberedRoad
-        {
-            Number = "A0000001",
-            AttributeId = 1,
-            SegmentId = RoadNetworkFixtures.Segment1Added.Id,
-            TemporaryAttributeId = 1
-        };
-        var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
-        acceptedChange.Changes = new[]
-        {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentAddedToNumberedRoad = roadSegmentAddedToNumberedRoad,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            }
-        };
-        var result = roadNetwork.RestoreFromEvent(acceptedChange);
-
-        // THEN
-        var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
-        actualSegment.PartOfNumberedRoads.Contains(NumberedRoadNumber.Parse(roadSegmentAddedToNumberedRoad.Number)).Should().BeTrue();
-    }
-
-    [Fact]
-    public void RoadSegmentRemovedFromNumberedRoad_RemovesRoadSegmentFromNumberedRoad()
-    {
-        // GIVEN
-        IRoadNetworkView roadNetwork = ImmutableRoadNetworkView.Empty;
-
-        var given = Fixture.Create<RoadNetworkChangesAccepted>();
-        var roadSegmentAddedToNumberedRoad = new RoadSegmentAddedToNumberedRoad
-        {
-            Number = "A0000001",
-            AttributeId = 1,
-            SegmentId = RoadNetworkFixtures.Segment1Added.Id,
-            TemporaryAttributeId = 1
-        };
-
-        given.Changes = new[]
-        {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            },
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentAddedToNumberedRoad = roadSegmentAddedToNumberedRoad,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            }
-        };
-        roadNetwork = roadNetwork.RestoreFromEvent(given);
-
-        // WHEN
-        var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
-        var roadSegmentRemovedFromNumberedRoad = new RoadSegmentRemovedFromNumberedRoad
-        {
-            Number = roadSegmentAddedToNumberedRoad.Number,
-            AttributeId = roadSegmentAddedToNumberedRoad.AttributeId,
-            SegmentId = roadSegmentAddedToNumberedRoad.SegmentId
-        };
-        acceptedChange.Changes = new[]
-        {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
-            {
-                RoadSegmentRemovedFromNumberedRoad = roadSegmentRemovedFromNumberedRoad,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
-            }
-        };
-        var result = roadNetwork.RestoreFromEvent(acceptedChange);
-
-        // THEN
-        var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
-        actualSegment.PartOfNumberedRoads.Contains(NumberedRoadNumber.Parse(roadSegmentAddedToNumberedRoad.Number)).Should().BeFalse();
-    }
 
     [Fact]
     public void RoadSegmentAddedToEuropeanRoad_AddsRoadSegmentToEuropeanRoad()
@@ -243,10 +57,10 @@ public class ImmutableRoadNetworkViewTests
         var given = Fixture.Create<RoadNetworkChangesAccepted>();
         given.Changes = new[]
         {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
+            new AcceptedChange
             {
                 RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
+                Problems = Array.Empty<Problem>()
             }
         };
         roadNetwork = roadNetwork.RestoreFromEvent(given);
@@ -262,10 +76,10 @@ public class ImmutableRoadNetworkViewTests
         var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
         acceptedChange.Changes = new[]
         {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
+            new AcceptedChange
             {
                 RoadSegmentAddedToEuropeanRoad = roadSegmentAddedToEuropeanRoad,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
+                Problems = Array.Empty<Problem>()
             }
         };
         var result = roadNetwork.RestoreFromEvent(acceptedChange);
@@ -273,6 +87,88 @@ public class ImmutableRoadNetworkViewTests
         // THEN
         var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
         actualSegment.PartOfEuropeanRoads.Contains(EuropeanRoadNumber.Parse(roadSegmentAddedToEuropeanRoad.Number)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RoadSegmentAddedToNationalRoad_AddsRoadSegmentToNationalRoad()
+    {
+        // GIVEN
+        IRoadNetworkView roadNetwork = ImmutableRoadNetworkView.Empty;
+
+        var given = Fixture.Create<RoadNetworkChangesAccepted>();
+        given.Changes = new[]
+        {
+            new AcceptedChange
+            {
+                RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
+                Problems = Array.Empty<Problem>()
+            }
+        };
+        roadNetwork = roadNetwork.RestoreFromEvent(given);
+
+        // WHEN
+        var roadSegmentAddedToNationalRoad = new RoadSegmentAddedToNationalRoad
+        {
+            Number = "A001",
+            AttributeId = 1,
+            SegmentId = RoadNetworkFixtures.Segment1Added.Id,
+            TemporaryAttributeId = 1
+        };
+        var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
+        acceptedChange.Changes = new[]
+        {
+            new AcceptedChange
+            {
+                RoadSegmentAddedToNationalRoad = roadSegmentAddedToNationalRoad,
+                Problems = Array.Empty<Problem>()
+            }
+        };
+        var result = roadNetwork.RestoreFromEvent(acceptedChange);
+
+        // THEN
+        var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
+        actualSegment.PartOfNationalRoads.Contains(NationalRoadNumber.Parse(roadSegmentAddedToNationalRoad.Number)).Should().BeTrue();
+    }
+
+    [Fact]
+    public void RoadSegmentAddedToNumberedRoad_AddsRoadSegmentToNumberedRoad()
+    {
+        // GIVEN
+        IRoadNetworkView roadNetwork = ImmutableRoadNetworkView.Empty;
+
+        var given = Fixture.Create<RoadNetworkChangesAccepted>();
+        given.Changes = new[]
+        {
+            new AcceptedChange
+            {
+                RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
+                Problems = Array.Empty<Problem>()
+            }
+        };
+        roadNetwork = roadNetwork.RestoreFromEvent(given);
+
+        // WHEN
+        var roadSegmentAddedToNumberedRoad = new RoadSegmentAddedToNumberedRoad
+        {
+            Number = "A0000001",
+            AttributeId = 1,
+            SegmentId = RoadNetworkFixtures.Segment1Added.Id,
+            TemporaryAttributeId = 1
+        };
+        var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
+        acceptedChange.Changes = new[]
+        {
+            new AcceptedChange
+            {
+                RoadSegmentAddedToNumberedRoad = roadSegmentAddedToNumberedRoad,
+                Problems = Array.Empty<Problem>()
+            }
+        };
+        var result = roadNetwork.RestoreFromEvent(acceptedChange);
+
+        // THEN
+        var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
+        actualSegment.PartOfNumberedRoads.Contains(NumberedRoadNumber.Parse(roadSegmentAddedToNumberedRoad.Number)).Should().BeTrue();
     }
 
     [Fact]
@@ -292,15 +188,15 @@ public class ImmutableRoadNetworkViewTests
 
         given.Changes = new[]
         {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
+            new AcceptedChange
             {
                 RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
+                Problems = Array.Empty<Problem>()
             },
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
+            new AcceptedChange
             {
                 RoadSegmentAddedToEuropeanRoad = roadSegmentAddedToEuropeanRoad,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
+                Problems = Array.Empty<Problem>()
             }
         };
         roadNetwork = roadNetwork.RestoreFromEvent(given);
@@ -315,10 +211,10 @@ public class ImmutableRoadNetworkViewTests
         };
         acceptedChange.Changes = new[]
         {
-            new RoadRegistry.BackOffice.Messages.AcceptedChange
+            new AcceptedChange
             {
                 RoadSegmentRemovedFromEuropeanRoad = roadSegmentRemovedFromEuropeanRoad,
-                Problems = Array.Empty<RoadRegistry.BackOffice.Messages.Problem>()
+                Problems = Array.Empty<Problem>()
             }
         };
         var result = roadNetwork.RestoreFromEvent(acceptedChange);
@@ -326,5 +222,111 @@ public class ImmutableRoadNetworkViewTests
         // THEN
         var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
         actualSegment.PartOfEuropeanRoads.Contains(EuropeanRoadNumber.Parse(roadSegmentAddedToEuropeanRoad.Number)).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RoadSegmentRemovedFromNationalRoad_RemovesRoadSegmentFromNationalRoad()
+    {
+        // GIVEN
+        IRoadNetworkView roadNetwork = ImmutableRoadNetworkView.Empty;
+
+        var given = Fixture.Create<RoadNetworkChangesAccepted>();
+        var roadSegmentAddedToNationalRoad = new RoadSegmentAddedToNationalRoad
+        {
+            Number = "A001",
+            AttributeId = 1,
+            SegmentId = RoadNetworkFixtures.Segment1Added.Id,
+            TemporaryAttributeId = 1
+        };
+
+        given.Changes = new[]
+        {
+            new AcceptedChange
+            {
+                RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
+                Problems = Array.Empty<Problem>()
+            },
+            new AcceptedChange
+            {
+                RoadSegmentAddedToNationalRoad = roadSegmentAddedToNationalRoad,
+                Problems = Array.Empty<Problem>()
+            }
+        };
+        roadNetwork = roadNetwork.RestoreFromEvent(given);
+
+        // WHEN
+        var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
+        var roadSegmentRemovedFromNationalRoad = new RoadSegmentRemovedFromNationalRoad
+        {
+            Number = roadSegmentAddedToNationalRoad.Number,
+            AttributeId = roadSegmentAddedToNationalRoad.AttributeId,
+            SegmentId = roadSegmentAddedToNationalRoad.SegmentId
+        };
+        acceptedChange.Changes = new[]
+        {
+            new AcceptedChange
+            {
+                RoadSegmentRemovedFromNationalRoad = roadSegmentRemovedFromNationalRoad,
+                Problems = Array.Empty<Problem>()
+            }
+        };
+        var result = roadNetwork.RestoreFromEvent(acceptedChange);
+
+        // THEN
+        var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
+        actualSegment.PartOfNationalRoads.Contains(NationalRoadNumber.Parse(roadSegmentAddedToNationalRoad.Number)).Should().BeFalse();
+    }
+
+    [Fact]
+    public void RoadSegmentRemovedFromNumberedRoad_RemovesRoadSegmentFromNumberedRoad()
+    {
+        // GIVEN
+        IRoadNetworkView roadNetwork = ImmutableRoadNetworkView.Empty;
+
+        var given = Fixture.Create<RoadNetworkChangesAccepted>();
+        var roadSegmentAddedToNumberedRoad = new RoadSegmentAddedToNumberedRoad
+        {
+            Number = "A0000001",
+            AttributeId = 1,
+            SegmentId = RoadNetworkFixtures.Segment1Added.Id,
+            TemporaryAttributeId = 1
+        };
+
+        given.Changes = new[]
+        {
+            new AcceptedChange
+            {
+                RoadSegmentAdded = RoadNetworkFixtures.Segment1Added,
+                Problems = Array.Empty<Problem>()
+            },
+            new AcceptedChange
+            {
+                RoadSegmentAddedToNumberedRoad = roadSegmentAddedToNumberedRoad,
+                Problems = Array.Empty<Problem>()
+            }
+        };
+        roadNetwork = roadNetwork.RestoreFromEvent(given);
+
+        // WHEN
+        var acceptedChange = Fixture.Create<RoadNetworkChangesAccepted>();
+        var roadSegmentRemovedFromNumberedRoad = new RoadSegmentRemovedFromNumberedRoad
+        {
+            Number = roadSegmentAddedToNumberedRoad.Number,
+            AttributeId = roadSegmentAddedToNumberedRoad.AttributeId,
+            SegmentId = roadSegmentAddedToNumberedRoad.SegmentId
+        };
+        acceptedChange.Changes = new[]
+        {
+            new AcceptedChange
+            {
+                RoadSegmentRemovedFromNumberedRoad = roadSegmentRemovedFromNumberedRoad,
+                Problems = Array.Empty<Problem>()
+            }
+        };
+        var result = roadNetwork.RestoreFromEvent(acceptedChange);
+
+        // THEN
+        var actualSegment = result.Segments[new RoadSegmentId(RoadNetworkFixtures.Segment1Added.Id)];
+        actualSegment.PartOfNumberedRoads.Contains(NumberedRoadNumber.Parse(roadSegmentAddedToNumberedRoad.Number)).Should().BeFalse();
     }
 }

@@ -1,14 +1,13 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.FeatureToggles
+namespace RoadRegistry.BackOffice.Api.Infrastructure.FeatureToggles;
+
+using FeatureToggle;
+
+public sealed class UseFeatureCompareToggle : IFeatureToggle
 {
-    using FeatureToggle;
-
-    public sealed class UseFeatureCompareToggle : IFeatureToggle
+    public UseFeatureCompareToggle(bool featureEnabled)
     {
-        public bool FeatureEnabled { get; }
-
-        public UseFeatureCompareToggle(bool featureEnabled)
-        {
-            FeatureEnabled = featureEnabled;
-        }
+        FeatureEnabled = featureEnabled;
     }
+
+    public bool FeatureEnabled { get; }
 }

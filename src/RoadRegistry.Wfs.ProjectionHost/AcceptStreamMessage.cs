@@ -1,8 +1,8 @@
-namespace RoadRegistry.Wfs.ProjectionHost
-{
-    using Hosts;
-    using Schema;
+namespace RoadRegistry.Wfs.ProjectionHost;
 
-    public class AcceptStreamMessage : AcceptStreamMessage<WfsContext>
-    { }
+using Hosts;
+using Schema;
+
+public class AcceptStreamMessage : AcceptStreamMessage<WfsContext>
+{
 }

@@ -12,9 +12,6 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
     public class LegacyEventReader : IEventReader
     {
-        private readonly IClock _clock;
-        private readonly IEventReader _reader;
-
         public LegacyEventReader(IClock clock, WellKnownBinaryReader wkbReader, ILoggerFactory loggerFactory)
         {
             if (clock == null) throw new ArgumentNullException(nameof(clock));
@@ -54,6 +51,9 @@ namespace RoadRegistry.Legacy.Extract.Readers
                 )
             );
         }
+
+        private readonly IClock _clock;
+        private readonly IEventReader _reader;
 
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {

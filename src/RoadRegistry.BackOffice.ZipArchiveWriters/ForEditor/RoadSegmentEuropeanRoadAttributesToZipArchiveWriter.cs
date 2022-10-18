@@ -10,15 +10,15 @@ using Microsoft.IO;
 
 public class RoadSegmentEuropeanRoadAttributesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
-    private readonly Encoding _encoding;
-    private readonly RecyclableMemoryStreamManager _manager;
-
     public RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(RecyclableMemoryStreamManager manager,
         Encoding encoding)
     {
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
+
+    private readonly Encoding _encoding;
+    private readonly RecyclableMemoryStreamManager _manager;
 
     public async Task WriteAsync(ZipArchive archive, EditorContext context, CancellationToken cancellationToken)
     {

@@ -29,14 +29,14 @@ namespace RoadRegistry.Legacy.Extract.Readers
             }
         }
 
-        public static string GetNullableString(this SqlDataReader reader, int index)
-        {
-            return reader.IsDBNull(index) ? null : reader.GetString(index);
-        }
-
         public static int? GetNullableInt32(this SqlDataReader reader, int index)
         {
             return reader.IsDBNull(index) ? new int?() : reader.GetInt32(index);
+        }
+
+        public static string GetNullableString(this SqlDataReader reader, int index)
+        {
+            return reader.IsDBNull(index) ? null : reader.GetString(index);
         }
     }
 }

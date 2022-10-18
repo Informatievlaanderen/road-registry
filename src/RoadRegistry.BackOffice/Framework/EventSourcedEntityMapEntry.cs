@@ -11,7 +11,8 @@ public class EventSourcedEntityMapEntry
         ExpectedVersion = expectedVersion;
     }
 
-    public StreamName Stream { get; }
     public IEventSourcedEntity Entity { get; }
     public int ExpectedVersion { get; }
+
+    public StreamName Stream { get; }
 }

@@ -7,11 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 public class DbaseFileArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {
-    private readonly Encoding _encoding;
-    private readonly string _filename;
-    private readonly IReadOnlyCollection<DbaseRecord> _records;
-    private readonly DbaseSchema _schema;
-
     public DbaseFileArchiveWriter(string filename, DbaseSchema schema, IReadOnlyCollection<DbaseRecord> records, Encoding encoding)
     {
         _filename = filename ?? throw new ArgumentNullException(nameof(filename));
@@ -19,6 +14,11 @@ public class DbaseFileArchiveWriter<TContext> : IZipArchiveWriter<TContext> wher
         _records = records ?? throw new ArgumentNullException(nameof(records));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
+
+    private readonly Encoding _encoding;
+    private readonly string _filename;
+    private readonly IReadOnlyCollection<DbaseRecord> _records;
+    private readonly DbaseSchema _schema;
 
     public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
     {

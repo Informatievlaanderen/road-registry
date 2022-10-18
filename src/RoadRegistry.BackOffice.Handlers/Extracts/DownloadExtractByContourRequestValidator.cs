@@ -9,9 +9,6 @@ using NetTopologySuite.IO;
 
 public sealed class DownloadExtractByContourRequestValidator : AbstractValidator<DownloadExtractByContourRequest>, IPipelineBehavior<DownloadExtractByContourRequest, DownloadExtractByContourResponse>
 {
-    private readonly ILogger<DownloadExtractByContourRequestValidator> _logger;
-    private readonly WKTReader _reader;
-
     public DownloadExtractByContourRequestValidator(WKTReader reader, ILogger<DownloadExtractByContourRequestValidator> logger)
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
@@ -30,12 +27,8 @@ public sealed class DownloadExtractByContourRequestValidator : AbstractValidator
             .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
     }
 
-    public async Task<DownloadExtractByContourResponse> Handle(DownloadExtractByContourRequest request, RequestHandlerDelegate<DownloadExtractByContourResponse> next, CancellationToken cancellationToken)
-    {
-        await this.ValidateAndThrowAsync(request, cancellationToken);
-        var response = await next();
-        return response;
-    }
+    private readonly ILogger<DownloadExtractByContourRequestValidator> _logger;
+    private readonly WKTReader _reader;
 
     private bool BeMultiPolygonGeometryAsWellKnownText(string text)
     {
@@ -54,5 +47,12 @@ public sealed class DownloadExtractByContourRequestValidator : AbstractValidator
             _logger.LogWarning(exception, "The download extract request body validation encountered a problem while trying to parse the contour as well-known text");
             return false;
         }
+    }
+
+    public async Task<DownloadExtractByContourResponse> Handle(DownloadExtractByContourRequest request, RequestHandlerDelegate<DownloadExtractByContourResponse> next, CancellationToken cancellationToken)
+    {
+        await this.ValidateAndThrowAsync(request, cancellationToken);
+        var response = await next();
+        return response;
     }
 }

@@ -4,8 +4,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentEuropeanRoadAttributeDbaseRecord : DbaseRecord
 {
-    public static readonly RoadSegmentEuropeanRoadAttributeDbaseSchema Schema = new();
-
     public RoadSegmentEuropeanRoadAttributeDbaseRecord()
     {
         EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
@@ -26,10 +24,12 @@ public class RoadSegmentEuropeanRoadAttributeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 EU_OIDN { get; }
-    public DbaseInt32 WS_OIDN { get; }
-    public DbaseString EUNUMMER { get; }
-    public DbaseDateTime BEGINTIJD { get; }
     public DbaseString BEGINORG { get; }
+    public DbaseDateTime BEGINTIJD { get; }
+
+    public DbaseInt32 EU_OIDN { get; }
+    public DbaseString EUNUMMER { get; }
     public DbaseString LBLBGNORG { get; }
+    public static readonly RoadSegmentEuropeanRoadAttributeDbaseSchema Schema = new();
+    public DbaseInt32 WS_OIDN { get; }
 }

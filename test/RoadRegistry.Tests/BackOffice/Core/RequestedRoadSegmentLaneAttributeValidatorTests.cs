@@ -20,10 +20,6 @@ public class RequestedRoadSegmentLaneAttributeValidatorTests
         Validator = new RequestedRoadSegmentLaneAttributeValidator();
     }
 
-    public Fixture Fixture { get; }
-
-    public RequestedRoadSegmentLaneAttributeValidator Validator { get; }
-
     [Theory]
     [InlineData(int.MinValue)]
     [InlineData(-1)]
@@ -31,6 +27,42 @@ public class RequestedRoadSegmentLaneAttributeValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(6)]
+    [InlineData(7)]
+    [InlineData(-8)]
+    [InlineData(-9)]
+    public void CountCanBeBetween0And7OrMinus8OrMinus9(int value)
+    {
+        Validator.ShouldNotHaveValidationErrorFor(c => c.Count, value);
+    }
+
+    [Theory]
+    [InlineData(int.MinValue)]
+    [InlineData(-1)]
+    public void CountMustBeGreaterThanOrEqualToZero(int value)
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Count, value);
+    }
+
+    [Theory]
+    [InlineData(int.MaxValue)]
+    [InlineData(8)]
+    public void CountMustBeLessThanOrEqualTo7(int value)
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Count, value);
+    }
+
+    [Fact]
+    public void DirectionMustBeWithinDomain()
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
+    }
+
+    public Fixture Fixture { get; }
 
     [Theory]
     [MemberData(nameof(DynamicAttributePositionCases.NegativeFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
@@ -51,39 +83,7 @@ public class RequestedRoadSegmentLaneAttributeValidatorTests
         Validator.ShouldHaveValidationErrorFor(c => c.ToPosition, data);
     }
 
-    [Theory]
-    [InlineData(int.MinValue)]
-    [InlineData(-1)]
-    public void CountMustBeGreaterThanOrEqualToZero(int value)
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Count, value);
-    }
-
-    [Theory]
-    [InlineData(int.MaxValue)]
-    [InlineData(8)]
-    public void CountMustBeLessThanOrEqualTo7(int value)
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Count, value);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(1)]
-    [InlineData(6)]
-    [InlineData(7)]
-    [InlineData(-8)]
-    [InlineData(-9)]
-    public void CountCanBeBetween0And7OrMinus8OrMinus9(int value)
-    {
-        Validator.ShouldNotHaveValidationErrorFor(c => c.Count, value);
-    }
-
-    [Fact]
-    public void DirectionMustBeWithinDomain()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
-    }
+    public RequestedRoadSegmentLaneAttributeValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

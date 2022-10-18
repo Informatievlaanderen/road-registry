@@ -10,12 +10,59 @@ using Xunit;
 
 public class OrganizationNameTests
 {
-    private readonly Fixture _fixture;
-
     public OrganizationNameTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeOrganizationName();
+    }
+
+    private readonly Fixture _fixture;
+
+    [Fact]
+    public void AcceptsValueReturnsExpectedResult()
+    {
+        var value = _fixture.Create<OrganizationName>().ToString();
+
+        Assert.True(OrganizationName.AcceptsValue(value));
+    }
+
+    [Fact]
+    public void AcceptsValueReturnsExpectedResultWhenValueLongerThan64Chars()
+    {
+        const int length = OrganizationName.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+
+        Assert.False(OrganizationName.AcceptsValue(value));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
+    {
+        Assert.False(OrganizationName.AcceptsValue(value));
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = new string(
+            (char)new Random().Next(97, 123), // a-z
+            new Random().Next(1, OrganizationName.MaxLength + 1)
+        );
+        var sut = new OrganizationName(value);
+
+        Assert.Equal(value, sut.ToString());
+    }
+
+    [Fact]
+    public void ValueCanNotBeLongerThan64Chars()
+    {
+        const int length = OrganizationName.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new OrganizationName(value));
     }
 
     [Fact]
@@ -53,52 +100,5 @@ public class OrganizationNameTests
                 new EmptyStringBehaviorExpectation()
             )
         ).Verify(Constructors.Select(() => new OrganizationName(null)));
-    }
-
-    [Fact]
-    public void AcceptsValueReturnsExpectedResultWhenValueLongerThan64Chars()
-    {
-        const int length = OrganizationName.MaxLength + 1;
-
-        var value = new string((char)new Random().Next(97, 123), length);
-
-        Assert.False(OrganizationName.AcceptsValue(value));
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
-    {
-        Assert.False(OrganizationName.AcceptsValue(value));
-    }
-
-    [Fact]
-    public void AcceptsValueReturnsExpectedResult()
-    {
-        var value = _fixture.Create<OrganizationName>().ToString();
-
-        Assert.True(OrganizationName.AcceptsValue(value));
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = new string(
-            (char)new Random().Next(97, 123), // a-z
-            new Random().Next(1, OrganizationName.MaxLength + 1)
-        );
-        var sut = new OrganizationName(value);
-
-        Assert.Equal(value, sut.ToString());
-    }
-
-    [Fact]
-    public void ValueCanNotBeLongerThan64Chars()
-    {
-        const int length = OrganizationName.MaxLength + 1;
-
-        var value = new string((char)new Random().Next(97, 123), length);
-        Assert.Throws<ArgumentOutOfRangeException>(() => new OrganizationName(value));
     }
 }

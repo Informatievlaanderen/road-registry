@@ -6,6 +6,7 @@ using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using Xunit;
+using AddRoadSegmentToNumberedRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad;
 
 public class AddRoadSegmentToNumberedRoadValidatorTests
 {
@@ -19,28 +20,18 @@ public class AddRoadSegmentToNumberedRoadValidatorTests
         Validator = new AddRoadSegmentToNumberedRoadValidator();
     }
 
-    public Fixture Fixture { get; }
-
-    public AddRoadSegmentToNumberedRoadValidator Validator { get; }
-
-    [Theory]
-    [InlineData(int.MinValue)]
-    [InlineData(-1)]
-    public void TemporaryAttributeIdMustBeGreaterThan(int value)
+    [Fact]
+    public void DirectionMustBeWithinDomain()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
+        Validator.ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
     }
+
+    public Fixture Fixture { get; }
 
     [Fact]
     public void Ident8MustBeWithinDomain()
     {
         Validator.ShouldHaveValidationErrorFor(c => c.Number, Fixture.Create<string>());
-    }
-
-    [Fact]
-    public void DirectionMustBeWithinDomain()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
     }
 
     [Theory]
@@ -60,10 +51,20 @@ public class AddRoadSegmentToNumberedRoadValidatorTests
         Validator.ShouldNotHaveValidationErrorFor(c => c.Ordinal, value);
     }
 
+    [Theory]
+    [InlineData(int.MinValue)]
+    [InlineData(-1)]
+    public void TemporaryAttributeIdMustBeGreaterThan(int value)
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
+    }
+
+    public AddRoadSegmentToNumberedRoadValidator Validator { get; }
+
     [Fact]
     public void VerifyValid()
     {
-        var data = new RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad
+        var data = new AddRoadSegmentToNumberedRoad
         {
             TemporaryAttributeId = Fixture.Create<AttributeId>(),
             Number = Fixture.Create<NumberedRoadNumber>(),

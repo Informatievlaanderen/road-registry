@@ -7,10 +7,11 @@ public sealed class DownloadProductNotFoundException : ApplicationException
 {
     public DownloadProductNotFoundException(string? message)
         : base(message)
-    { }
-    
+    {
+    }
+
     private DownloadProductNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
-
+    {
+    }
 }

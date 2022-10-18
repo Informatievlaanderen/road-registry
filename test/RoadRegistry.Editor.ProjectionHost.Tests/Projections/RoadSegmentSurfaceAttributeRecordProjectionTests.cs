@@ -2,18 +2,15 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using System.Text;
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Editor.Projections;
 using Editor.Schema.RoadSegments;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 
 public class RoadSegmentSurfaceAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
-
     public RoadSegmentSurfaceAttributeRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -58,6 +55,58 @@ public class RoadSegmentSurfaceAttributeRecordProjectionTests : IClassFixture<Pr
         _fixture.CustomizeRoadSegmentModified();
         _fixture.CustomizeRoadSegmentRemoved();
         _fixture.CustomizeRoadNetworkChangesAccepted();
+    }
+
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
+    [Fact]
+    public Task When_adding_road_node_with_surfaces()
+    {
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var segment = change.RoadSegmentAdded;
+
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeRecord
+            {
+                Id = surface.AttributeId,
+                RoadSegmentId = segment.Id,
+                DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
+                {
+                    WV_OIDN = { Value = surface.AttributeId },
+                    WS_OIDN = { Value = segment.Id },
+                    WS_GIDN = { Value = segment.Id + "_" + surface.AsOfGeometryVersion },
+                    TYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier },
+                    LBLTYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name },
+                    VANPOS = { Value = (double)surface.FromPosition },
+                    TOTPOS = { Value = (double)surface.ToPosition },
+                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
+                    BEGINORG = { Value = message.OrganizationId },
+                    LBLBGNORG = { Value = message.Organization }
+                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            });
+        }).SelectMany(x => x);
+
+        return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_importing_a_road_node_without_surfaces()
+    {
+        var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
+        importedRoadSegment.Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttribute>();
+
+        return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(importedRoadSegment)
+            .Expect();
     }
 
     [Fact]
@@ -108,98 +157,6 @@ public class RoadSegmentSurfaceAttributeRecordProjectionTests : IClassFixture<Pr
                 .Cast<object>()
                 .ToArray()
             );
-    }
-
-    [Fact]
-    public Task When_importing_a_road_node_without_surfaces()
-    {
-        var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-        importedRoadSegment.Surfaces = Array.Empty<ImportedRoadSegmentSurfaceAttribute>();
-
-        return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
-            .Scenario()
-            .Given(importedRoadSegment)
-            .Expect();
-    }
-
-    [Fact]
-    public Task When_adding_road_node_with_surfaces()
-    {
-        var message = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
-
-        var expectedRecords = Array.ConvertAll(message.Changes, change =>
-        {
-            var segment = change.RoadSegmentAdded;
-
-            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeRecord
-            {
-                Id = surface.AttributeId,
-                RoadSegmentId = segment.Id,
-                DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
-                {
-                    WV_OIDN = { Value = surface.AttributeId },
-                    WS_OIDN = { Value = segment.Id },
-                    WS_GIDN = { Value = segment.Id + "_" + surface.AsOfGeometryVersion },
-                    TYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier },
-                    LBLTYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name },
-                    VANPOS = { Value = (double)surface.FromPosition },
-                    TOTPOS = { Value = (double)surface.ToPosition },
-                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
-                    BEGINORG = { Value = message.OrganizationId },
-                    LBLBGNORG = { Value = message.Organization }
-                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-            });
-        }).SelectMany(x => x);
-
-        return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
-            .Scenario()
-            .Given(message)
-            .Expect(expectedRecords);
-    }
-
-    [Fact]
-    public Task When_modifying_road_segments_with_new_surfaces_only()
-    {
-        _fixture.Freeze<RoadSegmentId>();
-
-        var acceptedRoadSegmentAdded = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
-
-        var acceptedRoadSegmentModified = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
-
-        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
-        {
-            var segment = change.RoadSegmentModified;
-
-            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeRecord
-            {
-                Id = surface.AttributeId,
-                RoadSegmentId = segment.Id,
-                DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
-                {
-                    WV_OIDN = { Value = surface.AttributeId },
-                    WS_OIDN = { Value = segment.Id },
-                    WS_GIDN = { Value = segment.Id + "_" + surface.AsOfGeometryVersion },
-                    TYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier },
-                    LBLTYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name },
-                    VANPOS = { Value = (double)surface.FromPosition },
-                    TOTPOS = { Value = (double)surface.ToPosition },
-                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
-                    BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
-                    LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
-                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-            });
-        }).SelectMany(x => x);
-
-        return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
-            .Scenario()
-            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
-            .ExpectInAnyOrder(expectedRecords);
     }
 
     [Fact]
@@ -277,55 +234,6 @@ public class RoadSegmentSurfaceAttributeRecordProjectionTests : IClassFixture<Pr
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .ExpectNone();
-    }
-
-    [Fact]
-    public Task When_modifying_road_nodes_with_some_removed_surfaces()
-    {
-        _fixture.Freeze<RoadSegmentId>();
-
-        var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
-        var acceptedRoadSegmentAdded = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(roadSegmentAdded);
-
-        var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
-        roadSegmentModified.Surfaces = roadSegmentAdded.Surfaces
-            .Take(roadSegmentAdded.Surfaces.Length - 1)
-            .ToArray();
-
-        var acceptedRoadSegmentModified = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(roadSegmentModified);
-
-        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
-        {
-            var segment = change.RoadSegmentModified;
-
-            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeRecord
-            {
-                Id = surface.AttributeId,
-                RoadSegmentId = segment.Id,
-                DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
-                {
-                    WV_OIDN = { Value = surface.AttributeId },
-                    WS_OIDN = { Value = segment.Id },
-                    WS_GIDN = { Value = segment.Id + "_" + surface.AsOfGeometryVersion },
-                    TYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier },
-                    LBLTYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name },
-                    VANPOS = { Value = (double)surface.FromPosition },
-                    TOTPOS = { Value = (double)surface.ToPosition },
-                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
-                    BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
-                    LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
-                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-            });
-        }).SelectMany(x => x);
-
-        return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
-            .Scenario()
-            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
-            .Expect(expectedRecords);
     }
 
     [Fact]
@@ -434,6 +342,98 @@ public class RoadSegmentSurfaceAttributeRecordProjectionTests : IClassFixture<Pr
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_modifying_road_nodes_with_some_removed_surfaces()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(roadSegmentAdded);
+
+        var roadSegmentModified = _fixture.Create<RoadSegmentModified>();
+        roadSegmentModified.Surfaces = roadSegmentAdded.Surfaces
+            .Take(roadSegmentAdded.Surfaces.Length - 1)
+            .ToArray();
+
+        var acceptedRoadSegmentModified = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(roadSegmentModified);
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
+        {
+            var segment = change.RoadSegmentModified;
+
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeRecord
+            {
+                Id = surface.AttributeId,
+                RoadSegmentId = segment.Id,
+                DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
+                {
+                    WV_OIDN = { Value = surface.AttributeId },
+                    WS_OIDN = { Value = segment.Id },
+                    WS_GIDN = { Value = segment.Id + "_" + surface.AsOfGeometryVersion },
+                    TYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier },
+                    LBLTYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name },
+                    VANPOS = { Value = (double)surface.FromPosition },
+                    TOTPOS = { Value = (double)surface.ToPosition },
+                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
+                    BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
+                    LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
+                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            });
+        }).SelectMany(x => x);
+
+        return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_modifying_road_segments_with_new_surfaces_only()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentModified = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
+        {
+            var segment = change.RoadSegmentModified;
+
+            return segment.Surfaces.Select(surface => (object)new RoadSegmentSurfaceAttributeRecord
+            {
+                Id = surface.AttributeId,
+                RoadSegmentId = segment.Id,
+                DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
+                {
+                    WV_OIDN = { Value = surface.AttributeId },
+                    WS_OIDN = { Value = segment.Id },
+                    WS_GIDN = { Value = segment.Id + "_" + surface.AsOfGeometryVersion },
+                    TYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Identifier },
+                    LBLTYPE = { Value = RoadSegmentSurfaceType.Parse(surface.Type).Translation.Name },
+                    VANPOS = { Value = (double)surface.FromPosition },
+                    TOTPOS = { Value = (double)surface.ToPosition },
+                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
+                    BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
+                    LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization }
+                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            });
+        }).SelectMany(x => x);
+
+        return new RoadSegmentSurfaceAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+            .ExpectInAnyOrder(expectedRecords);
     }
 
     [Fact]

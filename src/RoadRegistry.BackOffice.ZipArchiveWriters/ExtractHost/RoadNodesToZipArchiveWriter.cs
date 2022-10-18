@@ -7,20 +7,18 @@ using Editor.Schema;
 using Editor.Schema.RoadNodes;
 using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using NetTopologySuite.Geometries;
 
 public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
-    private readonly Encoding _encoding;
-    private readonly RecyclableMemoryStreamManager _manager;
-
     public RoadNodesToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
     {
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
+
+    private readonly Encoding _encoding;
+    private readonly RecyclableMemoryStreamManager _manager;
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
         EditorContext context,

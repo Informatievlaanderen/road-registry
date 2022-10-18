@@ -70,7 +70,6 @@ public class ExplicitConversionMethodException : Exception
     }
 
     public Type From { get; }
-    public Type To { get; }
 
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -81,4 +80,6 @@ public class ExplicitConversionMethodException : Exception
         info.AddValue("From", From);
         info.AddValue("To", To);
     }
+
+    public Type To { get; }
 }

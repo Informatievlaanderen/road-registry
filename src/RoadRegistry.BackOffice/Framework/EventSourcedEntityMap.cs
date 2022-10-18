@@ -6,14 +6,12 @@ using System.Collections.Generic;
 
 public class EventSourcedEntityMap
 {
-    private readonly ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry> _entries;
-
     public EventSourcedEntityMap()
     {
         _entries = new ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry>();
     }
 
-    public IEnumerable<EventSourcedEntityMapEntry> Entries => _entries.Values;
+    private readonly ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry> _entries;
 
     public void Attach(EventSourcedEntityMapEntry entry)
     {
@@ -21,6 +19,8 @@ public class EventSourcedEntityMap
 
         if (!_entries.TryAdd(entry.Stream, entry)) throw new ArgumentException($"The event source of stream {entry.Stream} was already attached.");
     }
+
+    public IEnumerable<EventSourcedEntityMapEntry> Entries => _entries.Values;
 
     public bool TryGet(StreamName stream, out EventSourcedEntityMapEntry entry)
     {

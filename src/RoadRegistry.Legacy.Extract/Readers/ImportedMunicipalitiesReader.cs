@@ -16,10 +16,6 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
     public class ImportedMunicipalitiesReader : IEventReader
     {
-        private readonly IClock _clock;
-        private readonly ILogger<ImportedMunicipalitiesReader> _logger;
-        private readonly WellKnownBinaryReader _wkbReader;
-
         public ImportedMunicipalitiesReader(IClock clock,
             WellKnownBinaryReader wkbReader,
             ILogger<ImportedMunicipalitiesReader> logger)
@@ -28,6 +24,10 @@ namespace RoadRegistry.Legacy.Extract.Readers
             _wkbReader = wkbReader;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        private readonly IClock _clock;
+        private readonly ILogger<ImportedMunicipalitiesReader> _logger;
+        private readonly WellKnownBinaryReader _wkbReader;
 
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {

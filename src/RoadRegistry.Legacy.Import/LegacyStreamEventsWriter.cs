@@ -16,20 +16,20 @@ namespace RoadRegistry.Legacy.Import
 
     internal class LegacyStreamEventsWriter
     {
-        private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
-        private static readonly EventMapping Mapping =
-            new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
-
-        private readonly ILogger<LegacyStreamEventsWriter> _logger;
-
-        private readonly IStreamStore _streamStore;
-
         public LegacyStreamEventsWriter(IStreamStore streamStore, ILogger<LegacyStreamEventsWriter> logger)
         {
             _streamStore = streamStore ?? throw new ArgumentNullException(nameof(streamStore));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        private readonly ILogger<LegacyStreamEventsWriter> _logger;
+
+        private readonly IStreamStore _streamStore;
+
+        private static readonly EventMapping Mapping =
+            new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+
+        private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
         public async Task WriteAsync(IEnumerable<StreamEvent> events)
         {

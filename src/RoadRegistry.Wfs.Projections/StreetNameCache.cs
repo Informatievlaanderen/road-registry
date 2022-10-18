@@ -10,12 +10,12 @@ namespace RoadRegistry.Wfs.Projections
 
     public class StreetNameCache : IStreetNameCache
     {
-        private readonly Func<SyndicationContext> _contextFactory;
-
         public StreetNameCache(Func<SyndicationContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
+
+        private readonly Func<SyndicationContext> _contextFactory;
 
         public async Task<StreetNameRecord> GetAsync(int streetNameId, CancellationToken token)
         {
@@ -23,6 +23,17 @@ namespace RoadRegistry.Wfs.Projections
             {
                 return await context.StreetNames
                     .SingleOrDefaultAsync(record => record.PersistentLocalId == streetNameId, token);
+            }
+        }
+
+        public async Task<long> GetMaxPositionAsync(CancellationToken token)
+        {
+            using (var context = _contextFactory())
+            {
+                if (!await context.StreetNames.AnyAsync(token))
+                    return -1;
+
+                return await context.StreetNames.MaxAsync(record => record.Position, token);
             }
         }
 
@@ -37,17 +48,6 @@ namespace RoadRegistry.Wfs.Projections
                         x => x.PersistentLocalId.Value,
                         x => x.DutchNameWithHomonymAddition,
                         token);
-            }
-        }
-
-        public async Task<long> GetMaxPositionAsync(CancellationToken token)
-        {
-            using (var context = _contextFactory())
-            {
-                if (!await context.StreetNames.AnyAsync(token))
-                    return -1;
-
-                return await context.StreetNames.MaxAsync(record => record.Position, token);
             }
         }
     }

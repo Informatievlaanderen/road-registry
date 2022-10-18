@@ -13,12 +13,12 @@ using NodaTime.Text;
 [Collection(nameof(SqlServerCollection))]
 public class ChangeFeedGetEntryContentTests
 {
-    private readonly SqlServer _fixture;
-
     public ChangeFeedGetEntryContentTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }
+
+    private readonly SqlServer _fixture;
 
     [Fact]
     public async Task When_downloading_entry_content_of_a_non_existing_entry()

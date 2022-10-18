@@ -2,18 +2,15 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using System.Text;
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Editor.Projections;
 using Editor.Schema.RoadSegments;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 
 public class RoadSegmentNumberedRoadAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
-
     public RoadSegmentNumberedRoadAttributeRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -57,6 +54,57 @@ public class RoadSegmentNumberedRoadAttributeRecordProjectionTests : IClassFixtu
         _fixture.CustomizeRoadSegmentAddedToNumberedRoad();
         _fixture.CustomizeRoadSegmentOnNumberedRoadModified();
         _fixture.CustomizeRoadSegmentRemovedFromNumberedRoad();
+    }
+
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
+    [Fact]
+    public Task When_adding_road_segments()
+    {
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAddedToNumberedRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var numberedRoad = change.RoadSegmentAddedToNumberedRoad;
+
+            return (object)new RoadSegmentNumberedRoadAttributeRecord
+            {
+                Id = numberedRoad.AttributeId,
+                RoadSegmentId = numberedRoad.SegmentId,
+                DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
+                {
+                    GW_OIDN = { Value = numberedRoad.AttributeId },
+                    WS_OIDN = { Value = numberedRoad.SegmentId },
+                    IDENT8 = { Value = numberedRoad.Number },
+                    RICHTING = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier },
+                    LBLRICHT = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name },
+                    VOLGNUMMER = { Value = numberedRoad.Ordinal },
+                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
+                    BEGINORG = { Value = message.OrganizationId },
+                    LBLBGNORG = { Value = message.Organization }
+                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            };
+        });
+
+        return new RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_importing_a_road_node_without_numbered_road_links()
+    {
+        var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
+        importedRoadSegment.PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttribute>();
+
+        return new RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(importedRoadSegment)
+            .Expect();
     }
 
     [Fact]
@@ -109,54 +157,6 @@ public class RoadSegmentNumberedRoadAttributeRecordProjectionTests : IClassFixtu
     }
 
     [Fact]
-    public Task When_importing_a_road_node_without_numbered_road_links()
-    {
-        var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-        importedRoadSegment.PartOfNumberedRoads = Array.Empty<ImportedRoadSegmentNumberedRoadAttribute>();
-
-        return new RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
-            .Scenario()
-            .Given(importedRoadSegment)
-            .Expect();
-    }
-
-    [Fact]
-    public Task When_adding_road_segments()
-    {
-        var message = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAddedToNumberedRoad>());
-
-        var expectedRecords = Array.ConvertAll(message.Changes, change =>
-        {
-            var numberedRoad = change.RoadSegmentAddedToNumberedRoad;
-
-            return (object)new RoadSegmentNumberedRoadAttributeRecord
-            {
-                Id = numberedRoad.AttributeId,
-                RoadSegmentId = numberedRoad.SegmentId,
-                DbaseRecord = new RoadSegmentNumberedRoadAttributeDbaseRecord
-                {
-                    GW_OIDN = { Value = numberedRoad.AttributeId },
-                    WS_OIDN = { Value = numberedRoad.SegmentId },
-                    IDENT8 = { Value = numberedRoad.Number },
-                    RICHTING = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Identifier },
-                    LBLRICHT = { Value = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation.Name },
-                    VOLGNUMMER = { Value = numberedRoad.Ordinal },
-                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
-                    BEGINORG = { Value = message.OrganizationId },
-                    LBLBGNORG = { Value = message.Organization }
-                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-            };
-        });
-
-        return new RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
-            .Scenario()
-            .Given(message)
-            .Expect(expectedRecords);
-    }
-
-    [Fact]
     public Task When_modifying_road_segments()
     {
         _fixture.Freeze<AttributeId>();
@@ -199,25 +199,6 @@ public class RoadSegmentNumberedRoadAttributeRecordProjectionTests : IClassFixtu
     }
 
     [Fact]
-    public Task When_removing_road_segments_from_numbered_roads()
-    {
-        _fixture.Freeze<AttributeId>();
-
-        var acceptedRoadSegmentAdded = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNumberedRoad>());
-
-        var acceptedRoadSegmentRemoved = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromNumberedRoad>());
-
-        return new RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
-            .Scenario()
-            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved)
-            .ExpectNone();
-    }
-
-    [Fact]
     public Task When_removing_road_segments()
     {
         var roadSegmentAddedToNationalRoad = _fixture.Create<RoadSegmentAddedToNumberedRoad>();
@@ -256,5 +237,24 @@ public class RoadSegmentNumberedRoadAttributeRecordProjectionTests : IClassFixtu
                     LBLBGNORG = { Value = acceptedRoadSegmentsAdded.Organization }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
             });
+    }
+
+    [Fact]
+    public Task When_removing_road_segments_from_numbered_roads()
+    {
+        _fixture.Freeze<AttributeId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNumberedRoad>());
+
+        var acceptedRoadSegmentRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromNumberedRoad>());
+
+        return new RoadSegmentNumberedRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved)
+            .ExpectNone();
     }
 }

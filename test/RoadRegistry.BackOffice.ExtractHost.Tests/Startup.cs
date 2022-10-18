@@ -1,12 +1,8 @@
 namespace RoadRegistry.BackOffice.ExtractHost.Tests;
 
-using System.Text;
-using Abstractions;
 using Autofac;
-using BackOffice.ZipArchiveWriters.ExtractHost;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
-using Extracts;
 using Hosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -28,9 +24,9 @@ public class Startup : TestStartup
         services
             .AddSingleton(new WKTReader(
                 new NtsGeometryServices(
-                        GeometryConfiguration.GeometryFactory.PrecisionModel,
-                        GeometryConfiguration.GeometryFactory.SRID
-                    )))
+                    GeometryConfiguration.GeometryFactory.PrecisionModel,
+                    GeometryConfiguration.GeometryFactory.SRID
+                )))
             .AddSingleton(new RecyclableMemoryStreamManager())
             .AddSingleton<Func<EditorContext>>(sp =>
                 () =>

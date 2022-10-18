@@ -6,6 +6,7 @@ using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using Xunit;
+using AddRoadSegmentToNationalRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNationalRoad;
 
 public class AddRoadSegmentToNationalRoadValidatorTests
 {
@@ -19,7 +20,11 @@ public class AddRoadSegmentToNationalRoadValidatorTests
 
     public Fixture Fixture { get; }
 
-    public AddRoadSegmentToNationalRoadValidator Validator { get; }
+    [Fact]
+    public void Ident2MustBeWithinDomain()
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Number, Fixture.Create<string>());
+    }
 
     [Theory]
     [InlineData(int.MinValue)]
@@ -29,16 +34,12 @@ public class AddRoadSegmentToNationalRoadValidatorTests
         Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
     }
 
-    [Fact]
-    public void Ident2MustBeWithinDomain()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Number, Fixture.Create<string>());
-    }
+    public AddRoadSegmentToNationalRoadValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()
     {
-        var data = new RoadRegistry.BackOffice.Messages.AddRoadSegmentToNationalRoad
+        var data = new AddRoadSegmentToNationalRoad
         {
             TemporaryAttributeId = Fixture.Create<AttributeId>(),
             Number = Fixture.Create<NationalRoadNumber>()

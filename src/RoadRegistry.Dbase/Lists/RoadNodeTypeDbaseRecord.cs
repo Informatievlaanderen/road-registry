@@ -6,8 +6,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadNodeTypeDbaseRecord : DbaseRecord
 {
-    public static readonly RoadNodeTypeDbaseSchema Schema = new();
-
     public RoadNodeTypeDbaseRecord()
     {
         TYPE = new DbaseInt32(Schema.TYPE);
@@ -20,7 +18,9 @@ public class RoadNodeTypeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 TYPE { get; }
-    public DbaseString LBLTYPE { get; }
     public DbaseString DEFTYPE { get; }
+    public DbaseString LBLTYPE { get; }
+    public static readonly RoadNodeTypeDbaseSchema Schema = new();
+
+    public DbaseInt32 TYPE { get; }
 }

@@ -9,8 +9,6 @@ public class FrozenSpecimenBuilder<T> : ISpecimenBuilder
         Value = value;
     }
 
-    public T Value { get; }
-
     public object Create(object request, ISpecimenContext context)
     {
         if (request is SeededRequest seededRequest)
@@ -24,4 +22,6 @@ public class FrozenSpecimenBuilder<T> : ISpecimenBuilder
 
         return new NoSpecimen();
     }
+
+    public T Value { get; }
 }

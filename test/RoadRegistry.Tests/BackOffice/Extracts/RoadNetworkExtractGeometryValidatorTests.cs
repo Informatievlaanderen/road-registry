@@ -10,24 +10,14 @@ using Xunit;
 
 public class RoadNetworkExtractGeometryValidatorTests
 {
-    private readonly WKTReader _reader;
-    private readonly RoadNetworkExtractGeometryValidator _validator;
-
     public RoadNetworkExtractGeometryValidatorTests()
     {
         _reader = new WKTReader();
         _validator = new RoadNetworkExtractGeometryValidator();
     }
 
-    [Fact]
-    public void ValidateCanHandleGeometryWithHoles()
-    {
-        var geometry = CreateGeometryWithHoles();
-
-        var validationResult = _validator.Validate(geometry);
-
-        validationResult.IsValid.Should().BeTrue();
-    }
+    private readonly WKTReader _reader;
+    private readonly RoadNetworkExtractGeometryValidator _validator;
 
     private RoadNetworkExtractGeometry CreateGeometryWithHoles()
     {
@@ -38,5 +28,15 @@ public class RoadNetworkExtractGeometryValidatorTests
         geometry.SpatialReferenceSystemIdentifier = validSpatialReferenceSystemIdentifier;
 
         return geometry;
+    }
+
+    [Fact]
+    public void ValidateCanHandleGeometryWithHoles()
+    {
+        var geometry = CreateGeometryWithHoles();
+
+        var validationResult = _validator.Validate(geometry);
+
+        validationResult.IsValid.Should().BeTrue();
     }
 }

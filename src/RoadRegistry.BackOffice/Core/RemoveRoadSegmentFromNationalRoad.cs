@@ -16,33 +16,8 @@ public class RemoveRoadSegmentFromNationalRoad : IRequestedChange
     }
 
     public AttributeId AttributeId { get; }
-    public RoadSegmentId SegmentId { get; }
     public NationalRoadNumber Number { get; }
-
-    public Problems VerifyBefore(BeforeVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        var problems = Problems.None;
-
-        if (!context.BeforeView.View.Segments.TryGetValue(SegmentId, out var segment))
-        {
-            problems = problems.Add(new RoadSegmentMissing(SegmentId));
-        }
-        else
-        {
-            if (!segment.PartOfNationalRoads.Contains(Number)) problems = problems.Add(new NationalRoadNumberNotFound(Number));
-        }
-
-        return problems;
-    }
-
-    public Problems VerifyAfter(AfterVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        return Problems.None;
-    }
+    public RoadSegmentId SegmentId { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -66,5 +41,30 @@ public class RemoveRoadSegmentFromNationalRoad : IRequestedChange
             Number = Number,
             SegmentId = SegmentId
         };
+    }
+
+    public Problems VerifyAfter(AfterVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        return Problems.None;
+    }
+
+    public Problems VerifyBefore(BeforeVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        if (!context.BeforeView.View.Segments.TryGetValue(SegmentId, out var segment))
+        {
+            problems = problems.Add(new RoadSegmentMissing(SegmentId));
+        }
+        else
+        {
+            if (!segment.PartOfNationalRoads.Contains(Number)) problems = problems.Add(new NationalRoadNumberNotFound(Number));
+        }
+
+        return problems;
     }
 }

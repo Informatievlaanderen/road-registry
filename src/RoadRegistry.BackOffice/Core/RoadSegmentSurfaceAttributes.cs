@@ -6,8 +6,6 @@ using System.Collections.Generic;
 
 public class RoadSegmentSurfaceAttributes : IEnumerable<RoadSegmentSurfaceAttribute>
 {
-    private readonly IReadOnlyCollection<RoadSegmentSurfaceAttribute> _attributes;
-
     public RoadSegmentSurfaceAttributes(IReadOnlyCollection<RoadSegmentSurfaceAttribute> attributes)
     {
         if (attributes == null) throw new ArgumentNullException(nameof(attributes));
@@ -25,6 +23,8 @@ public class RoadSegmentSurfaceAttributes : IEnumerable<RoadSegmentSurfaceAttrib
 
         _attributes = attributes;
     }
+
+    private readonly IReadOnlyCollection<RoadSegmentSurfaceAttribute> _attributes;
 
     public IEnumerator<RoadSegmentSurfaceAttribute> GetEnumerator()
     {

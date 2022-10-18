@@ -6,8 +6,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentMorphologyDbaseRecord : DbaseRecord
 {
-    public static readonly RoadSegmentMorphologyDbaseSchema Schema = new();
-
     public RoadSegmentMorphologyDbaseRecord()
     {
         MORF = new DbaseInt32(Schema.MORF);
@@ -20,7 +18,9 @@ public class RoadSegmentMorphologyDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 MORF { get; }
-    public DbaseString LBLMORF { get; }
     public DbaseString DEFMORF { get; }
+    public DbaseString LBLMORF { get; }
+
+    public DbaseInt32 MORF { get; }
+    public static readonly RoadSegmentMorphologyDbaseSchema Schema = new();
 }

@@ -4,8 +4,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
 {
-    public static readonly RoadSegmentSurfaceAttributeDbaseSchema Schema = new();
-
     public RoadSegmentSurfaceAttributeDbaseRecord()
     {
         WV_OIDN = new DbaseInt32(Schema.WV_OIDN);
@@ -34,14 +32,16 @@ public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 WV_OIDN { get; set; }
-    public DbaseInt32 WS_OIDN { get; set; }
-    public DbaseString WS_GIDN { get; set; }
-    public DbaseInt32 TYPE { get; set; }
-    public DbaseString LBLTYPE { get; set; }
-    public DbaseDouble VANPOS { get; set; }
-    public DbaseDouble TOTPOS { get; set; }
-    public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseString BEGINORG { get; set; }
+    public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseString LBLBGNORG { get; set; }
+    public DbaseString LBLTYPE { get; set; }
+    public static readonly RoadSegmentSurfaceAttributeDbaseSchema Schema = new();
+    public DbaseDouble TOTPOS { get; set; }
+    public DbaseInt32 TYPE { get; set; }
+    public DbaseDouble VANPOS { get; set; }
+    public DbaseString WS_GIDN { get; set; }
+    public DbaseInt32 WS_OIDN { get; set; }
+
+    public DbaseInt32 WV_OIDN { get; set; }
 }

@@ -10,13 +10,6 @@ using Xunit;
 
 public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposable
 {
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly GradeSeparatedJunctionChangeDbaseRecordsTranslator _sut;
-
     public GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests()
     {
         _fixture = new Fixture();
@@ -44,6 +37,13 @@ public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposab
         _entry = _archive.CreateEntry("rltogkruising_all.dbf");
     }
 
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly GradeSeparatedJunctionChangeDbaseRecordsTranslator _sut;
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -57,6 +57,12 @@ public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposab
     }
 
     [Fact]
+    public void TranslateChangesCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void TranslateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(null, _enumerator, TranslatedChanges.Empty));
@@ -66,12 +72,6 @@ public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposab
     public void TranslateRecordsCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, null, TranslatedChanges.Empty));
-    }
-
-    [Fact]
-    public void TranslateChangesCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
     }
 
     [Fact]

@@ -9,32 +9,22 @@ using Xunit;
 
 public class UploadIdTests
 {
-    private readonly Fixture _fixture;
-
     public UploadIdTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeArchiveId();
     }
 
-    [Fact]
-    public void VerifyBehavior()
+    private readonly Fixture _fixture;
+
+    [Theory]
+    [InlineData("00000000000000000000000000000000", false)]
+    [InlineData("62bee5951746453da866aef66daa2be7", true)]
+    public void AcceptsReturnsExceptedResult(string value, bool expected)
     {
-        new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<Guid>(_fixture),
-            new EquatableEqualsSelfAssertion(_fixture),
-            new EquatableEqualsOtherAssertion(_fixture),
-            new EqualityOperatorEqualsSelfAssertion(_fixture),
-            new EqualityOperatorEqualsOtherAssertion(_fixture),
-            new InequalityOperatorEqualsSelfAssertion(_fixture),
-            new InequalityOperatorEqualsOtherAssertion(_fixture),
-            new EqualsNewObjectAssertion(_fixture),
-            new EqualsNullAssertion(_fixture),
-            new EqualsSelfAssertion(_fixture),
-            new EqualsOtherAssertion(_fixture),
-            new EqualsSuccessiveAssertion(_fixture),
-            new GetHashCodeSuccessiveAssertion(_fixture)
-        ).Verify(typeof(UploadId));
+        var result = UploadId.Accepts(Guid.Parse(value));
+
+        Assert.Equal(expected, result);
     }
 
     [Fact]
@@ -55,13 +45,23 @@ public class UploadIdTests
         Assert.Equal(value.ToString("N"), sut.ToString());
     }
 
-    [Theory]
-    [InlineData("00000000000000000000000000000000", false)]
-    [InlineData("62bee5951746453da866aef66daa2be7", true)]
-    public void AcceptsReturnsExceptedResult(string value, bool expected)
+    [Fact]
+    public void VerifyBehavior()
     {
-        var result = UploadId.Accepts(Guid.Parse(value));
-
-        Assert.Equal(expected, result);
+        new CompositeIdiomaticAssertion(
+            new ImplicitConversionOperatorAssertion<Guid>(_fixture),
+            new EquatableEqualsSelfAssertion(_fixture),
+            new EquatableEqualsOtherAssertion(_fixture),
+            new EqualityOperatorEqualsSelfAssertion(_fixture),
+            new EqualityOperatorEqualsOtherAssertion(_fixture),
+            new InequalityOperatorEqualsSelfAssertion(_fixture),
+            new InequalityOperatorEqualsOtherAssertion(_fixture),
+            new EqualsNewObjectAssertion(_fixture),
+            new EqualsNullAssertion(_fixture),
+            new EqualsSelfAssertion(_fixture),
+            new EqualsOtherAssertion(_fixture),
+            new EqualsSuccessiveAssertion(_fixture),
+            new GetHashCodeSuccessiveAssertion(_fixture)
+        ).Verify(typeof(UploadId));
     }
 }

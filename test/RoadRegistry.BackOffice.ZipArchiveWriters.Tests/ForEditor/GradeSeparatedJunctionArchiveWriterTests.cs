@@ -6,18 +6,17 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Editor.Schema.GradeSeparatedJunctions;
 using Framework.Containers;
-using Xunit;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]
 public class GradeSeparatedJunctionArchiveWriterTests
 {
-    private readonly SqlServer _fixture;
-
     public GradeSeparatedJunctionArchiveWriterTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }
+
+    private readonly SqlServer _fixture;
 
     [Fact]
     public Task ArchiveCanNotBeNull()

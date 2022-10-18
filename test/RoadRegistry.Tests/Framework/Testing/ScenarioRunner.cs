@@ -12,12 +12,6 @@ using SqlStreamStore.Streams;
 
 public class ScenarioRunner
 {
-    private readonly StreamNameConverter _converter;
-    private readonly EventMapping _mapping;
-    private readonly CommandHandlerResolver _resolver;
-    private readonly JsonSerializerSettings _settings;
-    private readonly IStreamStore _store;
-
     public ScenarioRunner(CommandHandlerResolver resolver, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping, StreamNameConverter converter)
     {
         _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
@@ -27,7 +21,47 @@ public class ScenarioRunner
         _converter = converter ?? throw new ArgumentNullException(nameof(converter));
     }
 
+    private readonly StreamNameConverter _converter;
+    private readonly EventMapping _mapping;
+    private readonly CommandHandlerResolver _resolver;
+    private readonly JsonSerializerSettings _settings;
+    private readonly IStreamStore _store;
+
     public ComparisonConfig ComparisonConfig { get; set; }
+
+    private async Task<RecordedEvent[]> ReadThens(long position)
+    {
+        var recorded = new List<RecordedEvent>();
+        var page = await _store.ReadAllForwards(position, 1024);
+        foreach (var then in page.Messages)
+            recorded.Add(
+                new RecordedEvent(
+                    new StreamName(then.StreamId),
+                    JsonConvert.DeserializeObject(
+                        await then.GetJsonData(),
+                        _mapping.GetEventType(then.Type),
+                        _settings
+                    )
+                )
+            );
+        while (!page.IsEnd)
+        {
+            page = await page.ReadNext();
+            foreach (var then in page.Messages)
+                recorded.Add(
+                    new RecordedEvent(
+                        new StreamName(then.StreamId),
+                        JsonConvert.DeserializeObject(
+                            await then.GetJsonData(),
+                            _mapping.GetEventType(then.Type),
+                            _settings
+                        )
+                    )
+                );
+        }
+
+        return recorded.ToArray();
+    }
 
     public async Task<object> RunAsync(ExpectEventsScenario scenario, CancellationToken ct = default)
     {
@@ -82,6 +116,41 @@ public class ScenarioRunner
         var result = comparer.Compare(scenario.Throws, exception);
         if (result.AreEqual) return scenario.Pass();
         return scenario.ButThrewException(exception);
+    }
+
+    private class ValidationFailureComparer : BaseTypeComparer
+    {
+        public ValidationFailureComparer(RootComparer comparer)
+            : base(comparer)
+        {
+        }
+
+        public override void CompareType(CompareParms parms)
+        {
+            var left = (ValidationFailure)parms.Object1;
+            var right = (ValidationFailure)parms.Object2;
+            if (!Equals(left.PropertyName, right.PropertyName)
+                || !Equals(left.ErrorMessage, right.ErrorMessage))
+            {
+                var difference = new Difference
+                {
+                    Object1 = left,
+                    Object1TypeName = left.GetType().Name,
+                    Object1Value = left.ToString(),
+                    Object2 = right,
+                    Object2TypeName = right.GetType().Name,
+                    Object2Value = right.ToString(),
+                    ParentObject1 = parms.ParentObject1,
+                    ParentObject2 = parms.ParentObject2
+                };
+                parms.Result.Differences.Add(difference);
+            }
+        }
+
+        public override bool IsTypeMatch(Type type1, Type type2)
+        {
+            return type1 == typeof(ValidationFailure) && type2 == typeof(ValidationFailure);
+        }
     }
 
 //        private class PointMComparer : BaseTypeComparer
@@ -139,74 +208,5 @@ public class ScenarioRunner
         }
 
         return checkpoint;
-    }
-
-    private async Task<RecordedEvent[]> ReadThens(long position)
-    {
-        var recorded = new List<RecordedEvent>();
-        var page = await _store.ReadAllForwards(position, 1024);
-        foreach (var then in page.Messages)
-            recorded.Add(
-                new RecordedEvent(
-                    new StreamName(then.StreamId),
-                    JsonConvert.DeserializeObject(
-                        await then.GetJsonData(),
-                        _mapping.GetEventType(then.Type),
-                        _settings
-                    )
-                )
-            );
-        while (!page.IsEnd)
-        {
-            page = await page.ReadNext();
-            foreach (var then in page.Messages)
-                recorded.Add(
-                    new RecordedEvent(
-                        new StreamName(then.StreamId),
-                        JsonConvert.DeserializeObject(
-                            await then.GetJsonData(),
-                            _mapping.GetEventType(then.Type),
-                            _settings
-                        )
-                    )
-                );
-        }
-
-        return recorded.ToArray();
-    }
-
-    private class ValidationFailureComparer : BaseTypeComparer
-    {
-        public ValidationFailureComparer(RootComparer comparer)
-            : base(comparer)
-        {
-        }
-
-        public override void CompareType(CompareParms parms)
-        {
-            var left = (ValidationFailure)parms.Object1;
-            var right = (ValidationFailure)parms.Object2;
-            if (!Equals(left.PropertyName, right.PropertyName)
-                || !Equals(left.ErrorMessage, right.ErrorMessage))
-            {
-                var difference = new Difference
-                {
-                    Object1 = left,
-                    Object1TypeName = left.GetType().Name,
-                    Object1Value = left.ToString(),
-                    Object2 = right,
-                    Object2TypeName = right.GetType().Name,
-                    Object2Value = right.ToString(),
-                    ParentObject1 = parms.ParentObject1,
-                    ParentObject2 = parms.ParentObject2
-                };
-                parms.Result.Differences.Add(difference);
-            }
-        }
-
-        public override bool IsTypeMatch(Type type1, Type type2)
-        {
-            return type1 == typeof(ValidationFailure) && type2 == typeof(ValidationFailure);
-        }
     }
 }

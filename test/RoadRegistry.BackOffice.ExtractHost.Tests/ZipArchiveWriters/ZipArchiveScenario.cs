@@ -6,14 +6,12 @@ using Microsoft.IO;
 
 public abstract class ZipArchiveScenario
 {
-    private readonly RecyclableMemoryStreamManager _manager;
-
     protected ZipArchiveScenario(RecyclableMemoryStreamManager manager)
     {
         _manager = manager;
     }
 
-    protected abstract Task Write(ZipArchive archive, CancellationToken ct);
+    private readonly RecyclableMemoryStreamManager _manager;
 
     public async Task Assert(Action<ZipArchive> assert)
     {
@@ -31,4 +29,6 @@ public abstract class ZipArchiveScenario
             }
         }
     }
+
+    protected abstract Task Write(ZipArchive archive, CancellationToken ct);
 }

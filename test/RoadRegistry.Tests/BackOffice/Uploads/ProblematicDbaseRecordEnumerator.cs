@@ -6,12 +6,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 public class ProblematicDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
     where TDbaseRecord : DbaseRecord
 {
-    private readonly int _failAt;
-    private readonly Exception _failure;
-    private readonly TDbaseRecord[] _records;
-    private int _index;
-    private RecordNumber _number;
-
     public ProblematicDbaseRecordEnumerator(TDbaseRecord[] records, int failAt, Exception failure)
     {
         _records = records ?? throw new ArgumentNullException(nameof(records));
@@ -19,6 +13,30 @@ public class ProblematicDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumer
         _failure = failure;
         _index = -1;
         _number = RecordNumber.Initial;
+    }
+
+    private readonly int _failAt;
+    private readonly Exception _failure;
+    private int _index;
+    private RecordNumber _number;
+    private readonly TDbaseRecord[] _records;
+
+    public TDbaseRecord Current
+    {
+        get
+        {
+            if (_index == -1) throw new Exception("The enumeration has not started. Call MoveNext().");
+            if (_index == _records.Length) throw new Exception("The enumeration has ended. Call Reset().");
+            return _records[_index];
+        }
+    }
+
+    object IEnumerator.Current => Current;
+
+    public RecordNumber CurrentRecordNumber => _number;
+
+    public void Dispose()
+    {
     }
 
     public bool MoveNext()
@@ -35,23 +53,5 @@ public class ProblematicDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumer
     public void Reset()
     {
         _index = -1;
-    }
-
-    public TDbaseRecord Current
-    {
-        get
-        {
-            if (_index == -1) throw new Exception("The enumeration has not started. Call MoveNext().");
-            if (_index == _records.Length) throw new Exception("The enumeration has ended. Call Reset().");
-            return _records[_index];
-        }
-    }
-
-    public RecordNumber CurrentRecordNumber => _number;
-
-    object IEnumerator.Current => Current;
-
-    public void Dispose()
-    {
     }
 }

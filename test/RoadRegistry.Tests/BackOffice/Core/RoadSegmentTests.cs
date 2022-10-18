@@ -8,13 +8,6 @@ using Xunit;
 
 public class RoadSegmentTests
 {
-    private readonly AttributeHash _attributeHash;
-    private readonly RoadNodeId _end;
-    private readonly MultiLineString _geometry;
-    private readonly RoadSegmentId _id;
-    private readonly RoadNodeId _start;
-    private readonly RoadSegment _sut;
-
     public RoadSegmentTests()
     {
         var fixture = new Fixture();
@@ -35,22 +28,17 @@ public class RoadSegmentTests
         _sut = new RoadSegment(_id, _geometry, _start, _end, _attributeHash);
     }
 
-    [Fact]
-    public void IdReturnsExpectedResult()
-    {
-        Assert.Equal(_id, _sut.Id);
-    }
+    private readonly AttributeHash _attributeHash;
+    private readonly RoadNodeId _end;
+    private readonly MultiLineString _geometry;
+    private readonly RoadSegmentId _id;
+    private readonly RoadNodeId _start;
+    private readonly RoadSegment _sut;
 
     [Fact]
-    public void GeometryReturnsExpectedResult()
+    public void AttributeHashReturnsExpectedResult()
     {
-        Assert.Equal(_geometry, _sut.Geometry);
-    }
-
-    [Fact]
-    public void StartReturnsExpectedResult()
-    {
-        Assert.Equal(_start, _sut.Start);
+        Assert.Equal(_attributeHash, _sut.AttributeHash);
     }
 
     [Fact]
@@ -60,15 +48,15 @@ public class RoadSegmentTests
     }
 
     [Fact]
-    public void AttributeHashReturnsExpectedResult()
+    public void GeometryReturnsExpectedResult()
     {
-        Assert.Equal(_attributeHash, _sut.AttributeHash);
+        Assert.Equal(_geometry, _sut.Geometry);
     }
 
     [Fact]
-    public void ThrowsWhenStartIsSameAsEnd()
+    public void IdReturnsExpectedResult()
     {
-        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash));
+        Assert.Equal(_id, _sut.Id);
     }
 
     [Fact]
@@ -99,5 +87,17 @@ public class RoadSegmentTests
 
         var expected = Array.ConvertAll(opposite, value => new RoadNodeId(value));
         Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void StartReturnsExpectedResult()
+    {
+        Assert.Equal(_start, _sut.Start);
+    }
+
+    [Fact]
+    public void ThrowsWhenStartIsSameAsEnd()
+    {
+        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash));
     }
 }

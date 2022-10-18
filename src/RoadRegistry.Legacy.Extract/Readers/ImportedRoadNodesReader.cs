@@ -15,16 +15,16 @@ namespace RoadRegistry.Legacy.Extract.Readers
 
     public class ImportedRoadNodesReader : IEventReader
     {
-        private readonly IClock _clock;
-        private readonly ILogger<ImportedRoadNodesReader> _logger;
-        private readonly WellKnownBinaryReader _wkbReader;
-
         public ImportedRoadNodesReader(IClock clock, WellKnownBinaryReader wkbReader, ILogger<ImportedRoadNodesReader> logger)
         {
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _wkbReader = wkbReader ?? throw new ArgumentNullException(nameof(wkbReader));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        private readonly IClock _clock;
+        private readonly ILogger<ImportedRoadNodesReader> _logger;
+        private readonly WellKnownBinaryReader _wkbReader;
 
         public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
         {

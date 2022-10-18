@@ -14,7 +14,8 @@ public class SqsOptionsNotFoundException : ApplicationException
 
     protected SqsOptionsNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public string ArgumentName { get; init; }
 }

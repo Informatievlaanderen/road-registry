@@ -13,7 +13,8 @@ public sealed class DownloadEditorNotFoundException : ApplicationException
 
     private DownloadEditorNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public HttpStatusCode HttpStatusCode { get; init; }
 }

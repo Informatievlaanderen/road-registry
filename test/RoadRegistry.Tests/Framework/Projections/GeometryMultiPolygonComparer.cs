@@ -10,16 +10,16 @@ public class GeometryMultiPolygonComparer : BaseTypeComparer
     {
     }
 
-    public override bool IsTypeMatch(Type type1, Type type2)
-    {
-        return type1 == typeof(MultiPolygon);
-    }
-
     public override void CompareType(CompareParms parms)
     {
         var left = (MultiPolygon)parms.Object1;
         var right = (MultiPolygon)parms.Object2;
 
         if (!left.EqualsExact(right)) AddDifference(parms);
+    }
+
+    public override bool IsTypeMatch(Type type1, Type type2)
+    {
+        return type1 == typeof(MultiPolygon);
     }
 }

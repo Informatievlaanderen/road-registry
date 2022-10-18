@@ -16,7 +16,7 @@ public class WhenMessageReceivedWithKnownTypeFixture : WhenMessageReceivedFixtur
     {
         new UploadRoadNetworkChangesArchive
         {
-            ArchiveId =  "b9279138f87f416497365ee0cc935d11"
+            ArchiveId = "b9279138f87f416497365ee0cc935d11"
         }
     };
 }

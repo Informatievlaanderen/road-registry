@@ -15,6 +15,7 @@ public static class DbSetExtensions
             var subRange = insideContour(dbSet, polygon);
             items.AddRange(await subRange.ToListAsync(cancellationToken));
         }
+
         return items.DistinctBy(keySelector).ToList();
     }
 }

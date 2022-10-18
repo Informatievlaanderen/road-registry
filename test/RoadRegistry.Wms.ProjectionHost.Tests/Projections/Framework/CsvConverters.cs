@@ -1,6 +1,5 @@
 namespace RoadRegistry.Wms.ProjectionHost.Tests.Projections.Framework;
 
-using System;
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;

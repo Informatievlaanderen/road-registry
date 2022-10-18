@@ -11,10 +11,6 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
         Value = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public string Name { get; }
-
-    public string Value { get; }
-
     public bool Equals(ProblemParameter x, ProblemParameter y)
     {
         if (ReferenceEquals(x, y)) return true;
@@ -51,6 +47,8 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
         return Name.GetHashCode() ^ Value.GetHashCode();
     }
 
+    public string Name { get; }
+
     public Messages.ProblemParameter Translate()
     {
         return new Messages.ProblemParameter
@@ -58,4 +56,6 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
             Name = Name, Value = Value
         };
     }
+
+    public string Value { get; }
 }

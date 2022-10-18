@@ -1,68 +1,27 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
+using BackOffice.Abstractions.Extracts;
 using Editor.Schema;
 using FluentAssertions;
 using FluentValidation;
 using Framework.Containers;
 using Handlers.Extracts;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Abstractions.Extracts;
 
 [Collection(nameof(SqlServerCollection))]
 public class DownloadExtractByNisCodeRequestBodyValidatorTests
 {
-    private const int ValidBuffer = 50;
-    private const string ValidDescription = "description";
-    private readonly SqlServer _sqlServerFixture;
-
     public DownloadExtractByNisCodeRequestBodyValidatorTests(SqlServer sqlServerFixture)
     {
         _sqlServerFixture = sqlServerFixture;
     }
 
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public async Task Validate_will_not_allow_empty_niscodes(string givenNisCode)
+    private readonly SqlServer _sqlServerFixture;
+
+    public static IEnumerable<object[]> InvalidDescriptionCases()
     {
-        await using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
-        {
-            var validator = new DownloadExtractByNisCodeRequestValidator(context);
-
-            var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(givenNisCode, ValidBuffer, ValidDescription));
-            await act.Should().ThrowAsync<ValidationException>();
-        }
-    }
-
-    [Theory]
-    [InlineData("invalid")]
-    [InlineData("1234")]
-    [InlineData("123456")]
-    [InlineData("1234A")]
-    public async Task Validate_will_not_allow_invalid_niscodes(string givenNisCode)
-    {
-        await using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
-        {
-            var validator = new DownloadExtractByNisCodeRequestValidator(context);
-
-            var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(
-                givenNisCode,
-                ValidBuffer,
-                ValidDescription
-            ));
-            await act.Should().ThrowAsync<ValidationException>();
-        }
-    }
-
-    [Fact]
-    public async Task Validate_will_not_allow_unknown_niscode()
-    {
-        await using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
-        {
-            var validator = new DownloadExtractByNisCodeRequestValidator(context);
-            var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest("12345", ValidBuffer, ValidDescription));
-            await act.Should().ThrowAsync<ValidationException>();
-        }
+        yield return new object[] { null };
+        yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray()) };
     }
 
     [Fact]
@@ -108,11 +67,18 @@ public class DownloadExtractByNisCodeRequestBodyValidatorTests
         }
     }
 
-    public static IEnumerable<object[]> ValidDescriptionCases()
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public async Task Validate_will_not_allow_empty_niscodes(string givenNisCode)
     {
-        yield return new object[] { string.Empty };
-        yield return new object[] { "description" };
-        yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength).ToArray()) };
+        await using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
+        {
+            var validator = new DownloadExtractByNisCodeRequestValidator(context);
+
+            var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(givenNisCode, ValidBuffer, ValidDescription));
+            await act.Should().ThrowAsync<ValidationException>();
+        }
     }
 
     [Theory]
@@ -137,9 +103,44 @@ public class DownloadExtractByNisCodeRequestBodyValidatorTests
         }
     }
 
-    public static IEnumerable<object[]> InvalidDescriptionCases()
+    [Theory]
+    [InlineData("invalid")]
+    [InlineData("1234")]
+    [InlineData("123456")]
+    [InlineData("1234A")]
+    public async Task Validate_will_not_allow_invalid_niscodes(string givenNisCode)
     {
-        yield return new object[] { null };
-        yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray()) };
+        await using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
+        {
+            var validator = new DownloadExtractByNisCodeRequestValidator(context);
+
+            var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(
+                givenNisCode,
+                ValidBuffer,
+                ValidDescription
+            ));
+            await act.Should().ThrowAsync<ValidationException>();
+        }
+    }
+
+    [Fact]
+    public async Task Validate_will_not_allow_unknown_niscode()
+    {
+        await using (var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync()))
+        {
+            var validator = new DownloadExtractByNisCodeRequestValidator(context);
+            var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest("12345", ValidBuffer, ValidDescription));
+            await act.Should().ThrowAsync<ValidationException>();
+        }
+    }
+
+    private const int ValidBuffer = 50;
+    private const string ValidDescription = "description";
+
+    public static IEnumerable<object[]> ValidDescriptionCases()
+    {
+        yield return new object[] { string.Empty };
+        yield return new object[] { "description" };
+        yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength).ToArray()) };
     }
 }

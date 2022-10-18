@@ -1,35 +1,31 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes
+namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
+
+using System;
+using System.Linq;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Extensions;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+public class RejectInvalidQueryParametersFilterAttribute : Attribute, IResourceFilter
 {
-    using System;
-    using System.Linq;
-    using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-    using Extensions;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Mvc.Filters;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-
-    public class RejectInvalidQueryParametersFilterAttribute : Attribute, IResourceFilter
+    public void OnResourceExecuted(ResourceExecutedContext context)
     {
-        public void OnResourceExecuting(ResourceExecutingContext context)
-        {
-            if (!context.HttpContext.Request.Query.Keys.Any(x => x.Contains(".")))
-            {
-                return;
-            }
+        // intentionally left blank
+    }
 
-            context.SetContentFormatAcceptType();
+    public void OnResourceExecuting(ResourceExecutingContext context)
+    {
+        if (!context.HttpContext.Request.Query.Keys.Any(x => x.Contains("."))) return;
 
-            var configuration = context.HttpContext.RequestServices.GetService<IConfiguration>();
+        context.SetContentFormatAcceptType();
 
-            throw new ApiException(
-                $"Ongeldige parameters. Het gebruik van een prefix bij een parameter is niet geldig. Bekijk {configuration?["DocsUrl"]} voor een overzicht van geldige parameters.",
-                StatusCodes.Status400BadRequest);
-        }
+        var configuration = context.HttpContext.RequestServices.GetService<IConfiguration>();
 
-        public void OnResourceExecuted(ResourceExecutedContext context)
-        {
-            // intentionally left blank
-        }
+        throw new ApiException(
+            $"Ongeldige parameters. Het gebruik van een prefix bij een parameter is niet geldig. Bekijk {configuration?["DocsUrl"]} voor een overzicht van geldige parameters.",
+            StatusCodes.Status400BadRequest);
     }
 }
