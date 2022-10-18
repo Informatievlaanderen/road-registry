@@ -37,39 +37,37 @@ public class UploadStatusRequestHandler : EndpointRequestHandler<UploadStatusReq
 
     public override async Task<UploadStatusResponse> HandleAsync(UploadStatusRequest request, CancellationToken cancellationToken)
     {
-        if (Guid.TryParseExact(request.UploadId, "N", out var parsedUploadId))
-        {
-            var record = await _context.ExtractUploads.FindAsync(new object[] { parsedUploadId }, cancellationToken);
-            if (record is null)
+        if (!Guid.TryParseExact(request.UploadId, "N", out var parsedUploadId))
+            throw new ValidationException(new[]
             {
-                var retryAfterSeconds = await CalculateRetryAfter(request);
-                throw new UploadExtractNotFoundException(retryAfterSeconds);
-            }
+                new ValidationFailure(
+                    nameof(request.UploadId),
+                    $"'{nameof(request.UploadId)}' path parameter is not a global unique identifier without dashes.")
+            });
 
-            return new UploadStatusResponse(
-                record.Status switch
-                {
-                    ExtractUploadStatus.Received => "Processing",
-                    ExtractUploadStatus.UploadAccepted => "Processing",
-                    ExtractUploadStatus.UploadRejected => "Rejected",
-                    ExtractUploadStatus.ChangesRejected => "Rejected",
-                    ExtractUploadStatus.ChangesAccepted => "Accepted",
-                    ExtractUploadStatus.NoChanges => "No Changes",
-                    _ => "Unknown"
-                },
-                record.Status switch
-                {
-                    ExtractUploadStatus.Received => await CalculateRetryAfter(request),
-                    ExtractUploadStatus.UploadAccepted => await CalculateRetryAfter(request),
-                    _ => 0
-                });
+        var record = await _context.ExtractUploads.FindAsync(new object[] { parsedUploadId }, cancellationToken);
+        if (record is null)
+        {
+            var retryAfterSeconds = await CalculateRetryAfter(request);
+            throw new UploadExtractNotFoundException(retryAfterSeconds);
         }
 
-        throw new ValidationException(new[]
-        {
-            new ValidationFailure(
-                nameof(request.UploadId),
-                $"'{nameof(request.UploadId)}' path parameter is not a global unique identifier without dashes.")
-        });
+        return new UploadStatusResponse(
+            record.Status switch
+            {
+                ExtractUploadStatus.Received => "Processing",
+                ExtractUploadStatus.UploadAccepted => "Processing",
+                ExtractUploadStatus.UploadRejected => "Rejected",
+                ExtractUploadStatus.ChangesRejected => "Rejected",
+                ExtractUploadStatus.ChangesAccepted => "Accepted",
+                ExtractUploadStatus.NoChanges => "No Changes",
+                _ => "Unknown"
+            },
+            record.Status switch
+            {
+                ExtractUploadStatus.Received => await CalculateRetryAfter(request),
+                ExtractUploadStatus.UploadAccepted => await CalculateRetryAfter(request),
+                _ => 0
+            });
     }
 }
