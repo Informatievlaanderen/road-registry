@@ -131,12 +131,21 @@ public class ExtractsController : ControllerBase
         {
             UploadStatusRequest request = new(uploadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
             var response = await _mediator.Send(request, cancellationToken);
-            return Ok(response);
+            AddHeaderRetryAfter(response.RetryAfter);
+            return Ok(new GetUploadStatusResponseBody {Status = response.Status });
         }
         catch (UploadExtractNotFoundException exception)
         {
-            if (exception.RetryAfterSeconds > 0) Response.Headers.Add("Retry-After", exception.RetryAfterSeconds.ToString(CultureInfo.InvariantCulture));
+            AddHeaderRetryAfter(exception.RetryAfterSeconds);
             return NotFound();
+        }
+    }
+
+    private void AddHeaderRetryAfter(int retryAfter)
+    {
+        if (retryAfter > 0)
+        {
+            Response.Headers.Add("Retry-After", retryAfter.ToString(CultureInfo.InvariantCulture));
         }
     }
 }
