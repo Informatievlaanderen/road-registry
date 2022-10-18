@@ -5,7 +5,6 @@ using Api.Extracts;
 using AutoFixture;
 using BackOffice.Abstractions;
 using BackOffice.Abstractions.Exceptions;
-using BackOffice.Abstractions.Extracts;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -119,7 +118,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
             Contour = writer.Write((Geometry)GeometryTranslator.Translate(contour))
         }, CancellationToken.None);
         var result = Assert.IsType<AcceptedResult>(response);
-        Assert.IsType<DownloadExtractResponse>(result.Value);
+        Assert.IsType<DownloadExtractResponseBody>(result.Value);
     }
 
     [Fact]
