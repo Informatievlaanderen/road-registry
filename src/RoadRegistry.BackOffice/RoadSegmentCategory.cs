@@ -8,13 +8,13 @@ using System.Linq;
 
 public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 {
+    private readonly string _value;
+
     private RoadSegmentCategory(string value, DutchTranslation dutchTranslation)
     {
         _value = value;
         Translation = dutchTranslation;
     }
-
-    private readonly string _value;
 
     public static readonly RoadSegmentCategory LocalRoad =
         new(

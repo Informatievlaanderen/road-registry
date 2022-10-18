@@ -12,6 +12,11 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworkChangesArchives : IRoadNetworkChangesArchives
 {
+    private readonly EventSourcedEntityMap _map;
+    private readonly EventMapping _mapping;
+    private readonly JsonSerializerSettings _settings;
+    private readonly IStreamStore _store;
+
     public RoadNetworkChangesArchives(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
     {
         _map = map ?? throw new ArgumentNullException(nameof(map));
@@ -19,11 +24,6 @@ public class RoadNetworkChangesArchives : IRoadNetworkChangesArchives
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
     }
-
-    private readonly EventSourcedEntityMap _map;
-    private readonly EventMapping _mapping;
-    private readonly JsonSerializerSettings _settings;
-    private readonly IStreamStore _store;
 
     public void Add(RoadNetworkChangesArchive archive)
     {

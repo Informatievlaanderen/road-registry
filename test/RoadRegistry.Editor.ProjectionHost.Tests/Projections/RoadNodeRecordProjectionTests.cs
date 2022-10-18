@@ -14,6 +14,9 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
     public RoadNodeRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -35,9 +38,6 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
         _fixture.CustomizeRoadNodeModified();
         _fixture.CustomizeRoadNodeRemoved();
     }
-
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
 
     [Fact]
     public Task When_adding_road_nodes()

@@ -23,6 +23,10 @@ using Microsoft.Extensions.Logging;
 /// <exception cref="ExtractDownloadNotFoundException"></exception>
 public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<UploadExtractFeatureCompareRequest, UploadExtractResponse>
 {
+    private readonly RoadNetworkExtractUploadsBlobClient _client;
+    private readonly EditorContext _context;
+    private readonly ISqsQueuePublisher _sqsQueuePublisher;
+
     public UploadExtractFeatureCompareRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
@@ -34,10 +38,6 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
         _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
     }
-
-    private readonly RoadNetworkExtractUploadsBlobClient _client;
-    private readonly EditorContext _context;
-    private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken)
     {

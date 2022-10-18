@@ -7,6 +7,8 @@ using Xunit;
 
 public class RoadSegmentLaneAttributeTests
 {
+    private readonly Fixture _fixture;
+
     public RoadSegmentLaneAttributeTests()
     {
         _fixture = new Fixture();
@@ -16,8 +18,6 @@ public class RoadSegmentLaneAttributeTests
         _fixture.CustomizeRoadSegmentPosition();
         _fixture.CustomizeRoadSegmentGeometryVersion();
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void IsDynamicRoadSegmentAttribute()

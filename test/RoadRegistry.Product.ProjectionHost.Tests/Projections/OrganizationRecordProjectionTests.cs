@@ -12,6 +12,9 @@ using Schema.Organizations;
 
 public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
     public OrganizationRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -30,9 +33,6 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
                 ).OmitAutoProperties()
         );
     }
-
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
 
     [Fact]
     public Task When_organizations_are_imported()

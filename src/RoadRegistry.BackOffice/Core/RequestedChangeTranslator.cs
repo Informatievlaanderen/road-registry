@@ -9,6 +9,17 @@ using Messages;
 
 internal class RequestedChangeTranslator
 {
+    private readonly Func<AttributeId> _nextEuropeanRoadAttributeId;
+    private readonly Func<GradeSeparatedJunctionId> _nextGradeSeparatedJunctionId;
+    private readonly Func<AttributeId> _nextNationalRoadAttributeId;
+    private readonly Func<AttributeId> _nextNumberedRoadAttributeId;
+    private readonly Func<RoadNodeId> _nextRoadNodeId;
+    private readonly Func<RoadSegmentId> _nextRoadSegmentId;
+    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentLaneAttributeId;
+    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentSurfaceAttributeId;
+    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentWidthAttributeId;
+    private readonly Func<TransactionId> _nextTransactionId;
+
     public RequestedChangeTranslator(
         Func<TransactionId> nextTransactionId,
         Func<RoadNodeId> nextRoadNodeId,
@@ -42,17 +53,6 @@ internal class RequestedChangeTranslator
         _nextRoadSegmentSurfaceAttributeId =
             nextRoadSegmentSurfaceAttributeId ?? throw new ArgumentNullException(nameof(nextRoadSegmentSurfaceAttributeId));
     }
-
-    private readonly Func<AttributeId> _nextEuropeanRoadAttributeId;
-    private readonly Func<GradeSeparatedJunctionId> _nextGradeSeparatedJunctionId;
-    private readonly Func<AttributeId> _nextNationalRoadAttributeId;
-    private readonly Func<AttributeId> _nextNumberedRoadAttributeId;
-    private readonly Func<RoadNodeId> _nextRoadNodeId;
-    private readonly Func<RoadSegmentId> _nextRoadSegmentId;
-    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentLaneAttributeId;
-    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentSurfaceAttributeId;
-    private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentWidthAttributeId;
-    private readonly Func<TransactionId> _nextTransactionId;
 
     private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>
     {

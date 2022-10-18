@@ -10,12 +10,12 @@ using Xunit;
 
 public class TransactionIdTests
 {
+    private readonly Fixture _fixture;
+
     public TransactionIdTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData(int.MinValue, false)]

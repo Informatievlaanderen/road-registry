@@ -4,6 +4,10 @@ using AutoFixture.Kernel;
 
 public class FiniteSequenceGenerator<T> : ISpecimenBuilder
 {
+    private readonly T[] _sequence;
+
+    private int _cursor;
+
     public FiniteSequenceGenerator(T[] sequence)
     {
         if (sequence.Length == 0)
@@ -11,9 +15,6 @@ public class FiniteSequenceGenerator<T> : ISpecimenBuilder
         _sequence = sequence;
         _cursor = 0;
     }
-
-    private int _cursor;
-    private readonly T[] _sequence;
 
     public object Create(object request, ISpecimenContext context)
     {

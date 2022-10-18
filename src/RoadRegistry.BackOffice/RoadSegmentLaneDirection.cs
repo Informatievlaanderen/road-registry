@@ -6,13 +6,13 @@ using System.Linq;
 
 public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirection>
 {
+    private readonly string _value;
+
     private RoadSegmentLaneDirection(string value, DutchTranslation dutchTranslation)
     {
         _value = value;
         Translation = dutchTranslation;
     }
-
-    private readonly string _value;
 
     public static readonly RoadSegmentLaneDirection Backward =
         new(

@@ -10,12 +10,12 @@ using Xunit;
 
 public class CrabStreetnameIdTests
 {
+    private readonly Fixture _fixture;
+
     public CrabStreetnameIdTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void CtorValueCanNotBeNegative()

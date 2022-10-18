@@ -9,12 +9,12 @@ using Extracts;
 
 public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
+    private readonly Encoding _encoding;
+
     public TransactionZoneToZipArchiveWriter(Encoding encoding)
     {
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
-
-    private readonly Encoding _encoding;
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
         EditorContext context,

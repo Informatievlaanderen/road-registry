@@ -30,6 +30,9 @@ public static class ZipArchiveEntryProblems
 
     private sealed class FileProblemBuilder : IFileProblemBuilder, IDbaseFileRecordProblemBuilder, IShapeFileRecordProblemBuilder
     {
+        private readonly string _file;
+        private readonly ImmutableList<ProblemParameter> _parameters;
+
         public FileProblemBuilder(string file)
         {
             _file = file ?? throw new ArgumentNullException(nameof(file));
@@ -41,9 +44,6 @@ public static class ZipArchiveEntryProblems
             _file = file;
             _parameters = parameters;
         }
-
-        private readonly string _file;
-        private readonly ImmutableList<ProblemParameter> _parameters;
 
         public IDbaseFileRecordProblemBuilder AtDbaseRecord(RecordNumber number)
         {
@@ -64,6 +64,10 @@ public static class ZipArchiveEntryProblems
 
         private sealed class FileErrorBuilder : IFileErrorBuilder
         {
+            private readonly string _file;
+            private readonly ImmutableList<ProblemParameter> _parameters;
+            private readonly string _reason;
+
             public FileErrorBuilder(
                 string file,
                 string reason,
@@ -73,10 +77,6 @@ public static class ZipArchiveEntryProblems
                 _reason = reason;
                 _parameters = parameters;
             }
-
-            private readonly string _file;
-            private readonly ImmutableList<ProblemParameter> _parameters;
-            private readonly string _reason;
 
             public FileError Build()
             {
@@ -100,6 +100,10 @@ public static class ZipArchiveEntryProblems
 
         private sealed class FileWarningBuilder : IFileWarningBuilder
         {
+            private readonly string _file;
+            private readonly ImmutableList<ProblemParameter> _parameters;
+            private readonly string _reason;
+
             public FileWarningBuilder(
                 string file,
                 string reason,
@@ -109,10 +113,6 @@ public static class ZipArchiveEntryProblems
                 _reason = reason;
                 _parameters = parameters;
             }
-
-            private readonly string _file;
-            private readonly ImmutableList<ProblemParameter> _parameters;
-            private readonly string _reason;
 
             public FileWarning Build()
             {

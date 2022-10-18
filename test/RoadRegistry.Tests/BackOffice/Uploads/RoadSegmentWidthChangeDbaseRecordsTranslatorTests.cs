@@ -10,6 +10,13 @@ using Xunit;
 
 public class RoadSegmentWidthChangeDbaseRecordsTranslatorTests : IDisposable
 {
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<RoadSegmentWidthChangeDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly RoadSegmentWidthChangeDbaseRecordsTranslator _sut;
+
     public RoadSegmentWidthChangeDbaseRecordsTranslatorTests()
     {
         _fixture = new Fixture();
@@ -46,13 +53,6 @@ public class RoadSegmentWidthChangeDbaseRecordsTranslatorTests : IDisposable
         _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
         _entry = _archive.CreateEntry("attwegbreedte_all.dbf");
     }
-
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<RoadSegmentWidthChangeDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly RoadSegmentWidthChangeDbaseRecordsTranslator _sut;
 
     public void Dispose()
     {

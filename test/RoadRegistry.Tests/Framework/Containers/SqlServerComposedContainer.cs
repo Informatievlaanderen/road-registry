@@ -4,6 +4,10 @@ using Microsoft.Data.SqlClient;
 
 public class SqlServerComposedContainer : ISqlServerDatabase
 {
+    private readonly SqlConnectionStringBuilder _builder;
+    private readonly string _serviceName;
+    private int _db;
+
     public SqlServerComposedContainer(string serviceName)
     {
         _serviceName = serviceName;
@@ -22,10 +26,6 @@ public class SqlServerComposedContainer : ISqlServerDatabase
             };
         ;
     }
-
-    private readonly SqlConnectionStringBuilder _builder;
-    private int _db;
-    private readonly string _serviceName;
 
     private SqlConnectionStringBuilder CreateConnectionStringBuilder(string database)
     {

@@ -9,13 +9,13 @@ using Xunit;
 
 public class ReasonTests
 {
+    private readonly Fixture _fixture;
+
     public ReasonTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeReason();
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void NoneGetHashCodeReturnsExpectedResult()

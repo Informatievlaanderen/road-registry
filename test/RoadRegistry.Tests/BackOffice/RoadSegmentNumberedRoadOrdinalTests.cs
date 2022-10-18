@@ -9,12 +9,12 @@ using Xunit;
 
 public class RoadSegmentNumberedRoadOrdinalTests
 {
+    private readonly Fixture _fixture;
+
     public RoadSegmentNumberedRoadOrdinalTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData(int.MinValue, false)]

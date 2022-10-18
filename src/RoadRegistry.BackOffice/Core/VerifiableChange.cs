@@ -5,6 +5,9 @@ using System.Linq;
 
 public class VerifiableChange
 {
+    private readonly Problems _problems;
+    private readonly IRequestedChange _requestedChange;
+
     public VerifiableChange(IRequestedChange change)
     {
         _requestedChange = change ?? throw new ArgumentNullException(nameof(change));
@@ -16,9 +19,6 @@ public class VerifiableChange
         _requestedChange = change;
         _problems = problems;
     }
-
-    private readonly Problems _problems;
-    private readonly IRequestedChange _requestedChange;
 
     public IVerifiedChange AsVerifiedChange()
     {

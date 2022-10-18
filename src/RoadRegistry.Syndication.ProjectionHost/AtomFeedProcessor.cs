@@ -14,6 +14,13 @@ using Schema;
 
 public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedService where TConfiguration : ISyndicationFeedConfiguration
 {
+    private readonly ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> _logger;
+    private readonly Channel<object> _messageChannel;
+    private readonly Task _messagePump;
+    private readonly CancellationTokenSource _messagePumpCancellation;
+
+    private readonly Scheduler _scheduler;
+
     public AtomFeedProcessor(
         IRegistryAtomFeedReader reader,
         AtomEnvelopeFactory envelopeFactory,
@@ -197,13 +204,6 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
             }
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
-
-    private readonly ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> _logger;
-    private readonly Channel<object> _messageChannel;
-    private readonly Task _messagePump;
-    private readonly CancellationTokenSource _messagePumpCancellation;
-
-    private readonly Scheduler _scheduler;
 
     private sealed class CatchUp
     {

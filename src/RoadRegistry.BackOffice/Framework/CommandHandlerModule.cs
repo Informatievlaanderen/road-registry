@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 public abstract class CommandHandlerModule
 {
+    private readonly List<CommandHandler> _handlers;
+
     protected CommandHandlerModule()
     {
         _handlers = new List<CommandHandler>();
     }
-
-    private readonly List<CommandHandler> _handlers;
 
     protected ICommandHandlerBuilder<TCommand> For<TCommand>()
     {

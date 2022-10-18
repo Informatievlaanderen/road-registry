@@ -9,12 +9,12 @@ using System.Runtime.Serialization;
 
 public class EventSerializerMapping
 {
+    private readonly IReadOnlyDictionary<string, DataContractSerializer> _eventSerializers;
+
     private EventSerializerMapping(IReadOnlyDictionary<string, DataContractSerializer> eventSerializers)
     {
         _eventSerializers = eventSerializers;
     }
-
-    private readonly IReadOnlyDictionary<string, DataContractSerializer> _eventSerializers;
 
     public static EventSerializerMapping CreateForNamespaceOf(Type eventType)
     {

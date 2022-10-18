@@ -11,12 +11,12 @@ using NetTopologySuite.Geometries;
 [Collection(nameof(SqlServerCollection))]
 public class DownloadExtractByNisCodeRequestBodyValidatorTests
 {
+    private readonly SqlServer _sqlServerFixture;
+
     public DownloadExtractByNisCodeRequestBodyValidatorTests(SqlServer sqlServerFixture)
     {
         _sqlServerFixture = sqlServerFixture;
     }
-
-    private readonly SqlServer _sqlServerFixture;
 
     public static IEnumerable<object[]> InvalidDescriptionCases()
     {

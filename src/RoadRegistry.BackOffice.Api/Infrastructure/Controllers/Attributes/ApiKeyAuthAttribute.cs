@@ -17,12 +17,13 @@ using Newtonsoft.Json;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
 {
+    private readonly string _requiredAccess;
+
     public ApiKeyAuthAttribute(string requiredAccess)
     {
         _requiredAccess = requiredAccess;
     }
 
-    private readonly string _requiredAccess;
     private const string ApiKeyHeaderName = "x-api-key";
     private const string ApiKeyQueryName = "apikey";
 

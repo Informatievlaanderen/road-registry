@@ -12,12 +12,12 @@ using NetTopologySuite.Geometries;
 
 public class DownloadExtractByNisCodeRequestHandler : EndpointRequestHandler<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>
 {
+    private readonly EditorContext _context;
+
     public DownloadExtractByNisCodeRequestHandler(CommandHandlerDispatcher dispatcher, EditorContext context, ILogger<DownloadExtractByNisCodeRequestHandler> logger) : base(dispatcher, logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
-
-    private readonly EditorContext _context;
 
     public override async Task<DownloadExtractByNisCodeResponse> HandleAsync(DownloadExtractByNisCodeRequest request, CancellationToken cancellationToken)
     {

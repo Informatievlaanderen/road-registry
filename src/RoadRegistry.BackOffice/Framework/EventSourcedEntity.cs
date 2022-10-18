@@ -4,6 +4,10 @@ using System;
 
 public abstract class EventSourcedEntity : IEventSourcedEntity
 {
+    private readonly EventPlayer Player = new();
+
+    private readonly EventRecorder Recorder = new();
+
     protected void Apply(object @event)
     {
         Player.Play(@event);
@@ -14,10 +18,6 @@ public abstract class EventSourcedEntity : IEventSourcedEntity
     {
         Player.Register(handler);
     }
-
-    private readonly EventPlayer Player = new();
-
-    private readonly EventRecorder Recorder = new();
 
     void IEventSourcedEntity.RestoreFromEvents(object[] events)
     {

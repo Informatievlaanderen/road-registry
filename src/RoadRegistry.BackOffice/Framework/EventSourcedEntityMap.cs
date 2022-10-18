@@ -6,12 +6,12 @@ using System.Collections.Generic;
 
 public class EventSourcedEntityMap
 {
+    private readonly ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry> _entries;
+
     public EventSourcedEntityMap()
     {
         _entries = new ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry>();
     }
-
-    private readonly ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry> _entries;
 
     public void Attach(EventSourcedEntityMapEntry entry)
     {

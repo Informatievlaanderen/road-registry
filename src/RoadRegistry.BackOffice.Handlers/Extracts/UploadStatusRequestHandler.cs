@@ -14,6 +14,9 @@ using NodaTime;
 
 public class UploadStatusRequestHandler : EndpointRequestHandler<UploadStatusRequest, UploadStatusResponse>
 {
+    private readonly IClock _clock;
+    private readonly EditorContext _context;
+
     public UploadStatusRequestHandler(
         CommandHandlerDispatcher dispatcher,
         EditorContext editorContext,
@@ -23,9 +26,6 @@ public class UploadStatusRequestHandler : EndpointRequestHandler<UploadStatusReq
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         _context = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
     }
-
-    private readonly IClock _clock;
-    private readonly EditorContext _context;
 
     private async Task<int> CalculateRetryAfter(UploadStatusRequest request)
     {

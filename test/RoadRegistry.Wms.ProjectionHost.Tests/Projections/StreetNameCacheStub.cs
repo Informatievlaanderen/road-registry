@@ -5,14 +5,14 @@ using Wms.Projections;
 
 public class StreetNameCacheStub : IStreetNameCache
 {
+    private readonly long _position;
+    private readonly StreetNameRecord _stubbedValue;
+
     public StreetNameCacheStub(StreetNameRecord stubbedValue = null, long position = -1L)
     {
         _stubbedValue = stubbedValue;
         _position = position;
     }
-
-    private readonly long _position;
-    private readonly StreetNameRecord _stubbedValue;
 
     public Task<StreetNameRecord> GetAsync(int streetNameId, CancellationToken token)
     {

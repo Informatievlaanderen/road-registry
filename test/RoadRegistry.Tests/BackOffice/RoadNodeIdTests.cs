@@ -10,12 +10,12 @@ using Xunit;
 
 public class RoadNodeIdTests
 {
+    private readonly Fixture _fixture;
+
     public RoadNodeIdTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData(int.MinValue, false)]

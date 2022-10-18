@@ -8,6 +8,13 @@ using Uploads;
 
 public class RoadNetworkExtractUpload
 {
+    private readonly Action<object> _applier;
+    private readonly ArchiveId _archiveId;
+    private readonly DownloadId _downloadId;
+    private readonly ExternalExtractRequestId _externalRequestId;
+    private readonly ExtractRequestId _requestId;
+    private readonly UploadId _uploadId;
+
     internal RoadNetworkExtractUpload(ExternalExtractRequestId externalRequestId, ExtractRequestId requestId, DownloadId downloadId, UploadId uploadId, ArchiveId archiveId, Action<object> applier)
     {
         _externalRequestId = externalRequestId;
@@ -17,13 +24,6 @@ public class RoadNetworkExtractUpload
         _archiveId = archiveId;
         _applier = applier;
     }
-
-    private readonly Action<object> _applier;
-    private readonly ArchiveId _archiveId;
-    private readonly DownloadId _downloadId;
-    private readonly ExternalExtractRequestId _externalRequestId;
-    private readonly ExtractRequestId _requestId;
-    private readonly UploadId _uploadId;
 
     private void Apply(object @event)
     {

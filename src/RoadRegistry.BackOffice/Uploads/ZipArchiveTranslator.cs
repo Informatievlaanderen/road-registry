@@ -11,6 +11,8 @@ using Schema.V1;
 
 public class ZipArchiveTranslator : IZipArchiveTranslator
 {
+    private readonly Dictionary<string, IZipArchiveEntryTranslator> _translators;
+
     public ZipArchiveTranslator(Encoding encoding)
     {
         if (encoding == null) throw new ArgumentNullException(nameof(encoding));
@@ -116,8 +118,6 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                 }
             };
     }
-
-    private readonly Dictionary<string, IZipArchiveEntryTranslator> _translators;
 
     public TranslatedChanges Translate(ZipArchive archive)
     {

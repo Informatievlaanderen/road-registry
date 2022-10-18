@@ -4,12 +4,12 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class ShapeRecordEqualityComparer : IEqualityComparer<ShapeRecord>
 {
+    private readonly IEqualityComparer<ShapeContent> _comparer;
+
     public ShapeRecordEqualityComparer()
     {
         _comparer = new ShapeContentEqualityComparer();
     }
-
-    private readonly IEqualityComparer<ShapeContent> _comparer;
 
     public bool Equals(ShapeRecord left, ShapeRecord right)
     {

@@ -9,6 +9,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveDbaseEntryValidator
     where TDbaseRecord : DbaseRecord, new()
 {
+    private readonly IZipArchiveDbaseRecordsValidator<TDbaseRecord> _recordValidator;
+
     public ZipArchiveDbaseEntryValidator(
         Encoding encoding,
         DbaseFileHeaderReadBehavior readBehavior,
@@ -20,8 +22,6 @@ public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveDbaseEntry
         Schema = schema ?? throw new ArgumentNullException(nameof(schema));
         _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
     }
-
-    private readonly IZipArchiveDbaseRecordsValidator<TDbaseRecord> _recordValidator;
 
     public Encoding Encoding { get; }
     public DbaseFileHeaderReadBehavior HeaderReadBehavior { get; }

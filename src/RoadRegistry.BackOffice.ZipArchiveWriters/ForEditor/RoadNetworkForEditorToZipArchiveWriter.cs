@@ -9,6 +9,8 @@ using Microsoft.IO;
 
 public class RoadNetworkForEditorToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
+    private readonly IZipArchiveWriter<EditorContext> _writer;
+
     public RoadNetworkForEditorToZipArchiveWriter(
         ZipArchiveWriterOptions zipArchiveWriterOptions,
         IStreetNameCache streetNameCache,
@@ -52,8 +54,6 @@ public class RoadNetworkForEditorToZipArchiveWriter : IZipArchiveWriter<EditorCo
             new ProjectionFormatFileZipArchiveWriter<EditorContext>("Wegknoop.prj", encoding)
         );
     }
-
-    private readonly IZipArchiveWriter<EditorContext> _writer;
 
     public Task WriteAsync(ZipArchive archive, EditorContext context, CancellationToken cancellationToken)
     {

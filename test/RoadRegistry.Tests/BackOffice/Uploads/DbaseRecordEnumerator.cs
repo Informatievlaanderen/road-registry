@@ -6,16 +6,16 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 public class DbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
     where TDbaseRecord : DbaseRecord
 {
+    private readonly IEnumerator<TDbaseRecord> _enumerator;
+    private RecordNumber _number;
+    private State _state;
+
     public DbaseRecordEnumerator(IEnumerator<TDbaseRecord> enumerator)
     {
         _enumerator = enumerator ?? throw new ArgumentNullException(nameof(enumerator));
         _number = RecordNumber.Initial;
         _state = State.Initial;
     }
-
-    private readonly IEnumerator<TDbaseRecord> _enumerator;
-    private RecordNumber _number;
-    private State _state;
 
     public TDbaseRecord Current => _enumerator.Current;
 

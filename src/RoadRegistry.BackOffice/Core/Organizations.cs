@@ -12,6 +12,11 @@ using SqlStreamStore.Streams;
 
 public class Organizations : IOrganizations
 {
+    private readonly EventSourcedEntityMap _map;
+    private readonly EventMapping _mapping;
+    private readonly JsonSerializerSettings _settings;
+    private readonly IStreamStore _store;
+
     public Organizations(EventSourcedEntityMap map, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping)
     {
         _map = map ?? throw new ArgumentNullException(nameof(map));
@@ -19,11 +24,6 @@ public class Organizations : IOrganizations
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
     }
-
-    private readonly EventSourcedEntityMap _map;
-    private readonly EventMapping _mapping;
-    private readonly JsonSerializerSettings _settings;
-    private readonly IStreamStore _store;
 
     public static readonly Func<OrganizationId, StreamName> ToStreamName =
         id => new StreamName(id.ToString()).WithPrefix("organization-");

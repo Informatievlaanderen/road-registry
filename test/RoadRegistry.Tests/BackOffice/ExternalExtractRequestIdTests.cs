@@ -10,13 +10,13 @@ using Xunit;
 
 public class ExternalExtractRequestIdTests
 {
+    private readonly Fixture _fixture;
+
     public ExternalExtractRequestIdTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeExternalExtractRequestId();
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void AcceptsValueReturnsExpectedResult()

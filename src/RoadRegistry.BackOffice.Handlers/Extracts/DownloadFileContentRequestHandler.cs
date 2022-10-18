@@ -16,6 +16,10 @@ using NodaTime;
 
 public class DownloadFileContentRequestHandler : EndpointRequestHandler<DownloadFileContentRequest, DownloadFileContentResponse>
 {
+    private readonly RoadNetworkExtractDownloadsBlobClient _client;
+    private readonly IClock _clock;
+    private readonly EditorContext _context;
+
     public DownloadFileContentRequestHandler(
         CommandHandlerDispatcher dispatcher,
         EditorContext editorContext,
@@ -27,10 +31,6 @@ public class DownloadFileContentRequestHandler : EndpointRequestHandler<Download
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _context = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
     }
-
-    private readonly RoadNetworkExtractDownloadsBlobClient _client;
-    private readonly IClock _clock;
-    private readonly EditorContext _context;
 
     private async Task<int> CalculateRetryAfter(DownloadFileContentRequest request)
     {

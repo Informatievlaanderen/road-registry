@@ -18,6 +18,9 @@ using RoadRegistry.Tests.Framework.Projections;
 
 public class TransactionZoneToZipArchiveWriterTests
 {
+    private readonly Fixture _fixture;
+    private readonly TransactionZoneToZipArchiveWriter _sut;
+
     public TransactionZoneToZipArchiveWriterTests()
     {
         _sut = new TransactionZoneToZipArchiveWriter(Encoding.UTF8);
@@ -25,9 +28,6 @@ public class TransactionZoneToZipArchiveWriterTests
 
         CustomizeRoadNetworkExtractAssemblyRequestFixture(_fixture);
     }
-
-    private readonly Fixture _fixture;
-    private readonly TransactionZoneToZipArchiveWriter _sut;
 
     private static EditorContext CreateContextFor(string database)
     {

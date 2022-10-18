@@ -12,6 +12,13 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
 {
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IEnumerator<ShapeRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly RoadSegmentChangeShapeRecordsTranslator _sut;
+
     public RoadSegmentChangeShapeRecordsTranslatorTests()
     {
         _fixture = new Fixture();
@@ -64,13 +71,6 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
         _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
         _entry = _archive.CreateEntry("wegsegment_all.shp");
     }
-
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IEnumerator<ShapeRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly RoadSegmentChangeShapeRecordsTranslator _sut;
 
     public void Dispose()
     {

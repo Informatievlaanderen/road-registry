@@ -5,6 +5,11 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class ProblematicShapeRecordEnumerator : IEnumerator<ShapeRecord>
 {
+    private readonly int _failAt;
+    private readonly Exception _failure;
+    private readonly ShapeRecord[] _records;
+    private int _index;
+
     public ProblematicShapeRecordEnumerator(ShapeRecord[] records, int failAt, Exception failure)
     {
         _records = records ?? throw new ArgumentNullException(nameof(records));
@@ -12,11 +17,6 @@ public class ProblematicShapeRecordEnumerator : IEnumerator<ShapeRecord>
         _failure = failure;
         _index = -1;
     }
-
-    private readonly int _failAt;
-    private readonly Exception _failure;
-    private int _index;
-    private readonly ShapeRecord[] _records;
 
     public ShapeRecord Current
     {

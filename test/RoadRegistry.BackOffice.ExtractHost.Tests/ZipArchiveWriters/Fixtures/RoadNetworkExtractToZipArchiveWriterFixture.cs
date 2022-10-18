@@ -12,6 +12,8 @@ using NetTopologySuite.IO;
 
 public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyncLifetime
 {
+    private readonly IRoadNetworkExtractArchiveAssembler _assembler;
+
     public RoadNetworkExtractToZipArchiveWriterFixture(
         WKTReader wktReader,
         RecyclableMemoryStreamManager memoryStreamManager,
@@ -31,8 +33,6 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
             contextFactory,
             zipArchiveWriter);
     }
-
-    private readonly IRoadNetworkExtractArchiveAssembler _assembler;
 
     public Task DisposeAsync()
     {

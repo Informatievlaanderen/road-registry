@@ -19,6 +19,9 @@ using Newtonsoft.Json;
 
 public class SqsBackOfficeHandlerFunctions
 {
+    private readonly JsonSerializerSettings _serializerSettings;
+    private readonly IServiceProvider _serviceProvider;
+
     public SqsBackOfficeHandlerFunctions()
     {
         var services = new ServiceCollection();
@@ -28,9 +31,6 @@ public class SqsBackOfficeHandlerFunctions
         _serviceProvider = new AutofacServiceProvider(builder.Build());
         _serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     }
-
-    private readonly JsonSerializerSettings _serializerSettings;
-    private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
     ///     Checks the feature compare docker container.

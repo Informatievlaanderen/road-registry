@@ -11,6 +11,9 @@ using Schema.RoadSegments;
 
 public class RoadSegmentNationalRoadAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
     public RoadSegmentNationalRoadAttributeRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -54,9 +57,6 @@ public class RoadSegmentNationalRoadAttributeRecordProjectionTests : IClassFixtu
         _fixture.CustomizeRoadSegmentAddedToNationalRoad();
         _fixture.CustomizeRoadSegmentRemovedFromNationalRoad();
     }
-
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
 
 
     [Fact]

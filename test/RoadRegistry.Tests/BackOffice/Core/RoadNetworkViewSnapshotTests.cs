@@ -11,6 +11,8 @@ using Point = RoadRegistry.BackOffice.Messages.Point;
 
 public class RoadNetworkViewSnapshotTests
 {
+    private readonly Fixture _fixture;
+
     public RoadNetworkViewSnapshotTests()
     {
         _fixture = new Fixture();
@@ -98,8 +100,6 @@ public class RoadNetworkViewSnapshotTests
                 ReusableAttributeIdentifiers = _fixture.CreateMany<AttributeId>(10).Distinct().Select(id => id.ToInt32()).ToArray()
             }).OmitAutoProperties());
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void Taking_a_snapshot_of_a_mutable_view_restored_from_a_known_snapshot_results_in_a_snapshot_that_equals_the_known_snapshot()

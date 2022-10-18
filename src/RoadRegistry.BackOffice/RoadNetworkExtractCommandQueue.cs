@@ -13,12 +13,12 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworkExtractCommandQueue : IRoadNetworkExtractCommandQueue
 {
+    private readonly IStreamStore _store;
+
     public RoadNetworkExtractCommandQueue(IStreamStore store)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
     }
-
-    private readonly IStreamStore _store;
 
     private sealed class Claim
     {

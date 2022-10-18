@@ -6,6 +6,12 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 public class ProblematicDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbaseRecord>
     where TDbaseRecord : DbaseRecord
 {
+    private readonly int _failAt;
+    private readonly Exception _failure;
+    private readonly TDbaseRecord[] _records;
+    private int _index;
+    private RecordNumber _number;
+
     public ProblematicDbaseRecordEnumerator(TDbaseRecord[] records, int failAt, Exception failure)
     {
         _records = records ?? throw new ArgumentNullException(nameof(records));
@@ -14,12 +20,6 @@ public class ProblematicDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumer
         _index = -1;
         _number = RecordNumber.Initial;
     }
-
-    private readonly int _failAt;
-    private readonly Exception _failure;
-    private int _index;
-    private RecordNumber _number;
-    private readonly TDbaseRecord[] _records;
 
     public TDbaseRecord Current
     {

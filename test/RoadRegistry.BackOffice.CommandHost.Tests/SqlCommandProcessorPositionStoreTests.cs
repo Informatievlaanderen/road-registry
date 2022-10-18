@@ -8,15 +8,16 @@ using Microsoft.Data.SqlClient;
 [Collection(nameof(SqlServerCollection))]
 public class SqlCommandProcessorPositionStoreTests : IAsyncLifetime
 {
+    private readonly IFixture _fixture;
+    private readonly SqlServer _server;
+
+    private SqlConnectionStringBuilder _builder;
+
     public SqlCommandProcessorPositionStoreTests(SqlServer server)
     {
         _server = server ?? throw new ArgumentNullException(nameof(server));
         _fixture = new Fixture();
     }
-
-    private SqlConnectionStringBuilder _builder;
-    private readonly IFixture _fixture;
-    private readonly SqlServer _server;
 
     public Task DisposeAsync()
     {

@@ -11,6 +11,9 @@ using RoadRegistry.Tests.Framework.Projections;
 
 public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
     public RoadSegmentLaneAttributeRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -55,9 +58,6 @@ public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<Proje
         _fixture.CustomizeRoadSegmentRemoved();
         _fixture.CustomizeRoadNetworkChangesAccepted();
     }
-
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
 
     [Fact]
     public Task When_adding_road_node_with_lanes()

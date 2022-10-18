@@ -11,12 +11,12 @@ using ZipArchiveWriters.ForEditor;
 [Collection(nameof(SqlServerCollection))]
 public class RoadSegmentEuropeanRoadAttributesToZipArchiveWriterTests
 {
+    private readonly SqlServer _fixture;
+
     public RoadSegmentEuropeanRoadAttributesToZipArchiveWriterTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }
-
-    private readonly SqlServer _fixture;
 
     [Fact]
     public Task ArchiveCanNotBeNull()

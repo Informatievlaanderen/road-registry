@@ -9,14 +9,14 @@ using NetTopologySuite.IO;
 
 public class DownloadExtractByContourRequestBodyValidatorTests
 {
+    private readonly DownloadExtractByContourRequestValidator _validator;
+
     public DownloadExtractByContourRequestBodyValidatorTests()
     {
         _validator = new DownloadExtractByContourRequestValidator(
             new WKTReader(),
             new NullLogger<DownloadExtractByContourRequestValidator>());
     }
-
-    private readonly DownloadExtractByContourRequestValidator _validator;
 
     public static IEnumerable<object[]> InvalidDescriptionCases()
     {

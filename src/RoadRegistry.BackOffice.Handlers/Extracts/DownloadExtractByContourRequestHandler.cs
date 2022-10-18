@@ -10,6 +10,8 @@ using NetTopologySuite.IO;
 
 public class DownloadExtractByContourRequestHandler : EndpointRequestHandler<DownloadExtractByContourRequest, DownloadExtractByContourResponse>
 {
+    private readonly WKTReader _reader;
+
     public DownloadExtractByContourRequestHandler(
         CommandHandlerDispatcher dispatcher,
         WKTReader reader,
@@ -17,8 +19,6 @@ public class DownloadExtractByContourRequestHandler : EndpointRequestHandler<Dow
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }
-
-    private readonly WKTReader _reader;
 
     public override async Task<DownloadExtractByContourResponse> HandleAsync(DownloadExtractByContourRequest request, CancellationToken cancellationToken)
     {

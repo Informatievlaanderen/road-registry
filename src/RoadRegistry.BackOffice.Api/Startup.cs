@@ -24,14 +24,14 @@ using Microsoft.OpenApi.Models;
 
 public class Startup
 {
+    private readonly IConfiguration _configuration;
+
+    private IContainer _applicationContainer;
+
     public Startup(IConfiguration configuration)
     {
         _configuration = configuration;
     }
-
-    private IContainer _applicationContainer;
-
-    private readonly IConfiguration _configuration;
 
     public void Configure(
         IServiceProvider serviceProvider,

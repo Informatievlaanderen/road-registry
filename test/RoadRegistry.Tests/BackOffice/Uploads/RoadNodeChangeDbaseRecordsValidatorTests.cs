@@ -10,6 +10,14 @@ using Xunit;
 
 public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
 {
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveValidationContext _context;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly RoadNodeChangeDbaseRecordsValidator _sut;
+
     public RoadNodeChangeDbaseRecordsValidatorTests()
     {
         _fixture = new Fixture();
@@ -33,14 +41,6 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
         _entry = _archive.CreateEntry("wegknoop_all.dbf");
         _context = ZipArchiveValidationContext.Empty;
     }
-
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveValidationContext _context;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<RoadNodeChangeDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly RoadNodeChangeDbaseRecordsValidator _sut;
 
     private static ZipArchiveValidationContext BuildValidationContext(RoadNodeChangeDbaseRecord record, ZipArchiveValidationContext context)
     {

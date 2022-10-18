@@ -13,6 +13,9 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServices>
 {
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
     public RoadNetworkInfoProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -69,9 +72,6 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
 
         _fixture.CustomizeOriginProperties();
     }
-
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
 
     [Fact]
     public Task When_a_grade_separated_junction_was_imported()

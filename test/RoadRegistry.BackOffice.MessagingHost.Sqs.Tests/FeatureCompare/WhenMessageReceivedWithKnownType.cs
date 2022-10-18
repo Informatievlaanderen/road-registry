@@ -4,12 +4,12 @@ using Fixtures;
 
 public class WhenMessageReceivedWithKnownType : IClassFixture<WhenMessageReceivedWithKnownTypeFixture>
 {
+    private readonly WhenMessageReceivedWithKnownTypeFixture _fixture;
+
     public WhenMessageReceivedWithKnownType(WhenMessageReceivedWithKnownTypeFixture fixture)
     {
         _fixture = fixture;
     }
-
-    private readonly WhenMessageReceivedWithKnownTypeFixture _fixture;
 
     [Fact(Skip = "TODO: Fixture completion")]
     public void ItShouldSucceed()

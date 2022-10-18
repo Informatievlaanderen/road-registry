@@ -4,12 +4,12 @@ using Fixtures;
 
 public class WhenRoadNodesToZipArchiveWriter : IClassFixture<RoadNodesToZipArchiveWriterFixture>
 {
+    private readonly RoadNodesToZipArchiveWriterFixture _fixture;
+
     public WhenRoadNodesToZipArchiveWriter(RoadNodesToZipArchiveWriterFixture fixture)
     {
         _fixture = fixture;
     }
-
-    private readonly RoadNodesToZipArchiveWriterFixture _fixture;
 
     [Fact(Skip = "For live debugging purposes")]
     public void ItShouldSucceeded()

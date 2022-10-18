@@ -12,6 +12,9 @@ using Schema.GradeSeparatedJunctions;
 
 public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
     public GradeSeparatedJunctionRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -32,9 +35,6 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
         _fixture.CustomizeGradeSeparatedJunctionModified();
         _fixture.CustomizeGradeSeparatedJunctionRemoved();
     }
-
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
 
     [Fact]
     public Task When_adding_grade_separated_junctions()

@@ -19,6 +19,10 @@ using Wms.Schema;
 
 public class ApiModule : Module
 {
+    private readonly IConfiguration _configuration;
+    private readonly Dictionary<ProjectionDetail, Func<DbContext>> _listOfProjections = new();
+    private readonly IServiceCollection _services;
+
     public ApiModule(
         IConfiguration configuration,
         IServiceCollection services)
@@ -26,10 +30,6 @@ public class ApiModule : Module
         _configuration = configuration;
         _services = services;
     }
-
-    private readonly IConfiguration _configuration;
-    private readonly Dictionary<ProjectionDetail, Func<DbContext>> _listOfProjections = new();
-    private readonly IServiceCollection _services;
 
     protected override void Load(ContainerBuilder builder)
     {

@@ -10,13 +10,13 @@ using MunicipalityGeometry = Editor.Schema.MunicipalityGeometry;
 
 public class MunicipalityGeometryProjectionTests : IClassFixture<ProjectionTestServices>
 {
+    private readonly Fixture _fixture;
+
     public MunicipalityGeometryProjectionTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeMunicipalityGeometry();
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public Task When_municipalities_are_imported()

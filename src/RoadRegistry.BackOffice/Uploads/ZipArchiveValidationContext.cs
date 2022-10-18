@@ -6,6 +6,16 @@ using System.Linq;
 
 public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidationContext>
 {
+    private readonly ImmutableHashSet<RoadNodeId> _addedNodes;
+    private readonly ImmutableHashSet<RoadSegmentId> _addedSegments;
+
+    private readonly ImmutableHashSet<RoadNodeId> _identicalNodes;
+    private readonly ImmutableHashSet<RoadSegmentId> _identicalSegments;
+    private readonly ImmutableHashSet<RoadNodeId> _modifiedNodes;
+    private readonly ImmutableHashSet<RoadSegmentId> _modifiedSegments;
+    private readonly ImmutableHashSet<RoadNodeId> _removedNodes;
+    private readonly ImmutableHashSet<RoadSegmentId> _removedSegments;
+
     private ZipArchiveValidationContext(ImmutableHashSet<RoadSegmentId> identicalSegments,
         ImmutableHashSet<RoadSegmentId> addedSegments,
         ImmutableHashSet<RoadSegmentId> modifiedSegments,
@@ -26,16 +36,6 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
         _removedNodes = removedNodes;
         ZipArchiveMetadata = zipArchiveMetadata;
     }
-
-    private readonly ImmutableHashSet<RoadNodeId> _addedNodes;
-    private readonly ImmutableHashSet<RoadSegmentId> _addedSegments;
-
-    private readonly ImmutableHashSet<RoadNodeId> _identicalNodes;
-    private readonly ImmutableHashSet<RoadSegmentId> _identicalSegments;
-    private readonly ImmutableHashSet<RoadNodeId> _modifiedNodes;
-    private readonly ImmutableHashSet<RoadSegmentId> _modifiedSegments;
-    private readonly ImmutableHashSet<RoadNodeId> _removedNodes;
-    private readonly ImmutableHashSet<RoadSegmentId> _removedSegments;
 
     public static readonly ZipArchiveValidationContext Empty = new(
         ImmutableHashSet<RoadSegmentId>.Empty,

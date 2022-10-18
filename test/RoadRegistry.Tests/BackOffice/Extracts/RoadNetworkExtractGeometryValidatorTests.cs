@@ -10,14 +10,14 @@ using Xunit;
 
 public class RoadNetworkExtractGeometryValidatorTests
 {
+    private readonly WKTReader _reader;
+    private readonly RoadNetworkExtractGeometryValidator _validator;
+
     public RoadNetworkExtractGeometryValidatorTests()
     {
         _reader = new WKTReader();
         _validator = new RoadNetworkExtractGeometryValidator();
     }
-
-    private readonly WKTReader _reader;
-    private readonly RoadNetworkExtractGeometryValidator _validator;
 
     private RoadNetworkExtractGeometry CreateGeometryWithHoles()
     {

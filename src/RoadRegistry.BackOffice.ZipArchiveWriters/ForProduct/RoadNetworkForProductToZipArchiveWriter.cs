@@ -11,6 +11,8 @@ using Product.Schema;
 
 public class RoadNetworkForProductToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 {
+    private readonly IZipArchiveWriter<ProductContext> _writer;
+
     public RoadNetworkForProductToZipArchiveWriter(
         LocalDate date,
         ZipArchiveWriterOptions zipArchiveWriterOptions,
@@ -70,8 +72,6 @@ public class RoadNetworkForProductToZipArchiveWriter : IZipArchiveWriter<Product
             new EmbeddedResourceZipArchiveWriter<ProductContext>(assembly, string.Format(resourceNameFormat, "Wegsegment.WOR"), string.Format(shapeFileEntryFormat, "Wegsegment.WOR"))
         );
     }
-
-    private readonly IZipArchiveWriter<ProductContext> _writer;
 
     public Task WriteAsync(ZipArchive archive, ProductContext context, CancellationToken cancellationToken)
     {

@@ -7,12 +7,12 @@ using Xunit;
 
 public abstract class DockerContainer : IAsyncLifetime
 {
+    private readonly DockerClient _client;
+
     protected DockerContainer()
     {
         _client = DockerClientConfiguration.CreateClient();
     }
-
-    private readonly DockerClient _client;
 
     public DockerContainerConfiguration Configuration { get; protected set; }
 

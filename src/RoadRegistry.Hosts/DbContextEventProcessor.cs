@@ -22,6 +22,14 @@ using SqlStreamStore.Subscriptions;
 public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     where TDbContext : RunnerDbContext<TDbContext>
 {
+    private readonly ILogger<DbContextEventProcessor<TDbContext>> _logger;
+
+    private readonly Channel<object> _messageChannel;
+    private readonly Task _messagePump;
+    private readonly CancellationTokenSource _messagePumpCancellation;
+
+    private readonly Scheduler _scheduler;
+
     protected DbContextEventProcessor(
         string queueName,
         IStreamStore streamStore,
@@ -312,14 +320,6 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
 
-    private readonly ILogger<DbContextEventProcessor<TDbContext>> _logger;
-
-    private readonly Channel<object> _messageChannel;
-    private readonly Task _messagePump;
-    private readonly CancellationTokenSource _messagePumpCancellation;
-
-    private readonly Scheduler _scheduler;
-
     private static bool CanResumeFrom(SubscriptionDropped dropped)
     {
         const int timeout = -2;
@@ -346,13 +346,13 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 
     private sealed class ProcessStreamMessage
     {
+        private readonly TaskCompletionSource<object> _source;
+
         public ProcessStreamMessage(StreamMessage message)
         {
             Message = message;
             _source = new TaskCompletionSource<object>();
         }
-
-        private readonly TaskCompletionSource<object> _source;
 
         public void Complete()
         {

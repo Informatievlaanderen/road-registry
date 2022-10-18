@@ -10,6 +10,13 @@ using Xunit;
 
 public class TransactionZoneDbaseRecordsTranslatorTests : IDisposable
 {
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<TransactionZoneDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly TransactionZoneDbaseRecordsTranslator _sut;
+
     public TransactionZoneDbaseRecordsTranslatorTests()
     {
         _fixture = new Fixture();
@@ -40,13 +47,6 @@ public class TransactionZoneDbaseRecordsTranslatorTests : IDisposable
         _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
         _entry = _archive.CreateEntry("transactiezone.dbf");
     }
-
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<TransactionZoneDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly TransactionZoneDbaseRecordsTranslator _sut;
 
     public void Dispose()
     {

@@ -13,6 +13,10 @@ using ZipArchiveWriters.ExtractHost;
 
 public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAssembler
 {
+    private readonly Func<EditorContext> _contextFactory;
+    private readonly RecyclableMemoryStreamManager _manager;
+    private readonly IZipArchiveWriter<EditorContext> _writer;
+
     public RoadNetworkExtractArchiveAssembler(
         RecyclableMemoryStreamManager manager,
         Func<EditorContext> contextFactory,
@@ -22,10 +26,6 @@ public class RoadNetworkExtractArchiveAssembler : IRoadNetworkExtractArchiveAsse
         _contextFactory = contextFactory ?? throw new ArgumentNullException(nameof(contextFactory));
         _writer = writer ?? throw new ArgumentNullException(nameof(writer));
     }
-
-    private readonly Func<EditorContext> _contextFactory;
-    private readonly RecyclableMemoryStreamManager _manager;
-    private readonly IZipArchiveWriter<EditorContext> _writer;
 
     public async Task<MemoryStream> AssembleArchive(RoadNetworkExtractAssemblyRequest request, CancellationToken cancellationToken)
     {

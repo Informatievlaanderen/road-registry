@@ -9,12 +9,12 @@ using Xunit;
 
 public class RoadSegmentPositionTests
 {
+    private readonly Fixture _fixture;
+
     public RoadSegmentPositionTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     public static IEnumerable<object[]> AcceptsDecimalCases
     {

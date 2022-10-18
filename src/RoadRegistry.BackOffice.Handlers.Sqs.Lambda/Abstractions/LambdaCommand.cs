@@ -5,12 +5,12 @@ using MediatR;
 
 public abstract record LambdaCommand : IRequest
 {
+    private readonly ILambdaContext _context;
+
     protected LambdaCommand(ILambdaContext context)
     {
         _context = context;
     }
-
-    private readonly ILambdaContext _context;
 
     public ILambdaContext GetContext()
     {
@@ -20,12 +20,12 @@ public abstract record LambdaCommand : IRequest
 
 public abstract record LambdaCommand<TResponse> : IRequest<TResponse> where TResponse : LambdaCommandResponse
 {
+    private readonly ILambdaContext _context;
+
     protected LambdaCommand(ILambdaContext context)
     {
         _context = context;
     }
-
-    private readonly ILambdaContext _context;
 
     public ILambdaContext GetContext()
     {

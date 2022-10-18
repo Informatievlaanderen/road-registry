@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 public abstract class EventHandlerModule
 {
+    private readonly List<EventHandler> _handlers;
+
     protected EventHandlerModule()
     {
         _handlers = new List<EventHandler>();
     }
-
-    private readonly List<EventHandler> _handlers;
 
     protected IEventHandlerBuilder<TEvent> For<TEvent>()
     {

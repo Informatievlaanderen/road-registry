@@ -12,12 +12,12 @@ using ZipArchiveWriters.ForProduct;
 [Collection(nameof(SqlServerCollection))]
 public class RoadNodesToZipArchiveWriterTests
 {
+    private readonly SqlServer _fixture;
+
     public RoadNodesToZipArchiveWriterTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }
-
-    private readonly SqlServer _fixture;
 
     [Fact]
     public Task ArchiveCanNotBeNull()

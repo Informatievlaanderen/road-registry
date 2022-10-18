@@ -8,12 +8,12 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class ZipArchiveVersionedDbaseEntryValidator : IZipArchiveEntryValidator
 {
+    private readonly IEnumerable<IZipArchiveDbaseEntryValidator> _versionedValidators;
+
     public ZipArchiveVersionedDbaseEntryValidator(params IZipArchiveDbaseEntryValidator[] validators)
     {
         _versionedValidators = validators;
     }
-
-    private readonly IEnumerable<IZipArchiveDbaseEntryValidator> _versionedValidators;
 
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry,
         ZipArchiveValidationContext context)

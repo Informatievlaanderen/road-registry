@@ -7,6 +7,13 @@ using Microsoft.Extensions.Logging;
 
 public abstract class WhenMessageReceivedFixture : IAsyncLifetime
 {
+    private readonly FeatureCompareMessageResponseConsumer _backgroundService;
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly FeatureCompareMessagingOptions _messagingOptions;
+    private readonly SqsQueueOptions _sqsQueueOptions;
+
+    private readonly ISqsQueuePublisher _sqsQueuePublisher;
+
     protected WhenMessageReceivedFixture(IMediator mediator, ISqsQueuePublisher sqsQueuePublisher, ISqsQueueConsumer sqsQueueConsumer, SqsQueueOptions sqsQueueOptions, ILoggerFactory loggerFactory)
     {
         _sqsQueuePublisher = sqsQueuePublisher;
@@ -26,13 +33,6 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
         );
         _cancellationTokenSource = new CancellationTokenSource();
     }
-
-    private readonly FeatureCompareMessageResponseConsumer _backgroundService;
-    private readonly CancellationTokenSource _cancellationTokenSource;
-    private readonly FeatureCompareMessagingOptions _messagingOptions;
-    private readonly SqsQueueOptions _sqsQueueOptions;
-
-    private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
     public async Task DisposeAsync()
     {

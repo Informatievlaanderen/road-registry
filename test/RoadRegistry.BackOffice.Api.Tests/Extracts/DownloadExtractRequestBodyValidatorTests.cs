@@ -9,14 +9,14 @@ using NetTopologySuite.IO;
 
 public class DownloadExtractRequestValidatorTests
 {
+    private readonly DownloadExtractRequestValidator _validator;
+
     public DownloadExtractRequestValidatorTests()
     {
         _validator = new DownloadExtractRequestValidator(
             new WKTReader(),
             new NullLogger<DownloadExtractRequestValidator>());
     }
-
-    private readonly DownloadExtractRequestValidator _validator;
 
     [Fact]
     public async Task Validate_will_allow_valid_geometry()

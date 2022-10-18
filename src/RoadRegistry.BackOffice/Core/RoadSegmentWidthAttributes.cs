@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 public class RoadSegmentWidthAttributes : IEnumerable<RoadSegmentWidthAttribute>
 {
+    private readonly IReadOnlyCollection<RoadSegmentWidthAttribute> _attributes;
+
     public RoadSegmentWidthAttributes(IReadOnlyCollection<RoadSegmentWidthAttribute> attributes)
     {
         if (attributes == null) throw new ArgumentNullException(nameof(attributes));
@@ -23,8 +25,6 @@ public class RoadSegmentWidthAttributes : IEnumerable<RoadSegmentWidthAttribute>
 
         _attributes = attributes;
     }
-
-    private readonly IReadOnlyCollection<RoadSegmentWidthAttribute> _attributes;
 
     public IEnumerator<RoadSegmentWidthAttribute> GetEnumerator()
     {

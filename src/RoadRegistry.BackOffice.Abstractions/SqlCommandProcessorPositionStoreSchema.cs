@@ -5,12 +5,12 @@ using Microsoft.Data.SqlClient;
 
 public class SqlCommandProcessorPositionStoreSchema
 {
+    private readonly SqlConnectionStringBuilder _builder;
+
     public SqlCommandProcessorPositionStoreSchema(SqlConnectionStringBuilder builder)
     {
         _builder = builder ?? throw new ArgumentNullException(nameof(builder));
     }
-
-    private readonly SqlConnectionStringBuilder _builder;
 
     public async Task CreateSchemaIfNotExists(string schema, CancellationToken cancellationToken = default)
     {

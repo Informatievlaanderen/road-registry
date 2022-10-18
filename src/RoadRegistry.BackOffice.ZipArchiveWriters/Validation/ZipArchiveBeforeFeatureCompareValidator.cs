@@ -14,6 +14,8 @@ using Uploads;
 /// </summary>
 public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureCompareValidator
 {
+    private readonly Dictionary<string, IZipArchiveEntryValidator> _validators;
+
     public ZipArchiveBeforeFeatureCompareValidator(Encoding encoding)
     {
         if (encoding == null)
@@ -117,8 +119,6 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                 }
             };
     }
-
-    private readonly Dictionary<string, IZipArchiveEntryValidator> _validators;
 
 
     public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)

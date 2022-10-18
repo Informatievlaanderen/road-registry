@@ -8,14 +8,15 @@ using Microsoft.IO;
 
 public class ZipArchiveScenarioWithWriter<TContext> : ZipArchiveScenario where TContext : DbContext
 {
+    private readonly IZipArchiveWriter<TContext> _writer;
+
+    private TContext _context;
+    private RoadNetworkExtractAssemblyRequest _request;
+
     public ZipArchiveScenarioWithWriter(RecyclableMemoryStreamManager manager, IZipArchiveWriter<TContext> writer) : base(manager)
     {
         _writer = writer;
     }
-
-    private TContext _context;
-    private RoadNetworkExtractAssemblyRequest _request;
-    private readonly IZipArchiveWriter<TContext> _writer;
 
     public ZipArchiveScenarioWithWriter<TContext> WithContext(TContext context)
     {

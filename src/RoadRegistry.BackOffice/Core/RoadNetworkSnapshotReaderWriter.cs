@@ -11,14 +11,15 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoadNetworkSnapshotWriter
 {
+    private readonly IBlobClient _client;
+    private readonly RecyclableMemoryStreamManager _streamManager;
+
     public RoadNetworkSnapshotReaderWriter(RoadNetworkSnapshotsBlobClient client, RecyclableMemoryStreamManager streamManager)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _streamManager = streamManager ?? throw new ArgumentNullException(nameof(streamManager));
     }
 
-    private readonly IBlobClient _client;
-    private readonly RecyclableMemoryStreamManager _streamManager;
     public static readonly MetadataKey AtVersionKey = new("at-version");
     private static readonly ContentType MessagePackContentType = ContentType.Parse("application/msgpack");
 

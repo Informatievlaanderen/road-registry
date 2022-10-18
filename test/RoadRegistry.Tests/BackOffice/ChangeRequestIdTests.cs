@@ -9,13 +9,13 @@ using Xunit;
 
 public class ChangeRequestIdTests
 {
+    private readonly Fixture _fixture;
+
     public ChangeRequestIdTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeChangeRequestId();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData(null, false)]

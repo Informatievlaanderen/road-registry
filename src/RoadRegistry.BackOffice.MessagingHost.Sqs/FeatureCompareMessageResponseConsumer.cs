@@ -13,6 +13,11 @@ using Microsoft.Extensions.Logging;
 
 public class FeatureCompareMessageResponseConsumer : BackgroundService
 {
+    private readonly ILogger<FeatureCompareMessageResponseConsumer> _logger;
+    private readonly IMediator _mediator;
+    private readonly FeatureCompareMessagingOptions _messagingOptions;
+    private readonly ISqsQueueConsumer _sqsConsumer;
+
     public FeatureCompareMessageResponseConsumer(
         IMediator mediator,
         FeatureCompareMessagingOptions messagingOptions,
@@ -24,11 +29,6 @@ public class FeatureCompareMessageResponseConsumer : BackgroundService
         _sqsConsumer = sqsQueueConsumer;
         _logger = logger;
     }
-
-    private readonly ILogger<FeatureCompareMessageResponseConsumer> _logger;
-    private readonly IMediator _mediator;
-    private readonly FeatureCompareMessagingOptions _messagingOptions;
-    private readonly ISqsQueueConsumer _sqsConsumer;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {

@@ -14,6 +14,8 @@ using Microsoft.Extensions.Logging;
 /// <exception cref="UnsupportedMediaTypeException"></exception>
 public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractRequest, UploadExtractResponse>
 {
+    private readonly RoadNetworkFeatureCompareBlobClient _client;
+
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkFeatureCompareBlobClient client,
@@ -21,8 +23,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
     }
-
-    private readonly RoadNetworkFeatureCompareBlobClient _client;
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
     {

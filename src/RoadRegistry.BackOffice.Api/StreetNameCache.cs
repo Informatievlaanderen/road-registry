@@ -11,12 +11,12 @@ using Syndication.Schema;
 
 public class StreetNameCache : IStreetNameCache
 {
+    private readonly Func<SyndicationContext> _contextFactory;
+
     public StreetNameCache(Func<SyndicationContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }
-
-    private readonly Func<SyndicationContext> _contextFactory;
 
     public async Task<Dictionary<int, string>> GetStreetNamesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {

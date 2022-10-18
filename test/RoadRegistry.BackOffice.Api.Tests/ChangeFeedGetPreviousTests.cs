@@ -19,12 +19,12 @@ using RejectedChange = Editor.Schema.RoadNetworkChanges.RejectedChange;
 [Collection(nameof(SqlServerCollection))]
 public class ChangeFeedGetPreviousTests
 {
+    private readonly SqlServer _fixture;
+
     public ChangeFeedGetPreviousTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }
-
-    private readonly SqlServer _fixture;
 
     [Fact]
     public async Task When_downloading_previous_changes_of_an_empty_registry()

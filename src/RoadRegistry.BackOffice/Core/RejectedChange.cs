@@ -5,14 +5,14 @@ using System.Linq;
 
 public class RejectedChange : IVerifiedChange
 {
+    private readonly Problems _problems;
+    private readonly IRequestedChange _requestedChange;
+
     public RejectedChange(IRequestedChange change, Problems problems)
     {
         _requestedChange = change ?? throw new ArgumentNullException(nameof(change));
         _problems = problems ?? throw new ArgumentNullException(nameof(problems));
     }
-
-    private readonly Problems _problems;
-    private readonly IRequestedChange _requestedChange;
 
     public Messages.RejectedChange Translate()
     {

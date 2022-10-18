@@ -9,6 +9,8 @@ using Xunit;
 
 public class AttributeHashTests
 {
+    private readonly Fixture _fixture;
+
     public AttributeHashTests()
     {
         _fixture = new Fixture();
@@ -19,8 +21,6 @@ public class AttributeHashTests
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeAttributeHash();
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void DiffersWhenAccessRestrictionDiffers()

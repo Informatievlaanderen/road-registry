@@ -27,6 +27,11 @@ using Wms.Schema;
 /// <summary>Represents the startup process for the application.</summary>
 public class Startup
 {
+    private readonly IConfiguration _configuration;
+    private readonly ILoggerFactory _loggerFactory;
+
+    private IContainer _applicationContainer;
+
     public Startup(
         IConfiguration configuration,
         ILoggerFactory loggerFactory)
@@ -34,11 +39,6 @@ public class Startup
         _configuration = configuration;
         _loggerFactory = loggerFactory;
     }
-
-    private IContainer _applicationContainer;
-
-    private readonly IConfiguration _configuration;
-    private readonly ILoggerFactory _loggerFactory;
 
     public void Configure(
         IServiceProvider serviceProvider,

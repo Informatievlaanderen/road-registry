@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 
 public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator<DownloadExtractByNisCodeRequest>, IPipelineBehavior<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>
 {
+    private readonly EditorContext _editorContext;
+
     public DownloadExtractByNisCodeRequestValidator(EditorContext editorContext)
     {
         _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
@@ -26,8 +28,6 @@ public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator
             .NotNull().WithMessage("'Description' must not be null or missing")
             .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
     }
-
-    private readonly EditorContext _editorContext;
 
     private Task<bool> BeKnownNisCode(string nisCode, CancellationToken cancellationToken)
     {

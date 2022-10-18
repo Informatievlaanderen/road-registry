@@ -12,6 +12,12 @@ using SqlStreamStore.Streams;
 
 public class ScenarioRunner
 {
+    private readonly StreamNameConverter _converter;
+    private readonly EventMapping _mapping;
+    private readonly CommandHandlerResolver _resolver;
+    private readonly JsonSerializerSettings _settings;
+    private readonly IStreamStore _store;
+
     public ScenarioRunner(CommandHandlerResolver resolver, IStreamStore store, JsonSerializerSettings settings, EventMapping mapping, StreamNameConverter converter)
     {
         _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
@@ -20,12 +26,6 @@ public class ScenarioRunner
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
         _converter = converter ?? throw new ArgumentNullException(nameof(converter));
     }
-
-    private readonly StreamNameConverter _converter;
-    private readonly EventMapping _mapping;
-    private readonly CommandHandlerResolver _resolver;
-    private readonly JsonSerializerSettings _settings;
-    private readonly IStreamStore _store;
 
     public ComparisonConfig ComparisonConfig { get; set; }
 

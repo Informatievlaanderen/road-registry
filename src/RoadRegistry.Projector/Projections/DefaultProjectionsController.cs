@@ -12,14 +12,14 @@ using SqlStreamStore;
 
 public class DefaultProjectionsController : ControllerBase
 {
+    protected readonly Dictionary<ProjectionDetail, Func<DbContext>> _listOfProjections;
+    protected readonly IStreamStore _streamStore;
+
     public DefaultProjectionsController(IStreamStore streamStore, Dictionary<ProjectionDetail, Func<DbContext>> listOfProjections)
     {
         _streamStore = streamStore;
         _listOfProjections = listOfProjections;
     }
-
-    protected readonly Dictionary<ProjectionDetail, Func<DbContext>> _listOfProjections;
-    protected readonly IStreamStore _streamStore;
 
     protected async Task<ProjectionStateItem?> GetProjectionStateItem(string id, Func<DbContext> ctxFactory, CancellationToken cancellationToken)
     {

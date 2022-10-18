@@ -12,6 +12,9 @@ using Wms.Projections;
 
 public class RoadSegmentRecordProjectionTests
 {
+    private readonly Fixture _fixture;
+    private readonly TestDataHelper _testDataHelper;
+
     public RoadSegmentRecordProjectionTests()
     {
         _testDataHelper = new TestDataHelper();
@@ -47,9 +50,6 @@ public class RoadSegmentRecordProjectionTests
         _fixture.CustomizeRoadSegmentRemoved();
         _fixture.CustomizeRoadNetworkChangesAccepted();
     }
-
-    private readonly Fixture _fixture;
-    private readonly TestDataHelper _testDataHelper;
 
     [Fact]
     public Task When_adding_road_segments()

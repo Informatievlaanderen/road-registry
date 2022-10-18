@@ -14,6 +14,8 @@ using RoadSegments;
 
 public class ProductContext : RunnerDbContext<ProductContext>
 {
+    private RoadNetworkInfo _localRoadNetworkInfo;
+
     public ProductContext()
     {
     }
@@ -23,8 +25,6 @@ public class ProductContext : RunnerDbContext<ProductContext>
         : base(options)
     {
     }
-
-    private RoadNetworkInfo _localRoadNetworkInfo;
 
     public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken token)
     {

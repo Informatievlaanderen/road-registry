@@ -7,12 +7,12 @@ using Xunit.Abstractions;
 
 public class SchemaDump
 {
+    private readonly ITestOutputHelper _output;
+
     public SchemaDump(ITestOutputHelper output)
     {
         _output = output;
     }
-
-    private readonly ITestOutputHelper _output;
 
     [Fact(Skip = "Useful to run when you want to dump the event schema as markdown")]
     public void DumpMarkdownSchema()

@@ -12,6 +12,8 @@ using RoadRegistry.Tests.Framework.Projections;
 
 public class ExtractUploadRecordProjectionTests
 {
+    private readonly Fixture _fixture;
+
     public ExtractUploadRecordProjectionTests()
     {
         _fixture = new Fixture();
@@ -37,8 +39,6 @@ public class ExtractUploadRecordProjectionTests
                     .OmitAutoProperties()
         );
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public Task When_changes_got_accepted()

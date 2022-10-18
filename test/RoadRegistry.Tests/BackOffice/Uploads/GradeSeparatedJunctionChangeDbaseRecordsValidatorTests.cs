@@ -10,6 +10,14 @@ using Xunit;
 
 public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposable
 {
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveValidationContext _context;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly GradeSeparatedJunctionChangeDbaseRecordsValidator _sut;
+
     public GradeSeparatedJunctionChangeDbaseRecordsValidatorTests()
     {
         _fixture = new Fixture();
@@ -37,14 +45,6 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
         _entry = _archive.CreateEntry("rltogkruising_all.dbf");
         _context = ZipArchiveValidationContext.Empty;
     }
-
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveValidationContext _context;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly GradeSeparatedJunctionChangeDbaseRecordsValidator _sut;
 
     public void Dispose()
     {

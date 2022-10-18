@@ -7,12 +7,12 @@ using System.Collections.Immutable;
 
 public class Problems : IReadOnlyCollection<Problem>
 {
+    private readonly ImmutableList<Problem> _problems;
+
     private Problems(ImmutableList<Problem> problems)
     {
         _problems = problems;
     }
-
-    private readonly ImmutableList<Problem> _problems;
 
     public Problems Add(Problem problem)
     {

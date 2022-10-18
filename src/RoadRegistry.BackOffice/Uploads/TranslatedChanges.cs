@@ -9,6 +9,9 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
 {
+    private readonly ImmutableList<ITranslatedChange> _changes;
+    private readonly ImmutableList<ITranslatedChange> _provisionalChanges;
+
     private TranslatedChanges(Reason reason,
         OperatorName @operator,
         OrganizationId organization,
@@ -21,9 +24,6 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         _changes = changes ?? throw new ArgumentNullException(nameof(changes));
         _provisionalChanges = provisionalChanges ?? throw new ArgumentNullException(nameof(provisionalChanges));
     }
-
-    private readonly ImmutableList<ITranslatedChange> _changes;
-    private readonly ImmutableList<ITranslatedChange> _provisionalChanges;
 
     public TranslatedChanges AppendChange(AddRoadNode change)
     {

@@ -9,6 +9,8 @@ using Messages;
 
 public class RoadNetwork : EventSourcedEntity
 {
+    private IRoadNetworkView _view;
+
     private RoadNetwork(IRoadNetworkView view)
     {
         _view = view;
@@ -18,8 +20,6 @@ public class RoadNetwork : EventSourcedEntity
         On<ImportedRoadSegment>(e => { _view = _view.RestoreFromEvent(e); });
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
     }
-
-    private IRoadNetworkView _view;
 
     public void Change(
         ChangeRequestId requestId,
@@ -93,12 +93,12 @@ public class RoadNetwork : EventSourcedEntity
 
     private sealed class NextAttributeIdProvider
     {
+        private AttributeId _current;
+
         public NextAttributeIdProvider(AttributeId current)
         {
             _current = current;
         }
-
-        private AttributeId _current;
 
         public AttributeId Next()
         {
@@ -110,12 +110,12 @@ public class RoadNetwork : EventSourcedEntity
 
     private sealed class NextGradeSeparatedJunctionIdProvider
     {
+        private GradeSeparatedJunctionId _current;
+
         public NextGradeSeparatedJunctionIdProvider(GradeSeparatedJunctionId current)
         {
             _current = current;
         }
-
-        private GradeSeparatedJunctionId _current;
 
         public GradeSeparatedJunctionId Next()
         {
@@ -127,16 +127,17 @@ public class RoadNetwork : EventSourcedEntity
 
     private sealed class NextReusableAttributeIdProvider
     {
+        private readonly NextAttributeIdProvider _provider;
+        private readonly IReadOnlyList<AttributeId> _reusableAttributeIdentifiers;
+
+        private int _index;
+
         public NextReusableAttributeIdProvider(NextAttributeIdProvider provider, IReadOnlyList<AttributeId> reusableAttributeIdentifiers)
         {
             _provider = provider;
             _index = 0;
             _reusableAttributeIdentifiers = reusableAttributeIdentifiers;
         }
-
-        private int _index;
-        private readonly NextAttributeIdProvider _provider;
-        private readonly IReadOnlyList<AttributeId> _reusableAttributeIdentifiers;
 
         public AttributeId Next()
         {
@@ -146,12 +147,12 @@ public class RoadNetwork : EventSourcedEntity
 
     private sealed class NextRoadNodeIdProvider
     {
+        private RoadNodeId _current;
+
         public NextRoadNodeIdProvider(RoadNodeId current)
         {
             _current = current;
         }
-
-        private RoadNodeId _current;
 
         public RoadNodeId Next()
         {
@@ -163,12 +164,12 @@ public class RoadNetwork : EventSourcedEntity
 
     private sealed class NextRoadSegmentIdProvider
     {
+        private RoadSegmentId _current;
+
         public NextRoadSegmentIdProvider(RoadSegmentId current)
         {
             _current = current;
         }
-
-        private RoadSegmentId _current;
 
         public RoadSegmentId Next()
         {
@@ -180,12 +181,12 @@ public class RoadNetwork : EventSourcedEntity
 
     private sealed class NextTransactionIdProvider
     {
+        private TransactionId _current;
+
         public NextTransactionIdProvider(TransactionId current)
         {
             _current = current;
         }
-
-        private TransactionId _current;
 
         public TransactionId Next()
         {

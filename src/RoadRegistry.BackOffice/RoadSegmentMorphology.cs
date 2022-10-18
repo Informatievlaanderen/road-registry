@@ -8,13 +8,13 @@ using System.Linq;
 
 public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 {
+    private readonly string _value;
+
     private RoadSegmentMorphology(string value, DutchTranslation dutchTranslation)
     {
         _value = value;
         Translation = dutchTranslation;
     }
-
-    private readonly string _value;
 
     public static readonly RoadSegmentMorphology Entry_or_exit_of_a_car_park =
         new(

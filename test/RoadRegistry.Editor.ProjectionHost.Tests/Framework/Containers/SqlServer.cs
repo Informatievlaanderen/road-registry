@@ -10,6 +10,8 @@ using RoadRegistry.Tests.Framework.Containers;
 
 public class SqlServer : ISqlServerDatabase
 {
+    private readonly ISqlServerDatabase _inner;
+
     public SqlServer()
     {
         const int hostPort = 21541;
@@ -21,8 +23,6 @@ public class SqlServer : ISqlServerDatabase
         MemoryStreamManager = new RecyclableMemoryStreamManager();
         StreetNameCache = new FakeStreetNameCache();
     }
-
-    private readonly ISqlServerDatabase _inner;
 
     public Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
     {

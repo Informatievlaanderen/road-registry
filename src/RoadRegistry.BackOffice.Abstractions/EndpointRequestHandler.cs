@@ -20,13 +20,13 @@ public abstract class EndpointRequestHandler<TRequest, TResponse> : IRequestHand
     where TRequest : EndpointRequest<TResponse>
     where TResponse : EndpointResponse
 {
+    protected readonly ILogger _logger;
+
     protected EndpointRequestHandler(CommandHandlerDispatcher dispatcher, ILogger logger)
     {
         Dispatcher = dispatcher;
         _logger = logger;
     }
-
-    protected readonly ILogger _logger;
 
     protected CommandHandlerDispatcher Dispatcher { get; init; }
 

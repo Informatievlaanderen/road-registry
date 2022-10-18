@@ -17,6 +17,8 @@ using SqlStreamStore;
 
 public abstract class RoadRegistryFixture : IDisposable
 {
+    private readonly ScenarioRunner _runner;
+
     protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null)
     {
         Fixture = new Fixture();
@@ -41,7 +43,6 @@ public abstract class RoadRegistryFixture : IDisposable
         };
     }
 
-    private readonly ScenarioRunner _runner;
     protected MemoryBlobClient Client { get; }
     protected FakeClock Clock { get; }
 

@@ -15,14 +15,14 @@ using NodaTime;
 
 public class MetadataUpdater : IMetadataUpdater
 {
+    private readonly IClock _clock;
+    private readonly MetadataConfiguration _configuration;
+
     public MetadataUpdater(MetadataConfiguration configuration, IClock clock)
     {
         _configuration = configuration;
         _clock = clock;
     }
-
-    private readonly IClock _clock;
-    private readonly MetadataConfiguration _configuration;
 
     private static string EncodeBasicAuth(string username, string password)
     {

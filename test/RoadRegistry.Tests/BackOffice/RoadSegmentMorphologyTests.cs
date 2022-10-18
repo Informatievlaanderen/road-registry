@@ -8,14 +8,14 @@ using Xunit;
 
 public class RoadSegmentMorphologyTests
 {
+    private readonly Fixture _fixture;
+    private readonly string[] _knownValues;
+
     public RoadSegmentMorphologyTests()
     {
         _fixture = new Fixture();
         _knownValues = Array.ConvertAll(RoadSegmentMorphology.All, type => type.ToString());
     }
-
-    private readonly Fixture _fixture;
-    private readonly string[] _knownValues;
 
     [Fact]
     public void AllReturnsExpectedResult()

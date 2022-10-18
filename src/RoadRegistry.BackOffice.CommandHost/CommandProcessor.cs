@@ -21,6 +21,14 @@ using SqlStreamStore.Subscriptions;
 
 public class CommandProcessor : IHostedService
 {
+    private readonly ILogger<CommandProcessor> _logger;
+
+    private readonly Channel<object> _messageChannel;
+    private readonly Task _messagePump;
+    private readonly CancellationTokenSource _messagePumpCancellation;
+
+    private readonly Scheduler _scheduler;
+
     public CommandProcessor(
         IStreamStore streamStore,
         StreamName queue,
@@ -165,14 +173,6 @@ public class CommandProcessor : IHostedService
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
 
-    private readonly ILogger<CommandProcessor> _logger;
-
-    private readonly Channel<object> _messageChannel;
-    private readonly Task _messagePump;
-    private readonly CancellationTokenSource _messagePumpCancellation;
-
-    private readonly Scheduler _scheduler;
-
     private static bool CanResumeFrom(SubscriptionDropped dropped)
     {
         const int timeout = -2;
@@ -186,13 +186,13 @@ public class CommandProcessor : IHostedService
 
     private sealed class ProcessStreamMessage
     {
+        private readonly TaskCompletionSource<object> _source;
+
         public ProcessStreamMessage(StreamMessage message)
         {
             Message = message;
             _source = new TaskCompletionSource<object>();
         }
-
-        private readonly TaskCompletionSource<object> _source;
 
         public void Complete()
         {

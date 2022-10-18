@@ -8,6 +8,10 @@ using Ductus.FluentDocker.Extensions;
 
 public class CheckFeatureCompareDockerContainerCommandHandler : LambdaCommandHandler<CheckFeatureCompareDockerContainerCommand, CheckFeatureCompareDockerContainerCommandResponse>
 {
+    private readonly FeatureCompareMessagingOptions _messagingOptions;
+    private readonly ISqsQueueConsumer _sqsQueueConsumer;
+    private readonly ISqsQueuePublisher _sqsQueuePublisher;
+
     public CheckFeatureCompareDockerContainerCommandHandler(
         FeatureCompareMessagingOptions messagingOptions,
         ISqsQueuePublisher sqsQueuePublisher,
@@ -17,10 +21,6 @@ public class CheckFeatureCompareDockerContainerCommandHandler : LambdaCommandHan
         _sqsQueuePublisher = sqsQueuePublisher;
         _sqsQueueConsumer = sqsQueueConsumer;
     }
-
-    private readonly FeatureCompareMessagingOptions _messagingOptions;
-    private readonly ISqsQueueConsumer _sqsQueueConsumer;
-    private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
     public override async Task<CheckFeatureCompareDockerContainerCommandResponse> HandleAsync(CheckFeatureCompareDockerContainerCommand request, ILambdaContext context, CancellationToken cancellationToken)
     {

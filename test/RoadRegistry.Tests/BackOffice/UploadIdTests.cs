@@ -9,13 +9,13 @@ using Xunit;
 
 public class UploadIdTests
 {
+    private readonly Fixture _fixture;
+
     public UploadIdTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeArchiveId();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData("00000000000000000000000000000000", false)]

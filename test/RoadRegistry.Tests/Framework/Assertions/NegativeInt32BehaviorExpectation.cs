@@ -9,6 +9,8 @@ using AutoFixture.Idioms;
 /// <seealso cref="Verify(IGuardClauseCommand)" />
 public class NegativeInt32BehaviorExpectation : IBehaviorExpectation
 {
+    private readonly int[] _exceptions;
+
     public NegativeInt32BehaviorExpectation()
     {
         _exceptions = Array.Empty<int>();
@@ -18,8 +20,6 @@ public class NegativeInt32BehaviorExpectation : IBehaviorExpectation
     {
         _exceptions = exceptions ?? throw new ArgumentNullException(nameof(exceptions));
     }
-
-    private readonly int[] _exceptions;
 
     /// <summary>
     ///     Verifies the behavior of the command when invoked with <see cref="int" /> less than 0.

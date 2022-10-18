@@ -6,6 +6,9 @@ public class ReactionScenarioBuilder :
     IReactionScenarioThenStateBuilder,
     IReactionScenarioThenNoneStateBuilder
 {
+    private readonly RecordedEvent[] _givens;
+    private readonly RecordedEvent[] _thens;
+
     public ReactionScenarioBuilder()
     {
         _givens = Array.Empty<RecordedEvent>();
@@ -17,9 +20,6 @@ public class ReactionScenarioBuilder :
         _givens = givens;
         _thens = thens;
     }
-
-    private readonly RecordedEvent[] _givens;
-    private readonly RecordedEvent[] _thens;
 
     ReactionScenario IReactionScenarioBuilder.Build()
     {

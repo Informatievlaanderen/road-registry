@@ -10,6 +10,14 @@ using Xunit;
 
 public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
 {
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveValidationContext _context;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<NationalRoadChangeDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly NationalRoadChangeDbaseRecordsValidator _sut;
+
     public NationalRoadChangeDbaseRecordsValidatorTests()
     {
         _fixture = new Fixture();
@@ -36,14 +44,6 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
         _entry = _archive.CreateEntry("attnationweg_all.dbf");
         _context = ZipArchiveValidationContext.Empty;
     }
-
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveValidationContext _context;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<NationalRoadChangeDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly NationalRoadChangeDbaseRecordsValidator _sut;
 
     public void Dispose()
     {

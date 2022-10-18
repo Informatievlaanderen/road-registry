@@ -21,14 +21,15 @@ public interface IRegistryAtomFeedReader
 
 public class RegistryAtomFeedReader : IRegistryAtomFeedReader
 {
+    private readonly HttpClient _httpClient;
+    private readonly ILogger _logger;
+
     public RegistryAtomFeedReader(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory)
     {
         _logger = loggerFactory.CreateLogger<RegistryAtomFeedReader>();
         _httpClient = httpClientFactory.CreateClient(HttpClientName);
     }
 
-    private readonly HttpClient _httpClient;
-    private readonly ILogger _logger;
     public const string HttpClientName = "registryFeedClient";
 
     public async Task<IEnumerable<IAtomEntry>> ReadEntriesAsync(

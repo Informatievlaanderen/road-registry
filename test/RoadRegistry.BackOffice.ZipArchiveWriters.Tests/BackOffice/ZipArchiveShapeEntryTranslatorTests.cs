@@ -12,6 +12,8 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveShapeEntryTranslatorTests
 {
+    private readonly Fixture _fixture;
+
     public ZipArchiveShapeEntryTranslatorTests()
     {
         _fixture = new Fixture();
@@ -31,8 +33,6 @@ public class ZipArchiveShapeEntryTranslatorTests
             ).OmitAutoProperties()
         );
     }
-
-    private readonly Fixture _fixture;
 
     private class CollectShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
     {
@@ -60,12 +60,12 @@ public class ZipArchiveShapeEntryTranslatorTests
 
     private class FakeShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
     {
+        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
+
         public FakeShapeRecordTranslator(Func<TranslatedChanges, TranslatedChanges> translation = null)
         {
             _translation = translation ?? (changes => changes);
         }
-
-        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
 
         public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
         {

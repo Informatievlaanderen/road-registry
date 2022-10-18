@@ -8,12 +8,12 @@ using Xunit;
 
 public class GeometryTranslatorTests
 {
+    private readonly WKTReader _reader;
+
     public GeometryTranslatorTests()
     {
         _reader = new WKTReader();
     }
-
-    private readonly WKTReader _reader;
 
     [Theory]
     [InlineData(GeometryTranslatorTestCases.ValidPolygon)]

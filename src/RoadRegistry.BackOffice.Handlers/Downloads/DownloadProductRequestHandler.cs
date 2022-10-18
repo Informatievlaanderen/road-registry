@@ -18,6 +18,11 @@ using ZipArchiveWriters.ForProduct;
 
 public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProductRequest, DownloadProductResponse>
 {
+    private readonly IStreetNameCache _cache;
+    private readonly ProductContext _context;
+    private readonly RecyclableMemoryStreamManager _streamManager;
+    private readonly ZipArchiveWriterOptions _writerOptions;
+
     public DownloadProductRequestHandler(
         CommandHandlerDispatcher dispatcher,
         ProductContext context,
@@ -31,11 +36,6 @@ public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProd
         _streamManager = streamManager;
         _cache = cache;
     }
-
-    private readonly IStreetNameCache _cache;
-    private readonly ProductContext _context;
-    private readonly RecyclableMemoryStreamManager _streamManager;
-    private readonly ZipArchiveWriterOptions _writerOptions;
 
     public override async Task<DownloadProductResponse> HandleAsync(DownloadProductRequest request, CancellationToken cancellationToken)
     {

@@ -6,13 +6,13 @@ using System.Linq;
 
 public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessRestriction>
 {
+    private readonly string _value;
+
     private RoadSegmentAccessRestriction(string value, DutchTranslation dutchTranslation)
     {
         _value = value;
         Translation = dutchTranslation;
     }
-
-    private readonly string _value;
 
     public static readonly RoadSegmentAccessRestriction LegallyForbidden =
         new(

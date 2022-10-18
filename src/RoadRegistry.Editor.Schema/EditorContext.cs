@@ -16,6 +16,8 @@ using RoadSegments;
 
 public class EditorContext : RunnerDbContext<EditorContext>
 {
+    private RoadNetworkInfo _localRoadNetworkInfo;
+
     public EditorContext()
     {
     }
@@ -26,7 +28,6 @@ public class EditorContext : RunnerDbContext<EditorContext>
     {
     }
 
-    private RoadNetworkInfo _localRoadNetworkInfo;
     public DbSet<ExtractDownloadRecord> ExtractDownloads { get; set; }
     public DbSet<ExtractUploadRecord> ExtractUploads { get; set; }
 

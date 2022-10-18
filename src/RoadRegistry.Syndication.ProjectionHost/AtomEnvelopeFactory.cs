@@ -14,6 +14,9 @@ using Projections.Syndication;
 
 public class AtomEnvelopeFactory
 {
+    private readonly DataContractSerializer _dataContractSerializer;
+    private readonly EventSerializerMapping _eventSerializers;
+
     public AtomEnvelopeFactory(
         EventSerializerMapping eventSerializerMapping,
         DataContractSerializer dataContractSerializer)
@@ -21,9 +24,6 @@ public class AtomEnvelopeFactory
         _eventSerializers = eventSerializerMapping;
         _dataContractSerializer = dataContractSerializer;
     }
-
-    private readonly DataContractSerializer _dataContractSerializer;
-    private readonly EventSerializerMapping _eventSerializers;
 
     public object CreateEnvelope<T>(IAtomEntry message)
     {

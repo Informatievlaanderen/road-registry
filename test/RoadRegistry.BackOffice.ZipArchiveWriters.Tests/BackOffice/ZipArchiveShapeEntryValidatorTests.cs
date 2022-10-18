@@ -13,6 +13,9 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveShapeEntryValidatorTests
 {
+    private readonly ZipArchiveValidationContext _context;
+    private readonly Fixture _fixture;
+
     public ZipArchiveShapeEntryValidatorTests()
     {
         _fixture = new Fixture();
@@ -33,9 +36,6 @@ public class ZipArchiveShapeEntryValidatorTests
         );
         _context = ZipArchiveValidationContext.Empty;
     }
-
-    private readonly ZipArchiveValidationContext _context;
-    private readonly Fixture _fixture;
 
     private class CollectShapeRecordValidator : IZipArchiveShapeRecordsValidator
     {
@@ -63,12 +63,12 @@ public class ZipArchiveShapeEntryValidatorTests
 
     private class FakeShapeRecordValidator : IZipArchiveShapeRecordsValidator
     {
+        private readonly FileProblem[] _problems;
+
         public FakeShapeRecordValidator(params FileProblem[] problems)
         {
             _problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
-
-        private readonly FileProblem[] _problems;
 
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
         {

@@ -8,14 +8,14 @@ using Xunit;
 
 public class RoadSegmentNumberedRoadDirectionTests
 {
+    private readonly Fixture _fixture;
+    private readonly string[] _knownValues;
+
     public RoadSegmentNumberedRoadDirectionTests()
     {
         _fixture = new Fixture();
         _knownValues = Array.ConvertAll(RoadSegmentNumberedRoadDirection.All, type => type.ToString());
     }
-
-    private readonly Fixture _fixture;
-    private readonly string[] _knownValues;
 
     [Fact]
     public static void AllReturnsExpectedResult()

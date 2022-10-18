@@ -17,12 +17,12 @@ using Xunit.Sdk;
 [Collection(nameof(SqlServerCollection))]
 public class ChangeFeedGetHeadTests
 {
+    private readonly SqlServer _fixture;
+
     public ChangeFeedGetHeadTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }
-
-    private readonly SqlServer _fixture;
 
     [Fact]
     public async Task When_downloading_head_changes_of_an_empty_registry()

@@ -5,14 +5,14 @@ using Microsoft.Data.SqlClient;
 
 public class SqlCommandProcessorPositionStore : ICommandProcessorPositionStore
 {
+    private readonly SqlConnectionStringBuilder _builder;
+    private readonly SqlCommandText _text;
+
     public SqlCommandProcessorPositionStore(SqlConnectionStringBuilder builder, string schema)
     {
         _builder = builder ?? throw new ArgumentNullException(nameof(builder));
         _text = new SqlCommandText(schema);
     }
-
-    private readonly SqlConnectionStringBuilder _builder;
-    private readonly SqlCommandText _text;
 
     private static SqlParameter CreateSqlParameter(string name, SqlDbType sqlDbType, int size, object value)
     {
@@ -54,12 +54,12 @@ public class SqlCommandProcessorPositionStore : ICommandProcessorPositionStore
 
     private sealed class SqlCommandText
     {
+        private readonly string _schema;
+
         public SqlCommandText(string schema)
         {
             _schema = schema ?? throw new ArgumentNullException(nameof(schema));
         }
-
-        private readonly string _schema;
 
         public string ReadVersion()
         {

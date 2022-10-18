@@ -8,14 +8,14 @@ using Xunit;
 
 public class RecordTypeTests
 {
+    private readonly Fixture _fixture;
+    private readonly string[] _knownValues;
+
     public RecordTypeTests()
     {
         _fixture = new Fixture();
         _knownValues = Array.ConvertAll(RecordType.All, type => type.ToString());
     }
-
-    private readonly Fixture _fixture;
-    private readonly string[] _knownValues;
 
     [Fact]
     public void AddedReturnsExpectedResult()

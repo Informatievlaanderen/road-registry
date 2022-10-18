@@ -30,6 +30,11 @@ public class Scenario : IScenarioInitialStateBuilder
         IScenarioThenStateBuilder,
         IScenarioThrowsStateBuilder
     {
+        private readonly RecordedEvent[] _givens;
+        private readonly RecordedEvent[] _thens;
+        private readonly Exception _throws;
+        private readonly Command _when;
+
         public ScenarioBuilder(RecordedEvent[] givens, Command when, RecordedEvent[] thens, Exception throws)
         {
             _givens = givens;
@@ -37,11 +42,6 @@ public class Scenario : IScenarioInitialStateBuilder
             _thens = thens;
             _throws = throws;
         }
-
-        private readonly RecordedEvent[] _givens;
-        private readonly RecordedEvent[] _thens;
-        private readonly Exception _throws;
-        private readonly Command _when;
 
         ExpectEventsScenario IExpectEventsScenarioBuilder.Build()
         {

@@ -62,12 +62,12 @@ public class ZipArchiveDbaseEntryTranslatorTests
 
     private class FakeDbaseRecordTranslator : IZipArchiveDbaseRecordsTranslator<FakeDbaseRecord>
     {
+        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
+
         public FakeDbaseRecordTranslator(Func<TranslatedChanges, TranslatedChanges> translation = null)
         {
             _translation = translation ?? (changes => changes);
         }
-
-        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
 
         public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, TranslatedChanges changes)
         {

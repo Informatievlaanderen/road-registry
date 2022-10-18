@@ -8,12 +8,12 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 
 public class RoadNetworkExtractDownloadsBlobClient : IBlobClient
 {
+    private readonly IBlobClient _client;
+
     public RoadNetworkExtractDownloadsBlobClient(IBlobClient client)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
     }
-
-    private readonly IBlobClient _client;
 
     public Task<bool> BlobExistsAsync(BlobName name, CancellationToken cancellationToken = default)
     {

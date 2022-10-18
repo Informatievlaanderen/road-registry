@@ -1,18 +1,17 @@
-namespace RoadRegistry.Legacy.Extract
+namespace RoadRegistry.Legacy.Extract;
+
+using System;
+using BackOffice.Framework;
+
+public class StreamEvent
 {
-    using System;
-    using BackOffice.Framework;
-
-    public class StreamEvent
+    public StreamEvent(StreamName stream, object @event)
     {
-        public StreamEvent(StreamName stream, object @event)
-        {
-            Stream = stream;
-            Event = @event ?? throw new ArgumentNullException(nameof(@event));
-        }
-
-        public object Event { get; }
-
-        public StreamName Stream { get; }
+        Stream = stream;
+        Event = @event ?? throw new ArgumentNullException(nameof(@event));
     }
+
+    public object Event { get; }
+
+    public StreamName Stream { get; }
 }

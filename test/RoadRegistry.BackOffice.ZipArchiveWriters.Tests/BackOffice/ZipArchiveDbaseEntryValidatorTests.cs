@@ -9,12 +9,12 @@ using Uploads;
 
 public class ZipArchiveDbaseEntryValidatorTests
 {
+    private readonly ZipArchiveValidationContext _context;
+
     public ZipArchiveDbaseEntryValidatorTests()
     {
         _context = ZipArchiveValidationContext.Empty;
     }
-
-    private readonly ZipArchiveValidationContext _context;
 
     private class CollectDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
     {
@@ -71,12 +71,12 @@ public class ZipArchiveDbaseEntryValidatorTests
 
     private class FakeDbaseRecordValidator : IZipArchiveDbaseRecordsValidator<FakeDbaseRecord>
     {
+        private readonly FileProblem[] _problems;
+
         public FakeDbaseRecordValidator(params FileProblem[] problems)
         {
             _problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
-
-        private readonly FileProblem[] _problems;
 
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, ZipArchiveValidationContext context)
         {

@@ -10,6 +10,10 @@ using Product.Schema.RoadSegments;
 
 public class RoadSegmentNumberedRoadAttributesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 {
+    private readonly Encoding _encoding;
+    private readonly string _entryFormat;
+    private readonly RecyclableMemoryStreamManager _manager;
+
     public RoadSegmentNumberedRoadAttributesToZipArchiveWriter(string entryFormat, RecyclableMemoryStreamManager manager,
         Encoding encoding)
     {
@@ -17,10 +21,6 @@ public class RoadSegmentNumberedRoadAttributesToZipArchiveWriter : IZipArchiveWr
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
-
-    private readonly Encoding _encoding;
-    private readonly string _entryFormat;
-    private readonly RecyclableMemoryStreamManager _manager;
 
     public async Task WriteAsync(ZipArchive archive, ProductContext context, CancellationToken cancellationToken)
     {

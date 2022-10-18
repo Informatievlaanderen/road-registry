@@ -19,6 +19,8 @@ using Microsoft.Net.Http.Headers;
 /// <exception cref="ValidationException"></exception>
 public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtractRequest, DownloadExtractResponse>
 {
+    private readonly RoadNetworkExtractUploadsBlobClient _client;
+
     public DownloadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
@@ -26,8 +28,6 @@ public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtr
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
     }
-
-    private readonly RoadNetworkExtractUploadsBlobClient _client;
 
     public override async Task<DownloadExtractResponse> HandleAsync(DownloadExtractRequest request, CancellationToken cancellationToken)
     {

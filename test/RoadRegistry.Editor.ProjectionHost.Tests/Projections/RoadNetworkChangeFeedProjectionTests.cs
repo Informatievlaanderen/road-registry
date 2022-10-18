@@ -15,6 +15,9 @@ using FileProblem = BackOffice.Messages.FileProblem;
 
 public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTestServices>
 {
+    private readonly MemoryBlobClient _client;
+    private readonly Fixture _fixture;
+
     public RoadNetworkChangeFeedProjectionTests()
     {
         _fixture = new Fixture();
@@ -23,9 +26,6 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         _fixture.CustomizeExtractRequestId();
         _client = new MemoryBlobClient();
     }
-
-    private readonly MemoryBlobClient _client;
-    private readonly Fixture _fixture;
 
     [Fact]
     public async Task When_an_archive_for_an_extract_is_accepted()

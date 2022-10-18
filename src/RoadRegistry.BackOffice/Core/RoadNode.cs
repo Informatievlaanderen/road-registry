@@ -8,6 +8,8 @@ using NetTopologySuite.Geometries;
 
 public class RoadNode
 {
+    private readonly ImmutableHashSet<RoadSegmentId> _segments;
+
     public RoadNode(RoadNodeId id, RoadNodeType type, Point geometry)
     {
         Id = id;
@@ -23,8 +25,6 @@ public class RoadNode
         Geometry = geometry;
         _segments = segments;
     }
-
-    private readonly ImmutableHashSet<RoadSegmentId> _segments;
 
     public RoadNode ConnectWith(RoadSegmentId segment)
     {

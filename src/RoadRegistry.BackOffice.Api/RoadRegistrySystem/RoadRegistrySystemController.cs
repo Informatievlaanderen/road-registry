@@ -17,6 +17,10 @@ using SqlStreamStore;
 [ApiKeyAuth("Road")]
 public class RoadRegistrySystemController : ControllerBase
 {
+    private readonly IValidator<RebuildSnapshotParameters> _rebuildSnapshotParametersValidator;
+    private readonly UseSnapshotRebuildFeatureToggle _snapshotRebuildFeatureToggle;
+    private readonly IStreamStore _store;
+
     public RoadRegistrySystemController(
         IStreamStore store,
         IValidator<RebuildSnapshotParameters> rebuildSnapshotParametersValidator,
@@ -26,10 +30,6 @@ public class RoadRegistrySystemController : ControllerBase
         _rebuildSnapshotParametersValidator = rebuildSnapshotParametersValidator;
         _snapshotRebuildFeatureToggle = snapshotRebuildFeatureToggle;
     }
-
-    private readonly IValidator<RebuildSnapshotParameters> _rebuildSnapshotParametersValidator;
-    private readonly UseSnapshotRebuildFeatureToggle _snapshotRebuildFeatureToggle;
-    private readonly IStreamStore _store;
 
     [HttpPost("snapshots/refresh")]
     [ApiExplorerSettings(IgnoreApi = true)]

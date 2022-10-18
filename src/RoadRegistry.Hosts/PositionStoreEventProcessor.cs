@@ -19,6 +19,14 @@ using SqlStreamStore.Subscriptions;
 public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> : IHostedService
     where TEventProcessorPositionStore : IEventProcessorPositionStore
 {
+    private readonly ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> _logger;
+
+    private readonly Channel<object> _messageChannel;
+    private readonly Task _messagePump;
+    private readonly CancellationTokenSource _messagePumpCancellation;
+
+    private readonly Scheduler _scheduler;
+
     protected PositionStoreEventProcessor(
         string queueName,
         IStreamStore streamStore,
@@ -75,14 +83,6 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             }
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
-
-    private readonly ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> _logger;
-
-    private readonly Channel<object> _messageChannel;
-    private readonly Task _messagePump;
-    private readonly CancellationTokenSource _messagePumpCancellation;
-
-    private readonly Scheduler _scheduler;
 
     private static bool CanResumeFrom(SubscriptionDropped dropped)
     {
@@ -225,13 +225,13 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
 
     private sealed class ProcessStreamMessage
     {
+        private readonly TaskCompletionSource<object> _source;
+
         public ProcessStreamMessage(StreamMessage message)
         {
             Message = message;
             _source = new TaskCompletionSource<object>();
         }
-
-        private readonly TaskCompletionSource<object> _source;
 
         public void Complete()
         {

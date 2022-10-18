@@ -9,12 +9,12 @@ using Syndication.Projections.StreetNameEvents;
 
 public class StreetNameCacheProjectionTests
 {
+    private readonly Fixture _fixture;
+
     public StreetNameCacheProjectionTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     private StreetNameBecameCurrent CreateStreetNameBecameCurrent(StreetNameWasRegistered streetNameWasRegistered)
     {

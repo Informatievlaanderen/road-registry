@@ -10,13 +10,13 @@ using Xunit;
 
 public class OrganizationIdTests
 {
+    private readonly Fixture _fixture;
+
     public OrganizationIdTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeOrganizationId();
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void AcceptsValueReturnsExpectedResult()

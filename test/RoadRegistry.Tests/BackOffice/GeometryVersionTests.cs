@@ -8,12 +8,12 @@ using Xunit;
 
 public class GeometryVersionTests
 {
+    private readonly Fixture _fixture;
+
     public GeometryVersionTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData(1, 2, -1)]

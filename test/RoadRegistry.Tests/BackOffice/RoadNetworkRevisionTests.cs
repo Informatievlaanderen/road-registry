@@ -8,12 +8,12 @@ using Xunit;
 
 public class RoadNetworkRevisionTests
 {
+    private readonly Fixture _fixture;
+
     public RoadNetworkRevisionTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void NextHasExpectedResult()

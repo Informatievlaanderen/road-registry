@@ -26,12 +26,12 @@ using Version = Infrastructure.Version;
 [ApiKeyAuth("Road")]
 public class UploadController : ControllerBase
 {
+    private readonly IMediator _mediator;
+
     public UploadController(IMediator mediator)
     {
         _mediator = mediator;
     }
-
-    private readonly IMediator _mediator;
 
     [HttpGet("{identifier}")]
     public async Task<IActionResult> Get(string identifier, CancellationToken cancellationToken)

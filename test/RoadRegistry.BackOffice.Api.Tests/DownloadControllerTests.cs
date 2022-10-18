@@ -17,6 +17,11 @@ using SqlStreamStore;
 [Collection(nameof(SqlServerCollection))]
 public class DownloadControllerTests : ControllerTests<DownloadController>
 {
+    private readonly EditorContext _editorContext;
+    private readonly SqlServer _fixture;
+    private readonly ProductContext _productContext;
+    private readonly CancellationTokenSource _tokenSource;
+
     public DownloadControllerTests(
         SqlServer fixture,
         EditorContext editorContext,
@@ -33,11 +38,6 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
         _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
         _productContext = productContext ?? throw new ArgumentNullException(nameof(productContext));
     }
-
-    private readonly EditorContext _editorContext;
-    private readonly SqlServer _fixture;
-    private readonly ProductContext _productContext;
-    private readonly CancellationTokenSource _tokenSource;
 
     [Fact]
     public async Task When_downloading_editor_archive_after_an_import()

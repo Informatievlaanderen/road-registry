@@ -12,13 +12,14 @@ using Xunit;
 
 public class ArchiveIdTests
 {
+    private readonly Fixture _fixture;
+
     public ArchiveIdTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeArchiveId();
     }
 
-    private readonly Fixture _fixture;
     private static readonly JsonSerializerSettings _serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     [Theory]

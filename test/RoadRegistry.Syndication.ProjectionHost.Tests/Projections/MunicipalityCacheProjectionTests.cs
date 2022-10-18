@@ -8,12 +8,12 @@ using Syndication.Projections.MunicipalityEvents;
 
 public class MunicipalityCacheProjectionTests
 {
+    private readonly Fixture _fixture;
+
     public MunicipalityCacheProjectionTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     private MunicipalityBecameCurrent CreateMunicipalityBecameCurrent(MunicipalityWasRegistered municipalityWasRegistered)
     {

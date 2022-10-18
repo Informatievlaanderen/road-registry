@@ -4,12 +4,12 @@ using RoadRegistry.BackOffice.Uploads;
 
 public class TranslatedChangeEqualityComparer<T> : IEqualityComparer<ITranslatedChange>
 {
+    private readonly IEqualityComparer<T> _comparer;
+
     public TranslatedChangeEqualityComparer(IEqualityComparer<T> comparer)
     {
         _comparer = comparer ?? throw new ArgumentNullException(nameof(comparer));
     }
-
-    private readonly IEqualityComparer<T> _comparer;
 
     public bool Equals(ITranslatedChange left, ITranslatedChange right)
     {

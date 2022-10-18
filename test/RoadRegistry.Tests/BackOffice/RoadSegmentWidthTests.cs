@@ -9,13 +9,13 @@ using Xunit;
 
 public class RoadSegmentWidthTests
 {
+    private readonly Fixture _fixture;
+
     public RoadSegmentWidthTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeRoadSegmentWidth();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData(int.MinValue, false)]

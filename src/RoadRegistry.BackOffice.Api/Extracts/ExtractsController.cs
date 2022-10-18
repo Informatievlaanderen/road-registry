@@ -23,12 +23,12 @@ using Microsoft.AspNetCore.Mvc;
 [ApiKeyAuth("Road")]
 public class ExtractsController : ControllerBase
 {
+    private readonly IMediator _mediator;
+
     public ExtractsController(IMediator mediator)
     {
         _mediator = mediator;
     }
-
-    private readonly IMediator _mediator;
 
     [HttpGet("download/{downloadId}")]
     public async Task<ActionResult> GetDownload(

@@ -9,6 +9,9 @@ using Microsoft.Extensions.Logging;
 
 public class SqsQueuePublisher : ISqsQueuePublisher
 {
+    private readonly ILogger<SqsQueuePublisher> _logger;
+    private readonly SqsOptions _sqsOptions;
+
     public SqsQueuePublisher(
         SqsOptions sqsOptions,
         ILogger<SqsQueuePublisher> logger)
@@ -16,9 +19,6 @@ public class SqsQueuePublisher : ISqsQueuePublisher
         _sqsOptions = sqsOptions ?? throw new SqsOptionsNotFoundException(nameof(sqsOptions));
         _logger = logger ?? throw new LoggerNotFoundException<SqsQueuePublisher>();
     }
-
-    private readonly ILogger<SqsQueuePublisher> _logger;
-    private readonly SqsOptions _sqsOptions;
 
     public virtual async Task<bool> CopyToQueue<T>(string queueName, T message, SqsQueueOptions sqsQueueOptions, CancellationToken cancellationToken) where T : class
     {

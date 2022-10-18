@@ -9,6 +9,22 @@ using NetTopologySuite.Geometries;
 
 public class ImmutableRoadNetworkView : IRoadNetworkView
 {
+    private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
+    private readonly AttributeId _maximumEuropeanRoadAttributeId;
+    private readonly GradeSeparatedJunctionId _maximumGradeSeparatedJunctionId;
+    private readonly AttributeId _maximumLaneAttributeId;
+    private readonly AttributeId _maximumNationalRoadAttributeId;
+    private readonly RoadNodeId _maximumNodeId;
+    private readonly AttributeId _maximumNumberedRoadAttributeId;
+    private readonly RoadSegmentId _maximumSegmentId;
+    private readonly AttributeId _maximumSurfaceAttributeId;
+    private readonly TransactionId _maximumTransactionId;
+    private readonly AttributeId _maximumWidthAttributeId;
+
+    private readonly ImmutableDictionary<RoadNodeId, RoadNode> _nodes;
+
+    private readonly ImmutableDictionary<RoadSegmentId, RoadSegment> _segments;
+
     private ImmutableRoadNetworkView(
         ImmutableDictionary<RoadNodeId, RoadNode> nodes,
         ImmutableDictionary<RoadSegmentId, RoadSegment> segments,
@@ -45,24 +61,32 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         SegmentReusableSurfaceAttributeIdentifiers = segmentReusableSurfaceAttributeIdentifiers;
     }
 
-    private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> _gradeSeparatedJunctions;
-    private readonly AttributeId _maximumEuropeanRoadAttributeId;
-    private readonly GradeSeparatedJunctionId _maximumGradeSeparatedJunctionId;
-    private readonly AttributeId _maximumLaneAttributeId;
-    private readonly AttributeId _maximumNationalRoadAttributeId;
-    private readonly RoadNodeId _maximumNodeId;
-    private readonly AttributeId _maximumNumberedRoadAttributeId;
-    private readonly RoadSegmentId _maximumSegmentId;
-    private readonly AttributeId _maximumSurfaceAttributeId;
-    private readonly TransactionId _maximumTransactionId;
-    private readonly AttributeId _maximumWidthAttributeId;
-
-    private readonly ImmutableDictionary<RoadNodeId, RoadNode> _nodes;
-
-    private readonly ImmutableDictionary<RoadSegmentId, RoadSegment> _segments;
-
     private sealed class Builder : IRoadNetworkView
     {
+        private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction>.Builder _gradeSeparatedJunctions;
+        private readonly ImmutableDictionary<RoadNodeId, RoadNode>.Builder _nodes;
+
+        private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
+            _segmentReusableLaneAttributeIdentifiers;
+
+        private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
+            _segmentReusableSurfaceAttributeIdentifiers;
+
+        private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
+            _segmentReusableWidthAttributeIdentifiers;
+
+        private readonly ImmutableDictionary<RoadSegmentId, RoadSegment>.Builder _segments;
+        private AttributeId _maximumEuropeanRoadAttributeId;
+        private GradeSeparatedJunctionId _maximumGradeSeparatedJunctionId;
+        private AttributeId _maximumLaneAttributeId;
+        private AttributeId _maximumNationalRoadAttributeId;
+        private RoadNodeId _maximumNodeId;
+        private AttributeId _maximumNumberedRoadAttributeId;
+        private RoadSegmentId _maximumSegmentId;
+        private AttributeId _maximumSurfaceAttributeId;
+        private TransactionId _maximumTransactionId;
+        private AttributeId _maximumWidthAttributeId;
+
         public Builder(
             ImmutableDictionary<RoadNodeId, RoadNode>.Builder nodes,
             ImmutableDictionary<RoadSegmentId, RoadSegment>.Builder segments,
@@ -101,30 +125,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _segmentReusableWidthAttributeIdentifiers = segmentReusableWidthAttributeIdentifiers;
             _segmentReusableSurfaceAttributeIdentifiers = segmentReusableSurfaceAttributeIdentifiers;
         }
-
-        private readonly ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction>.Builder _gradeSeparatedJunctions;
-        private AttributeId _maximumEuropeanRoadAttributeId;
-        private GradeSeparatedJunctionId _maximumGradeSeparatedJunctionId;
-        private AttributeId _maximumLaneAttributeId;
-        private AttributeId _maximumNationalRoadAttributeId;
-        private RoadNodeId _maximumNodeId;
-        private AttributeId _maximumNumberedRoadAttributeId;
-        private RoadSegmentId _maximumSegmentId;
-        private AttributeId _maximumSurfaceAttributeId;
-        private TransactionId _maximumTransactionId;
-        private AttributeId _maximumWidthAttributeId;
-        private readonly ImmutableDictionary<RoadNodeId, RoadNode>.Builder _nodes;
-
-        private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
-            _segmentReusableLaneAttributeIdentifiers;
-
-        private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
-            _segmentReusableSurfaceAttributeIdentifiers;
-
-        private readonly ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>.Builder
-            _segmentReusableWidthAttributeIdentifiers;
-
-        private readonly ImmutableDictionary<RoadSegmentId, RoadSegment>.Builder _segments;
 
         public IScopedRoadNetworkView CreateScopedView(Envelope envelope)
         {

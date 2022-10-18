@@ -6,13 +6,13 @@ using System.Linq;
 
 public sealed class RecordType : IEquatable<RecordType>
 {
+    private readonly string _value;
+
     private RecordType(string value, DutchTranslation dutchTranslation)
     {
         _value = value;
         Translation = dutchTranslation;
     }
-
-    private readonly string _value;
 
     public static readonly RecordType Identical =
         new(

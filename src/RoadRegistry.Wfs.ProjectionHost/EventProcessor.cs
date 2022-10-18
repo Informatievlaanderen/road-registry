@@ -21,6 +21,17 @@ using SqlStreamStore.Streams;
 
 public class EventProcessor
 {
+    private readonly Func<WfsContext> _dbContextFactory;
+    private readonly EnvelopeFactory _envelopeFactory;
+    private readonly AcceptStreamMessageFilter _filter;
+    private readonly ILogger<EventProcessor> _logger;
+    private readonly IMetadataUpdater _metadataUpdater;
+    private readonly ConnectedProjectionHandlerResolver<WfsContext> _resolver;
+
+
+    private readonly IStreamStore _streamStore;
+    private readonly IStreetNameCache _streetNameCache;
+
     public EventProcessor(
         IStreamStore streamStore,
         AcceptStreamMessageFilter filter,
@@ -40,17 +51,6 @@ public class EventProcessor
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _metadataUpdater = metadataUpdater ?? throw new ArgumentNullException(nameof(metadataUpdater));
     }
-
-    private readonly Func<WfsContext> _dbContextFactory;
-    private readonly EnvelopeFactory _envelopeFactory;
-    private readonly AcceptStreamMessageFilter _filter;
-    private readonly ILogger<EventProcessor> _logger;
-    private readonly IMetadataUpdater _metadataUpdater;
-    private readonly ConnectedProjectionHandlerResolver<WfsContext> _resolver;
-
-
-    private readonly IStreamStore _streamStore;
-    private readonly IStreetNameCache _streetNameCache;
 
     private async Task CatchUp(long? after, int catchUpBatchSize, CancellationToken token)
     {

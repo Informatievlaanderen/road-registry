@@ -4,12 +4,12 @@ using System;
 
 public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
 {
+    private readonly string _value;
+
     private EuropeanRoadNumber(string value)
     {
         _value = value;
     }
-
-    private readonly string _value;
 
     public static readonly EuropeanRoadNumber E17 = new(nameof(E17));
     public static readonly EuropeanRoadNumber E19 = new(nameof(E19));

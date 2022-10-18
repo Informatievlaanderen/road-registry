@@ -8,14 +8,14 @@ using System.Linq;
 
 public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem>, IEquatable<ZipArchiveValidationResult>
 {
+    private readonly ZipArchiveProblems _problems;
+    private readonly ImmutableHashSet<RoadSegmentId> _segments;
+
     private ZipArchiveValidationResult(ZipArchiveProblems problems, ImmutableHashSet<RoadSegmentId> segments)
     {
         _problems = problems;
         _segments = segments;
     }
-
-    private readonly ZipArchiveProblems _problems;
-    private readonly ImmutableHashSet<RoadSegmentId> _segments;
 
     public ZipArchiveValidationResult Add(FileProblem problem)
     {

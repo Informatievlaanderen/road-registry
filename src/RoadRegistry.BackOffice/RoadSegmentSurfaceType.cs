@@ -6,13 +6,13 @@ using System.Linq;
 
 public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
 {
+    private readonly string _value;
+
     private RoadSegmentSurfaceType(string value, DutchTranslation dutchTranslation)
     {
         _value = value;
         Translation = dutchTranslation;
     }
-
-    private readonly string _value;
 
     public static readonly RoadSegmentSurfaceType LooseSurface =
         new(

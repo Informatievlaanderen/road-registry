@@ -11,6 +11,9 @@ using RoadRegistry.Tests.Framework.Projections;
 
 public class RoadSegmentNationalRoadAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
     public RoadSegmentNationalRoadAttributeRecordProjectionTests(ProjectionTestServices services)
     {
         _services = services ?? throw new ArgumentNullException(nameof(services));
@@ -55,9 +58,6 @@ public class RoadSegmentNationalRoadAttributeRecordProjectionTests : IClassFixtu
         _fixture.CustomizeRoadSegmentRemovedFromNationalRoad();
         _fixture.CustomizeRoadSegmentRemoved();
     }
-
-    private readonly Fixture _fixture;
-    private readonly ProjectionTestServices _services;
 
     [Fact]
     public Task When_adding_road_segments()

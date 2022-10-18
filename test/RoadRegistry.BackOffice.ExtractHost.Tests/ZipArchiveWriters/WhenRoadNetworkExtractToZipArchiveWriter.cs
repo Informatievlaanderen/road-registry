@@ -4,12 +4,12 @@ using Fixtures;
 
 public class WhenRoadNetworkExtractToZipArchiveWriter : IClassFixture<RoadNetworkExtractToZipArchiveWriterFixture>
 {
+    private readonly RoadNetworkExtractToZipArchiveWriterFixture _fixture;
+
     public WhenRoadNetworkExtractToZipArchiveWriter(RoadNetworkExtractToZipArchiveWriterFixture fixture)
     {
         _fixture = fixture;
     }
-
-    private readonly RoadNetworkExtractToZipArchiveWriterFixture _fixture;
 
     [Fact(Skip = "For live debugging purposes")]
     public void ItShouldSucceeded()

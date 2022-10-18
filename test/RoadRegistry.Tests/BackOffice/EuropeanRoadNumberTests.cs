@@ -8,14 +8,14 @@ using Xunit;
 
 public class EuropeanRoadNumberTests
 {
+    private readonly Fixture _fixture;
+    private readonly string[] _knownValues;
+
     public EuropeanRoadNumberTests()
     {
         _fixture = new Fixture();
         _knownValues = Array.ConvertAll(EuropeanRoadNumber.All, type => type.ToString());
     }
-
-    private readonly Fixture _fixture;
-    private readonly string[] _knownValues;
 
     [Fact]
     public void AllReturnsExpectedResult()

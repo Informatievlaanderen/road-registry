@@ -9,13 +9,13 @@ using Xunit;
 
 public class RoadSegmentLaneCountTests
 {
+    private readonly Fixture _fixture;
+
     public RoadSegmentLaneCountTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeRoadSegmentLaneCount();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData(int.MinValue, false)]

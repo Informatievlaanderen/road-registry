@@ -8,6 +8,14 @@ using NetTopologySuite.Geometries;
 
 public class RoadNetworkExtract : EventSourcedEntity
 {
+    private readonly HashSet<DownloadId> _announcedDownloads;
+    private readonly HashSet<UploadId> _knownUploads;
+
+    private readonly List<DownloadId> _requestedDownloads;
+
+    private ExternalExtractRequestId _externalExtractRequestId;
+    private ExtractDescription _extractDescription;
+
     private RoadNetworkExtract()
     {
         _requestedDownloads = new List<DownloadId>();
@@ -31,14 +39,6 @@ public class RoadNetworkExtract : EventSourcedEntity
         On<RoadNetworkExtractDownloadBecameAvailable>(e => { _announcedDownloads.Add(new DownloadId(e.DownloadId)); });
         On<RoadNetworkExtractChangesArchiveUploaded>(e => { _knownUploads.Add(new UploadId(e.UploadId)); });
     }
-
-    private readonly HashSet<DownloadId> _announcedDownloads;
-
-    private ExternalExtractRequestId _externalExtractRequestId;
-    private ExtractDescription _extractDescription;
-    private readonly HashSet<UploadId> _knownUploads;
-
-    private readonly List<DownloadId> _requestedDownloads;
 
     public void Announce(DownloadId downloadId, ArchiveId archiveId)
     {

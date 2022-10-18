@@ -7,14 +7,14 @@ using Xunit;
 
 public class FakeSqsTests
 {
+    private readonly CancellationToken _cancellationToken;
+    private readonly SqsQueueOptions _sqsQueueOptions;
+
     public FakeSqsTests()
     {
         _sqsQueueOptions = new SqsQueueOptions();
         _cancellationToken = CancellationToken.None;
     }
-
-    private readonly CancellationToken _cancellationToken;
-    private readonly SqsQueueOptions _sqsQueueOptions;
 
     [Fact]
     public async Task Fake_sqs_should_publish_and_consume()

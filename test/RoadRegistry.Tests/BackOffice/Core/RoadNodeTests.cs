@@ -8,6 +8,12 @@ using Xunit;
 
 public class FullyDisconnectedRoadNodeTests
 {
+    private readonly Fixture _fixture;
+    private readonly Point _geometry;
+    private readonly RoadNodeId _id;
+    private readonly RoadNode _sut;
+    private readonly RoadNodeType _type;
+
     public FullyDisconnectedRoadNodeTests()
     {
         _fixture = new Fixture();
@@ -18,12 +24,6 @@ public class FullyDisconnectedRoadNodeTests
         _geometry = _fixture.Create<Point>();
         _sut = new RoadNode(_id, _type, _geometry);
     }
-
-    private readonly Fixture _fixture;
-    private readonly Point _geometry;
-    private readonly RoadNodeId _id;
-    private readonly RoadNode _sut;
-    private readonly RoadNodeType _type;
 
     [Fact]
     public void ConnectWithReturnsExpectedResult()
@@ -88,6 +88,14 @@ public class FullyDisconnectedRoadNodeTests
 
 public class ConnectedRoadNodeTests
 {
+    private readonly Fixture _fixture;
+    private readonly Point _geometry;
+    private readonly RoadNodeId _id;
+    private readonly RoadSegmentId _link1;
+    private readonly RoadSegmentId _link2;
+    private readonly RoadNode _sut;
+    private readonly RoadNodeType _type;
+
     public ConnectedRoadNodeTests()
     {
         _fixture = new Fixture();
@@ -100,14 +108,6 @@ public class ConnectedRoadNodeTests
         _link2 = _fixture.Create<RoadSegmentId>();
         _sut = new RoadNode(_id, _type, _geometry).ConnectWith(_link1).ConnectWith(_link2);
     }
-
-    private readonly Fixture _fixture;
-    private readonly Point _geometry;
-    private readonly RoadNodeId _id;
-    private readonly RoadSegmentId _link1;
-    private readonly RoadSegmentId _link2;
-    private readonly RoadNode _sut;
-    private readonly RoadNodeType _type;
 
     [Fact]
     public void ConnectWithReturnsExpectedResult()

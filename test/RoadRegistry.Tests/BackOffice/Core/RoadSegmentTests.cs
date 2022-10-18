@@ -8,6 +8,13 @@ using Xunit;
 
 public class RoadSegmentTests
 {
+    private readonly AttributeHash _attributeHash;
+    private readonly RoadNodeId _end;
+    private readonly MultiLineString _geometry;
+    private readonly RoadSegmentId _id;
+    private readonly RoadNodeId _start;
+    private readonly RoadSegment _sut;
+
     public RoadSegmentTests()
     {
         var fixture = new Fixture();
@@ -27,13 +34,6 @@ public class RoadSegmentTests
         _attributeHash = fixture.Create<AttributeHash>();
         _sut = new RoadSegment(_id, _geometry, _start, _end, _attributeHash);
     }
-
-    private readonly AttributeHash _attributeHash;
-    private readonly RoadNodeId _end;
-    private readonly MultiLineString _geometry;
-    private readonly RoadSegmentId _id;
-    private readonly RoadNodeId _start;
-    private readonly RoadSegment _sut;
 
     [Fact]
     public void AttributeHashReturnsExpectedResult()

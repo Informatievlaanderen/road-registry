@@ -9,13 +9,13 @@ using Xunit;
 
 public class ExtractRequestIdTests
 {
+    private readonly Fixture _fixture;
+
     public ExtractRequestIdTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeExtractRequestId();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData(null, false)]

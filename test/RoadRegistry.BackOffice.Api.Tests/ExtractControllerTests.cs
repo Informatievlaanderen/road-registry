@@ -31,6 +31,11 @@ using Position = SqlStreamStore.Streams.Position;
 [Collection(nameof(SqlServerCollection))]
 public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyncLifetime
 {
+    private readonly Fixture _fixture;
+    private readonly SqlServer _sqlServerFixture;
+
+    private EditorContext _editorContext;
+
     public ExtractControllerTests(
         SqlServer sqlServerFixture,
         IMediator mediator,
@@ -45,10 +50,6 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
         _fixture.CustomizeExternalExtractRequestId();
         _fixture.CustomizeRoadNetworkExtractGeometry();
     }
-
-    private EditorContext _editorContext;
-    private readonly Fixture _fixture;
-    private readonly SqlServer _sqlServerFixture;
 
     public async Task DisposeAsync()
     {

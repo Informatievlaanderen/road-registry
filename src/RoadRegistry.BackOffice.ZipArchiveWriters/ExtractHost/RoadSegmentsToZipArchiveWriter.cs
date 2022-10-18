@@ -12,6 +12,11 @@ using Microsoft.IO;
 
 public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
+    private readonly Encoding _encoding;
+    private readonly RecyclableMemoryStreamManager _manager;
+    private readonly IStreetNameCache _streetNameCache;
+    private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
+
     public RoadSegmentsToZipArchiveWriter(
         ZipArchiveWriterOptions zipArchiveWriterOptions,
         IStreetNameCache streetNameCache,
@@ -23,11 +28,6 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
         _manager = manager ?? throw new ArgumentNullException(nameof(manager));
         _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
     }
-
-    private readonly Encoding _encoding;
-    private readonly RecyclableMemoryStreamManager _manager;
-    private readonly IStreetNameCache _streetNameCache;
-    private readonly ZipArchiveWriterOptions _zipArchiveWriterOptions;
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
         EditorContext context,

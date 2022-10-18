@@ -14,6 +14,8 @@ using Polygon = BackOffice.Messages.Polygon;
 
 public class ExtractDownloadRecordProjectionTests
 {
+    private readonly Fixture _fixture;
+
     public ExtractDownloadRecordProjectionTests()
     {
         _fixture = new Fixture();
@@ -62,8 +64,6 @@ public class ExtractDownloadRecordProjectionTests
                     .OmitAutoProperties()
         );
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public Task When_extract_download_became_available()

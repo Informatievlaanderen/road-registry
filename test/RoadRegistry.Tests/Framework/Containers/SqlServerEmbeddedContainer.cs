@@ -4,15 +4,15 @@ using Microsoft.Data.SqlClient;
 
 public class SqlServerEmbeddedContainer : DockerContainer, ISqlServerDatabase
 {
+    private readonly int _hostPort;
+
+    private int _db;
+
     public SqlServerEmbeddedContainer(int hostPort)
     {
         _hostPort = hostPort;
         Configuration = new SqlServerContainerConfiguration(CreateMasterConnectionStringBuilder(), hostPort);
     }
-
-    private int _db;
-
-    private readonly int _hostPort;
 
     private static SqlConnectionStringBuilder CreateConnectionStringBuilder(string database, int hostPort)
     {

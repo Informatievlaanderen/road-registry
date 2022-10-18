@@ -26,16 +26,16 @@ using NodaTime.Text;
 [ApiKeyAuth("Road")]
 public class ChangeFeedController : ControllerBase
 {
+    private readonly LocalDatePattern _localMonthPattern;
+    private readonly LocalTimePattern _localTimeOfDayPattern;
+    private readonly DateTimeZone _localTimeZone;
+
     public ChangeFeedController()
     {
         _localTimeZone = DateTimeZoneProviders.Tzdb["Europe/Brussels"];
         _localMonthPattern = LocalDatePattern.Create("MMM", new CultureInfo("nl-BE"));
         _localTimeOfDayPattern = LocalTimePattern.CreateWithInvariantCulture("HH':'mm");
     }
-
-    private readonly LocalDatePattern _localMonthPattern;
-    private readonly LocalTimePattern _localTimeOfDayPattern;
-    private readonly DateTimeZone _localTimeZone;
 
     [HttpGet("entry/{id}/content")]
     public async Task<IActionResult> GetContent([FromServices] EditorContext context, long id)

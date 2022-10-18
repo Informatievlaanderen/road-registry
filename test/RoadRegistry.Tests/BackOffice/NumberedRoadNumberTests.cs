@@ -8,14 +8,14 @@ using Xunit;
 
 public class NumberedRoadNumberTests
 {
+    private readonly Fixture _fixture;
+    private readonly string[] _knownValues;
+
     public NumberedRoadNumberTests()
     {
         _fixture = new Fixture();
         _knownValues = Array.ConvertAll(NumberedRoadNumbers.All, type => type.ToString());
     }
-
-    private readonly Fixture _fixture;
-    private readonly string[] _knownValues;
 
     [Fact]
     public void CanParseReturnsExpectedResultWhenValueDoesNotEndWithDigits()

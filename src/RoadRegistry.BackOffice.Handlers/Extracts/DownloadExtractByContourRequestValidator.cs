@@ -9,6 +9,9 @@ using NetTopologySuite.IO;
 
 public sealed class DownloadExtractByContourRequestValidator : AbstractValidator<DownloadExtractByContourRequest>, IPipelineBehavior<DownloadExtractByContourRequest, DownloadExtractByContourResponse>
 {
+    private readonly ILogger<DownloadExtractByContourRequestValidator> _logger;
+    private readonly WKTReader _reader;
+
     public DownloadExtractByContourRequestValidator(WKTReader reader, ILogger<DownloadExtractByContourRequestValidator> logger)
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
@@ -26,9 +29,6 @@ public sealed class DownloadExtractByContourRequestValidator : AbstractValidator
             .NotNull().WithMessage("'Description' must not be null or missing")
             .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
     }
-
-    private readonly ILogger<DownloadExtractByContourRequestValidator> _logger;
-    private readonly WKTReader _reader;
 
     private bool BeMultiPolygonGeometryAsWellKnownText(string text)
     {

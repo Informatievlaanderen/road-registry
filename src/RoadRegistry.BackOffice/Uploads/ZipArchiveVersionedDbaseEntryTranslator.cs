@@ -10,6 +10,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class ZipArchiveVersionedDbaseEntryTranslator : IZipArchiveEntryTranslator
 {
+    private readonly Encoding _encoding;
+    private readonly DbaseFileHeaderReadBehavior _readBehavior;
+    private readonly IReadOnlyDictionary<DbaseSchema, IZipArchiveEntryTranslator> _versionedTranslators;
+
     public ZipArchiveVersionedDbaseEntryTranslator(
         Encoding encoding,
         DbaseFileHeaderReadBehavior readBehavior,
@@ -19,10 +23,6 @@ public class ZipArchiveVersionedDbaseEntryTranslator : IZipArchiveEntryTranslato
         _readBehavior = readBehavior ?? throw new ArgumentNullException(nameof(readBehavior));
         _versionedTranslators = versionedTranslators ?? throw new ArgumentNullException(nameof(versionedTranslators));
     }
-
-    private readonly Encoding _encoding;
-    private readonly DbaseFileHeaderReadBehavior _readBehavior;
-    private readonly IReadOnlyDictionary<DbaseSchema, IZipArchiveEntryTranslator> _versionedTranslators;
 
     public TranslatedChanges Translate(ZipArchiveEntry entry, TranslatedChanges changes)
     {

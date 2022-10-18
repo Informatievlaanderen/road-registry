@@ -10,12 +10,12 @@ using Xunit;
 
 public class GradeSeparatedJunctionIdTests
 {
+    private readonly Fixture _fixture;
+
     public GradeSeparatedJunctionIdTests()
     {
         _fixture = new Fixture();
     }
-
-    private readonly Fixture _fixture;
 
     [Theory]
     [InlineData(int.MinValue, false)]

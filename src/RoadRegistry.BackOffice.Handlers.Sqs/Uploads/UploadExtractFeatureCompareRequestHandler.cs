@@ -20,6 +20,10 @@ using Microsoft.Extensions.Logging;
 /// <exception cref="UnsupportedMediaTypeException"></exception>
 public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<UploadExtractFeatureCompareRequest, UploadExtractFeatureCompareResponse>
 {
+    private readonly RoadNetworkExtractUploadsBlobClient _client;
+    private readonly ISqsQueuePublisher _sqsQueuePublisher;
+    private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
+
     public UploadExtractFeatureCompareRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
@@ -31,10 +35,6 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
         _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
     }
-
-    private readonly RoadNetworkExtractUploadsBlobClient _client;
-    private readonly ISqsQueuePublisher _sqsQueuePublisher;
-    private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
 
     public override async Task<UploadExtractFeatureCompareResponse> HandleAsync(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken)
     {

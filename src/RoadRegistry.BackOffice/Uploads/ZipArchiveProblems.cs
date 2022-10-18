@@ -8,12 +8,12 @@ using System.Linq;
 
 public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEquatable<ZipArchiveProblems>
 {
+    private readonly ImmutableList<FileProblem> _problems;
+
     private ZipArchiveProblems(ImmutableList<FileProblem> problems)
     {
         _problems = problems;
     }
-
-    private readonly ImmutableList<FileProblem> _problems;
 
     public ZipArchiveProblems Add(FileProblem problem)
     {

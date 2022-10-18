@@ -14,6 +14,8 @@ using Microsoft.Net.Http.Headers;
 // source: https://blog.stephencleary.com/2016/11/streaming-zip-on-aspnet-core.html
 public class FileCallbackResult : FileResult
 {
+    private readonly Func<Stream, ActionContext, Task> _callback;
+
     public FileCallbackResult(FileResponse fileResponse)
         : this(fileResponse.MediaTypeHeaderValue, async (stream, actionContext) => await fileResponse.Callback(stream, CancellationToken.None))
     {
@@ -25,8 +27,6 @@ public class FileCallbackResult : FileResult
     {
         _callback = callback ?? throw new ArgumentNullException(nameof(callback));
     }
-
-    private readonly Func<Stream, ActionContext, Task> _callback;
 
     public override Task ExecuteResultAsync(ActionContext context)
     {

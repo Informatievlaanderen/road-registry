@@ -8,14 +8,14 @@ using Xunit;
 
 public class RoadSegmentAccessRestrictionTests
 {
+    private readonly Fixture _fixture;
+    private readonly string[] _knownValues;
+
     public RoadSegmentAccessRestrictionTests()
     {
         _fixture = new Fixture();
         _knownValues = Array.ConvertAll(RoadSegmentAccessRestriction.All, type => type.ToString());
     }
-
-    private readonly Fixture _fixture;
-    private readonly string[] _knownValues;
 
     [Fact]
     public void AllReturnsExpectedResult()

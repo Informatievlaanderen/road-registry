@@ -10,6 +10,14 @@ using Xunit;
 
 public class RoadSegmentSurfaceChangeDbaseRecordsValidatorTests : IDisposable
 {
+    private readonly ZipArchive _archive;
+    private readonly ZipArchiveValidationContext _context;
+    private readonly ZipArchiveEntry _entry;
+    private readonly IDbaseRecordEnumerator<RoadSegmentSurfaceChangeDbaseRecord> _enumerator;
+    private readonly Fixture _fixture;
+    private readonly MemoryStream _stream;
+    private readonly RoadSegmentSurfaceChangeDbaseRecordsValidator _sut;
+
     public RoadSegmentSurfaceChangeDbaseRecordsValidatorTests()
     {
         _fixture = new Fixture();
@@ -48,14 +56,6 @@ public class RoadSegmentSurfaceChangeDbaseRecordsValidatorTests : IDisposable
         _entry = _archive.CreateEntry("attwegverharding_all.dbf");
         _context = ZipArchiveValidationContext.Empty;
     }
-
-    private readonly ZipArchive _archive;
-    private readonly ZipArchiveValidationContext _context;
-    private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<RoadSegmentSurfaceChangeDbaseRecord> _enumerator;
-    private readonly Fixture _fixture;
-    private readonly MemoryStream _stream;
-    private readonly RoadSegmentSurfaceChangeDbaseRecordsValidator _sut;
 
     public void Dispose()
     {

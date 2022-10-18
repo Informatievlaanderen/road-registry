@@ -11,12 +11,12 @@ using ZipArchiveWriters.ForProduct;
 [Collection(nameof(SqlServerCollection))]
 public class GradeSeparatedJunctionArchiveWriterTests
 {
+    private readonly SqlServer _fixture;
+
     public GradeSeparatedJunctionArchiveWriterTests(SqlServer fixture)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }
-
-    private readonly SqlServer _fixture;
 
     [Fact]
     public Task ArchiveCanNotBeNull()

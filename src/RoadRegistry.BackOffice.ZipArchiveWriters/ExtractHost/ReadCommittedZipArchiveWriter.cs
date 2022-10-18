@@ -7,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 public class ReadCommittedZipArchiveWriter<TContext> : IZipArchiveWriter<TContext> where TContext : DbContext
 {
+    private readonly IZipArchiveWriter<TContext> _writer;
+
     public ReadCommittedZipArchiveWriter(IZipArchiveWriter<TContext> writer)
     {
         _writer = writer ?? throw new ArgumentNullException(nameof(writer));
     }
-
-    private readonly IZipArchiveWriter<TContext> _writer;
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request, TContext context,
         CancellationToken cancellationToken)

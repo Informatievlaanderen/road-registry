@@ -9,6 +9,10 @@ using AutoFixture.Idioms;
 /// <seealso cref="Verify(IGuardClauseCommand)" />
 public class Int32RangeBehaviorExpectation : IBehaviorExpectation
 {
+    private readonly int[] _exceptions;
+    private readonly int _lowerLimitInclusive;
+    private readonly int _upperLimitInclusive;
+
     public Int32RangeBehaviorExpectation(int lowerLimitInclusive, int upperLimitInclusive)
     {
         if (lowerLimitInclusive > upperLimitInclusive) throw new ArgumentException("The inclusive lower limit needs to be less than or equal to the inclusive upper limit.", nameof(lowerLimitInclusive));
@@ -24,10 +28,6 @@ public class Int32RangeBehaviorExpectation : IBehaviorExpectation
         _upperLimitInclusive = upperLimitInclusive;
         _exceptions = exceptions ?? throw new ArgumentNullException(nameof(exceptions));
     }
-
-    private readonly int[] _exceptions;
-    private readonly int _lowerLimitInclusive;
-    private readonly int _upperLimitInclusive;
 
     /// <summary>
     ///     Verifies the behavior of the command when invoked with <see cref="int" /> less than 0.

@@ -9,13 +9,13 @@ using Xunit;
 
 public class OperatorNameTests
 {
+    private readonly Fixture _fixture;
+
     public OperatorNameTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeOperatorName();
     }
-
-    private readonly Fixture _fixture;
 
     [Fact]
     public void NoneGetHashCodeReturnsExpectedResult()
