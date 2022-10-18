@@ -35,7 +35,7 @@ public class ExtractsController : ControllerBase
     {
         DownloadExtractRequest request = new(body.RequestId, body.Contour);
         var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(response);
+        return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
     }
 
     [HttpPost("downloadrequests/bycontour")]
@@ -43,7 +43,7 @@ public class ExtractsController : ControllerBase
     {
         DownloadExtractByContourRequest request = new(body.Contour, body.Buffer, body.Description);
         var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(response);
+        return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
     }
 
     [HttpPost("downloadrequests/byniscode")]
@@ -53,7 +53,7 @@ public class ExtractsController : ControllerBase
         try
         {
             var response = await _mediator.Send(request, cancellationToken);
-            return Accepted(response);
+            return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
         }
         catch (DownloadExtractByNisCodeNotFoundException)
         {
@@ -94,7 +94,7 @@ public class ExtractsController : ControllerBase
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractRequest(downloadId, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
-            return Accepted(response);
+            return Accepted(new UploadExtractResponseBody { UploadId = response.UploadId.ToString() });
         }
         catch (ExtractDownloadNotFoundException)
         {
