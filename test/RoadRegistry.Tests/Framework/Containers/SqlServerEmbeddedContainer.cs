@@ -1,19 +1,32 @@
 namespace RoadRegistry.Tests.Framework.Containers;
 
-using System.Reflection;
 using Microsoft.Data.SqlClient;
 
 public class SqlServerEmbeddedContainer : DockerContainer, ISqlServerDatabase
 {
     private const string Password = "E@syP@ssw0rd";
-
     private readonly int _hostPort;
+
     private int _db;
 
     public SqlServerEmbeddedContainer(int hostPort)
     {
         _hostPort = hostPort;
         Configuration = new SqlServerContainerConfiguration(CreateMasterConnectionStringBuilder(), hostPort);
+    }
+
+    private static SqlConnectionStringBuilder CreateConnectionStringBuilder(string database, int hostPort)
+    {
+        return new SqlConnectionStringBuilder
+        {
+            DataSource = "tcp:localhost," + hostPort,
+            InitialCatalog = database,
+            UserID = "sa",
+            Password = Password,
+            Encrypt = false,
+            Enlist = false,
+            IntegratedSecurity = false
+        };
     }
 
     public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
@@ -40,20 +53,6 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
     private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
     {
         return CreateConnectionStringBuilder("master", _hostPort);
-    }
-
-    private static SqlConnectionStringBuilder CreateConnectionStringBuilder(string database, int hostPort)
-    {
-        return new SqlConnectionStringBuilder
-        {
-            DataSource = "tcp:localhost," + hostPort,
-            InitialCatalog = database,
-            UserID = "sa",
-            Password = Password,
-            Encrypt = false,
-            Enlist = false,
-            IntegratedSecurity = false
-        };
     }
 
     private class SqlServerContainerConfiguration : DockerContainerConfiguration

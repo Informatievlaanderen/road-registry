@@ -18,6 +18,22 @@ public class CrabStreetnameIdTests
     }
 
     [Fact]
+    public void CtorValueCanNotBeNegative()
+    {
+        new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()).Verify(
+            Constructors.Select(() => new CrabStreetnameId(0)));
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _fixture.Create<int>();
+        var sut = new CrabStreetnameId(value);
+
+        Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
+    }
+
+    [Fact]
     public void VerifyBehavior()
     {
         new CompositeIdiomaticAssertion(
@@ -36,21 +52,5 @@ public class CrabStreetnameIdTests
             new EqualsSuccessiveAssertion(_fixture),
             new GetHashCodeSuccessiveAssertion(_fixture)
         ).Verify(typeof(CrabStreetnameId));
-    }
-
-    [Fact]
-    public void CtorValueCanNotBeNegative()
-    {
-        new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation()).Verify(
-            Constructors.Select(() => new CrabStreetnameId(0)));
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = _fixture.Create<int>();
-        var sut = new CrabStreetnameId(value);
-
-        Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
     }
 }

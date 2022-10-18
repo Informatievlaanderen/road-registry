@@ -6,9 +6,9 @@ using Be.Vlaanderen.Basisregisters.Api;
 using FluentValidation;
 using Hosts;
 using Infrastructure;
+using Infrastructure.Controllers.Attributes;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 using SqlStreamStore;
 
 [ApiVersion(Version.Current)]

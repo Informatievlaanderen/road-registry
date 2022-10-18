@@ -18,6 +18,7 @@ public class OrganizationDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseString ORG { get; }
     public DbaseString LBLORG { get; }
+
+    public DbaseString ORG { get; }
 }

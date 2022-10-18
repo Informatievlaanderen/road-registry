@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Handlers.Uploads;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
-using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;

@@ -2,11 +2,8 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs;
 
 using Autofac;
 using MediatR;
-using MediatR.Pipeline;
-using System;
-using System.Collections.Generic;
 
-public class MediatorModule : Autofac.Module
+public class MediatorModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {

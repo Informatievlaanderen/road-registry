@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.Configuration
+namespace RoadRegistry.BackOffice.Api.Infrastructure.Configuration;
+
+public sealed class FeatureToggleOptions
 {
-    public sealed class FeatureToggleOptions
-    {
-        public const string ConfigurationKey = "FeatureToggles";
-        public bool UseFeatureCompare { get; set; }
-        public bool UseApiKeyAuthentication { get; set; }
-    }
+    public const string ConfigurationKey = "FeatureToggles";
+    public bool UseApiKeyAuthentication { get; set; }
+    public bool UseFeatureCompare { get; set; }
 }

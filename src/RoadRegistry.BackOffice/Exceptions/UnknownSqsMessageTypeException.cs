@@ -1,14 +1,21 @@
+namespace RoadRegistry.BackOffice.Exceptions;
+
 using System;
+using System.Runtime.Serialization;
 
-namespace RoadRegistry.BackOffice.Exceptions
+[Serializable]
+public class UnknownSqsMessageTypeException : ApplicationException
 {
-    public class UnknownSqsMessageTypeException : ApplicationException
+    public UnknownSqsMessageTypeException(string message, string messageType)
+        : base(message)
     {
-        public UnknownSqsMessageTypeException(string message, string messageType) : base(message)
-        {
-            MessageType = messageType;
-        }
-
-        public string MessageType { get; }
+        MessageType = messageType;
     }
+
+    protected UnknownSqsMessageTypeException(SerializationInfo info, StreamingContext context)
+        : base(info, context)
+    {
+    }
+
+    public string MessageType { get; }
 }

@@ -13,16 +13,6 @@ public sealed class ZipArchiveMetadata
 
     public DownloadId? DownloadId { get; }
 
-    public ZipArchiveMetadata WithDownloadId(DownloadId downloadId)
-    {
-        return new ZipArchiveMetadata(downloadId);
-    }
-
-    private bool Equals(ZipArchiveMetadata other)
-    {
-        return Nullable.Equals(DownloadId, other.DownloadId);
-    }
-
     public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
@@ -32,8 +22,18 @@ public sealed class ZipArchiveMetadata
         return obj.GetType() == GetType() && Equals((ZipArchiveMetadata)obj);
     }
 
+    private bool Equals(ZipArchiveMetadata other)
+    {
+        return Nullable.Equals(DownloadId, other.DownloadId);
+    }
+
     public override int GetHashCode()
     {
         return DownloadId.GetHashCode();
+    }
+
+    public ZipArchiveMetadata WithDownloadId(DownloadId downloadId)
+    {
+        return new ZipArchiveMetadata(downloadId);
     }
 }

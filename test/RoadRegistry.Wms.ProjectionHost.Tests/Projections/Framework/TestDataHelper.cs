@@ -1,29 +1,25 @@
 namespace RoadRegistry.Wms.ProjectionHost.Tests.Projections.Framework;
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
 
 public class TestDataHelper
 {
+    private static SqlServerBytesReader CreateSqlServerBytesReader()
+    {
+        return new SqlServerBytesReader
+        {
+            HandleOrdinates = Ordinates.AllOrdinates,
+            HandleSRID = true
+        };
+    }
+
     public async Task<T> EventFromFileAsync<T>(int number)
     {
         var json = await File.ReadAllTextAsync($"Projections/TestData/importedRoadSegment.{number}.json");
 
         return JsonConvert.DeserializeObject<T>(json);
-    }
-
-    public ExpectedWegsegmentRecord ExpectedRoadSegment(int number)
-    {
-        using (var streamReader = new StreamReader($"Projections/TestData/expected.{number}.csv"))
-        using (var csv = new CsvTestDataReader(streamReader))
-        {
-            return csv.GetRecords<ExpectedWegsegmentRecord>().Single();
-        }
     }
 
     public Geometry ExpectedGeometry(int number)
@@ -38,13 +34,13 @@ public class TestDataHelper
         return CreateSqlServerBytesReader().Read(StringToByteArray(record.geometrie2D.Substring(2)));
     }
 
-    private static SqlServerBytesReader CreateSqlServerBytesReader()
+    public ExpectedWegsegmentRecord ExpectedRoadSegment(int number)
     {
-        return new SqlServerBytesReader
+        using (var streamReader = new StreamReader($"Projections/TestData/expected.{number}.csv"))
+        using (var csv = new CsvTestDataReader(streamReader))
         {
-            HandleOrdinates = Ordinates.AllOrdinates,
-            HandleSRID = true
-        };
+            return csv.GetRecords<ExpectedWegsegmentRecord>().Single();
+        }
     }
 
     private static byte[] StringToByteArray(string hex)

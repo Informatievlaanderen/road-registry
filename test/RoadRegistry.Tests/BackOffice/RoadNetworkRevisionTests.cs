@@ -16,6 +16,25 @@ public class RoadNetworkRevisionTests
     }
 
     [Fact]
+    public void NextHasExpectedResult()
+    {
+        var value = new Generator<int>(_fixture).First(candidate => candidate >= 0 && candidate < int.MaxValue);
+        var sut = new RoadNetworkRevision(value);
+
+        var result = sut.Next();
+
+        Assert.Equal(new RoadNetworkRevision(value + 1), result);
+    }
+
+    [Fact]
+    public void NextThrowsWhenMaximumHasBeenReached()
+    {
+        var sut = new RoadNetworkRevision(int.MaxValue);
+
+        Assert.Throws<NotSupportedException>(() => sut.Next());
+    }
+
+    [Fact]
     public void VerifyBehavior()
     {
         new CompositeIdiomaticAssertion(
@@ -35,24 +54,5 @@ public class RoadNetworkRevisionTests
             new EqualsSuccessiveAssertion(_fixture),
             new GetHashCodeSuccessiveAssertion(_fixture)
         ).Verify(typeof(RoadNetworkRevision));
-    }
-
-    [Fact]
-    public void NextHasExpectedResult()
-    {
-        var value = new Generator<int>(_fixture).First(candidate => candidate >= 0 && candidate < int.MaxValue);
-        var sut = new RoadNetworkRevision(value);
-
-        var result = sut.Next();
-
-        Assert.Equal(new RoadNetworkRevision(value + 1), result);
-    }
-
-    [Fact]
-    public void NextThrowsWhenMaximumHasBeenReached()
-    {
-        var sut = new RoadNetworkRevision(int.MaxValue);
-
-        Assert.Throws<NotSupportedException>(() => sut.Next());
     }
 }

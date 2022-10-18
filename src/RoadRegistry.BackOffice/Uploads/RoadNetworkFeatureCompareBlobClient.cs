@@ -15,11 +15,6 @@ public class RoadNetworkFeatureCompareBlobClient : IBlobClient
         _client = client ?? throw new ArgumentNullException(nameof(client));
     }
 
-    public Task<BlobObject> GetBlobAsync(BlobName name, CancellationToken cancellationToken = default)
-    {
-        return _client.GetBlobAsync(name, cancellationToken);
-    }
-
     public Task<bool> BlobExistsAsync(BlobName name, CancellationToken cancellationToken = default)
     {
         return _client.BlobExistsAsync(name, cancellationToken);
@@ -34,5 +29,10 @@ public class RoadNetworkFeatureCompareBlobClient : IBlobClient
     public Task DeleteBlobAsync(BlobName name, CancellationToken cancellationToken = default)
     {
         return _client.DeleteBlobAsync(name, cancellationToken);
+    }
+
+    public Task<BlobObject> GetBlobAsync(BlobName name, CancellationToken cancellationToken = default)
+    {
+        return _client.GetBlobAsync(name, cancellationToken);
     }
 }

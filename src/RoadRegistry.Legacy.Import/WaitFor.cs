@@ -1,126 +1,125 @@
-namespace RoadRegistry.Legacy.Import
+namespace RoadRegistry.Legacy.Import;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
+internal class WriteTo
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net.Http;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Logging;
-
-    internal class WriteTo
+    public WriteTo()
     {
-        public WriteTo()
-        {
-            Args = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        }
-
-        public string Name { get; set; }
-
-        public Dictionary<string, string> Args { get; set; }
+        Args = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
     }
 
-    internal static class WaitFor
+    public Dictionary<string, string> Args { get; set; }
+
+    public string Name { get; set; }
+}
+
+internal static class WaitFor
+{
+    public static async Task SeqToBecomeAvailable(
+        IConfiguration configuration,
+        CancellationToken token = default)
     {
-        public static async Task SeqToBecomeAvailable(
-            IConfiguration configuration,
-            CancellationToken token = default)
-        {
-            var writeTos = new List<WriteTo>();
-            configuration.GetSection("SERILOG").Bind("WRITETO", writeTos);
+        var writeTos = new List<WriteTo>();
+        configuration.GetSection("SERILOG").Bind("WRITETO", writeTos);
 
-            var seq = writeTos.SingleOrDefault(to => "seq".Equals(to.Name, StringComparison.InvariantCultureIgnoreCase));
-            if (seq != null)
+        var seq = writeTos.SingleOrDefault(to => "seq".Equals(to.Name, StringComparison.InvariantCultureIgnoreCase));
+        if (seq != null)
+        {
+            var serverUrl = seq.Args["SERVERURL"];
+            using (var client = new HttpClient())
             {
-                var serverUrl = seq.Args["SERVERURL"];
-                using (var client = new HttpClient())
+                client.BaseAddress = new Uri(serverUrl);
+                var exit = false;
+                while (!exit)
                 {
-                    client.BaseAddress = new Uri(serverUrl);
-                    var exit = false;
-                    while (!exit)
-                    {
-                        Console.WriteLine("Waiting for Seq to become available ...");
+                    Console.WriteLine("Waiting for Seq to become available ...");
 
-                        try
+                    try
+                    {
+                        using (var response = await client.GetAsync("/api", token))
                         {
-                            using (var response = await client.GetAsync("/api", token))
-                            {
-                                if (!response.IsSuccessStatusCode)
-                                    await Task.Delay(TimeSpan.FromSeconds(1), token);
-                                else
-                                    exit = true;
-                            }
-                        }
-                        catch (Exception exception)
-                        {
-                            Console.WriteLine(
-                                "Observed an exception while waiting for Seq to become available. Exception:{0}",
-                                exception);
-                            await Task.Delay(TimeSpan.FromSeconds(1), token);
+                            if (!response.IsSuccessStatusCode)
+                                await Task.Delay(TimeSpan.FromSeconds(1), token);
+                            else
+                                exit = true;
                         }
                     }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(
+                            "Observed an exception while waiting for Seq to become available. Exception:{0}",
+                            exception);
+                        await Task.Delay(TimeSpan.FromSeconds(1), token);
+                    }
                 }
-
-                Console.WriteLine("Seq became available.");
             }
-        }
 
-        public static async Task SqlServerToBecomeAvailable(
-            SqlConnectionStringBuilder masterConnectionStringBuilder,
-            ILogger<Program> logger,
-            CancellationToken token = default)
-        {
-            var exit = false;
-            while (!exit)
-                try
+            Console.WriteLine("Seq became available.");
+        }
+    }
+
+    public static async Task SqlServerDatabaseToBecomeAvailable(
+        SqlConnectionStringBuilder masterConnectionStringBuilder,
+        SqlConnectionStringBuilder eventsConnectionStringBuilder,
+        ILogger<Program> logger,
+        CancellationToken token = default)
+    {
+        var exit = false;
+        while (!exit)
+            try
+            {
+                logger.LogInformation($"Waiting for sql database {eventsConnectionStringBuilder.InitialCatalog} to become available");
+                using (var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
                 {
-                    logger.LogInformation("Waiting for sql server to become available");
-                    using (var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
+                    await connection.OpenAsync(token).ConfigureAwait(false);
+                    var text = $"SELECT COUNT(*) FROM [SYS].[DATABASES] WHERE [Name] = N'{eventsConnectionStringBuilder.InitialCatalog}'";
+                    using (var command = new SqlCommand(text, connection))
                     {
-                        await connection.OpenAsync(token).ConfigureAwait(false);
-                        await connection.CloseAsync().ConfigureAwait(false);
+                        var value = await command.ExecuteScalarAsync(token);
+                        exit = (int)value == 1;
                     }
 
-                    exit = true;
+                    if (!exit) await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
                 }
-                catch (Exception exception)
-                {
-                    logger.LogWarning(exception, "Encountered an exception while waiting for sql server to become available");
-                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                }
-        }
+            }
+            catch (Exception exception)
+            {
+                logger.LogWarning(exception, $"Encountered exception while waiting for sql database {eventsConnectionStringBuilder.InitialCatalog} to become available");
+                await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+            }
+    }
 
-        public static async Task SqlServerDatabaseToBecomeAvailable(
-            SqlConnectionStringBuilder masterConnectionStringBuilder,
-            SqlConnectionStringBuilder eventsConnectionStringBuilder,
-            ILogger<Program> logger,
-            CancellationToken token = default)
-        {
-            var exit = false;
-            while (!exit)
-                try
+    public static async Task SqlServerToBecomeAvailable(
+        SqlConnectionStringBuilder masterConnectionStringBuilder,
+        ILogger<Program> logger,
+        CancellationToken token = default)
+    {
+        var exit = false;
+        while (!exit)
+            try
+            {
+                logger.LogInformation("Waiting for sql server to become available");
+                using (var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
                 {
-                    logger.LogInformation($"Waiting for sql database {eventsConnectionStringBuilder.InitialCatalog} to become available");
-                    using (var connection = new SqlConnection(masterConnectionStringBuilder.ConnectionString))
-                    {
-                        await connection.OpenAsync(token).ConfigureAwait(false);
-                        var text = $"SELECT COUNT(*) FROM [SYS].[DATABASES] WHERE [Name] = N'{eventsConnectionStringBuilder.InitialCatalog}'";
-                        using (var command = new SqlCommand(text, connection))
-                        {
-                            var value = await command.ExecuteScalarAsync(token);
-                            exit = (int)value == 1;
-                        }
+                    await connection.OpenAsync(token).ConfigureAwait(false);
+                    await connection.CloseAsync().ConfigureAwait(false);
+                }
 
-                        if (!exit) await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                    }
-                }
-                catch (Exception exception)
-                {
-                    logger.LogWarning(exception, $"Encountered exception while waiting for sql database {eventsConnectionStringBuilder.InitialCatalog} to become available");
-                    await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
-                }
-        }
+                exit = true;
+            }
+            catch (Exception exception)
+            {
+                logger.LogWarning(exception, "Encountered an exception while waiting for sql server to become available");
+                await Task.Delay(TimeSpan.FromSeconds(1), token).ConfigureAwait(false);
+            }
     }
 }

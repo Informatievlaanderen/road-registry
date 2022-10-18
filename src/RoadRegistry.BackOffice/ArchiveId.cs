@@ -2,19 +2,11 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 
-
-
 public readonly struct ArchiveId : IEquatable<ArchiveId>
 {
     public const int MaxLength = 32;
 
     private readonly string _value;
-
-    //public ArchiveId(Guid value)
-    //    : this(value.ToString("N"))
-    //{
-    //    if (value == Guid.Empty) throw new ArgumentNullException(nameof(value), "The archive identifier must not be empty.");
-    //}
 
     public ArchiveId(string value)
     {
@@ -72,5 +64,4 @@ public readonly struct ArchiveId : IEquatable<ArchiveId>
     {
         return Guid.Parse(instance._value);
     }
-
 }

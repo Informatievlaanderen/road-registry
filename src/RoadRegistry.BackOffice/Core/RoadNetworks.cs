@@ -15,7 +15,6 @@ public class RoadNetworks : IRoadNetworks
     private const int StreamPageSize = 100;
 
     public static readonly StreamName Stream = new("roadnetwork");
-
     private readonly EventSourcedEntityMap _map;
     private readonly EventMapping _mapping;
     private readonly JsonSerializerSettings _settings;

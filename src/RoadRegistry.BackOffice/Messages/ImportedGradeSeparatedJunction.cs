@@ -7,9 +7,9 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 public class ImportedGradeSeparatedJunction
 {
     public int Id { get; set; }
-    public string Type { get; set; }
-    public int UpperRoadSegmentId { get; set; }
     public int LowerRoadSegmentId { get; set; }
     public ImportedOriginProperties Origin { get; set; }
+    public string Type { get; set; }
+    public int UpperRoadSegmentId { get; set; }
     public string When { get; set; }
 }

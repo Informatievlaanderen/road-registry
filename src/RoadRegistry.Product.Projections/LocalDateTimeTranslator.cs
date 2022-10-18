@@ -1,18 +1,17 @@
-namespace RoadRegistry.Product.Projections
+namespace RoadRegistry.Product.Projections;
+
+using System;
+using NodaTime;
+using NodaTime.Text;
+
+public static class LocalDateTimeTranslator
 {
-    using System;
-    using NodaTime;
-    using NodaTime.Text;
+    private static readonly DateTimeZone LocalTimeZone =
+        DateTimeZoneProviders.Tzdb["Europe/Brussels"];
 
-    public static class LocalDateTimeTranslator
+    public static DateTime TranslateFromWhen(string value)
     {
-        private static readonly DateTimeZone LocalTimeZone =
-            DateTimeZoneProviders.Tzdb["Europe/Brussels"];
-
-        public static DateTime TranslateFromWhen(string value)
-        {
-            return new ZonedDateTime(InstantPattern.ExtendedIso.Parse(value).Value, LocalTimeZone)
-                .ToDateTimeUnspecified();
-        }
+        return new ZonedDateTime(InstantPattern.ExtendedIso.Parse(value).Value, LocalTimeZone)
+            .ToDateTimeUnspecified();
     }
 }

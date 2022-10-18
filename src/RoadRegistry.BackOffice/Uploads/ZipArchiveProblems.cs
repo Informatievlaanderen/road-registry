@@ -16,6 +16,27 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         _problems = problems;
     }
 
+    public ZipArchiveProblems Add(FileProblem problem)
+    {
+        if (problem == null) throw new ArgumentNullException(nameof(problem));
+
+        return new ZipArchiveProblems(_problems.Add(problem));
+    }
+
+    public ZipArchiveProblems AddRange(IEnumerable<FileProblem> problems)
+    {
+        if (problems == null) throw new ArgumentNullException(nameof(problems));
+
+        return new ZipArchiveProblems(_problems.AddRange(problems));
+    }
+
+    public int Count => _problems.Count;
+
+    public override bool Equals(object obj)
+    {
+        return obj is ZipArchiveProblems other && Equals(other);
+    }
+
     public bool Equals(ZipArchiveProblems other)
     {
         return other != null && _problems.SequenceEqual(other._problems);
@@ -31,13 +52,9 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         return GetEnumerator();
     }
 
-    public int Count => _problems.Count;
-
-    public static ZipArchiveProblems Single(FileProblem problem)
+    public override int GetHashCode()
     {
-        if (problem == null) throw new ArgumentNullException(nameof(problem));
-
-        return None.Add(problem);
+        return _problems.Aggregate(0, (current, error) => current ^ error.GetHashCode());
     }
 
     public static ZipArchiveProblems Many(params FileProblem[] problems)
@@ -52,30 +69,6 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         if (problems == null) throw new ArgumentNullException(nameof(problems));
 
         return None.AddRange(problems);
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is ZipArchiveProblems other && Equals(other);
-    }
-
-    public override int GetHashCode()
-    {
-        return _problems.Aggregate(0, (current, error) => current ^ error.GetHashCode());
-    }
-
-    public ZipArchiveProblems Add(FileProblem problem)
-    {
-        if (problem == null) throw new ArgumentNullException(nameof(problem));
-
-        return new ZipArchiveProblems(_problems.Add(problem));
-    }
-
-    public ZipArchiveProblems AddRange(IEnumerable<FileProblem> problems)
-    {
-        if (problems == null) throw new ArgumentNullException(nameof(problems));
-
-        return new ZipArchiveProblems(_problems.AddRange(problems));
     }
 
     public static ZipArchiveProblems operator +(ZipArchiveProblems left, FileProblem right)
@@ -100,5 +93,12 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         return new ZipArchiveProblems(_problems.Add(
             new FileError(file.ToUpperInvariant(), nameof(RequiredFileMissing)))
         );
+    }
+
+    public static ZipArchiveProblems Single(FileProblem problem)
+    {
+        if (problem == null) throw new ArgumentNullException(nameof(problem));
+
+        return None.Add(problem);
     }
 }

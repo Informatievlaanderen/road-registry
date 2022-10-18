@@ -30,15 +30,15 @@ public class NumberedRoadChangeDbaseRecord : DbaseRecord
 
     public DbaseInt32 GW_OIDN { get; }
 
-    public DbaseInt32 WS_OIDN { get; }
-
     public DbaseString IDENT8 { get; }
+
+    public DbaseInt16 RECORDTYPE { get; }
 
     public DbaseInt16 RICHTING { get; }
 
-    public DbaseInt32 VOLGNUMMER { get; }
-
     public DbaseInt16 TRANSACTID { get; }
 
-    public DbaseInt16 RECORDTYPE { get; }
+    public DbaseInt32 VOLGNUMMER { get; }
+
+    public DbaseInt32 WS_OIDN { get; }
 }

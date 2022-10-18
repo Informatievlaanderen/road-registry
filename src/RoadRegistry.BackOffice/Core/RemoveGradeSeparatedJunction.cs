@@ -12,24 +12,6 @@ public class RemoveGradeSeparatedJunction : IRequestedChange
 
     public GradeSeparatedJunctionId Id { get; }
 
-    public Problems VerifyBefore(BeforeVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        var problems = Problems.None;
-
-        if (!context.BeforeView.View.GradeSeparatedJunctions.ContainsKey(Id)) problems = problems.Add(new GradeSeparatedJunctionNotFound());
-
-        return problems;
-    }
-
-    public Problems VerifyAfter(AfterVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        return Problems.None;
-    }
-
     public void TranslateTo(Messages.AcceptedChange message)
     {
         if (message == null) throw new ArgumentNullException(nameof(message));
@@ -48,5 +30,23 @@ public class RemoveGradeSeparatedJunction : IRequestedChange
         {
             Id = Id
         };
+    }
+
+    public Problems VerifyAfter(AfterVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        return Problems.None;
+    }
+
+    public Problems VerifyBefore(BeforeVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        if (!context.BeforeView.View.GradeSeparatedJunctions.ContainsKey(Id)) problems = problems.Add(new GradeSeparatedJunctionNotFound());
+
+        return problems;
     }
 }

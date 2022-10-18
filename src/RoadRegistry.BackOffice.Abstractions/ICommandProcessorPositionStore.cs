@@ -1,8 +1,5 @@
 namespace RoadRegistry.BackOffice.Abstractions;
 
-using System.Threading;
-using System.Threading.Tasks;
-
 public interface ICommandProcessorPositionStore
 {
     Task<int?> ReadVersion(string name, CancellationToken cancellationToken);

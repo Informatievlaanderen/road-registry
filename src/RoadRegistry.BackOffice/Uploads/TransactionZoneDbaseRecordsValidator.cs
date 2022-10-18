@@ -1,29 +1,20 @@
 namespace RoadRegistry.BackOffice.Uploads
 {
-    using System;
-    using System.IO.Compression;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-
     namespace Schema.V1
     {
+        using System;
+        using System.IO.Compression;
+        using Be.Vlaanderen.Basisregisters.Shaperon;
+
         public class TransactionZoneDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<TransactionZoneDbaseRecord>
         {
             public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, ZipArchiveValidationContext context)
             {
-                if (entry == null)
-                {
-                    throw new ArgumentNullException(nameof(entry));
-                }
+                if (entry == null) throw new ArgumentNullException(nameof(entry));
 
-                if (records == null)
-                {
-                    throw new ArgumentNullException(nameof(records));
-                }
+                if (records == null) throw new ArgumentNullException(nameof(records));
 
-                if (context == null)
-                {
-                    throw new ArgumentNullException(nameof(context));
-                }
+                if (context == null) throw new ArgumentNullException(nameof(context));
 
                 var problems = ZipArchiveProblems.None;
                 try
@@ -38,34 +29,20 @@ namespace RoadRegistry.BackOffice.Uploads
                             var record = records.Current;
                             if (record != null)
                             {
-                                if (string.IsNullOrEmpty(record.BESCHRIJV.Value))
-                                {
-                                    problems += recordContext.RequiredFieldIsNull(record.BESCHRIJV.Field);
-                                }
+                                if (string.IsNullOrEmpty(record.BESCHRIJV.Value)) problems += recordContext.RequiredFieldIsNull(record.BESCHRIJV.Field);
 
-                                if (!record.OPERATOR.HasValue)
-                                {
-                                    problems += recordContext.RequiredFieldIsNull(record.OPERATOR.Field);
-                                }
+                                if (!record.OPERATOR.HasValue) problems += recordContext.RequiredFieldIsNull(record.OPERATOR.Field);
 
                                 if (!record.ORG.HasValue)
-                                {
                                     problems += recordContext.RequiredFieldIsNull(record.ORG.Field);
-                                }
-                                else if (!OrganizationId.AcceptsValue(record.ORG.Value))
-                                {
-                                    problems += recordContext.OrganizationIdOutOfRange(record.ORG.Value);
-                                }
+                                else if (!OrganizationId.AcceptsValue(record.ORG.Value)) problems += recordContext.OrganizationIdOutOfRange(record.ORG.Value);
 
                                 count++;
                                 moved = records.MoveNext();
                             }
                         }
 
-                        if (count != 1)
-                        {
-                            problems += entry.HasTooManyDbaseRecords(1, count);
-                        }
+                        if (count != 1) problems += entry.HasTooManyDbaseRecords(1, count);
                     }
                     else
                     {
@@ -84,24 +61,19 @@ namespace RoadRegistry.BackOffice.Uploads
 
     namespace Schema.V2
     {
+        using System;
+        using System.IO.Compression;
+        using Be.Vlaanderen.Basisregisters.Shaperon;
+
         public class TransactionZoneDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<TransactionZoneDbaseRecord>
         {
             public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, ZipArchiveValidationContext context)
             {
-                if (entry == null)
-                {
-                    throw new ArgumentNullException(nameof(entry));
-                }
+                if (entry == null) throw new ArgumentNullException(nameof(entry));
 
-                if (records == null)
-                {
-                    throw new ArgumentNullException(nameof(records));
-                }
+                if (records == null) throw new ArgumentNullException(nameof(records));
 
-                if (context == null)
-                {
-                    throw new ArgumentNullException(nameof(context));
-                }
+                if (context == null) throw new ArgumentNullException(nameof(context));
 
                 var problems = ZipArchiveProblems.None;
                 try
@@ -116,15 +88,9 @@ namespace RoadRegistry.BackOffice.Uploads
                             var record = records.Current;
                             if (record != null)
                             {
-                                if (string.IsNullOrEmpty(record.BESCHRIJV.Value))
-                                {
-                                    problems += recordContext.RequiredFieldIsNull(record.BESCHRIJV.Field);
-                                }
+                                if (string.IsNullOrEmpty(record.BESCHRIJV.Value)) problems += recordContext.RequiredFieldIsNull(record.BESCHRIJV.Field);
 
-                                if (!record.OPERATOR.HasValue)
-                                {
-                                    problems += recordContext.RequiredFieldIsNull(record.OPERATOR.Field);
-                                }
+                                if (!record.OPERATOR.HasValue) problems += recordContext.RequiredFieldIsNull(record.OPERATOR.Field);
 
                                 if (!record.DOWNLOADID.HasValue)
                                 {
@@ -139,30 +105,19 @@ namespace RoadRegistry.BackOffice.Uploads
                                     var expectedDownloadId = context.ZipArchiveMetadata.DownloadId;
                                     if (expectedDownloadId.HasValue
                                         && !DownloadId.Parse(record.DOWNLOADID.Value).Equals(expectedDownloadId.Value))
-                                    {
                                         problems += recordContext.DownloadIdDiffersFromMetadata(record.DOWNLOADID.Value, expectedDownloadId.ToString());
-                                    }
-
                                 }
 
                                 if (!record.ORG.HasValue)
-                                {
                                     problems += recordContext.RequiredFieldIsNull(record.ORG.Field);
-                                }
-                                else if (!OrganizationId.AcceptsValue(record.ORG.Value))
-                                {
-                                    problems += recordContext.OrganizationIdOutOfRange(record.ORG.Value);
-                                }
+                                else if (!OrganizationId.AcceptsValue(record.ORG.Value)) problems += recordContext.OrganizationIdOutOfRange(record.ORG.Value);
 
                                 count++;
                                 moved = records.MoveNext();
                             }
                         }
 
-                        if (count != 1)
-                        {
-                            problems += entry.HasTooManyDbaseRecords(1, count);
-                        }
+                        if (count != 1) problems += entry.HasTooManyDbaseRecords(1, count);
                     }
                     else
                     {

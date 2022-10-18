@@ -26,30 +26,6 @@ public class FullyDisconnectedRoadNodeTests
     }
 
     [Fact]
-    public void IdReturnsExpectedResult()
-    {
-        Assert.Equal(_id, _sut.Id);
-    }
-
-    [Fact]
-    public void TypeReturnsExpectedResult()
-    {
-        Assert.Equal(_type, _sut.Type);
-    }
-
-    [Fact]
-    public void GeometryReturnsExpectedResult()
-    {
-        Assert.Equal(_geometry, _sut.Geometry);
-    }
-
-    [Fact]
-    public void SegmentsReturnsExpectedResult()
-    {
-        Assert.Empty(_sut.Segments);
-    }
-
-    [Fact]
     public void ConnectWithReturnsExpectedResult()
     {
         var link = _fixture.Create<RoadSegmentId>();
@@ -67,6 +43,30 @@ public class FullyDisconnectedRoadNodeTests
 
         Assert.Equal(_sut.Id, result.Id);
         Assert.Empty(result.Segments);
+    }
+
+    [Fact]
+    public void GeometryReturnsExpectedResult()
+    {
+        Assert.Equal(_geometry, _sut.Geometry);
+    }
+
+    [Fact]
+    public void IdReturnsExpectedResult()
+    {
+        Assert.Equal(_id, _sut.Id);
+    }
+
+    [Fact]
+    public void SegmentsReturnsExpectedResult()
+    {
+        Assert.Empty(_sut.Segments);
+    }
+
+    [Fact]
+    public void TypeReturnsExpectedResult()
+    {
+        Assert.Equal(_type, _sut.Type);
     }
 
     [Fact]
@@ -110,30 +110,6 @@ public class ConnectedRoadNodeTests
     }
 
     [Fact]
-    public void IdReturnsExpectedResult()
-    {
-        Assert.Equal(_id, _sut.Id);
-    }
-
-    [Fact]
-    public void TypeReturnsExpectedResult()
-    {
-        Assert.Equal(_type, _sut.Type);
-    }
-
-    [Fact]
-    public void GeometryReturnsExpectedResult()
-    {
-        Assert.Equal(_geometry, _sut.Geometry);
-    }
-
-    [Fact]
-    public void SegmentsReturnsExpectedResult()
-    {
-        Assert.Equal(new[] { _link1, _link2 }.OrderBy(_ => _), _sut.Segments.OrderBy(_ => _));
-    }
-
-    [Fact]
     public void ConnectWithReturnsExpectedResult()
     {
         var link = _fixture.Create<RoadSegmentId>();
@@ -142,6 +118,15 @@ public class ConnectedRoadNodeTests
 
         Assert.Equal(_sut.Id, result.Id);
         Assert.Equal(new[] { _link1, _link2, link }.OrderBy(_ => _), result.Segments.OrderBy(_ => _));
+    }
+
+    [Fact]
+    public void DisconnectFromKnownLinkReturnsExpectedResult()
+    {
+        var result = _sut.DisconnectFrom(_link1);
+
+        Assert.Equal(_sut.Id, result.Id);
+        Assert.Equal(new[] { _link2 }, result.Segments);
     }
 
     [Fact]
@@ -154,12 +139,27 @@ public class ConnectedRoadNodeTests
     }
 
     [Fact]
-    public void DisconnectFromKnownLinkReturnsExpectedResult()
+    public void GeometryReturnsExpectedResult()
     {
-        var result = _sut.DisconnectFrom(_link1);
+        Assert.Equal(_geometry, _sut.Geometry);
+    }
 
-        Assert.Equal(_sut.Id, result.Id);
-        Assert.Equal(new[] { _link2 }, result.Segments);
+    [Fact]
+    public void IdReturnsExpectedResult()
+    {
+        Assert.Equal(_id, _sut.Id);
+    }
+
+    [Fact]
+    public void SegmentsReturnsExpectedResult()
+    {
+        Assert.Equal(new[] { _link1, _link2 }.OrderBy(_ => _), _sut.Segments.OrderBy(_ => _));
+    }
+
+    [Fact]
+    public void TypeReturnsExpectedResult()
+    {
+        Assert.Equal(_type, _sut.Type);
     }
 
     [Fact]

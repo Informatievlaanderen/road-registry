@@ -1,9 +1,5 @@
 namespace RoadRegistry.Wms.ProjectionHost.Tests.Projections;
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Syndication.Schema;
 using Wms.Projections;
 

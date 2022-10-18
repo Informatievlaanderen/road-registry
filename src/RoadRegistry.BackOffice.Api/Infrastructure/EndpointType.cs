@@ -1,10 +1,9 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure
+namespace RoadRegistry.BackOffice.Api.Infrastructure;
+
+public enum EndpointType
 {
-    public enum EndpointType
-    {
-        Legacy,
-        Sync,
-        BackOffice,
-        Oslo
-    }
+    Legacy,
+    Sync,
+    BackOffice,
+    Oslo
 }

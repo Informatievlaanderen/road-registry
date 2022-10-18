@@ -1,13 +1,13 @@
 namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Projections;
+using Editor.Schema.Extracts;
 using NodaTime;
 using NodaTime.Text;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Editor.Schema.Extracts;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using Polygon = BackOffice.Messages.Polygon;
@@ -66,37 +66,6 @@ public class ExtractDownloadRecordProjectionTests
     }
 
     [Fact]
-    public Task When_extract_got_requested()
-    {
-        var data = _fixture
-            .CreateMany<RoadNetworkExtractGotRequested>()
-            .Select(requested =>
-            {
-                var expected = new ExtractDownloadRecord
-                {
-                    DownloadId = requested.DownloadId,
-                    RequestId = requested.RequestId,
-                    ExternalRequestId = requested.ExternalRequestId,
-                    ArchiveId = null,
-                    Available = false,
-                    AvailableOn = 0L,
-                    RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeSeconds()
-                };
-
-                return new
-                {
-                    @event = requested,
-                    expected
-                };
-            }).ToList();
-
-        return new ExtractDownloadRecordProjection()
-            .Scenario()
-            .Given(data.Select(d => d.@event))
-            .Expect(data.Select(d => d.expected));
-    }
-
-    [Fact]
     public Task When_extract_download_became_available()
     {
         var data = _fixture
@@ -138,6 +107,37 @@ public class ExtractDownloadRecordProjectionTests
         return new ExtractDownloadRecordProjection()
             .Scenario()
             .Given(data.SelectMany(d => new object[] { d.given, d.@event }))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_extract_got_requested()
+    {
+        var data = _fixture
+            .CreateMany<RoadNetworkExtractGotRequested>()
+            .Select(requested =>
+            {
+                var expected = new ExtractDownloadRecord
+                {
+                    DownloadId = requested.DownloadId,
+                    RequestId = requested.RequestId,
+                    ExternalRequestId = requested.ExternalRequestId,
+                    ArchiveId = null,
+                    Available = false,
+                    AvailableOn = 0L,
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeSeconds()
+                };
+
+                return new
+                {
+                    @event = requested,
+                    expected
+                };
+            }).ToList();
+
+        return new ExtractDownloadRecordProjection()
+            .Scenario()
+            .Given(data.Select(d => d.@event))
             .Expect(data.Select(d => d.expected));
     }
 }

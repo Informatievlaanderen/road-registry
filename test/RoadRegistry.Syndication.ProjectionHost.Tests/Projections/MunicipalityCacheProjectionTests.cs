@@ -15,68 +15,78 @@ public class MunicipalityCacheProjectionTests
         _fixture = new Fixture();
     }
 
-    [Fact]
-    public Task When_registering_municipalities()
+    private MunicipalityBecameCurrent CreateMunicipalityBecameCurrent(MunicipalityWasRegistered municipalityWasRegistered)
     {
-        var data = _fixture
-            .CreateMany<MunicipalityWasRegistered>()
-            .Select(@event =>
-            {
-                var expected = new MunicipalityRecord
-                {
-                    MunicipalityId = @event.MunicipalityId,
-                    MunicipalityStatus = MunicipalityStatus.Registered,
-                    NisCode = @event.NisCode,
-                    DutchName = null,
-                    FrenchName = null,
-                    GermanName = null,
-                    EnglishName = null
-                };
-
-                return new
-                {
-                    @event,
-                    expected
-                };
-            }).ToList();
-
-        return new MunicipalityCacheProjection()
-            .Scenario()
-            .Given(data.Select(d => d.@event))
-            .Expect(data.Select(d => d.expected));
+        var municipalityBecameCurrent = _fixture.Create<MunicipalityBecameCurrent>();
+        municipalityBecameCurrent.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        return municipalityBecameCurrent;
     }
 
-    [Fact]
-    public Task When_naming_municipalities()
+    private MunicipalityWasRetired CreateMunicipalityBecameRetired(MunicipalityWasRegistered municipalityWasRegistered)
     {
-        var data = _fixture
-            .CreateMany<MunicipalityWasRegistered>()
-            .Select(municipalityWasRegistered =>
-            {
-                var municipalityWasNamed = CreateMunicipalityWasNamed(municipalityWasRegistered);
+        var municipalityBecameRetired = _fixture.Create<MunicipalityWasRetired>();
+        municipalityBecameRetired.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        return municipalityBecameRetired;
+    }
 
-                var expected = new MunicipalityRecord
-                {
-                    MunicipalityId = municipalityWasRegistered.MunicipalityId,
-                    MunicipalityStatus = MunicipalityStatus.Registered,
-                    NisCode = municipalityWasRegistered.NisCode,
-                    DutchName = municipalityWasNamed.Name,
-                    FrenchName = null,
-                    GermanName = null,
-                    EnglishName = null
-                };
+    private MunicipalityNameWasCleared CreateMunicipalityNameWasCleared(MunicipalityWasRegistered municipalityWasRegistered)
+    {
+        var municipalityNameWasCleared = _fixture.Create<MunicipalityNameWasCleared>();
+        municipalityNameWasCleared.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        municipalityNameWasCleared.Language = MunicipalityLanguage.Dutch;
+        return municipalityNameWasCleared;
+    }
 
-                return new
-                {
-                    events = new object[] { municipalityWasRegistered, municipalityWasNamed },
-                    expected
-                };
-            }).ToList();
+    private MunicipalityNameWasCorrected CreateMunicipalityNameWasCorrected(MunicipalityWasRegistered municipalityWasRegistered)
+    {
+        var municipalityNameWasCorrected = _fixture.Create<MunicipalityNameWasCorrected>();
+        municipalityNameWasCorrected.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        municipalityNameWasCorrected.Language = MunicipalityLanguage.Dutch;
+        return municipalityNameWasCorrected;
+    }
 
-        return new MunicipalityCacheProjection()
-            .Scenario()
-            .Given(data.SelectMany(d => d.events))
-            .Expect(data.Select(d => d.expected));
+    private MunicipalityNameWasCorrectedToCleared CreateMunicipalityNameWasCorrectedToCleared(MunicipalityWasRegistered municipalityWasRegistered)
+    {
+        var municipalityNameWasCorrectedToCleared = _fixture.Create<MunicipalityNameWasCorrectedToCleared>();
+        municipalityNameWasCorrectedToCleared.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        municipalityNameWasCorrectedToCleared.Language = MunicipalityLanguage.Dutch;
+        return municipalityNameWasCorrectedToCleared;
+    }
+
+    private MunicipalityNisCodeWasCorrected CreateMunicipalityNisCodeWasCorrected(MunicipalityWasRegistered municipalityWasRegistered)
+    {
+        var municipalityNisCodeWasCorrected = _fixture.Create<MunicipalityNisCodeWasCorrected>();
+        municipalityNisCodeWasCorrected.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        return municipalityNisCodeWasCorrected;
+    }
+
+    private MunicipalityNisCodeWasDefined CreateMunicipalityNisCodeWasDefined(MunicipalityWasRegistered municipalityWasRegistered)
+    {
+        var municipalityNisCodeWasDefined = _fixture.Create<MunicipalityNisCodeWasDefined>();
+        municipalityNisCodeWasDefined.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        return municipalityNisCodeWasDefined;
+    }
+
+    private MunicipalityWasCorrectedToCurrent CreateMunicipalityWasCorrectedToCurrent(MunicipalityWasRegistered municipalityWasRegistered)
+    {
+        var municipalityWasCorrectedToCurrent = _fixture.Create<MunicipalityWasCorrectedToCurrent>();
+        municipalityWasCorrectedToCurrent.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        return municipalityWasCorrectedToCurrent;
+    }
+
+    private MunicipalityWasCorrectedToRetired CreateMunicipalityWasCorrectedToRetired(MunicipalityWasRegistered municipalityWasRegistered)
+    {
+        var municipalityWasCorrectedToRetired = _fixture.Create<MunicipalityWasCorrectedToRetired>();
+        municipalityWasCorrectedToRetired.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        return municipalityWasCorrectedToRetired;
+    }
+
+    private MunicipalityWasNamed CreateMunicipalityWasNamed(MunicipalityWasRegistered municipalityWasRegistered)
+    {
+        var municipalityWasNamed = _fixture.Create<MunicipalityWasNamed>();
+        municipalityWasNamed.MunicipalityId = municipalityWasRegistered.MunicipalityId;
+        municipalityWasNamed.Language = MunicipalityLanguage.Dutch;
+        return municipalityWasNamed;
     }
 
     [Fact]
@@ -107,45 +117,6 @@ public class MunicipalityCacheProjectionTests
                         municipalityWasRegistered,
                         municipalityWasNamed,
                         municipalityNameWasCleared
-                    },
-                    expected
-                };
-            }).ToList();
-
-        return new MunicipalityCacheProjection()
-            .Scenario()
-            .Given(data.SelectMany(d => d.events))
-            .Expect(data.Select(d => d.expected));
-    }
-
-    [Fact]
-    public Task When_correcting_municipality_names_to_cleared()
-    {
-        var data = _fixture
-            .CreateMany<MunicipalityWasRegistered>()
-            .Select(municipalityWasRegistered =>
-            {
-                var municipalityWasNamed = CreateMunicipalityWasNamed(municipalityWasRegistered);
-                var municipalityNameWasCorrectedToCleared = CreateMunicipalityNameWasCorrectedToCleared(municipalityWasRegistered);
-
-                var expected = new MunicipalityRecord
-                {
-                    MunicipalityId = municipalityWasRegistered.MunicipalityId,
-                    MunicipalityStatus = MunicipalityStatus.Registered,
-                    NisCode = municipalityWasRegistered.NisCode,
-                    DutchName = null,
-                    FrenchName = null,
-                    GermanName = null,
-                    EnglishName = null
-                };
-
-                return new
-                {
-                    events = new object[]
-                    {
-                        municipalityWasRegistered,
-                        municipalityWasNamed,
-                        municipalityNameWasCorrectedToCleared
                     },
                     expected
                 };
@@ -197,19 +168,20 @@ public class MunicipalityCacheProjectionTests
     }
 
     [Fact]
-    public Task When_defining_nis_codes()
+    public Task When_correcting_municipality_names_to_cleared()
     {
         var data = _fixture
             .CreateMany<MunicipalityWasRegistered>()
             .Select(municipalityWasRegistered =>
             {
-                var municipalityNisCodeWasDefined = CreateMunicipalityNisCodeWasDefined(municipalityWasRegistered);
+                var municipalityWasNamed = CreateMunicipalityWasNamed(municipalityWasRegistered);
+                var municipalityNameWasCorrectedToCleared = CreateMunicipalityNameWasCorrectedToCleared(municipalityWasRegistered);
 
                 var expected = new MunicipalityRecord
                 {
                     MunicipalityId = municipalityWasRegistered.MunicipalityId,
                     MunicipalityStatus = MunicipalityStatus.Registered,
-                    NisCode = municipalityNisCodeWasDefined.NisCode,
+                    NisCode = municipalityWasRegistered.NisCode,
                     DutchName = null,
                     FrenchName = null,
                     GermanName = null,
@@ -218,7 +190,12 @@ public class MunicipalityCacheProjectionTests
 
                 return new
                 {
-                    events = new object[] { municipalityWasRegistered, municipalityNisCodeWasDefined },
+                    events = new object[]
+                    {
+                        municipalityWasRegistered,
+                        municipalityWasNamed,
+                        municipalityNameWasCorrectedToCleared
+                    },
                     expected
                 };
             }).ToList();
@@ -269,6 +246,39 @@ public class MunicipalityCacheProjectionTests
     }
 
     [Fact]
+    public Task When_defining_nis_codes()
+    {
+        var data = _fixture
+            .CreateMany<MunicipalityWasRegistered>()
+            .Select(municipalityWasRegistered =>
+            {
+                var municipalityNisCodeWasDefined = CreateMunicipalityNisCodeWasDefined(municipalityWasRegistered);
+
+                var expected = new MunicipalityRecord
+                {
+                    MunicipalityId = municipalityWasRegistered.MunicipalityId,
+                    MunicipalityStatus = MunicipalityStatus.Registered,
+                    NisCode = municipalityNisCodeWasDefined.NisCode,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null
+                };
+
+                return new
+                {
+                    events = new object[] { municipalityWasRegistered, municipalityNisCodeWasDefined },
+                    expected
+                };
+            }).ToList();
+
+        return new MunicipalityCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
     public Task When_municipality_became_current()
     {
         var data = _fixture
@@ -294,43 +304,6 @@ public class MunicipalityCacheProjectionTests
                     {
                         municipalityWasRegistered,
                         municipalityBecameCurrent
-                    },
-                    expected
-                };
-            }).ToList();
-
-        return new MunicipalityCacheProjection()
-            .Scenario()
-            .Given(data.SelectMany(d => d.events))
-            .Expect(data.Select(d => d.expected));
-    }
-
-    [Fact]
-    public Task When_municipality_was_corrected__current()
-    {
-        var data = _fixture
-            .CreateMany<MunicipalityWasRegistered>()
-            .Select(municipalityWasRegistered =>
-            {
-                var municipalityWasCorrectedToCurrent = CreateMunicipalityWasCorrectedToCurrent(municipalityWasRegistered);
-
-                var expected = new MunicipalityRecord
-                {
-                    MunicipalityId = municipalityWasRegistered.MunicipalityId,
-                    MunicipalityStatus = MunicipalityStatus.Current,
-                    NisCode = municipalityWasRegistered.NisCode,
-                    DutchName = null,
-                    FrenchName = null,
-                    GermanName = null,
-                    EnglishName = null
-                };
-
-                return new
-                {
-                    events = new object[]
-                    {
-                        municipalityWasRegistered,
-                        municipalityWasCorrectedToCurrent
                     },
                     expected
                 };
@@ -380,6 +353,43 @@ public class MunicipalityCacheProjectionTests
     }
 
     [Fact]
+    public Task When_municipality_was_corrected__current()
+    {
+        var data = _fixture
+            .CreateMany<MunicipalityWasRegistered>()
+            .Select(municipalityWasRegistered =>
+            {
+                var municipalityWasCorrectedToCurrent = CreateMunicipalityWasCorrectedToCurrent(municipalityWasRegistered);
+
+                var expected = new MunicipalityRecord
+                {
+                    MunicipalityId = municipalityWasRegistered.MunicipalityId,
+                    MunicipalityStatus = MunicipalityStatus.Current,
+                    NisCode = municipalityWasRegistered.NisCode,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null
+                };
+
+                return new
+                {
+                    events = new object[]
+                    {
+                        municipalityWasRegistered,
+                        municipalityWasCorrectedToCurrent
+                    },
+                    expected
+                };
+            }).ToList();
+
+        return new MunicipalityCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
     public Task When_municipality_was_corrected__retired()
     {
         var data = _fixture
@@ -416,77 +426,67 @@ public class MunicipalityCacheProjectionTests
             .Expect(data.Select(d => d.expected));
     }
 
-    private MunicipalityWasNamed CreateMunicipalityWasNamed(MunicipalityWasRegistered municipalityWasRegistered)
+    [Fact]
+    public Task When_naming_municipalities()
     {
-        var municipalityWasNamed = _fixture.Create<MunicipalityWasNamed>();
-        municipalityWasNamed.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        municipalityWasNamed.Language = MunicipalityLanguage.Dutch;
-        return municipalityWasNamed;
+        var data = _fixture
+            .CreateMany<MunicipalityWasRegistered>()
+            .Select(municipalityWasRegistered =>
+            {
+                var municipalityWasNamed = CreateMunicipalityWasNamed(municipalityWasRegistered);
+
+                var expected = new MunicipalityRecord
+                {
+                    MunicipalityId = municipalityWasRegistered.MunicipalityId,
+                    MunicipalityStatus = MunicipalityStatus.Registered,
+                    NisCode = municipalityWasRegistered.NisCode,
+                    DutchName = municipalityWasNamed.Name,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null
+                };
+
+                return new
+                {
+                    events = new object[] { municipalityWasRegistered, municipalityWasNamed },
+                    expected
+                };
+            }).ToList();
+
+        return new MunicipalityCacheProjection()
+            .Scenario()
+            .Given(data.SelectMany(d => d.events))
+            .Expect(data.Select(d => d.expected));
     }
 
-    private MunicipalityNameWasCleared CreateMunicipalityNameWasCleared(MunicipalityWasRegistered municipalityWasRegistered)
+    [Fact]
+    public Task When_registering_municipalities()
     {
-        var municipalityNameWasCleared = _fixture.Create<MunicipalityNameWasCleared>();
-        municipalityNameWasCleared.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        municipalityNameWasCleared.Language = MunicipalityLanguage.Dutch;
-        return municipalityNameWasCleared;
-    }
+        var data = _fixture
+            .CreateMany<MunicipalityWasRegistered>()
+            .Select(@event =>
+            {
+                var expected = new MunicipalityRecord
+                {
+                    MunicipalityId = @event.MunicipalityId,
+                    MunicipalityStatus = MunicipalityStatus.Registered,
+                    NisCode = @event.NisCode,
+                    DutchName = null,
+                    FrenchName = null,
+                    GermanName = null,
+                    EnglishName = null
+                };
 
-    private MunicipalityNameWasCorrected CreateMunicipalityNameWasCorrected(MunicipalityWasRegistered municipalityWasRegistered)
-    {
-        var municipalityNameWasCorrected = _fixture.Create<MunicipalityNameWasCorrected>();
-        municipalityNameWasCorrected.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        municipalityNameWasCorrected.Language = MunicipalityLanguage.Dutch;
-        return municipalityNameWasCorrected;
-    }
+                return new
+                {
+                    @event,
+                    expected
+                };
+            }).ToList();
 
-    private MunicipalityNameWasCorrectedToCleared CreateMunicipalityNameWasCorrectedToCleared(MunicipalityWasRegistered municipalityWasRegistered)
-    {
-        var municipalityNameWasCorrectedToCleared = _fixture.Create<MunicipalityNameWasCorrectedToCleared>();
-        municipalityNameWasCorrectedToCleared.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        municipalityNameWasCorrectedToCleared.Language = MunicipalityLanguage.Dutch;
-        return municipalityNameWasCorrectedToCleared;
-    }
-
-    private MunicipalityNisCodeWasDefined CreateMunicipalityNisCodeWasDefined(MunicipalityWasRegistered municipalityWasRegistered)
-    {
-        var municipalityNisCodeWasDefined = _fixture.Create<MunicipalityNisCodeWasDefined>();
-        municipalityNisCodeWasDefined.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        return municipalityNisCodeWasDefined;
-    }
-
-    private MunicipalityNisCodeWasCorrected CreateMunicipalityNisCodeWasCorrected(MunicipalityWasRegistered municipalityWasRegistered)
-    {
-        var municipalityNisCodeWasCorrected = _fixture.Create<MunicipalityNisCodeWasCorrected>();
-        municipalityNisCodeWasCorrected.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        return municipalityNisCodeWasCorrected;
-    }
-
-    private MunicipalityBecameCurrent CreateMunicipalityBecameCurrent(MunicipalityWasRegistered municipalityWasRegistered)
-    {
-        var municipalityBecameCurrent = _fixture.Create<MunicipalityBecameCurrent>();
-        municipalityBecameCurrent.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        return municipalityBecameCurrent;
-    }
-
-    private MunicipalityWasCorrectedToCurrent CreateMunicipalityWasCorrectedToCurrent(MunicipalityWasRegistered municipalityWasRegistered)
-    {
-        var municipalityWasCorrectedToCurrent = _fixture.Create<MunicipalityWasCorrectedToCurrent>();
-        municipalityWasCorrectedToCurrent.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        return municipalityWasCorrectedToCurrent;
-    }
-
-    private MunicipalityWasRetired CreateMunicipalityBecameRetired(MunicipalityWasRegistered municipalityWasRegistered)
-    {
-        var municipalityBecameRetired = _fixture.Create<MunicipalityWasRetired>();
-        municipalityBecameRetired.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        return municipalityBecameRetired;
-    }
-
-    private MunicipalityWasCorrectedToRetired CreateMunicipalityWasCorrectedToRetired(MunicipalityWasRegistered municipalityWasRegistered)
-    {
-        var municipalityWasCorrectedToRetired = _fixture.Create<MunicipalityWasCorrectedToRetired>();
-        municipalityWasCorrectedToRetired.MunicipalityId = municipalityWasRegistered.MunicipalityId;
-        return municipalityWasCorrectedToRetired;
+        return new MunicipalityCacheProjection()
+            .Scenario()
+            .Given(data.Select(d => d.@event))
+            .Expect(data.Select(d => d.expected));
     }
 }

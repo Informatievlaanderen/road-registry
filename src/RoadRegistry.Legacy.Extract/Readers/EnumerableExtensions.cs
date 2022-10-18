@@ -1,36 +1,35 @@
-namespace RoadRegistry.Legacy.Extract.Readers
+namespace RoadRegistry.Legacy.Extract.Readers;
+
+using System;
+using System.Collections.Generic;
+
+internal static class EnumerableExtensions
 {
-    using System;
-    using System.Collections.Generic;
-
-    internal static class EnumerableExtensions
+    public static IEnumerable<T[]> Batch<T>(this IEnumerable<T> enumerable, int size)
     {
-        public static IEnumerable<T[]> Batch<T>(this IEnumerable<T> enumerable, int size)
+        if (size < 1)
+            throw new ArgumentOutOfRangeException(nameof(size), size, "The batch size needs to be greater than or equal to 1.");
+
+        using (var enumerator = enumerable.GetEnumerator())
         {
-            if (size < 1)
-                throw new ArgumentOutOfRangeException(nameof(size), size, "The batch size needs to be greater than or equal to 1.");
+            var moved = enumerator.MoveNext();
 
-            using (var enumerator = enumerable.GetEnumerator())
+            while (moved)
             {
-                var moved = enumerator.MoveNext();
+                var batch = new T[size];
+                var index = 0;
 
-                while (moved)
+                while (moved && index < size)
                 {
-                    var batch = new T[size];
-                    var index = 0;
-
-                    while (moved && index < size)
-                    {
-                        batch[index] = enumerator.Current;
-                        index++;
-                        moved = enumerator.MoveNext();
-                    }
-
-                    if (index < size)
-                        Array.Resize(ref batch, index);
-
-                    yield return batch;
+                    batch[index] = enumerator.Current;
+                    index++;
+                    moved = enumerator.MoveNext();
                 }
+
+                if (index < size)
+                    Array.Resize(ref batch, index);
+
+                yield return batch;
             }
         }
     }

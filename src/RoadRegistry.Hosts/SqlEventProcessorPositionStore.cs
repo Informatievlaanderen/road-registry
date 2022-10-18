@@ -17,6 +17,21 @@ public class SqlEventProcessorPositionStore : IEventProcessorPositionStore
         _text = new SqlCommandText(schema);
     }
 
+    private static SqlParameter CreateSqlParameter(string name, SqlDbType sqlDbType, int size, object value)
+    {
+        return new SqlParameter(
+            name,
+            sqlDbType,
+            size,
+            ParameterDirection.Input,
+            false,
+            0,
+            0,
+            "",
+            DataRowVersion.Default,
+            value);
+    }
+
 
     public async Task<long?> ReadPosition(string name, CancellationToken cancellationToken)
     {
@@ -39,6 +54,29 @@ public class SqlEventProcessorPositionStore : IEventProcessorPositionStore
         };
         var result = await command.ExecuteScalarAsync(cancellationToken);
         return result == null || result == DBNull.Value ? default(long?) : (long)result;
+    }
+
+    private sealed class SqlCommandText
+    {
+        private readonly string _schema;
+
+        public SqlCommandText(string schema)
+        {
+            _schema = schema ?? throw new ArgumentNullException(nameof(schema));
+        }
+
+        public string ReadPosition()
+        {
+            return $"SELECT [Position] FROM [{_schema}].[EventProcessorPosition] WHERE [NameHash] = HashBytes('SHA2_256', @Name)";
+        }
+
+        public string WritePosition()
+        {
+            return $@"IF EXISTS (SELECT * FROM [{_schema}].[EventProcessorPosition] WITH (UPDLOCK) WHERE [NameHash] = HashBytes('SHA2_256', @Name))
+    UPDATE [{_schema}].[EventProcessorPosition] SET [Position] = @Position WHERE [NameHash] = HashBytes('SHA2_256', @Name)
+ELSE
+    INSERT INTO [{_schema}].[EventProcessorPosition] ([NameHash], [Name], [Position]) VALUES (HashBytes('SHA2_256', @Name), @Name, @Position)";
+        }
     }
 
     public async Task WritePosition(string name, long position, CancellationToken cancellationToken)
@@ -70,43 +108,5 @@ public class SqlEventProcessorPositionStore : IEventProcessorPositionStore
         }
 
         transaction.Commit();
-    }
-
-    private static SqlParameter CreateSqlParameter(string name, SqlDbType sqlDbType, int size, object value)
-    {
-        return new SqlParameter(
-            name,
-            sqlDbType,
-            size,
-            ParameterDirection.Input,
-            false,
-            0,
-            0,
-            "",
-            DataRowVersion.Default,
-            value);
-    }
-
-    private sealed class SqlCommandText
-    {
-        private readonly string _schema;
-
-        public SqlCommandText(string schema)
-        {
-            _schema = schema ?? throw new ArgumentNullException(nameof(schema));
-        }
-
-        public string ReadPosition()
-        {
-            return $"SELECT [Position] FROM [{_schema}].[EventProcessorPosition] WHERE [NameHash] = HashBytes('SHA2_256', @Name)";
-        }
-
-        public string WritePosition()
-        {
-            return $@"IF EXISTS (SELECT * FROM [{_schema}].[EventProcessorPosition] WITH (UPDLOCK) WHERE [NameHash] = HashBytes('SHA2_256', @Name))
-    UPDATE [{_schema}].[EventProcessorPosition] SET [Position] = @Position WHERE [NameHash] = HashBytes('SHA2_256', @Name)
-ELSE
-    INSERT INTO [{_schema}].[EventProcessorPosition] ([NameHash], [Name], [Position]) VALUES (HashBytes('SHA2_256', @Name), @Name, @Position)";
-        }
     }
 }

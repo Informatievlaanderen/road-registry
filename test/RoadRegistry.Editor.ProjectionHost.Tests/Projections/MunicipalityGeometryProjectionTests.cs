@@ -1,9 +1,9 @@
 namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Editor.Projections;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using MunicipalityGeometry = Editor.Schema.MunicipalityGeometry;

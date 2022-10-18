@@ -15,11 +15,12 @@ public class BeforeVerificationContext
     }
 
     public IScopedRoadNetworkView BeforeView { get; }
-    public IRequestedChangeIdentityTranslator Translator { get; }
-    public VerificationContextTolerances Tolerances { get; }
 
     public AfterVerificationContext CreateAfterVerificationContext(IRoadNetworkView afterView)
     {
         return new AfterVerificationContext(BeforeView, afterView.CreateScopedView(BeforeView.Scope), Translator, Tolerances);
     }
+
+    public VerificationContextTolerances Tolerances { get; }
+    public IRequestedChangeIdentityTranslator Translator { get; }
 }

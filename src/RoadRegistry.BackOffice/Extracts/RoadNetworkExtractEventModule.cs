@@ -44,14 +44,11 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                 if (blobExists)
                 {
-                    //Case: we previously uploaded a blob for this particular download.
-                    //var blob = await client.GetBlobAsync(blobName, ct);
-                    // var revision = new RoadNetworkRevision(
-                    //     int.Parse(
-                    //         blob.Metadata
-                    //             .Single(metadatum => metadatum.Key == new MetadataKey("Revision"))
-                    //             .Value,
-                    //         CultureInfo.InvariantCulture));
+                    // Case: we previously uploaded a blob for this particular download.
+
+                    // var blob = await downloadsBlobClient.GetBlobAsync(blobName, ct);
+                    // var revision = new RoadNetworkRevision(int.Parse(blob.Metadata.Single(metadatum => metadatum.Key == new MetadataKey("Revision")).Value, CultureInfo.InvariantCulture));
+
                     var command = new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
                         {
                             RequestId = message.Body.RequestId,
@@ -75,8 +72,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                         await downloadsBlobClient.CreateBlobAsync(
                             new BlobName(archiveId),
-                            Metadata
-                                .None, // .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("Revision"), revision.ToInt32().ToString(CultureInfo.InvariantCulture))),
+                            Metadata.None,
+                            // .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("Revision"), revision.ToInt32().ToString(CultureInfo.InvariantCulture))),
                             ContentType.Parse("application/x-zip-compressed"),
                             content,
                             ct);
@@ -113,14 +110,11 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                 if (blobExists)
                 {
-                    //Case: we previously uploaded a blob for this particular download.
-                    //var blob = await client.GetBlobAsync(blobName, ct);
-                    // var revision = new RoadNetworkRevision(
-                    //     int.Parse(
-                    //         blob.Metadata
-                    //             .Single(metadatum => metadatum.Key == new MetadataKey("Revision"))
-                    //             .Value,
-                    //         CultureInfo.InvariantCulture));
+                    // Case: we previously uploaded a blob for this particular download.
+
+                    // var blob = await downloadsBlobClient.GetBlobAsync(blobName, ct);
+                    // var revision = new RoadNetworkRevision(int.Parse(blob.Metadata.Single(metadatum => metadatum.Key == new MetadataKey("Revision")).Value, CultureInfo.InvariantCulture));
+
                     var command = new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
                         {
                             RequestId = message.Body.RequestId,
@@ -144,8 +138,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                         await downloadsBlobClient.CreateBlobAsync(
                             new BlobName(archiveId),
-                            Metadata
-                                .None, // .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("Revision"), revision.ToInt32().ToString(CultureInfo.InvariantCulture))),
+                            Metadata.None,
+                            // .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("Revision"), revision.ToInt32().ToString(CultureInfo.InvariantCulture))),
                             ContentType.Parse("application/x-zip-compressed"),
                             content,
                             ct);

@@ -36,21 +36,9 @@ public class RoadSegmentTests
     }
 
     [Fact]
-    public void IdReturnsExpectedResult()
+    public void AttributeHashReturnsExpectedResult()
     {
-        Assert.Equal(_id, _sut.Id);
-    }
-
-    [Fact]
-    public void GeometryReturnsExpectedResult()
-    {
-        Assert.Equal(_geometry, _sut.Geometry);
-    }
-
-    [Fact]
-    public void StartReturnsExpectedResult()
-    {
-        Assert.Equal(_start, _sut.Start);
+        Assert.Equal(_attributeHash, _sut.AttributeHash);
     }
 
     [Fact]
@@ -60,15 +48,15 @@ public class RoadSegmentTests
     }
 
     [Fact]
-    public void AttributeHashReturnsExpectedResult()
+    public void GeometryReturnsExpectedResult()
     {
-        Assert.Equal(_attributeHash, _sut.AttributeHash);
+        Assert.Equal(_geometry, _sut.Geometry);
     }
 
     [Fact]
-    public void ThrowsWhenStartIsSameAsEnd()
+    public void IdReturnsExpectedResult()
     {
-        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash));
+        Assert.Equal(_id, _sut.Id);
     }
 
     [Fact]
@@ -99,5 +87,17 @@ public class RoadSegmentTests
 
         var expected = Array.ConvertAll(opposite, value => new RoadNodeId(value));
         Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void StartReturnsExpectedResult()
+    {
+        Assert.Equal(_start, _sut.Start);
+    }
+
+    [Fact]
+    public void ThrowsWhenStartIsSameAsEnd()
+    {
+        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash));
     }
 }

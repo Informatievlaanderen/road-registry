@@ -91,31 +91,31 @@ public class RoadSegmentChangeDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField WS_OIDN => Fields[0];
-
-    public DbaseField METHODE => Fields[1];
+    public DbaseField B_WK_OIDN => Fields[6];
 
     public DbaseField BEHEERDER => Fields[2];
 
-    public DbaseField MORFOLOGIE => Fields[3];
-
-    public DbaseField STATUS => Fields[4];
-
     public DbaseField CATEGORIE => Fields[5];
-
-    public DbaseField B_WK_OIDN => Fields[6];
 
     public DbaseField E_WK_OIDN => Fields[7];
 
+    public DbaseField EVENTIDN => Fields[13];
+
     public DbaseField LSTRNMID => Fields[8];
 
+    public DbaseField METHODE => Fields[1];
+
+    public DbaseField MORFOLOGIE => Fields[3];
+
+    public DbaseField RECORDTYPE => Fields[12];
+
     public DbaseField RSTRNMID => Fields[9];
+
+    public DbaseField STATUS => Fields[4];
 
     public DbaseField TGBEP => Fields[10];
 
     public DbaseField TRANSACTID => Fields[11];
 
-    public DbaseField RECORDTYPE => Fields[12];
-
-    public DbaseField EVENTIDN => Fields[13];
+    public DbaseField WS_OIDN => Fields[0];
 }

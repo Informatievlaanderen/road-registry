@@ -67,6 +67,12 @@ public class RoadSegmentWidthChangeDbaseRecordsTranslatorTests : IDisposable
     }
 
     [Fact]
+    public void TranslateChangesCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void TranslateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(null, _enumerator, TranslatedChanges.Empty));
@@ -79,37 +85,24 @@ public class RoadSegmentWidthChangeDbaseRecordsTranslatorTests : IDisposable
     }
 
     [Fact]
-    public void TranslateChangesCanNotBeNull()
+    public void TranslateWithChangedRecordsForModifyRoadSegmentReturnsExpectedResult()
     {
-        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
-    }
-
-    [Fact]
-    public void TranslateWithoutRecordsReturnsExpectedResult()
-    {
-        var result = _sut.Translate(_entry, _enumerator, TranslatedChanges.Empty);
-
-        Assert.Equal(
-            TranslatedChanges.Empty,
-            result);
-    }
-
-    [Fact]
-    public void TranslateWithRecordsForAddRoadSegmentReturnsExpectedResult()
-    {
-        var segment = _fixture.Create<AddRoadSegment>();
+        var segment = _fixture.Create<ModifyRoadSegment>();
         var records = _fixture
             .CreateMany<RoadSegmentWidthChangeDbaseRecord>(new Random().Next(1, 5))
             .Select((record, index) =>
             {
                 record.WB_OIDN.Value = index + 1;
-                record.WS_OIDN.Value = segment.TemporaryId;
+                record.WS_OIDN.Value = segment.Id;
                 record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
+                if (index == 0) // force at least one lane change to promote the provisional change to an actual change
+                    record.RECORDTYPE.Value = RecordType.AddedIdentifier;
+
                 return record;
             })
             .ToArray();
         var enumerator = records.ToDbaseRecordEnumerator();
-        var changes = TranslatedChanges.Empty.AppendChange(segment);
+        var changes = TranslatedChanges.Empty.AppendProvisionalChange(segment);
 
         var result = _sut.Translate(_entry, enumerator, changes);
 
@@ -174,24 +167,31 @@ public class RoadSegmentWidthChangeDbaseRecordsTranslatorTests : IDisposable
     }
 
     [Fact]
-    public void TranslateWithChangedRecordsForModifyRoadSegmentReturnsExpectedResult()
+    public void TranslateWithoutRecordsReturnsExpectedResult()
     {
-        var segment = _fixture.Create<ModifyRoadSegment>();
+        var result = _sut.Translate(_entry, _enumerator, TranslatedChanges.Empty);
+
+        Assert.Equal(
+            TranslatedChanges.Empty,
+            result);
+    }
+
+    [Fact]
+    public void TranslateWithRecordsForAddRoadSegmentReturnsExpectedResult()
+    {
+        var segment = _fixture.Create<AddRoadSegment>();
         var records = _fixture
             .CreateMany<RoadSegmentWidthChangeDbaseRecord>(new Random().Next(1, 5))
             .Select((record, index) =>
             {
                 record.WB_OIDN.Value = index + 1;
-                record.WS_OIDN.Value = segment.Id;
+                record.WS_OIDN.Value = segment.TemporaryId;
                 record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
-                if (index == 0) // force at least one lane change to promote the provisional change to an actual change
-                    record.RECORDTYPE.Value = RecordType.AddedIdentifier;
-
                 return record;
             })
             .ToArray();
         var enumerator = records.ToDbaseRecordEnumerator();
-        var changes = TranslatedChanges.Empty.AppendProvisionalChange(segment);
+        var changes = TranslatedChanges.Empty.AppendChange(segment);
 
         var result = _sut.Translate(_entry, enumerator, changes);
 

@@ -11,9 +11,10 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
         Value = value ?? throw new ArgumentNullException(nameof(value));
     }
 
-    public string Name { get; }
-
-    public string Value { get; }
+    public override bool Equals(object obj)
+    {
+        return obj is ProblemParameter other && Equals(other);
+    }
 
     public bool Equals(ProblemParameter x, ProblemParameter y)
     {
@@ -29,11 +30,6 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
                && x.Value == y.Value;
     }
 
-    public int GetHashCode(ProblemParameter obj)
-    {
-        return HashCode.Combine(obj.Name, obj.Value);
-    }
-
     public virtual bool Equals(ProblemParameter other)
     {
         return other != null
@@ -41,15 +37,17 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
                && string.Equals(Value, other.Value);
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is ProblemParameter other && Equals(other);
-    }
-
     public override int GetHashCode()
     {
         return Name.GetHashCode() ^ Value.GetHashCode();
     }
+
+    public int GetHashCode(ProblemParameter obj)
+    {
+        return HashCode.Combine(obj.Name, obj.Value);
+    }
+
+    public string Name { get; }
 
     public Messages.ProblemParameter Translate()
     {
@@ -58,4 +56,6 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
             Name = Name, Value = Value
         };
     }
+
+    public string Value { get; }
 }

@@ -6,13 +6,13 @@ using System.Linq;
 
 public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNumberedRoadDirection>
 {
-    public static readonly RoadSegmentNumberedRoadDirection Unknown =
+    public static readonly RoadSegmentNumberedRoadDirection Backward =
         new(
-            nameof(Unknown),
+            nameof(Backward),
             new DutchTranslation(
-                -8,
-                "niet gekend",
-                "Geen informatie beschikbaar"
+                2,
+                "tegengesteld aan de digitalisatiezin",
+                "Nummering weg slaat op de richting die tegengesteld loopt aan de digitalisatiezin van het wegsegment."
             )
         );
 
@@ -26,13 +26,13 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
             )
         );
 
-    public static readonly RoadSegmentNumberedRoadDirection Backward =
+    public static readonly RoadSegmentNumberedRoadDirection Unknown =
         new(
-            nameof(Backward),
+            nameof(Unknown),
             new DutchTranslation(
-                2,
-                "tegengesteld aan de digitalisatiezin",
-                "Nummering weg slaat op de richting die tegengesteld loopt aan de digitalisatiezin van het wegsegment."
+                -8,
+                "niet gekend",
+                "Geen informatie beschikbaar"
             )
         );
 
@@ -40,6 +40,7 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
     {
         Unknown, Forward, Backward
     };
+
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentNumberedRoadDirection> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
@@ -52,64 +53,11 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
         Translation = dutchTranslation;
     }
 
-    public DutchTranslation Translation { get; }
-
-    public bool Equals(RoadSegmentNumberedRoadDirection other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
 
         return Array.Find(All, candidate => candidate._value == value) != null;
-    }
-
-    public static bool TryParse(string value, out RoadSegmentNumberedRoadDirection parsed)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
-    }
-
-    public static RoadSegmentNumberedRoadDirection Parse(string value)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known numbered road segment direction.");
-        return parsed;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is RoadSegmentNumberedRoadDirection type && Equals(type);
-    }
-
-    public override int GetHashCode()
-    {
-        return _value.GetHashCode();
-    }
-
-    public override string ToString()
-    {
-        return _value;
-    }
-
-    public static implicit operator string(RoadSegmentNumberedRoadDirection instance)
-    {
-        return instance.ToString();
-    }
-
-    public static bool operator ==(RoadSegmentNumberedRoadDirection left, RoadSegmentNumberedRoadDirection right)
-    {
-        return Equals(left, right);
-    }
-
-    public static bool operator !=(RoadSegmentNumberedRoadDirection left, RoadSegmentNumberedRoadDirection right)
-    {
-        return !Equals(left, right);
     }
 
     public class DutchTranslation
@@ -121,10 +69,64 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
             Description = description;
         }
 
+        public string Description { get; }
+
         public int Identifier { get; }
 
         public string Name { get; }
+    }
 
-        public string Description { get; }
+    public override bool Equals(object obj)
+    {
+        return obj is RoadSegmentNumberedRoadDirection type && Equals(type);
+    }
+
+    public bool Equals(RoadSegmentNumberedRoadDirection other)
+    {
+        return other != null && other._value == _value;
+    }
+
+
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
+
+    public static bool operator ==(RoadSegmentNumberedRoadDirection left, RoadSegmentNumberedRoadDirection right)
+    {
+        return Equals(left, right);
+    }
+
+    public static implicit operator string(RoadSegmentNumberedRoadDirection instance)
+    {
+        return instance.ToString();
+    }
+
+    public static bool operator !=(RoadSegmentNumberedRoadDirection left, RoadSegmentNumberedRoadDirection right)
+    {
+        return !Equals(left, right);
+    }
+
+    public static RoadSegmentNumberedRoadDirection Parse(string value)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known numbered road segment direction.");
+        return parsed;
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public DutchTranslation Translation { get; }
+
+    public static bool TryParse(string value, out RoadSegmentNumberedRoadDirection parsed)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 }

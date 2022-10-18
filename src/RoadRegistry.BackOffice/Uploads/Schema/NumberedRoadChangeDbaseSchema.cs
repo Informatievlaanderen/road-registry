@@ -52,15 +52,15 @@ public class NumberedRoadChangeDbaseSchema : DbaseSchema
 
     public DbaseField GW_OIDN => Fields[0];
 
-    public DbaseField WS_OIDN => Fields[1];
-
     public DbaseField IDENT8 => Fields[2];
+
+    public DbaseField RECORDTYPE => Fields[6];
 
     public DbaseField RICHTING => Fields[3];
 
-    public DbaseField VOLGNUMMER => Fields[4];
-
     public DbaseField TRANSACTID => Fields[5];
 
-    public DbaseField RECORDTYPE => Fields[6];
+    public DbaseField VOLGNUMMER => Fields[4];
+
+    public DbaseField WS_OIDN => Fields[1];
 }

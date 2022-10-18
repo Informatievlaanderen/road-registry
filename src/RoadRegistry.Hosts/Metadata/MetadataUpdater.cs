@@ -1,59 +1,53 @@
-namespace RoadRegistry.Hosts.Metadata
+namespace RoadRegistry.Hosts.Metadata;
+
+using System;
+using System.Globalization;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.XPath;
+using NodaTime;
+
+public class MetadataUpdater : IMetadataUpdater
 {
-    using System;
-    using System.Globalization;
-    using System.Linq;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using System.Xml.Linq;
-    using System.Xml.XPath;
-    using NodaTime;
+    private readonly IClock _clock;
+    private readonly MetadataConfiguration _configuration;
 
-    public class MetadataUpdater : IMetadataUpdater
+    public MetadataUpdater(MetadataConfiguration configuration, IClock clock)
     {
-        private readonly MetadataConfiguration _configuration;
-        private readonly IClock _clock;
+        _configuration = configuration;
+        _clock = clock;
+    }
 
-        public MetadataUpdater(MetadataConfiguration configuration, IClock clock)
-        {
-            _configuration = configuration;
-            _clock = clock;
-        }
+    private static string EncodeBasicAuth(string username, string password)
+    {
+        return $"{Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"))}";
+    }
 
-        public async Task UpdateAsync(CancellationToken cancellationToken)
-        {
-            if (!_configuration.Enabled)
-            {
-                return;
-            }
+    private static string ExtractXsrfToken(HttpResponseMessage xsrfPostMessage)
+    {
+        xsrfPostMessage.Headers.TryGetValues("Set-Cookie", out var setCookieHeaders);
 
-            try
-            {
-                var makeBody = MakeBody(_clock.GetCurrentInstant(), _configuration.Id);
-                var xDoc = await PerformCswRequest(_configuration.Uri, makeBody, cancellationToken);
+        if (setCookieHeaders == null) throw new InvalidOperationException("Could not find any Set-Cookie header to update metadata");
 
-                var ns = new System.Xml.XmlNamespaceManager(new System.Xml.NameTable());
-                ns.AddNamespace("csw", "http://www.opengis.net/cat/csw/2.0.2");
-                var totalUpdated = int.Parse(xDoc.XPathSelectElement("csw:TransactionResponse/csw:TransactionSummary/csw:totalUpdated", ns)?.Value ?? string.Empty);
-                if (totalUpdated <= 0)
-                {
-                    throw new InvalidOperationException($"Metadata not updated, response from metadata service: \n{xDoc}");
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("Could not update metadata: " + ex.Message);
-            }
-        }
+        var token = setCookieHeaders.Select(cookie => cookie.Split(';'))
+            .FirstOrDefault(split => split[0].Contains("XSRF-TOKEN="));
 
-        private static string MakeBody(Instant currentInstant, string id)
-        {
-            var shortDate = currentInstant.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-            var description = $"Toestand {shortDate}";
-            return $@"<?xml version=""1.0"" encoding=""UTF-8""?>
+        if (token == null) throw new InvalidOperationException("Could not find any xsrf token in the Set-Cookie headers");
+
+        return token[0].Split('=')[1];
+    }
+
+    private static string MakeBody(Instant currentInstant, string id)
+    {
+        var shortDate = currentInstant.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        var description = $"Toestand {shortDate}";
+        return $@"<?xml version=""1.0"" encoding=""UTF-8""?>
 <csw:Transaction service=""CSW"" version=""2.0.2""
 	xmlns:csw=""http://www.opengis.net/cat/csw/2.0.2""
 	xmlns:ogc=""http://www.opengis.net/ogc""
@@ -81,54 +75,48 @@ namespace RoadRegistry.Hosts.Metadata
 		</csw:Constraint>
 	</csw:Update>
 </csw:Transaction>";
-        }
+    }
 
-        private async Task<XDocument> PerformCswRequest(string uri, string bodyXml, CancellationToken cancellationToken)
-        {
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
-                "Basic", EncodeBasicAuth(_configuration.Username, _configuration.Password));
+    private async Task<XDocument> PerformCswRequest(string uri, string bodyXml, CancellationToken cancellationToken)
+    {
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            "Basic", EncodeBasicAuth(_configuration.Username, _configuration.Password));
 
-            // We need to send a POST request to receive an xsrf token, see https://geonetwork-opensource.org/manuals/trunk/en/customizing-application/misc.html
-            var xsrfPostMessage = await client.PostAsync(_configuration.LoginUri, new StringContent(string.Empty), cancellationToken);
+        // We need to send a POST request to receive an xsrf token, see https://geonetwork-opensource.org/manuals/trunk/en/customizing-application/misc.html
+        var xsrfPostMessage = await client.PostAsync(_configuration.LoginUri, new StringContent(string.Empty), cancellationToken);
 
-            client.DefaultRequestHeaders.Add("X-XSRF-TOKEN", ExtractXsrfToken(xsrfPostMessage));
+        client.DefaultRequestHeaders.Add("X-XSRF-TOKEN", ExtractXsrfToken(xsrfPostMessage));
 
-            var updateMetadataResponse = await client.PostAsync(uri,
-                new ByteArrayContent(Encoding.UTF8.GetBytes(bodyXml))
+        var updateMetadataResponse = await client.PostAsync(uri,
+            new ByteArrayContent(Encoding.UTF8.GetBytes(bodyXml))
+            {
+                Headers =
                 {
-                    Headers =
-                    {
-                        ContentType = MediaTypeHeaderValue.Parse("application/xml")
-                    }
-                }, cancellationToken);
-            var content = await updateMetadataResponse.Content.ReadAsStreamAsync(cancellationToken);
-            return await XDocument.LoadAsync(content, LoadOptions.None, cancellationToken);
-        }
+                    ContentType = MediaTypeHeaderValue.Parse("application/xml")
+                }
+            }, cancellationToken);
+        var content = await updateMetadataResponse.Content.ReadAsStreamAsync(cancellationToken);
+        return await XDocument.LoadAsync(content, LoadOptions.None, cancellationToken);
+    }
 
-        private static string EncodeBasicAuth(string username, string password)
+    public async Task UpdateAsync(CancellationToken cancellationToken)
+    {
+        if (!_configuration.Enabled) return;
+
+        try
         {
-            return $"{Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"))}";
+            var makeBody = MakeBody(_clock.GetCurrentInstant(), _configuration.Id);
+            var xDoc = await PerformCswRequest(_configuration.Uri, makeBody, cancellationToken);
+
+            var ns = new XmlNamespaceManager(new NameTable());
+            ns.AddNamespace("csw", "http://www.opengis.net/cat/csw/2.0.2");
+            var totalUpdated = int.Parse(xDoc.XPathSelectElement("csw:TransactionResponse/csw:TransactionSummary/csw:totalUpdated", ns)?.Value ?? string.Empty);
+            if (totalUpdated <= 0) throw new InvalidOperationException($"Metadata not updated, response from metadata service: \n{xDoc}");
         }
-
-        private static string ExtractXsrfToken(HttpResponseMessage xsrfPostMessage)
+        catch (Exception ex)
         {
-            xsrfPostMessage.Headers.TryGetValues("Set-Cookie", out var setCookieHeaders);
-
-            if (setCookieHeaders == null)
-            {
-                throw new InvalidOperationException("Could not find any Set-Cookie header to update metadata");
-            }
-
-            var token = setCookieHeaders.Select(cookie => cookie.Split(';'))
-                .FirstOrDefault(split => split[0].Contains("XSRF-TOKEN="));
-
-            if(token == null)
-            {
-                throw new InvalidOperationException("Could not find any xsrf token in the Set-Cookie headers");
-            }
-
-            return token[0].Split('=')[1];
+            throw new InvalidOperationException("Could not update metadata: " + ex.Message);
         }
     }
 }

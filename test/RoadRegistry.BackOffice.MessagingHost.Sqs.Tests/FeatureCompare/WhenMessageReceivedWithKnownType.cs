@@ -1,23 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Tests.FeatureCompare;
 
-namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Tests.FeatureCompare
+using Fixtures;
+
+public class WhenMessageReceivedWithKnownType : IClassFixture<WhenMessageReceivedWithKnownTypeFixture>
 {
-    using Fixtures;
+    private readonly WhenMessageReceivedWithKnownTypeFixture _fixture;
 
-    public class WhenMessageReceivedWithKnownType : IClassFixture<WhenMessageReceivedWithKnownTypeFixture>
+    public WhenMessageReceivedWithKnownType(WhenMessageReceivedWithKnownTypeFixture fixture)
     {
-        private readonly WhenMessageReceivedWithKnownTypeFixture _fixture;
+        _fixture = fixture;
+    }
 
-        public WhenMessageReceivedWithKnownType(WhenMessageReceivedWithKnownTypeFixture fixture) => _fixture = fixture;
-
-        [Fact(Skip = "TODO: Fixture completion")]
-        public void ItShouldSucceed()
-        {
-            Assert.True(_fixture.Result);
-        }
+    [Fact(Skip = "TODO: Fixture completion")]
+    public void ItShouldSucceed()
+    {
+        Assert.True(_fixture.Result);
     }
 }

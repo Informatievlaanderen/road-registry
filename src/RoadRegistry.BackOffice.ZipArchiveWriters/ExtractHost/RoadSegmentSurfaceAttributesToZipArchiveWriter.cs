@@ -7,7 +7,6 @@ using Editor.Schema;
 using Editor.Schema.RoadSegments;
 using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 
 public class RoadSegmentSurfaceAttributesToZipArchiveWriter : IZipArchiveWriter<EditorContext>

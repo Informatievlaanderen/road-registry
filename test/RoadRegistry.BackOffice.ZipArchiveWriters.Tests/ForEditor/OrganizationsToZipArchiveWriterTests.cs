@@ -7,7 +7,6 @@ using Core;
 using Editor.Schema;
 using Editor.Schema.Organizations;
 using Framework.Containers;
-using Xunit;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]

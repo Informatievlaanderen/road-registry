@@ -23,29 +23,12 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange
     }
 
     public AttributeId AttributeId { get; }
-    public AttributeId TemporaryAttributeId { get; }
-    public RoadSegmentId SegmentId { get; }
-    public RoadSegmentId? TemporarySegmentId { get; }
-    public NumberedRoadNumber Number { get; }
     public RoadSegmentNumberedRoadDirection Direction { get; }
+    public NumberedRoadNumber Number { get; }
     public RoadSegmentNumberedRoadOrdinal Ordinal { get; }
-
-    public Problems VerifyBefore(BeforeVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-        return Problems.None;
-    }
-
-    public Problems VerifyAfter(AfterVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        var problems = Problems.None;
-
-        if (!context.AfterView.View.Segments.ContainsKey(SegmentId)) problems = problems.Add(new RoadSegmentMissing(TemporarySegmentId ?? SegmentId));
-
-        return problems;
-    }
+    public RoadSegmentId SegmentId { get; }
+    public AttributeId TemporaryAttributeId { get; }
+    public RoadSegmentId? TemporarySegmentId { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -74,5 +57,22 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange
             Ordinal = Ordinal,
             SegmentId = SegmentId
         };
+    }
+
+    public Problems VerifyAfter(AfterVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        if (!context.AfterView.View.Segments.ContainsKey(SegmentId)) problems = problems.Add(new RoadSegmentMissing(TemporarySegmentId ?? SegmentId));
+
+        return problems;
+    }
+
+    public Problems VerifyBefore(BeforeVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+        return Problems.None;
     }
 }

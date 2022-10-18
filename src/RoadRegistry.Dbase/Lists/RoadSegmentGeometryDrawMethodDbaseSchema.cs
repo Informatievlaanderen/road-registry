@@ -27,7 +27,8 @@ public class RoadSegmentGeometryDrawMethodDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField METHODE => Fields[0];
-    public DbaseField LBLMETHOD => Fields[1];
     public DbaseField DEFMETHOD => Fields[2];
+    public DbaseField LBLMETHOD => Fields[1];
+
+    public DbaseField METHODE => Fields[0];
 }

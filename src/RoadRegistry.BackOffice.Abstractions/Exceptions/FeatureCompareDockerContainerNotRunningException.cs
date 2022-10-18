@@ -10,10 +10,11 @@ public sealed class FeatureCompareDockerContainerNotRunningException : Applicati
     {
         ArchiveId = archiveId;
     }
-    
+
     private FeatureCompareDockerContainerNotRunningException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public ArchiveId ArchiveId { get; init; }
 }

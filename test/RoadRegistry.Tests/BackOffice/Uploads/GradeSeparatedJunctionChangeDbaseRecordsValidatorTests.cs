@@ -46,6 +46,66 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
         _context = ZipArchiveValidationContext.Empty;
     }
 
+    public void Dispose()
+    {
+        _archive?.Dispose();
+        _stream?.Dispose();
+    }
+
+    [Fact]
+    public void IsZipArchiveDbaseRecordsValidator()
+    {
+        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<GradeSeparatedJunctionChangeDbaseRecord>>(_sut);
+    }
+
+    [Fact]
+    public void ValidateContextCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
+    }
+
+    [Fact]
+    public void ValidateEntryCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
+    }
+
+    [Fact]
+    public void ValidateRecordsCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
+    }
+
+    [Fact]
+    public void ValidateWithoutRecordsReturnsExpectedResult()
+    {
+        var (result, context) = _sut.Validate(_entry, _enumerator, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(true)),
+            result);
+    }
+
+    [Fact]
+    public void ValidateWithProblematicRecordsReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(2)
+            .ToArray();
+        var exception = new Exception("problem");
+        var enumerator = new ProblematicDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord>(records, 1, exception);
+
+        var (result, context) = _sut.Validate(_entry, enumerator, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(
+                _entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)
+            ),
+            result,
+            new FileProblemComparer());
+        Assert.Same(_context, context);
+    }
+
     public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
     {
         get
@@ -82,63 +142,18 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
         }
     }
 
-    public void Dispose()
+    [Theory]
+    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+        Action<GradeSeparatedJunctionChangeDbaseRecord> modifier, DbaseField field)
     {
-        _archive?.Dispose();
-        _stream?.Dispose();
-    }
-
-    [Fact]
-    public void IsZipArchiveDbaseRecordsValidator()
-    {
-        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<GradeSeparatedJunctionChangeDbaseRecord>>(_sut);
-    }
-
-    [Fact]
-    public void ValidateEntryCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
-    }
-
-    [Fact]
-    public void ValidateRecordsCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
-    }
-
-    [Fact]
-    public void ValidateContextCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
-    }
-
-    [Fact]
-    public void ValidateWithoutRecordsReturnsExpectedResult()
-    {
-        var (result, context) = _sut.Validate(_entry, _enumerator, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(true)),
-            result);
-    }
-
-    [Fact]
-    public void ValidateWithValidRecordsReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(new Random().Next(1, 5))
-            .Select((record, index) =>
-            {
-                record.OK_OIDN.Value = index + 1;
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
+        var record = _fixture.Create<GradeSeparatedJunctionChangeDbaseRecord>();
+        modifier(record);
+        var records = new[] { record }.ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, _context);
 
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
+        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
         Assert.Same(_context, context);
     }
 
@@ -166,6 +181,30 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
                     .AtDbaseRecord(new RecordNumber(2))
                     .RecordTypeMismatch(-1)
             ),
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierAndHaveAddedAndRemovedAsRecordTypeReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(2)
+            .Select((record, index) =>
+            {
+                record.OK_OIDN.Value = 1;
+                if (index == 0)
+                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.None,
             result);
         Assert.Same(_context, context);
     }
@@ -199,30 +238,6 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
     }
 
     [Fact]
-    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierAndHaveAddedAndRemovedAsRecordTypeReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(2)
-            .Select((record, index) =>
-            {
-                record.OK_OIDN.Value = 1;
-                if (index == 0)
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
-
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
     public void ValidateWithRecordsThatHaveZeroAsGradeSeparatedJunctionIdentifierReturnsExpectedResult()
     {
         var records = _fixture
@@ -245,41 +260,6 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
         Assert.Same(_context, context);
     }
 
-    [Theory]
-    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
-    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
-        Action<GradeSeparatedJunctionChangeDbaseRecord> modifier, DbaseField field)
-    {
-        var record = _fixture.Create<GradeSeparatedJunctionChangeDbaseRecord>();
-        modifier(record);
-        var records = new[] { record }.ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithProblematicRecordsReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(2)
-            .ToArray();
-        var exception = new Exception("problem");
-        var enumerator = new ProblematicDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord>(records, 1, exception);
-
-        var (result, context) = _sut.Validate(_entry, enumerator, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(
-                _entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)
-            ),
-            result,
-            new FileProblemComparer());
-        Assert.Same(_context, context);
-    }
-
 
     [Fact]
     public void ValidateWithRecordThatHasInvalidGradeSeparatedJunctionTypeReturnsExpectedResult()
@@ -292,6 +272,21 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
 
         Assert.Equal(
             ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).GradeSeparatedJunctionTypeMismatch(-1)),
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithRecordThatHasInvalidLowerRoadSegmentIdReturnsExpectedResult()
+    {
+        var record = _fixture.Create<GradeSeparatedJunctionChangeDbaseRecord>();
+        record.ON_WS_OIDN.Value = -1;
+        var records = new[] { record }.ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).LowerRoadSegmentIdOutOfRange(-1)),
             result);
         Assert.Same(_context, context);
     }
@@ -312,16 +307,21 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
     }
 
     [Fact]
-    public void ValidateWithRecordThatHasInvalidLowerRoadSegmentIdReturnsExpectedResult()
+    public void ValidateWithValidRecordsReturnsExpectedResult()
     {
-        var record = _fixture.Create<GradeSeparatedJunctionChangeDbaseRecord>();
-        record.ON_WS_OIDN.Value = -1;
-        var records = new[] { record }.ToDbaseRecordEnumerator();
+        var records = _fixture
+            .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(new Random().Next(1, 5))
+            .Select((record, index) =>
+            {
+                record.OK_OIDN.Value = index + 1;
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).LowerRoadSegmentIdOutOfRange(-1)),
+            ZipArchiveProblems.None,
             result);
         Assert.Same(_context, context);
     }

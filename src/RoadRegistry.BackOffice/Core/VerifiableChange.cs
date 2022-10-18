@@ -20,16 +20,18 @@ public class VerifiableChange
         _problems = problems;
     }
 
+    public IVerifiedChange AsVerifiedChange()
+    {
+        IVerifiedChange change;
+        if (HasErrors)
+            change = new RejectedChange(_requestedChange, _problems);
+        else
+            change = new AcceptedChange(_requestedChange, _problems);
+        return change;
+    }
+
     public bool HasErrors => _problems.OfType<Error>().Any();
     public bool HasWarnings => _problems.OfType<Warning>().Any();
-
-    public VerifiableChange VerifyBefore(BeforeVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-        return new VerifiableChange(
-            _requestedChange,
-            _problems.AddRange(_requestedChange.VerifyBefore(context)));
-    }
 
     public VerifiableChange VerifyAfter(AfterVerificationContext context)
     {
@@ -39,13 +41,11 @@ public class VerifiableChange
             _problems.AddRange(_requestedChange.VerifyAfter(context)));
     }
 
-    public IVerifiedChange AsVerifiedChange()
+    public VerifiableChange VerifyBefore(BeforeVerificationContext context)
     {
-        IVerifiedChange change;
-        if (HasErrors)
-            change = new RejectedChange(_requestedChange, _problems);
-        else
-            change = new AcceptedChange(_requestedChange, _problems);
-        return change;
+        if (context == null) throw new ArgumentNullException(nameof(context));
+        return new VerifiableChange(
+            _requestedChange,
+            _problems.AddRange(_requestedChange.VerifyBefore(context)));
     }
 }

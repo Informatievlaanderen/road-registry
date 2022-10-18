@@ -20,7 +20,8 @@ public class LaneDirectionDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 RICHTING { get; }
-    public DbaseString LBLRICHT { get; }
     public DbaseString DEFRICHT { get; }
+    public DbaseString LBLRICHT { get; }
+
+    public DbaseInt32 RICHTING { get; }
 }

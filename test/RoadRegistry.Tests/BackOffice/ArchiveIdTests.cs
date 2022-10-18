@@ -12,8 +12,8 @@ using Xunit;
 
 public class ArchiveIdTests
 {
-    private readonly Fixture _fixture;
     private static readonly JsonSerializerSettings _serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+    private readonly Fixture _fixture;
 
     public ArchiveIdTests()
     {
@@ -21,33 +21,17 @@ public class ArchiveIdTests
         _fixture.CustomizeArchiveId();
     }
 
-    [Fact]
-    public void VerifyBehavior()
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("", false)]
+    [InlineData("1", true)]
+    [InlineData("123456789012345678901234567890123", false)]
+    [InlineData("12345678901234567890123456789012", true)]
+    public void AcceptsReturnsExceptedResult(string value, bool expected)
     {
-        var customizedString = new Fixture();
-        customizedString.Customize<string>(customization =>
-            customization.FromFactory(generator =>
-                new string(
-                    (char)new Random().Next(97, 123), // a-z
-                    generator.Next(1, ArchiveId.MaxLength + 1)
-                )
-            ));
-        new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<string>(
-                new CompositeSpecimenBuilder(customizedString, _fixture)),
-            new EquatableEqualsSelfAssertion(_fixture),
-            new EquatableEqualsOtherAssertion(_fixture),
-            new EqualityOperatorEqualsSelfAssertion(_fixture),
-            new EqualityOperatorEqualsOtherAssertion(_fixture),
-            new InequalityOperatorEqualsSelfAssertion(_fixture),
-            new InequalityOperatorEqualsOtherAssertion(_fixture),
-            new EqualsNewObjectAssertion(_fixture),
-            new EqualsNullAssertion(_fixture),
-            new EqualsSelfAssertion(_fixture),
-            new EqualsOtherAssertion(_fixture),
-            new EqualsSuccessiveAssertion(_fixture),
-            new GetHashCodeSuccessiveAssertion(_fixture)
-        ).Verify(typeof(ArchiveId));
+        var result = ArchiveId.Accepts(value);
+
+        Assert.Equal(expected, result);
     }
 
     [Fact]
@@ -95,17 +79,33 @@ public class ArchiveIdTests
         Assert.Throws<ArgumentOutOfRangeException>(() => new ArchiveId(value));
     }
 
-    [Theory]
-    [InlineData(null, false)]
-    [InlineData("", false)]
-    [InlineData("1", true)]
-    [InlineData("123456789012345678901234567890123", false)]
-    [InlineData("12345678901234567890123456789012", true)]
-    public void AcceptsReturnsExceptedResult(string value, bool expected)
+    [Fact]
+    public void VerifyBehavior()
     {
-        var result = ArchiveId.Accepts(value);
-
-        Assert.Equal(expected, result);
+        var customizedString = new Fixture();
+        customizedString.Customize<string>(customization =>
+            customization.FromFactory(generator =>
+                new string(
+                    (char)new Random().Next(97, 123), // a-z
+                    generator.Next(1, ArchiveId.MaxLength + 1)
+                )
+            ));
+        new CompositeIdiomaticAssertion(
+            new ImplicitConversionOperatorAssertion<string>(
+                new CompositeSpecimenBuilder(customizedString, _fixture)),
+            new EquatableEqualsSelfAssertion(_fixture),
+            new EquatableEqualsOtherAssertion(_fixture),
+            new EqualityOperatorEqualsSelfAssertion(_fixture),
+            new EqualityOperatorEqualsOtherAssertion(_fixture),
+            new InequalityOperatorEqualsSelfAssertion(_fixture),
+            new InequalityOperatorEqualsOtherAssertion(_fixture),
+            new EqualsNewObjectAssertion(_fixture),
+            new EqualsNullAssertion(_fixture),
+            new EqualsSelfAssertion(_fixture),
+            new EqualsOtherAssertion(_fixture),
+            new EqualsSuccessiveAssertion(_fixture),
+            new GetHashCodeSuccessiveAssertion(_fixture)
+        ).Verify(typeof(ArchiveId));
     }
 
     //[Fact]

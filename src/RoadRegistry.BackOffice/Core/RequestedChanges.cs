@@ -9,6 +9,11 @@ using NetTopologySuite.Geometries;
 
 public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequestedChangeIdentityTranslator
 {
+    private static readonly HashSet<Type> GradeSeparatedJunctionChanges = new(new[]
+    {
+        typeof(AddGradeSeparatedJunction), typeof(ModifyGradeSeparatedJunction), typeof(RemoveGradeSeparatedJunction)
+    });
+
     private static readonly HashSet<Type> RoadNodeChanges = new(new[]
     {
         typeof(AddRoadNode), typeof(ModifyRoadNode), typeof(RemoveRoadNode)
@@ -17,11 +22,6 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
     private static readonly HashSet<Type> RoadSegmentChanges = new(new[]
     {
         typeof(AddRoadSegment), typeof(ModifyRoadSegment), typeof(RemoveRoadSegment)
-    });
-
-    private static readonly HashSet<Type> GradeSeparatedJunctionChanges = new(new[]
-    {
-        typeof(AddGradeSeparatedJunction), typeof(ModifyGradeSeparatedJunction), typeof(RemoveGradeSeparatedJunction)
     });
 
     private readonly ImmutableList<IRequestedChange> _changes;
@@ -52,84 +52,6 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         _mapToTemporarySegmentIdentifiers = mapToTemporarySegmentIdentifiers;
         _mapToPermanentGradeSeparatedJunctionIdentifiers = mapToPermanentGradeSeparatedJunctionIdentifiers;
         _mapToTemporaryGradeSeparatedJunctionIdentifiers = mapToTemporaryGradeSeparatedJunctionIdentifiers;
-    }
-
-    public TransactionId TransactionId { get; }
-
-    public IEnumerator<IRequestedChange> GetEnumerator()
-    {
-        return _changes.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
-    public int Count => _changes.Count;
-
-    public bool TryTranslateToPermanent(RoadNodeId id, out RoadNodeId permanent)
-    {
-        return _mapToPermanentNodeIdentifiers.TryGetValue(id, out permanent);
-    }
-
-    public bool TryTranslateToPermanent(RoadSegmentId id, out RoadSegmentId permanent)
-    {
-        return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
-    }
-
-    public bool TryTranslateToPermanent(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
-    {
-        return _mapToPermanentGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
-    }
-
-    public bool TryTranslateToTemporary(RoadNodeId id, out RoadNodeId temporary)
-    {
-        return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
-    }
-
-    public bool TryTranslateToTemporary(RoadSegmentId id, out RoadSegmentId temporary)
-    {
-        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
-    }
-
-    public bool TryTranslateToTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
-    {
-        return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
-    }
-
-    public RoadNodeId TranslateToTemporaryOrId(RoadNodeId id)
-    {
-        return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out var temporary)
-            ? temporary
-            : id;
-    }
-
-    public RoadSegmentId TranslateToTemporaryOrId(RoadSegmentId id)
-    {
-        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary)
-            ? temporary
-            : id;
-    }
-
-    public GradeSeparatedJunctionId TranslateToTemporaryOrId(GradeSeparatedJunctionId id)
-    {
-        return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out var temporary)
-            ? temporary
-            : id;
-    }
-
-    public static RequestedChanges Start(TransactionId transactionId)
-    {
-        return new RequestedChanges(
-            transactionId,
-            ImmutableList<IRequestedChange>.Empty,
-            ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
-            ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
-            ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
-            ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
-            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty,
-            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty);
     }
 
     public RequestedChanges Append(AddRoadNode change)
@@ -372,6 +294,98 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _mapToTemporaryGradeSeparatedJunctionIdentifiers);
     }
 
+    public int Count => _changes.Count;
+
+    public BeforeVerificationContext CreateBeforeVerificationContext(IRoadNetworkView view)
+    {
+        if (view == null) throw new ArgumentNullException(nameof(view));
+
+        var tolerances = new VerificationContextTolerances(
+            DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance,
+            DefaultTolerances.MeasurementTolerance,
+            DefaultTolerances.GeometryTolerance);
+
+        return new BeforeVerificationContext(
+            view.CreateScopedView(DeriveScopeFromChanges(view)),
+            this,
+            tolerances);
+    }
+
+    private Envelope DeriveScopeFromChanges(IRoadNetworkView view)
+    {
+        var envelope = new Envelope();
+
+        foreach (var change in this)
+            switch (change)
+            {
+                case AddRoadNode addRoadNode:
+                    // the geometry to add
+                    envelope.ExpandToInclude(addRoadNode.Geometry.Coordinate);
+                    break;
+                case ModifyRoadNode modifyRoadNode:
+                    // the geometry to modify it to
+                    envelope.ExpandToInclude(modifyRoadNode.Geometry.Coordinate);
+                    // if we still know this node, include the geometry as we know it now
+                    if (view.Nodes.TryGetValue(modifyRoadNode.Id, out var nodeToModify)) envelope.ExpandToInclude(nodeToModify.Geometry.Coordinate);
+
+                    break;
+                case RemoveRoadNode removeRoadNode:
+                    // if we still know this node, include the geometry as we know it now
+                    if (view.Nodes.TryGetValue(removeRoadNode.Id, out var nodeToRemove)) envelope.ExpandToInclude(nodeToRemove.Geometry.Coordinate);
+
+                    break;
+                case AddRoadSegment addRoadSegment:
+                    // the geometry to add
+                    envelope.ExpandToInclude(addRoadSegment.Geometry.EnvelopeInternal);
+                    break;
+                case ModifyRoadSegment modifyRoadSegment:
+                    // the geometry to modify it to
+                    envelope.ExpandToInclude(modifyRoadSegment.Geometry.EnvelopeInternal);
+                    // if we still know this segment, include the geometry as we know it now
+                    if (view.Segments.TryGetValue(modifyRoadSegment.Id, out var segmentToModify)) envelope.ExpandToInclude(segmentToModify.Geometry.EnvelopeInternal);
+
+                    break;
+                case RemoveRoadSegment removeRoadSegment:
+                    // if we still know this segment, include the geometry as we know it now
+                    if (view.Segments.TryGetValue(removeRoadSegment.Id, out var segmentToRemove)) envelope.ExpandToInclude(segmentToRemove.Geometry.EnvelopeInternal);
+
+                    break;
+            }
+
+        return envelope;
+    }
+
+    public IReadOnlyDictionary<GradeSeparatedJunctionId, IRequestedChange[]> FindConflictingGradeSeparatedJunctionChanges()
+    {
+        return this
+            .Where(change => GradeSeparatedJunctionChanges.Contains(change.GetType()))
+            .GroupBy(change =>
+            {
+                GradeSeparatedJunctionId id;
+                switch (change)
+                {
+                    case AddGradeSeparatedJunction addGradeSeparatedJunction:
+                        id = addGradeSeparatedJunction.Id;
+                        break;
+                    case ModifyGradeSeparatedJunction modifyGradeSeparatedJunction:
+                        id = modifyGradeSeparatedJunction.Id;
+                        break;
+                    case RemoveGradeSeparatedJunction removeGradeSeparatedJunction:
+                        id = removeGradeSeparatedJunction.Id;
+                        break;
+                    default:
+                        throw new InvalidOperationException(
+                            $"The {change.GetType().Name} is not a grade separated junction change.");
+                }
+
+                return id;
+            })
+            .Where(changes => changes.Count() != 1)
+            .ToDictionary(
+                changes => changes.Key,
+                changes => changes.ToArray());
+    }
+
     public IReadOnlyDictionary<RoadNodeId, IRequestedChange[]> FindConflictingRoadNodeChanges()
     {
         return this
@@ -434,93 +448,79 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
                 changes => changes.ToArray());
     }
 
-    public IReadOnlyDictionary<GradeSeparatedJunctionId, IRequestedChange[]> FindConflictingGradeSeparatedJunctionChanges()
+    public IEnumerator<IRequestedChange> GetEnumerator()
     {
-        return this
-            .Where(change => GradeSeparatedJunctionChanges.Contains(change.GetType()))
-            .GroupBy(change =>
-            {
-                GradeSeparatedJunctionId id;
-                switch (change)
-                {
-                    case AddGradeSeparatedJunction addGradeSeparatedJunction:
-                        id = addGradeSeparatedJunction.Id;
-                        break;
-                    case ModifyGradeSeparatedJunction modifyGradeSeparatedJunction:
-                        id = modifyGradeSeparatedJunction.Id;
-                        break;
-                    case RemoveGradeSeparatedJunction removeGradeSeparatedJunction:
-                        id = removeGradeSeparatedJunction.Id;
-                        break;
-                    default:
-                        throw new InvalidOperationException(
-                            $"The {change.GetType().Name} is not a grade separated junction change.");
-                }
-
-                return id;
-            })
-            .Where(changes => changes.Count() != 1)
-            .ToDictionary(
-                changes => changes.Key,
-                changes => changes.ToArray());
+        return _changes.GetEnumerator();
     }
 
-    public BeforeVerificationContext CreateBeforeVerificationContext(IRoadNetworkView view)
+    IEnumerator IEnumerable.GetEnumerator()
     {
-        if (view == null) throw new ArgumentNullException(nameof(view));
-
-        var tolerances = new VerificationContextTolerances(
-            DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance,
-            DefaultTolerances.MeasurementTolerance,
-            DefaultTolerances.GeometryTolerance);
-
-        return new BeforeVerificationContext(
-            view.CreateScopedView(DeriveScopeFromChanges(view)),
-            this,
-            tolerances);
+        return GetEnumerator();
     }
 
-    private Envelope DeriveScopeFromChanges(IRoadNetworkView view)
+    public static RequestedChanges Start(TransactionId transactionId)
     {
-        var envelope = new Envelope();
+        return new RequestedChanges(
+            transactionId,
+            ImmutableList<IRequestedChange>.Empty,
+            ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
+            ImmutableDictionary<RoadNodeId, RoadNodeId>.Empty,
+            ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
+            ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
+            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty,
+            ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty);
+    }
 
-        foreach (var change in this)
-            switch (change)
-            {
-                case AddRoadNode addRoadNode:
-                    // the geometry to add
-                    envelope.ExpandToInclude(addRoadNode.Geometry.Coordinate);
-                    break;
-                case ModifyRoadNode modifyRoadNode:
-                    // the geometry to modify it to
-                    envelope.ExpandToInclude(modifyRoadNode.Geometry.Coordinate);
-                    // if we still know this node, include the geometry as we know it now
-                    if (view.Nodes.TryGetValue(modifyRoadNode.Id, out var nodeToModify)) envelope.ExpandToInclude(nodeToModify.Geometry.Coordinate);
+    public TransactionId TransactionId { get; }
 
-                    break;
-                case RemoveRoadNode removeRoadNode:
-                    // if we still know this node, include the geometry as we know it now
-                    if (view.Nodes.TryGetValue(removeRoadNode.Id, out var nodeToRemove)) envelope.ExpandToInclude(nodeToRemove.Geometry.Coordinate);
+    public RoadNodeId TranslateToTemporaryOrId(RoadNodeId id)
+    {
+        return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out var temporary)
+            ? temporary
+            : id;
+    }
 
-                    break;
-                case AddRoadSegment addRoadSegment:
-                    // the geometry to add
-                    envelope.ExpandToInclude(addRoadSegment.Geometry.EnvelopeInternal);
-                    break;
-                case ModifyRoadSegment modifyRoadSegment:
-                    // the geometry to modify it to
-                    envelope.ExpandToInclude(modifyRoadSegment.Geometry.EnvelopeInternal);
-                    // if we still know this segment, include the geometry as we know it now
-                    if (view.Segments.TryGetValue(modifyRoadSegment.Id, out var segmentToModify)) envelope.ExpandToInclude(segmentToModify.Geometry.EnvelopeInternal);
+    public RoadSegmentId TranslateToTemporaryOrId(RoadSegmentId id)
+    {
+        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary)
+            ? temporary
+            : id;
+    }
 
-                    break;
-                case RemoveRoadSegment removeRoadSegment:
-                    // if we still know this segment, include the geometry as we know it now
-                    if (view.Segments.TryGetValue(removeRoadSegment.Id, out var segmentToRemove)) envelope.ExpandToInclude(segmentToRemove.Geometry.EnvelopeInternal);
+    public GradeSeparatedJunctionId TranslateToTemporaryOrId(GradeSeparatedJunctionId id)
+    {
+        return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out var temporary)
+            ? temporary
+            : id;
+    }
 
-                    break;
-            }
+    public bool TryTranslateToPermanent(RoadNodeId id, out RoadNodeId permanent)
+    {
+        return _mapToPermanentNodeIdentifiers.TryGetValue(id, out permanent);
+    }
 
-        return envelope;
+    public bool TryTranslateToPermanent(RoadSegmentId id, out RoadSegmentId permanent)
+    {
+        return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
+    }
+
+    public bool TryTranslateToPermanent(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
+    {
+        return _mapToPermanentGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
+    }
+
+    public bool TryTranslateToTemporary(RoadNodeId id, out RoadNodeId temporary)
+    {
+        return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
+    }
+
+    public bool TryTranslateToTemporary(RoadSegmentId id, out RoadSegmentId temporary)
+    {
+        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
+    }
+
+    public bool TryTranslateToTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
+    {
+        return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
     }
 }

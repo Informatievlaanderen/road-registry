@@ -26,6 +26,14 @@ public class RoadNetworkExtracts : IRoadNetworkExtracts
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
     }
 
+    public void Add(RoadNetworkExtract extract)
+    {
+        if (extract == null)
+            throw new ArgumentNullException(nameof(extract));
+
+        _map.Attach(new EventSourcedEntityMapEntry(extract, ToStreamName(extract.Id), ExpectedVersion.NoStream));
+    }
+
     public async Task<RoadNetworkExtract> Get(ExtractRequestId id, CancellationToken ct = default)
     {
         var stream = ToStreamName(id);
@@ -57,14 +65,6 @@ public class RoadNetworkExtracts : IRoadNetworkExtracts
 
         _map.Attach(new EventSourcedEntityMapEntry(entity, stream, page.LastStreamVersion));
         return (RoadNetworkExtract)entity;
-    }
-
-    public void Add(RoadNetworkExtract extract)
-    {
-        if (extract == null)
-            throw new ArgumentNullException(nameof(extract));
-
-        _map.Attach(new EventSourcedEntityMapEntry(extract, ToStreamName(extract.Id), ExpectedVersion.NoStream));
     }
 
     public static StreamName ToStreamName(ExtractRequestId id)

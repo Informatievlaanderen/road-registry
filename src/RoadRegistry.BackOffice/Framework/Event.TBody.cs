@@ -14,7 +14,8 @@ public class Event<TBody>
         Body = (TBody)@event.Body;
     }
 
+    public TBody Body { get; }
+
     public Guid MessageId { get; }
     public ClaimsPrincipal Principal { get; }
-    public TBody Body { get; }
 }

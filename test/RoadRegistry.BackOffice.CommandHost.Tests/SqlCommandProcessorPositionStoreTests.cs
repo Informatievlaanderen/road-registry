@@ -10,6 +10,7 @@ public class SqlCommandProcessorPositionStoreTests : IAsyncLifetime
 {
     private readonly IFixture _fixture;
     private readonly SqlServer _server;
+
     private SqlConnectionStringBuilder _builder;
 
     public SqlCommandProcessorPositionStoreTests(SqlServer server)
@@ -18,16 +19,16 @@ public class SqlCommandProcessorPositionStoreTests : IAsyncLifetime
         _fixture = new Fixture();
     }
 
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
     public async Task InitializeAsync()
     {
         _builder = await _server.CreateDatabaseAsync();
 
         await new SqlCommandProcessorPositionStoreSchema(_builder).CreateSchemaIfNotExists("schema");
-    }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
     }
 
     [Fact]

@@ -4,12 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using RoadRegistry.BackOffice;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Uploads;
-using Xunit;
-using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveShapeEntryTranslatorTests
@@ -36,6 +34,21 @@ public class ZipArchiveShapeEntryTranslatorTests
         );
     }
 
+    private class CollectShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
+    {
+        public ShapeRecord[] Collected { get; private set; }
+
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
+        {
+            var collected = new List<ShapeRecord>();
+            while (records.MoveNext()) collected.Add(records.Current);
+
+            Collected = collected.ToArray();
+
+            return changes;
+        }
+    }
+
     [Fact]
     public void EncodingCanNotBeNull()
     {
@@ -45,23 +58,19 @@ public class ZipArchiveShapeEntryTranslatorTests
                 new FakeShapeRecordTranslator()));
     }
 
-    [Fact]
-    public void TranslatorCanNotBeNull()
+    private class FakeShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
     {
-        Assert.Throws<ArgumentNullException>(
-            () => new ZipArchiveShapeEntryTranslator(
-                Encoding.Default,
-                null));
-    }
+        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
 
-    [Fact]
-    public void TranslateEntryCanNotBeNull()
-    {
-        var sut = new ZipArchiveShapeEntryTranslator(
-            Encoding.Default,
-            new FakeShapeRecordTranslator());
+        public FakeShapeRecordTranslator(Func<TranslatedChanges, TranslatedChanges> translation = null)
+        {
+            _translation = translation ?? (changes => changes);
+        }
 
-        Assert.Throws<ArgumentNullException>(() => sut.Translate(null, TranslatedChanges.Empty));
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
+        {
+            return _translation(changes);
+        }
     }
 
     [Fact]
@@ -76,6 +85,58 @@ public class ZipArchiveShapeEntryTranslatorTests
         {
             var entry = archive.CreateEntry("entry");
             Assert.Throws<ArgumentNullException>(() => sut.Translate(entry, null));
+        }
+    }
+
+    [Fact]
+    public void TranslateEntryCanNotBeNull()
+    {
+        var sut = new ZipArchiveShapeEntryTranslator(
+            Encoding.Default,
+            new FakeShapeRecordTranslator());
+
+        Assert.Throws<ArgumentNullException>(() => sut.Translate(null, TranslatedChanges.Empty));
+    }
+
+    [Fact]
+    public void TranslatePassesExpectedShapeRecordsToShapeRecordTranslator()
+    {
+        var translator = new CollectShapeRecordTranslator();
+        var sut = new ZipArchiveShapeEntryTranslator(Encoding.UTF8, translator);
+        var records = _fixture.CreateMany<ShapeRecord>(2).ToArray();
+        var fileSize = records.Aggregate(ShapeFileHeader.Length, (length, record) => length.Plus(record.Length));
+        var header = new ShapeFileHeader(
+            fileSize,
+            ShapeType.Point,
+            BoundingBox3D.Empty);
+
+        using (var stream = new MemoryStream())
+        {
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+            {
+                var entry = archive.CreateEntry("entry");
+                using (var entryStream = entry.Open())
+                using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
+                {
+                    header.Write(writer);
+                    foreach (var record in records) record.Write(writer);
+
+                    entryStream.Flush();
+                }
+            }
+
+            stream.Flush();
+            stream.Position = 0;
+
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
+            {
+                var entry = archive.GetEntry("entry");
+
+                var result = sut.Translate(entry, TranslatedChanges.Empty);
+
+                Assert.Equal(TranslatedChanges.Empty, result, new TranslatedChangeEqualityComparer());
+                Assert.Equal(records, translator.Collected, new ShapeRecordEqualityComparer());
+            }
         }
     }
 
@@ -124,74 +185,11 @@ public class ZipArchiveShapeEntryTranslatorTests
     }
 
     [Fact]
-    public void TranslatePassesExpectedShapeRecordsToShapeRecordTranslator()
+    public void TranslatorCanNotBeNull()
     {
-        var translator = new CollectShapeRecordTranslator();
-        var sut = new ZipArchiveShapeEntryTranslator(Encoding.UTF8, translator);
-        var records = _fixture.CreateMany<ShapeRecord>(2).ToArray();
-        var fileSize = records.Aggregate(ShapeFileHeader.Length, (length, record) => length.Plus(record.Length));
-        var header = new ShapeFileHeader(
-            fileSize,
-            ShapeType.Point,
-            BoundingBox3D.Empty);
-
-        using (var stream = new MemoryStream())
-        {
-            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-            {
-                var entry = archive.CreateEntry("entry");
-                using (var entryStream = entry.Open())
-                using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
-                {
-                    header.Write(writer);
-                    foreach (var record in records) record.Write(writer);
-
-                    entryStream.Flush();
-                }
-            }
-
-            stream.Flush();
-            stream.Position = 0;
-
-            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
-            {
-                var entry = archive.GetEntry("entry");
-
-                var result = sut.Translate(entry, TranslatedChanges.Empty);
-
-                Assert.Equal(TranslatedChanges.Empty, result, new TranslatedChangeEqualityComparer());
-                Assert.Equal(records, translator.Collected, new ShapeRecordEqualityComparer());
-            }
-        }
-    }
-
-    private class FakeShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
-    {
-        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
-
-        public FakeShapeRecordTranslator(Func<TranslatedChanges, TranslatedChanges> translation = null)
-        {
-            _translation = translation ?? (changes => changes);
-        }
-
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
-        {
-            return _translation(changes);
-        }
-    }
-
-    private class CollectShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
-    {
-        public ShapeRecord[] Collected { get; private set; }
-
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
-        {
-            var collected = new List<ShapeRecord>();
-            while (records.MoveNext()) collected.Add(records.Current);
-
-            Collected = collected.ToArray();
-
-            return changes;
-        }
+        Assert.Throws<ArgumentNullException>(
+            () => new ZipArchiveShapeEntryTranslator(
+                Encoding.Default,
+                null));
     }
 }

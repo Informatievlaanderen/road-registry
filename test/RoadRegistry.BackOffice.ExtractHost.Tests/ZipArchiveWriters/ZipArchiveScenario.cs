@@ -13,8 +13,6 @@ public abstract class ZipArchiveScenario
         _manager = manager;
     }
 
-    protected abstract Task Write(ZipArchive archive, CancellationToken ct);
-
     public async Task Assert(Action<ZipArchive> assert)
     {
         using (var memoryStream = _manager.GetStream())
@@ -31,4 +29,6 @@ public abstract class ZipArchiveScenario
             }
         }
     }
+
+    protected abstract Task Write(ZipArchive archive, CancellationToken ct);
 }

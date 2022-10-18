@@ -1,30 +1,32 @@
-namespace RoadRegistry.Wfs.Schema
+namespace RoadRegistry.Wfs.Schema;
+
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+
+public class WfsContextMigrationFactory : RunnerDbContextMigrationFactory<WfsContext>
 {
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.EntityFrameworkCore.Infrastructure;
-
-    public class WfsContextMigrationFactory : RunnerDbContextMigrationFactory<WfsContext>
+    public WfsContextMigrationFactory() :
+        base(WellknownConnectionNames.WfsProjectionsAdmin, HistoryConfiguration)
     {
-        public WfsContextMigrationFactory() :
-            base(WellknownConnectionNames.WfsProjectionsAdmin, HistoryConfiguration)
-        { }
-
-        private static MigrationHistoryConfiguration HistoryConfiguration =>
-            new MigrationHistoryConfiguration
-            {
-                Schema = WellknownSchemas.WfsSchema,
-                Table = MigrationTables.Wfs
-            };
-
-        protected override WfsContext CreateContext(DbContextOptions<WfsContext> migrationContextOptions)
-            => new WfsContext(migrationContextOptions);
-
-        protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
-        {
-            sqlServerOptions.UseNetTopologySuite();
-            base.ConfigureSqlServerOptions(sqlServerOptions);
-        }
     }
+
+    protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
+    {
+        sqlServerOptions.UseNetTopologySuite();
+        base.ConfigureSqlServerOptions(sqlServerOptions);
+    }
+
+    protected override WfsContext CreateContext(DbContextOptions<WfsContext> migrationContextOptions)
+    {
+        return new WfsContext(migrationContextOptions);
+    }
+
+    private static MigrationHistoryConfiguration HistoryConfiguration =>
+        new()
+        {
+            Schema = WellknownSchemas.WfsSchema,
+            Table = MigrationTables.Wfs
+        };
 }

@@ -1,11 +1,11 @@
 namespace RoadRegistry.Syndication.ProjectionHost.Tests.Framework.Containers;
 
+using BackOffice.Abstractions;
+using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.Editor.Schema;
-using RoadRegistry.Product.Schema;
+using Product.Schema;
 using RoadRegistry.Tests.Framework.Containers;
 
 public class SqlServer : ISqlServerDatabase
@@ -22,19 +22,6 @@ public class SqlServer : ISqlServerDatabase
 
         MemoryStreamManager = new RecyclableMemoryStreamManager();
         StreetNameCache = new FakeStreetNameCache();
-    }
-
-    public RecyclableMemoryStreamManager MemoryStreamManager { get; }
-    public IStreetNameCache StreetNameCache { get; }
-
-    public Task InitializeAsync()
-    {
-        return _inner.InitializeAsync();
-    }
-
-    public Task DisposeAsync()
-    {
-        return _inner.DisposeAsync();
     }
 
     public Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
@@ -76,18 +63,6 @@ public class SqlServer : ISqlServerDatabase
         return context;
     }
 
-    public async Task<ProductContext> CreateProductContextAsync(SqlConnectionStringBuilder builder)
-    {
-        var options = new DbContextOptionsBuilder<ProductContext>()
-            .UseSqlServer(builder.ConnectionString)
-            .EnableSensitiveDataLogging()
-            .Options;
-
-        var context = new ProductContext(options);
-        await context.Database.MigrateAsync();
-        return context;
-    }
-
     public async Task<ProductContext> CreateEmptyProductContextAsync(SqlConnectionStringBuilder builder)
     {
         var context = await CreateProductContextAsync(builder);
@@ -108,4 +83,29 @@ public class SqlServer : ISqlServerDatabase
 
         return context;
     }
+
+    public async Task<ProductContext> CreateProductContextAsync(SqlConnectionStringBuilder builder)
+    {
+        var options = new DbContextOptionsBuilder<ProductContext>()
+            .UseSqlServer(builder.ConnectionString)
+            .EnableSensitiveDataLogging()
+            .Options;
+
+        var context = new ProductContext(options);
+        await context.Database.MigrateAsync();
+        return context;
+    }
+
+    public Task DisposeAsync()
+    {
+        return _inner.DisposeAsync();
+    }
+
+    public Task InitializeAsync()
+    {
+        return _inner.InitializeAsync();
+    }
+
+    public RecyclableMemoryStreamManager MemoryStreamManager { get; }
+    public IStreetNameCache StreetNameCache { get; }
 }

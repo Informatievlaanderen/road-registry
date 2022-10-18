@@ -4,24 +4,9 @@ using System.IO.Compression;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using Xunit;
 
 public class ProjectionFormatFileZipArchiveWriterTests
 {
-    [Fact]
-    public void FileNameCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() =>
-            new ProjectionFormatFileZipArchiveWriter<FakeDbContext>(null, Encoding.Default));
-    }
-
-    [Fact]
-    public void EncodingCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() =>
-            new ProjectionFormatFileZipArchiveWriter<FakeDbContext>("file.prj", null));
-    }
-
     [Fact]
     public void ArchiveCanNotBeNull()
     {
@@ -34,6 +19,24 @@ public class ProjectionFormatFileZipArchiveWriterTests
     {
         var sut = new ProjectionFormatFileZipArchiveWriter<FakeDbContext>("file.prj", Encoding.Default);
         Assert.ThrowsAsync<ArgumentNullException>(() => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, CancellationToken.None));
+    }
+
+    [Fact]
+    public void EncodingCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() =>
+            new ProjectionFormatFileZipArchiveWriter<FakeDbContext>("file.prj", null));
+    }
+
+    private class FakeDbContext : DbContext
+    {
+    }
+
+    [Fact]
+    public void FileNameCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() =>
+            new ProjectionFormatFileZipArchiveWriter<FakeDbContext>(null, Encoding.Default));
     }
 
     [Fact]
@@ -62,9 +65,5 @@ public class ProjectionFormatFileZipArchiveWriterTests
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
             });
-    }
-
-    private class FakeDbContext : DbContext
-    {
     }
 }

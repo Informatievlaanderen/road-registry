@@ -6,11 +6,13 @@ using System.Runtime.Serialization;
 public sealed class UnsupportedMediaTypeException : ApplicationException
 {
     public UnsupportedMediaTypeException()
-    { }
-    
+    {
+    }
+
     private UnsupportedMediaTypeException(SerializationInfo info, StreamingContext context)
         : base(info, context)
-    { }
+    {
+    }
 
     public UnsupportedMediaTypeException(string? message) : base(message)
     {

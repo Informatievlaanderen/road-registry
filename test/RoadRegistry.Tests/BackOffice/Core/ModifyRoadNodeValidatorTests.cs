@@ -7,6 +7,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
+using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
 
 public class ModifyRoadNodeValidatorTests
 {
@@ -20,7 +21,17 @@ public class ModifyRoadNodeValidatorTests
 
     public Fixture Fixture { get; }
 
-    public ModifyRoadNodeValidator Validator { get; }
+    [Fact]
+    public void GeometryHasExpectedValidator()
+    {
+        Validator.ShouldHaveChildValidator(c => c.Geometry, typeof(RoadNodeGeometryValidator));
+    }
+
+    [Fact]
+    public void GeometryMustNotBeNull()
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (RoadNodeGeometry)null);
+    }
 
     [Theory]
     [InlineData(int.MinValue)]
@@ -37,24 +48,14 @@ public class ModifyRoadNodeValidatorTests
         Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
     }
 
-    [Fact]
-    public void GeometryMustNotBeNull()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (RoadNodeGeometry)null);
-    }
-
-    [Fact]
-    public void GeometryHasExpectedValidator()
-    {
-        Validator.ShouldHaveChildValidator(c => c.Geometry, typeof(RoadNodeGeometryValidator));
-    }
+    public ModifyRoadNodeValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()
     {
         Fixture.CustomizePoint();
 
-        var data = new RoadRegistry.BackOffice.Messages.ModifyRoadNode
+        var data = new ModifyRoadNode
         {
             Id = Fixture.Create<RoadNodeId>(),
             Type = Fixture.Create<RoadNodeType>(),

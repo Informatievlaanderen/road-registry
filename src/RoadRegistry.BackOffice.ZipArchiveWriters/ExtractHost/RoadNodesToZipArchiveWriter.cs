@@ -7,9 +7,7 @@ using Editor.Schema;
 using Editor.Schema.RoadNodes;
 using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using NetTopologySuite.Geometries;
 
 public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

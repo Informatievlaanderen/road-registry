@@ -12,6 +12,6 @@ internal class DynamicRoadSegmentAttributeRecord
     }
 
     public AttributeId Identifier { get; }
-    public RecordType RecordType { get; }
     public RecordNumber Number { get; }
+    public RecordType RecordType { get; }
 }

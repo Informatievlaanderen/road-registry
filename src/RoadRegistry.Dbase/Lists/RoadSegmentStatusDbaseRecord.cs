@@ -20,7 +20,8 @@ public class RoadSegmentStatusDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 STATUS { get; }
-    public DbaseString LBLSTATUS { get; }
     public DbaseString DEFSTATUS { get; }
+    public DbaseString LBLSTATUS { get; }
+
+    public DbaseInt32 STATUS { get; }
 }

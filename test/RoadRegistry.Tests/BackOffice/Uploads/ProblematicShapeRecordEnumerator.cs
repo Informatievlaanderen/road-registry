@@ -18,19 +18,6 @@ public class ProblematicShapeRecordEnumerator : IEnumerator<ShapeRecord>
         _index = -1;
     }
 
-    public bool MoveNext()
-    {
-        if (_index == _records.Length) return false;
-        _index++;
-        if (_index == _failAt) throw _failure;
-        return _index != _records.Length;
-    }
-
-    public void Reset()
-    {
-        _index = -1;
-    }
-
     public ShapeRecord Current
     {
         get
@@ -45,5 +32,18 @@ public class ProblematicShapeRecordEnumerator : IEnumerator<ShapeRecord>
 
     public void Dispose()
     {
+    }
+
+    public bool MoveNext()
+    {
+        if (_index == _records.Length) return false;
+        _index++;
+        if (_index == _failAt) throw _failure;
+        return _index != _records.Length;
+    }
+
+    public void Reset()
+    {
+        _index = -1;
     }
 }
