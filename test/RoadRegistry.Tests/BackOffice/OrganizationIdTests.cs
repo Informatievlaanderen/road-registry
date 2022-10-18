@@ -19,6 +19,69 @@ public class OrganizationIdTests
     }
 
     [Fact]
+    public void AcceptsValueReturnsExpectedResult()
+    {
+        var value = _fixture.Create<OrganizationId>().ToString();
+
+        Assert.True(OrganizationId.AcceptsValue(value));
+    }
+
+    [Fact]
+    public void AcceptsValueReturnsExpectedResultWhenValueLongerThan18Chars()
+    {
+        const int length = OrganizationId.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+
+        Assert.False(OrganizationId.AcceptsValue(value));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
+    {
+        Assert.False(OrganizationId.AcceptsValue(value));
+    }
+
+    [Fact]
+    public void OtherReturnsExpectedValue()
+    {
+        var sut = OrganizationId.Other;
+
+        Assert.Equal("-7", sut.ToString());
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = new string(
+            (char)new Random().Next(97, 123), // a-z
+            new Random().Next(1, OrganizationId.MaxLength + 1)
+        );
+        var sut = new OrganizationId(value);
+
+        Assert.Equal(value, sut.ToString());
+    }
+
+    [Fact]
+    public void UnknownReturnsExpectedValue()
+    {
+        var sut = OrganizationId.Unknown;
+
+        Assert.Equal("-8", sut.ToString());
+    }
+
+    [Fact]
+    public void ValueCanNotBeLongerThan18Chars()
+    {
+        const int length = OrganizationId.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new OrganizationId(value));
+    }
+
+    [Fact]
     public void VerifyBehavior()
     {
         var customizedString = new Fixture();
@@ -54,68 +117,5 @@ public class OrganizationIdTests
                 new EmptyStringBehaviorExpectation()
             )
         ).Verify(Constructors.Select(() => new OrganizationId(null)));
-    }
-
-    [Fact]
-    public void AcceptsValueReturnsExpectedResultWhenValueLongerThan18Chars()
-    {
-        const int length = OrganizationId.MaxLength + 1;
-
-        var value = new string((char)new Random().Next(97, 123), length);
-
-        Assert.False(OrganizationId.AcceptsValue(value));
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
-    {
-        Assert.False(OrganizationId.AcceptsValue(value));
-    }
-
-    [Fact]
-    public void AcceptsValueReturnsExpectedResult()
-    {
-        var value = _fixture.Create<OrganizationId>().ToString();
-
-        Assert.True(OrganizationId.AcceptsValue(value));
-    }
-
-    [Fact]
-    public void UnknownReturnsExpectedValue()
-    {
-        var sut = OrganizationId.Unknown;
-
-        Assert.Equal("-8", sut.ToString());
-    }
-
-    [Fact]
-    public void OtherReturnsExpectedValue()
-    {
-        var sut = OrganizationId.Other;
-
-        Assert.Equal("-7", sut.ToString());
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = new string(
-            (char)new Random().Next(97, 123), // a-z
-            new Random().Next(1, OrganizationId.MaxLength + 1)
-        );
-        var sut = new OrganizationId(value);
-
-        Assert.Equal(value, sut.ToString());
-    }
-
-    [Fact]
-    public void ValueCanNotBeLongerThan18Chars()
-    {
-        const int length = OrganizationId.MaxLength + 1;
-
-        var value = new string((char)new Random().Next(97, 123), length);
-        Assert.Throws<ArgumentOutOfRangeException>(() => new OrganizationId(value));
     }
 }

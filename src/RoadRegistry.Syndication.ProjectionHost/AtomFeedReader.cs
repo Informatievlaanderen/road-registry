@@ -22,7 +22,6 @@ public interface IRegistryAtomFeedReader
 public class RegistryAtomFeedReader : IRegistryAtomFeedReader
 {
     public const string HttpClientName = "registryFeedClient";
-
     private readonly HttpClient _httpClient;
     private readonly ILogger _logger;
 

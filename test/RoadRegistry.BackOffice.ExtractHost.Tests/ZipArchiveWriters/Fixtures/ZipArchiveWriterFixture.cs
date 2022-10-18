@@ -27,13 +27,13 @@ public abstract class ZipArchiveWriterFixture
         }
     }
 
-    public IEnumerable<Geometry> Result { get; }
-
-    public abstract RoadNetworkExtractAssemblyRequest Request { get; }
-
     public Exception Exception { get; }
+
+    public string FileContent { get; }
 
     public abstract FileInfo FileInfo { get; }
 
-    public string FileContent { get; }
+    public abstract RoadNetworkExtractAssemblyRequest Request { get; }
+
+    public IEnumerable<Geometry> Result { get; }
 }

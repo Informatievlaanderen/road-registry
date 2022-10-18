@@ -1,40 +1,33 @@
-namespace RoadRegistry.Tests
+namespace RoadRegistry.Tests;
+
+using System.Collections.Concurrent;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+
+internal class FakeSqsQueue
 {
-    using System.Collections.Concurrent;
-    using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+    private static readonly ConcurrentDictionary<string, Queue<SqsJsonMessage>> Queues = new();
 
-    internal class FakeSqsQueue
+    public static SqsJsonMessage Consume(string queueUrl)
     {
-        private static readonly ConcurrentDictionary<string, Queue<SqsJsonMessage>> Queues = new();
+        var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
 
-        public static void Publish(string queueName, SqsJsonMessage message)
-        {
-            var queue = Queues.GetOrAdd(queueName, name => new Queue<SqsJsonMessage>());
-            queue.Enqueue(message);
-        }
+        if (Queues.TryGetValue(queueName, out var queue)) return queue.Dequeue();
 
-        public static SqsJsonMessage[] GetMessages(string queueUrl)
-        {
-            var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
+        return default;
+    }
 
-            if (Queues.TryGetValue(queueName, out Queue<SqsJsonMessage> queue))
-            {
-                return queue.ToArray();
-            }
+    public static SqsJsonMessage[] GetMessages(string queueUrl)
+    {
+        var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
 
-            return Array.Empty<SqsJsonMessage>();
-        }
+        if (Queues.TryGetValue(queueName, out var queue)) return queue.ToArray();
 
-        public static SqsJsonMessage Consume(string queueUrl)
-        {
-            var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
+        return Array.Empty<SqsJsonMessage>();
+    }
 
-            if (Queues.TryGetValue(queueName, out Queue<SqsJsonMessage> queue))
-            {
-                return queue.Dequeue();
-            }
-
-            return default;
-        }
+    public static void Publish(string queueName, SqsJsonMessage message)
+    {
+        var queue = Queues.GetOrAdd(queueName, name => new Queue<SqsJsonMessage>());
+        queue.Enqueue(message);
     }
 }

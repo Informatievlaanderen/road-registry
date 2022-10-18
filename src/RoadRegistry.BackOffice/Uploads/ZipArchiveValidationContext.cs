@@ -48,27 +48,10 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
         ZipArchiveMetadata = zipArchiveMetadata;
     }
 
-    public IImmutableSet<RoadSegmentId> KnownRoadSegments => _identicalSegments
-        .Union(_addedSegments)
-        .Union(_modifiedSegments)
-        .Union(_removedSegments);
-
-    public IImmutableSet<RoadNodeId> KnownRoadNodes => _identicalNodes
-        .Union(_addedNodes)
-        .Union(_modifiedNodes)
-        .Union(_removedNodes);
-
-    public IImmutableSet<RoadSegmentId> KnownIdenticalRoadSegments => _identicalSegments;
-    public IImmutableSet<RoadSegmentId> KnownAddedRoadSegments => _addedSegments;
-    public IImmutableSet<RoadSegmentId> KnownModifiedRoadSegments => _modifiedSegments;
-    public IImmutableSet<RoadSegmentId> KnownRemovedRoadSegments => _removedSegments;
-
-    public IImmutableSet<RoadNodeId> KnownIdenticalRoadNodes => _identicalNodes;
-    public IImmutableSet<RoadNodeId> KnownAddedRoadNodes => _addedNodes;
-    public IImmutableSet<RoadNodeId> KnownModifiedRoadNodes => _modifiedNodes;
-    public IImmutableSet<RoadNodeId> KnownRemovedRoadNodes => _removedNodes;
-
-    public ZipArchiveMetadata ZipArchiveMetadata { get; }
+    public override bool Equals(object obj)
+    {
+        return obj is ZipArchiveValidationContext other && Equals(other);
+    }
 
     public bool Equals(ZipArchiveValidationContext other)
     {
@@ -84,11 +67,6 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
                && ZipArchiveMetadata.Equals(other.ZipArchiveMetadata);
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is ZipArchiveValidationContext other && Equals(other);
-    }
-
     public override int GetHashCode()
     {
         return _identicalSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
@@ -102,28 +80,36 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
                                                                        ^ ZipArchiveMetadata.GetHashCode());
     }
 
-    public ZipArchiveValidationContext WithZipArchiveMetadata(ZipArchiveMetadata zipArchiveMetadata)
-    {
-        return new ZipArchiveValidationContext(_identicalSegments,
-            _addedSegments,
-            _modifiedSegments,
-            _removedSegments,
-            _identicalNodes,
-            _addedNodes,
-            _modifiedNodes,
-            _removedNodes,
-            zipArchiveMetadata);
-    }
+    public IImmutableSet<RoadNodeId> KnownAddedRoadNodes => _addedNodes;
+    public IImmutableSet<RoadSegmentId> KnownAddedRoadSegments => _addedSegments;
 
-    public ZipArchiveValidationContext WithIdenticalRoadSegment(RoadSegmentId segment)
+    public IImmutableSet<RoadNodeId> KnownIdenticalRoadNodes => _identicalNodes;
+
+    public IImmutableSet<RoadSegmentId> KnownIdenticalRoadSegments => _identicalSegments;
+    public IImmutableSet<RoadNodeId> KnownModifiedRoadNodes => _modifiedNodes;
+    public IImmutableSet<RoadSegmentId> KnownModifiedRoadSegments => _modifiedSegments;
+    public IImmutableSet<RoadNodeId> KnownRemovedRoadNodes => _removedNodes;
+    public IImmutableSet<RoadSegmentId> KnownRemovedRoadSegments => _removedSegments;
+
+    public IImmutableSet<RoadNodeId> KnownRoadNodes => _identicalNodes
+        .Union(_addedNodes)
+        .Union(_modifiedNodes)
+        .Union(_removedNodes);
+
+    public IImmutableSet<RoadSegmentId> KnownRoadSegments => _identicalSegments
+        .Union(_addedSegments)
+        .Union(_modifiedSegments)
+        .Union(_removedSegments);
+
+    public ZipArchiveValidationContext WithAddedRoadNode(RoadNodeId node)
     {
         return new ZipArchiveValidationContext(
-            _identicalSegments.Add(segment),
+            _identicalSegments,
             _addedSegments,
             _modifiedSegments,
             _removedSegments,
             _identicalNodes,
-            _addedNodes,
+            _addedNodes.Add(node),
             _modifiedNodes,
             _removedNodes,
             ZipArchiveMetadata);
@@ -136,33 +122,6 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
             _addedSegments.Add(segment),
             _modifiedSegments,
             _removedSegments,
-            _identicalNodes,
-            _addedNodes,
-            _modifiedNodes,
-            _removedNodes,
-            ZipArchiveMetadata);
-    }
-
-    public ZipArchiveValidationContext WithModifiedRoadSegment(RoadSegmentId segment)
-    {
-        return new ZipArchiveValidationContext(_identicalSegments,
-            _addedSegments,
-            _modifiedSegments.Add(segment),
-            _removedSegments,
-            _identicalNodes,
-            _addedNodes,
-            _modifiedNodes,
-            _removedNodes,
-            ZipArchiveMetadata);
-    }
-
-    public ZipArchiveValidationContext WithRemovedRoadSegment(RoadSegmentId segment)
-    {
-        return new ZipArchiveValidationContext(
-            _identicalSegments,
-            _addedSegments,
-            _modifiedSegments,
-            _removedSegments.Add(segment),
             _identicalNodes,
             _addedNodes,
             _modifiedNodes,
@@ -184,15 +143,15 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
             ZipArchiveMetadata);
     }
 
-    public ZipArchiveValidationContext WithAddedRoadNode(RoadNodeId node)
+    public ZipArchiveValidationContext WithIdenticalRoadSegment(RoadSegmentId segment)
     {
         return new ZipArchiveValidationContext(
-            _identicalSegments,
+            _identicalSegments.Add(segment),
             _addedSegments,
             _modifiedSegments,
             _removedSegments,
             _identicalNodes,
-            _addedNodes.Add(node),
+            _addedNodes,
             _modifiedNodes,
             _removedNodes,
             ZipArchiveMetadata);
@@ -211,6 +170,19 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
             ZipArchiveMetadata);
     }
 
+    public ZipArchiveValidationContext WithModifiedRoadSegment(RoadSegmentId segment)
+    {
+        return new ZipArchiveValidationContext(_identicalSegments,
+            _addedSegments,
+            _modifiedSegments.Add(segment),
+            _removedSegments,
+            _identicalNodes,
+            _addedNodes,
+            _modifiedNodes,
+            _removedNodes,
+            ZipArchiveMetadata);
+    }
+
     public ZipArchiveValidationContext WithRemovedRoadNode(RoadNodeId node)
     {
         return new ZipArchiveValidationContext(
@@ -222,6 +194,20 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
             _addedNodes,
             _modifiedNodes,
             _removedNodes.Add(node),
+            ZipArchiveMetadata);
+    }
+
+    public ZipArchiveValidationContext WithRemovedRoadSegment(RoadSegmentId segment)
+    {
+        return new ZipArchiveValidationContext(
+            _identicalSegments,
+            _addedSegments,
+            _modifiedSegments,
+            _removedSegments.Add(segment),
+            _identicalNodes,
+            _addedNodes,
+            _modifiedNodes,
+            _removedNodes,
             ZipArchiveMetadata);
     }
 
@@ -245,4 +231,19 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
             _removedNodes,
             ZipArchiveMetadata);
     }
+
+    public ZipArchiveValidationContext WithZipArchiveMetadata(ZipArchiveMetadata zipArchiveMetadata)
+    {
+        return new ZipArchiveValidationContext(_identicalSegments,
+            _addedSegments,
+            _modifiedSegments,
+            _removedSegments,
+            _identicalNodes,
+            _addedNodes,
+            _modifiedNodes,
+            _removedNodes,
+            zipArchiveMetadata);
+    }
+
+    public ZipArchiveMetadata ZipArchiveMetadata { get; }
 }

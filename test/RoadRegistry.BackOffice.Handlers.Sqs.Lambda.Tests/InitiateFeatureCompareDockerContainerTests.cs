@@ -4,11 +4,8 @@ using Amazon.Lambda.SQSEvents;
 using Amazon.Lambda.TestUtilities;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Ductus.FluentDocker.Builders;
-using Framework;
 using Messages;
 using Newtonsoft.Json;
-using Xunit;
 
 public class InitiateFeatureCompareDockerContainerTests
 {

@@ -29,11 +29,9 @@ public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator
             .MaximumLength(ExtractDescription.MaxLength).WithMessage($"'Description' must not be longer than {ExtractDescription.MaxLength} characters");
     }
 
-    public async Task<DownloadExtractByNisCodeResponse> Handle(DownloadExtractByNisCodeRequest request, RequestHandlerDelegate<DownloadExtractByNisCodeResponse> next, CancellationToken cancellationToken)
+    private Task<bool> BeKnownNisCode(string nisCode, CancellationToken cancellationToken)
     {
-        await this.ValidateAndThrowAsync(request, cancellationToken);
-        var response = await next();
-        return response;
+        return _editorContext.MunicipalityGeometries.AnyAsync(x => x.NisCode == nisCode, cancellationToken);
     }
 
     private static bool BeNisCodeWithExpectedFormat(string nisCode)
@@ -41,8 +39,10 @@ public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator
         return new Regex(@"^\d{5}$").IsMatch(nisCode);
     }
 
-    private Task<bool> BeKnownNisCode(string nisCode, CancellationToken cancellationToken)
+    public async Task<DownloadExtractByNisCodeResponse> Handle(DownloadExtractByNisCodeRequest request, RequestHandlerDelegate<DownloadExtractByNisCodeResponse> next, CancellationToken cancellationToken)
     {
-        return _editorContext.MunicipalityGeometries.AnyAsync(x => x.NisCode == nisCode, cancellationToken);
+        await this.ValidateAndThrowAsync(request, cancellationToken);
+        var response = await next();
+        return response;
     }
 }

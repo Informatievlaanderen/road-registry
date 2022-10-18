@@ -18,13 +18,6 @@ internal static class MethodInfoExtensions
                && method.ReturnType == typeof(int);
     }
 
-    internal static bool IsToString(this MethodInfo method)
-    {
-        return string.Equals(method.Name, "ToString", StringComparison.Ordinal)
-               && method.GetParameters().Length == 0
-               && method.ReturnType == typeof(string);
-    }
-
     internal static bool IsGetType(this MethodInfo method)
     {
         return string.Equals(method.Name, "GetType", StringComparison.Ordinal)
@@ -42,6 +35,15 @@ internal static class MethodInfoExtensions
     }
 
     /// <summary>
+    ///     Gets a value that indicates if the method is an override of the
+    ///     <see cref="object.Equals(object)" /> method.
+    /// </summary>
+    internal static bool IsObjectEqualsOverrideMethod(this MethodInfo method)
+    {
+        return method.IsEqualsMethod() && !method.IsObjectEqualsMethod();
+    }
+
+    /// <summary>
     ///     Gets a value that indicates if the method is the <see cref="object.GetHashCode()" />
     ///     method declared on the <see cref="System.Object" /> type.
     /// </summary>
@@ -52,19 +54,17 @@ internal static class MethodInfoExtensions
 
     /// <summary>
     ///     Gets a value that indicates if the method is an override of the
-    ///     <see cref="object.Equals(object)" /> method.
-    /// </summary>
-    internal static bool IsObjectEqualsOverrideMethod(this MethodInfo method)
-    {
-        return method.IsEqualsMethod() && !method.IsObjectEqualsMethod();
-    }
-
-    /// <summary>
-    ///     Gets a value that indicates if the method is an override of the
     ///     <see cref="object.GetHashCode()" /> method.
     /// </summary>
     internal static bool IsObjectGetHashCodeOverrideMethod(this MethodInfo method)
     {
         return method.IsGetHashCodeMethod() && !method.IsObjectGetHashCodeMethod();
+    }
+
+    internal static bool IsToString(this MethodInfo method)
+    {
+        return string.Equals(method.Name, "ToString", StringComparison.Ordinal)
+               && method.GetParameters().Length == 0
+               && method.ReturnType == typeof(string);
     }
 }

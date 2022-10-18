@@ -85,6 +85,12 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
     }
 
     [Fact]
+    public void TranslateChangesCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void TranslateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(null, _enumerator, TranslatedChanges.Empty));
@@ -94,22 +100,6 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
     public void TranslateRecordsCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, null, TranslatedChanges.Empty));
-    }
-
-    [Fact]
-    public void TranslateChangesCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
-    }
-
-    [Fact]
-    public void TranslateWithoutRecordsReturnsExpectedResult()
-    {
-        var result = _sut.Translate(_entry, _enumerator, TranslatedChanges.Empty);
-
-        Assert.Equal(
-            TranslatedChanges.Empty,
-            result);
     }
 
     [Fact]
@@ -176,6 +166,16 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
         );
 
         Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
+    }
+
+    [Fact]
+    public void TranslateWithoutRecordsReturnsExpectedResult()
+    {
+        var result = _sut.Translate(_entry, _enumerator, TranslatedChanges.Empty);
+
+        Assert.Equal(
+            TranslatedChanges.Empty,
+            result);
     }
 
     [Fact]

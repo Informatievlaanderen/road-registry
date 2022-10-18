@@ -5,6 +5,6 @@ using System.Threading.Tasks;
 
 public interface IRoadNetworkExtracts
 {
-    Task<RoadNetworkExtract> Get(ExtractRequestId id, CancellationToken ct = default);
     void Add(RoadNetworkExtract extract);
+    Task<RoadNetworkExtract> Get(ExtractRequestId id, CancellationToken ct = default);
 }

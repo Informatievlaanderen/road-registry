@@ -22,11 +22,12 @@ public class RoadNodeDbaseRecord : DbaseRecord
         };
     }
 
+    public DbaseString BEGINORG { get; }
+    public DbaseDateTime BEGINTIJD { get; }
+    public DbaseString LBLBGNORG { get; }
+    public DbaseString LBLTYPE { get; }
+    public DbaseInt32 TYPE { get; }
+
     public DbaseInt32 WK_OIDN { get; }
     public DbaseString WK_UIDN { get; }
-    public DbaseInt32 TYPE { get; }
-    public DbaseString LBLTYPE { get; }
-    public DbaseDateTime BEGINTIJD { get; }
-    public DbaseString BEGINORG { get; }
-    public DbaseString LBLBGNORG { get; }
 }

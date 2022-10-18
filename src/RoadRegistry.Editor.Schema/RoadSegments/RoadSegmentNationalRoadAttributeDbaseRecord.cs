@@ -26,10 +26,11 @@ public class RoadSegmentNationalRoadAttributeDbaseRecord : DbaseRecord
         };
     }
 
+    public DbaseString BEGINORG { get; }
+    public DbaseDateTime BEGINTIJD { get; }
+    public DbaseString IDENT2 { get; }
+    public DbaseString LBLBGNORG { get; }
+
     public DbaseInt32 NW_OIDN { get; }
     public DbaseInt32 WS_OIDN { get; }
-    public DbaseString IDENT2 { get; }
-    public DbaseDateTime BEGINTIJD { get; }
-    public DbaseString BEGINORG { get; }
-    public DbaseString LBLBGNORG { get; }
 }

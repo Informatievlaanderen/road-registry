@@ -6,6 +6,6 @@ using Messages;
 
 public interface IRoadNetworkSnapshotWriter
 {
-    Task WriteSnapshot(RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken);
     Task SetHeadToVersion(int version, CancellationToken cancellationToken);
+    Task WriteSnapshot(RoadNetworkSnapshot snapshot, int version, CancellationToken cancellationToken);
 }

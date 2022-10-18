@@ -14,6 +14,6 @@ public class Startup : TestStartup
 
     public override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
-        services.AddSingleton<SqsOptions>(sp => new SqsOptions("test", "test", RegionEndpoint.EUWest1));
+        services.AddSingleton(sp => new SqsOptions("test", "test", RegionEndpoint.EUWest1));
     }
 }

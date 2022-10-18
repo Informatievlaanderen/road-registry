@@ -1,14 +1,13 @@
-namespace RoadRegistry.Structurizr
+namespace RoadRegistry.Structurizr;
+
+using System;
+using System.Collections.Generic;
+
+public class EventInfo
 {
-    using System;
-    using System.Collections.Generic;
+    public string Description { get; set; }
+    public string Name { get; set; }
 
-    public class EventInfo
-    {
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public Type Type { get; set; }
-
-        public List<string> Properties { get; set; }
-    }
+    public List<string> Properties { get; set; }
+    public Type Type { get; set; }
 }

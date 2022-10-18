@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters;
 
 using Fixtures;
-using RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
 public class WhenRoadNetworkExtractToZipArchiveWriter : IClassFixture<RoadNetworkExtractToZipArchiveWriterFixture>
 {

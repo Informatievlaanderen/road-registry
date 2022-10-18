@@ -1,6 +1,5 @@
 namespace RoadRegistry.Tests;
 
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using RoadRegistry.BackOffice;
 
 public class FakeSqsQueueConsumer : ISqsQueueConsumer
@@ -10,10 +9,7 @@ public class FakeSqsQueueConsumer : ISqsQueueConsumer
         while (!cancellationToken.IsCancellationRequested)
         {
             var messages = FakeSqsQueue.GetMessages(queueUrl);
-            if (messages.Length == 0)
-            {
-                break;
-            }
+            if (messages.Length == 0) break;
 
             var sqsJsonMessage = messages[0];
             var messageData = sqsJsonMessage.Map() ?? throw new ArgumentException("SQS message data is null.");

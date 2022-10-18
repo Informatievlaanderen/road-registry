@@ -9,18 +9,13 @@ public class ZipArchiveScenario<TContext> where TContext : DbContext
 {
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly IZipArchiveWriter<TContext> _writer;
+
     private TContext _context;
 
     public ZipArchiveScenario(RecyclableMemoryStreamManager manager, IZipArchiveWriter<TContext> writer)
     {
         _manager = manager;
         _writer = writer;
-    }
-
-    public ZipArchiveScenario<TContext> WithContext(TContext context)
-    {
-        _context = context;
-        return this;
     }
 
     public async Task Assert(Action<ZipArchive> assert)
@@ -38,5 +33,11 @@ public class ZipArchiveScenario<TContext> where TContext : DbContext
                 assert(readArchive);
             }
         }
+    }
+
+    public ZipArchiveScenario<TContext> WithContext(TContext context)
+    {
+        _context = context;
+        return this;
     }
 }

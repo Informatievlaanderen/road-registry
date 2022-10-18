@@ -4,10 +4,10 @@ using System;
 
 public class AnnounceRoadNetworkExtractDownloadBecameAvailable
 {
-    public string RequestId { get; set; }
-    public Guid DownloadId { get; set; }
-
     public string ArchiveId { get; set; }
+    public Guid DownloadId { get; set; }
+    public string RequestId { get; set; }
+
     //TODO: - Extend all road network events with a RoadNetworkRevision
     //      - Store this revision for each change in the editor projections
     //      - Read this revision as part of assembling the archive to download

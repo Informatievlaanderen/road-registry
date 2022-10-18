@@ -23,8 +23,8 @@ public class ImplicitConversionOperatorAssertion<TResult> : IdiomaticAssertion
     }
 
     public ISpecimenBuilder Builder { get; }
-    public Func<TResult> ValueFactory { get; }
     public Func<TResult, object> SutFactory { get; }
+    public Func<TResult> ValueFactory { get; }
 
     public override void Verify(Type type)
     {

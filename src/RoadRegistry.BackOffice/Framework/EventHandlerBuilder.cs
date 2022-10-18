@@ -42,6 +42,42 @@ public class EventHandlerBuilder<TEvent>
         return new WithContextPipeline<TContext>(Builder, pipe);
     }
 
+    private sealed class WithContextPipeline<TContext> : IEventHandlerBuilder<TContext, TEvent>
+    {
+        public WithContextPipeline(
+            Action<Func<Event<TEvent>, CancellationToken, Task>> builder,
+            Func<
+                Func<TContext, Event<TEvent>, CancellationToken, Task>,
+                Func<Event<TEvent>, CancellationToken, Task>> pipeline)
+        {
+            Builder = builder;
+            Pipeline = pipeline;
+        }
+
+        private Action<Func<Event<TEvent>, CancellationToken, Task>> Builder { get; }
+
+        public void Handle(Func<TContext, Event<TEvent>, CancellationToken, Task> handler)
+        {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
+            Builder(Pipeline(handler));
+        }
+
+        public IEventHandlerBuilder<TContext, TEvent> Pipe(
+            Func<
+                Func<TContext, Event<TEvent>, CancellationToken, Task>,
+                Func<TContext, Event<TEvent>, CancellationToken, Task>> pipe)
+        {
+            if (pipe == null) throw new ArgumentNullException(nameof(pipe));
+
+            return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
+        }
+
+        private Func<
+            Func<TContext, Event<TEvent>, CancellationToken, Task>,
+            Func<Event<TEvent>, CancellationToken, Task>> Pipeline { get; }
+    }
+
     private sealed class WithPipeline : IEventHandlerBuilder<TEvent>
     {
         public WithPipeline(
@@ -56,9 +92,13 @@ public class EventHandlerBuilder<TEvent>
 
         private Action<Func<Event<TEvent>, CancellationToken, Task>> Builder { get; }
 
-        private Func<
-            Func<Event<TEvent>, CancellationToken, Task>,
-            Func<Event<TEvent>, CancellationToken, Task>> Pipeline { get; }
+
+        public void Handle(Func<Event<TEvent>, CancellationToken, Task> handler)
+        {
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
+            Builder(Pipeline(handler));
+        }
 
         public IEventHandlerBuilder<TEvent> Pipe(
             Func<
@@ -80,48 +120,8 @@ public class EventHandlerBuilder<TEvent>
             return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
         }
 
-
-        public void Handle(Func<Event<TEvent>, CancellationToken, Task> handler)
-        {
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-
-            Builder(Pipeline(handler));
-        }
-    }
-
-    private sealed class WithContextPipeline<TContext> : IEventHandlerBuilder<TContext, TEvent>
-    {
-        public WithContextPipeline(
-            Action<Func<Event<TEvent>, CancellationToken, Task>> builder,
-            Func<
-                Func<TContext, Event<TEvent>, CancellationToken, Task>,
-                Func<Event<TEvent>, CancellationToken, Task>> pipeline)
-        {
-            Builder = builder;
-            Pipeline = pipeline;
-        }
-
-        private Action<Func<Event<TEvent>, CancellationToken, Task>> Builder { get; }
-
         private Func<
-            Func<TContext, Event<TEvent>, CancellationToken, Task>,
+            Func<Event<TEvent>, CancellationToken, Task>,
             Func<Event<TEvent>, CancellationToken, Task>> Pipeline { get; }
-
-        public IEventHandlerBuilder<TContext, TEvent> Pipe(
-            Func<
-                Func<TContext, Event<TEvent>, CancellationToken, Task>,
-                Func<TContext, Event<TEvent>, CancellationToken, Task>> pipe)
-        {
-            if (pipe == null) throw new ArgumentNullException(nameof(pipe));
-
-            return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
-        }
-
-        public void Handle(Func<TContext, Event<TEvent>, CancellationToken, Task> handler)
-        {
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
-
-            Builder(Pipeline(handler));
-        }
     }
 }

@@ -57,6 +57,12 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
     }
 
     [Fact]
+    public void ValidateContextCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void ValidateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
@@ -68,35 +74,22 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
     }
 
-    [Fact]
-    public void ValidateContextCanNotBeNull()
+    [Fact(Skip = "It's impossible to mimic empty points at this time because they can no longer be serialized.")]
+    public void ValidateWithEmptyPointRecordsReturnsExpectedResult()
     {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
-    }
-
-    [Fact]
-    public void ValidateWithoutRecordsReturnsExpectedResult()
-    {
-        var (result, context) = _sut.Validate(_entry, _enumerator, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithValidRecordsReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<ShapeRecord>(new Random().Next(1, 5))
-            .Select((record, index) => record.Content.RecordAs(new RecordNumber(index + 1)))
+        var records = Enumerable.Range(0, 2)
+            .Select(index =>
+                new PointShapeContent(GeometryTranslator.FromGeometryPoint(Point.Empty))
+                    .RecordAs(new RecordNumber(index + 1)))
             .GetEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.None,
+            ZipArchiveProblems.Many(
+                _entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryMismatch(),
+                _entry.AtShapeRecord(new RecordNumber(2)).ShapeRecordGeometryMismatch()
+            ),
             result);
         Assert.Same(_context, context);
     }
@@ -125,22 +118,13 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
         Assert.Same(_context, context);
     }
 
-    [Fact(Skip = "It's impossible to mimic empty points at this time because they can no longer be serialized.")]
-    public void ValidateWithEmptyPointRecordsReturnsExpectedResult()
+    [Fact]
+    public void ValidateWithoutRecordsReturnsExpectedResult()
     {
-        var records = Enumerable.Range(0, 2)
-            .Select(index =>
-                new PointShapeContent(GeometryTranslator.FromGeometryPoint(Point.Empty))
-                    .RecordAs(new RecordNumber(index + 1)))
-            .GetEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
+        var (result, context) = _sut.Validate(_entry, _enumerator, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Many(
-                _entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryMismatch(),
-                _entry.AtShapeRecord(new RecordNumber(2)).ShapeRecordGeometryMismatch()
-            ),
+            ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
             result);
         Assert.Same(_context, context);
     }
@@ -163,6 +147,22 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
             ),
             result,
             new FileProblemComparer());
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithValidRecordsReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<ShapeRecord>(new Random().Next(1, 5))
+            .Select((record, index) => record.Content.RecordAs(new RecordNumber(index + 1)))
+            .GetEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.None,
+            result);
         Assert.Same(_context, context);
     }
 }

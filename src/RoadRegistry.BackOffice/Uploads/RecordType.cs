@@ -6,9 +6,15 @@ using System.Linq;
 
 public sealed class RecordType : IEquatable<RecordType>
 {
-    public const int IdenticalIdentifier = 1;
     public const int AddedIdentifier = 2;
+
+
+    public const int IdenticalIdentifier = 1;
+
+
     public const int ModifiedIdentifier = 3;
+
+
     public const int RemovedIdentifier = 4;
 
     public static readonly RecordType Identical =
@@ -67,69 +73,11 @@ public sealed class RecordType : IEquatable<RecordType>
         Translation = dutchTranslation;
     }
 
-    public DutchTranslation Translation { get; }
-
-    public bool Equals(RecordType other)
-    {
-        return other != null && other._value == _value;
-    }
-
-    public bool IsAnyOf(params RecordType[] these)
-    {
-        return Array.Exists(these, candidate => candidate == this);
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
 
         return Array.Find(All, candidate => candidate._value == value) != null;
-    }
-
-    public static bool TryParse(string value, out RecordType parsed)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
-    }
-
-    public static RecordType Parse(string value)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known type of grade separated junction.");
-        return parsed;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is RecordType type && Equals(type);
-    }
-
-    public override int GetHashCode()
-    {
-        return _value.GetHashCode();
-    }
-
-    public override string ToString()
-    {
-        return _value;
-    }
-
-    public static implicit operator string(RecordType instance)
-    {
-        return instance.ToString();
-    }
-
-    public static bool operator ==(RecordType left, RecordType right)
-    {
-        return Equals(left, right);
-    }
-
-    public static bool operator !=(RecordType left, RecordType right)
-    {
-        return !Equals(left, right);
     }
 
     public class DutchTranslation
@@ -141,10 +89,68 @@ public sealed class RecordType : IEquatable<RecordType>
             Description = description;
         }
 
+        public string Description { get; }
+
         public int Identifier { get; }
 
         public string Name { get; }
+    }
 
-        public string Description { get; }
+    public override bool Equals(object obj)
+    {
+        return obj is RecordType type && Equals(type);
+    }
+
+    public bool Equals(RecordType other)
+    {
+        return other != null && other._value == _value;
+    }
+
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
+
+    public bool IsAnyOf(params RecordType[] these)
+    {
+        return Array.Exists(these, candidate => candidate == this);
+    }
+
+    public static bool operator ==(RecordType left, RecordType right)
+    {
+        return Equals(left, right);
+    }
+
+    public static implicit operator string(RecordType instance)
+    {
+        return instance.ToString();
+    }
+
+    public static bool operator !=(RecordType left, RecordType right)
+    {
+        return !Equals(left, right);
+    }
+
+    public static RecordType Parse(string value)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known type of grade separated junction.");
+        return parsed;
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public DutchTranslation Translation { get; }
+
+    public static bool TryParse(string value, out RecordType parsed)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 }

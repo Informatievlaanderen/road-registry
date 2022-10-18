@@ -20,7 +20,8 @@ public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 METHODE { get; }
-    public DbaseString LBLMETHOD { get; }
     public DbaseString DEFMETHOD { get; }
+    public DbaseString LBLMETHOD { get; }
+
+    public DbaseInt32 METHODE { get; }
 }

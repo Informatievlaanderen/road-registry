@@ -19,27 +19,10 @@ public class AddRoadSegmentToNationalRoad : IRequestedChange
     }
 
     public AttributeId AttributeId { get; }
-    public AttributeId TemporaryAttributeId { get; }
-    public RoadSegmentId SegmentId { get; }
-    public RoadSegmentId? TemporarySegmentId { get; }
     public NationalRoadNumber Number { get; }
-
-    public Problems VerifyBefore(BeforeVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-        return Problems.None;
-    }
-
-    public Problems VerifyAfter(AfterVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        var problems = Problems.None;
-
-        if (!context.AfterView.View.Segments.ContainsKey(SegmentId)) problems = problems.Add(new RoadSegmentMissing(TemporarySegmentId ?? SegmentId));
-
-        return problems;
-    }
+    public RoadSegmentId SegmentId { get; }
+    public AttributeId TemporaryAttributeId { get; }
+    public RoadSegmentId? TemporarySegmentId { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -64,5 +47,22 @@ public class AddRoadSegmentToNationalRoad : IRequestedChange
             Number = Number,
             SegmentId = SegmentId
         };
+    }
+
+    public Problems VerifyAfter(AfterVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        if (!context.AfterView.View.Segments.ContainsKey(SegmentId)) problems = problems.Add(new RoadSegmentMissing(TemporarySegmentId ?? SegmentId));
+
+        return problems;
+    }
+
+    public Problems VerifyBefore(BeforeVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+        return Problems.None;
     }
 }

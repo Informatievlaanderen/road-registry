@@ -15,6 +15,28 @@ public class GeometryVersionTests
         _fixture = new Fixture();
     }
 
+    [Theory]
+    [InlineData(1, 2, -1)]
+    [InlineData(2, 1, 1)]
+    [InlineData(1, 1, 0)]
+    public void CompareToReturnsExpectedResult(int left, int right, int expected)
+    {
+        var sut = new GeometryVersion(left);
+
+        var result = sut.CompareTo(new GeometryVersion(right));
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _fixture.Create<int>();
+        var sut = new GeometryVersion(value);
+
+        Assert.Equal(value.ToString(), sut.ToString());
+    }
+
     [Fact]
     public void VerifyBehavior()
     {
@@ -40,27 +62,5 @@ public class GeometryVersionTests
             new GreaterThanOperatorCompareToSelfAssertion(_fixture),
             new GreaterThanOrEqualOperatorCompareToSelfAssertion(_fixture)
         ).Verify(typeof(GeometryVersion));
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = _fixture.Create<int>();
-        var sut = new GeometryVersion(value);
-
-        Assert.Equal(value.ToString(), sut.ToString());
-    }
-
-    [Theory]
-    [InlineData(1, 2, -1)]
-    [InlineData(2, 1, 1)]
-    [InlineData(1, 1, 0)]
-    public void CompareToReturnsExpectedResult(int left, int right, int expected)
-    {
-        var sut = new GeometryVersion(left);
-
-        var result = sut.CompareTo(new GeometryVersion(right));
-
-        Assert.Equal(expected, result);
     }
 }

@@ -1,14 +1,10 @@
 namespace RoadRegistry.BackOffice.ExtractHost.Tests;
 
-using System.Data;
-using MessagePack;
 using Microsoft.Data.SqlClient;
-using RoadRegistry.BackOffice.Messages;
-using Xunit;
 
 public class RoadNetworkEventInspectorTests
 {
-    [Fact(Skip="Aws debugging")]
+    [Fact(Skip = "Aws debugging")]
     public async Task InspectEvent()
     {
         const string messageId = "8b48b442-5c18-5b8e-8989-a4e4bd23b222";
@@ -25,7 +21,6 @@ public class RoadNetworkEventInspectorTests
             var reader = (string)await command.ExecuteScalarAsync();
 
             await File.WriteAllTextAsync(tempFilePath, reader);
-
         }
     }
 }

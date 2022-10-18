@@ -17,6 +17,32 @@ public class RoadSegmentWidthTests
         _fixture.CustomizeRoadSegmentWidth();
     }
 
+    [Theory]
+    [InlineData(int.MinValue, false)]
+    [InlineData(-9, true)]
+    [InlineData(-8, true)]
+    [InlineData(-1, false)]
+    [InlineData(0, true)]
+    [InlineData(1, true)]
+    [InlineData(45, true)]
+    [InlineData(46, false)]
+    [InlineData(int.MaxValue, false)]
+    public void AcceptsReturnsExpectedResult(int value, bool expected)
+    {
+        var result = RoadSegmentWidth.Accepts(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _fixture.Create<int>() % RoadSegmentWidth.Maximum.ToInt32();
+        var sut = new RoadSegmentWidth(value);
+
+        Assert.Equal(value.ToString(), sut.ToString());
+    }
+
     [Fact]
     public void VerifyBehavior()
     {
@@ -42,31 +68,5 @@ public class RoadSegmentWidthTests
         new GuardClauseAssertion(_fixture,
                 new Int32RangeBehaviorExpectation(0, RoadSegmentWidth.Maximum.ToInt32(), -8, -9))
             .Verify(Constructors.Select(() => new RoadSegmentWidth(0)));
-    }
-
-    [Theory]
-    [InlineData(int.MinValue, false)]
-    [InlineData(-9, true)]
-    [InlineData(-8, true)]
-    [InlineData(-1, false)]
-    [InlineData(0, true)]
-    [InlineData(1, true)]
-    [InlineData(45, true)]
-    [InlineData(46, false)]
-    [InlineData(int.MaxValue, false)]
-    public void AcceptsReturnsExpectedResult(int value, bool expected)
-    {
-        var result = RoadSegmentWidth.Accepts(value);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = _fixture.Create<int>() % RoadSegmentWidth.Maximum.ToInt32();
-        var sut = new RoadSegmentWidth(value);
-
-        Assert.Equal(value.ToString(), sut.ToString());
     }
 }

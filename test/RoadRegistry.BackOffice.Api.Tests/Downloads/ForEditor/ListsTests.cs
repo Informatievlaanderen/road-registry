@@ -7,6 +7,46 @@ using RoadRegistry.Tests.Framework.Containers;
 public class ListsTests
 {
     [Fact]
+    public void All_grade_separated_junction_type_records_are_defined()
+    {
+        AssertDbaseRecordCollectionsContainSameElements(
+            Lists.AllGradeSeparatedJunctionTypeDbaseRecords,
+            new[]
+            {
+                RecordFrom(GradeSeparatedJunctionType.Unknown),
+                RecordFrom(GradeSeparatedJunctionType.Tunnel),
+                RecordFrom(GradeSeparatedJunctionType.Bridge)
+            });
+    }
+
+    [Fact]
+    public void All_lane_direction_records_are_defined()
+    {
+        AssertDbaseRecordCollectionsContainSameElements(
+            Lists.AllLaneDirectionDbaseRecords,
+            new[]
+            {
+                RecordFrom(RoadSegmentLaneDirection.Unknown),
+                RecordFrom(RoadSegmentLaneDirection.Forward),
+                RecordFrom(RoadSegmentLaneDirection.Backward),
+                RecordFrom(RoadSegmentLaneDirection.Independent)
+            });
+    }
+
+    [Fact]
+    public void All_numbered_road_segement_direction_records_are_defined()
+    {
+        AssertDbaseRecordCollectionsContainSameElements(
+            Lists.AllNumberedRoadSegmentDirectionDbaseRecords,
+            new[]
+            {
+                RecordFrom(RoadSegmentNumberedRoadDirection.Unknown),
+                RecordFrom(RoadSegmentNumberedRoadDirection.Forward),
+                RecordFrom(RoadSegmentNumberedRoadDirection.Backward)
+            });
+    }
+
+    [Fact]
     public void All_road_node_type_records_are_defined()
     {
         AssertDbaseRecordCollectionsContainSameElements(
@@ -19,16 +59,6 @@ public class ListsTests
                 RecordFrom(RoadNodeType.MiniRoundabout),
                 RecordFrom(RoadNodeType.TurningLoopNode)
             });
-    }
-
-    private static RoadNodeTypeDbaseRecord RecordFrom(RoadNodeType item)
-    {
-        return new RoadNodeTypeDbaseRecord
-        {
-            TYPE = { Value = item.Translation.Identifier },
-            LBLTYPE = { Value = item.Translation.Name },
-            DEFTYPE = { Value = item.Translation.Description }
-        };
     }
 
     [Fact]
@@ -47,14 +77,32 @@ public class ListsTests
             });
     }
 
-    private static RoadSegmentAccessRestrictionDbaseRecord RecordFrom(RoadSegmentAccessRestriction item)
+    [Fact]
+    public void All_road_segment_category_records_are_defined()
     {
-        return new RoadSegmentAccessRestrictionDbaseRecord
-        {
-            TYPE = { Value = item.Translation.Identifier },
-            LBLTYPE = { Value = item.Translation.Name },
-            DEFTYPE = { Value = item.Translation.Description }
-        };
+        AssertDbaseRecordCollectionsContainSameElements(
+            Lists.AllRoadSegmentCategoryDbaseRecords,
+            new[]
+            {
+                RecordFrom(RoadSegmentCategory.Unknown),
+                RecordFrom(RoadSegmentCategory.NotApplicable),
+                RecordFrom(RoadSegmentCategory.MainRoad),
+                RecordFrom(RoadSegmentCategory.LocalRoad),
+                RecordFrom(RoadSegmentCategory.LocalRoadType1),
+                RecordFrom(RoadSegmentCategory.LocalRoadType2),
+                RecordFrom(RoadSegmentCategory.LocalRoadType3),
+                RecordFrom(RoadSegmentCategory.PrimaryRoadI),
+                RecordFrom(RoadSegmentCategory.PrimaryRoadII),
+                RecordFrom(RoadSegmentCategory.PrimaryRoadIIType1),
+                RecordFrom(RoadSegmentCategory.PrimaryRoadIIType2),
+                RecordFrom(RoadSegmentCategory.PrimaryRoadIIType3),
+                RecordFrom(RoadSegmentCategory.PrimaryRoadIIType4),
+                RecordFrom(RoadSegmentCategory.SecondaryRoad),
+                RecordFrom(RoadSegmentCategory.SecondaryRoadType1),
+                RecordFrom(RoadSegmentCategory.SecondaryRoadType2),
+                RecordFrom(RoadSegmentCategory.SecondaryRoadType3),
+                RecordFrom(RoadSegmentCategory.SecondaryRoadType4)
+            });
     }
 
     [Fact]
@@ -68,43 +116,6 @@ public class ListsTests
                 RecordFrom(RoadSegmentGeometryDrawMethod.Measured),
                 RecordFrom(RoadSegmentGeometryDrawMethod.Measured_according_to_GRB_specifications)
             });
-    }
-
-    private static RoadSegmentGeometryDrawMethodDbaseRecord RecordFrom(RoadSegmentGeometryDrawMethod item)
-    {
-        return new RoadSegmentGeometryDrawMethodDbaseRecord
-        {
-            METHODE = { Value = item.Translation.Identifier },
-            LBLMETHOD = { Value = item.Translation.Name },
-            DEFMETHOD = { Value = item.Translation.Description }
-        };
-    }
-
-    [Fact]
-    public void All_road_segment_status_records_are_defined()
-    {
-        AssertDbaseRecordCollectionsContainSameElements(
-            Lists.AllRoadSegmentStatusDbaseRecords,
-            new[]
-            {
-                RecordFrom(RoadSegmentStatus.Unknown),
-                RecordFrom(RoadSegmentStatus.PermitRequested),
-                RecordFrom(RoadSegmentStatus.BuildingPermitGranted),
-                RecordFrom(RoadSegmentStatus.UnderConstruction),
-                RecordFrom(RoadSegmentStatus.InUse),
-                RecordFrom(RoadSegmentStatus.OutOfUse)
-            });
-    }
-
-
-    private static RoadSegmentStatusDbaseRecord RecordFrom(RoadSegmentStatus item)
-    {
-        return new RoadSegmentStatusDbaseRecord
-        {
-            STATUS = { Value = item.Translation.Identifier },
-            LBLSTATUS = { Value = item.Translation.Name },
-            DEFSTATUS = { Value = item.Translation.Description }
-        };
     }
 
     [Fact]
@@ -136,52 +147,20 @@ public class ListsTests
             });
     }
 
-    private static RoadSegmentMorphologyDbaseRecord RecordFrom(RoadSegmentMorphology item)
-    {
-        return new RoadSegmentMorphologyDbaseRecord
-        {
-            MORF = { Value = item.Translation.Identifier },
-            LBLMORF = { Value = item.Translation.Name },
-            DEFMORF = { Value = item.Translation.Description }
-        };
-    }
-
     [Fact]
-    public void All_road_segment_category_records_are_defined()
+    public void All_road_segment_status_records_are_defined()
     {
         AssertDbaseRecordCollectionsContainSameElements(
-            Lists.AllRoadSegmentCategoryDbaseRecords,
+            Lists.AllRoadSegmentStatusDbaseRecords,
             new[]
             {
-                RecordFrom(RoadSegmentCategory.Unknown),
-                RecordFrom(RoadSegmentCategory.NotApplicable),
-                RecordFrom(RoadSegmentCategory.MainRoad),
-                RecordFrom(RoadSegmentCategory.LocalRoad),
-                RecordFrom(RoadSegmentCategory.LocalRoadType1),
-                RecordFrom(RoadSegmentCategory.LocalRoadType2),
-                RecordFrom(RoadSegmentCategory.LocalRoadType3),
-                RecordFrom(RoadSegmentCategory.PrimaryRoadI),
-                RecordFrom(RoadSegmentCategory.PrimaryRoadII),
-                RecordFrom(RoadSegmentCategory.PrimaryRoadIIType1),
-                RecordFrom(RoadSegmentCategory.PrimaryRoadIIType2),
-                RecordFrom(RoadSegmentCategory.PrimaryRoadIIType3),
-                RecordFrom(RoadSegmentCategory.PrimaryRoadIIType4),
-                RecordFrom(RoadSegmentCategory.SecondaryRoad),
-                RecordFrom(RoadSegmentCategory.SecondaryRoadType1),
-                RecordFrom(RoadSegmentCategory.SecondaryRoadType2),
-                RecordFrom(RoadSegmentCategory.SecondaryRoadType3),
-                RecordFrom(RoadSegmentCategory.SecondaryRoadType4)
+                RecordFrom(RoadSegmentStatus.Unknown),
+                RecordFrom(RoadSegmentStatus.PermitRequested),
+                RecordFrom(RoadSegmentStatus.BuildingPermitGranted),
+                RecordFrom(RoadSegmentStatus.UnderConstruction),
+                RecordFrom(RoadSegmentStatus.InUse),
+                RecordFrom(RoadSegmentStatus.OutOfUse)
             });
-    }
-
-    private static RoadSegmentCategoryDbaseRecord RecordFrom(RoadSegmentCategory item)
-    {
-        return new RoadSegmentCategoryDbaseRecord
-        {
-            WEGCAT = { Value = item.Translation.Identifier },
-            LBLWEGCAT = { Value = item.Translation.Name },
-            DEFWEGCAT = { Value = item.Translation.Description }
-        };
     }
 
     [Fact]
@@ -198,6 +177,74 @@ public class ListsTests
             });
     }
 
+    private void AssertDbaseRecordCollectionsContainSameElements<TDbaseRecord>(TDbaseRecord[] actualRecords, TDbaseRecord[] expectedRecords)
+        where TDbaseRecord : DbaseRecord
+    {
+        Assert.Equal(expectedRecords.Length, actualRecords.Length);
+        for (var i = 0; i < expectedRecords.Length; i++) Assert.Equal(expectedRecords[i], actualRecords[i], new DbaseRecordComparer<TDbaseRecord>());
+    }
+
+    private static RoadNodeTypeDbaseRecord RecordFrom(RoadNodeType item)
+    {
+        return new RoadNodeTypeDbaseRecord
+        {
+            TYPE = { Value = item.Translation.Identifier },
+            LBLTYPE = { Value = item.Translation.Name },
+            DEFTYPE = { Value = item.Translation.Description }
+        };
+    }
+
+    private static RoadSegmentAccessRestrictionDbaseRecord RecordFrom(RoadSegmentAccessRestriction item)
+    {
+        return new RoadSegmentAccessRestrictionDbaseRecord
+        {
+            TYPE = { Value = item.Translation.Identifier },
+            LBLTYPE = { Value = item.Translation.Name },
+            DEFTYPE = { Value = item.Translation.Description }
+        };
+    }
+
+    private static RoadSegmentGeometryDrawMethodDbaseRecord RecordFrom(RoadSegmentGeometryDrawMethod item)
+    {
+        return new RoadSegmentGeometryDrawMethodDbaseRecord
+        {
+            METHODE = { Value = item.Translation.Identifier },
+            LBLMETHOD = { Value = item.Translation.Name },
+            DEFMETHOD = { Value = item.Translation.Description }
+        };
+    }
+
+
+    private static RoadSegmentStatusDbaseRecord RecordFrom(RoadSegmentStatus item)
+    {
+        return new RoadSegmentStatusDbaseRecord
+        {
+            STATUS = { Value = item.Translation.Identifier },
+            LBLSTATUS = { Value = item.Translation.Name },
+            DEFSTATUS = { Value = item.Translation.Description }
+        };
+    }
+
+    private static RoadSegmentMorphologyDbaseRecord RecordFrom(RoadSegmentMorphology item)
+    {
+        return new RoadSegmentMorphologyDbaseRecord
+        {
+            MORF = { Value = item.Translation.Identifier },
+            LBLMORF = { Value = item.Translation.Name },
+            DEFMORF = { Value = item.Translation.Description }
+        };
+    }
+
+    private static RoadSegmentCategoryDbaseRecord RecordFrom(RoadSegmentCategory item)
+    {
+        return new RoadSegmentCategoryDbaseRecord
+        {
+            WEGCAT = { Value = item.Translation.Identifier },
+            LBLWEGCAT = { Value = item.Translation.Name },
+            DEFWEGCAT = { Value = item.Translation.Description }
+        };
+    }
+
     private static SurfaceTypeDbaseRecord RecordFrom(RoadSegmentSurfaceType item)
     {
         return new SurfaceTypeDbaseRecord
@@ -206,20 +253,6 @@ public class ListsTests
             LBLTYPE = { Value = item.Translation.Name },
             DEFTYPE = { Value = item.Translation.Description }
         };
-    }
-
-    [Fact]
-    public void All_lane_direction_records_are_defined()
-    {
-        AssertDbaseRecordCollectionsContainSameElements(
-            Lists.AllLaneDirectionDbaseRecords,
-            new[]
-            {
-                RecordFrom(RoadSegmentLaneDirection.Unknown),
-                RecordFrom(RoadSegmentLaneDirection.Forward),
-                RecordFrom(RoadSegmentLaneDirection.Backward),
-                RecordFrom(RoadSegmentLaneDirection.Independent)
-            });
     }
 
     private static LaneDirectionDbaseRecord RecordFrom(RoadSegmentLaneDirection item)
@@ -232,19 +265,6 @@ public class ListsTests
         };
     }
 
-    [Fact]
-    public void All_numbered_road_segement_direction_records_are_defined()
-    {
-        AssertDbaseRecordCollectionsContainSameElements(
-            Lists.AllNumberedRoadSegmentDirectionDbaseRecords,
-            new[]
-            {
-                RecordFrom(RoadSegmentNumberedRoadDirection.Unknown),
-                RecordFrom(RoadSegmentNumberedRoadDirection.Forward),
-                RecordFrom(RoadSegmentNumberedRoadDirection.Backward)
-            });
-    }
-
     private static NumberedRoadSegmentDirectionDbaseRecord RecordFrom(RoadSegmentNumberedRoadDirection item)
     {
         return new NumberedRoadSegmentDirectionDbaseRecord
@@ -255,19 +275,6 @@ public class ListsTests
         };
     }
 
-    [Fact]
-    public void All_grade_separated_junction_type_records_are_defined()
-    {
-        AssertDbaseRecordCollectionsContainSameElements(
-            Lists.AllGradeSeparatedJunctionTypeDbaseRecords,
-            new[]
-            {
-                RecordFrom(GradeSeparatedJunctionType.Unknown),
-                RecordFrom(GradeSeparatedJunctionType.Tunnel),
-                RecordFrom(GradeSeparatedJunctionType.Bridge)
-            });
-    }
-
     private static GradeSeparatedJunctionTypeDbaseRecord RecordFrom(GradeSeparatedJunctionType item)
     {
         return new GradeSeparatedJunctionTypeDbaseRecord
@@ -276,12 +283,5 @@ public class ListsTests
             LBLTYPE = { Value = item.Translation.Name },
             DEFTYPE = { Value = item.Translation.Description }
         };
-    }
-
-    private void AssertDbaseRecordCollectionsContainSameElements<TDbaseRecord>(TDbaseRecord[] actualRecords, TDbaseRecord[] expectedRecords)
-        where TDbaseRecord : DbaseRecord
-    {
-        Assert.Equal(expectedRecords.Length, actualRecords.Length);
-        for (var i = 0; i < expectedRecords.Length; i++) Assert.Equal(expectedRecords[i], actualRecords[i], new DbaseRecordComparer<TDbaseRecord>());
     }
 }

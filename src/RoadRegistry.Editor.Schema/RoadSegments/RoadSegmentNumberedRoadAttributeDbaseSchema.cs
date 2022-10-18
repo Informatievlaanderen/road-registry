@@ -58,13 +58,14 @@ public class RoadSegmentNumberedRoadAttributeDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField GW_OIDN => Fields[0];
-    public DbaseField WS_OIDN => Fields[1];
-    public DbaseField IDENT8 => Fields[2];
-    public DbaseField RICHTING => Fields[3];
-    public DbaseField LBLRICHT => Fields[4];
-    public DbaseField VOLGNUMMER => Fields[5];
-    public DbaseField BEGINTIJD => Fields[6];
     public DbaseField BEGINORG => Fields[7];
+    public DbaseField BEGINTIJD => Fields[6];
+
+    public DbaseField GW_OIDN => Fields[0];
+    public DbaseField IDENT8 => Fields[2];
     public DbaseField LBLBGNORG => Fields[8];
+    public DbaseField LBLRICHT => Fields[4];
+    public DbaseField RICHTING => Fields[3];
+    public DbaseField VOLGNUMMER => Fields[5];
+    public DbaseField WS_OIDN => Fields[1];
 }

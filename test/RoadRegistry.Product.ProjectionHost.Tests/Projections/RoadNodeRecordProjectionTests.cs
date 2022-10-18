@@ -1,19 +1,15 @@
 namespace RoadRegistry.Product.ProjectionHost.Tests.Projections;
 
-using System;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
 using Product.Projections;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Product.Schema.RoadNodes;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
-using Xunit;
+using Schema.RoadNodes;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>
@@ -41,53 +37,6 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
         _fixture.CustomizeRoadNodeAdded();
         _fixture.CustomizeRoadNodeModified();
         _fixture.CustomizeRoadNodeRemoved();
-    }
-
-    [Fact]
-    public Task When_road_nodes_were_imported()
-    {
-        var data = _fixture
-            .CreateMany<ImportedRoadNode>(new Random().Next(1, 100))
-            .Select(@event =>
-            {
-                var point = GeometryTranslator.Translate(@event.Geometry);
-                var pointShapeContent = new PointShapeContent(
-                    Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(
-                        new Point(point.X, point.Y)
-                    )
-                );
-                var expectedRecord = new RoadNodeRecord
-                {
-                    Id = @event.Id,
-                    DbaseRecord = new RoadNodeDbaseRecord
-                    {
-                        WK_OIDN = { Value = @event.Id },
-                        WK_UIDN = { Value = @event.Id + "_" + @event.Version },
-                        TYPE = { Value = RoadNodeType.Parse(@event.Type).Translation.Identifier },
-                        LBLTYPE =
-                        {
-                            Value = RoadNodeType.Parse(@event.Type).Translation.Name
-                        },
-                        BEGINTIJD = { Value = @event.Origin.Since },
-                        BEGINORG = { Value = @event.Origin.OrganizationId },
-                        LBLBGNORG = { Value = @event.Origin.Organization }
-                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
-                    ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
-                    ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
-                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
-                };
-
-                return new
-                {
-                    ImportedRoadNode = @event,
-                    ExpectedRecord = expectedRecord
-                };
-            }).ToList();
-
-        return new RoadNodeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
-            .Scenario()
-            .Given(data.Select(d => d.ImportedRoadNode))
-            .Expect(data.Select(d => d.ExpectedRecord));
     }
 
     [Fact]
@@ -199,5 +148,52 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             .Scenario()
             .Given(acceptedRoadNodeAdded, acceptedRoadNodeRemoved)
             .ExpectNone();
+    }
+
+    [Fact]
+    public Task When_road_nodes_were_imported()
+    {
+        var data = _fixture
+            .CreateMany<ImportedRoadNode>(new Random().Next(1, 100))
+            .Select(@event =>
+            {
+                var point = GeometryTranslator.Translate(@event.Geometry);
+                var pointShapeContent = new PointShapeContent(
+                    Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(
+                        new Point(point.X, point.Y)
+                    )
+                );
+                var expectedRecord = new RoadNodeRecord
+                {
+                    Id = @event.Id,
+                    DbaseRecord = new RoadNodeDbaseRecord
+                    {
+                        WK_OIDN = { Value = @event.Id },
+                        WK_UIDN = { Value = @event.Id + "_" + @event.Version },
+                        TYPE = { Value = RoadNodeType.Parse(@event.Type).Translation.Identifier },
+                        LBLTYPE =
+                        {
+                            Value = RoadNodeType.Parse(@event.Type).Translation.Name
+                        },
+                        BEGINTIJD = { Value = @event.Origin.Since },
+                        BEGINORG = { Value = @event.Origin.OrganizationId },
+                        LBLBGNORG = { Value = @event.Origin.Organization }
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                    ShapeRecordContent = pointShapeContent.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                    ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32(),
+                    BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape)
+                };
+
+                return new
+                {
+                    ImportedRoadNode = @event,
+                    ExpectedRecord = expectedRecord
+                };
+            }).ToList();
+
+        return new RoadNodeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            .Scenario()
+            .Given(data.Select(d => d.ImportedRoadNode))
+            .Expect(data.Select(d => d.ExpectedRecord));
     }
 }

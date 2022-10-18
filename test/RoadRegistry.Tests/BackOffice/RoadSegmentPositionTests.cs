@@ -28,6 +28,71 @@ public class RoadSegmentPositionTests
         }
     }
 
+    [Theory]
+    [MemberData(nameof(AcceptsDecimalCases))]
+    public void AcceptsDecimalReturnsExpectedResult(decimal value, bool expected)
+    {
+        var result = RoadSegmentPosition.Accepts(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(double.MinValue, false)]
+    [InlineData(-1.0, false)]
+    [InlineData(0.0, true)]
+    [InlineData(1.0, true)]
+    [InlineData(double.MaxValue, true)]
+    public void AcceptsDoubleReturnsExpectedResult(double value, bool expected)
+    {
+        var result = RoadSegmentPosition.Accepts(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Theory]
+    [InlineData(1.0, 2.0, -1)]
+    [InlineData(2.0, 1.0, 1)]
+    [InlineData(1.0, 1.0, 0)]
+    public void CompareToReturnsExpectedResult(double left, double right, int expected)
+    {
+        var sut = new RoadSegmentPosition(new decimal(left));
+
+        var result = sut.CompareTo(new RoadSegmentPosition(new decimal(right)));
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void FromDoubleReturnsExpectedResult()
+    {
+        var value = _fixture.Create<double>();
+
+        var result = RoadSegmentPosition.FromDouble(value);
+
+        Assert.Equal(new RoadSegmentPosition(Convert.ToDecimal(value)), result);
+    }
+
+    [Fact]
+    public void ToDoubleReturnsExpectedValue()
+    {
+        var value = _fixture.Create<decimal>();
+        var sut = new RoadSegmentPosition(value);
+
+        var result = sut.ToDouble();
+
+        Assert.Equal(decimal.ToDouble(value), result);
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _fixture.Create<decimal>();
+        var sut = new RoadSegmentPosition(value);
+
+        Assert.Equal(value.ToString(), sut.ToString());
+    }
+
     [Fact]
     public void VerifyBehavior()
     {
@@ -60,74 +125,9 @@ public class RoadSegmentPositionTests
             .Verify(Methods.Select(() => RoadSegmentPosition.FromDouble(0.0)));
     }
 
-    [Theory]
-    [InlineData(double.MinValue, false)]
-    [InlineData(-1.0, false)]
-    [InlineData(0.0, true)]
-    [InlineData(1.0, true)]
-    [InlineData(double.MaxValue, true)]
-    public void AcceptsDoubleReturnsExpectedResult(double value, bool expected)
-    {
-        var result = RoadSegmentPosition.Accepts(value);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Theory]
-    [MemberData(nameof(AcceptsDecimalCases))]
-    public void AcceptsDecimalReturnsExpectedResult(decimal value, bool expected)
-    {
-        var result = RoadSegmentPosition.Accepts(value);
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void FromDoubleReturnsExpectedResult()
-    {
-        var value = _fixture.Create<double>();
-
-        var result = RoadSegmentPosition.FromDouble(value);
-
-        Assert.Equal(new RoadSegmentPosition(Convert.ToDecimal(value)), result);
-    }
-
     [Fact]
     public void ZeroReturnsExpectedValue()
     {
         Assert.Equal(0.0m, RoadSegmentPosition.Zero.ToDecimal());
-    }
-
-    [Fact]
-    public void ToDoubleReturnsExpectedValue()
-    {
-        var value = _fixture.Create<decimal>();
-        var sut = new RoadSegmentPosition(value);
-
-        var result = sut.ToDouble();
-
-        Assert.Equal(decimal.ToDouble(value), result);
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = _fixture.Create<decimal>();
-        var sut = new RoadSegmentPosition(value);
-
-        Assert.Equal(value.ToString(), sut.ToString());
-    }
-
-    [Theory]
-    [InlineData(1.0, 2.0, -1)]
-    [InlineData(2.0, 1.0, 1)]
-    [InlineData(1.0, 1.0, 0)]
-    public void CompareToReturnsExpectedResult(double left, double right, int expected)
-    {
-        var sut = new RoadSegmentPosition(new decimal(left));
-
-        var result = sut.CompareTo(new RoadSegmentPosition(new decimal(right)));
-
-        Assert.Equal(expected, result);
     }
 }

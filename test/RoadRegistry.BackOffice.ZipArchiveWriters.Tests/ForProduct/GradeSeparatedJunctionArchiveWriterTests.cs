@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Framework.Containers;
 using Product.Schema;
 using Product.Schema.GradeSeparatedJunctions;
-using Xunit;
 using ZipArchiveWriters.ForProduct;
 
 [Collection(nameof(SqlServerCollection))]

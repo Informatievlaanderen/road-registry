@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 using Amazon.Lambda.TestUtilities;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Newtonsoft.Json;
-using Xunit;
 
 public class CheckFeatureCompareDockerContainerTests
 {

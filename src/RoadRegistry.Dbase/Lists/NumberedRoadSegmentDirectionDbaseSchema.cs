@@ -27,7 +27,8 @@ public class NumberedRoadSegmentDirectionDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField RICHTING => Fields[0];
-    public DbaseField LBLRICHT => Fields[1];
     public DbaseField DEFRICHT => Fields[2];
+    public DbaseField LBLRICHT => Fields[1];
+
+    public DbaseField RICHTING => Fields[0];
 }

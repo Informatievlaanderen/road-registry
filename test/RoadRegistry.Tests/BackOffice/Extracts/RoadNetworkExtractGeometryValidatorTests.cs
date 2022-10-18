@@ -19,16 +19,6 @@ public class RoadNetworkExtractGeometryValidatorTests
         _validator = new RoadNetworkExtractGeometryValidator();
     }
 
-    [Fact]
-    public void ValidateCanHandleGeometryWithHoles()
-    {
-        var geometry = CreateGeometryWithHoles();
-
-        var validationResult = _validator.Validate(geometry);
-
-        validationResult.IsValid.Should().BeTrue();
-    }
-
     private RoadNetworkExtractGeometry CreateGeometryWithHoles()
     {
         const int validSpatialReferenceSystemIdentifier = 1;
@@ -38,5 +28,15 @@ public class RoadNetworkExtractGeometryValidatorTests
         geometry.SpatialReferenceSystemIdentifier = validSpatialReferenceSystemIdentifier;
 
         return geometry;
+    }
+
+    [Fact]
+    public void ValidateCanHandleGeometryWithHoles()
+    {
+        var geometry = CreateGeometryWithHoles();
+
+        var validationResult = _validator.Validate(geometry);
+
+        validationResult.IsValid.Should().BeTrue();
     }
 }

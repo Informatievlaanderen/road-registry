@@ -2,11 +2,11 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using System.Text;
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Editor.Projections;
+using Editor.Schema.Organizations;
 using Microsoft.IO;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Editor.Schema.Organizations;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 

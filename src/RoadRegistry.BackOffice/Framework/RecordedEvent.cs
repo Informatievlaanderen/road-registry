@@ -10,6 +10,7 @@ public class RecordedEvent
         Event = @event ?? throw new ArgumentNullException(nameof(@event));
     }
 
-    public StreamName Stream { get; }
     public object Event { get; }
+
+    public StreamName Stream { get; }
 }

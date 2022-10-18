@@ -7,7 +7,6 @@ using Editor.Schema;
 using Editor.Schema.GradeSeparatedJunctions;
 using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 
 public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter<EditorContext>

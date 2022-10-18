@@ -1,23 +1,25 @@
-namespace RoadRegistry.Projector.Infrastructure.Configuration
+namespace RoadRegistry.Projector.Infrastructure.Configuration;
+
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+
+/// <summary>
+///     Add headers to the response to prevent any caching.
+/// </summary>
+public class AddNoCacheHeadersMiddleware
 {
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
+    private readonly RequestDelegate _next;
 
-    /// <summary>
-    /// Add headers to the response to prevent any caching.
-    /// </summary>
-    public class AddNoCacheHeadersMiddleware
+    public AddNoCacheHeadersMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        public AddNoCacheHeadersMiddleware(RequestDelegate next) => _next = next;
+    public Task Invoke(HttpContext context)
+    {
+        context.Response.Headers.Add("cache-control", "no-store, no-cache, must-revalidate");
+        context.Response.Headers.Add("pragma", "no-cache");
 
-        public Task Invoke(HttpContext context)
-        {
-            context.Response.Headers.Add("cache-control", "no-store, no-cache, must-revalidate");
-            context.Response.Headers.Add("pragma", "no-cache");
-
-            return _next(context);
-        }
+        return _next(context);
     }
 }

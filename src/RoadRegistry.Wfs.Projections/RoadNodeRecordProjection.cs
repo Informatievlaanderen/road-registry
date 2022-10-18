@@ -1,102 +1,92 @@
-namespace RoadRegistry.Wfs.Projections
+namespace RoadRegistry.Wfs.Projections;
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using BackOffice;
+using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Microsoft.EntityFrameworkCore;
+using Schema;
+
+public class RoadNodeRecordProjection : ConnectedProjection<WfsContext>
 {
-    using System;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using BackOffice;
-    using BackOffice.Messages;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Microsoft.EntityFrameworkCore;
-    using Schema;
-
-    public class RoadNodeRecordProjection : ConnectedProjection<WfsContext>
+    public RoadNodeRecordProjection()
     {
-        public RoadNodeRecordProjection()
-        {
-            When<Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
-            {
-                await context.RoadNodes.AddAsync(new RoadNodeRecord
-                {
-                    Id = envelope.Message.Id,
-                    BeginTime = envelope.Message.Origin.Since,
-                    Type = GetRoadNodesTypeDutchTranslation(envelope.Message.Type),
-                    Geometry = GeometryTranslator.Translate(envelope.Message.Geometry)
-                }, token);
-            });
-
-            When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
-            {
-
-                foreach (var change in envelope.Message.Changes.Flatten())
-                {
-                    switch (change)
-                    {
-                        case RoadNodeAdded roadNodeAdded:
-                            await AddRoadNode(context, envelope, roadNodeAdded, token);
-                            break;
-
-                        case RoadNodeModified roadNodeModified:
-                            await ModifyRoadNode(context, envelope, roadNodeModified, token);
-                            break;
-
-                        case RoadNodeRemoved roadNodeRemoved:
-                            await RemoveRoadNode(roadNodeRemoved, context);
-                            break;
-                    }
-                }
-            });
-        }
-
-        private static async Task AddRoadNode(WfsContext context,
-            Envelope<RoadNetworkChangesAccepted> envelope,
-            RoadNodeAdded roadNodeAdded,
-            CancellationToken token)
+        When<Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
         {
             await context.RoadNodes.AddAsync(new RoadNodeRecord
             {
-                Id = roadNodeAdded.Id,
-                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-                Type = GetRoadNodesTypeDutchTranslation(roadNodeAdded.Type),
-                Geometry = GeometryTranslator.Translate(roadNodeAdded.Geometry),
+                Id = envelope.Message.Id,
+                BeginTime = envelope.Message.Origin.Since,
+                Type = GetRoadNodesTypeDutchTranslation(envelope.Message.Type),
+                Geometry = GeometryTranslator.Translate(envelope.Message.Geometry)
             }, token);
-        }
+        });
 
-        private static async Task ModifyRoadNode(WfsContext context,
-            Envelope<RoadNetworkChangesAccepted> envelope,
-            RoadNodeModified roadNodeModified,
-            CancellationToken token)
+        When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
         {
-            var roadNodeRecord = await context.RoadNodes.SingleAsync(i => i.Id == roadNodeModified.Id, token).ConfigureAwait(false);
+            foreach (var change in envelope.Message.Changes.Flatten())
+                switch (change)
+                {
+                    case RoadNodeAdded roadNodeAdded:
+                        await AddRoadNode(context, envelope, roadNodeAdded, token);
+                        break;
 
-            if (roadNodeRecord == null)
-            {
-                throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeModified.Id} is not found!");
-            }
+                    case RoadNodeModified roadNodeModified:
+                        await ModifyRoadNode(context, envelope, roadNodeModified, token);
+                        break;
 
-            roadNodeRecord.Id = roadNodeModified.Id;
-            roadNodeRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-            roadNodeRecord.Type = GetRoadNodesTypeDutchTranslation(roadNodeModified.Type);
-            roadNodeRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
-        }
+                    case RoadNodeRemoved roadNodeRemoved:
+                        await RemoveRoadNode(roadNodeRemoved, context);
+                        break;
+                }
+        });
+    }
 
-        private static async Task RemoveRoadNode(RoadNodeRemoved roadNodeRemoved, WfsContext context)
+    private static async Task AddRoadNode(WfsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadNodeAdded roadNodeAdded,
+        CancellationToken token)
+    {
+        await context.RoadNodes.AddAsync(new RoadNodeRecord
         {
-            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id).ConfigureAwait(false);
+            Id = roadNodeAdded.Id,
+            BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
+            Type = GetRoadNodesTypeDutchTranslation(roadNodeAdded.Type),
+            Geometry = GeometryTranslator.Translate(roadNodeAdded.Geometry)
+        }, token);
+    }
 
-            if (roadNodeRecord == null)
-            {
-                return;
-            }
+    private static string GetRoadNodesTypeDutchTranslation(string roadNodeType)
+    {
+        return RoadNodeType.CanParse(roadNodeType)
+            ? RoadNodeType.Parse(roadNodeType).Translation.Name
+            : roadNodeType;
+    }
 
-            context.RoadNodes.Remove(roadNodeRecord);
-        }
+    private static async Task ModifyRoadNode(WfsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadNodeModified roadNodeModified,
+        CancellationToken token)
+    {
+        var roadNodeRecord = await context.RoadNodes.SingleAsync(i => i.Id == roadNodeModified.Id, token).ConfigureAwait(false);
 
-        private static string GetRoadNodesTypeDutchTranslation(string roadNodeType)
-        {
-            return RoadNodeType.CanParse(roadNodeType)
-                ? RoadNodeType.Parse(roadNodeType).Translation.Name
-                : roadNodeType;
-        }
+        if (roadNodeRecord == null) throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeModified.Id} is not found!");
+
+        roadNodeRecord.Id = roadNodeModified.Id;
+        roadNodeRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        roadNodeRecord.Type = GetRoadNodesTypeDutchTranslation(roadNodeModified.Type);
+        roadNodeRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
+    }
+
+    private static async Task RemoveRoadNode(RoadNodeRemoved roadNodeRemoved, WfsContext context)
+    {
+        var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id).ConfigureAwait(false);
+
+        if (roadNodeRecord == null) return;
+
+        context.RoadNodes.Remove(roadNodeRecord);
     }
 }

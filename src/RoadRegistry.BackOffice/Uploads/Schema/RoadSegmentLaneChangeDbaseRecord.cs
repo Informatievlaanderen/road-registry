@@ -30,19 +30,19 @@ public class RoadSegmentLaneChangeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 RS_OIDN { get; }
-
-    public DbaseInt32 WS_OIDN { get; }
-
-    public DbaseDouble VANPOSITIE { get; }
-
-    public DbaseDouble TOTPOSITIE { get; }
-
     public DbaseInt16 AANTAL { get; }
+
+    public DbaseInt16 RECORDTYPE { get; }
 
     public DbaseInt16 RICHTING { get; }
 
+    public DbaseInt32 RS_OIDN { get; }
+
+    public DbaseDouble TOTPOSITIE { get; }
+
     public DbaseInt16 TRANSACTID { get; }
 
-    public DbaseInt16 RECORDTYPE { get; }
+    public DbaseDouble VANPOSITIE { get; }
+
+    public DbaseInt32 WS_OIDN { get; }
 }

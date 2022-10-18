@@ -17,6 +17,7 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
     private const int CatchUpBatchSize = 5000;
 
     private static readonly TimeSpan CatchUpAfter = TimeSpan.FromMinutes(5);
+
     private static readonly TimeSpan ResumeAfter = TimeSpan.FromMinutes(5);
     private readonly ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> _logger;
     private readonly Channel<object> _messageChannel;
@@ -209,6 +210,22 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
 
+    private sealed class CatchUp
+    {
+        public CatchUp(long? afterPosition, int batchSize)
+        {
+            AfterPosition = afterPosition;
+            BatchSize = batchSize;
+        }
+
+        public long? AfterPosition { get; }
+        private int BatchSize { get; }
+    }
+
+    private sealed class Resume
+    {
+    }
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("[{Context}] Starting event processor ...", typeof(TSyndicationContent).Name);
@@ -226,21 +243,5 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
         _messagePumpCancellation.Dispose();
         await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("[{Context}] Stopped event processor.", typeof(TSyndicationContent).Name);
-    }
-
-    private sealed class Resume
-    {
-    }
-
-    private sealed class CatchUp
-    {
-        public CatchUp(long? afterPosition, int batchSize)
-        {
-            AfterPosition = afterPosition;
-            BatchSize = batchSize;
-        }
-
-        public long? AfterPosition { get; }
-        private int BatchSize { get; }
     }
 }

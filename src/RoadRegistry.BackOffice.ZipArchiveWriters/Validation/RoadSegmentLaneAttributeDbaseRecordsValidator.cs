@@ -18,7 +18,6 @@ public class RoadSegmentLaneAttributeDbaseRecordsValidator : IZipArchiveDbaseRec
         {
             var moved = records.MoveNext();
             if (moved)
-            {
                 while (moved)
                 {
                     var recordContext = entry.AtDbaseRecord(records.CurrentRecordNumber);
@@ -64,11 +63,8 @@ public class RoadSegmentLaneAttributeDbaseRecordsValidator : IZipArchiveDbaseRec
 
                     moved = records.MoveNext();
                 }
-            }
             else
-            {
                 problems += entry.HasNoDbaseRecords(false);
-            }
         }
         catch (Exception exception)
         {

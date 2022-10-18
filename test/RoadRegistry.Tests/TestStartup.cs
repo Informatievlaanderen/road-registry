@@ -1,11 +1,14 @@
 namespace RoadRegistry.Tests;
 
+using System.Reflection;
+using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,21 +21,25 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using SqlStreamStore;
-using System.Reflection;
-using System.Text;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Microsoft.Extensions.Configuration;
-using RoadRegistry.BackOffice;
 using Xunit.DependencyInjection;
 using Xunit.DependencyInjection.Logging;
-using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
 public abstract class TestStartup
 {
     public void Configure(ILoggerFactory loggerFactory, ITestOutputHelperAccessor accessor)
     {
         loggerFactory.AddProvider(new XunitTestOutputLoggerProvider(accessor));
+    }
+
+    protected virtual CommandHandlerDispatcher ConfigureCommandHandlerDispatcher(IServiceProvider sp)
+    {
+        return default;
+    }
+
+    public virtual void ConfigureContainer(ContainerBuilder builder)
+    {
     }
 
     public void ConfigureHost(IHostBuilder hostBuilder)
@@ -43,7 +50,7 @@ public abstract class TestStartup
             .ConfigureAppConfiguration((hostContext, configurationBuilder) =>
             {
                 configurationBuilder
-                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                    .AddJsonFile("appsettings.json", true, true);
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
             .ConfigureServices((context, services) =>
@@ -86,6 +93,10 @@ public abstract class TestStartup
             });
     }
 
+    public virtual void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
+    {
+    }
+
     private static IEnumerable<Assembly> DetermineAvailableAssemblyCollection()
     {
         var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
@@ -93,18 +104,5 @@ public abstract class TestStartup
         var assemblyFileInfoCollection = executorDirectoryInfo.EnumerateFiles("RoadRegistry.*.dll");
         var assemblyCollection = assemblyFileInfoCollection.Select(fi => Assembly.LoadFrom(fi.FullName));
         return assemblyCollection.ToList();
-    }
-
-    public virtual void ConfigureContainer(ContainerBuilder builder)
-    {
-    }
-
-    public virtual void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
-    {
-    }
-
-    protected virtual CommandHandlerDispatcher ConfigureCommandHandlerDispatcher(IServiceProvider sp)
-    {
-        return default;
     }
 }

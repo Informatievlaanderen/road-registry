@@ -18,7 +18,6 @@ public class RoadSegmentSurfaceAttributeDbaseRecordsValidator : IZipArchiveDbase
         {
             var moved = records.MoveNext();
             if (moved)
-            {
                 while (moved)
                 {
                     var recordContext = entry.AtDbaseRecord(records.CurrentRecordNumber);
@@ -57,13 +56,11 @@ public class RoadSegmentSurfaceAttributeDbaseRecordsValidator : IZipArchiveDbase
                         else if (!RoadSegmentId.Accepts(record.WS_OIDN.Value))
                             problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value);
                     }
+
                     moved = records.MoveNext();
                 }
-            }
             else
-            {
                 problems += entry.HasNoDbaseRecords(false);
-            }
         }
         catch (Exception exception)
         {

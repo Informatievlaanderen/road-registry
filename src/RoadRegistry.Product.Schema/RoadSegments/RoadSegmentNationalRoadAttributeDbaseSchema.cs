@@ -41,10 +41,11 @@ public class RoadSegmentNationalRoadAttributeDbaseSchema : DbaseSchema
         };
     }
 
+    public DbaseField BEGINORG => Fields[4];
+    public DbaseField BEGINTIJD => Fields[3];
+    public DbaseField IDENT2 => Fields[2];
+    public DbaseField LBLBGNORG => Fields[5];
+
     public DbaseField NW_OIDN => Fields[0];
     public DbaseField WS_OIDN => Fields[1];
-    public DbaseField IDENT2 => Fields[2];
-    public DbaseField BEGINTIJD => Fields[3];
-    public DbaseField BEGINORG => Fields[4];
-    public DbaseField LBLBGNORG => Fields[5];
 }

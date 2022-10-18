@@ -6,6 +6,7 @@ using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using Xunit;
+using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
 
 public class AddGradeSeparatedJunctionValidatorTests
 {
@@ -20,7 +21,13 @@ public class AddGradeSeparatedJunctionValidatorTests
 
     public Fixture Fixture { get; }
 
-    public AddGradeSeparatedJunctionValidator Validator { get; }
+    [Theory]
+    [InlineData(int.MinValue)]
+    [InlineData(-1)]
+    public void LowerSegmentIdMustBeGreaterThan(int value)
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.LowerSegmentId, value);
+    }
 
     [Theory]
     [InlineData(int.MinValue)]
@@ -28,6 +35,12 @@ public class AddGradeSeparatedJunctionValidatorTests
     public void TemporaryIdMustBeGreaterThan(int value)
     {
         Validator.ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
+    }
+
+    [Fact]
+    public void TypeMustBeWithinDomain()
+    {
+        Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
     }
 
     [Theory]
@@ -38,26 +51,14 @@ public class AddGradeSeparatedJunctionValidatorTests
         Validator.ShouldHaveValidationErrorFor(c => c.UpperSegmentId, value);
     }
 
-    [Theory]
-    [InlineData(int.MinValue)]
-    [InlineData(-1)]
-    public void LowerSegmentIdMustBeGreaterThan(int value)
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.LowerSegmentId, value);
-    }
-
-    [Fact]
-    public void TypeMustBeWithinDomain()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
-    }
+    public AddGradeSeparatedJunctionValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()
     {
         Fixture.CustomizePoint();
 
-        var data = new RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction
+        var data = new AddGradeSeparatedJunction
         {
             TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
             UpperSegmentId = Fixture.Create<RoadSegmentId>(),

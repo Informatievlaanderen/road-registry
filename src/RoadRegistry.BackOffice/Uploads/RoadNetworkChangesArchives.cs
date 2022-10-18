@@ -25,6 +25,14 @@ public class RoadNetworkChangesArchives : IRoadNetworkChangesArchives
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
     }
 
+    public void Add(RoadNetworkChangesArchive archive)
+    {
+        if (archive == null)
+            throw new ArgumentNullException(nameof(archive));
+
+        _map.Attach(new EventSourcedEntityMapEntry(archive, new StreamName(archive.Id), ExpectedVersion.NoStream));
+    }
+
     public async Task<RoadNetworkChangesArchive> Get(ArchiveId id, CancellationToken ct = default)
     {
         var stream = new StreamName(id);
@@ -68,13 +76,5 @@ public class RoadNetworkChangesArchives : IRoadNetworkChangesArchives
 
         _map.Attach(new EventSourcedEntityMapEntry(entity, stream, page.LastStreamVersion));
         return (RoadNetworkChangesArchive)entity;
-    }
-
-    public void Add(RoadNetworkChangesArchive archive)
-    {
-        if (archive == null)
-            throw new ArgumentNullException(nameof(archive));
-
-        _map.Attach(new EventSourcedEntityMapEntry(archive, new StreamName(archive.Id), ExpectedVersion.NoStream));
     }
 }

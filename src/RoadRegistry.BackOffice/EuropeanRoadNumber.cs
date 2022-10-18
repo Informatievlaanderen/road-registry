@@ -15,7 +15,6 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
     public static readonly EuropeanRoadNumber E411 = new(nameof(E411));
     public static readonly EuropeanRoadNumber E429 = new(nameof(E429));
 
-
     public static readonly EuropeanRoadNumber[] All =
     {
         E17, E19, E25, E313, E314, E34,
@@ -29,11 +28,6 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
         _value = value;
     }
 
-    public bool Equals(EuropeanRoadNumber other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -41,12 +35,36 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public static bool TryParse(string value, out EuropeanRoadNumber parsed)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
 
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
+    public override bool Equals(object obj)
+    {
+        return obj is EuropeanRoadNumber type && Equals(type);
+    }
+
+
+    public bool Equals(EuropeanRoadNumber other)
+    {
+        return other != null && other._value == _value;
+    }
+
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
+
+    public static bool operator ==(EuropeanRoadNumber left, EuropeanRoadNumber right)
+    {
+        return Equals(left, right);
+    }
+
+    public static implicit operator string(EuropeanRoadNumber instance)
+    {
+        return instance.ToString();
+    }
+
+    public static bool operator !=(EuropeanRoadNumber left, EuropeanRoadNumber right)
+    {
+        return !Equals(left, right);
     }
 
     public static EuropeanRoadNumber Parse(string value)
@@ -57,33 +75,16 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
         return parsed;
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is EuropeanRoadNumber type && Equals(type);
-    }
-
-    public override int GetHashCode()
-    {
-        return _value.GetHashCode();
-    }
-
     public override string ToString()
     {
         return _value;
     }
 
-    public static implicit operator string(EuropeanRoadNumber instance)
+    public static bool TryParse(string value, out EuropeanRoadNumber parsed)
     {
-        return instance.ToString();
-    }
+        if (value == null) throw new ArgumentNullException(nameof(value));
 
-    public static bool operator ==(EuropeanRoadNumber left, EuropeanRoadNumber right)
-    {
-        return Equals(left, right);
-    }
-
-    public static bool operator !=(EuropeanRoadNumber left, EuropeanRoadNumber right)
-    {
-        return !Equals(left, right);
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 }

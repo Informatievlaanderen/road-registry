@@ -26,10 +26,11 @@ public class RoadSegmentEuropeanRoadAttributeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 EU_OIDN { get; }
-    public DbaseInt32 WS_OIDN { get; }
-    public DbaseString EUNUMMER { get; }
-    public DbaseDateTime BEGINTIJD { get; }
     public DbaseString BEGINORG { get; }
+    public DbaseDateTime BEGINTIJD { get; }
+
+    public DbaseInt32 EU_OIDN { get; }
+    public DbaseString EUNUMMER { get; }
     public DbaseString LBLBGNORG { get; }
+    public DbaseInt32 WS_OIDN { get; }
 }

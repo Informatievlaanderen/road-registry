@@ -12,8 +12,9 @@ public class AfterVerificationContext
         Tolerances = tolerances ?? throw new ArgumentNullException(nameof(tolerances));
     }
 
-    public IScopedRoadNetworkView BeforeView { get; }
     public IScopedRoadNetworkView AfterView { get; }
-    public IRequestedChangeIdentityTranslator Translator { get; }
+
+    public IScopedRoadNetworkView BeforeView { get; }
     public VerificationContextTolerances Tolerances { get; }
+    public IRequestedChangeIdentityTranslator Translator { get; }
 }

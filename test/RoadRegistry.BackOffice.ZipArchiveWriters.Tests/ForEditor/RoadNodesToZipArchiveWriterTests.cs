@@ -7,7 +7,6 @@ using Dbase;
 using Editor.Schema;
 using Editor.Schema.RoadNodes;
 using Framework.Containers;
-using Xunit;
 using ZipArchiveWriters.ForEditor;
 
 [Collection(nameof(SqlServerCollection))]
@@ -34,12 +33,6 @@ public class RoadNodesToZipArchiveWriterTests
         var sut = new RoadNodesToZipArchiveWriter(_fixture.MemoryStreamManager, Encoding.UTF8);
         return Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
-    }
-
-    [Fact(Skip = "Complete once value objects become available")]
-    public Task WriteAsyncHasExpectedResult()
-    {
-        return Task.CompletedTask;
     }
 
     [Fact]
@@ -111,5 +104,11 @@ public class RoadNodesToZipArchiveWriterTests
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
             });
+    }
+
+    [Fact(Skip = "Complete once value objects become available")]
+    public Task WriteAsyncHasExpectedResult()
+    {
+        return Task.CompletedTask;
     }
 }

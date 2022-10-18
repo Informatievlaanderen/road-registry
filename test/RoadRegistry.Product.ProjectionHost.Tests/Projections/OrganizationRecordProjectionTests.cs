@@ -1,18 +1,14 @@
 namespace RoadRegistry.Product.ProjectionHost.Tests.Projections;
 
-using System;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Microsoft.IO;
 using Product.Projections;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Product.Schema.Organizations;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
-using Xunit;
+using Schema.Organizations;
 
 public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {

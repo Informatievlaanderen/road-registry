@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
 using System.Globalization;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions;
@@ -9,7 +8,6 @@ using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Framework;
 using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
@@ -30,10 +28,53 @@ public class ExtractsController : ControllerBase
         _mediator = mediator;
     }
 
+    private void AddHeaderRetryAfter(int retryAfter)
+    {
+        if (retryAfter > 0) Response.Headers.Add("Retry-After", retryAfter.ToString(CultureInfo.InvariantCulture));
+    }
+
+    [HttpGet("download/{downloadId}")]
+    public async Task<ActionResult> GetDownload(
+        [FromRoute] string downloadId,
+        [FromServices] ExtractDownloadsOptions options,
+        CancellationToken cancellationToken)
+    {
+        DownloadExtractRequest request = new(body.RequestId, body.Contour);
+        var response = await _mediator.Send(request, cancellationToken);
+        return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+    }
+
+    [HttpGet("upload/{uploadId}/status")]
+    public async Task<IActionResult> GetUploadStatus(
+        [FromRoute] string uploadId,
+        [FromServices] ExtractUploadsOptions options,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            UploadStatusRequest request = new(uploadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Ok(response);
+        }
+        catch (UploadExtractNotFoundException exception)
+        {
+            if (exception.RetryAfterSeconds > 0) Response.Headers.Add("Retry-After", exception.RetryAfterSeconds.ToString(CultureInfo.InvariantCulture));
+            return NotFound();
+        }
+    }
+
     [HttpPost("downloadrequests")]
     public async Task<IActionResult> PostDownloadRequest([FromBody] DownloadExtractRequestBody body, CancellationToken cancellationToken)
     {
         DownloadExtractRequest request = new(body.RequestId, body.Contour);
+        var response = await _mediator.Send(request, cancellationToken);
+        return Accepted(response);
+    }
+
+    [HttpPost("downloadrequests/bycontour")]
+    public async Task<ActionResult> PostDownloadRequestByContour([FromBody] DownloadExtractByContourRequestBody body, CancellationToken cancellationToken)
+    {
+        DownloadExtractByContourRequest request = new(body.Contour, body.Buffer, body.Description);
         var response = await _mediator.Send(request, cancellationToken);
         return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
     }
@@ -43,7 +84,7 @@ public class ExtractsController : ControllerBase
     {
         DownloadExtractByContourRequest request = new(body.Contour, body.Buffer, body.Description);
         var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+        return Accepted(response);
     }
 
     [HttpPost("downloadrequests/byniscode")]
@@ -55,48 +96,22 @@ public class ExtractsController : ControllerBase
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
         }
-        catch (DownloadExtractByNisCodeNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
-    [HttpGet("download/{downloadId}")]
-    public async Task<ActionResult> GetDownload(
-        [FromRoute] string downloadId,
-        [FromServices] ExtractDownloadsOptions options,
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            DownloadFileContentRequest request = new(downloadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
-            var response = await _mediator.Send(request, cancellationToken);
-            return new FileCallbackResult(response);
-        }
-        catch (BlobNotFoundException) // This condition can only occur if the blob no longer exists in the bucket
-        {
-            return StatusCode((int)HttpStatusCode.Gone);
-        }
         catch (ExtractDownloadNotFoundException)
         {
             return NotFound();
         }
     }
 
-    [HttpPost("download/{downloadId}/uploads")]
-    public async Task<ActionResult> PostUpload(
-        [FromRoute] string downloadId,
-        IFormFile archive,
-        CancellationToken cancellationToken)
+    [HttpPost("downloadrequests/byniscode")]
+    public async Task<ActionResult> PostDownloadRequestByNisCode([FromBody] DownloadExtractByNisCodeRequestBody body, CancellationToken cancellationToken)
     {
+        DownloadExtractByNisCodeRequest request = new(body.NisCode, body.Buffer, body.Description);
         try
         {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractRequest(downloadId, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new UploadExtractResponseBody { UploadId = response.UploadId.ToString() });
         }
-        catch (ExtractDownloadNotFoundException)
+        catch (DownloadExtractByNisCodeNotFoundException)
         {
             return NotFound();
         }
@@ -121,31 +136,24 @@ public class ExtractsController : ControllerBase
         }
     }
 
-    [HttpGet("upload/{uploadId}/status")]
-    public async Task<IActionResult> GetUploadStatus(
-        [FromRoute] string uploadId,
-        [FromServices] ExtractUploadsOptions options,
+    [HttpPost("download/{downloadId}/uploads")]
+    public async Task<ActionResult> PostUpload(
+        [FromRoute] string downloadId,
+        IFormFile archive,
         CancellationToken cancellationToken)
     {
         try
         {
-            UploadStatusRequest request = new(uploadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
+            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractRequest(downloadId, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             AddHeaderRetryAfter(response.RetryAfter);
-            return Ok(new GetUploadStatusResponseBody {Status = response.Status });
+            return Ok(new GetUploadStatusResponseBody { Status = response.Status });
         }
-        catch (UploadExtractNotFoundException exception)
+        catch (ExtractDownloadNotFoundException)
         {
             AddHeaderRetryAfter(exception.RetryAfterSeconds);
             return NotFound();
-        }
-    }
-
-    private void AddHeaderRetryAfter(int retryAfter)
-    {
-        if (retryAfter > 0)
-        {
-            Response.Headers.Add("Retry-After", retryAfter.ToString(CultureInfo.InvariantCulture));
         }
     }
 }
