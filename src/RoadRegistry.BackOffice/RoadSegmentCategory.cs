@@ -225,11 +225,6 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadSegmentCategory other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -257,6 +252,10 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentCategory type && Equals(type);
+    }
+    public bool Equals(RoadSegmentCategory other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

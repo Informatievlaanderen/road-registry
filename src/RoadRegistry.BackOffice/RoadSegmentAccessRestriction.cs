@@ -89,11 +89,6 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadSegmentAccessRestriction other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -120,6 +115,11 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentAccessRestriction type && Equals(type);
+    }
+
+    public bool Equals(RoadSegmentAccessRestriction other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
@@ -18,6 +19,10 @@ public class SqsQueueConsumer : ISqsQueueConsumer
         _logger = logger ?? throw new LoggerNotFoundException<SqsQueuePublisher>();
     }
 
-    public Task Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
-        => SqsConsumer.Consume(_sqsOptions, queueUrl, messageHandler, cancellationToken);
+    public Task Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken) 
+        => SqsConsumer.Consume(_sqsOptions, queueUrl, message =>
+        {
+            _logger.LogTrace("Dequeued message from queue {QueueName}: {Message}", queueUrl, JsonSerializer.Serialize(message));
+            return messageHandler.Invoke(message);
+        }, cancellationToken);
 }

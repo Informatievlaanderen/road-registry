@@ -30,11 +30,6 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
                && Equals(x.Parameters, y.Parameters);
     }
 
-    public int GetHashCode(Problem obj)
-    {
-        return HashCode.Combine(obj.Reason, obj.Parameters);
-    }
-
     public virtual bool Equals(Problem other)
     {
         return other != null
@@ -45,6 +40,11 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
     public override bool Equals(object obj)
     {
         return obj is Problem other && Equals(other);
+    }
+
+    public int GetHashCode(Problem obj)
+    {
+        return HashCode.Combine(obj.Reason, obj.Parameters);
     }
 
     public override int GetHashCode()

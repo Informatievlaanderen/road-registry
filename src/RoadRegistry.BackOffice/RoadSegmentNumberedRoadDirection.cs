@@ -54,11 +54,6 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadSegmentNumberedRoadDirection other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -80,6 +75,11 @@ public sealed class RoadSegmentNumberedRoadDirection : IEquatable<RoadSegmentNum
 
         if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known numbered road segment direction.");
         return parsed;
+    }
+
+    public bool Equals(RoadSegmentNumberedRoadDirection other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override bool Equals(object obj)

@@ -71,11 +71,6 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadNodeType other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public bool IsAnyOf(params RoadNodeType[] types)
     {
         if (types == null) throw new ArgumentNullException(nameof(types));
@@ -110,6 +105,12 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
     {
         return obj is RoadNodeType type && Equals(type);
     }
+
+    public bool Equals(RoadNodeType other)
+    {
+        return other != null && other._value == _value;
+    }
+
 
     public override int GetHashCode()
     {

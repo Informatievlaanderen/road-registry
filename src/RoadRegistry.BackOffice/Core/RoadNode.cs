@@ -37,9 +37,7 @@ public class RoadNode
         get
         {
             if (_segments.Count == 0) return Array.Empty<RoadNodeType>();
-
             if (_segments.Count == 1) return new[] { RoadNodeType.MiniRoundabout, RoadNodeType.EndNode };
-
             if (_segments.Count == 2) return new[] { RoadNodeType.MiniRoundabout, RoadNodeType.FakeNode, RoadNodeType.TurningLoopNode };
 
             // 3 or more
@@ -68,36 +66,6 @@ public class RoadNode
     {
         return new RoadNode(Id, Type, Geometry, _segments.Remove(segment));
     }
-
-    //public KeyValuePair<RoadNodeId, RoadNode> ToKeyValuePair() => new KeyValuePair<RoadNodeId, RoadNode>(Id, this);
-
-    // public Builder ToBuilder() => new Builder(this);
-
-    // public class Builder
-    // {
-    //     private readonly ImmutableHashSet<RoadSegmentId>.Builder _segments;
-    //     public RoadNodeId Id { get; }
-
-    //     public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
-
-    //     internal Builder(RoadNode node)
-    //     {
-    //         Id = node.Id;
-    //         _segments = node._segments.ToBuilder();
-    //     }
-
-    //     public void ConnectWith(RoadSegmentId link)
-    //     {
-    //         _segments.Add(link);
-    //     }
-
-    //     public void DisconnectFrom(RoadSegmentId link)
-    //     {
-    //         _segments.Remove(link);
-    //     }
-
-    //     public RoadNode ToImmutable() => new RoadNode(Id, _segments.ToImmutable());
-    // }
 
     public Problems VerifyTypeMatchesConnectedSegmentCount(IRoadNetworkView view, IRequestedChangeIdentityTranslator translator)
     {

@@ -8,6 +8,7 @@ public class AnnounceRoadNetworkExtractDownloadBecameAvailable
     public Guid DownloadId { get; set; }
 
     public string ArchiveId { get; set; }
+
     //TODO: - Extend all road network events with a RoadNetworkRevision
     //      - Store this revision for each change in the editor projections
     //      - Read this revision as part of assembling the archive to download

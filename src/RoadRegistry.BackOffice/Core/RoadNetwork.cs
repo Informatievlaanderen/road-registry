@@ -19,11 +19,8 @@ public class RoadNetwork : EventSourcedEntity
         _view = view;
 
         On<ImportedRoadNode>(e => { _view = _view.RestoreFromEvent(e); });
-
         On<ImportedGradeSeparatedJunction>(e => { _view = _view.RestoreFromEvent(e); });
-
         On<ImportedRoadSegment>(e => { _view = _view.RestoreFromEvent(e); });
-
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
     }
 
@@ -34,8 +31,6 @@ public class RoadNetwork : EventSourcedEntity
         Organization.DutchTranslation organization,
         RequestedChanges requestedChanges)
     {
-        //TODO: Verify there are no duplicate identifiers (will fail anyway) and report as rejection
-
         var verifiableChanges =
             requestedChanges
                 .Select(requestedChange => new VerifiableChange(requestedChange))

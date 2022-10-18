@@ -1,12 +1,11 @@
 namespace RoadRegistry.BackOffice;
 
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Exceptions;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class SqsQueuePublisher : ISqsQueuePublisher
 {

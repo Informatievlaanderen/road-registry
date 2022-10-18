@@ -56,11 +56,6 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadSegmentGeometryDrawMethod other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -82,6 +77,11 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
 
         if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment geometry draw method.");
         return parsed;
+    }
+
+    public bool Equals(RoadSegmentGeometryDrawMethod other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override bool Equals(object obj)

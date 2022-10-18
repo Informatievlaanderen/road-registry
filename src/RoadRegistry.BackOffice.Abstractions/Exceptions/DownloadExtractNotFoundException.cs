@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 public class DownloadExtractNotFoundException : DownloadExtractException
 {
     public DownloadExtractNotFoundException(string? message)
-        : base(message)
+        : base(message ?? "Download extract could not be found")
     { }
 
     public DownloadExtractNotFoundException(int retryAfterSeconds)

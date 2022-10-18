@@ -234,11 +234,6 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadSegmentMorphology other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -260,6 +255,11 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
         if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment morphology.");
         return parsed;
+    }
+
+    public bool Equals(RoadSegmentMorphology other)
+    {
+        return other != null && other._value == _value;
     }
 
     public override bool Equals(object obj)
