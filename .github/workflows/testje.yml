@@ -149,6 +149,7 @@ jobs:
 
     #
     # Upload NuGet packages
+    #
     
     - name: Upload NuGet package BackOffice.Api
       if: env.RELEASE_VERSION != 'none'
@@ -338,7 +339,7 @@ jobs:
         echo aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
         aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
         popd
-       env:
+      env:
         SEMVER: ${{ env.RELEASE_VERSION }}
         
 #    - name: Configure AWS credentials (Production)
@@ -656,7 +657,7 @@ jobs:
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
-      env:
+        env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           SEMVER: ${{ needs.build.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
