@@ -22,3 +22,5 @@ Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 
 MediatR.Extensions.Autofac.DependencyInjection
+
+Ductus.FluentDocker

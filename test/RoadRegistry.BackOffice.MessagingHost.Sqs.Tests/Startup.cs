@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.MessagingHost.Sqs.Infrastructure;
 using SqlStreamStore;
 using Uploads;
 
@@ -24,7 +25,7 @@ public class Startup : TestStartup
             new CommandHandlerModule[]
             {
                 new RoadNetworkChangesArchiveCommandModule(
-                    sp.GetService<RoadNetworkUploadsBlobClient>(),
+                    sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
                     sp.GetService<IStreamStore>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),

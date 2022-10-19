@@ -1,10 +1,11 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Sqs;
+namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Infrastructure;
 
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Abstractions;
+using Abstractions.Configuration;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
@@ -16,7 +17,6 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Configuration;
 using Core;
 using Extracts;
 using Framework;
@@ -29,6 +29,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.MessagingHost.Sqs.Consumers;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
@@ -47,6 +49,7 @@ public class Program
     {
         builder.Populate(_serviceCollection);
         builder.RegisterModule(new MediatorModule());
+        builder.RegisterModule(new BackOffice.Handlers.Sqs.MediatorModule());
     }
 
     public static async Task Main(string[] args)
@@ -189,18 +192,20 @@ public class Program
                 var sqsOptions = new SqsOptions();
                 hostContext.Configuration.GetSection(nameof(SqsOptions)).Bind(sqsOptions);
                 var featureCompareMessagingOptions = new FeatureCompareMessagingOptions();
-                hostContext.Configuration.GetSection(nameof(FeatureCompareMessagingOptions)).Bind(featureCompareMessagingOptions);
+                hostContext.Configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
 
                 services
                     /*
                      * Add hosted services here
                      */
-                    .AddHostedService<FeatureCompareMessageResponseConsumer>()
+                    .AddHostedService<FeatureCompareProcessor>()
+                    .AddHostedService<AfterFeatureCompareMessageConsumer>()
                     /*
                      *
                      */
                     .AddSingleton<Scheduler>()
                     .AddTransient<ISqsQueueConsumer>(sp => new SqsQueueConsumer(sqsOptions, sp.GetRequiredService<ILogger<SqsQueueConsumer>>()))
+                    .AddTransient<ISqsQueuePublisher>(sp => new SqsQueuePublisher(sqsOptions, sp.GetRequiredService<ILogger<SqsQueuePublisher>>()))
                     .AddSingleton<IStreamStore>(sp =>
                         new MsSqlStreamStoreV3(
                             new MsSqlStreamStoreV3Settings(
@@ -227,7 +232,7 @@ public class Program
                         new CommandHandlerModule[]
                         {
                             new RoadNetworkChangesArchiveCommandModule(
-                                sp.GetService<RoadNetworkUploadsBlobClient>(),
+                                sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),

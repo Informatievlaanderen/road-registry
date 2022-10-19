@@ -1,28 +1,29 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Sqs;
+namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Consumers;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.Configuration;
 using Abstractions.FeatureCompare;
-using Configuration;
 using Exceptions;
 using MediatR;
 using Messages;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice;
 
-public class FeatureCompareMessageResponseConsumer : BackgroundService
+public class AfterFeatureCompareMessageConsumer : BackgroundService
 {
-    private readonly ILogger<FeatureCompareMessageResponseConsumer> _logger;
+    private readonly ILogger<AfterFeatureCompareMessageConsumer> _logger;
     private readonly IMediator _mediator;
     private readonly FeatureCompareMessagingOptions _messagingOptions;
     private readonly ISqsQueueConsumer _sqsConsumer;
 
-    public FeatureCompareMessageResponseConsumer(
+    public AfterFeatureCompareMessageConsumer(
         IMediator mediator,
         FeatureCompareMessagingOptions messagingOptions,
         ISqsQueueConsumer sqsQueueConsumer,
-        ILogger<FeatureCompareMessageResponseConsumer> logger)
+        ILogger<AfterFeatureCompareMessageConsumer> logger)
     {
         _mediator = mediator;
         _messagingOptions = messagingOptions;
@@ -41,19 +42,19 @@ public class FeatureCompareMessageResponseConsumer : BackgroundService
                 switch (message)
                 {
                     case UploadRoadNetworkChangesArchive uploadRoadNetworkChangesArchive:
-                    {
-                        var request = new FeatureCompareMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
-                        await _mediator.Send(request, cancellationToken);
-                    }
+                        {
+                            var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
+                            await _mediator.Send(request, cancellationToken);
+                        }
                         break;
                     case UploadRoadNetworkExtractChangesArchive uploadRoadNetworkExtractChangesArchive:
-                    {
-                        var request = new FeatureCompareMessageRequest(uploadRoadNetworkExtractChangesArchive.ArchiveId);
-                        await _mediator.Send(request, cancellationToken);
-                    }
+                        {
+                            var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkExtractChangesArchive.ArchiveId);
+                            await _mediator.Send(request, cancellationToken);
+                        }
                         break;
                     default:
-                        throw new UnknownSqsMessageTypeException($"Unhandled message type '{message.GetType()}' found on queue '{_messagingOptions.ResponseQueueName}'", message.GetType().FullName);
+                        throw new UnknownSqsMessageTypeException($"Unhandled message type '{message.GetType()}' found on queue '{_messagingOptions.ResponseQueueUrl}'", message.GetType().FullName);
                 }
             }, cancellationToken);
 

@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs;
 
-using Abstractions;
 using Autofac;
+using MediatR;
 using MediatR.Pipeline;
 
 public class MediatorModule : Module
@@ -10,7 +10,7 @@ public class MediatorModule : Module
     {
         var mediatrOpenTypes = new[]
         {
-            typeof(EndpointRequestHandler<,>),
+            typeof(IRequestHandler<,>),
             typeof(IRequestExceptionHandler<,,>),
             typeof(IRequestExceptionAction<,>)
         };

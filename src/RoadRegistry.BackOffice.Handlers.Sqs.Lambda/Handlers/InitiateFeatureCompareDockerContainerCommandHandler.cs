@@ -6,6 +6,7 @@ using BackOffice.Abstractions.Exceptions;
 using Commands;
 using Ductus.FluentDocker.Extensions;
 using Ductus.FluentDocker.Services;
+using RoadRegistry.BackOffice.Infrastructure;
 
 public class InitiateFeatureCompareDockerContainerCommandHandler : LambdaCommandHandler<InitiateFeatureCompareDockerContainerCommand>
 {

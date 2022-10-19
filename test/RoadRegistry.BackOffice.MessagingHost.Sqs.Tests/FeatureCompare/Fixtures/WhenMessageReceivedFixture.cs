@@ -1,13 +1,14 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Tests.FeatureCompare.Fixtures;
 
+using Abstractions.Configuration;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Configuration;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.MessagingHost.Sqs.Consumers;
 
 public abstract class WhenMessageReceivedFixture : IAsyncLifetime
 {
-    private readonly FeatureCompareMessageResponseConsumer _backgroundService;
+    private readonly AfterFeatureCompareMessageConsumer _backgroundService;
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly FeatureCompareMessagingOptions _messagingOptions;
     private readonly SqsQueueOptions _sqsQueueOptions;
@@ -25,11 +26,11 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
             ResponseQueueUrl = "response.fifo"
         };
 
-        _backgroundService = new FeatureCompareMessageResponseConsumer(
+        _backgroundService = new AfterFeatureCompareMessageConsumer(
             mediator,
             _messagingOptions,
             sqsQueueConsumer,
-            loggerFactory.CreateLogger<FeatureCompareMessageResponseConsumer>()
+            loggerFactory.CreateLogger<AfterFeatureCompareMessageConsumer>()
         );
         _cancellationTokenSource = new CancellationTokenSource();
     }
@@ -42,7 +43,10 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         foreach (var message in MessageRequestCollection)
-            await _sqsQueuePublisher.CopyToQueue(_messagingOptions.ResponseQueueName, message, _sqsQueueOptions, _cancellationTokenSource.Token);
+        {
+            var sqsQueueName = SqsQueue.ParseQueueNameFromQueueUrl(_messagingOptions.ResponseQueueUrl);
+            await _sqsQueuePublisher.CopyToQueue(sqsQueueName, message, _sqsQueueOptions, _cancellationTokenSource.Token);
+        }
 
         await _backgroundService.StartAsync(_cancellationTokenSource.Token);
     }

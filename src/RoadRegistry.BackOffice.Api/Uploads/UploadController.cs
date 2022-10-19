@@ -47,7 +47,7 @@ public class UploadController : ControllerBase
         }
     }
 
-    private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback, CancellationToken cancellationToken)
+    private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback)
     {
         if (archive == null) throw new ArgumentNullException(nameof(archive));
 
@@ -92,21 +92,19 @@ public class UploadController : ControllerBase
             var request = new UploadExtractRequest(archive.FileName, requestArchive);
             await _mediator.Send(request, cancellationToken);
             return Ok();
-        }, cancellationToken);
+        });
     }
 
     [HttpPost("fc")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostUploadBeforeFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
     {
-        if (!useFeatureCompareToggle.FeatureEnabled) return NotFound();
-
         return await Post(archive, async () =>
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             return Ok(response);
-        }, cancellationToken);
+        });
     }
 }

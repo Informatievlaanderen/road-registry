@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Sqs;
+namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Infrastructure;
 
 using Autofac;
 using MediatR;
