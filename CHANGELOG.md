@@ -1,3 +1,14 @@
+## [3.13.1](https://github.com/informatievlaanderen/road-registry/compare/v3.13.0...v3.13.1) (2022-10-19)
+
+
+### Bug Fixes
+
+* add testje.yml ([0bdb7f7](https://github.com/informatievlaanderen/road-registry/commit/0bdb7f74ef47450842ab6a5433f6e4428267cea1))
+* csproj file cleanup ([b7256c7](https://github.com/informatievlaanderen/road-registry/commit/b7256c7a8db8b04c60933dc62de2ea09168e8976))
+* Incorrect blob client ([d558b85](https://github.com/informatievlaanderen/road-registry/commit/d558b85de506454b6e39135da7d00174ac604ae4))
+* services indentation ([4a9a6cc](https://github.com/informatievlaanderen/road-registry/commit/4a9a6ccf977c5e21d7f2637cca17be569d64d68b))
+* testje workflow name ([2b79bbf](https://github.com/informatievlaanderen/road-registry/commit/2b79bbfda1c4da8e93a7af39bf3a3db7facd5a7f))
+
 # [3.13.0](https://github.com/informatievlaanderen/road-registry/compare/v3.12.1...v3.13.0) (2022-10-19)
 
 
