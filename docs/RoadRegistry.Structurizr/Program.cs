@@ -37,7 +37,7 @@ public static class CustomTags
     public static string Store = "Store";
 }
 
-public class Program
+public static class Program
 {
     private const string PersonUserName = "Gebruiker";
 
