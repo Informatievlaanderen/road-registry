@@ -45,43 +45,47 @@ public class Scheduler
             {
                 _logger.LogInformation("Scheduler message pump entered ...");
                 while (await _messageChannel.Reader.WaitToReadAsync().ConfigureAwait(false))
-                while (_messageChannel.Reader.TryRead(out var message))
-                    switch (message)
+                {
+                    while (_messageChannel.Reader.TryRead(out var message))
                     {
-                        case TimerElapsed elapsed:
-                            _logger.LogInformation("Timer elapsed at instant {0}.", elapsed.Time);
-                            var dueEntries = scheduled
-                                .Where(entry => entry.Due <= elapsed.Time)
-                                .ToArray();
-                            _logger.LogInformation("{0} actions due.", dueEntries.Length);
+                        switch (message)
+                        {
+                            case TimerElapsed elapsed:
+                                _logger.LogInformation("Timer elapsed at instant {0}.", elapsed.Time);
+                                var dueEntries = scheduled
+                                    .Where(entry => entry.Due <= elapsed.Time)
+                                    .ToArray();
+                                _logger.LogInformation("{0} actions due.", dueEntries.Length);
 
-                            foreach (var dueEntry in dueEntries)
-                            {
-                                await dueEntry.Action(_messagePumpCancellation.Token).ConfigureAwait(false);
-                                scheduled.Remove(dueEntry);
-                            }
+                                foreach (var dueEntry in dueEntries)
+                                {
+                                    await dueEntry.Action(_messagePumpCancellation.Token).ConfigureAwait(false);
+                                    scheduled.Remove(dueEntry);
+                                }
 
-                            if (scheduled.Count == 0) // deactivate timer when no more work
-                            {
-                                _logger.LogInformation("Timer deactivated because no more scheduled actions.");
+                                if (scheduled.Count == 0) // deactivate timer when no more work
+                                {
+                                    _logger.LogInformation("Timer deactivated because no more scheduled actions.");
 
-                                _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-                            }
+                                    _timer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+                                }
 
-                            break;
-                        case ScheduleAction schedule:
-                            if (scheduled.Count == 0) // activate timer when more work
-                            {
-                                _logger.LogInformation("Timer activated because new scheduled actions.");
+                                break;
+                            case ScheduleAction schedule:
+                                if (scheduled.Count == 0) // activate timer when more work
+                                {
+                                    _logger.LogInformation("Timer activated because new scheduled actions.");
 
-                                _timer.Change(DefaultFrequency, DefaultFrequency);
-                            }
+                                    _timer.Change(DefaultFrequency, DefaultFrequency);
+                                }
 
-                            _logger.LogInformation("Scheduling an action to be executed at {0}.", schedule.Due);
+                                _logger.LogInformation("Scheduling an action to be executed at {0}.", schedule.Due);
 
-                            scheduled.Add(new ScheduledAction(schedule.Action, schedule.Due));
-                            break;
+                                scheduled.Add(new ScheduledAction(schedule.Action, schedule.Due));
+                                break;
+                        }
                     }
+                }
             }
             catch (TaskCanceledException)
             {
@@ -100,7 +104,10 @@ public class Scheduler
 
     public async Task Schedule(Func<CancellationToken, Task> action, TimeSpan due)
     {
-        if (action == null) throw new ArgumentNullException(nameof(action));
+        if (action == null)
+        {
+            throw new ArgumentNullException(nameof(action));
+        }
 
         await _messageChannel.Writer.WriteAsync(
             new ScheduleAction

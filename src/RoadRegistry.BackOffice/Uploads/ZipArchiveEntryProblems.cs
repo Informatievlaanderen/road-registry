@@ -13,19 +13,19 @@ public static class ZipArchiveEntryProblems
 
     public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ZipArchiveEntry entry, RecordNumber number)
     {
-        return new FileProblemBuilder(entry.Name).AtDbaseRecord(number);
+        return new FileProblemBuilder(entry.Name).ThisAtDbaseRecord(number);
     }
 
     public static IShapeFileRecordProblemBuilder AtShapeRecord(this ZipArchiveEntry entry, RecordNumber number)
     {
-        return new FileProblemBuilder(entry.Name).AtShapeRecord(number);
+        return new FileProblemBuilder(entry.Name).ThisAtShapeRecord(number);
     }
 
     public static IFileErrorBuilder Error(this ZipArchiveEntry entry, string reason)
     {
-        if (reason == null) throw new ArgumentNullException(nameof(reason));
+        ArgumentNullException.ThrowIfNull(reason);
 
-        return new FileProblemBuilder(entry.Name).Error(reason);
+        return new FileProblemBuilder(entry.Name).ThisError(reason);
     }
 
     private sealed class FileProblemBuilder : IFileProblemBuilder, IDbaseFileRecordProblemBuilder, IShapeFileRecordProblemBuilder
@@ -45,19 +45,19 @@ public static class ZipArchiveEntryProblems
             _parameters = parameters;
         }
 
-        public IDbaseFileRecordProblemBuilder AtDbaseRecord(RecordNumber number)
+        public IDbaseFileRecordProblemBuilder ThisAtDbaseRecord(RecordNumber number)
         {
             return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("RecordNumber", number.ToString())));
         }
 
-        public IShapeFileRecordProblemBuilder AtShapeRecord(RecordNumber number)
+        public IShapeFileRecordProblemBuilder ThisAtShapeRecord(RecordNumber number)
         {
             return new FileProblemBuilder(_file, _parameters.Add(new ProblemParameter("RecordNumber", number.ToString())));
         }
 
-        public IFileErrorBuilder Error(string reason)
+        public IFileErrorBuilder ThisError(string reason)
         {
-            if (reason == null) throw new ArgumentNullException(nameof(reason));
+            ArgumentNullException.ThrowIfNull(reason);
 
             return new FileErrorBuilder(_file, reason, _parameters);
         }
@@ -85,14 +85,14 @@ public static class ZipArchiveEntryProblems
 
             public IFileErrorBuilder WithParameter(ProblemParameter parameter)
             {
-                if (parameter == null) throw new ArgumentNullException(nameof(parameter));
+                ArgumentNullException.ThrowIfNull(parameter);
 
                 return new FileErrorBuilder(_file, _reason, _parameters.Add(parameter));
             }
 
             public IFileErrorBuilder WithParameters(params ProblemParameter[] parameters)
             {
-                if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+                ArgumentNullException.ThrowIfNull(parameters);
 
                 return new FileErrorBuilder(_file, _reason, _parameters.AddRange(parameters));
             }
@@ -121,22 +121,22 @@ public static class ZipArchiveEntryProblems
 
             public IFileWarningBuilder WithParameter(ProblemParameter parameter)
             {
-                if (parameter == null) throw new ArgumentNullException(nameof(parameter));
+                ArgumentNullException.ThrowIfNull(parameter);
 
                 return new FileWarningBuilder(_file, _reason, _parameters.Add(parameter));
             }
 
             public IFileWarningBuilder WithParameters(params ProblemParameter[] parameters)
             {
-                if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+                ArgumentNullException.ThrowIfNull(parameters);
 
                 return new FileWarningBuilder(_file, _reason, _parameters.AddRange(parameters));
             }
         }
 
-        public IFileWarningBuilder Warning(string reason)
+        public IFileWarningBuilder ThisWarning(string reason)
         {
-            if (reason == null) throw new ArgumentNullException(nameof(reason));
+            ArgumentNullException.ThrowIfNull(reason);
 
             return new FileWarningBuilder(_file, reason, _parameters);
         }
@@ -200,8 +200,8 @@ public static class ZipArchiveEntryProblems
 
     public static IFileWarningBuilder Warning(this ZipArchiveEntry entry, string reason)
     {
-        if (reason == null) throw new ArgumentNullException(nameof(reason));
+        ArgumentNullException.ThrowIfNull(reason);
 
-        return new FileProblemBuilder(entry.Name).Warning(reason);
+        return new FileProblemBuilder(entry.Name).ThisWarning(reason);
     }
 }

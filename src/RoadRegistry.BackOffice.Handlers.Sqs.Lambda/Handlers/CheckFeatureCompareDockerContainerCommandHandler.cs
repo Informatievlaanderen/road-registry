@@ -52,7 +52,9 @@ public class CheckFeatureCompareDockerContainerCommandHandler : LambdaCommandHan
             await _sqsQueueConsumer.Consume(_messagingOptions.RequestQueueUrl, async message =>
             {
                 if (consumerCounter >= 1)
-                    throw new IndexOutOfRangeException("Consumer within Lambda MUST only process one single message per invocation!");
+                {
+                    throw new InvalidOperationException("Consumer within Lambda MUST only process one single message per invocation!");
+                }
 
                 // Publish message from one queue to another
                 await _sqsQueuePublisher.CopyToQueue(_messagingOptions.DockerQueueName, message, new SqsQueueOptions(), cancellationToken);

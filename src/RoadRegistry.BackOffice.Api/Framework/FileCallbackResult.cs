@@ -31,7 +31,10 @@ public class FileCallbackResult : FileResult
     public override Task ExecuteResultAsync(ActionContext context)
     {
         if (context == null)
+        {
             throw new ArgumentNullException(nameof(context));
+        }
+
         var executor = new FileCallbackResultExecutor(context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>());
         return executor.ExecuteAsync(context, this);
     }

@@ -21,13 +21,11 @@ using SqlStreamStore.Subscriptions;
 
 public class CommandProcessor : IHostedService
 {
-    private static readonly EventMapping CommandMapping =
-        new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
+    private static readonly EventMapping CommandMapping = new EventMapping(RoadNetworkCommands.All.ToDictionary(command => command.Name));
 
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
 
-    private static readonly JsonSerializerSettings SerializerSettings =
-        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+    private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     private readonly ILogger<CommandProcessor> _logger;
 
@@ -45,9 +43,20 @@ public class CommandProcessor : IHostedService
         Scheduler scheduler,
         ILogger<CommandProcessor> logger)
     {
-        if (streamStore == null) throw new ArgumentNullException(nameof(streamStore));
-        if (positionStore == null) throw new ArgumentNullException(nameof(positionStore));
-        if (dispatcher == null) throw new ArgumentNullException(nameof(dispatcher));
+        if (streamStore == null)
+        {
+            throw new ArgumentNullException(nameof(streamStore));
+        }
+
+        if (positionStore == null)
+        {
+            throw new ArgumentNullException(nameof(positionStore));
+        }
+
+        if (dispatcher == null)
+        {
+            throw new ArgumentNullException(nameof(dispatcher));
+        }
 
         _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -65,110 +74,130 @@ public class CommandProcessor : IHostedService
             try
             {
                 while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
-                while (_messageChannel.Reader.TryRead(out var message))
-                    switch (message)
+                {
+                    while (_messageChannel.Reader.TryRead(out var message))
                     {
-                        case Subscribe _:
-                            logger.LogInformation("Subscribing ...");
-                            subscription?.Dispose();
-                            var version = await positionStore
-                                .ReadVersion(queue.ToString(), _messagePumpCancellation.Token)
-                                .ConfigureAwait(false);
-                            logger.LogInformation("Subscribing as of {0}", version ?? -1);
-                            subscription = streamStore.SubscribeToStream(
-                                queue.ToString(),
-                                version,
-                                async (_, streamMessage, token) =>
-                                {
-                                    var command = new ProcessStreamMessage(streamMessage);
-                                    await _messageChannel.Writer
-                                        .WriteAsync(command, token)
-                                        .ConfigureAwait(false);
-                                    await command
-                                        .Completion
-                                        .ConfigureAwait(false);
-                                },
-                                async (_, reason, exception) =>
-                                {
-                                    if (!_messagePumpCancellation.IsCancellationRequested)
-                                        await _messageChannel.Writer
-                                            .WriteAsync(
-                                                new SubscriptionDropped(reason, exception),
-                                                _messagePumpCancellation.Token)
-                                            .ConfigureAwait(false);
-                                },
-                                name: "RoadRegistry.BackOffice.CommandHost.CommandProcessor");
-                            break;
-                        case ProcessStreamMessage process:
-                            try
-                            {
-                                logger.LogDebug(
-                                    "Processing {MessageType} at {Position}",
-                                    process.Message.Type, process.Message.Position);
-
-                                var body = JsonConvert.DeserializeObject(
-                                    await process.Message
-                                        .GetJsonData(_messagePumpCancellation.Token)
-                                        .ConfigureAwait(false),
-                                    CommandMapping.GetEventType(process.Message.Type),
-                                    SerializerSettings);
-                                var command = new Command(body).WithMessageId(process.Message.MessageId);
-                                await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
-                                await positionStore
-                                    .WriteVersion(queue.ToString(),
-                                        process.Message.StreamVersion,
-                                        _messagePumpCancellation.Token)
+                        switch (message)
+                        {
+                            case Subscribe:
+                                logger.LogInformation("Subscribing ...");
+                                subscription?.Dispose();
+                                var version = await positionStore
+                                    .ReadVersion(queue.ToString(), _messagePumpCancellation.Token)
                                     .ConfigureAwait(false);
-                                process.Complete();
-                            }
-                            catch (Exception exception)
-                            {
-                                _logger.LogError(exception, exception.Message);
-
-                                // how are we going to recover from this? do we even need to recover from this?
-                                // prediction: it's going to be a serialization error, a data quality error, or a bug
-                                //                                    if (process.Message.StreamVersion == 0)
-                                //                                    {
-                                //                                        await positionStore.WriteVersion(RoadNetworkCommandQueue,
-                                //                                            process.Message.StreamVersion,
-                                //                                            _messagePumpCancellation.Token);
-                                //                                    }
-                                process.Fault(exception);
-                            }
-
-                            break;
-                        case SubscriptionDropped dropped:
-                            if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
-                            {
-                                logger.LogError(dropped.Exception,
-                                    "Subscription was dropped because of a stream store error.");
-                                await scheduler.Schedule(async token =>
+                                logger.LogInformation("Subscribing as of {0}", version ?? -1);
+                                subscription = streamStore.SubscribeToStream(
+                                    queue.ToString(),
+                                    version,
+                                    async (_, streamMessage, token) =>
+                                    {
+                                        var command = new ProcessStreamMessage(streamMessage);
+                                        await _messageChannel.Writer
+                                            .WriteAsync(command, token)
+                                            .ConfigureAwait(false);
+                                        await command
+                                            .Completion
+                                            .ConfigureAwait(false);
+                                    },
+                                    async (_, reason, exception) =>
+                                    {
+                                        if (!_messagePumpCancellation.IsCancellationRequested)
+                                        {
+                                            await _messageChannel.Writer
+                                                .WriteAsync(
+                                                    new SubscriptionDropped(reason, exception),
+                                                    _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
+                                        }
+                                    },
+                                    name: "RoadRegistry.BackOffice.CommandHost.CommandProcessor");
+                                break;
+                            case ProcessStreamMessage process:
+                                try
                                 {
-                                    if (!_messagePumpCancellation.IsCancellationRequested) await _messageChannel.Writer.WriteAsync(new Subscribe(), token).ConfigureAwait(false);
-                                }, ResubscribeAfter);
-                            }
-                            else if (dropped.Reason == SubscriptionDroppedReason.SubscriberError)
-                            {
-                                logger.LogError(dropped.Exception,
-                                    "Subscription was dropped because of a subscriber error.");
+                                    logger.LogDebug(
+                                        "Processing {MessageType} at {Position}",
+                                        process.Message.Type, process.Message.Position);
 
-                                if (CanResumeFrom(dropped))
+                                    var body = JsonConvert.DeserializeObject(
+                                        await process.Message
+                                            .GetJsonData(_messagePumpCancellation.Token)
+                                            .ConfigureAwait(false),
+                                        CommandMapping.GetEventType(process.Message.Type),
+                                        SerializerSettings);
+                                    var command = new Command(body).WithMessageId(process.Message.MessageId);
+                                    await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
+                                    await positionStore
+                                        .WriteVersion(queue.ToString(),
+                                            process.Message.StreamVersion,
+                                            _messagePumpCancellation.Token)
+                                        .ConfigureAwait(false);
+                                    process.Complete();
+                                }
+                                catch (Exception exception)
+                                {
+                                    _logger.LogError(exception, exception.Message);
+
+                                    // how are we going to recover from this? do we even need to recover from this?
+                                    // prediction: it's going to be a serialization error, a data quality error, or a bug
+                                    //                                    if (process.Message.StreamVersion == 0)
+                                    //                                    {
+                                    //                                        await positionStore.WriteVersion(RoadNetworkCommandQueue,
+                                    //                                            process.Message.StreamVersion,
+                                    //                                            _messagePumpCancellation.Token);
+                                    //                                    }
+                                    process.Fault(exception);
+                                }
+
+                                break;
+                            case SubscriptionDropped dropped:
+                                if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
+                                {
+                                    logger.LogError(dropped.Exception,
+                                        "Subscription was dropped because of a stream store error.");
                                     await scheduler.Schedule(async token =>
                                     {
-                                        if (!_messagePumpCancellation.IsCancellationRequested) await _messageChannel.Writer.WriteAsync(new Subscribe(), token).ConfigureAwait(false);
+                                        if (!_messagePumpCancellation.IsCancellationRequested)
+                                        {
+                                            await _messageChannel.Writer.WriteAsync(new Subscribe(), token).ConfigureAwait(false);
+                                        }
                                     }, ResubscribeAfter);
-                            }
+                                }
+                                else if (dropped.Reason == SubscriptionDroppedReason.SubscriberError)
+                                {
+                                    logger.LogError(dropped.Exception,
+                                        "Subscription was dropped because of a subscriber error.");
 
-                            break;
+                                    if (CanResumeFrom(dropped))
+                                    {
+                                        await scheduler.Schedule(async token =>
+                                        {
+                                            if (!_messagePumpCancellation.IsCancellationRequested)
+                                            {
+                                                await _messageChannel.Writer.WriteAsync(new Subscribe(), token).ConfigureAwait(false);
+                                            }
+                                        }, ResubscribeAfter);
+                                    }
+                                }
+
+                                break;
+                        }
                     }
+                }
             }
             catch (TaskCanceledException)
             {
-                if (logger.IsEnabled(LogLevel.Information)) logger.Log(LogLevel.Information, "CommandProcessor message pump is exiting due to cancellation.");
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.Log(LogLevel.Information, "CommandProcessor message pump is exiting due to cancellation.");
+                }
             }
             catch (OperationCanceledException)
             {
-                if (logger.IsEnabled(LogLevel.Information)) logger.Log(LogLevel.Information, "CommandProcessor message pump is exiting due to cancellation.");
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.Log(LogLevel.Information, "CommandProcessor message pump is exiting due to cancellation.");
+                }
             }
             catch (Exception exception)
             {
@@ -184,9 +213,7 @@ public class CommandProcessor : IHostedService
     private static bool CanResumeFrom(SubscriptionDropped dropped)
     {
         const int timeout = -2;
-        return dropped.Exception != null
-               && (dropped.Exception is SqlException { Number: timeout } ||
-                   dropped.Exception is IOException { InnerException: SqlException { Number: timeout } });
+        return dropped.Exception is SqlException { Number: timeout } or IOException { InnerException: SqlException { Number: timeout } };
     }
 
     private sealed class ProcessStreamMessage

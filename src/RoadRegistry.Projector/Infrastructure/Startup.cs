@@ -29,16 +29,12 @@ public class Startup
 {
     private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
-    private readonly ILoggerFactory _loggerFactory;
 
     private IContainer _applicationContainer;
 
-    public Startup(
-        IConfiguration configuration,
-        ILoggerFactory loggerFactory)
+    public Startup(IConfiguration configuration)
     {
         _configuration = configuration;
-        _loggerFactory = loggerFactory;
     }
 
     public void Configure(
@@ -160,10 +156,12 @@ public class Startup
                             .GetChildren();
 
                         foreach (var connectionString in connectionStrings)
+                        {
                             health.AddSqlServer(
                                 connectionString.Value,
                                 name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
                                 tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                        }
 
                         health.AddDbContextCheck<WfsContext>();
                         health.AddDbContextCheck<WmsContext>();
