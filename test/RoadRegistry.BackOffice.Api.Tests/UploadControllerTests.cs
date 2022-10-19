@@ -7,7 +7,6 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentValidation;
-using Infrastructure.FeatureToggles;
 using MediatR;
 using Messages;
 using Microsoft.AspNetCore.Http;
@@ -41,7 +40,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             })
         };
 
-        var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareToggle(true), formFile, CancellationToken.None);
+        var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(true), formFile, CancellationToken.None);
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
 
@@ -56,7 +55,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             })
         };
 
-        var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareToggle(false), formFile, CancellationToken.None);
+        var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(false), formFile, CancellationToken.None);
         Assert.IsType<NotFoundResult>(result);
     }
 
@@ -191,7 +190,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
                     { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
                 })
             };
-            var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareToggle(true), formFile, CancellationToken.None);
+            var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(true), formFile, CancellationToken.None);
 
             var typedResult = Assert.IsType<OkObjectResult>(result);
             var response = Assert.IsType<UploadExtractFeatureCompareResponse>(typedResult.Value);
@@ -234,7 +233,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             try
             {
-                await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareToggle(true), formFile, CancellationToken.None);
+                await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(true), formFile, CancellationToken.None);
                 throw new ValidationException("This should not be reachable");
             }
             catch (ApiProblemDetailsException ex)

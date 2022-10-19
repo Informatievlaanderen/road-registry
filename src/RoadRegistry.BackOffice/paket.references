@@ -12,6 +12,7 @@ DotSpatial.Projections
 Polly
 Autofac
 AWSSDK.Core
+FeatureToggle.Common
 
 Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.EventHandling

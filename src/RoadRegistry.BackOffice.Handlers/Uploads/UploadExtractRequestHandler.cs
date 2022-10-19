@@ -20,11 +20,11 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         ContentType.Parse("application/x-zip-compressed")
     };
 
-    private readonly RoadNetworkFeatureCompareBlobClient _client;
+    private readonly RoadNetworkUploadsBlobClient _client;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
-        RoadNetworkFeatureCompareBlobClient client,
+        RoadNetworkUploadsBlobClient client,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
