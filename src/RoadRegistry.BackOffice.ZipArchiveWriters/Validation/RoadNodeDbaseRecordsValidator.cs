@@ -9,16 +9,16 @@ public class RoadNodeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<Ro
 {
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadNodeDbaseRecord> records, ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-        if (records == null) throw new ArgumentNullException(nameof(records));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(records);
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
         try
         {
-            var identifiers = new Dictionary<RoadNodeId, (RecordNumber RecordNumber, RecordType RecordType)>();
             var moved = records.MoveNext();
             if (moved)
+            {
                 while (moved)
                 {
                     var recordContext = entry.AtDbaseRecord(records.CurrentRecordNumber);
@@ -27,7 +27,10 @@ public class RoadNodeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<Ro
                     {
                         if (record.WK_OIDN.HasValue)
                         {
-                            if (record.WK_OIDN.Value == 0) problems += recordContext.IdentifierZero();
+                            if (record.WK_OIDN.Value == 0)
+                            {
+                                problems += recordContext.IdentifierZero();
+                            }
                         }
                         else
                         {
@@ -35,14 +38,22 @@ public class RoadNodeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<Ro
                         }
 
                         if (!record.TYPE.HasValue)
+                        {
                             problems += recordContext.RequiredFieldIsNull(record.TYPE.Field);
-                        else if (!RoadNodeType.ByIdentifier.ContainsKey(record.TYPE.Value)) problems += recordContext.RoadNodeTypeMismatch(record.TYPE.Value);
+                        }
+                        else if (!RoadNodeType.ByIdentifier.ContainsKey(record.TYPE.Value))
+                        {
+                            problems += recordContext.RoadNodeTypeMismatch(record.TYPE.Value);
+                        }
 
                         moved = records.MoveNext();
                     }
                 }
+            }
             else
+            {
                 problems += entry.HasNoDbaseRecords(false);
+            }
         }
         catch (Exception exception)
         {
