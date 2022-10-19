@@ -15,10 +15,17 @@ public class CompositeEventReader : IEventReader
 
     public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
     {
-        if (connection == null) throw new ArgumentNullException(nameof(connection));
+        if (connection == null)
+        {
+            throw new ArgumentNullException(nameof(connection));
+        }
 
         foreach (var reader in _readers)
-        foreach (var @event in reader.ReadEvents(connection))
-            yield return @event;
+        {
+            foreach (var @event in reader.ReadEvents(connection))
+            {
+                yield return @event;
+            }
+        }
     }
 }

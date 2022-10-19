@@ -21,7 +21,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
 {
     private const int RecordPositionThreshold = 1000;
 
-    public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+    public static readonly EventMapping EventMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
     private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
@@ -42,13 +42,25 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         Scheduler scheduler,
         ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> logger)
     {
-        if (streamStore == null) throw new ArgumentNullException(nameof(streamStore));
+        if (streamStore == null)
+        {
+            throw new ArgumentNullException(nameof(streamStore));
+        }
 
-        if (positionStore == null) throw new ArgumentNullException(nameof(positionStore));
+        if (positionStore == null)
+        {
+            throw new ArgumentNullException(nameof(positionStore));
+        }
 
-        if (filter == null) throw new ArgumentNullException(nameof(filter));
+        if (filter == null)
+        {
+            throw new ArgumentNullException(nameof(filter));
+        }
 
-        if (dispatcher == null) throw new ArgumentNullException(nameof(dispatcher));
+        if (dispatcher == null)
+        {
+            throw new ArgumentNullException(nameof(dispatcher));
+        }
 
         _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -68,16 +80,26 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             {
                 logger.LogInformation("EventProcessor message pump entered ...");
                 while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
-                while (_messageChannel.Reader.TryRead(out var message))
-                    await ProcessMessage(queueName, streamStore, positionStore, filter, dispatcher, scheduler, logger, message, new Ref<IAllStreamSubscription>(subscription));
+                {
+                    while (_messageChannel.Reader.TryRead(out var message))
+                    {
+                        await ProcessMessage(queueName, streamStore, positionStore, filter, dispatcher, scheduler, logger, message, new Ref<IAllStreamSubscription>(subscription));
+                    }
+                }
             }
             catch (TaskCanceledException)
             {
-                if (logger.IsEnabled(LogLevel.Information)) logger.Log(LogLevel.Information, "EventProcessor message pump is exiting due to cancellation.");
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.Log(LogLevel.Information, "EventProcessor message pump is exiting due to cancellation.");
+                }
             }
             catch (OperationCanceledException)
             {
-                if (logger.IsEnabled(LogLevel.Information)) logger.Log(LogLevel.Information, "EventProcessor message pump is exiting due to cancellation.");
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    logger.Log(LogLevel.Information, "EventProcessor message pump is exiting due to cancellation.");
+                }
             }
             catch (Exception exception)
             {
@@ -138,9 +160,11 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                     }, async (_, reason, exception) =>
                     {
                         if (!_messagePumpCancellation.IsCancellationRequested)
+                        {
                             await _messageChannel.Writer
                                 .WriteAsync(new SubscriptionDropped(reason, exception), _messagePumpCancellation.Token)
                                 .ConfigureAwait(false);
+                        }
                     },
                     prefetchJsonData: false,
                     name: "RoadRegistry.BackOffice.ExtractHost.EventProcessor");
@@ -206,7 +230,10 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                         "Subscription was dropped because of a stream store error");
                     await scheduler.Schedule(async token =>
                         {
-                            if (!_messagePumpCancellation.IsCancellationRequested) await _messageChannel.Writer.WriteAsync(new Subscribe(), token).ConfigureAwait(false);
+                            if (!_messagePumpCancellation.IsCancellationRequested)
+                            {
+                                await _messageChannel.Writer.WriteAsync(new Subscribe(), token).ConfigureAwait(false);
+                            }
                         }, ResubscribeAfter)
                         .ConfigureAwait(false);
                 }
@@ -216,11 +243,16 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                         "Subscription was dropped because of a subscriber error");
 
                     if (CanResumeFrom(dropped))
+                    {
                         await scheduler.Schedule(async token =>
                             {
-                                if (!_messagePumpCancellation.IsCancellationRequested) await _messageChannel.Writer.WriteAsync(new Subscribe(), token).ConfigureAwait(false);
+                                if (!_messagePumpCancellation.IsCancellationRequested)
+                                {
+                                    await _messageChannel.Writer.WriteAsync(new Subscribe(), token).ConfigureAwait(false);
+                                }
                             }, ResubscribeAfter)
                             .ConfigureAwait(false);
+                    }
                 }
 
                 break;

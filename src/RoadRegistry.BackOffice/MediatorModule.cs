@@ -25,9 +25,9 @@ public class MediatorModule : Module
     {
         var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
         var executorDirectoryInfo = new DirectoryInfo(executorAssemblyLocation).Parent;
-        var assemblyFileInfoCollection = executorDirectoryInfo.EnumerateFiles("RoadRegistry.*.dll");
-        var assemblyCollection = assemblyFileInfoCollection.Select(fi => Assembly.LoadFrom(fi.FullName));
-        return assemblyCollection.ToList();
+        var assemblyFileInfoCollection = executorDirectoryInfo?.EnumerateFiles("RoadRegistry.*.dll");
+        var assemblyCollection = assemblyFileInfoCollection?.Select(fi => Assembly.LoadFrom(fi.FullName));
+        return assemblyCollection?.ToList();
     }
 
     protected override void Load(ContainerBuilder builder)
@@ -49,10 +49,14 @@ public class MediatorModule : Module
         availableModuleAssemblyCollection.Remove(GetType().Assembly);
 
         foreach (var assembly in availableModuleAssemblyCollection)
-        foreach (var mediatrOpenType in _mediatorOpenTypes)
-            builder
-                .RegisterAssemblyTypes(assembly)
-                .AsClosedTypesOf(mediatrOpenType)
-                .AsImplementedInterfaces();
+        {
+            foreach (var mediatrOpenType in _mediatorOpenTypes)
+            {
+                builder
+                    .RegisterAssemblyTypes(assembly)
+                    .AsClosedTypesOf(mediatrOpenType)
+                    .AsImplementedInterfaces();
+            }
+        }
     }
 }
