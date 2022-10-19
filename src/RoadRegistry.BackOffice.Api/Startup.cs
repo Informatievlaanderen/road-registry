@@ -151,10 +151,12 @@ public class Startup
                             .GetChildren();
 
                         foreach (var connectionString in connectionStrings)
+                        {
                             health.AddSqlServer(
                                 connectionString.Value,
                                 name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
                                 tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                        }
                     }
                 }
             })
