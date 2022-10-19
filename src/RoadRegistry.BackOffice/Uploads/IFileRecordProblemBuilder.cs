@@ -2,6 +2,6 @@ namespace RoadRegistry.BackOffice.Uploads;
 
 public interface IFileRecordProblemBuilder
 {
-    IFileErrorBuilder Error(string reason);
-    IFileWarningBuilder Warning(string reason);
+    IFileErrorBuilder ThisError(string reason);
+    IFileWarningBuilder ThisWarning(string reason);
 }

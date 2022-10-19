@@ -8,7 +8,7 @@ public static class ShapeFileProblems
 {
     public static FileError HasNoShapeRecords(this IFileProblemBuilder builder)
     {
-        return builder.Error(nameof(HasNoShapeRecords)).Build();
+        return builder.ThisError(nameof(HasNoShapeRecords)).Build();
     }
 
     // record
@@ -18,7 +18,7 @@ public static class ShapeFileProblems
         if (exception == null) throw new ArgumentNullException(nameof(exception));
 
         return builder
-            .Error(nameof(HasShapeRecordFormatError))
+            .ThisError(nameof(HasShapeRecordFormatError))
             .WithParameters(
                 new ProblemParameter("Exception", exception.ToString()))
             .Build();
@@ -30,7 +30,7 @@ public static class ShapeFileProblems
         if (exception == null) throw new ArgumentNullException(nameof(exception));
 
         return builder
-            .Error(nameof(ShapeHeaderFormatError))
+            .ThisError(nameof(ShapeHeaderFormatError))
             .WithParameter(new ProblemParameter("Exception", exception.ToString()))
             .Build();
     }
@@ -39,7 +39,7 @@ public static class ShapeFileProblems
         int expectedLineCount, int actualLineCount)
     {
         return builder
-            .Error(nameof(ShapeRecordGeometryLineCountMismatch))
+            .ThisError(nameof(ShapeRecordGeometryLineCountMismatch))
             .WithParameters(
                 new ProblemParameter("ExpectedLineCount", expectedLineCount.ToString()),
                 new ProblemParameter("ActualLineCount", actualLineCount.ToString()))
@@ -48,24 +48,24 @@ public static class ShapeFileProblems
 
     public static FileError ShapeRecordGeometryMismatch(this IShapeFileRecordProblemBuilder builder)
     {
-        return builder.Error(nameof(ShapeRecordGeometryMismatch)).Build();
+        return builder.ThisError(nameof(ShapeRecordGeometryMismatch)).Build();
     }
 
     public static FileError ShapeRecordGeometrySelfIntersects(this IShapeFileRecordProblemBuilder builder)
     {
-        return builder.Error(nameof(ShapeRecordGeometrySelfIntersects)).Build();
+        return builder.ThisError(nameof(ShapeRecordGeometrySelfIntersects)).Build();
     }
 
     public static FileError ShapeRecordGeometrySelfOverlaps(this IShapeFileRecordProblemBuilder builder)
     {
-        return builder.Error(nameof(ShapeRecordGeometrySelfOverlaps)).Build();
+        return builder.ThisError(nameof(ShapeRecordGeometrySelfOverlaps)).Build();
     }
 
     public static FileError ShapeRecordShapeTypeMismatch(this IShapeFileRecordProblemBuilder builder,
         ShapeType expectedShapeType, ShapeType actualShapeType)
     {
         return builder
-            .Error(nameof(ShapeRecordShapeTypeMismatch))
+            .ThisError(nameof(ShapeRecordShapeTypeMismatch))
             .WithParameters(
                 new ProblemParameter("ExpectedShapeType", expectedShapeType.ToString()),
                 new ProblemParameter("ActualShapeType", actualShapeType.ToString()))

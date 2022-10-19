@@ -4,6 +4,6 @@ public static class ProjectionFormatFileProblems
 {
     public static FileError ProjectionFormatInvalid(this IFileProblemBuilder builder)
     {
-        return builder.Error(nameof(ProjectionFormatInvalid)).Build();
+        return builder.ThisError(nameof(ProjectionFormatInvalid)).Build();
     }
 }
