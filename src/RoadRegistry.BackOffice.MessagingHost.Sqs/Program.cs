@@ -227,7 +227,7 @@ public class Program
                         new CommandHandlerModule[]
                         {
                             new RoadNetworkChangesArchiveCommandModule(
-                                sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
+                                sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),

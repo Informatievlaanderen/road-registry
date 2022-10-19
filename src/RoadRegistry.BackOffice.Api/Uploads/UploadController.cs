@@ -1,8 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Extracts;
@@ -13,10 +10,12 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentValidation;
 using Framework;
 using Infrastructure.Controllers.Attributes;
-using Infrastructure.FeatureToggles;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
@@ -98,7 +97,7 @@ public class UploadController : ControllerBase
 
     [HttpPost("fc")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
     {
         if (!useFeatureCompareToggle.FeatureEnabled) return NotFound();
 

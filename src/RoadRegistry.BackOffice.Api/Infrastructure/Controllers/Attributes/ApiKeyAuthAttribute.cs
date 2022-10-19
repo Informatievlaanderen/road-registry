@@ -1,18 +1,17 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Extensions;
-using FeatureToggles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
@@ -35,9 +34,9 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
     public Task OnActionExecutionApiKeyAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var sp = context.HttpContext.RequestServices;
-        var useApiKeyAuthenticationToggle = sp.GetRequiredService<UseApiKeyAuthenticationToggle>();
+        var authenticationFeatureToggle = sp.GetRequiredService<UseApiKeyAuthenticationFeatureToggle>();
 
-        if (!useApiKeyAuthenticationToggle.FeatureEnabled) return next();
+        if (!authenticationFeatureToggle.FeatureEnabled) return next();
 
         var potentialQueryApiKey = StringValues.Empty;
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var potentialHeaderApiKey)

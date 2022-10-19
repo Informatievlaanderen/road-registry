@@ -162,8 +162,6 @@ public class Program
                 hostContext.Configuration.GetSection(nameof(ExtractDownloadsOptions)).Bind(extractDownloadsOptions);
                 var extractUploadsOptions = new ExtractUploadsOptions();
                 hostContext.Configuration.GetSection(nameof(ExtractUploadsOptions)).Bind(extractDownloadsOptions);
-                var featureToggles = new FeatureToggleOptions();
-                hostContext.Configuration.GetSection(FeatureToggleOptions.ConfigurationKey).Bind(featureToggles);
 
                 var sqsOptions = new SqsOptions();
                 hostContext.Configuration.GetSection(nameof(SqsOptions)).Bind(sqsOptions);
@@ -176,7 +174,6 @@ public class Program
                     .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8));
 
                 builder
-                    .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(featureToggles.UseSnapshotRebuildFeature))
                     .AddSingleton<ProblemDetailsHelper>()
                     .AddSingleton(zipArchiveWriterOptions)
                     .AddSingleton(extractDownloadsOptions)
@@ -209,7 +206,7 @@ public class Program
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                         new CommandHandlerModule[]
                         {
-                            new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
+                            new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
