@@ -1,3 +1,22 @@
+# [3.13.0](https://github.com/informatievlaanderen/road-registry/compare/v3.12.1...v3.13.0) (2022-10-19)
+
+
+### Bug Fixes
+
+* assert correct response for test; remove gitignored xml files ([7b543b7](https://github.com/informatievlaanderen/road-registry/commit/7b543b71bea02ca850bd0732cf04453a5d0b3446))
+* Build warning cleanup; File layout refactoring ([7ba86e3](https://github.com/informatievlaanderen/road-registry/commit/7ba86e34fff67d43eac41bfa7ad7d1b9ff1b07b4))
+* conform to Serializable pattern ([883587b](https://github.com/informatievlaanderen/road-registry/commit/883587bb16e288e62416b80c7c73e0ece78272f4))
+* fix corrupt previous merge ([13dd7fb](https://github.com/informatievlaanderen/road-registry/commit/13dd7fbdd3f2a9f7f72b7ee4384114d455a70285))
+* return Retry-After header also when successful ([f94cab2](https://github.com/informatievlaanderen/road-registry/commit/f94cab2996c0323e5dd8bda4ff37763dc4eb5d40))
+* Upload test file incorrect merge ([1e64778](https://github.com/informatievlaanderen/road-registry/commit/1e64778eb2ebce377b93f7c1f71c8fb96e0affad))
+* use existing response classes with ID properties as strings ([af399d3](https://github.com/informatievlaanderen/road-registry/commit/af399d34307f61950ce4c3f88fdca317274a9674))
+
+
+### Features
+
+* Add api key authentication through attributes ([ea14b10](https://github.com/informatievlaanderen/road-registry/commit/ea14b10c5ee64811bce0ea65c41c54f44332fb46))
+* Remove user secrets id ([bd739d4](https://github.com/informatievlaanderen/road-registry/commit/bd739d44176a97704cf12c32515c664674ef8c2c))
+
 ## [3.12.1](https://github.com/informatievlaanderen/road-registry/compare/v3.12.0...v3.12.1) (2022-10-17)
 
 
