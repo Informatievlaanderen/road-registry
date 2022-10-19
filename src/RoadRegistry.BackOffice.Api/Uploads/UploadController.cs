@@ -37,7 +37,7 @@ public class UploadController : ControllerBase
     {
         try
         {
-            DownloadExtractRequest request = new(identifier);
+            var request = new DownloadExtractRequest(identifier);
             var response = await _mediator.Send(request, cancellationToken);
             return new FileCallbackResult(response);
         }
@@ -49,7 +49,15 @@ public class UploadController : ControllerBase
 
     private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback, CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
+        if (archive == null)
+        {
+            throw new ArgumentNullException(nameof(archive));
+        }
+
+        if (cancellationToken.IsCancellationRequested)
+        {
+            throw new OperationCanceledException();
+        }
 
         try
         {
@@ -88,7 +96,7 @@ public class UploadController : ControllerBase
     {
         return await Post(archive, async () =>
         {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractRequest(archive.FileName, requestArchive);
             await _mediator.Send(request, cancellationToken);
             return Ok();
@@ -99,11 +107,14 @@ public class UploadController : ControllerBase
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
     public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
     {
-        if (!useFeatureCompareToggle.FeatureEnabled) return NotFound();
+        if (!useFeatureCompareToggle.FeatureEnabled)
+        {
+            return NotFound();
+        }
 
         return await Post(archive, async () =>
         {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             return Ok(response);

@@ -449,7 +449,7 @@ public class Program
         });
     }
 
-    private static string FormatDescription(string description, IEnumerable<string> properties) //=> $"{description}{Environment.NewLine}{string.Join(", ", properties)}";
+    private static string FormatDescription(string description)
     {
         return $"{description}";
     }
