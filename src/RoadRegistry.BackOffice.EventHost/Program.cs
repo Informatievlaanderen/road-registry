@@ -128,6 +128,12 @@ public class Program
                         }
 
                         builder
+                            .AddSingleton<IBlobClient>(sp =>
+                                new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                )
+                            )
                             .AddSingleton(sp =>
                                 new RoadNetworkUploadsBlobClient(new S3BlobClient(
                                     sp.GetRequiredService<AmazonS3Client>(),
