@@ -17,6 +17,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Consumers;
 using Core;
 using Extracts;
 using Framework;
@@ -29,8 +30,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.MessagingHost.Sqs.Consumers;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
@@ -49,7 +48,7 @@ public class Program
     {
         builder.Populate(_serviceCollection);
         builder.RegisterModule(new MediatorModule());
-        builder.RegisterModule(new BackOffice.Handlers.Sqs.MediatorModule());
+        builder.RegisterModule(new Handlers.Sqs.MediatorModule());
     }
 
     public static async Task Main(string[] args)
@@ -198,8 +197,8 @@ public class Program
                     /*
                      * Add hosted services here
                      */
-                    .AddHostedService<FeatureCompareProcessor>()
-                    .AddHostedService<AfterFeatureCompareMessageConsumer>()
+                    .AddHostedService<CheckFeatureCompareDockerContainerBackgroundService>()
+                    //.AddHostedService<FeatureCompareMessageConsumer>()
                     /*
                      *
                      */
@@ -232,7 +231,7 @@ public class Program
                         new CommandHandlerModule[]
                         {
                             new RoadNetworkChangesArchiveCommandModule(
-                                sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
+                                sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),

@@ -14,7 +14,7 @@ using Microsoft.Net.Http.Headers;
 /// <summary>
 ///     Upload controller, get upload
 /// </summary>
-/// <exception cref="UploadExtractBlobClientNotFoundException"></exception>
+/// <exception cref="BlobClientNotFoundException"></exception>
 /// <exception cref="ExtractDownloadNotFoundException"></exception>
 /// <exception cref="ValidationException"></exception>
 public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtractRequest, DownloadExtractResponse>
@@ -26,7 +26,7 @@ public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtr
         RoadNetworkExtractUploadsBlobClient client,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
-        _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
+        _client = client ?? throw new BlobClientNotFoundException(nameof(client));
     }
 
     public override async Task<DownloadExtractResponse> HandleAsync(DownloadExtractRequest request, CancellationToken cancellationToken)

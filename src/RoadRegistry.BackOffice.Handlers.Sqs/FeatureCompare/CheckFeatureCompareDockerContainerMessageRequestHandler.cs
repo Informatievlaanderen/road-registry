@@ -46,21 +46,29 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.FeatureCompare
 
             if (response.IsRunning)
             {
-                _logger.LogInformation("Feature compare container found. Exit without failure. See you on the next timer run!");
+                _logger.LogInformation("Container {container} state: {containerState}", container.Name, response.State);
+                _logger.LogInformation("Exit without failure. See you on the next timer run!");
+
                 await Task.FromCanceled<CheckFeatureCompareDockerContainerMessageResponse>(cancellationToken);
             }
             else
             {
+                _logger.LogInformation("Container {container} state: {containerState}", container.Name, response.State);
+
                 var cancellationTokenSource = new CancellationTokenSource();
                 var consumerCounter = 0;
 
                 await _sqsQueueConsumer.Consume(_messagingOptions.RequestQueueUrl, async message =>
                 {
+                    _logger.LogInformation("Attempting to dequeue message from queue: {requestQueueUrl}", _messagingOptions.RequestQueueUrl);
+
                     if (consumerCounter >= 1)
                         throw new IndexOutOfRangeException("Consumer within Lambda MUST only process one single message per invocation!");
 
                     // Publish message from one queue to another
                     var sqsQueueName = SqsQueue.ParseQueueNameFromQueueUrl(_messagingOptions.DockerQueueUrl);
+
+                    _logger.LogInformation("Attempting to publish message onto queue: {sqsQueueName}", sqsQueueName);
                     await _sqsQueuePublisher.CopyToQueue(sqsQueueName, message, new SqsQueueOptions(), cancellationToken);
 
                     // Cancel the cancellation token so we don't get stuck inside the consumer loop

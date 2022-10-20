@@ -206,7 +206,7 @@ public class Program
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                         new CommandHandlerModule[]
                         {
-                            new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
+                            new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),

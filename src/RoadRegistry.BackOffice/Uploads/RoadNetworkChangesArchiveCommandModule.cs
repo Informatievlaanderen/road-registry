@@ -12,7 +12,7 @@ using SqlStreamStore;
 public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 {
     public RoadNetworkChangesArchiveCommandModule(
-        RoadNetworkFeatureCompareBlobClient blobClient,
+        RoadNetworkUploadsBlobClient blobClient,
         IStreamStore store,
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveAfterFeatureCompareValidator validator,

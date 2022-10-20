@@ -8,7 +8,7 @@ using RoadRegistry.BackOffice.MessagingHost.Sqs.Consumers;
 
 public abstract class WhenMessageReceivedFixture : IAsyncLifetime
 {
-    private readonly AfterFeatureCompareMessageConsumer _backgroundService;
+    private readonly FeatureCompareMessageConsumer _backgroundService;
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly FeatureCompareMessagingOptions _messagingOptions;
     private readonly SqsQueueOptions _sqsQueueOptions;
@@ -26,11 +26,11 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
             ResponseQueueUrl = "response.fifo"
         };
 
-        _backgroundService = new AfterFeatureCompareMessageConsumer(
+        _backgroundService = new FeatureCompareMessageConsumer(
             mediator,
+            loggerFactory.CreateLogger<FeatureCompareMessageConsumer>(),
             _messagingOptions,
-            sqsQueueConsumer,
-            loggerFactory.CreateLogger<AfterFeatureCompareMessageConsumer>()
+            sqsQueueConsumer
         );
         _cancellationTokenSource = new CancellationTokenSource();
     }

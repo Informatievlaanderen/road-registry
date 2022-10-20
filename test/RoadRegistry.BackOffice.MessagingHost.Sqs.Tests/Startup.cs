@@ -25,7 +25,7 @@ public class Startup : TestStartup
             new CommandHandlerModule[]
             {
                 new RoadNetworkChangesArchiveCommandModule(
-                    sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
+                    sp.GetService<RoadNetworkUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),

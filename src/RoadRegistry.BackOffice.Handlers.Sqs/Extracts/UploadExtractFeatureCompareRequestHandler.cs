@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 /// <summary>
 ///     Post upload extract controller
 /// </summary>
-/// <exception cref="UploadExtractBlobClientNotFoundException"></exception>
+/// <exception cref="BlobClientNotFoundException"></exception>
 /// <exception cref="EditorContextNotFoundException"></exception>
 /// <exception cref="DownloadExtractNotFoundException"></exception>
 /// <exception cref="UnsupportedMediaTypeException"></exception>
@@ -40,7 +40,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         ISqsQueuePublisher sqsQueuePublisher,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
-        _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
+        _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
         _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
     }
