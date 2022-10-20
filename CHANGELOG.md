@@ -1,3 +1,10 @@
+## [3.13.2](https://github.com/informatievlaanderen/road-registry/compare/v3.13.1...v3.13.2) (2022-10-20)
+
+
+### Bug Fixes
+
+* add missing IBlobClient registration when using S3BlobClient ([7bdf81b](https://github.com/informatievlaanderen/road-registry/commit/7bdf81b559a8f1bc3ea5f5762da85f2557c08484))
+
 ## [3.13.1](https://github.com/informatievlaanderen/road-registry/compare/v3.13.0...v3.13.1) (2022-10-19)
 
 
