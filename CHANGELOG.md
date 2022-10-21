@@ -1,3 +1,10 @@
+## [3.13.3](https://github.com/informatievlaanderen/road-registry/compare/v3.13.2...v3.13.3) (2022-10-21)
+
+
+### Bug Fixes
+
+* remove api_key from env; remove .map files on build ([4bc218c](https://github.com/informatievlaanderen/road-registry/commit/4bc218cb92f32bb535e19f57b9c2addaca34dbdb))
+
 ## [3.13.2](https://github.com/informatievlaanderen/road-registry/compare/v3.13.1...v3.13.2) (2022-10-20)
 
 
