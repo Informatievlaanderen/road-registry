@@ -6,6 +6,7 @@ using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Editor.Projections.DutchTranslations;
 using FluentValidation;
 using FluentValidation.Results;
 using Framework;
@@ -41,6 +42,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         if (!ContentType.TryParse(request.Archive.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed)) throw new UnsupportedMediaTypeException();
 
         await using var readStream = request.Archive.ReadStream;
+
         ArchiveId archiveId = new(Guid.NewGuid().ToString("N"));
 
         var metadata = Metadata.None.Add(
@@ -56,11 +58,12 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         {
             var problems = entity.ValidateArchiveUsing(archive, _validator);
 
-            var fileProblems = problems.OfType<FileError>();
+            var fileProblems = problems.OfType<FileError>().ToArray();
             if (fileProblems.Any())
             {
-                var translatedProblems = problems.Select(problem => problem.Translate()).ToArray();
-                throw new ValidationException(translatedProblems.Select(s => new ValidationFailure(s.File, $"{s.Reason} - {s.File}")));
+                throw new ValidationException(fileProblems
+                    .Select(problem => problem.Translate())
+                    .Select(fileProblem => new ValidationFailure(fileProblem.File, ProblemWithZipArchive.Translator(fileProblem))));
             }
 
             readStream.Position = 0;

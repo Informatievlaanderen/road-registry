@@ -140,7 +140,7 @@
               Gelieve een beschrijving mee te geven van maximaal 250 karakters.
             </span>
             <vl-alert v-if="contourFlow.hasValidationErrors" icon="warning" title="Opgelet!" mod-small role="alertdialog">
-              <p>Er zijn validatie errors:</p>
+              <p>Er zijn validatie fouten:</p>
               <ul>
                 <li v-for="contourValidationError in contourFlow.validationErrors.contour" :key="contourValidationError.code">{{contourValidationError.reason}}</li>
               </ul>
