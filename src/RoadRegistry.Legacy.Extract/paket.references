@@ -1,12 +1,8 @@
 Microsoft.Data.SqlClient
-Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
-
-Serilog
 Serilog.Extensions.Hosting
 Serilog.Settings.Configuration
 Serilog.Sinks.Console
 Serilog.Enrichers.Environment
 Serilog.Enrichers.Thread
-Serilog.Formatting.Compact
 Serilog.Sinks.Seq

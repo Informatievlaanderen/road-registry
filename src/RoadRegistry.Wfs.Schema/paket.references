@@ -1,12 +1,6 @@
-Microsoft.EntityFrameworkCore
 Microsoft.EntityFrameworkCore.Design
-Microsoft.EntityFrameworkCore.SqlServer
-Microsoft.Data.SqlClient
-
-NetTopologySuite
-NodaTime
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
-
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
+AWSSDK.Core

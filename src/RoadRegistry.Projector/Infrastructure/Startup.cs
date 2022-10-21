@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
 using Editor.Schema;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -151,8 +152,6 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
-                    FluentValidation = fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>(),
-
                     AfterHealthChecks = health =>
                     {
                         var connectionStrings = _configuration
@@ -172,7 +171,8 @@ public class Startup
                         health.AddDbContextCheck<SyndicationContext>();
                     }
                 }
-            });
+            })
+            .AddValidatorsFromAssemblyContaining<Startup>();
 
         var containerBuilder = new ContainerBuilder();
         containerBuilder.RegisterModule(new LoggingModule(_configuration, services));

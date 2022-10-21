@@ -8,14 +8,19 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentValidation;
+using FluentValidation.Results;
 using Framework;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ProblemDetails = Be.Vlaanderen.Basisregisters.BasicApiProblem.ProblemDetails;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
@@ -47,7 +52,7 @@ public class UploadController : ControllerBase
         }
     }
 
-    private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback, CancellationToken cancellationToken)
+    private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback)
     {
         if (archive == null) throw new ArgumentNullException(nameof(archive));
 
@@ -58,13 +63,6 @@ public class UploadController : ControllerBase
         catch (UnsupportedMediaTypeException)
         {
             return new UnsupportedMediaTypeResult();
-        }
-        catch (ValidationException exception)
-        {
-            throw new ApiProblemDetailsException(
-                "Could not upload roadnetwork extract because of validation errors",
-                400,
-                new ExceptionProblemDetails(exception), exception);
         }
         catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
         {
@@ -92,7 +90,7 @@ public class UploadController : ControllerBase
             var request = new UploadExtractRequest(archive.FileName, requestArchive);
             await _mediator.Send(request, cancellationToken);
             return Ok();
-        }, cancellationToken);
+        });
     }
 
     [HttpPost("fc")]
@@ -107,6 +105,17 @@ public class UploadController : ControllerBase
             var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             return Ok(response);
-        }, cancellationToken);
+        });
     }
+}
+
+internal class ApiValidationProblemDetailsException : ApiProblemDetailsException
+{
+    public ApiValidationProblemDetailsException(string message, int statusCode, ProblemDetails problemDetails, ValidationException innerException)
+        : base(message, statusCode, problemDetails, innerException)
+    {
+        ValidationErrors = innerException.Errors;
+    }
+
+    public IEnumerable<ValidationFailure> ValidationErrors { get; init; }
 }

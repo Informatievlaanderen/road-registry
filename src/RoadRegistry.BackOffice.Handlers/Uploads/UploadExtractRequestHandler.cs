@@ -1,10 +1,13 @@
 namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
+using System.IO.Compression;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using FluentValidation;
+using FluentValidation.Results;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -21,13 +24,16 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     };
 
     private readonly RoadNetworkUploadsBlobClient _client;
+    private readonly IZipArchiveAfterFeatureCompareValidator _validator;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkUploadsBlobClient client,
+        IZipArchiveAfterFeatureCompareValidator validator,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
+        _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -44,19 +50,34 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                     : request.Archive.FileName)
         );
 
-        await _client.CreateBlobAsync(
-            new BlobName(archiveId.ToString()),
-            metadata,
-            ContentType.Parse("application/zip"),
-            readStream,
-            cancellationToken
-        );
+        var entity = RoadNetworkChangesArchive.Upload(archiveId);
 
-        var message = new Command(new UploadRoadNetworkChangesArchive
+        using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
-            ArchiveId = archiveId.ToString()
-        });
-        await Dispatcher(message, cancellationToken);
+            var problems = entity.ValidateArchiveUsing(archive, _validator);
+
+            var fileProblems = problems.OfType<FileError>();
+            if (fileProblems.Any())
+            {
+                var translatedProblems = problems.Select(problem => problem.Translate()).ToArray();
+                throw new ValidationException(translatedProblems.Select(s => new ValidationFailure(s.File, $"{s.Reason} - {s.File}")));
+            }
+
+            readStream.Position = 0;
+            await _client.CreateBlobAsync(
+                new BlobName(archiveId.ToString()),
+                metadata,
+                ContentType.Parse("application/zip"),
+                readStream,
+                cancellationToken
+            );
+
+            var message = new Command(new UploadRoadNetworkChangesArchive
+            {
+                ArchiveId = archiveId.ToString()
+            });
+            await Dispatcher(message, cancellationToken);
+        }
 
         return new UploadExtractResponse(archiveId);
     }

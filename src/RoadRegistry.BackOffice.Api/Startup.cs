@@ -19,6 +19,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Linq;
+using FluentValidation;
 
 public class Startup
 {
@@ -142,8 +143,6 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
-                    FluentValidation = fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>(),
-
                     AfterHealthChecks = health =>
                     {
                         var connectionStrings = _configuration
@@ -162,6 +161,7 @@ public class Startup
             {
                 options.BindNonPublicProperties = true;
             })
+            .AddValidatorsFromAssemblyContaining<Startup>()
             .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
             .AddSingleton(c => new UseFeatureCompareFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare))
             .AddSingleton(c => new UseApiKeyAuthenticationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))

@@ -1,6 +1,7 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
+using FluentValidation;
 using FluentValidation.TestHelper;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
@@ -18,14 +19,12 @@ using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLa
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
-public class ChangeRoadNetworkValidatorTests
+public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, ChangeRoadNetworkValidator>
 {
     public ChangeRoadNetworkValidatorTests()
     {
-        Fixture = new Fixture();
         Fixture.CustomizePoint();
         Fixture.CustomizePolylineM();
-
         Fixture.CustomizeRoadNodeId();
         Fixture.CustomizeRoadNodeType();
         Fixture.CustomizeRoadSegmentId();
@@ -94,18 +93,15 @@ public class ChangeRoadNetworkValidatorTests
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
                 instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
             }).OmitAutoProperties());
-
-        Fixture.Customize<AddRoadNode>(
-            composer =>
-                composer.FromFactory(random =>
-                    new AddRoadNode
-                    {
-                        TemporaryId = Fixture.Create<RoadNodeId>(),
-                        Type = Fixture.Create<RoadNodeType>(),
-                        Geometry = Fixture.Create<RoadNodeGeometry>()
-                    }
-                )
-        );
+        Fixture.Customize<AddRoadNode>(composer =>
+            composer.FromFactory(random =>
+                new AddRoadNode
+                {
+                    TemporaryId = Fixture.Create<RoadNodeId>(),
+                    Type = Fixture.Create<RoadNodeType>(),
+                    Geometry = Fixture.Create<RoadNodeGeometry>()
+                }
+            ));
         Fixture.Customize<ModifyRoadNode>(
             composer =>
                 composer.FromFactory(random =>
@@ -151,6 +147,43 @@ public class ChangeRoadNetworkValidatorTests
                     }
                 ).OmitAutoProperties()
         );
+        Fixture.Customize<RequestedRoadSegmentLaneAttribute>(
+            composer =>
+                composer.FromFactory(random =>
+                    new RequestedRoadSegmentLaneAttribute
+                    {
+                        AttributeId = Fixture.Create<int>(),
+                        FromPosition = 0.00m,
+                        ToPosition = 0.01m,
+                        Count = 1,
+                        Direction = RoadSegmentLaneDirection.Independent,
+                    }
+                ).OmitAutoProperties()
+        );
+        Fixture.Customize<RequestedRoadSegmentWidthAttribute>(
+            composer =>
+                composer.FromFactory(random =>
+                    new RequestedRoadSegmentWidthAttribute
+                    {
+                        AttributeId = Fixture.Create<int>(),
+                        FromPosition = 0.00m,
+                        ToPosition = 0.01m,
+                        Width = 1
+                    }
+                ).OmitAutoProperties()
+        );
+        Fixture.Customize<RequestedRoadSegmentSurfaceAttribute>(
+            composer =>
+                composer.FromFactory(random =>
+                    new RequestedRoadSegmentSurfaceAttribute
+                    {
+                        AttributeId = Fixture.Create<int>(),
+                        FromPosition = 0.00m,
+                        ToPosition = 0.01m,
+                        Type = RoadSegmentSurfaceType.NotApplicable
+                    }
+                ).OmitAutoProperties()
+        );
         Fixture.Customize<RequestedChange>(
             composer =>
                 composer.FromFactory(random =>
@@ -176,7 +209,88 @@ public class ChangeRoadNetworkValidatorTests
                     }
                 ).OmitAutoProperties()
         );
-        Validator = new ChangeRoadNetworkValidator();
+        Fixture.Customize<AddRoadSegmentToEuropeanRoad>(
+            composer =>
+                composer.FromFactory(random =>
+                    new AddRoadSegmentToEuropeanRoad
+                    {
+                        TemporaryAttributeId = Fixture.Create<int>(),
+                        SegmentId = Fixture.Create<RoadSegmentId>(),
+                        Number = Fixture.Create<EuropeanRoadNumber>()
+                    }
+                ).OmitAutoProperties()
+        );
+        Fixture.Customize<AddRoadSegmentToNationalRoad>(
+            composer =>
+                composer.FromFactory(random =>
+                    new AddRoadSegmentToNationalRoad
+                    {
+                        TemporaryAttributeId = Fixture.Create<int>(),
+                        SegmentId = Fixture.Create<RoadSegmentId>(),
+                        Number = Fixture.Create<NationalRoadNumber>()
+                    }
+                ).OmitAutoProperties()
+        );
+        Fixture.Customize<AddRoadSegmentToNumberedRoad>(
+            composer =>
+                composer.FromFactory(random =>
+                    new AddRoadSegmentToNumberedRoad
+                    {
+                        TemporaryAttributeId = Fixture.Create<int>(),
+                        SegmentId = Fixture.Create<RoadSegmentId>(),
+                        Number = Fixture.Create<NumberedRoadNumber>(),
+                        Direction = RoadSegmentNumberedRoadDirection.Unknown
+                    }
+                ).OmitAutoProperties()
+        );
+
+        Model = new ChangeRoadNetwork
+        {
+            RequestId = "0000-00000000-00000000-00000000-00000000-00000000-00000000-00000",
+            OrganizationId = "000000000000000000",
+            Reason = Fixture.Create<string>(),
+            Operator = Fixture.Create<string>(),
+            Changes = new[]
+            {
+                new RequestedChange
+                {
+                    AddGradeSeparatedJunction = Fixture.Create<AddGradeSeparatedJunction>(),
+                    AddRoadNode = new AddRoadNode
+                    {
+                        TemporaryId = Fixture.Create<RoadNodeId>(),
+                        Type = RoadNodeType.FakeNode,
+                        Geometry = Fixture.Create<RoadNodeGeometry>()
+                    },
+                    ModifyRoadNode = new ModifyRoadNode
+                    {
+                        Id = Fixture.Create<RoadNodeId>(),
+                        Type = RoadNodeType.FakeNode,
+                        Geometry = Fixture.Create<RoadNodeGeometry>()
+                    },
+                    AddRoadSegment = new AddRoadSegment
+                    {
+                        TemporaryId = Fixture.Create<RoadSegmentId>(),
+                        StartNodeId = Fixture.Create<RoadNodeId>(),
+                        EndNodeId = Fixture.Create<RoadNodeId>(),
+                        Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
+                        MaintenanceAuthority = Fixture.Create<string>(),
+                        GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                        Morphology = Fixture.Create<RoadSegmentMorphology>(),
+                        Status = Fixture.Create<RoadSegmentStatus>(),
+                        Category = Fixture.Create<RoadSegmentCategory>(),
+                        AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
+                        LeftSideStreetNameId = Fixture.Create<int?>(),
+                        RightSideStreetNameId = Fixture.Create<int?>(),
+                        Lanes = Fixture.CreateMany<RequestedRoadSegmentLaneAttribute>().ToArray(),
+                        Widths = Fixture.CreateMany<RequestedRoadSegmentWidthAttribute>().ToArray(),
+                        Surfaces = Fixture.CreateMany<RequestedRoadSegmentSurfaceAttribute>().ToArray()
+                    },
+                    AddRoadSegmentToEuropeanRoad = Fixture.Create<AddRoadSegmentToEuropeanRoad>(),
+                    AddRoadSegmentToNationalRoad = Fixture.Create<AddRoadSegmentToNationalRoad>(),
+                    AddRoadSegmentToNumberedRoad = Fixture.Create<AddRoadSegmentToNumberedRoad>()
+                }
+            }
+        };
     }
 
     [Fact]
@@ -195,7 +309,7 @@ public class ChangeRoadNetworkValidatorTests
             AddRoadSegmentToNumberedRoad = null
         };
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        ShouldHaveValidationErrorFor(c => c.Changes, data);
     }
 
     [Fact]
@@ -206,7 +320,7 @@ public class ChangeRoadNetworkValidatorTests
         var data = Array.ConvertAll(changes,
             change => new RequestedChange { AddGradeSeparatedJunction = change });
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        ShouldHaveValidationErrorFor(c => c.Changes, data);
     }
 
     [Fact]
@@ -217,7 +331,7 @@ public class ChangeRoadNetworkValidatorTests
         var data = Array.ConvertAll(changes,
             change => new RequestedChange { AddRoadNode = change });
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        ShouldHaveValidationErrorFor(c => c.Changes, data);
     }
 
     [Fact]
@@ -228,7 +342,7 @@ public class ChangeRoadNetworkValidatorTests
         var data = Array.ConvertAll(changes,
             change => new RequestedChange { AddRoadSegment = change });
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        ShouldHaveValidationErrorFor(c => c.Changes, data);
     }
 
     [Fact]
@@ -238,13 +352,13 @@ public class ChangeRoadNetworkValidatorTests
         var index = new Random().Next(0, data.Length);
         data[index] = null;
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        ShouldHaveValidationErrorFor(c => c.Changes, data);
     }
 
     [Fact]
     public void ChangesCanNotBeNull()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Changes, (RequestedChange[])null);
+        ShouldHaveValidationErrorFor(c => c.Changes, null);
     }
 
     [Fact]
@@ -252,8 +366,6 @@ public class ChangeRoadNetworkValidatorTests
     {
         Validator.ShouldHaveChildValidator(c => c.Changes, typeof(RequestedChangeValidator));
     }
-
-    public Fixture Fixture { get; }
 
     [Fact]
     public void MoreThanOneChangeIsNotNull()
@@ -271,8 +383,20 @@ public class ChangeRoadNetworkValidatorTests
             AddRoadSegmentToNumberedRoad = Fixture.Create<AddRoadSegmentToNumberedRoad>()
         };
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
+        ShouldHaveValidationErrorFor(c => c.Changes, data);
     }
 
-    public ChangeRoadNetworkValidator Validator { get; }
+    [Fact]
+    public override void VerifyValid()
+    {
+        Model.Changes[0].AddGradeSeparatedJunction = null;
+        Model.Changes[0].AddRoadNode = null;
+        Model.Changes[0].ModifyRoadNode = null;
+        //Model.Changes[0].AddRoadSegment = null;
+        Model.Changes[0].AddRoadSegmentToEuropeanRoad = null;
+        Model.Changes[0].AddRoadSegmentToNationalRoad = null;
+        Model.Changes[0].AddRoadSegmentToNumberedRoad = null;
+
+        base.VerifyValid();
+    }
 }

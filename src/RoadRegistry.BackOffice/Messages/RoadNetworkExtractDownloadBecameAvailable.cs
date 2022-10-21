@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkExtractDownloadBecameAvailable")]
 [EventDescription("Indicates a road network extract became available.")]
-public class RoadNetworkExtractDownloadBecameAvailable
+public class RoadNetworkExtractDownloadBecameAvailable : IMessage
 {
     public string ArchiveId { get; set; }
     public string Description { get; set; }

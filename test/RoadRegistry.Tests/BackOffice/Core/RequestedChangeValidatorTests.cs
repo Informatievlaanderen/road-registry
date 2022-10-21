@@ -2,13 +2,14 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 
 using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
-public class RequestedChangeValidatorTests
+public class RequestedChangeValidatorTests : ValidatorTest<RequestedChange, RequestedChangeValidator>
 {
     public RequestedChangeValidatorTests()
     {
-        Validator = new RequestedChangeValidator();
+        Model = new RequestedChange();
     }
 
     [Fact]
@@ -52,6 +53,4 @@ public class RequestedChangeValidatorTests
     {
         Validator.ShouldHaveChildValidator(c => c.ModifyRoadNode, typeof(ModifyRoadNodeValidator));
     }
-
-    public RequestedChangeValidator Validator { get; }
 }

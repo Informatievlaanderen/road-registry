@@ -1,3 +1,5 @@
 Be.Vlaanderen.Basisregisters.GrAr.Legacy
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication
 
+Microsoft.Extensions.DependencyInjection
+AWSSDK.Core

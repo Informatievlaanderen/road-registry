@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("ImportedRoadSegment")]
 [EventDescription("Indicates a road network segment was imported.")]
-public class ImportedRoadSegment
+public class ImportedRoadSegment : IMessage
 {
     public string AccessRestriction { get; set; }
     public string Category { get; set; }

@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkExtractGotRequestedV2")]
 [EventDescription("Indicates a road network extract was requested.")]
-public class RoadNetworkExtractGotRequestedV2
+public class RoadNetworkExtractGotRequestedV2 : IMessage
 {
     public RoadNetworkExtractGeometry Contour { get; set; }
     public string Description { get; set; }
