@@ -5,4 +5,8 @@ AWSSDK.Core
 Microsoft.Data.SqlClient
 Microsoft.Extensions.DependencyInjection
 Microsoft.Extensions.Hosting
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens
 SqlStreamStore.MsSql

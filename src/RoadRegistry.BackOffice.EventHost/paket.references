@@ -2,6 +2,10 @@ Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 
 AWSSDK.Core
 Microsoft.Extensions.Hosting
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens
 Serilog.Enrichers.Environment
 Serilog.Enrichers.Thread
 Serilog.Extensions.Hosting

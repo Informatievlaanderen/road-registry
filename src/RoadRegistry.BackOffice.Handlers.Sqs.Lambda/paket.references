@@ -1,7 +1,8 @@
-Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.Aws.Lambda
-AWSSDK.Core
+Be.Vlaanderen.Basisregisters.EventHandling
+
 Amazon.Lambda.Serialization.SystemTextJson
 Autofac.Extensions.DependencyInjection
+AWSSDK.Core
 Ductus.FluentDocker
 Microsoft.Extensions.DependencyInjection

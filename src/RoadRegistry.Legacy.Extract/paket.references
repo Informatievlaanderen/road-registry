@@ -1,5 +1,9 @@
 Microsoft.Data.SqlClient
 Microsoft.Extensions.Hosting
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens
 Serilog.Extensions.Hosting
 Serilog.Settings.Configuration
 Serilog.Sinks.Console

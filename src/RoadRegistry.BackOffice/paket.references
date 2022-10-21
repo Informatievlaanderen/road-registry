@@ -10,7 +10,12 @@ FeatureToggle.Common
 FluentValidation
 MediatR.Extensions.Autofac.DependencyInjection
 MessagePack
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens
 Microsoft.IO.RecyclableMemoryStream
 NetTopologySuite
 Polly
 SqlStreamStore
+System.IdentityModel.Tokens.Jwt

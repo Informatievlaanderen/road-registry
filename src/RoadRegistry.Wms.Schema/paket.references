@@ -5,3 +5,7 @@ Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 AWSSDK.Core
 Microsoft.EntityFrameworkCore.Design
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens
