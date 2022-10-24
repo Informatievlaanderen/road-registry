@@ -52,6 +52,12 @@ export namespace RoadRegistry {
         description: string;
     }
 
+    export interface DownloadExtractByFileRequest {
+        buffer: number;
+        file: File[];
+        description: string;
+    }
+
     export interface PerContourErrorResponse {
         validationErrors: PerContourValidationErrors;
     }
