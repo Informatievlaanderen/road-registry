@@ -1,17 +1,19 @@
 namespace RoadRegistry.BackOffice.Api.Information;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
+using Abstractions.Information;
 using Be.Vlaanderen.Basisregisters.Api;
 using Editor.Schema;
 using FluentValidation;
-using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
@@ -35,11 +37,13 @@ public class InformationController : ControllerBase
         return new JsonResult(RoadNetworkInformationResponse.From(info));
     }
 
-    [HttpPost("wkt-validation")]
-    public async Task<IActionResult> ValidateWKT([FromBody] string wktContour, CancellationToken cancellationToken)
+    [HttpPost("validate-wkt")]
+    public async Task<IActionResult> ValidateWKT(ValidateWktContourRequestBody model, CancellationToken cancellationToken)
     {
-        var request = new ValidateWktContourRequest();
+        var request = new ValidateWktContourRequest(model.Contour ?? "");
         var response = await _mediator.Send(request, cancellationToken);
-        return new ValidateWktContourResponse(response);
+        return response.Exception is null
+            ? Ok()
+            : UnprocessableEntity();
     }
 }
