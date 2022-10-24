@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -11,11 +12,11 @@ using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
-using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
@@ -122,16 +123,21 @@ public class ExtractsController : ControllerBase
     {
         try
         {
-            DownloadExtractByFileRequest request = new(body.Files.Select(formFile =>
-                    new DownloadExtractByFileRequestItem(
-                        formFile.FileName,
-                        formFile.OpenReadStream(),
-                        ContentType.Parse(formFile.ContentType)
-                    )).ToArray(),
+            DownloadExtractByFileRequest request = new(
+                BuildRequestItem(body.Files, ".shp"),
+                BuildRequestItem(body.Files, ".shx"),
+                BuildRequestItem(body.Files, ".prj"),
                 body.Buffer,
                 body.Description);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+
+            DownloadExtractByFileRequestItem BuildRequestItem(IFormFileCollection bodyFiles, string extension)
+            {
+                var file = body.Files.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
+                           ?? throw new ArgumentNullException();
+                return new DownloadExtractByFileRequestItem(file.FileName, file.OpenReadStream(), ContentType.Parse(file.ContentType));
+            }
         }
         catch (DownloadExtractByFileNotFoundException)
         {

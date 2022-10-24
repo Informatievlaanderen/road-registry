@@ -8,10 +8,11 @@ public sealed class DownloadExtractByFileRequestValidator : AbstractValidator<Do
 {
     public DownloadExtractByFileRequestValidator()
     {
-        RuleFor(c => c.Files)
-            .NotEmpty().WithMessage("'Files' must not be empty, null or missing");
-
-        RuleForEach(c => c.Files)
+        RuleFor(c => c.ShpFile)
+            .SetValidator(new DownloadExtractByFileRequestItemValidator());
+        RuleFor(c => c.ShxFile)
+            .SetValidator(new DownloadExtractByFileRequestItemValidator());
+        RuleFor(c => c.PrjFile)
             .SetValidator(new DownloadExtractByFileRequestItemValidator());
 
         RuleFor(c => c.Buffer)
