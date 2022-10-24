@@ -82,7 +82,15 @@ export const BackOfficeApi = {
         downloadRequest: RoadRegistry.DownloadExtractByFileRequest
       ): Promise<RoadRegistry.DownloadExtractResponse> => {
         const path = `/roads/v1/extracts/downloadrequests/byfile`;
-        const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, downloadRequest);
+
+        const data = new FormData();
+        data.append("buffer", downloadRequest.buffer.toString());
+        data.append("description", downloadRequest.description);
+        downloadRequest.files.forEach(file => {
+            data.append("files", file, file.name);
+        })        
+
+        const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, data);
         return response.data;
       },
     postDownloadRequestByNisCode: async (

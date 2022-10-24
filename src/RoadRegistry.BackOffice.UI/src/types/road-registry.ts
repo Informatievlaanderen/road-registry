@@ -54,7 +54,7 @@ export namespace RoadRegistry {
 
     export interface DownloadExtractByFileRequest {
         buffer: number;
-        file: File[];
+        files: File[];
         description: string;
     }
 
