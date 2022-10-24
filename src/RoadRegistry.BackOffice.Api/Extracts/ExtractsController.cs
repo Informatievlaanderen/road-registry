@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
 using System.Globalization;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -88,21 +89,51 @@ public class ExtractsController : ControllerBase
     [HttpPost("downloadrequests/bycontour")]
     public async Task<ActionResult> PostDownloadRequestByContour([FromBody] DownloadExtractByContourRequestBody body, CancellationToken cancellationToken)
     {
-        DownloadExtractByContourRequest request = new(body.Contour, body.Buffer, body.Description);
-        var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+        try
+        {
+            DownloadExtractByContourRequest request = new(body.Contour, body.Buffer, body.Description);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+        }
+        catch (DownloadExtractByNisCodeNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpPost("downloadrequests/byniscode")]
     public async Task<ActionResult> PostDownloadRequestByNisCode([FromBody] DownloadExtractByNisCodeRequestBody body, CancellationToken cancellationToken)
     {
-        DownloadExtractByNisCodeRequest request = new(body.NisCode, body.Buffer, body.Description);
         try
         {
+            DownloadExtractByNisCodeRequest request = new(body.NisCode, body.Buffer, body.Description);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
         }
         catch (DownloadExtractByNisCodeNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPost("downloadrequests/byfile")]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public async Task<ActionResult> PostDownloadRequestByFile([FromBody] DownloadExtractByFileRequestBody body, CancellationToken cancellationToken)
+    {
+        try
+        {
+            DownloadExtractByFileRequest request = new(body.Files.Select(formFile =>
+                    new DownloadExtractByFileRequestItem(
+                        formFile.FileName,
+                        formFile.OpenReadStream(),
+                        ContentType.Parse(formFile.ContentType)
+                    )).ToArray(),
+                body.Buffer,
+                body.Description);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+        }
+        catch (DownloadExtractByFileNotFoundException)
         {
             return NotFound();
         }

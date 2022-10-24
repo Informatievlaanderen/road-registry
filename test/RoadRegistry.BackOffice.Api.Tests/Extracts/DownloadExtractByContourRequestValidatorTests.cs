@@ -7,14 +7,14 @@ using Handlers.Extracts;
 using Microsoft.Extensions.Logging.Abstractions;
 using NetTopologySuite.IO;
 
-public class DownloadExtractByContourRequestBodyValidatorTests
+public class DownloadExtractByContourRequestValidatorTests
 {
     private const int ValidBuffer = 50;
     private const string ValidContour = "MULTIPOLYGON (((30 20, 45 40, 10 40, 30 20)))";
     private const string ValidDescription = "description";
     private readonly DownloadExtractByContourRequestValidator _validator;
 
-    public DownloadExtractByContourRequestBodyValidatorTests()
+    public DownloadExtractByContourRequestValidatorTests()
     {
         _validator = new DownloadExtractByContourRequestValidator(
             new WKTReader(),
