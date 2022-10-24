@@ -38,7 +38,7 @@ public class InformationController : ControllerBase
     }
 
     [HttpPost("validate-wkt")]
-    public async Task<IActionResult> ValidateWKT(ValidateWktContourRequestBody model, CancellationToken cancellationToken)
+    public async Task<IActionResult> ValidateWKT([FromBody] ValidateWktContourRequestBody model, CancellationToken cancellationToken)
     {
         var request = new ValidateWktContourRequest(model.Contour ?? "");
         var response = await _mediator.Send(request, cancellationToken);
