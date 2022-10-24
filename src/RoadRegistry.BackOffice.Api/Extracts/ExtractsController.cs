@@ -118,7 +118,7 @@ public class ExtractsController : ControllerBase
 
     [HttpPost("downloadrequests/byfile")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<ActionResult> PostDownloadRequestByFile([FromBody] DownloadExtractByFileRequestBody body, CancellationToken cancellationToken)
+    public async Task<ActionResult> PostDownloadRequestByFile(DownloadExtractByFileRequestBody body, CancellationToken cancellationToken)
     {
         try
         {

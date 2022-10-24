@@ -455,7 +455,7 @@ export default Vue.extend({
             {
               const requestData: RoadRegistry.DownloadExtractByFileRequest = {
                 buffer,
-                file: this.contourFlow.files,
+                files: this.contourFlow.files,
                 description: this.contourFlow.description,
               };
               response = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
