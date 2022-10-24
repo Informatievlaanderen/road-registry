@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Extracts;
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -124,19 +125,22 @@ public class ExtractsController : ControllerBase
         try
         {
             DownloadExtractByFileRequest request = new(
-                BuildRequestItem(body.Files, ".shp"),
-                BuildRequestItem(body.Files, ".shx"),
-                BuildRequestItem(body.Files, ".prj"),
+                BuildRequestItem(".shp"),
+                BuildRequestItem(".shx"),
+                BuildRequestItem(".prj"),
                 body.Buffer,
                 body.Description);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
 
-            DownloadExtractByFileRequestItem BuildRequestItem(IFormFileCollection bodyFiles, string extension)
+            DownloadExtractByFileRequestItem BuildRequestItem(string extension)
             {
                 var file = body.Files.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
                            ?? throw new ArgumentNullException();
-                return new DownloadExtractByFileRequestItem(file.FileName, file.OpenReadStream(), ContentType.Parse(file.ContentType));
+                var fileStream = new MemoryStream();
+                file.CopyTo(fileStream);
+                fileStream.Position = 0;
+                return new DownloadExtractByFileRequestItem(file.FileName, fileStream, ContentType.Parse(file.ContentType));
             }
         }
         catch (DownloadExtractByFileNotFoundException)

@@ -350,7 +350,7 @@ export default Vue.extend({
 
       return (
         requiredFileExtensions.filter((ext) => {
-          let file = files.find((file) => file.name.endsWith(ext));
+          let file = files.find((file) => file.name.toLowerCase().endsWith(ext));
           if (!file) {
             return false;
           }
