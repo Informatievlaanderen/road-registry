@@ -1,5 +1,16 @@
 <template>
   <div>
+    <vl-column v-if="alertInfo.title">
+      <vl-alert
+        :title="alertInfo.title"
+        :mod-success="alertInfo.success"
+        :mod-warning="alertInfo.warning"
+        :mod-error="alertInfo.error"
+      >
+        <p>{{ alertInfo.text }}</p>
+      </vl-alert>
+    </vl-column>
+
     <div class="vl-typography">
       <h2>Wizard extract downloaden</h2>
       <p>Volg de stappen hieronder om een extract van het Wegenregister te downloaden.</p>
@@ -145,9 +156,6 @@
                 @upload-file-added-manually="uploadFileAdded"
                 @upload-removed-file="uploadFileRemoved"
               />
-              <vl-alert v-if="contourFlow.files.length > 0 && !contourFlowHasValidInput" title="Ongeldige bestanden" mod-error>
-                <p>Gelieve precies één .shp, .shx en ,prj bestand op te laden</p>
-              </vl-alert>
               <p>Laad een shapefile op voor een (multi)polygoon in coördinatensysteem Lambert 1972.</p>
             </div>
           </template>
@@ -311,6 +319,7 @@ export default Vue.extend({
           maxLength: 250,
         },
       },
+      isCheckingWkt: false as Boolean,
       isUploading: false as Boolean,
       debouncedCheckIfContourWktIsValid: () => {},
     };
@@ -365,6 +374,39 @@ export default Vue.extend({
       }
 
       throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
+    },
+    alertInfo(): { success: boolean; warning: boolean; error: boolean; title: string; text: string } {
+      const status = {
+        success: false,
+        warning: false,
+        error: false,
+        title: "",
+        text: "",
+      };
+
+      if (
+        this.contourFlow.contourType === "wkt" &&
+        this.contourFlow.wkt &&
+        !this.contourFlow.wktIsValid &&
+        !this.isCheckingWkt
+      ) {
+        status.title = "Ongeldige contour";
+        status.text =
+          "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
+        status.error = true;
+      }
+
+      if (
+        this.contourFlow.contourType === "zip" &&
+        this.contourFlow.files.length > 0 && !this.contourFlowHasValidInput
+      ) {
+        status.title = "Ongeldige contour";
+        status.text =
+          "Gelieve precies één .shp, .shx en ,prj bestand op te laden.";
+        status.error = true;
+      }
+
+      return status;
     },
   },
   created() {
@@ -463,6 +505,7 @@ export default Vue.extend({
     },
     async contourFlowWktChanged() {
       this.contourFlow.wktIsValid = false;
+      this.isCheckingWkt = true;
       this.debouncedCheckIfContourWktIsValid();
     },
     async checkIfContourWktIsValid(): Promise<void> {
@@ -472,12 +515,16 @@ export default Vue.extend({
         return;
       }
 
+      this.isCheckingWkt = true;
+
       try {
         await BackOfficeApi.Information.postValidateWkt(this.contourFlow.wkt);
         this.contourFlow.wktIsValid = true;
       } catch (err) {
         console.error("WKT is invalid", err);
         this.contourFlow.wktIsValid = false;
+      } finally {
+        this.isCheckingWkt = false;
       }
     },
   },
