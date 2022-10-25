@@ -3,13 +3,14 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 using System.Text;
 using Abstractions;
 using Abstractions.Extracts;
-using Azure.Core;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using FluentValidation;
+using FluentValidation.Results;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using NetTopologySuite.Geometries;
+using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public class DownloadExtractByFileRequestHandler : EndpointRequestHandler<DownloadExtractByFileRequest, DownloadExtractByFileResponse>
 {
@@ -19,21 +20,76 @@ public class DownloadExtractByFileRequestHandler : EndpointRequestHandler<Downlo
         CommandHandlerDispatcher dispatcher,
         ILogger<DownloadExtractByContourRequestHandler> logger) : base(dispatcher, logger)
     {
-        _encoding = Encoding.GetEncoding(1252);
+        _encoding = WellKnownEncodings.WindowsAnsi;
+    }
+
+    private async Task<RoadNetworkExtractGeometry> GetRoadNetworkExtractGeometryFromShapeAsync(DownloadExtractByFileRequestItem shapeFile, int buffer, CancellationToken cancellationToken)
+    {
+        var validationFailures = Enumerable.Empty<ValidationFailure>().ToList();
+
+        using (var reader = new BinaryReader(shapeFile.ReadStream, _encoding))
+        {
+            ShapeFileHeader header = null;
+
+            var polygons = new List<Polygon>();
+
+            try
+            {
+                header = ShapeFileHeader.Read(reader);
+            }
+            catch (Exception exception)
+            {
+                AddValidationFailure($"Could not read header from shape file: '{exception.Message}'");
+            }
+
+            if (header is not null)
+            {
+                if (new[] { ShapeType.Polygon, ShapeType.PolygonM }.Contains(header.ShapeType))
+                {
+                    using (var records = header.CreateShapeRecordEnumerator(reader))
+                    {
+                        while (records.MoveNext() && records.Current != null)
+                            switch (records.Current.Content)
+                            {
+                                case PolygonShapeContent polygonShapeContent:
+                                    polygons.AddRange(GeometryTranslator.ToGeometryMultiPolygon(polygonShapeContent.Shape).Geometries.Cast<Polygon>());
+
+                                    break;
+
+                                default:
+                                    AddValidationFailure("Geometry type must be polygon or multipolygon");
+
+                                    break;
+                            }
+                    }
+                    if (!polygons.Any())
+                    {
+                        AddValidationFailure("Invalid shape file. Does not contain any valid polygon geometries.");
+                    }
+                }
+                else
+                {
+                    AddValidationFailure("Geometry type must be polygon or multipolygon");
+                }
+            }
+
+            if (validationFailures.Any()) throw new ValidationException("Shape file content contains some errors", validationFailures);
+
+            return GeometryTranslator.TranslateToRoadNetworkExtractGeometry(new MultiPolygon(polygons.ToArray()), buffer);
+        }
+
+        void AddValidationFailure(string errorMessage)
+        {
+            var vf = new ValidationFailure(nameof(DownloadExtractByFileRequest.ShpFile), errorMessage);
+            validationFailures.Add(vf);
+            _logger.LogWarning("Added validation failure while processing current shape file record: '{ValidationFailureMessage}'", vf.ErrorMessage);
+        }
     }
 
     public override async Task<DownloadExtractByFileResponse> HandleAsync(DownloadExtractByFileRequest request, CancellationToken cancellationToken)
     {
         var downloadId = new DownloadId(Guid.NewGuid());
         var randomExternalRequestId = Guid.NewGuid().ToString("N");
-
-		//TODO-rik validate PRJ in validator
-        //using (var reader = new StreamReader(stream, _encoding))
-        //{
-        //    var projectionFormat = ProjectionFormat.Read(reader);
-        //    if (!projectionFormat.IsBelgeLambert1972()) problems += entry.ProjectionFormatInvalid();
-        //}
-
 
         var contour = await GetRoadNetworkExtractGeometryFromShapeAsync(request.ShpFile, request.Buffer, cancellationToken);
 
@@ -48,52 +104,5 @@ public class DownloadExtractByFileRequestHandler : EndpointRequestHandler<Downlo
         await Dispatcher(message, cancellationToken);
 
         return new DownloadExtractByFileResponse(downloadId);
-    }
-
-    private async Task<RoadNetworkExtractGeometry> GetRoadNetworkExtractGeometryFromShapeAsync(DownloadExtractByFileRequestItem shapeFile, int buffer, CancellationToken cancellationToken)
-    {
-        using (var reader = new BinaryReader(shapeFile.ReadStream, _encoding))
-        {
-            ShapeFileHeader header = null;
-            try
-            {
-                header = ShapeFileHeader.Read(reader);
-            }
-            catch (Exception exception)
-            {
-                //problems += entry.HasShapeHeaderFormatError(exception);
-            }
-
-            var polygons = new List<NetTopologySuite.Geometries.Polygon>();
-
-            if (header != null)
-                using (var records = header.CreateShapeRecordEnumerator(reader))
-                {
-                    while(records.MoveNext() && records.Current != null)
-                    {
-                        var shape = records.Current.Content;
-                        //TODO-rik hoe komt een MPolygon hier binnen?
-                        if (shape is PolygonShapeContent polygonShapeContent)
-                        {
-                            var polygon = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPolygon(polygonShapeContent.Shape);
-                            polygons.Add(polygon);
-                            continue;
-                        }
-
-                        throw new InvalidOperationException();
-
-                        //var (recordProblems, recordContext) = _recordValidator.Validate(entry, records, context);
-                        //problems += recordProblems;
-                        //context = recordContext;
-                    }
-                }
-
-            if (!polygons.Any())
-            {
-                //TODO-rik throw err
-            }
-
-            return GeometryTranslator.TranslateToRoadNetworkExtractGeometry(new MultiPolygon(polygons.ToArray()), buffer);
-        }
     }
 }

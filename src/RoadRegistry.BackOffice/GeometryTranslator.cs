@@ -38,6 +38,26 @@ public static class GeometryTranslator
         }.SingleOrDefault(value => !ReferenceEquals(value, null));
     }
 
+    public static NetTopologySuite.Geometries.MultiPolygon ToGeometryMultiPolygon(Be.Vlaanderen.Basisregisters.Shaperon.Polygon polygon)
+    {
+        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiPolygon(polygon);
+    }
+
+    public static NetTopologySuite.Geometries.Polygon ToGeometryPolygon(Be.Vlaanderen.Basisregisters.Shaperon.Polygon polygon)
+    {
+        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPolygon(polygon);
+    }
+
+    public static NetTopologySuite.Geometries.MultiLineString ToGeometryMultiLineString(Be.Vlaanderen.Basisregisters.Shaperon.PolyLineM polyLineM)
+    {
+        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(polyLineM);
+    }
+
+    public static NetTopologySuite.Geometries.Point ToGeometryPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
+    {
+        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(point);
+    }
+
     public static Point Translate(RoadNodeGeometry geometry)
     {
         if (geometry == null) throw new ArgumentNullException(nameof(geometry));

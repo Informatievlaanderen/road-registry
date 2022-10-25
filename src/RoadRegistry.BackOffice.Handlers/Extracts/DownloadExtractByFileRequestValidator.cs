@@ -15,6 +15,10 @@ public sealed class DownloadExtractByFileRequestValidator : AbstractValidator<Do
         RuleFor(c => c.PrjFile)
             .SetValidator(new DownloadExtractByFileRequestItemValidator());
 
+        RuleFor(c => c.PrjFile)
+            .Must(BeLambert1972ProjectionFormat)
+            .WithMessage("Projection format must be Lambert 1972");
+
         RuleFor(c => c.Buffer)
             .InclusiveBetween(0, 100).WithMessage("'Buffer' must be a value between 0 and 100");
 
@@ -27,6 +31,15 @@ public sealed class DownloadExtractByFileRequestValidator : AbstractValidator<Do
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();
+
         return response;
+    }
+
+    private bool BeLambert1972ProjectionFormat(DownloadExtractByFileRequestItem item)
+    {
+        using var reader = new StreamReader(item.ReadStream, WellKnownEncodings.WindowsAnsi);
+        var projectionFormat = ProjectionFormat.Read(reader);
+
+        return projectionFormat.IsBelgeLambert1972();
     }
 }
