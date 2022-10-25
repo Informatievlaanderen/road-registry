@@ -19,6 +19,7 @@ public class AddRoadSegmentToNationalRoadValidatorTests
     }
 
     public Fixture Fixture { get; }
+    public AddRoadSegmentToNationalRoadValidator Validator { get; }
 
     [Fact]
     public void Ident2MustBeWithinDomain()
@@ -33,8 +34,6 @@ public class AddRoadSegmentToNationalRoadValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
     }
-
-    public AddRoadSegmentToNationalRoadValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

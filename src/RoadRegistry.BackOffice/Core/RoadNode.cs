@@ -26,20 +26,8 @@ public class RoadNode
         _segments = segments;
     }
 
-    public RoadNode ConnectWith(RoadSegmentId segment)
-    {
-        return new RoadNode(Id, Type, Geometry, _segments.Add(segment));
-    }
-
-    public RoadNode DisconnectFrom(RoadSegmentId segment)
-    {
-        return new RoadNode(Id, Type, Geometry, _segments.Remove(segment));
-    }
-
     public Point Geometry { get; }
-
     public RoadNodeId Id { get; }
-
     public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
 
     public IReadOnlyCollection<RoadNodeType> SupportedRoadNodeTypes
@@ -56,6 +44,16 @@ public class RoadNode
     }
 
     public RoadNodeType Type { get; }
+
+    public RoadNode ConnectWith(RoadSegmentId segment)
+    {
+        return new RoadNode(Id, Type, Geometry, _segments.Add(segment));
+    }
+
+    public RoadNode DisconnectFrom(RoadSegmentId segment)
+    {
+        return new RoadNode(Id, Type, Geometry, _segments.Remove(segment));
+    }
 
     public Problems VerifyTypeMatchesConnectedSegmentCount(IRoadNetworkView view, IRequestedChangeIdentityTranslator translator)
     {

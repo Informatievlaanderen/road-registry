@@ -34,21 +34,6 @@ public class ZipArchiveShapeEntryTranslatorTests
         );
     }
 
-    private class CollectShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
-    {
-        public ShapeRecord[] Collected { get; private set; }
-
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
-        {
-            var collected = new List<ShapeRecord>();
-            while (records.MoveNext()) collected.Add(records.Current);
-
-            Collected = collected.ToArray();
-
-            return changes;
-        }
-    }
-
     [Fact]
     public void EncodingCanNotBeNull()
     {
@@ -56,21 +41,6 @@ public class ZipArchiveShapeEntryTranslatorTests
             () => new ZipArchiveShapeEntryTranslator(
                 null,
                 new FakeShapeRecordTranslator()));
-    }
-
-    private class FakeShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
-    {
-        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
-
-        public FakeShapeRecordTranslator(Func<TranslatedChanges, TranslatedChanges> translation = null)
-        {
-            _translation = translation ?? (changes => changes);
-        }
-
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
-        {
-            return _translation(changes);
-        }
     }
 
     [Fact]
@@ -191,5 +161,35 @@ public class ZipArchiveShapeEntryTranslatorTests
             () => new ZipArchiveShapeEntryTranslator(
                 Encoding.Default,
                 null));
+    }
+
+    private class CollectShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
+    {
+        public ShapeRecord[] Collected { get; private set; }
+
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
+        {
+            var collected = new List<ShapeRecord>();
+            while (records.MoveNext()) collected.Add(records.Current);
+
+            Collected = collected.ToArray();
+
+            return changes;
+        }
+    }
+
+    private class FakeShapeRecordTranslator : IZipArchiveShapeRecordsTranslator
+    {
+        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
+
+        public FakeShapeRecordTranslator(Func<TranslatedChanges, TranslatedChanges> translation = null)
+        {
+            _translation = translation ?? (changes => changes);
+        }
+
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
+        {
+            return _translation(changes);
+        }
     }
 }

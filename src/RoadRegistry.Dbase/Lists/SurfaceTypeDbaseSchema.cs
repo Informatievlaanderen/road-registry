@@ -29,6 +29,5 @@ public class SurfaceTypeDbaseSchema : DbaseSchema
 
     public DbaseField DEFTYPE => Fields[2];
     public DbaseField LBLTYPE => Fields[1];
-
     public DbaseField TYPE => Fields[0];
 }

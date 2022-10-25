@@ -6,8 +6,8 @@ using System.Collections.Generic;
 public class EventRecorder
 {
     private readonly List<object> _recorded = new();
-
     public bool HasRecordedEvents => _recorded.Count != 0;
+    public object[] RecordedEvents => _recorded.ToArray();
 
     public void Record(object @event)
     {
@@ -16,8 +16,6 @@ public class EventRecorder
 
         _recorded.Add(@event);
     }
-
-    public object[] RecordedEvents => _recorded.ToArray();
 
     public void Reset()
     {

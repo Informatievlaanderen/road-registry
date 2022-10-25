@@ -57,6 +57,48 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
         _context = ZipArchiveValidationContext.Empty;
     }
 
+    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+    {
+        get
+        {
+            yield return new object[]
+            {
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.WS_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.RECORDTYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.WB_OIDN.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.WB_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.BREEDTE.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.BREEDTE
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.VANPOSITIE
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.TOTPOSITIE
+            };
+        }
+    }
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -120,48 +162,6 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
             result,
             new FileProblemComparer());
         Assert.Same(initialContext, context);
-    }
-
-    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
-    {
-        get
-        {
-            yield return new object[]
-            {
-                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
-                RoadSegmentWidthChangeDbaseRecord.Schema.WS_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
-                RoadSegmentWidthChangeDbaseRecord.Schema.RECORDTYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.WB_OIDN.Reset()),
-                RoadSegmentWidthChangeDbaseRecord.Schema.WB_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.BREEDTE.Reset()),
-                RoadSegmentWidthChangeDbaseRecord.Schema.BREEDTE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
-                RoadSegmentWidthChangeDbaseRecord.Schema.VANPOSITIE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
-                RoadSegmentWidthChangeDbaseRecord.Schema.TOTPOSITIE
-            };
-        }
     }
 
     [Theory]
@@ -267,7 +267,6 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
             result);
         Assert.Same(initialContext, context);
     }
-
 
     [Fact]
     public void ValidateWithRecordsThatHaveZeroAsAttributeIdentifierReturnsExpectedResult()

@@ -24,7 +24,6 @@ public abstract class ControllerTests<TController> where TController : Controlle
     protected TController Controller { get; init; }
     protected RoadNetworkExtractUploadsBlobClient ExtractUploadBlobClient { get; }
     protected RoadNetworkFeatureCompareBlobClient FeatureCompareBlobClient { get; }
-
     protected IMediator Mediator { get; }
     protected IStreamStore StreamStore { get; }
     protected RoadNetworkUploadsBlobClient UploadBlobClient { get; }

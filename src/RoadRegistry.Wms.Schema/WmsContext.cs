@@ -16,13 +16,13 @@ public class WmsContext : RunnerDbContext<WmsContext>
     {
     }
 
-    protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
-    }
-
     public override string ProjectionStateSchema => WellknownSchemas.WmsMetaSchema;
 
     // public DbSet<RoadSegmentDenormRecord> RoadSegments { get; set; }
     public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
+
+    protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
+    }
 }

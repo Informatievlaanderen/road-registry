@@ -32,11 +32,6 @@ public class ReactionScenarioBuilder :
         return new ReactionScenarioBuilder(_givens.Concat(events).ToArray(), _thens);
     }
 
-    public IReactionScenarioGivenNoneStateBuilder GivenNone()
-    {
-        return new ReactionScenarioBuilder(Array.Empty<RecordedEvent>(), _thens);
-    }
-
     IReactionScenarioThenStateBuilder IReactionScenarioGivenNoneStateBuilder.Then(IEnumerable<RecordedEvent> events)
     {
         if (events == null) throw new ArgumentNullException(nameof(events));
@@ -63,5 +58,10 @@ public class ReactionScenarioBuilder :
     IReactionScenarioThenNoneStateBuilder IReactionScenarioGivenStateBuilder.ThenNone()
     {
         return new ReactionScenarioBuilder(_givens, Array.Empty<RecordedEvent>());
+    }
+
+    public IReactionScenarioGivenNoneStateBuilder GivenNone()
+    {
+        return new ReactionScenarioBuilder(Array.Empty<RecordedEvent>(), _thens);
     }
 }

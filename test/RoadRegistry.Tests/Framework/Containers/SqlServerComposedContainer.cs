@@ -27,14 +27,6 @@ public class SqlServerComposedContainer : ISqlServerDatabase
         ;
     }
 
-    private SqlConnectionStringBuilder CreateConnectionStringBuilder(string database)
-    {
-        return new SqlConnectionStringBuilder(_builder.ConnectionString)
-        {
-            InitialCatalog = database
-        };
-    }
-
     public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
     {
         var database = $"DB-{_serviceName}-{Interlocked.Increment(ref _db)}";
@@ -54,14 +46,6 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
         }
 
         return CreateConnectionStringBuilder(database);
-    }
-
-    private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
-    {
-        return new SqlConnectionStringBuilder(_builder.ConnectionString)
-        {
-            InitialCatalog = "master"
-        };
     }
 
     public Task DisposeAsync()
@@ -105,5 +89,21 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
             await Task.Delay(result);
             result = await WaitUntilAvailable(attempt++);
         }
+    }
+
+    private SqlConnectionStringBuilder CreateConnectionStringBuilder(string database)
+    {
+        return new SqlConnectionStringBuilder(_builder.ConnectionString)
+        {
+            InitialCatalog = database
+        };
+    }
+
+    private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
+    {
+        return new SqlConnectionStringBuilder(_builder.ConnectionString)
+        {
+            InitialCatalog = "master"
+        };
     }
 }

@@ -251,7 +251,6 @@ public class RoadSegmentSurfaceChangeDbaseRecordsTranslatorTests : IDisposable
         Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
     }
 
-
     [Fact]
     public void TranslateWithRecordsForRemoveRoadSegmentReturnsExpectedResult()
     {

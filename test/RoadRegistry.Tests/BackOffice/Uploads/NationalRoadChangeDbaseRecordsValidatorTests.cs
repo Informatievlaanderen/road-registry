@@ -45,6 +45,36 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
         _context = ZipArchiveValidationContext.Empty;
     }
 
+    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+    {
+        get
+        {
+            yield return new object[]
+            {
+                new Action<NationalRoadChangeDbaseRecord>(r => r.NW_OIDN.Reset()),
+                NationalRoadChangeDbaseRecord.Schema.NW_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<NationalRoadChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
+                NationalRoadChangeDbaseRecord.Schema.RECORDTYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<NationalRoadChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
+                NationalRoadChangeDbaseRecord.Schema.WS_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<NationalRoadChangeDbaseRecord>(r => r.IDENT2.Reset()),
+                NationalRoadChangeDbaseRecord.Schema.IDENT2
+            };
+        }
+    }
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -102,36 +132,6 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
             result,
             new FileProblemComparer());
         Assert.Same(_context, context);
-    }
-
-    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
-    {
-        get
-        {
-            yield return new object[]
-            {
-                new Action<NationalRoadChangeDbaseRecord>(r => r.NW_OIDN.Reset()),
-                NationalRoadChangeDbaseRecord.Schema.NW_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<NationalRoadChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
-                NationalRoadChangeDbaseRecord.Schema.RECORDTYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<NationalRoadChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
-                NationalRoadChangeDbaseRecord.Schema.WS_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<NationalRoadChangeDbaseRecord>(r => r.IDENT2.Reset()),
-                NationalRoadChangeDbaseRecord.Schema.IDENT2
-            };
-        }
     }
 
     [Theory]

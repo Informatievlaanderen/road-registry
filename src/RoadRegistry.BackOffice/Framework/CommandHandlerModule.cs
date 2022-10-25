@@ -14,6 +14,8 @@ public abstract class CommandHandlerModule
         _handlers = new List<CommandHandler>();
     }
 
+    public CommandHandler[] Handlers => _handlers.ToArray();
+
     protected ICommandHandlerBuilder<TCommand> For<TCommand>()
     {
         return new CommandHandlerBuilder<TCommand>(handler =>
@@ -36,6 +38,4 @@ public abstract class CommandHandlerModule
                 (message, ct) => handler(new Command<TCommand>(message), ct)
             ));
     }
-
-    public CommandHandler[] Handlers => _handlers.ToArray();
 }

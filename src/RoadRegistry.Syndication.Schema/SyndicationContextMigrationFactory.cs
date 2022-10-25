@@ -11,15 +11,15 @@ public class SyndicationContextMigrationFactory : RunnerDbContextMigrationFactor
     {
     }
 
-    protected override SyndicationContext CreateContext(DbContextOptions<SyndicationContext> migrationContextOptions)
-    {
-        return new SyndicationContext(migrationContextOptions);
-    }
-
     private static MigrationHistoryConfiguration HistoryConfiguration =>
         new()
         {
             Schema = WellknownSchemas.SyndicationSchema,
             Table = MigrationTables.Syndication
         };
+
+    protected override SyndicationContext CreateContext(DbContextOptions<SyndicationContext> migrationContextOptions)
+    {
+        return new SyndicationContext(migrationContextOptions);
+    }
 }

@@ -57,6 +57,48 @@ public class RoadSegmentSurfaceChangeDbaseRecordsValidatorTests : IDisposable
         _context = ZipArchiveValidationContext.Empty;
     }
 
+    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+    {
+        get
+        {
+            yield return new object[]
+            {
+                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
+                RoadSegmentSurfaceChangeDbaseRecord.Schema.WS_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
+                RoadSegmentSurfaceChangeDbaseRecord.Schema.RECORDTYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WV_OIDN.Reset()),
+                RoadSegmentSurfaceChangeDbaseRecord.Schema.WV_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TYPE.Reset()),
+                RoadSegmentSurfaceChangeDbaseRecord.Schema.TYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
+                RoadSegmentSurfaceChangeDbaseRecord.Schema.VANPOSITIE
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
+                RoadSegmentSurfaceChangeDbaseRecord.Schema.TOTPOSITIE
+            };
+        }
+    }
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -120,48 +162,6 @@ public class RoadSegmentSurfaceChangeDbaseRecordsValidatorTests : IDisposable
             result,
             new FileProblemComparer());
         Assert.Same(initialContext, context);
-    }
-
-    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
-    {
-        get
-        {
-            yield return new object[]
-            {
-                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
-                RoadSegmentSurfaceChangeDbaseRecord.Schema.WS_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
-                RoadSegmentSurfaceChangeDbaseRecord.Schema.RECORDTYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.WV_OIDN.Reset()),
-                RoadSegmentSurfaceChangeDbaseRecord.Schema.WV_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TYPE.Reset()),
-                RoadSegmentSurfaceChangeDbaseRecord.Schema.TYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
-                RoadSegmentSurfaceChangeDbaseRecord.Schema.VANPOSITIE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentSurfaceChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
-                RoadSegmentSurfaceChangeDbaseRecord.Schema.TOTPOSITIE
-            };
-        }
     }
 
     [Theory]

@@ -8,31 +8,6 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 
 public static class EndPointTypeExtensions
 {
-    private sealed class AcceptTypeComparer : IComparer<string>
-    {
-        public int Compare(string? x, string? y)
-        {
-            if (x == null || y == null) return DefaultCompare(x, y);
-
-            var problemResult = 0;
-            if (ContainsProblem(x)) problemResult -= 1;
-
-            if (ContainsProblem(y)) problemResult += 1;
-
-            return problemResult != 0 ? problemResult : string.CompareOrdinal(x, y);
-        }
-
-        private static bool ContainsProblem(string value)
-        {
-            return value.Contains("problem+", StringComparison.OrdinalIgnoreCase);
-        }
-
-        private static int DefaultCompare(string? x, string? y)
-        {
-            return string.CompareOrdinal(x, y);
-        }
-    }
-
     public static MediaTypeCollection Consumes(this EndpointType endpointType)
     {
         return endpointType
@@ -107,5 +82,30 @@ public static class EndPointTypeExtensions
                     collection.Add(type);
                     return collection;
                 });
+    }
+
+    private sealed class AcceptTypeComparer : IComparer<string>
+    {
+        public int Compare(string? x, string? y)
+        {
+            if (x == null || y == null) return DefaultCompare(x, y);
+
+            var problemResult = 0;
+            if (ContainsProblem(x)) problemResult -= 1;
+
+            if (ContainsProblem(y)) problemResult += 1;
+
+            return problemResult != 0 ? problemResult : string.CompareOrdinal(x, y);
+        }
+
+        private static bool ContainsProblem(string value)
+        {
+            return value.Contains("problem+", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static int DefaultCompare(string? x, string? y)
+        {
+            return string.CompareOrdinal(x, y);
+        }
     }
 }

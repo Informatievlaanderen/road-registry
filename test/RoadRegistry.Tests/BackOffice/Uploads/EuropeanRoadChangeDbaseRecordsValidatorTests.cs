@@ -45,6 +45,36 @@ public class EuropeanRoadChangeDbaseRecordsValidatorTests : IDisposable
         _context = ZipArchiveValidationContext.Empty;
     }
 
+    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+    {
+        get
+        {
+            yield return new object[]
+            {
+                new Action<EuropeanRoadChangeDbaseRecord>(r => r.EU_OIDN.Reset()),
+                EuropeanRoadChangeDbaseRecord.Schema.EU_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<EuropeanRoadChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
+                EuropeanRoadChangeDbaseRecord.Schema.RECORDTYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<EuropeanRoadChangeDbaseRecord>(r => r.EUNUMMER.Reset()),
+                EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER
+            };
+
+            yield return new object[]
+            {
+                new Action<EuropeanRoadChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
+                EuropeanRoadChangeDbaseRecord.Schema.WS_OIDN
+            };
+        }
+    }
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -154,36 +184,6 @@ public class EuropeanRoadChangeDbaseRecordsValidatorTests : IDisposable
             ),
             result);
         Assert.Same(_context, context);
-    }
-
-    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
-    {
-        get
-        {
-            yield return new object[]
-            {
-                new Action<EuropeanRoadChangeDbaseRecord>(r => r.EU_OIDN.Reset()),
-                EuropeanRoadChangeDbaseRecord.Schema.EU_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<EuropeanRoadChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
-                EuropeanRoadChangeDbaseRecord.Schema.RECORDTYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<EuropeanRoadChangeDbaseRecord>(r => r.EUNUMMER.Reset()),
-                EuropeanRoadChangeDbaseRecord.Schema.EUNUMMER
-            };
-
-            yield return new object[]
-            {
-                new Action<EuropeanRoadChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
-                EuropeanRoadChangeDbaseRecord.Schema.WS_OIDN
-            };
-        }
     }
 
     [Theory]

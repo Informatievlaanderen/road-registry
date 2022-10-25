@@ -20,6 +20,9 @@ public class VerifiableChange
         _problems = problems;
     }
 
+    public bool HasErrors => _problems.OfType<Error>().Any();
+    public bool HasWarnings => _problems.OfType<Warning>().Any();
+
     public IVerifiedChange AsVerifiedChange()
     {
         IVerifiedChange change;
@@ -29,9 +32,6 @@ public class VerifiableChange
             change = new AcceptedChange(_requestedChange, _problems);
         return change;
     }
-
-    public bool HasErrors => _problems.OfType<Error>().Any();
-    public bool HasWarnings => _problems.OfType<Warning>().Any();
 
     public VerifiableChange VerifyAfter(AfterVerificationContext context)
     {

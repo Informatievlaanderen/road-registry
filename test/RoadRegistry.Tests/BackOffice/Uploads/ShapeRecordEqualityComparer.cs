@@ -45,6 +45,19 @@ public class ShapeRecordEqualityComparer : IEqualityComparer<ShapeRecord>
             return false;
         }
 
+        public int GetHashCode(ShapeContent instance)
+        {
+            if (instance is NullShapeContent)
+                return 0;
+            if (instance is PointShapeContent pointContent)
+                return pointContent.ContentLength.GetHashCode() ^ pointContent.ShapeType.GetHashCode() ^
+                       pointContent.Shape.GetHashCode();
+            if (instance is PolyLineMShapeContent lineContent)
+                return lineContent.ContentLength.GetHashCode() ^ lineContent.ShapeType.GetHashCode() ^
+                       lineContent.Shape.GetHashCode();
+            return -1;
+        }
+
         private bool Equals(PointShapeContent left, PointShapeContent right)
         {
             var sameContentLength = left.ContentLength.Equals(right.ContentLength);
@@ -59,19 +72,6 @@ public class ShapeRecordEqualityComparer : IEqualityComparer<ShapeRecord>
             var sameShapeType = left.ShapeType.Equals(right.ShapeType);
             var sameShape = left.Shape.Equals(right.Shape);
             return sameContentLength && sameShapeType && sameShape;
-        }
-
-        public int GetHashCode(ShapeContent instance)
-        {
-            if (instance is NullShapeContent)
-                return 0;
-            if (instance is PointShapeContent pointContent)
-                return pointContent.ContentLength.GetHashCode() ^ pointContent.ShapeType.GetHashCode() ^
-                       pointContent.Shape.GetHashCode();
-            if (instance is PolyLineMShapeContent lineContent)
-                return lineContent.ContentLength.GetHashCode() ^ lineContent.ShapeType.GetHashCode() ^
-                       lineContent.Shape.GetHashCode();
-            return -1;
         }
     }
 }

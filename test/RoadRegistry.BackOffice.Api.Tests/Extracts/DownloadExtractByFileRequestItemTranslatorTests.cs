@@ -11,13 +11,12 @@ using Microsoft.Extensions.Logging;
 public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
 {
     private const int ValidBuffer = 50;
-    private readonly DownloadExtractByFileRequestItemTranslator _translator;
-    private DownloadExtractByFileRequestItem _prjFilePolygon;
-    private DownloadExtractByFileRequestItem _shpFilePolygon;
-    private DownloadExtractByFileRequestItem _prjFilePoint;
-    private DownloadExtractByFileRequestItem _shpFilePoint;
-
     private readonly Encoding _encoding = Encoding.UTF8;
+    private readonly DownloadExtractByFileRequestItemTranslator _translator;
+    private DownloadExtractByFileRequestItem _prjFilePoint;
+    private DownloadExtractByFileRequestItem _prjFilePolygon;
+    private DownloadExtractByFileRequestItem _shpFilePoint;
+    private DownloadExtractByFileRequestItem _shpFilePolygon;
 
     public DownloadExtractByFileRequestItemTranslatorTests(ILogger<DownloadExtractByFileRequestItemTranslator> logger)
     {
@@ -32,6 +31,19 @@ public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
         await _shpFilePoint.ReadStream.DisposeAsync();
     }
 
+    public async Task InitializeAsync()
+    {
+        _prjFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.prj");
+        _shpFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.shp");
+        _prjFilePoint = await GetDownloadExtractByFileRequestItemFromResource("point.prj");
+        _shpFilePoint = await GetDownloadExtractByFileRequestItemFromResource("point.shp");
+    }
+
+    private async Task<DownloadExtractByFileRequestItem> GetDownloadExtractByFileRequestItemFromResource(string name)
+    {
+        return new DownloadExtractByFileRequestItem(name, await GetEmbeddedResourceStream(name), ContentType.Parse("application/octet-stream"));
+    }
+
     private async Task<MemoryStream> GetEmbeddedResourceStream(string name)
     {
         var sourceStream = new MemoryStream();
@@ -44,19 +56,6 @@ public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
         sourceStream.Position = 0;
 
         return sourceStream;
-    }
-
-    private async Task<DownloadExtractByFileRequestItem> GetDownloadExtractByFileRequestItemFromResource(string name)
-    {
-        return new DownloadExtractByFileRequestItem(name, await GetEmbeddedResourceStream(name), ContentType.Parse("application/octet-stream"));
-    }
-
-    public async Task InitializeAsync()
-    {
-        _prjFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.prj");
-        _shpFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.shp");
-        _prjFilePoint = await GetDownloadExtractByFileRequestItemFromResource("point.prj");
-        _shpFilePoint = await GetDownloadExtractByFileRequestItemFromResource("point.shp");
     }
 
     [Theory]
@@ -78,10 +77,14 @@ public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Translate_will_not_allow_invalid_geometry_type()
+    public async Task Translate_will_not_allow_empty_file()
     {
-        var act = () => Task.FromResult(_translator.Translate(_shpFilePoint, ValidBuffer));
-        await act.Should().ThrowAsync<ValidationException>();
+        var shpFileEmpty = await GetDownloadExtractByFileRequestItemFromResource("empty-polygon.shp");
+        using (shpFileEmpty.ReadStream)
+        {
+            var act = () => Task.FromResult(_translator.Translate(shpFileEmpty, ValidBuffer));
+            await act.Should().ThrowAsync<ValidationException>();
+        }
     }
 
     [Fact]
@@ -96,13 +99,9 @@ public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task Translate_will_not_allow_empty_file()
+    public async Task Translate_will_not_allow_invalid_geometry_type()
     {
-        var shpFileEmpty = await GetDownloadExtractByFileRequestItemFromResource("empty-polygon.shp");
-        using (shpFileEmpty.ReadStream)
-        {
-            var act = () => Task.FromResult(_translator.Translate(shpFileEmpty, ValidBuffer));
-            await act.Should().ThrowAsync<ValidationException>();
-        }
+        var act = () => Task.FromResult(_translator.Translate(_shpFilePoint, ValidBuffer));
+        await act.Should().ThrowAsync<ValidationException>();
     }
 }

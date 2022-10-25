@@ -11,7 +11,6 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly FeatureCompareMessagingOptions _messagingOptions;
     private readonly SqsQueueOptions _sqsQueueOptions;
-
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
     protected WhenMessageReceivedFixture(IMediator mediator, ISqsQueuePublisher sqsQueuePublisher, ISqsQueueConsumer sqsQueueConsumer, SqsQueueOptions sqsQueueOptions, ILoggerFactory loggerFactory)
@@ -34,6 +33,9 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
         _cancellationTokenSource = new CancellationTokenSource();
     }
 
+    protected abstract object[] MessageRequestCollection { get; }
+    public bool Result { get; set; }
+
     public async Task DisposeAsync()
     {
         await _backgroundService.StopAsync(_cancellationTokenSource.Token);
@@ -46,8 +48,4 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
 
         await _backgroundService.StartAsync(_cancellationTokenSource.Token);
     }
-
-    protected abstract object[] MessageRequestCollection { get; }
-
-    public bool Result { get; set; }
 }

@@ -9,7 +9,6 @@ public class ZipArchiveScenario<TContext> where TContext : DbContext
 {
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly IZipArchiveWriter<TContext> _writer;
-
     private TContext _context;
 
     public ZipArchiveScenario(RecyclableMemoryStreamManager manager, IZipArchiveWriter<TContext> writer)

@@ -35,7 +35,6 @@ public class GradeSeparatedJunctionDbaseRecord : DbaseRecord
     public DbaseInt32 BO_WS_OIDN { get; }
     public DbaseString LBLBGNORG { get; }
     public DbaseString LBLTYPE { get; }
-
     public DbaseInt32 OK_OIDN { get; }
     public DbaseInt32 ON_WS_OIDN { get; }
     public DbaseInt32 TYPE { get; }

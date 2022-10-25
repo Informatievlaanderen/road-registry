@@ -15,8 +15,8 @@ public class ModifyRoadNode : IRequestedChange
     }
 
     public Point Geometry { get; }
-
     public RoadNodeId Id { get; }
+    public RoadNodeType Type { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -49,8 +49,6 @@ public class ModifyRoadNode : IRequestedChange
             Geometry = GeometryTranslator.Translate(Geometry)
         };
     }
-
-    public RoadNodeType Type { get; }
 
     public Problems VerifyAfter(AfterVerificationContext context)
     {

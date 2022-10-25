@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Extracts;
@@ -13,9 +16,6 @@ using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]

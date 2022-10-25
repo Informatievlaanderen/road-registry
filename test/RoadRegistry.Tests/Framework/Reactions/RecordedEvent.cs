@@ -21,11 +21,8 @@ public class RecordedEvent
     }
 
     public object Event { get; }
-
     public Guid MessageId { get; }
-
     public object Metadata { get; }
-
     public StreamName Stream { get; }
 
     public RecordedEvent WithMessageId(Guid value)

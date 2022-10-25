@@ -22,6 +22,5 @@ public class RoadRegistryContext : IRoadRegistryContext
     public IOrganizations Organizations { get; }
     public IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
     public IRoadNetworkExtracts RoadNetworkExtracts { get; }
-
     public IRoadNetworks RoadNetworks { get; }
 }

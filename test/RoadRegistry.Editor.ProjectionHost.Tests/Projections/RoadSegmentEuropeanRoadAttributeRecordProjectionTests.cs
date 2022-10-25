@@ -59,7 +59,6 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjectionTests : IClassFixtu
         _fixture.CustomizeRoadSegmentRemovedFromEuropeanRoad();
     }
 
-
     [Fact]
     public Task When_adding_road_nodes()
     {

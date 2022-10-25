@@ -63,7 +63,6 @@ public class MunicipalityNisCodeWasDefined
     [DataMember(Name = "MunicipalityId", Order = 1)]
     public Guid MunicipalityId { get; set; }
 
-
     [DataMember(Name = "NisCode", Order = 2)]
     public string NisCode { get; set; }
 }
@@ -73,7 +72,6 @@ public class MunicipalityNisCodeWasCorrected
 {
     [DataMember(Name = "MunicipalityId", Order = 1)]
     public Guid MunicipalityId { get; set; }
-
 
     [DataMember(Name = "NisCode", Order = 2)]
     public string NisCode { get; set; }

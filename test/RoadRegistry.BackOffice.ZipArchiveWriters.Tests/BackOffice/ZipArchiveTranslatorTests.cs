@@ -15,243 +15,6 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveTranslatorTests
 {
-    private static Fixture CreateFixture()
-    {
-        var fixture = new Fixture();
-
-        fixture.CustomizeAttributeId();
-        fixture.CustomizeRoadSegmentId();
-        fixture.CustomizeEuropeanRoadNumber();
-        fixture.CustomizeNationalRoadNumber();
-        fixture.CustomizeGradeSeparatedJunctionId();
-        fixture.CustomizeGradeSeparatedJunctionType();
-        fixture.CustomizeNumberedRoadNumber();
-        fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
-        fixture.CustomizeRoadSegmentNumberedRoadDirection();
-        fixture.CustomizeRoadNodeId();
-        fixture.CustomizeRoadNodeType();
-        fixture.CustomizeRoadSegmentGeometryDrawMethod();
-        fixture.CustomizeOrganizationId();
-        fixture.CustomizeRoadSegmentMorphology();
-        fixture.CustomizeRoadSegmentStatus();
-        fixture.CustomizeRoadSegmentCategory();
-        fixture.CustomizeRoadSegmentAccessRestriction();
-        fixture.CustomizeRoadSegmentLaneCount();
-        fixture.CustomizeRoadSegmentLaneDirection();
-        fixture.CustomizeRoadSegmentPosition();
-        fixture.CustomizeRoadSegmentSurfaceType();
-        fixture.CustomizeRoadSegmentPosition();
-        fixture.CustomizeRoadSegmentWidth();
-        fixture.CustomizeRoadSegmentPosition();
-
-        fixture.Customize<EuropeanRoadChangeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new EuropeanRoadChangeDbaseRecord
-                {
-                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
-                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    EU_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    EUNUMMER = { Value = fixture.Create<EuropeanRoadNumber>().ToString() }
-                })
-                .OmitAutoProperties());
-
-        fixture.Customize<GradeSeparatedJunctionChangeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new GradeSeparatedJunctionChangeDbaseRecord
-                {
-                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
-                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    OK_OIDN = { Value = new GradeSeparatedJunctionId(random.Next(1, int.MaxValue)) },
-                    TYPE =
-                        { Value = (short)fixture.Create<GradeSeparatedJunctionType>().Translation.Identifier },
-                    BO_WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    ON_WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() }
-                })
-                .OmitAutoProperties());
-
-        fixture.Customize<NationalRoadChangeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new NationalRoadChangeDbaseRecord
-                {
-                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
-                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    NW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    IDENT2 = { Value = fixture.Create<NationalRoadNumber>().ToString() }
-                })
-                .OmitAutoProperties());
-
-        fixture.Customize<NumberedRoadChangeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new NumberedRoadChangeDbaseRecord
-                {
-                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
-                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    GW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    IDENT8 = { Value = fixture.Create<NumberedRoadNumber>().ToString() },
-                    RICHTING =
-                    {
-                        Value = (short)fixture.Create<RoadSegmentNumberedRoadDirection>().Translation
-                            .Identifier
-                    },
-                    VOLGNUMMER = { Value = fixture.Create<RoadSegmentNumberedRoadOrdinal>().ToInt32() }
-                })
-                .OmitAutoProperties());
-
-        fixture.Customize<RoadNodeChangeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new RoadNodeChangeDbaseRecord
-                {
-                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
-                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    WEGKNOOPID = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    TYPE = { Value = (short)fixture.Create<RoadNodeType>().Translation.Identifier }
-                })
-                .OmitAutoProperties());
-
-        fixture.Customize<Point>(customization =>
-            customization.FromFactory(generator =>
-                new Point(
-                    fixture.Create<double>(),
-                    fixture.Create<double>()
-                )
-            ).OmitAutoProperties()
-        );
-
-        fixture.Customize<RecordNumber>(customizer =>
-            customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
-
-        fixture.Customize<PointShapeContent>(customization =>
-            customization
-                .FromFactory(random => new PointShapeContent(
-                    GeometryTranslator.FromGeometryPoint(fixture.Create<Point>())))
-                .OmitAutoProperties()
-        );
-
-        fixture.Customize<LineString>(customization =>
-            customization.FromFactory(generator =>
-                new LineString(
-                    new CoordinateArraySequence(
-                        new[]
-                        {
-                            new Coordinate(0.0, 0.0),
-                            new Coordinate(1.0, 1.0)
-                        }),
-                    GeometryConfiguration.GeometryFactory
-                )
-            ).OmitAutoProperties()
-        );
-
-        fixture.Customize<MultiLineString>(customization =>
-            customization.FromFactory(generator =>
-                new MultiLineString(new[] { fixture.Create<LineString>() })
-            ).OmitAutoProperties()
-        );
-        fixture.Customize<PolyLineMShapeContent>(customization =>
-            customization
-                .FromFactory(random => new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(fixture.Create<MultiLineString>())))
-                .OmitAutoProperties()
-        );
-
-        fixture.Customize<RoadSegmentChangeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new RoadSegmentChangeDbaseRecord
-                {
-                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
-                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    WS_OIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue)) },
-                    METHODE =
-                    {
-                        Value = (short)fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier
-                    },
-                    BEHEERDER = { Value = fixture.Create<OrganizationId>() },
-                    MORFOLOGIE =
-                        { Value = (short)fixture.Create<RoadSegmentMorphology>().Translation.Identifier },
-                    STATUS = { Value = fixture.Create<RoadSegmentStatus>().Translation.Identifier },
-                    CATEGORIE = { Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier },
-                    B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
-                    LSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
-                    RSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
-                    TGBEP =
-                    {
-                        Value = (short)fixture.Create<RoadSegmentAccessRestriction>().Translation.Identifier
-                    },
-                    EVENTIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue)) }
-                })
-                .OmitAutoProperties());
-
-        fixture.Customize<RoadSegmentLaneChangeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new RoadSegmentLaneChangeDbaseRecord
-                {
-                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
-                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    RS_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    VANPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
-                    TOTPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
-                    AANTAL = { Value = (short)fixture.Create<RoadSegmentLaneCount>().ToInt32() },
-                    RICHTING =
-                    {
-                        Value = (short)fixture.Create<RoadSegmentLaneDirection>().Translation.Identifier
-                    }
-                })
-                .OmitAutoProperties());
-
-        fixture.Customize<RoadSegmentSurfaceChangeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new RoadSegmentSurfaceChangeDbaseRecord
-                {
-                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
-                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    WV_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    VANPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
-                    TOTPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
-                    TYPE = { Value = (short)fixture.Create<RoadSegmentSurfaceType>().Translation.Identifier }
-                })
-                .OmitAutoProperties());
-        fixture.Customize<RoadSegmentWidthChangeDbaseRecord>(
-            composer => composer
-                .FromFactory(random => new RoadSegmentWidthChangeDbaseRecord
-                {
-                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
-                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    WB_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
-                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
-                    VANPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
-                    TOTPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
-                    BREEDTE = { Value = (short)fixture.Create<RoadSegmentWidth>().ToInt32() }
-                })
-                .OmitAutoProperties());
-        return fixture;
-    }
-
-    [Fact]
-    public void EncodingCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => new ZipArchiveTranslator(null));
-    }
-
-    [Fact]
-    public void IsZipArchiveTranslator()
-    {
-        var sut = new ZipArchiveTranslator(Encoding.UTF8);
-
-        Assert.IsAssignableFrom<IZipArchiveTranslator>(sut);
-    }
-
-    [Fact]
-    public void TranslateArchiveCanNotBeNull()
-    {
-        var sut = new ZipArchiveTranslator(Encoding.UTF8);
-
-        Assert.Throws<ArgumentNullException>(() => sut.Translate(null));
-    }
-
     public static IEnumerable<object[]> TranslateCases
     {
         get
@@ -807,6 +570,243 @@ public class ZipArchiveTranslatorTests
                     )
             };
         }
+    }
+
+    private static Fixture CreateFixture()
+    {
+        var fixture = new Fixture();
+
+        fixture.CustomizeAttributeId();
+        fixture.CustomizeRoadSegmentId();
+        fixture.CustomizeEuropeanRoadNumber();
+        fixture.CustomizeNationalRoadNumber();
+        fixture.CustomizeGradeSeparatedJunctionId();
+        fixture.CustomizeGradeSeparatedJunctionType();
+        fixture.CustomizeNumberedRoadNumber();
+        fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
+        fixture.CustomizeRoadSegmentNumberedRoadDirection();
+        fixture.CustomizeRoadNodeId();
+        fixture.CustomizeRoadNodeType();
+        fixture.CustomizeRoadSegmentGeometryDrawMethod();
+        fixture.CustomizeOrganizationId();
+        fixture.CustomizeRoadSegmentMorphology();
+        fixture.CustomizeRoadSegmentStatus();
+        fixture.CustomizeRoadSegmentCategory();
+        fixture.CustomizeRoadSegmentAccessRestriction();
+        fixture.CustomizeRoadSegmentLaneCount();
+        fixture.CustomizeRoadSegmentLaneDirection();
+        fixture.CustomizeRoadSegmentPosition();
+        fixture.CustomizeRoadSegmentSurfaceType();
+        fixture.CustomizeRoadSegmentPosition();
+        fixture.CustomizeRoadSegmentWidth();
+        fixture.CustomizeRoadSegmentPosition();
+
+        fixture.Customize<EuropeanRoadChangeDbaseRecord>(
+            composer => composer
+                .FromFactory(random => new EuropeanRoadChangeDbaseRecord
+                {
+                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
+                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                    EU_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    EUNUMMER = { Value = fixture.Create<EuropeanRoadNumber>().ToString() }
+                })
+                .OmitAutoProperties());
+
+        fixture.Customize<GradeSeparatedJunctionChangeDbaseRecord>(
+            composer => composer
+                .FromFactory(random => new GradeSeparatedJunctionChangeDbaseRecord
+                {
+                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
+                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                    OK_OIDN = { Value = new GradeSeparatedJunctionId(random.Next(1, int.MaxValue)) },
+                    TYPE =
+                        { Value = (short)fixture.Create<GradeSeparatedJunctionType>().Translation.Identifier },
+                    BO_WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    ON_WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() }
+                })
+                .OmitAutoProperties());
+
+        fixture.Customize<NationalRoadChangeDbaseRecord>(
+            composer => composer
+                .FromFactory(random => new NationalRoadChangeDbaseRecord
+                {
+                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
+                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                    NW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    IDENT2 = { Value = fixture.Create<NationalRoadNumber>().ToString() }
+                })
+                .OmitAutoProperties());
+
+        fixture.Customize<NumberedRoadChangeDbaseRecord>(
+            composer => composer
+                .FromFactory(random => new NumberedRoadChangeDbaseRecord
+                {
+                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
+                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                    GW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    IDENT8 = { Value = fixture.Create<NumberedRoadNumber>().ToString() },
+                    RICHTING =
+                    {
+                        Value = (short)fixture.Create<RoadSegmentNumberedRoadDirection>().Translation
+                            .Identifier
+                    },
+                    VOLGNUMMER = { Value = fixture.Create<RoadSegmentNumberedRoadOrdinal>().ToInt32() }
+                })
+                .OmitAutoProperties());
+
+        fixture.Customize<RoadNodeChangeDbaseRecord>(
+            composer => composer
+                .FromFactory(random => new RoadNodeChangeDbaseRecord
+                {
+                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
+                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                    WEGKNOOPID = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
+                    TYPE = { Value = (short)fixture.Create<RoadNodeType>().Translation.Identifier }
+                })
+                .OmitAutoProperties());
+
+        fixture.Customize<Point>(customization =>
+            customization.FromFactory(generator =>
+                new Point(
+                    fixture.Create<double>(),
+                    fixture.Create<double>()
+                )
+            ).OmitAutoProperties()
+        );
+
+        fixture.Customize<RecordNumber>(customizer =>
+            customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
+
+        fixture.Customize<PointShapeContent>(customization =>
+            customization
+                .FromFactory(random => new PointShapeContent(
+                    GeometryTranslator.FromGeometryPoint(fixture.Create<Point>())))
+                .OmitAutoProperties()
+        );
+
+        fixture.Customize<LineString>(customization =>
+            customization.FromFactory(generator =>
+                new LineString(
+                    new CoordinateArraySequence(
+                        new[]
+                        {
+                            new Coordinate(0.0, 0.0),
+                            new Coordinate(1.0, 1.0)
+                        }),
+                    GeometryConfiguration.GeometryFactory
+                )
+            ).OmitAutoProperties()
+        );
+
+        fixture.Customize<MultiLineString>(customization =>
+            customization.FromFactory(generator =>
+                new MultiLineString(new[] { fixture.Create<LineString>() })
+            ).OmitAutoProperties()
+        );
+        fixture.Customize<PolyLineMShapeContent>(customization =>
+            customization
+                .FromFactory(random => new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(fixture.Create<MultiLineString>())))
+                .OmitAutoProperties()
+        );
+
+        fixture.Customize<RoadSegmentChangeDbaseRecord>(
+            composer => composer
+                .FromFactory(random => new RoadSegmentChangeDbaseRecord
+                {
+                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
+                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                    WS_OIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue)) },
+                    METHODE =
+                    {
+                        Value = (short)fixture.Create<RoadSegmentGeometryDrawMethod>().Translation.Identifier
+                    },
+                    BEHEERDER = { Value = fixture.Create<OrganizationId>() },
+                    MORFOLOGIE =
+                        { Value = (short)fixture.Create<RoadSegmentMorphology>().Translation.Identifier },
+                    STATUS = { Value = fixture.Create<RoadSegmentStatus>().Translation.Identifier },
+                    CATEGORIE = { Value = fixture.Create<RoadSegmentCategory>().Translation.Identifier },
+                    B_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
+                    E_WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
+                    LSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
+                    RSTRNMID = { Value = new CrabStreetnameId(random.Next(1, int.MaxValue)) },
+                    TGBEP =
+                    {
+                        Value = (short)fixture.Create<RoadSegmentAccessRestriction>().Translation.Identifier
+                    },
+                    EVENTIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue)) }
+                })
+                .OmitAutoProperties());
+
+        fixture.Customize<RoadSegmentLaneChangeDbaseRecord>(
+            composer => composer
+                .FromFactory(random => new RoadSegmentLaneChangeDbaseRecord
+                {
+                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
+                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                    RS_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    VANPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
+                    TOTPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
+                    AANTAL = { Value = (short)fixture.Create<RoadSegmentLaneCount>().ToInt32() },
+                    RICHTING =
+                    {
+                        Value = (short)fixture.Create<RoadSegmentLaneDirection>().Translation.Identifier
+                    }
+                })
+                .OmitAutoProperties());
+
+        fixture.Customize<RoadSegmentSurfaceChangeDbaseRecord>(
+            composer => composer
+                .FromFactory(random => new RoadSegmentSurfaceChangeDbaseRecord
+                {
+                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
+                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                    WV_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    VANPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
+                    TOTPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
+                    TYPE = { Value = (short)fixture.Create<RoadSegmentSurfaceType>().Translation.Identifier }
+                })
+                .OmitAutoProperties());
+        fixture.Customize<RoadSegmentWidthChangeDbaseRecord>(
+            composer => composer
+                .FromFactory(random => new RoadSegmentWidthChangeDbaseRecord
+                {
+                    RECORDTYPE = { Value = (short)random.Next(1, 5) },
+                    TRANSACTID = { Value = (short)random.Next(1, 9999) },
+                    WB_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                    WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
+                    VANPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
+                    TOTPOSITIE = { Value = fixture.Create<RoadSegmentPosition>().ToDouble() },
+                    BREEDTE = { Value = (short)fixture.Create<RoadSegmentWidth>().ToInt32() }
+                })
+                .OmitAutoProperties());
+        return fixture;
+    }
+
+    [Fact]
+    public void EncodingCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new ZipArchiveTranslator(null));
+    }
+
+    [Fact]
+    public void IsZipArchiveTranslator()
+    {
+        var sut = new ZipArchiveTranslator(Encoding.UTF8);
+
+        Assert.IsAssignableFrom<IZipArchiveTranslator>(sut);
+    }
+
+    [Fact]
+    public void TranslateArchiveCanNotBeNull()
+    {
+        var sut = new ZipArchiveTranslator(Encoding.UTF8);
+
+        Assert.Throws<ArgumentNullException>(() => sut.Translate(null));
     }
 
     [Theory]

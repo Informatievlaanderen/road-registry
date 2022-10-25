@@ -103,21 +103,6 @@ public class ExtractsController : ControllerBase
         }
     }
 
-    [HttpPost("downloadrequests/byniscode")]
-    public async Task<ActionResult> PostDownloadRequestByNisCode([FromBody] DownloadExtractByNisCodeRequestBody body, CancellationToken cancellationToken)
-    {
-        try
-        {
-            DownloadExtractByNisCodeRequest request = new(body.NisCode, body.Buffer, body.Description);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
-        }
-        catch (DownloadExtractByNisCodeNotFoundException)
-        {
-            return NotFound();
-        }
-    }
-
     [HttpPost("downloadrequests/byfile")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
     public async Task<ActionResult> PostDownloadRequestByFile(DownloadExtractByFileRequestBody body, CancellationToken cancellationToken)
@@ -143,6 +128,21 @@ public class ExtractsController : ControllerBase
             }
         }
         catch (DownloadExtractByFileNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPost("downloadrequests/byniscode")]
+    public async Task<ActionResult> PostDownloadRequestByNisCode([FromBody] DownloadExtractByNisCodeRequestBody body, CancellationToken cancellationToken)
+    {
+        try
+        {
+            DownloadExtractByNisCodeRequest request = new(body.NisCode, body.Buffer, body.Description);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+        }
+        catch (DownloadExtractByNisCodeNotFoundException)
         {
             return NotFound();
         }

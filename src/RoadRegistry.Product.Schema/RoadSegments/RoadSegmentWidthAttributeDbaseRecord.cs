@@ -38,7 +38,6 @@ public class RoadSegmentWidthAttributeDbaseRecord : DbaseRecord
     public DbaseString LBLBGNORG { get; set; }
     public DbaseDouble TOTPOS { get; set; }
     public DbaseDouble VANPOS { get; set; }
-
     public DbaseInt32 WB_OIDN { get; set; }
     public DbaseString WS_GIDN { get; set; }
     public DbaseInt32 WS_OIDN { get; set; }

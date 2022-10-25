@@ -19,6 +19,9 @@ public class RequestedRoadSegmentSurfaceAttributeValidatorTests
         Validator = new RequestedRoadSegmentSurfaceAttributeValidator();
     }
 
+    public Fixture Fixture { get; }
+    public RequestedRoadSegmentSurfaceAttributeValidator Validator { get; }
+
     [Theory]
     [InlineData(int.MinValue)]
     [InlineData(-1)]
@@ -26,8 +29,6 @@ public class RequestedRoadSegmentSurfaceAttributeValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
     }
-
-    public Fixture Fixture { get; }
 
     [Theory]
     [MemberData(nameof(DynamicAttributePositionCases.NegativeFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
@@ -53,8 +54,6 @@ public class RequestedRoadSegmentSurfaceAttributeValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
     }
-
-    public RequestedRoadSegmentSurfaceAttributeValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

@@ -18,6 +18,7 @@ public class AddRoadSegmentToEuropeanRoadValidatorTests
     }
 
     public Fixture Fixture { get; }
+    public AddRoadSegmentToEuropeanRoadValidator Validator { get; }
 
     [Fact]
     public void RoadNumberMustBeWithinDomain()
@@ -34,8 +35,6 @@ public class AddRoadSegmentToEuropeanRoadValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
     }
-
-    public AddRoadSegmentToEuropeanRoadValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

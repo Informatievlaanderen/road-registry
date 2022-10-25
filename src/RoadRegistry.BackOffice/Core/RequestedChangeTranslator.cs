@@ -54,54 +54,6 @@ internal class RequestedChangeTranslator
             nextRoadSegmentSurfaceAttributeId ?? throw new ArgumentNullException(nameof(nextRoadSegmentSurfaceAttributeId));
     }
 
-    private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>
-    {
-        private static readonly Type[] SequenceByTypeOfChange =
-        {
-            typeof(Messages.AddRoadNode),
-            typeof(Messages.AddRoadSegment),
-            typeof(Messages.AddRoadSegmentToEuropeanRoad),
-            typeof(Messages.AddRoadSegmentToNationalRoad),
-            typeof(Messages.AddRoadSegmentToNumberedRoad),
-            typeof(Messages.AddGradeSeparatedJunction),
-            typeof(Messages.ModifyRoadNode),
-            typeof(Messages.ModifyRoadSegment),
-            typeof(Messages.ModifyGradeSeparatedJunction),
-            typeof(Messages.RemoveRoadSegmentFromEuropeanRoad),
-            typeof(Messages.RemoveRoadSegmentFromNationalRoad),
-            typeof(Messages.RemoveRoadSegmentFromNumberedRoad),
-            typeof(Messages.RemoveGradeSeparatedJunction),
-            typeof(Messages.RemoveRoadSegment),
-            typeof(Messages.RemoveRoadNode)
-        };
-
-        public int Compare(SortableChange left, SortableChange right)
-        {
-            if (left == null) throw new ArgumentNullException(nameof(left));
-            if (right == null) throw new ArgumentNullException(nameof(right));
-
-            var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.Change.GetType());
-            var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.Change.GetType());
-            var comparison = leftRank.CompareTo(rightRank);
-            return comparison != 0
-                ? comparison
-                : left.Ordinal.CompareTo(right.Ordinal);
-        }
-    }
-
-    private sealed class SortableChange
-    {
-        public SortableChange(object change, int ordinal)
-        {
-            Ordinal = ordinal;
-            Change = change;
-        }
-
-        public object Change { get; }
-
-        public int Ordinal { get; }
-    }
-
     public async Task<RequestedChanges> Translate(IReadOnlyCollection<RequestedChange> changes, IOrganizations organizations, CancellationToken ct = default)
     {
         if (changes == null)
@@ -647,5 +599,52 @@ internal class RequestedChangeTranslator
         var permanent = new GradeSeparatedJunctionId(command.Id);
 
         return new RemoveGradeSeparatedJunction(permanent);
+    }
+
+    private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>
+    {
+        private static readonly Type[] SequenceByTypeOfChange =
+        {
+            typeof(Messages.AddRoadNode),
+            typeof(Messages.AddRoadSegment),
+            typeof(Messages.AddRoadSegmentToEuropeanRoad),
+            typeof(Messages.AddRoadSegmentToNationalRoad),
+            typeof(Messages.AddRoadSegmentToNumberedRoad),
+            typeof(Messages.AddGradeSeparatedJunction),
+            typeof(Messages.ModifyRoadNode),
+            typeof(Messages.ModifyRoadSegment),
+            typeof(Messages.ModifyGradeSeparatedJunction),
+            typeof(Messages.RemoveRoadSegmentFromEuropeanRoad),
+            typeof(Messages.RemoveRoadSegmentFromNationalRoad),
+            typeof(Messages.RemoveRoadSegmentFromNumberedRoad),
+            typeof(Messages.RemoveGradeSeparatedJunction),
+            typeof(Messages.RemoveRoadSegment),
+            typeof(Messages.RemoveRoadNode)
+        };
+
+        public int Compare(SortableChange left, SortableChange right)
+        {
+            if (left == null) throw new ArgumentNullException(nameof(left));
+            if (right == null) throw new ArgumentNullException(nameof(right));
+
+            var leftRank = Array.IndexOf(SequenceByTypeOfChange, left.Change.GetType());
+            var rightRank = Array.IndexOf(SequenceByTypeOfChange, right.Change.GetType());
+            var comparison = leftRank.CompareTo(rightRank);
+            return comparison != 0
+                ? comparison
+                : left.Ordinal.CompareTo(right.Ordinal);
+        }
+    }
+
+    private sealed class SortableChange
+    {
+        public SortableChange(object change, int ordinal)
+        {
+            Ordinal = ordinal;
+            Change = change;
+        }
+
+        public object Change { get; }
+        public int Ordinal { get; }
     }
 }

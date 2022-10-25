@@ -87,6 +87,13 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
         Translation = dutchTranslation;
     }
 
+    public DutchTranslation Translation { get; }
+
+    public bool Equals(RoadSegmentAccessRestriction other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -94,37 +101,15 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public class DutchTranslation
-    {
-        internal DutchTranslation(int identifier, string name, string description)
-        {
-            Identifier = identifier;
-            Name = name;
-            Description = description;
-        }
-
-        public string Description { get; }
-
-        public int Identifier { get; }
-
-        public string Name { get; }
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentAccessRestriction type && Equals(type);
-    }
-
-    public bool Equals(RoadSegmentAccessRestriction other)
-    {
-        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()
     {
         return _value.GetHashCode();
     }
-
 
     public static bool operator ==(RoadSegmentAccessRestriction left, RoadSegmentAccessRestriction right)
     {
@@ -149,13 +134,10 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
         return parsed;
     }
 
-
     public override string ToString()
     {
         return _value;
     }
-
-    public DutchTranslation Translation { get; }
 
     public static bool TryParse(string value, out RoadSegmentAccessRestriction parsed)
     {
@@ -163,5 +145,19 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
+    }
+
+    public class DutchTranslation
+    {
+        internal DutchTranslation(int identifier, string name, string description)
+        {
+            Identifier = identifier;
+            Name = name;
+            Description = description;
+        }
+
+        public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

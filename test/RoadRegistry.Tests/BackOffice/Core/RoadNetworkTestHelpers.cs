@@ -623,22 +623,13 @@ public class RoadNetworkTestHelpers
     public AddRoadSegment AddSegment1 { get; }
     public AddRoadSegment AddSegment2 { get; }
     public AddRoadSegment AddSegment3 { get; }
-
     public AddRoadNode AddStartNode1 { get; }
-
     public AddRoadNode AddStartNode2 { get; }
-
     public AddRoadNode AddStartNode3 { get; }
     public ArchiveId ArchiveId { get; }
     public OperatorName ChangedByOperator { get; }
     public OrganizationId ChangedByOrganization { get; }
     public OrganizationName ChangedByOrganizationName { get; }
-
-    public static RoadNetworkTestHelpers Create()
-    {
-        return new RoadNetworkTestHelpers();
-    }
-
     public RoadNodeAdded EndNode1Added { get; }
     public RoadNodeModified EndNode1Modified { get; }
     public RoadNodeAdded EndNode2Added { get; }
@@ -646,14 +637,11 @@ public class RoadNetworkTestHelpers
     public Point EndPoint1 { get; }
     public Point EndPoint2 { get; }
     public Point EndPoint3 { get; }
-
     public IFixture Fixture { get; }
     public Point MiddlePoint1 { get; }
     public Point MiddlePoint2 { get; }
     public Point MiddlePoint3 { get; }
-
     public ModifyRoadNode ModifyEndNode1 { get; }
-
     public ModifyRoadNode ModifyStartNode1 { get; }
     public MultiLineString MultiLineString1 { get; }
     public MultiLineString MultiLineString2 { get; }
@@ -663,18 +651,17 @@ public class RoadNetworkTestHelpers
     public RoadSegmentAdded Segment1Added { get; }
     public RoadSegmentAdded Segment2Added { get; }
     public RoadSegmentAdded Segment3Added { get; }
-
     public RoadNodeAdded StartNode1Added { get; }
     public RoadNodeModified StartNode1Modified { get; }
-
     public RoadNodeAdded StartNode2Added { get; }
-
     public RoadNodeAdded StartNode3Added { get; }
-
     public Point StartPoint1 { get; }
-
     public Point StartPoint2 { get; }
-
     public Point StartPoint3 { get; }
     public TransactionId TransactionId { get; }
+
+    public static RoadNetworkTestHelpers Create()
+    {
+        return new RoadNetworkTestHelpers();
+    }
 }

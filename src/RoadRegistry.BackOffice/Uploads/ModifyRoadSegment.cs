@@ -87,12 +87,12 @@ public class ModifyRoadSegment : ITranslatedChange
     public CrabStreetnameId? LeftSideStreetNameId { get; }
     public OrganizationId MaintenanceAuthority { get; }
     public RoadSegmentMorphology Morphology { get; }
-
     public RecordNumber RecordNumber { get; }
     public CrabStreetnameId? RightSideStreetNameId { get; }
     public RoadNodeId StartNodeId { get; }
     public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
+    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -142,8 +142,6 @@ public class ModifyRoadSegment : ITranslatedChange
                 .ToArray()
         };
     }
-
-    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
     public ModifyRoadSegment WithGeometry(MultiLineString geometry)
     {

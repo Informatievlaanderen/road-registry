@@ -13,7 +13,6 @@ public class RemoveRoadNode : ITranslatedChange
     }
 
     public RoadNodeId Id { get; }
-
     public RecordNumber RecordNumber { get; }
 
     public void TranslateTo(RequestedChange message)

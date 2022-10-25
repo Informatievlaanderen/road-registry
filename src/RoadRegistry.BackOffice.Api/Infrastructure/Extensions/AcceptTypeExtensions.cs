@@ -13,6 +13,8 @@ using Microsoft.Net.Http.Headers;
 
 public static class AcceptTypeExtensions
 {
+    private static ApiException InvalidAcceptType => new("Ongeldig formaat.", StatusCodes.Status406NotAcceptable);
+
     public static bool Contains(
         this RequestHeaders requestHeaders,
         AcceptType acceptType)
@@ -100,8 +102,6 @@ public static class AcceptTypeExtensions
 
         throw InvalidAcceptType;
     }
-
-    private static ApiException InvalidAcceptType => new("Ongeldig formaat.", StatusCodes.Status406NotAcceptable);
 
     public static string ToMimeTypeString(this AcceptType acceptType)
     {

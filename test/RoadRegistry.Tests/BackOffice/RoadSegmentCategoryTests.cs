@@ -261,7 +261,6 @@ public class RoadSegmentCategoryTests
         Assert.Equal("SecondaryRoadType2", RoadSegmentCategory.SecondaryRoadType2);
     }
 
-
     [Fact]
     public void SecondaryRoadType2TranslationReturnsExpectedResult()
     {

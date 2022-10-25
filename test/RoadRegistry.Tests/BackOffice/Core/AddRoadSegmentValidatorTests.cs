@@ -85,6 +85,9 @@ public class AddRoadSegmentValidatorTests
         Validator = new AddRoadSegmentValidator();
     }
 
+    public Fixture Fixture { get; }
+    public AddRoadSegmentValidator Validator { get; }
+
     [Fact]
     public void AccessRestrictionMustBeWithinDomain()
     {
@@ -104,8 +107,6 @@ public class AddRoadSegmentValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.EndNodeId, value);
     }
-
-    public Fixture Fixture { get; }
 
     [Fact]
     public void GeometryDrawMethodMustBeWithinDomain()
@@ -273,8 +274,6 @@ public class AddRoadSegmentValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
     }
-
-    public AddRoadSegmentValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

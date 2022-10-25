@@ -60,7 +60,6 @@ public class RoadSegmentNumberedRoadAttributeDbaseSchema : DbaseSchema
 
     public DbaseField BEGINORG => Fields[7];
     public DbaseField BEGINTIJD => Fields[6];
-
     public DbaseField GW_OIDN => Fields[0];
     public DbaseField IDENT8 => Fields[2];
     public DbaseField LBLBGNORG => Fields[8];

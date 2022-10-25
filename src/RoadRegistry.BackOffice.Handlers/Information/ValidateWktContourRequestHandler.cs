@@ -31,7 +31,7 @@ public class ValidateWktContourRequestHandler : EndpointRequestHandler<ValidateW
     {
         try
         {
-            GeometryTranslator.TranslateToRoadNetworkExtractGeometry(_reader.Read(request.Contour) as IPolygonal, 0);
+            GeometryTranslator.TranslateToRoadNetworkExtractGeometry(_reader.Read(request.Contour) as IPolygonal);
             return Task.FromResult(new ValidateWktContourResponse(request.Contour));
         }
         catch (Exception ex)

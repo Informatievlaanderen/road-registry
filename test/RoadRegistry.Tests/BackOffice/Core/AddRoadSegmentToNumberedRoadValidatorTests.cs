@@ -20,13 +20,14 @@ public class AddRoadSegmentToNumberedRoadValidatorTests
         Validator = new AddRoadSegmentToNumberedRoadValidator();
     }
 
+    public Fixture Fixture { get; }
+    public AddRoadSegmentToNumberedRoadValidator Validator { get; }
+
     [Fact]
     public void DirectionMustBeWithinDomain()
     {
         Validator.ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
     }
-
-    public Fixture Fixture { get; }
 
     [Fact]
     public void Ident8MustBeWithinDomain()
@@ -58,8 +59,6 @@ public class AddRoadSegmentToNumberedRoadValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
     }
-
-    public AddRoadSegmentToNumberedRoadValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

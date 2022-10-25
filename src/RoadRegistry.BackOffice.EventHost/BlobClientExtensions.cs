@@ -37,13 +37,10 @@ internal static class BlobClientExtensions
                         .ToArray();
 
                     foreach (var bucketName in bucketNames)
-                    {
                         if (s3Options.Buckets.ContainsKey(bucketName) && !buckets.Buckets.Exists(bucket => bucket.BucketName == s3Options.Buckets[bucketName]))
-                        {
                             await s3Client.PutBucketAsync(s3Options.Buckets[bucketName], token);
-                        }
-                    }
                 }
+
                 break;
             case FileBlobClient _:
                 var fileOptions = new FileBlobClientOptions();

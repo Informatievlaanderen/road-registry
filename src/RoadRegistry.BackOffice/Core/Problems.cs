@@ -15,6 +15,18 @@ public class Problems : IReadOnlyCollection<Problem>
         _problems = problems;
     }
 
+    public int Count => _problems.Count;
+
+    public IEnumerator<Problem> GetEnumerator()
+    {
+        return _problems.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
     public Problems Add(Problem problem)
     {
         if (problem == null) throw new ArgumentNullException(nameof(problem));
@@ -31,18 +43,6 @@ public class Problems : IReadOnlyCollection<Problem>
     {
         if (problems == null) throw new ArgumentNullException(nameof(problems));
         return new Problems(_problems.AddRange(problems));
-    }
-
-    public int Count => _problems.Count;
-
-    public IEnumerator<Problem> GetEnumerator()
-    {
-        return _problems.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
     }
 
     public static Problems Many(params Problem[] problems)

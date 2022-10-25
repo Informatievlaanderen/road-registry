@@ -46,14 +46,9 @@ public class GradeSeparatedJunctionChangeDbaseSchema : DbaseSchema
     }
 
     public DbaseField BO_WS_OIDN => Fields[2];
-
     public DbaseField OK_OIDN => Fields[0];
-
     public DbaseField ON_WS_OIDN => Fields[3];
-
     public DbaseField RECORDTYPE => Fields[5];
-
     public DbaseField TRANSACTID => Fields[4];
-
     public DbaseField TYPE => Fields[1];
 }

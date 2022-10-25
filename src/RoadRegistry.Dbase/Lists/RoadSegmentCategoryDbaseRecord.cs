@@ -22,6 +22,5 @@ public class RoadSegmentCategoryDbaseRecord : DbaseRecord
 
     public DbaseString DEFWEGCAT { get; }
     public DbaseString LBLWEGCAT { get; }
-
     public DbaseString WEGCAT { get; }
 }

@@ -43,6 +43,5 @@ public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
     public DbaseDouble VANPOS { get; set; }
     public DbaseString WS_GIDN { get; set; }
     public DbaseInt32 WS_OIDN { get; set; }
-
     public DbaseInt32 WV_OIDN { get; set; }
 }

@@ -11,7 +11,6 @@ public readonly struct RoadSegmentLaneCount : IEquatable<RoadSegmentLaneCount>
     public static readonly RoadSegmentLaneCount Maximum = new(MaximumValue);
     public static readonly RoadSegmentLaneCount Unknown = new(UnknownValue);
     public static readonly RoadSegmentLaneCount NotApplicable = new(NotApplicableValue);
-
     private readonly int _value;
 
     public RoadSegmentLaneCount(int value)

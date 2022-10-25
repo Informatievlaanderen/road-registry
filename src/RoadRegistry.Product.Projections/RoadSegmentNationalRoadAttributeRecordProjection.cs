@@ -24,7 +24,6 @@ public class RoadSegmentNationalRoadAttributeRecordProjection : ConnectedProject
             if (envelope.Message.PartOfNationalRoads.Length == 0)
                 return Task.CompletedTask;
 
-
             var nationalRoadAttributes = envelope.Message
                 .PartOfNationalRoads
                 .Select(nationalRoad => new RoadSegmentNationalRoadAttributeRecord

@@ -179,6 +179,9 @@ public class ChangeRoadNetworkValidatorTests
         Validator = new ChangeRoadNetworkValidator();
     }
 
+    public Fixture Fixture { get; }
+    public ChangeRoadNetworkValidator Validator { get; }
+
     [Fact]
     public void AllChangesAreNull()
     {
@@ -253,8 +256,6 @@ public class ChangeRoadNetworkValidatorTests
         Validator.ShouldHaveChildValidator(c => c.Changes, typeof(RequestedChangeValidator));
     }
 
-    public Fixture Fixture { get; }
-
     [Fact]
     public void MoreThanOneChangeIsNotNull()
     {
@@ -273,6 +274,4 @@ public class ChangeRoadNetworkValidatorTests
 
         Validator.ShouldHaveValidationErrorFor(c => c.Changes, data);
     }
-
-    public ChangeRoadNetworkValidator Validator { get; }
 }

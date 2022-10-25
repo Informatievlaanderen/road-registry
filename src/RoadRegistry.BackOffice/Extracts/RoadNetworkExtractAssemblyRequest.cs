@@ -16,7 +16,6 @@ public class RoadNetworkExtractAssemblyRequest
 
     public IPolygonal Contour { get; }
     public DownloadId DownloadId { get; }
-
     public ExternalExtractRequestId ExternalRequestId { get; }
     public ExtractDescription ExtractDescription { get; }
     public ExtractRequestId RequestId { get; }

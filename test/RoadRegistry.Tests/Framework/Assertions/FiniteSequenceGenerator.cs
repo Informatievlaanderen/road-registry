@@ -5,7 +5,6 @@ using AutoFixture.Kernel;
 public class FiniteSequenceGenerator<T> : ISpecimenBuilder
 {
     private readonly T[] _sequence;
-
     private int _cursor;
 
     public FiniteSequenceGenerator(T[] sequence)
