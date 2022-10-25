@@ -1,13 +1,23 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
+using System.Text;
 using Abstractions.Extracts;
 using FluentValidation;
 using MediatR;
 
 public sealed class DownloadExtractByFileRequestValidator : AbstractValidator<DownloadExtractByFileRequest>, IPipelineBehavior<DownloadExtractByFileRequest, DownloadExtractByFileResponse>
 {
+    private readonly Encoding _encoding;
+
     public DownloadExtractByFileRequestValidator()
+        : this(WellKnownEncodings.WindowsAnsi)
     {
+    }
+
+    public DownloadExtractByFileRequestValidator(Encoding encoding)
+    {
+        _encoding = encoding;
+
         RuleFor(c => c.ShpFile)
             .SetValidator(new DownloadExtractByFileRequestItemValidator());
         RuleFor(c => c.PrjFile)
@@ -35,7 +45,7 @@ public sealed class DownloadExtractByFileRequestValidator : AbstractValidator<Do
 
     private bool BeLambert1972ProjectionFormat(DownloadExtractByFileRequestItem item)
     {
-        using var reader = new StreamReader(item.ReadStream, WellKnownEncodings.WindowsAnsi);
+        using var reader = new StreamReader(item.ReadStream, _encoding);
         var projectionFormat = ProjectionFormat.Read(reader);
 
         return projectionFormat.IsBelgeLambert1972();

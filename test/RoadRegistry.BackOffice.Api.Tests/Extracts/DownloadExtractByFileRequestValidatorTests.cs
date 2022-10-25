@@ -1,25 +1,54 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
+using System.Text;
 using BackOffice.Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentAssertions;
 using FluentValidation;
 using Handlers.Extracts;
-using Microsoft.Extensions.Logging.Abstractions;
-using NetTopologySuite.IO;
 
-public class DownloadExtractByFileRequestValidatorTests
+public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
 {
     private const int ValidBuffer = 50;
     private const string ValidDescription = "description";
     private readonly DownloadExtractByFileRequestValidator _validator;
-
-    private static readonly DownloadExtractByFileRequestItem ShpFile = new ("filename.shp", Stream.Null, ContentType.Parse("application/octet-stream"));
-    private static readonly DownloadExtractByFileRequestItem PrjFile = new ("filename.prj", Stream.Null, ContentType.Parse("application/octet-stream"));
+    private DownloadExtractByFileRequestItem _prjFilePolygon;
+    private DownloadExtractByFileRequestItem _shpFilePolygon;
 
     public DownloadExtractByFileRequestValidatorTests()
     {
-        _validator = new DownloadExtractByFileRequestValidator();
+        _validator = new DownloadExtractByFileRequestValidator(Encoding.UTF8);
+    }
+
+    public async Task DisposeAsync()
+    {
+        await _prjFilePolygon.ReadStream.DisposeAsync();
+        await _shpFilePolygon.ReadStream.DisposeAsync();
+    }
+
+    private async Task<MemoryStream> GetEmbeddedResourceStream(string name)
+    {
+        var sourceStream = new MemoryStream();
+
+        await using (var embeddedStream = typeof(ExtractControllerTests).Assembly.GetManifestResourceStream(typeof(ExtractControllerTests), name))
+        {
+            embeddedStream.CopyTo(sourceStream);
+        }
+
+        sourceStream.Position = 0;
+
+        return sourceStream;
+    }
+
+    private async Task<DownloadExtractByFileRequestItem> GetDownloadExtractByFileRequestItemFromResource(string name)
+    {
+        return new DownloadExtractByFileRequestItem(name, await GetEmbeddedResourceStream(name), ContentType.Parse("application/octet-stream"));
+    }
+
+    public async Task InitializeAsync()
+    {
+        _prjFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.prj");
+        _shpFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.shp");
     }
 
     public static IEnumerable<object[]> InvalidDescriptionCases()
@@ -27,9 +56,7 @@ public class DownloadExtractByFileRequestValidatorTests
         yield return new object[] { null };
         yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray()) };
     }
-
-
-
+    
     [Theory]
     [InlineData(0)]
     [InlineData(1)]
@@ -37,7 +64,7 @@ public class DownloadExtractByFileRequestValidatorTests
     [InlineData(100)]
     public async Task Validate_will_allow_valid_buffer(int givenBuffer)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, givenBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, givenBuffer, ValidDescription));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
@@ -45,15 +72,14 @@ public class DownloadExtractByFileRequestValidatorTests
     [MemberData(nameof(ValidDescriptionCases))]
     public async Task Validate_will_allow_valid_description(string givenDescription)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, ValidBuffer, givenDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, ValidBuffer, givenDescription));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
     [Fact]
     public async Task Validate_will_allow_valid_geometry()
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, ValidBuffer, ValidDescription));
-
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, ValidBuffer, ValidDescription));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
@@ -64,7 +90,7 @@ public class DownloadExtractByFileRequestValidatorTests
     [InlineData(int.MaxValue)]
     public async Task Validate_will_not_allow_invalid_buffer(int givenBuffer)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, givenBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, givenBuffer, ValidDescription));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
@@ -72,15 +98,19 @@ public class DownloadExtractByFileRequestValidatorTests
     [MemberData(nameof(InvalidDescriptionCases))]
     public async Task Validate_will_not_allow_invalid_description(string givenDescription)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, ValidBuffer, givenDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, ValidBuffer, givenDescription));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
-    public async Task Validate_will_not_allow_invalid_geometry()
+    public async Task Validate_will_not_allow_invalid_projection()
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, ValidBuffer, ValidDescription));
-        await act.Should().ThrowAsync<ValidationException>();
+        var prjFileInvalid = await GetDownloadExtractByFileRequestItemFromResource("invalid.prj");
+        using (prjFileInvalid.ReadStream)
+        {
+            var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, prjFileInvalid, ValidBuffer, ValidDescription));
+            await act.Should().ThrowAsync<ValidationException>();
+        }
     }
 
     public static IEnumerable<object[]> ValidDescriptionCases()

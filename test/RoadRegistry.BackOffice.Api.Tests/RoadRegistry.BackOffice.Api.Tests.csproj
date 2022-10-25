@@ -9,7 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="empty-polygon.prj" />
+    <EmbeddedResource Include="empty-polygon.shp" />
     <EmbeddedResource Include="empty.zip" />
+    <EmbeddedResource Include="invalid.prj" />
+    <EmbeddedResource Include="point.prj" />
+    <EmbeddedResource Include="point.shp" />
+    <EmbeddedResource Include="polygon.prj" />
+    <EmbeddedResource Include="polygon.shp" />
     <EmbeddedResource Include="valid-after.zip" />
     <EmbeddedResource Include="valid-before.zip" />
   </ItemGroup>
