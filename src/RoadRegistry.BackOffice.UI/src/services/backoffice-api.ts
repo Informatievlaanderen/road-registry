@@ -1,5 +1,7 @@
 import apiClient from "./api-client";
 import RoadRegistry from "@/types/road-registry";
+import RoadRegistryExceptions from "@/types/road-registry-exceptions";
+import axios from "axios";
 
 export const BackOfficeApi = {
   ChangeFeed: {
@@ -90,8 +92,20 @@ export const BackOfficeApi = {
             data.append("files", file, file.name);
         })        
 
-        const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, data);
+        try {
+          const response = await apiClient.post<RoadRegistry.DownloadExtractResponse>(path, data);
         return response.data;
+      } catch (exception) {
+          if (axios.isAxiosError(exception)) {
+              const response = exception?.response;
+              if (response && response.status === 400) { // HTTP Bad Request
+                  const error = response?.data as RoadRegistry.PerContourErrorResponse;
+                  throw new RoadRegistryExceptions.RequestExtractPerContourError(error);
+              }
+          }
+
+          throw new Error('Unknown error');
+      }
       },
     postDownloadRequestByNisCode: async (
       downloadRequest: RoadRegistry.DownloadExtractByNisCodeRequest
