@@ -95,11 +95,13 @@
           </div>
           <div class="vl-form-col--12-12">
             <vl-action-group>
-              <vl-button v-on:click="currentStep = steps.Step2_Municipality">Vorige</vl-button>
-              <vl-button v-if="!isDescriptionValid(municipalityFlow.description)" mod-disabled>
+              <vl-button @click="currentStep = steps.Step2_Municipality">Vorige</vl-button>
+              <vl-button
+                @click="submitMunicipalityRequest"
+                :mod-disabled="isSubmitting || !isDescriptionValid(municipalityFlow.description)"
+              >
                 Extract aanvragen
               </vl-button>
-              <vl-button v-else v-on:click="submitMunicipalityRequest">Extract aanvragen</vl-button>
             </vl-action-group>
           </div>
           <div class="vl-form-col--12-12">
@@ -163,7 +165,7 @@
           <template v-if="contourFlow.contourType === 'wkt'">
             <div class="vl-form-col--12-12">
               <p>
-                <br/>
+                <br />
                 Geef een contour op (in WKT formaat, coördinatensysteem Lambert 1972) waarvoor u het extract wenst op te
                 halen.
               </p>
@@ -232,8 +234,7 @@
               <vl-button @click="currentStep = steps.Step2_Contour">Vorige</vl-button>
               <vl-button
                 @click="submitContourRequest"
-                :class="{ 'vl-button--disabled': !isDescriptionValid(contourFlow.description) }"
-                :disabled="!isDescriptionValid(contourFlow.description)"
+                :mod-disabled="isSubmitting || !isDescriptionValid(contourFlow.description)"
               >
                 Extract aanvragen
               </vl-button>
@@ -312,6 +313,7 @@ export default Vue.extend({
       },
       isCheckingWkt: false as Boolean,
       isUploading: false as Boolean,
+      isSubmitting: false as Boolean,
       debouncedCheckIfContourWktIsValid: () => {},
     };
   },
@@ -423,17 +425,23 @@ export default Vue.extend({
       this.contourFlow.contourType = value;
     },
     async submitMunicipalityRequest() {
-      const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
-        buffer: this.municipalityFlow.buffer ? 100 : 0,
-        nisCode: this.municipalityFlow.nisCode,
-        description: this.municipalityFlow.description,
-      };
+      this.isSubmitting = true;
+      try {
+        const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
+          buffer: this.municipalityFlow.buffer ? 100 : 0,
+          nisCode: this.municipalityFlow.nisCode,
+          description: this.municipalityFlow.description,
+        };
 
-      const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
-      this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
+        const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
+        this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
+      } finally {
+        this.isSubmitting = false;
+      }
     },
 
     async submitContourRequest() {
+      this.isSubmitting = true;
       try {
         this.contourFlow.hasValidationErrors = false;
 
@@ -477,6 +485,8 @@ export default Vue.extend({
         } else {
           throw exception;
         }
+      } finally {
+        this.isSubmitting = false;
       }
     },
 
