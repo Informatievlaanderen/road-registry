@@ -23,7 +23,27 @@ public class DownloadExtractByFileRequestHandler : EndpointRequestHandler<Downlo
         _encoding = WellKnownEncodings.WindowsAnsi;
     }
 
-    private async Task<RoadNetworkExtractGeometry> GetRoadNetworkExtractGeometryFromShapeAsync(DownloadExtractByFileRequestItem shapeFile, int buffer, CancellationToken cancellationToken)
+    public override async Task<DownloadExtractByFileResponse> HandleAsync(DownloadExtractByFileRequest request, CancellationToken cancellationToken)
+    {
+        var downloadId = new DownloadId(Guid.NewGuid());
+        var randomExternalRequestId = Guid.NewGuid().ToString("N");
+
+        var contour = HandleRoadNetworkExtractGeometryFromShape(request.ShpFile, request.Buffer);
+
+        var message = new Command(
+            new RequestRoadNetworkExtract
+            {
+                ExternalRequestId = randomExternalRequestId,
+                Contour = contour,
+                DownloadId = downloadId,
+                Description = request.Description
+            });
+        await Dispatcher(message, cancellationToken);
+
+        return new DownloadExtractByFileResponse(downloadId);
+    }
+
+    private RoadNetworkExtractGeometry HandleRoadNetworkExtractGeometryFromShape(DownloadExtractByFileRequestItem shapeFile, int buffer)
     {
         var validationFailures = Enumerable.Empty<ValidationFailure>().ToList();
 
@@ -62,10 +82,8 @@ public class DownloadExtractByFileRequestHandler : EndpointRequestHandler<Downlo
                                     break;
                             }
                     }
-                    if (!polygons.Any())
-                    {
-                        AddValidationFailure("Invalid shape file. Does not contain any valid polygon geometries.");
-                    }
+
+                    if (!polygons.Any()) AddValidationFailure("Invalid shape file. Does not contain any valid polygon geometries.");
                 }
                 else
                 {
@@ -84,25 +102,5 @@ public class DownloadExtractByFileRequestHandler : EndpointRequestHandler<Downlo
             validationFailures.Add(vf);
             _logger.LogWarning("Added validation failure while processing current shape file record: '{ValidationFailureMessage}'", vf.ErrorMessage);
         }
-    }
-
-    public override async Task<DownloadExtractByFileResponse> HandleAsync(DownloadExtractByFileRequest request, CancellationToken cancellationToken)
-    {
-        var downloadId = new DownloadId(Guid.NewGuid());
-        var randomExternalRequestId = Guid.NewGuid().ToString("N");
-
-        var contour = await GetRoadNetworkExtractGeometryFromShapeAsync(request.ShpFile, request.Buffer, cancellationToken);
-
-        var message = new Command(
-            new RequestRoadNetworkExtract
-            {
-                ExternalRequestId = randomExternalRequestId,
-                Contour = contour,
-                DownloadId = downloadId,
-                Description = request.Description
-            });
-        await Dispatcher(message, cancellationToken);
-
-        return new DownloadExtractByFileResponse(downloadId);
     }
 }
