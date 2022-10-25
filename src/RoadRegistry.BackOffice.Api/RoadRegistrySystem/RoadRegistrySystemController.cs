@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Api;
 using FluentValidation;
-using Hosts;
 using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using Messages;

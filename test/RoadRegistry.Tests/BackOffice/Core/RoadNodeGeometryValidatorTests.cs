@@ -20,6 +20,7 @@ public class RoadNodeGeometryValidatorTests
     }
 
     public Fixture Fixture { get; }
+    public RoadNodeGeometryValidator Validator { get; }
 
     [Fact]
     public void PointCanNotBeNull()
@@ -34,8 +35,6 @@ public class RoadNodeGeometryValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.SpatialReferenceSystemIdentifier, value);
     }
-
-    public RoadNodeGeometryValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

@@ -19,6 +19,7 @@ public class RemoveRoadNodeValidatorTests
     }
 
     public Fixture Fixture { get; }
+    public RemoveRoadNodeValidator Validator { get; }
 
     [Theory]
     [InlineData(int.MinValue)]
@@ -28,8 +29,6 @@ public class RemoveRoadNodeValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.Id, value);
     }
-
-    public RemoveRoadNodeValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

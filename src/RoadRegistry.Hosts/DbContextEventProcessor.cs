@@ -24,19 +24,14 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 {
     private const int CatchUpBatchSize = 5000;
     private const int CatchUpThreshold = 1000;
-
     private const int RecordPositionThreshold = 1000;
     public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
-
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
-
     public static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     private readonly ILogger<DbContextEventProcessor<TDbContext>> _logger;
-
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
-
     private readonly Scheduler _scheduler;
 
     protected DbContextEventProcessor(
@@ -329,6 +324,25 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
 
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Starting event processor ...");
+        await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
+        await _messageChannel.Writer.WriteAsync(new Resume(), cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation("Started event processor.");
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Stopping event processor ...");
+        _messageChannel.Writer.Complete();
+        _messagePumpCancellation.Cancel();
+        await _messagePump.ConfigureAwait(false);
+        _messagePumpCancellation.Dispose();
+        await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation("Stopped event processor.");
+    }
+
     private static bool CanResumeFrom(SubscriptionDropped dropped)
     {
         const int timeout = -2;
@@ -359,19 +373,18 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
             _source = new TaskCompletionSource<object>();
         }
 
+        public Task Completion => _source.Task;
+        public StreamMessage Message { get; }
+
         public void Complete()
         {
             _source.TrySetResult(null);
         }
 
-        public Task Completion => _source.Task;
-
         public void Fault(Exception exception)
         {
             _source.TrySetException(exception);
         }
-
-        public StreamMessage Message { get; }
     }
 
     private sealed class RecordPosition
@@ -386,25 +399,6 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 
     private sealed class Resume
     {
-    }
-
-    public async Task StartAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Starting event processor ...");
-        await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
-        await _messageChannel.Writer.WriteAsync(new Resume(), cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Started event processor.");
-    }
-
-    public async Task StopAsync(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation("Stopping event processor ...");
-        _messageChannel.Writer.Complete();
-        _messagePumpCancellation.Cancel();
-        await _messagePump.ConfigureAwait(false);
-        _messagePumpCancellation.Dispose();
-        await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Stopped event processor.");
     }
 
     private sealed class Subscribe
@@ -426,7 +420,6 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         }
 
         public Exception Exception { get; }
-
         public SubscriptionDroppedReason Reason { get; }
     }
 }

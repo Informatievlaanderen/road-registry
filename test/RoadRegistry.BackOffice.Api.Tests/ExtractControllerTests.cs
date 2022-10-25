@@ -32,7 +32,6 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
 {
     private readonly Fixture _fixture;
     private readonly SqlServer _sqlServerFixture;
-
     private EditorContext _editorContext;
 
     public ExtractControllerTests(

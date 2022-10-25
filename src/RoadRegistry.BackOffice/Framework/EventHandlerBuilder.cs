@@ -56,6 +56,10 @@ public class EventHandlerBuilder<TEvent>
 
         private Action<Func<Event<TEvent>, CancellationToken, Task>> Builder { get; }
 
+        private Func<
+            Func<TContext, Event<TEvent>, CancellationToken, Task>,
+            Func<Event<TEvent>, CancellationToken, Task>> Pipeline { get; }
+
         public void Handle(Func<TContext, Event<TEvent>, CancellationToken, Task> handler)
         {
             if (handler == null) throw new ArgumentNullException(nameof(handler));
@@ -72,10 +76,6 @@ public class EventHandlerBuilder<TEvent>
 
             return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
         }
-
-        private Func<
-            Func<TContext, Event<TEvent>, CancellationToken, Task>,
-            Func<Event<TEvent>, CancellationToken, Task>> Pipeline { get; }
     }
 
     private sealed class WithPipeline : IEventHandlerBuilder<TEvent>
@@ -92,6 +92,9 @@ public class EventHandlerBuilder<TEvent>
 
         private Action<Func<Event<TEvent>, CancellationToken, Task>> Builder { get; }
 
+        private Func<
+            Func<Event<TEvent>, CancellationToken, Task>,
+            Func<Event<TEvent>, CancellationToken, Task>> Pipeline { get; }
 
         public void Handle(Func<Event<TEvent>, CancellationToken, Task> handler)
         {
@@ -119,9 +122,5 @@ public class EventHandlerBuilder<TEvent>
 
             return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
         }
-
-        private Func<
-            Func<Event<TEvent>, CancellationToken, Task>,
-            Func<Event<TEvent>, CancellationToken, Task>> Pipeline { get; }
     }
 }

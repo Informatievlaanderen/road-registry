@@ -30,6 +30,41 @@ public abstract class DockerContainer : IAsyncLifetime
 
     public DockerContainerConfiguration Configuration { get; protected set; }
 
+    public async Task DisposeAsync()
+    {
+        if (Configuration.Container.StopContainer)
+        {
+            var found = await TryFindContainer();
+            if (found != null)
+            {
+                await StopContainer(found);
+                if (Configuration.Container.RemoveContainer) await RemoveContainer(found);
+            }
+        }
+
+        _client.Dispose();
+    }
+
+    public async Task InitializeAsync()
+    {
+        var found = await TryFindContainer();
+        if (found != null)
+        {
+            await StopContainer(found);
+            await RemoveContainer(found);
+
+            var created = await CreateContainer();
+            if (created != null) await StartContainer(created);
+        }
+        else
+        {
+            await CreateImageIfNotExists();
+
+            var created = await CreateContainer();
+            if (created != null) await StartContainer(created);
+        }
+    }
+
     private async Task<string> CreateContainer()
     {
         var container = await _client
@@ -74,22 +109,6 @@ public abstract class DockerContainer : IAsyncLifetime
                 .ConfigureAwait(false);
     }
 
-    public async Task DisposeAsync()
-    {
-        if (Configuration.Container.StopContainer)
-        {
-            var found = await TryFindContainer();
-            if (found != null)
-            {
-                await StopContainer(found);
-                if (Configuration.Container.RemoveContainer) await RemoveContainer(found);
-            }
-        }
-
-        _client.Dispose();
-    }
-
-
     private async Task<bool> ImageExists()
     {
         var images = await _client
@@ -106,35 +125,6 @@ public abstract class DockerContainer : IAsyncLifetime
             })
             .ConfigureAwait(false);
         return images.Count != 0;
-    }
-
-    public async Task InitializeAsync()
-    {
-        var found = await TryFindContainer();
-        if (found != null)
-        {
-            await StopContainer(found);
-            await RemoveContainer(found);
-
-            var created = await CreateContainer();
-            if (created != null) await StartContainer(created);
-        }
-        else
-        {
-            await CreateImageIfNotExists();
-
-            var created = await CreateContainer();
-            if (created != null) await StartContainer(created);
-        }
-    }
-
-    private class Progress : IProgress<JSONMessage>
-    {
-        public static readonly IProgress<JSONMessage> IsBeingIgnored = new Progress();
-
-        public void Report(JSONMessage value)
-        {
-        }
     }
 
     private async Task RemoveContainer(string id)
@@ -190,5 +180,14 @@ public abstract class DockerContainer : IAsyncLifetime
         return containers
             .FirstOrDefault(container => container.State != "exited")
             ?.ID;
+    }
+
+    private class Progress : IProgress<JSONMessage>
+    {
+        public static readonly IProgress<JSONMessage> IsBeingIgnored = new Progress();
+
+        public void Report(JSONMessage value)
+        {
+        }
     }
 }

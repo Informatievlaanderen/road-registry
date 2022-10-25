@@ -30,11 +30,9 @@ public class CommandProcessor : IHostedService
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     private readonly ILogger<CommandProcessor> _logger;
-
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
-
     private readonly Scheduler _scheduler;
 
     public CommandProcessor(
@@ -181,39 +179,6 @@ public class CommandProcessor : IHostedService
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
 
-    private static bool CanResumeFrom(SubscriptionDropped dropped)
-    {
-        const int timeout = -2;
-        return dropped.Exception != null
-               && (dropped.Exception is SqlException { Number: timeout } ||
-                   dropped.Exception is IOException { InnerException: SqlException { Number: timeout } });
-    }
-
-    private sealed class ProcessStreamMessage
-    {
-        private readonly TaskCompletionSource<object> _source;
-
-        public ProcessStreamMessage(StreamMessage message)
-        {
-            Message = message;
-            _source = new TaskCompletionSource<object>();
-        }
-
-        public void Complete()
-        {
-            _source.TrySetResult(null);
-        }
-
-        public Task Completion => _source.Task;
-
-        public void Fault(Exception exception)
-        {
-            _source.TrySetException(exception);
-        }
-
-        public StreamMessage Message { get; }
-    }
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting command processor ...");
@@ -233,6 +198,38 @@ public class CommandProcessor : IHostedService
         _logger.LogInformation("Stopped command processor.");
     }
 
+    private static bool CanResumeFrom(SubscriptionDropped dropped)
+    {
+        const int timeout = -2;
+        return dropped.Exception != null
+               && (dropped.Exception is SqlException { Number: timeout } ||
+                   dropped.Exception is IOException { InnerException: SqlException { Number: timeout } });
+    }
+
+    private sealed class ProcessStreamMessage
+    {
+        private readonly TaskCompletionSource<object> _source;
+
+        public ProcessStreamMessage(StreamMessage message)
+        {
+            Message = message;
+            _source = new TaskCompletionSource<object>();
+        }
+
+        public Task Completion => _source.Task;
+        public StreamMessage Message { get; }
+
+        public void Complete()
+        {
+            _source.TrySetResult(null);
+        }
+
+        public void Fault(Exception exception)
+        {
+            _source.TrySetException(exception);
+        }
+    }
+
     private sealed class Subscribe
     {
     }
@@ -246,7 +243,6 @@ public class CommandProcessor : IHostedService
         }
 
         public Exception Exception { get; }
-
         public SubscriptionDroppedReason Reason { get; }
     }
 }

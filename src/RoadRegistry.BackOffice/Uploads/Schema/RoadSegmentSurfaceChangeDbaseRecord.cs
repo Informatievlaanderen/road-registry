@@ -29,16 +29,10 @@ public class RoadSegmentSurfaceChangeDbaseRecord : DbaseRecord
     }
 
     public DbaseInt16 RECORDTYPE { get; }
-
     public DbaseDouble TOTPOSITIE { get; }
-
     public DbaseInt16 TRANSACTID { get; }
-
     public DbaseInt16 TYPE { get; }
-
     public DbaseDouble VANPOSITIE { get; }
-
     public DbaseInt32 WS_OIDN { get; }
-
     public DbaseInt32 WV_OIDN { get; }
 }

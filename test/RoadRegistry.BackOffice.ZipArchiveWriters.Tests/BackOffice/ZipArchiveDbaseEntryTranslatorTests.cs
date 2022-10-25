@@ -8,20 +8,6 @@ using Uploads;
 
 public class ZipArchiveDbaseEntryTranslatorTests
 {
-    private class CollectDbaseRecordTranslator : IZipArchiveDbaseRecordsTranslator<FakeDbaseRecord>
-    {
-        public FakeDbaseRecord[] Collected { get; private set; }
-
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, TranslatedChanges changes)
-        {
-            var collected = new List<FakeDbaseRecord>();
-            while (records.MoveNext()) collected.Add(records.Current);
-            Collected = collected.ToArray();
-
-            return changes;
-        }
-    }
-
     [Fact]
     public void EncodingCanNotBeNull()
     {
@@ -29,66 +15,6 @@ public class ZipArchiveDbaseEntryTranslatorTests
             () => new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
                 null, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseRecordTranslator()));
-    }
-
-    private class FakeDbaseRecord : DbaseRecord
-    {
-        private static readonly FakeDbaseSchema Schema = new();
-
-        public FakeDbaseRecord()
-        {
-            Field = new DbaseNumber(Schema.Field);
-            Values = new DbaseFieldValue[] { Field };
-        }
-
-        public override bool Equals(object obj)
-        {
-            return obj is FakeDbaseRecord other && Equals(other);
-        }
-
-        public bool Equals(FakeDbaseRecord other)
-        {
-            return other != null && Field.Field.Equals(other.Field.Field) &&
-                   Field.Value.Equals(other.Field.Value);
-        }
-
-        public DbaseNumber Field { get; }
-
-        public override int GetHashCode()
-        {
-            return Field.GetHashCode();
-        }
-    }
-
-    private class FakeDbaseRecordTranslator : IZipArchiveDbaseRecordsTranslator<FakeDbaseRecord>
-    {
-        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
-
-        public FakeDbaseRecordTranslator(Func<TranslatedChanges, TranslatedChanges> translation = null)
-        {
-            _translation = translation ?? (changes => changes);
-        }
-
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, TranslatedChanges changes)
-        {
-            return _translation(changes);
-        }
-    }
-
-    private class FakeDbaseSchema : DbaseSchema
-    {
-        public FakeDbaseSchema()
-        {
-            Fields = new[]
-            {
-                DbaseField.CreateNumberField(
-                    new DbaseFieldName(nameof(Field)),
-                    new DbaseFieldLength(10),
-                    new DbaseDecimalCount(0))
-            };
-        }
-
-        public DbaseField Field => Fields[0];
     }
 
     [Fact]
@@ -219,5 +145,79 @@ public class ZipArchiveDbaseEntryTranslatorTests
             () => new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
                 Encoding.Default, DbaseFileHeaderReadBehavior.Default,
                 null));
+    }
+
+    private class CollectDbaseRecordTranslator : IZipArchiveDbaseRecordsTranslator<FakeDbaseRecord>
+    {
+        public FakeDbaseRecord[] Collected { get; private set; }
+
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, TranslatedChanges changes)
+        {
+            var collected = new List<FakeDbaseRecord>();
+            while (records.MoveNext()) collected.Add(records.Current);
+            Collected = collected.ToArray();
+
+            return changes;
+        }
+    }
+
+    private class FakeDbaseRecord : DbaseRecord
+    {
+        private static readonly FakeDbaseSchema Schema = new();
+
+        public FakeDbaseRecord()
+        {
+            Field = new DbaseNumber(Schema.Field);
+            Values = new DbaseFieldValue[] { Field };
+        }
+
+        public DbaseNumber Field { get; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is FakeDbaseRecord other && Equals(other);
+        }
+
+        public bool Equals(FakeDbaseRecord other)
+        {
+            return other != null && Field.Field.Equals(other.Field.Field) &&
+                   Field.Value.Equals(other.Field.Value);
+        }
+
+        public override int GetHashCode()
+        {
+            return Field.GetHashCode();
+        }
+    }
+
+    private class FakeDbaseRecordTranslator : IZipArchiveDbaseRecordsTranslator<FakeDbaseRecord>
+    {
+        private readonly Func<TranslatedChanges, TranslatedChanges> _translation;
+
+        public FakeDbaseRecordTranslator(Func<TranslatedChanges, TranslatedChanges> translation = null)
+        {
+            _translation = translation ?? (changes => changes);
+        }
+
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, TranslatedChanges changes)
+        {
+            return _translation(changes);
+        }
+    }
+
+    private class FakeDbaseSchema : DbaseSchema
+    {
+        public FakeDbaseSchema()
+        {
+            Fields = new[]
+            {
+                DbaseField.CreateNumberField(
+                    new DbaseFieldName(nameof(Field)),
+                    new DbaseFieldLength(10),
+                    new DbaseDecimalCount(0))
+            };
+        }
+
+        public DbaseField Field => Fields[0];
     }
 }

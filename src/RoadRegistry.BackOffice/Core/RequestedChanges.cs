@@ -54,6 +54,70 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         _mapToTemporaryGradeSeparatedJunctionIdentifiers = mapToTemporaryGradeSeparatedJunctionIdentifiers;
     }
 
+    public int Count => _changes.Count;
+    public TransactionId TransactionId { get; }
+
+    public IEnumerator<IRequestedChange> GetEnumerator()
+    {
+        return _changes.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    public RoadNodeId TranslateToTemporaryOrId(RoadNodeId id)
+    {
+        return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out var temporary)
+            ? temporary
+            : id;
+    }
+
+    public RoadSegmentId TranslateToTemporaryOrId(RoadSegmentId id)
+    {
+        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary)
+            ? temporary
+            : id;
+    }
+
+    public GradeSeparatedJunctionId TranslateToTemporaryOrId(GradeSeparatedJunctionId id)
+    {
+        return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out var temporary)
+            ? temporary
+            : id;
+    }
+
+    public bool TryTranslateToPermanent(RoadNodeId id, out RoadNodeId permanent)
+    {
+        return _mapToPermanentNodeIdentifiers.TryGetValue(id, out permanent);
+    }
+
+    public bool TryTranslateToPermanent(RoadSegmentId id, out RoadSegmentId permanent)
+    {
+        return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
+    }
+
+    public bool TryTranslateToPermanent(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
+    {
+        return _mapToPermanentGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
+    }
+
+    public bool TryTranslateToTemporary(RoadNodeId id, out RoadNodeId temporary)
+    {
+        return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
+    }
+
+    public bool TryTranslateToTemporary(RoadSegmentId id, out RoadSegmentId temporary)
+    {
+        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
+    }
+
+    public bool TryTranslateToTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
+    {
+        return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
+    }
+
     public RequestedChanges Append(AddRoadNode change)
     {
         if (change == null)
@@ -294,8 +358,6 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             _mapToTemporaryGradeSeparatedJunctionIdentifiers);
     }
 
-    public int Count => _changes.Count;
-
     public BeforeVerificationContext CreateBeforeVerificationContext(IRoadNetworkView view)
     {
         if (view == null) throw new ArgumentNullException(nameof(view));
@@ -448,16 +510,6 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
                 changes => changes.ToArray());
     }
 
-    public IEnumerator<IRequestedChange> GetEnumerator()
-    {
-        return _changes.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
     public static RequestedChanges Start(TransactionId transactionId)
     {
         return new RequestedChanges(
@@ -469,58 +521,5 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
             ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty,
             ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty);
-    }
-
-    public TransactionId TransactionId { get; }
-
-    public RoadNodeId TranslateToTemporaryOrId(RoadNodeId id)
-    {
-        return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out var temporary)
-            ? temporary
-            : id;
-    }
-
-    public RoadSegmentId TranslateToTemporaryOrId(RoadSegmentId id)
-    {
-        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out var temporary)
-            ? temporary
-            : id;
-    }
-
-    public GradeSeparatedJunctionId TranslateToTemporaryOrId(GradeSeparatedJunctionId id)
-    {
-        return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out var temporary)
-            ? temporary
-            : id;
-    }
-
-    public bool TryTranslateToPermanent(RoadNodeId id, out RoadNodeId permanent)
-    {
-        return _mapToPermanentNodeIdentifiers.TryGetValue(id, out permanent);
-    }
-
-    public bool TryTranslateToPermanent(RoadSegmentId id, out RoadSegmentId permanent)
-    {
-        return _mapToPermanentSegmentIdentifiers.TryGetValue(id, out permanent);
-    }
-
-    public bool TryTranslateToPermanent(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
-    {
-        return _mapToPermanentGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
-    }
-
-    public bool TryTranslateToTemporary(RoadNodeId id, out RoadNodeId temporary)
-    {
-        return _mapToTemporaryNodeIdentifiers.TryGetValue(id, out temporary);
-    }
-
-    public bool TryTranslateToTemporary(RoadSegmentId id, out RoadSegmentId temporary)
-    {
-        return _mapToTemporarySegmentIdentifiers.TryGetValue(id, out temporary);
-    }
-
-    public bool TryTranslateToTemporary(GradeSeparatedJunctionId id, out GradeSeparatedJunctionId temporary)
-    {
-        return _mapToTemporaryGradeSeparatedJunctionIdentifiers.TryGetValue(id, out temporary);
     }
 }

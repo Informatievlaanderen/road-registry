@@ -168,7 +168,6 @@ public class RoadSegmentDbaseSchema : DbaseSchema
     public DbaseField TGBEP => Fields[23];
     public DbaseField WEGCAT => Fields[9];
     public DbaseField WS_GIDN => Fields[2];
-
     public DbaseField WS_OIDN => Fields[0];
     public DbaseField WS_UIDN => Fields[1];
 }

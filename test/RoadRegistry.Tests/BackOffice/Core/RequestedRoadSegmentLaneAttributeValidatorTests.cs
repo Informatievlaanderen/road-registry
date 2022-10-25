@@ -20,6 +20,9 @@ public class RequestedRoadSegmentLaneAttributeValidatorTests
         Validator = new RequestedRoadSegmentLaneAttributeValidator();
     }
 
+    public Fixture Fixture { get; }
+    public RequestedRoadSegmentLaneAttributeValidator Validator { get; }
+
     [Theory]
     [InlineData(int.MinValue)]
     [InlineData(-1)]
@@ -62,8 +65,6 @@ public class RequestedRoadSegmentLaneAttributeValidatorTests
         Validator.ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
     }
 
-    public Fixture Fixture { get; }
-
     [Theory]
     [MemberData(nameof(DynamicAttributePositionCases.NegativeFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
     public void FromPositionMustBePositive(decimal value)
@@ -82,8 +83,6 @@ public class RequestedRoadSegmentLaneAttributeValidatorTests
         };
         Validator.ShouldHaveValidationErrorFor(c => c.ToPosition, data);
     }
-
-    public RequestedRoadSegmentLaneAttributeValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

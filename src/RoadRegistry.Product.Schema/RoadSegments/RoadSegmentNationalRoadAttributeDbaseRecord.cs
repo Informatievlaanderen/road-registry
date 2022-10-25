@@ -30,7 +30,6 @@ public class RoadSegmentNationalRoadAttributeDbaseRecord : DbaseRecord
     public DbaseDateTime BEGINTIJD { get; }
     public DbaseString IDENT2 { get; }
     public DbaseString LBLBGNORG { get; }
-
     public DbaseInt32 NW_OIDN { get; }
     public DbaseInt32 WS_OIDN { get; }
 }

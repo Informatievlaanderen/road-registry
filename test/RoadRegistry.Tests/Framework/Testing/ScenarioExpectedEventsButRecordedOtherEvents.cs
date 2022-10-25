@@ -11,6 +11,5 @@ public class ScenarioExpectedEventsButRecordedOtherEvents
     }
 
     public RecordedEvent[] Actual { get; }
-
     public ExpectEventsScenario Scenario { get; }
 }

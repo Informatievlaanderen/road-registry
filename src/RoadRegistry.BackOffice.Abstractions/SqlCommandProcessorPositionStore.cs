@@ -14,21 +14,6 @@ public class SqlCommandProcessorPositionStore : ICommandProcessorPositionStore
         _text = new SqlCommandText(schema);
     }
 
-    private static SqlParameter CreateSqlParameter(string name, SqlDbType sqlDbType, int size, object value)
-    {
-        return new SqlParameter(
-            name,
-            sqlDbType,
-            size,
-            ParameterDirection.Input,
-            false,
-            0,
-            0,
-            "",
-            DataRowVersion.Default,
-            value);
-    }
-
     public async Task<int?> ReadVersion(string name, CancellationToken cancellationToken)
     {
         if (name == null) throw new ArgumentNullException(nameof(name));
@@ -50,29 +35,6 @@ public class SqlCommandProcessorPositionStore : ICommandProcessorPositionStore
         };
         var result = await command.ExecuteScalarAsync(cancellationToken);
         return result == null || result == DBNull.Value ? default(int?) : (int)result;
-    }
-
-    private sealed class SqlCommandText
-    {
-        private readonly string _schema;
-
-        public SqlCommandText(string schema)
-        {
-            _schema = schema ?? throw new ArgumentNullException(nameof(schema));
-        }
-
-        public string ReadVersion()
-        {
-            return $"SELECT [Version] FROM [{_schema}].[CommandProcessorPosition] WHERE [NameHash] = HashBytes('SHA2_256', @Name)";
-        }
-
-        public string WriteVersion()
-        {
-            return $@"IF EXISTS (SELECT * FROM [{_schema}].[CommandProcessorPosition] WITH (UPDLOCK) WHERE [NameHash] = HashBytes('SHA2_256', @Name))
-    UPDATE [{_schema}].[CommandProcessorPosition] SET [Version] = @Version WHERE [NameHash] = HashBytes('SHA2_256', @Name)
-ELSE
-    INSERT INTO [{_schema}].[CommandProcessorPosition] ([NameHash], [Name], [Version]) VALUES (HashBytes('SHA2_256', @Name), @Name, @Version)";
-        }
     }
 
     public async Task WriteVersion(string name, int version, CancellationToken cancellationToken)
@@ -104,5 +66,43 @@ ELSE
         }
 
         transaction.Commit();
+    }
+
+    private static SqlParameter CreateSqlParameter(string name, SqlDbType sqlDbType, int size, object value)
+    {
+        return new SqlParameter(
+            name,
+            sqlDbType,
+            size,
+            ParameterDirection.Input,
+            false,
+            0,
+            0,
+            "",
+            DataRowVersion.Default,
+            value);
+    }
+
+    private sealed class SqlCommandText
+    {
+        private readonly string _schema;
+
+        public SqlCommandText(string schema)
+        {
+            _schema = schema ?? throw new ArgumentNullException(nameof(schema));
+        }
+
+        public string ReadVersion()
+        {
+            return $"SELECT [Version] FROM [{_schema}].[CommandProcessorPosition] WHERE [NameHash] = HashBytes('SHA2_256', @Name)";
+        }
+
+        public string WriteVersion()
+        {
+            return $@"IF EXISTS (SELECT * FROM [{_schema}].[CommandProcessorPosition] WITH (UPDLOCK) WHERE [NameHash] = HashBytes('SHA2_256', @Name))
+    UPDATE [{_schema}].[CommandProcessorPosition] SET [Version] = @Version WHERE [NameHash] = HashBytes('SHA2_256', @Name)
+ELSE
+    INSERT INTO [{_schema}].[CommandProcessorPosition] ([NameHash], [Name], [Version]) VALUES (HashBytes('SHA2_256', @Name), @Name, @Version)";
+        }
     }
 }

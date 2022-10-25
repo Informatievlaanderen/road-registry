@@ -21,6 +21,7 @@ public class RoadSegmentGeometryValidatorTests
     }
 
     public Fixture Fixture { get; }
+    public RoadSegmentGeometryValidator Validator { get; }
 
     [Fact]
     public void LineStringCanNotBeNull()
@@ -58,8 +59,6 @@ public class RoadSegmentGeometryValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.SpatialReferenceSystemIdentifier, value);
     }
-
-    public RoadSegmentGeometryValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

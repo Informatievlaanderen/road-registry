@@ -43,7 +43,6 @@ public class RoadSegmentEuropeanRoadAttributeDbaseSchema : DbaseSchema
 
     public DbaseField BEGINORG => Fields[4];
     public DbaseField BEGINTIJD => Fields[3];
-
     public DbaseField EU_OIDN => Fields[0];
     public DbaseField EUNUMMER => Fields[2];
     public DbaseField LBLBGNORG => Fields[5];

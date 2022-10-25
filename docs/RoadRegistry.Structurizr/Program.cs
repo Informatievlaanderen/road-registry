@@ -21,7 +21,6 @@ public static class Ids
     public static int ContainerEventStore = 10005;
     public static int PersonUser = 10000;
     public static int SoftwareSystemApi = 10008;
-
     public static int SoftwareSystemProjectionProducer = 10007;
     public static int SoftwareSystemRoadRegistry = 10001;
 }
@@ -40,14 +39,11 @@ public static class CustomTags
 public class Program
 {
     private const string PersonUserName = "Gebruiker";
-
     private const string WorkspaceUrlFormat = "https://structurizr.com/workspace/{0}";
     private static string _apiKey;
     private static string _apiSecret;
     private static long _workspaceId;
-
     private static string _workspaceUrlViewFormat;
-
     private static readonly string ContainerAggregateRootId = Ids.ContainerAggregateRoot.ToString();
     private static readonly string ContainerApiId = Ids.ContainerApi.ToString();
     private static readonly string ContainerApiRunnerId = Ids.ContainerApiRunner.ToString();
@@ -56,9 +52,7 @@ public class Program
 
     // This crap is because structurizr.com expects integers for ids, while structurizr.net wants strings
     private static readonly string PersonUserId = Ids.PersonUser.ToString();
-
     private static readonly string SoftwareSystemApiId = Ids.SoftwareSystemApi.ToString();
-
     private static readonly string SoftwareSystemProjectionProducerId = Ids.SoftwareSystemProjectionProducer.ToString();
     private static readonly string SoftwareSystemRoadRegistryId = Ids.SoftwareSystemRoadRegistry.ToString();
 

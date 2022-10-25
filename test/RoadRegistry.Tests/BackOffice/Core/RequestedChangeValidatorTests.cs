@@ -11,6 +11,8 @@ public class RequestedChangeValidatorTests
         Validator = new RequestedChangeValidator();
     }
 
+    public RequestedChangeValidator Validator { get; }
+
     [Fact]
     public void AddGradeSeparatedJunctionHasExpectedValidator()
     {
@@ -52,6 +54,4 @@ public class RequestedChangeValidatorTests
     {
         Validator.ShouldHaveChildValidator(c => c.ModifyRoadNode, typeof(ModifyRoadNodeValidator));
     }
-
-    public RequestedChangeValidator Validator { get; }
 }

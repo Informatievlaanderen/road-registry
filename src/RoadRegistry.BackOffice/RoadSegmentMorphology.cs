@@ -232,6 +232,13 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         Translation = dutchTranslation;
     }
 
+    public DutchTranslation Translation { get; }
+
+    public bool Equals(RoadSegmentMorphology other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -239,40 +246,15 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public class DutchTranslation
-    {
-        internal DutchTranslation(int identifier, string name, string description)
-        {
-            Identifier = identifier;
-            Name = name;
-            Description = description;
-        }
-
-        public string Description { get; }
-
-        public int Identifier { get; }
-
-        public string Name { get; }
-    }
-
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentMorphology type && Equals(type);
     }
 
-
-    public bool Equals(RoadSegmentMorphology other)
-    {
-        return other != null && other._value == _value;
-    }
-
-
     public override int GetHashCode()
     {
         return _value.GetHashCode();
     }
-
 
     public static bool operator ==(RoadSegmentMorphology left, RoadSegmentMorphology right)
     {
@@ -289,7 +271,6 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         return !Equals(left, right);
     }
 
-
     public static RoadSegmentMorphology Parse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -298,14 +279,10 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         return parsed;
     }
 
-
     public override string ToString()
     {
         return _value;
     }
-
-
-    public DutchTranslation Translation { get; }
 
     public static bool TryParse(string value, out RoadSegmentMorphology parsed)
     {
@@ -313,5 +290,19 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
+    }
+
+    public class DutchTranslation
+    {
+        internal DutchTranslation(int identifier, string name, string description)
+        {
+            Identifier = identifier;
+            Name = name;
+            Description = description;
+        }
+
+        public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

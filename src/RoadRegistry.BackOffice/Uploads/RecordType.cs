@@ -7,14 +7,8 @@ using System.Linq;
 public sealed class RecordType : IEquatable<RecordType>
 {
     public const int AddedIdentifier = 2;
-
-
     public const int IdenticalIdentifier = 1;
-
-
     public const int ModifiedIdentifier = 3;
-
-
     public const int RemovedIdentifier = 4;
 
     public static readonly RecordType Identical =
@@ -73,6 +67,13 @@ public sealed class RecordType : IEquatable<RecordType>
         Translation = dutchTranslation;
     }
 
+    public DutchTranslation Translation { get; }
+
+    public bool Equals(RecordType other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -80,30 +81,9 @@ public sealed class RecordType : IEquatable<RecordType>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public class DutchTranslation
-    {
-        internal DutchTranslation(int identifier, string name, string description)
-        {
-            Identifier = identifier;
-            Name = name;
-            Description = description;
-        }
-
-        public string Description { get; }
-
-        public int Identifier { get; }
-
-        public string Name { get; }
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RecordType type && Equals(type);
-    }
-
-    public bool Equals(RecordType other)
-    {
-        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()
@@ -144,13 +124,25 @@ public sealed class RecordType : IEquatable<RecordType>
         return _value;
     }
 
-    public DutchTranslation Translation { get; }
-
     public static bool TryParse(string value, out RecordType parsed)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
+    }
+
+    public class DutchTranslation
+    {
+        internal DutchTranslation(int identifier, string name, string description)
+        {
+            Identifier = identifier;
+            Name = name;
+            Description = description;
+        }
+
+        public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

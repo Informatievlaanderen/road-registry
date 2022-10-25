@@ -12,10 +12,8 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
         Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is Problem other && Equals(other);
-    }
+    public IReadOnlyCollection<ProblemParameter> Parameters { get; }
+    public string Reason { get; }
 
     public bool Equals(Problem x, Problem y)
     {
@@ -38,6 +36,15 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
                && Parameters.SequenceEqual(other.Parameters);
     }
 
+    public int GetHashCode(Problem obj)
+    {
+        return HashCode.Combine(obj.Reason, obj.Parameters);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Problem other && Equals(other);
+    }
 
     public override int GetHashCode()
     {
@@ -45,15 +52,6 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
             Reason.GetHashCode(),
             (current, parameter) => current ^ parameter.GetHashCode());
     }
-
-    public int GetHashCode(Problem obj)
-    {
-        return HashCode.Combine(obj.Reason, obj.Parameters);
-    }
-
-    public IReadOnlyCollection<ProblemParameter> Parameters { get; }
-
-    public string Reason { get; }
 
     public abstract Messages.Problem Translate();
 }

@@ -11,7 +11,6 @@ public readonly struct ChangeRequestId : IEquatable<ChangeRequestId>
 {
     public const int ExactLength = 32;
     public const int ExactStringLength = 64;
-
     private readonly byte[] _value;
 
     public ChangeRequestId(byte[] value)

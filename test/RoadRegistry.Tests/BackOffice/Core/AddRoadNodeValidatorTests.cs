@@ -20,6 +20,7 @@ public class AddRoadNodeValidatorTests
     }
 
     public Fixture Fixture { get; }
+    public AddRoadNodeValidator Validator { get; }
 
     [Fact]
     public void GeometryHasExpectedValidator()
@@ -47,8 +48,6 @@ public class AddRoadNodeValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
     }
-
-    public AddRoadNodeValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

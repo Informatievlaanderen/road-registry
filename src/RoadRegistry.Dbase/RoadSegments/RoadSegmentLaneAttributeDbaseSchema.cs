@@ -78,7 +78,6 @@ public class RoadSegmentLaneAttributeDbaseSchema : DbaseSchema
     public DbaseField LBLBGNORG => Fields[10];
     public DbaseField LBLRICHT => Fields[5];
     public DbaseField RICHTING => Fields[4];
-
     public DbaseField RS_OIDN => Fields[0];
     public DbaseField TOTPOS => Fields[7];
     public DbaseField VANPOS => Fields[6];

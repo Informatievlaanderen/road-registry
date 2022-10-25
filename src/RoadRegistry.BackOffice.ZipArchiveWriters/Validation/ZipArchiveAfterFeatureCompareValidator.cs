@@ -178,7 +178,6 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
             problems,
             (current, file) => current.RequiredFileMissing(file));
 
-
         // Validate all required files (if a validator was registered for it)
 
         if (missingRequiredFiles.Count == 0)

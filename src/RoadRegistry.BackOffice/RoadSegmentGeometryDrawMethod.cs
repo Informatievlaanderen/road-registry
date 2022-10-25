@@ -54,6 +54,13 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         Translation = dutchTranslation;
     }
 
+    public DutchTranslation Translation { get; }
+
+    public bool Equals(RoadSegmentGeometryDrawMethod other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -61,37 +68,15 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public class DutchTranslation
-    {
-        internal DutchTranslation(int identifier, string name, string description)
-        {
-            Identifier = identifier;
-            Name = name;
-            Description = description;
-        }
-
-        public string Description { get; }
-
-        public int Identifier { get; }
-
-        public string Name { get; }
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentGeometryDrawMethod type && Equals(type);
-    }
-
-    public bool Equals(RoadSegmentGeometryDrawMethod other)
-    {
-        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()
     {
         return _value.GetHashCode();
     }
-
 
     public static bool operator ==(RoadSegmentGeometryDrawMethod left, RoadSegmentGeometryDrawMethod right)
     {
@@ -108,7 +93,6 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         return !Equals(left, right);
     }
 
-
     public static RoadSegmentGeometryDrawMethod Parse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -122,13 +106,25 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         return _value;
     }
 
-    public DutchTranslation Translation { get; }
-
     public static bool TryParse(string value, out RoadSegmentGeometryDrawMethod parsed)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
+    }
+
+    public class DutchTranslation
+    {
+        internal DutchTranslation(int identifier, string name, string description)
+        {
+            Identifier = identifier;
+            Name = name;
+            Description = description;
+        }
+
+        public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

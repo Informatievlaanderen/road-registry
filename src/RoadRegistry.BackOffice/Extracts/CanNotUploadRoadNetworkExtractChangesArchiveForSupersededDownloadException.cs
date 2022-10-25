@@ -22,7 +22,6 @@ public class CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadEx
     }
 
     public DownloadId AttemptedDownloadId { get; }
-
     public ExternalExtractRequestId ExternalRequestId { get; }
     public ExtractRequestId RequestId { get; }
     public DownloadId RequiredDownloadId { get; }

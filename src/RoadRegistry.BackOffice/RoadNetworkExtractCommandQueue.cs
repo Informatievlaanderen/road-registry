@@ -27,17 +27,6 @@ public class RoadNetworkExtractCommandQueue : IRoadNetworkExtractCommandQueue
         _store = store ?? throw new ArgumentNullException(nameof(store));
     }
 
-    private sealed class Claim
-    {
-        public string Type { get; set; }
-        public string Value { get; set; }
-    }
-
-    private sealed class CommandMetadata
-    {
-        public Claim[] Principal { get; set; }
-    }
-
     public async Task Write(Command command, CancellationToken cancellationToken)
     {
         var jsonMetadata = JsonConvert.SerializeObject(
@@ -58,5 +47,16 @@ public class RoadNetworkExtractCommandQueue : IRoadNetworkExtractCommandQueue
                 JsonConvert.SerializeObject(command.Body, SerializerSettings),
                 jsonMetadata)
         }, cancellationToken);
+    }
+
+    private sealed class Claim
+    {
+        public string Type { get; set; }
+        public string Value { get; set; }
+    }
+
+    private sealed class CommandMetadata
+    {
+        public Claim[] Principal { get; set; }
     }
 }

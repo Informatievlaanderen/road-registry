@@ -766,7 +766,6 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
             );
     }
 
-
     [Fact]
     public Task When_road_segment_was_added()
     {

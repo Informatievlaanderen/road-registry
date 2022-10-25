@@ -19,6 +19,7 @@ public class LineStringValidatorTests
     }
 
     public Fixture Fixture { get; }
+    public LineStringValidator Validator { get; }
 
     [Fact]
     public void MeasureCanNotBeNaN()
@@ -71,8 +72,6 @@ public class LineStringValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.Points, (Point[])null);
     }
-
-    public LineStringValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

@@ -20,6 +20,7 @@ public class AddGradeSeparatedJunctionValidatorTests
     }
 
     public Fixture Fixture { get; }
+    public AddGradeSeparatedJunctionValidator Validator { get; }
 
     [Theory]
     [InlineData(int.MinValue)]
@@ -50,8 +51,6 @@ public class AddGradeSeparatedJunctionValidatorTests
     {
         Validator.ShouldHaveValidationErrorFor(c => c.UpperSegmentId, value);
     }
-
-    public AddGradeSeparatedJunctionValidator Validator { get; }
 
     [Fact]
     public void VerifyValid()

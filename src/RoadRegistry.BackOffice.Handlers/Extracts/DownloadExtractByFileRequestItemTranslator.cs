@@ -64,10 +64,7 @@ public class DownloadExtractByFileRequestItemTranslator
                     if (polygons.Any())
                     {
                         var srids = polygons.Select(x => x.SRID).Distinct().ToArray();
-                        if (srids.Length > 1)
-                        {
-                            AddValidationFailure("All geometries must have the same SRID.");
-                        }
+                        if (srids.Length > 1) AddValidationFailure("All geometries must have the same SRID.");
                     }
                     else
                     {

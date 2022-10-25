@@ -24,6 +24,26 @@ public class MetadataUpdater : IMetadataUpdater
         _clock = clock;
     }
 
+    public async Task UpdateAsync(CancellationToken cancellationToken)
+    {
+        if (!_configuration.Enabled) return;
+
+        try
+        {
+            var makeBody = MakeBody(_clock.GetCurrentInstant(), _configuration.Id);
+            var xDoc = await PerformCswRequest(_configuration.Uri, makeBody, cancellationToken);
+
+            var ns = new XmlNamespaceManager(new NameTable());
+            ns.AddNamespace("csw", "http://www.opengis.net/cat/csw/2.0.2");
+            var totalUpdated = int.Parse(xDoc.XPathSelectElement("csw:TransactionResponse/csw:TransactionSummary/csw:totalUpdated", ns)?.Value ?? string.Empty);
+            if (totalUpdated <= 0) throw new InvalidOperationException($"Metadata not updated, response from metadata service: \n{xDoc}");
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException("Could not update metadata: " + ex.Message);
+        }
+    }
+
     private static string EncodeBasicAuth(string username, string password)
     {
         return $"{Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"))}";
@@ -98,25 +118,5 @@ public class MetadataUpdater : IMetadataUpdater
             }, cancellationToken);
         var content = await updateMetadataResponse.Content.ReadAsStreamAsync(cancellationToken);
         return await XDocument.LoadAsync(content, LoadOptions.None, cancellationToken);
-    }
-
-    public async Task UpdateAsync(CancellationToken cancellationToken)
-    {
-        if (!_configuration.Enabled) return;
-
-        try
-        {
-            var makeBody = MakeBody(_clock.GetCurrentInstant(), _configuration.Id);
-            var xDoc = await PerformCswRequest(_configuration.Uri, makeBody, cancellationToken);
-
-            var ns = new XmlNamespaceManager(new NameTable());
-            ns.AddNamespace("csw", "http://www.opengis.net/cat/csw/2.0.2");
-            var totalUpdated = int.Parse(xDoc.XPathSelectElement("csw:TransactionResponse/csw:TransactionSummary/csw:totalUpdated", ns)?.Value ?? string.Empty);
-            if (totalUpdated <= 0) throw new InvalidOperationException($"Metadata not updated, response from metadata service: \n{xDoc}");
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Could not update metadata: " + ex.Message);
-        }
     }
 }

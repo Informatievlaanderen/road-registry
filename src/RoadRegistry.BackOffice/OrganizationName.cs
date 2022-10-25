@@ -5,7 +5,6 @@ using System;
 public readonly struct OrganizationName : IEquatable<OrganizationName>
 {
     public const int MaxLength = 64;
-
     private readonly string _value;
 
     public OrganizationName(string value)

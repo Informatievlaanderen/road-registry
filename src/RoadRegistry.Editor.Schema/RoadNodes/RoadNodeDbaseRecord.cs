@@ -27,7 +27,6 @@ public class RoadNodeDbaseRecord : DbaseRecord
     public DbaseString LBLBGNORG { get; }
     public DbaseString LBLTYPE { get; }
     public DbaseInt32 TYPE { get; }
-
     public DbaseInt32 WK_OIDN { get; }
     public DbaseString WK_UIDN { get; }
 }

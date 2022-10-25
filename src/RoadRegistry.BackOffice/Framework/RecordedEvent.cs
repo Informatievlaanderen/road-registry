@@ -11,6 +11,5 @@ public class RecordedEvent
     }
 
     public object Event { get; }
-
     public StreamName Stream { get; }
 }

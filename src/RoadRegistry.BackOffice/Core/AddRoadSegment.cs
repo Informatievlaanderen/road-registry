@@ -56,7 +56,6 @@ public class AddRoadSegment : IRequestedChange
     public RoadNodeId EndNodeId { get; }
     public MultiLineString Geometry { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
-
     public RoadSegmentId Id { get; }
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
     public CrabStreetnameId? LeftSideStreetNameId { get; }
@@ -70,6 +69,7 @@ public class AddRoadSegment : IRequestedChange
     public RoadNodeId? TemporaryEndNodeId { get; }
     public RoadSegmentId TemporaryId { get; }
     public RoadNodeId? TemporaryStartNodeId { get; }
+    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -406,6 +406,4 @@ public class AddRoadSegment : IRequestedChange
 
         return problems;
     }
-
-    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 }

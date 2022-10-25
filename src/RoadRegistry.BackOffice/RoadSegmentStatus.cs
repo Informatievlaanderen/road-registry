@@ -71,7 +71,6 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
         Unknown, PermitRequested, BuildingPermitGranted, UnderConstruction, InUse, OutOfUse
     };
 
-
     public static readonly IReadOnlyDictionary<int, RoadSegmentStatus> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
@@ -83,6 +82,13 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
         Translation = dutchTranslation;
     }
 
+    public DutchTranslation Translation { get; }
+
+    public bool Equals(RoadSegmentStatus other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -90,37 +96,15 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public class DutchTranslation
-    {
-        internal DutchTranslation(int identifier, string name, string description)
-        {
-            Identifier = identifier;
-            Name = name;
-            Description = description;
-        }
-
-        public string Description { get; }
-
-        public int Identifier { get; }
-
-        public string Name { get; }
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentStatus type && Equals(type);
-    }
-
-    public bool Equals(RoadSegmentStatus other)
-    {
-        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()
     {
         return _value.GetHashCode();
     }
-
 
     public static bool operator ==(RoadSegmentStatus left, RoadSegmentStatus right)
     {
@@ -137,7 +121,6 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
         return !Equals(left, right);
     }
 
-
     public static RoadSegmentStatus Parse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -146,13 +129,10 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
         return parsed;
     }
 
-
     public override string ToString()
     {
         return _value;
     }
-
-    public DutchTranslation Translation { get; }
 
     public static bool TryParse(string value, out RoadSegmentStatus parsed)
     {
@@ -160,5 +140,19 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
+    }
+
+    public class DutchTranslation
+    {
+        internal DutchTranslation(int identifier, string name, string description)
+        {
+            Identifier = identifier;
+            Name = name;
+            Description = description;
+        }
+
+        public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

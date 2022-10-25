@@ -17,12 +17,11 @@ public class SyndicationContext : RunnerDbContext<SyndicationContext>
     }
 
     public DbSet<MunicipalityRecord> Municipalities { get; set; }
+    public override string ProjectionStateSchema => WellknownSchemas.SyndicationMetaSchema;
+    public DbSet<StreetNameRecord> StreetNames { get; set; }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
     }
-
-    public override string ProjectionStateSchema => WellknownSchemas.SyndicationMetaSchema;
-    public DbSet<StreetNameRecord> StreetNames { get; set; }
 }

@@ -5,7 +5,6 @@ public class RoadNetworkInfo
     public const int Identifier = 0;
     public bool CompletedImport { get; set; }
     public int GradeSeparatedJunctionCount { get; set; }
-
     public int Id { get; set; } = Identifier;
     public int OrganizationCount { get; set; }
     public int RoadNodeCount { get; set; }

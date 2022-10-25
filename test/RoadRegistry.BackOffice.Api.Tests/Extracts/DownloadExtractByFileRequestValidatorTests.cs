@@ -26,6 +26,17 @@ public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
         await _shpFilePolygon.ReadStream.DisposeAsync();
     }
 
+    public async Task InitializeAsync()
+    {
+        _prjFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.prj");
+        _shpFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.shp");
+    }
+
+    private async Task<DownloadExtractByFileRequestItem> GetDownloadExtractByFileRequestItemFromResource(string name)
+    {
+        return new DownloadExtractByFileRequestItem(name, await GetEmbeddedResourceStream(name), ContentType.Parse("application/octet-stream"));
+    }
+
     private async Task<MemoryStream> GetEmbeddedResourceStream(string name)
     {
         var sourceStream = new MemoryStream();
@@ -40,23 +51,12 @@ public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
         return sourceStream;
     }
 
-    private async Task<DownloadExtractByFileRequestItem> GetDownloadExtractByFileRequestItemFromResource(string name)
-    {
-        return new DownloadExtractByFileRequestItem(name, await GetEmbeddedResourceStream(name), ContentType.Parse("application/octet-stream"));
-    }
-
-    public async Task InitializeAsync()
-    {
-        _prjFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.prj");
-        _shpFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.shp");
-    }
-
     public static IEnumerable<object[]> InvalidDescriptionCases()
     {
         yield return new object[] { null };
         yield return new object[] { new string(Enumerable.Repeat('a', ExtractDescription.MaxLength + 1).ToArray()) };
     }
-    
+
     [Theory]
     [InlineData(0)]
     [InlineData(1)]

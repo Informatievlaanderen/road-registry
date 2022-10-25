@@ -5,9 +5,7 @@ using System;
 public readonly struct Reason : IEquatable<Reason>
 {
     public static readonly Reason None = default;
-
     public const int MaxLength = 254;
-
     private readonly string _value;
 
     public Reason(string value)

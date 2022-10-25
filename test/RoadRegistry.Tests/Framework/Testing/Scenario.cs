@@ -21,6 +21,11 @@ public class Scenario : IScenarioInitialStateBuilder
         return Builder.GivenNone();
     }
 
+    public IScenarioWhenStateBuilder When(Command command)
+    {
+        return Builder.When(command);
+    }
+
     private class ScenarioBuilder :
         IScenarioInitialStateBuilder,
         IScenarioGivenNoneStateBuilder,
@@ -110,10 +115,5 @@ public class Scenario : IScenarioInitialStateBuilder
             if (command == null) throw new ArgumentNullException(nameof(command));
             return new ScenarioBuilder(_givens, command, _thens, _throws);
         }
-    }
-
-    public IScenarioWhenStateBuilder When(Command command)
-    {
-        return Builder.When(command);
     }
 }

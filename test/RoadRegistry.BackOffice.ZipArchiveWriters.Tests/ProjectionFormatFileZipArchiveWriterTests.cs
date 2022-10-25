@@ -28,10 +28,6 @@ public class ProjectionFormatFileZipArchiveWriterTests
             new ProjectionFormatFileZipArchiveWriter<FakeDbContext>("file.prj", null));
     }
 
-    private class FakeDbContext : DbContext
-    {
-    }
-
     [Fact]
     public void FileNameCanNotBeNull()
     {
@@ -65,5 +61,9 @@ public class ProjectionFormatFileZipArchiveWriterTests
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
             });
+    }
+
+    private class FakeDbContext : DbContext
+    {
     }
 }

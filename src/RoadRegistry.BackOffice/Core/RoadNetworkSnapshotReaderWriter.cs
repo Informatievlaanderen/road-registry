@@ -13,7 +13,6 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
 {
     public static readonly MetadataKey AtVersionKey = new("at-version");
     private static readonly ContentType MessagePackContentType = ContentType.Parse("application/msgpack");
-
     private static readonly BlobName SnapshotHead = new("roadnetworksnapshot-HEAD");
     private static readonly BlobName SnapshotPrefix = new("roadnetworksnapshot-");
     private readonly IBlobClient _client;

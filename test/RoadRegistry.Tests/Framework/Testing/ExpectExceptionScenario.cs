@@ -14,6 +14,10 @@ public class ExpectExceptionScenario
         Throws = throws ?? throw new ArgumentNullException(nameof(throws));
     }
 
+    public RecordedEvent[] Givens { get; }
+    public Exception Throws { get; }
+    public Command When { get; }
+
     public ScenarioExpectedExceptionButRecordedEvents ButRecordedEvents(RecordedEvent[] events)
     {
         return new ScenarioExpectedExceptionButRecordedEvents(this, events);
@@ -29,13 +33,8 @@ public class ExpectExceptionScenario
         return new ScenarioExpectedExceptionButThrewNoException(this);
     }
 
-    public RecordedEvent[] Givens { get; }
-
     public ExpectExceptionScenarioPassed Pass()
     {
         return new ExpectExceptionScenarioPassed(this);
     }
-
-    public Exception Throws { get; }
-    public Command When { get; }
 }

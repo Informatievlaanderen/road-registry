@@ -62,6 +62,13 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
         Translation = dutchTranslation;
     }
 
+    public DutchTranslation Translation { get; }
+
+    public bool Equals(RoadSegmentSurfaceType other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -69,37 +76,15 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public class DutchTranslation
-    {
-        internal DutchTranslation(int identifier, string name, string description)
-        {
-            Identifier = identifier;
-            Name = name;
-            Description = description;
-        }
-
-        public string Description { get; }
-
-        public int Identifier { get; }
-
-        public string Name { get; }
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentSurfaceType type && Equals(type);
-    }
-
-    public bool Equals(RoadSegmentSurfaceType other)
-    {
-        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()
     {
         return _value.GetHashCode();
     }
-
 
     public static bool operator ==(RoadSegmentSurfaceType left, RoadSegmentSurfaceType right)
     {
@@ -124,13 +109,10 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
         return parsed;
     }
 
-
     public override string ToString()
     {
         return _value;
     }
-
-    public DutchTranslation Translation { get; }
 
     public static bool TryParse(string value, out RoadSegmentSurfaceType parsed)
     {
@@ -138,5 +120,19 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
+    }
+
+    public class DutchTranslation
+    {
+        internal DutchTranslation(int identifier, string name, string description)
+        {
+            Identifier = identifier;
+            Name = name;
+            Description = description;
+        }
+
+        public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }
