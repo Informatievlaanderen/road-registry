@@ -126,7 +126,6 @@ public class ExtractsController : ControllerBase
         {
             DownloadExtractByFileRequest request = new(
                 BuildRequestItem(".shp"),
-                BuildRequestItem(".shx"),
                 BuildRequestItem(".prj"),
                 body.Buffer,
                 body.Description);

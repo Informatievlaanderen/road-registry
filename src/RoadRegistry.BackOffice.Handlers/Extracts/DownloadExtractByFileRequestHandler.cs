@@ -83,7 +83,18 @@ public class DownloadExtractByFileRequestHandler : EndpointRequestHandler<Downlo
                             }
                     }
 
-                    if (!polygons.Any()) AddValidationFailure("Invalid shape file. Does not contain any valid polygon geometries.");
+                    if (polygons.Any())
+                    {
+                        var srids = polygons.Select(x => x.SRID).Distinct().ToArray();
+                        if (srids.Length > 1)
+                        {
+                            AddValidationFailure("All geometries must have the same SRID.");
+                        }
+                    }
+                    else
+                    {
+                        AddValidationFailure("Invalid shape file. Does not contain any valid polygon geometries.");
+                    }
                 }
                 else
                 {
@@ -93,7 +104,8 @@ public class DownloadExtractByFileRequestHandler : EndpointRequestHandler<Downlo
 
             if (validationFailures.Any()) throw new ValidationException("Shape file content contains some errors", validationFailures);
 
-            return GeometryTranslator.TranslateToRoadNetworkExtractGeometry(new MultiPolygon(polygons.ToArray()), buffer);
+            var srid = polygons.First().SRID;
+            return GeometryTranslator.TranslateToRoadNetworkExtractGeometry(new MultiPolygon(polygons.ToArray()) { SRID = srid }, buffer);
         }
 
         void AddValidationFailure(string errorMessage)

@@ -80,9 +80,9 @@
         <h3>Stap 3: Beschrijving van het extract</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="municipality-description" class="vl-form__label __field__label"
-              >Geef een beschrijving op van het extract.</label
-            >
+            <label for="municipality-description" class="vl-form__label __field__label">
+              Geef een beschrijving op van het extract.
+            </label>
           </div>
           <div class="vl-form-col--12-12">
             <vl-textarea
@@ -120,9 +120,7 @@
         <h3>Stap 2: Details van de contour</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="contour-wkt" class="vl-form__label __field__label">
-              Geef een contour op waarvoor u het extract wenst op te halen. Dit kan op één van twee manieren:
-            </label>
+            <p>Geef een contour op waarvoor u het extract wenst op te halen. Dit kan op één van twee manieren:</p>
           </div>
           <div class="vl-form-col--12-12">
             <label>
@@ -138,12 +136,16 @@
           </div>
           <template v-if="contourFlow.contourType === 'zip'">
             <div class="vl-form-col--12-12">
+              <p>
+                <br />
+                Laad een shapefile op voor een (multi)polygoon in coördinatensysteem Lambert 1972.
+              </p>
               <vl-upload
                 ref="vlUpload"
                 id="upload-component"
                 name="upload-component"
                 url="#"
-                upload-drag-text="Selecteer de op te laden bestanden (.shp, .shx, .prj)"
+                upload-drag-text="Selecteer de op te laden bestanden (.shp, .prj)"
                 upload-label="Shapefile"
                 :auto-process="false"
                 :options="uploadOptions"
@@ -156,11 +158,15 @@
                 @upload-file-added-manually="uploadFileAdded"
                 @upload-removed-file="uploadFileRemoved"
               />
-              <p>Laad een shapefile op voor een (multi)polygoon in coördinatensysteem Lambert 1972.</p>
             </div>
           </template>
           <template v-if="contourFlow.contourType === 'wkt'">
             <div class="vl-form-col--12-12">
+              <p>
+                <br/>
+                Geef een contour op (in WKT formaat, coördinatensysteem Lambert 1972) waarvoor u het extract wenst op te
+                halen.
+              </p>
               <textarea
                 class="vl-textarea"
                 id="contour-wkt"
@@ -170,10 +176,6 @@
                 v-model="contourFlow.wkt"
                 @input="contourFlowWktChanged"
               ></textarea>
-              <p>
-                Geef een contour op (in WKT formaat, coördinatensysteem Lambert 1972) waarvoor u het extract wenst op te
-                halen.
-              </p>
             </div>
           </template>
           <div class="vl-form-col--9-12"></div>
@@ -190,21 +192,19 @@
             </label>
           </div>
 
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step1">
-              <span class="vl-button__label">Vorige</span>
-            </button>
-          </div>
-          <div class="vl-form-col--2-12">
-            <button
-              class="vl-button vl-button--block"
-              vl-button
-              v-on:click="currentStep = steps.Step3_Contour"
-              v-bind:class="{ 'vl-button--disabled': !contourFlowHasValidInput }"
-              :disabled="!contourFlowHasValidInput"
-            >
-              <span class="vl-button__label">Volgende</span>
-            </button>
+          <div class="vl-form-col--2-12"></div>
+          <div class="vl-form-col--2-12"></div>
+          <div class="vl-form-col--12-12">
+            <vl-action-group>
+              <vl-button @click="currentStep = steps.Step1">Vorige</vl-button>
+              <vl-button
+                @click="currentStep = steps.Step3_Contour"
+                :class="{ 'vl-button--disabled': !contourFlowHasValidInput }"
+                :disabled="!contourFlowHasValidInput"
+              >
+                Volgende
+              </vl-button>
+            </vl-action-group>
           </div>
         </div>
       </div>
@@ -227,35 +227,25 @@
               v-model="contourFlow.description"
             ></textarea>
           </div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step2_Contour">
-              <span class="vl-button__label">Vorige</span>
-            </button>
+          <div class="vl-form-col--12-12">
+            <vl-action-group>
+              <vl-button @click="currentStep = steps.Step2_Contour">Vorige</vl-button>
+              <vl-button
+                @click="submitContourRequest"
+                :class="{ 'vl-button--disabled': !isDescriptionValid(contourFlow.description) }"
+                :disabled="!isDescriptionValid(contourFlow.description)"
+              >
+                Extract aanvragen
+              </vl-button>
+            </vl-action-group>
           </div>
-          <div class="vl-form-col--2-12">
-            <button
-              class="vl-button vl-button--block"
-              vl-button
-              v-on:click="submitContourRequest"
-              v-bind:class="{ 'vl-button--disabled': !isDescriptionValid(contourFlow.description) }"
-              :disabled="!isDescriptionValid(contourFlow.description)"
-            >
-              <span class="vl-button__label">Extract aanvragen</span>
-            </button>
-          </div>
+
           <div class="vl-form-col--8-12"></div>
           <div class="vl-form-col--6-12">
             <span v-if="!isDescriptionValid(contourFlow.description)">
               Gelieve een beschrijving mee te geven van maximaal 250 karakters.
             </span>
-            <vl-alert
-              v-if="contourFlow.hasValidationErrors"
-              icon="warning"
-              title="Opgelet!"
-              mod-small
-              role="alertdialog"
-            >
-              <p>Er zijn validatie errors:</p>
+            <vl-alert v-if="contourFlow.hasValidationErrors" mod-error title="Validatie fouten" mod-small>
               <ul>
                 <li
                   v-for="contourValidationError in contourFlow.validationErrors.contour"
@@ -274,6 +264,7 @@
 
 <script lang="ts">
 import { BackOfficeApi, PublicApi } from "../../../services";
+import ValidationUtils from "@/core/utils/validation-utils";
 import Municipalities from "../../../types/municipalities";
 import RoadRegistry from "../../../types/road-registry";
 import RoadRegistryExceptions from "../../../types/road-registry-exceptions";
@@ -330,15 +321,15 @@ export default Vue.extend({
         uploadMultiple: true,
         autoQueue: false,
         autoProcessQueue: false,
-        maxFiles: 3,
+        maxFiles: 2,
         maxFilesize: 28672000, //28MB,
-        acceptedFiles: ".shp, .shx, .prj",
+        acceptedFiles: ".shp, .prj",
         paramName: "archive",
         headers: {},
       };
     },
     hasAllRequiredUploadFiles(): Boolean {
-      const requiredFileExtensions = [".shp", ".shx", ".prj"];
+      const requiredFileExtensions = [".shp", ".prj"];
 
       let fileNameWithoutExt = "";
 
@@ -398,11 +389,11 @@ export default Vue.extend({
 
       if (
         this.contourFlow.contourType === "zip" &&
-        this.contourFlow.files.length > 0 && !this.contourFlowHasValidInput
+        this.contourFlow.files.length > 0 &&
+        !this.contourFlowHasValidInput
       ) {
         status.title = "Ongeldige contour";
-        status.text =
-          "Gelieve precies één .shp, .shx en ,prj bestand op te laden.";
+        status.text = "Gelieve precies één .shp en .prj bestand op te laden.";
         status.error = true;
       }
 
@@ -478,10 +469,13 @@ export default Vue.extend({
 
         this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
       } catch (exception) {
-        //TODO-rik specific error type for byfile upload?
         if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {
           this.contourFlow.hasValidationErrors = true;
-          this.contourFlow.validationErrors = exception.error.validationErrors;
+          this.contourFlow.validationErrors = {
+            contour: ValidationUtils.convertValidationErrorsToContourValidationErrors(exception.error.validationErrors),
+          };
+        } else {
+          throw exception;
         }
       }
     },

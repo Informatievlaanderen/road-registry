@@ -15,7 +15,6 @@ public class DownloadExtractByFileRequestValidatorTests
     private readonly DownloadExtractByFileRequestValidator _validator;
 
     private static readonly DownloadExtractByFileRequestItem ShpFile = new ("filename.shp", Stream.Null, ContentType.Parse("application/octet-stream"));
-    private static readonly DownloadExtractByFileRequestItem ShxFile = new ("filename.shx", Stream.Null, ContentType.Parse("application/octet-stream"));
     private static readonly DownloadExtractByFileRequestItem PrjFile = new ("filename.prj", Stream.Null, ContentType.Parse("application/octet-stream"));
 
     public DownloadExtractByFileRequestValidatorTests()
@@ -38,7 +37,7 @@ public class DownloadExtractByFileRequestValidatorTests
     [InlineData(100)]
     public async Task Validate_will_allow_valid_buffer(int givenBuffer)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, ShxFile, PrjFile, givenBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, givenBuffer, ValidDescription));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
@@ -46,14 +45,14 @@ public class DownloadExtractByFileRequestValidatorTests
     [MemberData(nameof(ValidDescriptionCases))]
     public async Task Validate_will_allow_valid_description(string givenDescription)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, ShxFile, PrjFile, ValidBuffer, givenDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, ValidBuffer, givenDescription));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
     [Fact]
     public async Task Validate_will_allow_valid_geometry()
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, ShxFile, PrjFile, ValidBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, ValidBuffer, ValidDescription));
 
         await act.Should().NotThrowAsync<ValidationException>();
     }
@@ -65,7 +64,7 @@ public class DownloadExtractByFileRequestValidatorTests
     [InlineData(int.MaxValue)]
     public async Task Validate_will_not_allow_invalid_buffer(int givenBuffer)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, ShxFile, PrjFile, givenBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, givenBuffer, ValidDescription));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
@@ -73,14 +72,14 @@ public class DownloadExtractByFileRequestValidatorTests
     [MemberData(nameof(InvalidDescriptionCases))]
     public async Task Validate_will_not_allow_invalid_description(string givenDescription)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, ShxFile, PrjFile, ValidBuffer, givenDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, ValidBuffer, givenDescription));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
     [Fact]
     public async Task Validate_will_not_allow_invalid_geometry()
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, ShxFile, PrjFile, ValidBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(ShpFile, PrjFile, ValidBuffer, ValidDescription));
         await act.Should().ThrowAsync<ValidationException>();
     }
 

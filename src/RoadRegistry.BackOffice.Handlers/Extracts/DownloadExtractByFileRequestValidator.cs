@@ -10,8 +10,6 @@ public sealed class DownloadExtractByFileRequestValidator : AbstractValidator<Do
     {
         RuleFor(c => c.ShpFile)
             .SetValidator(new DownloadExtractByFileRequestItemValidator());
-        RuleFor(c => c.ShxFile)
-            .SetValidator(new DownloadExtractByFileRequestItemValidator());
         RuleFor(c => c.PrjFile)
             .SetValidator(new DownloadExtractByFileRequestItemValidator());
 
