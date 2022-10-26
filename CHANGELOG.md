@@ -1,3 +1,10 @@
+# [3.15.0](https://github.com/informatievlaanderen/road-registry/compare/v3.14.0...v3.15.0) (2022-10-26)
+
+
+### Features
+
+* Fix inconsistent code style and document layout ([a02bc47](https://github.com/informatievlaanderen/road-registry/commit/a02bc471f93662eb06d88d9dce7d0c5eec56a99f))
+
 # [3.14.0](https://github.com/informatievlaanderen/road-registry/compare/v3.13.3...v3.14.0) (2022-10-25)
 
 
