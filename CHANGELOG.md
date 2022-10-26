@@ -1,3 +1,10 @@
+## [3.15.1](https://github.com/informatievlaanderen/road-registry/compare/v3.15.0...v3.15.1) (2022-10-26)
+
+
+### Bug Fixes
+
+* add current request info logging ([265c109](https://github.com/informatievlaanderen/road-registry/commit/265c109d42ca56081e86698685df3607229d0e41))
+
 # [3.15.0](https://github.com/informatievlaanderen/road-registry/compare/v3.14.0...v3.15.0) (2022-10-26)
 
 
