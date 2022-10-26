@@ -1,10 +1,13 @@
 namespace RoadRegistry.BackOffice.Api;
 
+using System;
+using System.Linq;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -17,15 +20,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Linq;
-using FluentValidation;
 
 public class Startup
 {
     private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
-
     private IContainer _applicationContainer;
 
     public Startup(IConfiguration configuration)

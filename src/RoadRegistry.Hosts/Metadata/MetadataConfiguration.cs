@@ -7,7 +7,6 @@ public class MetadataConfiguration
     public string Id { get; set; }
     public string LoginUri { get; set; }
     public string Password { get; set; }
-
     public string Uri { get; set; }
     public string Username { get; set; }
 }

@@ -5,9 +5,7 @@ using System;
 public readonly struct OperatorName : IEquatable<OperatorName>
 {
     public static readonly OperatorName None = default;
-
     public const int MaxLength = 254;
-
     private readonly string _value;
 
     public OperatorName(string value)

@@ -16,26 +16,7 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         _problems = problems;
     }
 
-    public ZipArchiveProblems Add(FileProblem problem)
-    {
-        if (problem == null) throw new ArgumentNullException(nameof(problem));
-
-        return new ZipArchiveProblems(_problems.Add(problem));
-    }
-
-    public ZipArchiveProblems AddRange(IEnumerable<FileProblem> problems)
-    {
-        if (problems == null) throw new ArgumentNullException(nameof(problems));
-
-        return new ZipArchiveProblems(_problems.AddRange(problems));
-    }
-
     public int Count => _problems.Count;
-
-    public override bool Equals(object obj)
-    {
-        return obj is ZipArchiveProblems other && Equals(other);
-    }
 
     public bool Equals(ZipArchiveProblems other)
     {
@@ -50,6 +31,25 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
+    }
+
+    public ZipArchiveProblems Add(FileProblem problem)
+    {
+        if (problem == null) throw new ArgumentNullException(nameof(problem));
+
+        return new ZipArchiveProblems(_problems.Add(problem));
+    }
+
+    public ZipArchiveProblems AddRange(IEnumerable<FileProblem> problems)
+    {
+        if (problems == null) throw new ArgumentNullException(nameof(problems));
+
+        return new ZipArchiveProblems(_problems.AddRange(problems));
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is ZipArchiveProblems other && Equals(other);
     }
 
     public override int GetHashCode()

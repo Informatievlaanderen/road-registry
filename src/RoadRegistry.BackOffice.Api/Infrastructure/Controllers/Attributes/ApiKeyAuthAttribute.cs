@@ -1,5 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Extensions;
 using Microsoft.AspNetCore.Http;
@@ -8,10 +12,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
@@ -19,7 +19,6 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
     private const string ApiKeyHeaderName = "x-api-key";
     private const string ApiKeyQueryName = "apikey";
     private const string ApiTokenHeaderName = "x-api-token";
-
     private readonly string _requiredAccess;
 
     public ApiKeyAuthAttribute(string requiredAccess)
@@ -27,9 +26,16 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
         _requiredAccess = requiredAccess;
     }
 
-    internal record ApiToken([JsonProperty("clientname")] string ClientName, [JsonProperty("apikey")] string ApiKey, [JsonProperty("metadata")] ApiTokenMetadata Metadata);
+    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    {
+        if (context.HttpContext.Request.Headers.ContainsKey(ApiTokenHeaderName))
+        {
+            await OnActionExecutionApiTokenAsync(context, next);
+            return;
+        }
 
-    internal record ApiTokenMetadata([JsonProperty("wraccess")] bool WrAccess, [JsonProperty("syncaccess")] bool SyncAccess, [JsonProperty("ticketsaccess")] bool TicketsAccess = false);
+        await OnActionExecutionApiKeyAsync(context, next);
+    }
 
     public Task OnActionExecutionApiKeyAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
@@ -112,20 +118,13 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
         return next();
     }
 
-    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-    {
-        if (context.HttpContext.Request.Headers.ContainsKey(ApiTokenHeaderName))
-        {
-            await OnActionExecutionApiTokenAsync(context, next);
-            return;
-        }
-
-        await OnActionExecutionApiKeyAsync(context, next);
-    }
-
     private static void RefuseAccess(ActionExecutingContext context, string message)
     {
         context.SetContentFormatAcceptType();
         throw new ApiException(message, StatusCodes.Status401Unauthorized);
     }
+
+    internal record ApiToken([JsonProperty("clientname")] string ClientName, [JsonProperty("apikey")] string ApiKey, [JsonProperty("metadata")] ApiTokenMetadata Metadata);
+
+    internal record ApiTokenMetadata([JsonProperty("wraccess")] bool WrAccess, [JsonProperty("syncaccess")] bool SyncAccess, [JsonProperty("ticketsaccess")] bool TicketsAccess = false);
 }

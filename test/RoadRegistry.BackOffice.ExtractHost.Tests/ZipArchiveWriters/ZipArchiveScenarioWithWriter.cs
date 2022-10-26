@@ -9,7 +9,6 @@ using Microsoft.IO;
 public class ZipArchiveScenarioWithWriter<TContext> : ZipArchiveScenario where TContext : DbContext
 {
     private readonly IZipArchiveWriter<TContext> _writer;
-
     private TContext _context;
     private RoadNetworkExtractAssemblyRequest _request;
 

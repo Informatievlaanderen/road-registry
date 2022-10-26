@@ -29,6 +29,5 @@ public class LaneDirectionDbaseSchema : DbaseSchema
 
     public DbaseField DEFRICHT => Fields[2];
     public DbaseField LBLRICHT => Fields[1];
-
     public DbaseField RICHTING => Fields[0];
 }

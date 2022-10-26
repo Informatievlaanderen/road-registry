@@ -19,7 +19,6 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
 
     private readonly ImmutableHashSet<RoadNodeId> _addedNodes;
     private readonly ImmutableHashSet<RoadSegmentId> _addedSegments;
-
     private readonly ImmutableHashSet<RoadNodeId> _identicalNodes;
     private readonly ImmutableHashSet<RoadSegmentId> _identicalSegments;
     private readonly ImmutableHashSet<RoadNodeId> _modifiedNodes;
@@ -48,43 +47,9 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
         ZipArchiveMetadata = zipArchiveMetadata;
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is ZipArchiveValidationContext other && Equals(other);
-    }
-
-    public bool Equals(ZipArchiveValidationContext other)
-    {
-        return other != null
-               && _identicalSegments.SetEquals(other._identicalSegments)
-               && _addedSegments.SetEquals(other._addedSegments)
-               && _modifiedSegments.SetEquals(other._modifiedSegments)
-               && _removedSegments.SetEquals(other._removedSegments)
-               && _identicalNodes.SetEquals(other._identicalNodes)
-               && _addedNodes.SetEquals(other._addedNodes)
-               && _modifiedNodes.SetEquals(other._modifiedNodes)
-               && _removedNodes.SetEquals(other._removedNodes)
-               && ZipArchiveMetadata.Equals(other.ZipArchiveMetadata);
-    }
-
-    public override int GetHashCode()
-    {
-        return _identicalSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
-               ^ _addedSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
-               ^ _modifiedSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
-               ^ _removedSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
-               ^ _identicalNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode())
-               ^ _addedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode())
-               ^ _modifiedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode())
-               ^ _removedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode()
-                                                                       ^ ZipArchiveMetadata.GetHashCode());
-    }
-
     public IImmutableSet<RoadNodeId> KnownAddedRoadNodes => _addedNodes;
     public IImmutableSet<RoadSegmentId> KnownAddedRoadSegments => _addedSegments;
-
     public IImmutableSet<RoadNodeId> KnownIdenticalRoadNodes => _identicalNodes;
-
     public IImmutableSet<RoadSegmentId> KnownIdenticalRoadSegments => _identicalSegments;
     public IImmutableSet<RoadNodeId> KnownModifiedRoadNodes => _modifiedNodes;
     public IImmutableSet<RoadSegmentId> KnownModifiedRoadSegments => _modifiedSegments;
@@ -100,6 +65,40 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
         .Union(_addedSegments)
         .Union(_modifiedSegments)
         .Union(_removedSegments);
+
+    public ZipArchiveMetadata ZipArchiveMetadata { get; }
+
+    public bool Equals(ZipArchiveValidationContext other)
+    {
+        return other != null
+               && _identicalSegments.SetEquals(other._identicalSegments)
+               && _addedSegments.SetEquals(other._addedSegments)
+               && _modifiedSegments.SetEquals(other._modifiedSegments)
+               && _removedSegments.SetEquals(other._removedSegments)
+               && _identicalNodes.SetEquals(other._identicalNodes)
+               && _addedNodes.SetEquals(other._addedNodes)
+               && _modifiedNodes.SetEquals(other._modifiedNodes)
+               && _removedNodes.SetEquals(other._removedNodes)
+               && ZipArchiveMetadata.Equals(other.ZipArchiveMetadata);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is ZipArchiveValidationContext other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return _identicalSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
+               ^ _addedSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
+               ^ _modifiedSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
+               ^ _removedSegments.Aggregate(0, (current, segment) => current ^ segment.GetHashCode())
+               ^ _identicalNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode())
+               ^ _addedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode())
+               ^ _modifiedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode())
+               ^ _removedNodes.Aggregate(0, (current, node) => current ^ node.GetHashCode()
+                                                                       ^ ZipArchiveMetadata.GetHashCode());
+    }
 
     public ZipArchiveValidationContext WithAddedRoadNode(RoadNodeId node)
     {
@@ -244,6 +243,4 @@ public sealed class ZipArchiveValidationContext : IEquatable<ZipArchiveValidatio
             _removedNodes,
             zipArchiveMetadata);
     }
-
-    public ZipArchiveMetadata ZipArchiveMetadata { get; }
 }

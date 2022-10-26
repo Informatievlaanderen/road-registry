@@ -27,7 +27,6 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             public DbaseString BESCHRIJV { get; }
             public DbaseString OPERATOR { get; }
             public DbaseString ORG { get; }
-
             public DbaseInt32 SOURCEID { get; }
             public DbaseInt32 TYPE { get; }
         }
@@ -62,7 +61,6 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
             public DbaseString DOWNLOADID { get; }
             public DbaseString OPERATOR { get; }
             public DbaseString ORG { get; }
-
             public DbaseInt32 SOURCEID { get; }
             public DbaseInt32 TYPE { get; }
         }

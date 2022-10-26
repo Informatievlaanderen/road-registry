@@ -48,7 +48,6 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(p => p.LeftSideStreetNameId)
             .HasColumnName("linkerstraatnaamObjectId");
 
-
         b.Property(p => p.LeftSideStreetName)
             .HasColumnName("linkerstraatnaam")
             .HasColumnType("varchar(128)");

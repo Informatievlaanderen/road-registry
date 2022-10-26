@@ -16,9 +16,7 @@ public class Scheduler
     private readonly ILogger<Scheduler> _logger;
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
-
     private readonly CancellationTokenSource _messagePumpCancellation;
-
     private readonly Timer _timer;
 
     public Scheduler(IClock clock, ILogger<Scheduler> logger)
@@ -110,26 +108,6 @@ public class Scheduler
             });
     }
 
-    private sealed class ScheduleAction
-    {
-        public Func<CancellationToken, Task> Action { get; init; }
-
-        public Instant Due { get; init; }
-    }
-
-    private sealed class ScheduledAction
-    {
-        public ScheduledAction(Func<CancellationToken, Task> action, Instant due)
-        {
-            Action = action;
-            Due = due;
-        }
-
-        public Func<CancellationToken, Task> Action { get; }
-
-        public Instant Due { get; }
-    }
-
     public Task StartAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting scheduler ...");
@@ -147,6 +125,24 @@ public class Scheduler
         _messagePumpCancellation.Dispose();
         await _timer.DisposeAsync().ConfigureAwait(false);
         _logger.LogInformation("Stopped scheduler.");
+    }
+
+    private sealed class ScheduleAction
+    {
+        public Func<CancellationToken, Task> Action { get; init; }
+        public Instant Due { get; init; }
+    }
+
+    private sealed class ScheduledAction
+    {
+        public ScheduledAction(Func<CancellationToken, Task> action, Instant due)
+        {
+            Action = action;
+            Due = due;
+        }
+
+        public Func<CancellationToken, Task> Action { get; }
+        public Instant Due { get; }
     }
 
     private sealed class TimerElapsed

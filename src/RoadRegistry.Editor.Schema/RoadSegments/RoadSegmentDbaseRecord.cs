@@ -90,7 +90,6 @@ public class RoadSegmentDbaseRecord : DbaseRecord
     public DbaseInt32 TGBEP { get; }
     public DbaseString WEGCAT { get; }
     public DbaseString WS_GIDN { get; }
-
     public DbaseInt32 WS_OIDN { get; }
     public DbaseString WS_UIDN { get; }
 }

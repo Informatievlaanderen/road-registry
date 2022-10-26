@@ -20,10 +20,8 @@ public class RemoveRoadSegmentFromEuropeanRoad : ITranslatedChange
 
     public AttributeId AttributeId { get; }
     public EuropeanRoadNumber Number { get; }
-
     public RecordNumber RecordNumber { get; }
     public RoadSegmentId SegmentId { get; }
-
 
     public void TranslateTo(RequestedChange message)
     {

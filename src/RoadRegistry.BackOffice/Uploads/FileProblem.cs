@@ -14,10 +14,9 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
         Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is FileProblem other && Equals(other);
-    }
+    public string File { get; }
+    public IReadOnlyCollection<ProblemParameter> Parameters { get; }
+    public string Reason { get; }
 
     public bool Equals(FileProblem x, FileProblem y)
     {
@@ -42,7 +41,15 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
                && Parameters.SequenceEqual(other.Parameters);
     }
 
-    public string File { get; }
+    public int GetHashCode(FileProblem obj)
+    {
+        return HashCode.Combine(obj.File, obj.Reason, obj.Parameters);
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is FileProblem other && Equals(other);
+    }
 
     public override int GetHashCode()
     {
@@ -50,14 +57,6 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
             File.GetHashCode() ^ Reason.GetHashCode(),
             (current, parameter) => current ^ parameter.GetHashCode());
     }
-
-    public int GetHashCode(FileProblem obj)
-    {
-        return HashCode.Combine(obj.File, obj.Reason, obj.Parameters);
-    }
-
-    public IReadOnlyCollection<ProblemParameter> Parameters { get; }
-    public string Reason { get; }
 
     public abstract Messages.FileProblem Translate();
 }

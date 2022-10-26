@@ -34,10 +34,7 @@ public class RoadNodeChangeDbaseSchema : DbaseSchema
     }
 
     public DbaseField RECORDTYPE => Fields[3];
-
     public DbaseField TRANSACTID => Fields[2];
-
     public DbaseField TYPE => Fields[1];
-
     public DbaseField WEGKNOOPID => Fields[0];
 }

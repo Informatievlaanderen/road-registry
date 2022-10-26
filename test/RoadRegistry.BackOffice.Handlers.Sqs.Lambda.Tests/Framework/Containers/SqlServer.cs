@@ -24,9 +24,22 @@ public class SqlServer : ISqlServerDatabase
         StreetNameCache = new FakeStreetNameCache();
     }
 
+    public RecyclableMemoryStreamManager MemoryStreamManager { get; }
+    public IStreetNameCache StreetNameCache { get; }
+
     public Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
     {
         return _inner.CreateDatabaseAsync();
+    }
+
+    public Task DisposeAsync()
+    {
+        return _inner.DisposeAsync();
+    }
+
+    public Task InitializeAsync()
+    {
+        return _inner.InitializeAsync();
     }
 
     public async Task<EditorContext> CreateEditorContextAsync(SqlConnectionStringBuilder builder)
@@ -95,17 +108,4 @@ public class SqlServer : ISqlServerDatabase
         await context.Database.MigrateAsync();
         return context;
     }
-
-    public Task DisposeAsync()
-    {
-        return _inner.DisposeAsync();
-    }
-
-    public Task InitializeAsync()
-    {
-        return _inner.InitializeAsync();
-    }
-
-    public RecyclableMemoryStreamManager MemoryStreamManager { get; }
-    public IStreetNameCache StreetNameCache { get; }
 }

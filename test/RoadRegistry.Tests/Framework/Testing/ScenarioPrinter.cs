@@ -9,6 +9,7 @@ public class ScenarioPrinter
     }
 
     public IMessageTranslator Translator { get; }
+    public TextWriter Writer { get; }
 
     public async Task WriteAsync(ExpectEventsScenario scenario)
     {
@@ -57,6 +58,4 @@ public class ScenarioPrinter
 
         await Writer.WriteLineAsync(string.Format("\t{0}", Translator.Translate(scenario.Throws)));
     }
-
-    public TextWriter Writer { get; }
 }

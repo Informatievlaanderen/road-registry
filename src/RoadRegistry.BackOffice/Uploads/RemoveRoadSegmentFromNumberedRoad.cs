@@ -20,7 +20,6 @@ public class RemoveRoadSegmentFromNumberedRoad : ITranslatedChange
 
     public AttributeId AttributeId { get; }
     public NumberedRoadNumber Number { get; }
-
     public RecordNumber RecordNumber { get; }
     public RoadSegmentId SegmentId { get; }
 

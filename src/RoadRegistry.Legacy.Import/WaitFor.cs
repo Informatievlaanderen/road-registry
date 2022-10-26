@@ -18,7 +18,6 @@ internal class WriteTo
     }
 
     public Dictionary<string, string> Args { get; set; }
-
     public string Name { get; set; }
 }
 

@@ -7,6 +7,5 @@ using System.Xml;
 public class SyndicationContent<T>
 {
     [DataMember(Name = "Event")] public XmlElement Event { get; set; }
-
     [DataMember(Name = "Object")] public T Object { get; set; }
 }

@@ -20,6 +20,5 @@ public class OrganizationDbaseSchema : DbaseSchema
     }
 
     public DbaseField LBLORG => Fields[1];
-
     public DbaseField ORG => Fields[0];
 }

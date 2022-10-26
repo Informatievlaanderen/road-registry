@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Extracts;
@@ -14,13 +17,6 @@ using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using ProblemDetails = Be.Vlaanderen.Basisregisters.BasicApiProblem.ProblemDetails;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
@@ -107,15 +103,4 @@ public class UploadController : ControllerBase
             return Ok(response);
         });
     }
-}
-
-internal class ApiValidationProblemDetailsException : ApiProblemDetailsException
-{
-    public ApiValidationProblemDetailsException(string message, int statusCode, ProblemDetails problemDetails, ValidationException innerException)
-        : base(message, statusCode, problemDetails, innerException)
-    {
-        ValidationErrors = innerException.Errors;
-    }
-
-    public IEnumerable<ValidationFailure> ValidationErrors { get; init; }
 }

@@ -38,7 +38,6 @@ public class RoadSegment
     public AttributeHash AttributeHash { get; }
     public RoadNodeId End { get; }
     public MultiLineString Geometry { get; }
-
     public RoadSegmentId Id { get; }
 
     public IEnumerable<RoadNodeId> Nodes
@@ -49,6 +48,11 @@ public class RoadSegment
             yield return End;
         }
     }
+
+    public ImmutableHashSet<EuropeanRoadNumber> PartOfEuropeanRoads { get; }
+    public ImmutableHashSet<NationalRoadNumber> PartOfNationalRoads { get; }
+    public ImmutableHashSet<NumberedRoadNumber> PartOfNumberedRoads { get; }
+    public RoadNodeId Start { get; }
 
     public RoadSegment NotPartOfEuropeanRoad(EuropeanRoadNumber number)
     {
@@ -70,21 +74,15 @@ public class RoadSegment
         return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads.Add(number), PartOfNationalRoads, PartOfNumberedRoads);
     }
 
-    public ImmutableHashSet<EuropeanRoadNumber> PartOfEuropeanRoads { get; }
-
     public RoadSegment PartOfNationalRoad(NationalRoadNumber number)
     {
         return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads.Add(number), PartOfNumberedRoads);
     }
 
-    public ImmutableHashSet<NationalRoadNumber> PartOfNationalRoads { get; }
-
     public RoadSegment PartOfNumberedRoad(NumberedRoadNumber number)
     {
         return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads.Add(number));
     }
-
-    public ImmutableHashSet<NumberedRoadNumber> PartOfNumberedRoads { get; }
 
     public IEnumerable<RoadNodeId> SelectOppositeNode(RoadNodeId id)
     {
@@ -92,8 +90,6 @@ public class RoadSegment
             yield return End;
         else if (End == id) yield return Start;
     }
-
-    public RoadNodeId Start { get; }
 
     public RoadSegment WithAttributeHash(AttributeHash hash)
     {

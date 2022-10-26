@@ -22,6 +22,5 @@ public class LaneDirectionDbaseRecord : DbaseRecord
 
     public DbaseString DEFRICHT { get; }
     public DbaseString LBLRICHT { get; }
-
     public DbaseInt32 RICHTING { get; }
 }

@@ -16,16 +16,13 @@ public class StreetNameRecord
     public string GermanHomonymAddition { get; set; }
     public string GermanName { get; set; }
     public string GermanNameWithHomonymAddition { get; set; }
-
     public string HomonymAddition { get; set; }
     public Guid MunicipalityId { get; set; }
     public string Name { get; set; }
-
     public string NameWithHomonymAddition { get; set; }
     public string NisCode { get; set; }
     public int? PersistentLocalId { get; set; }
     public long Position { get; set; }
     public Guid StreetNameId { get; set; }
-
     public StreetNameStatus? StreetNameStatus { get; set; }
 }

@@ -28,6 +28,69 @@ public static class ZipArchiveEntryProblems
         return new FileProblemBuilder(entry.Name).Error(reason);
     }
 
+    public static FileError HasDbaseHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
+    {
+        return new FileProblemBuilder(entry.Name).HasDbaseHeaderFormatError(exception);
+    }
+
+    public static FileError HasDbaseSchemaMismatch(this ZipArchiveEntry entry, DbaseSchema expectedSchema, DbaseSchema actualSchema)
+    {
+        return new FileProblemBuilder(entry.Name).HasDbaseSchemaMismatch(expectedSchema, actualSchema);
+    }
+
+    // dbase
+
+    public static FileProblem HasNoDbaseRecords(this ZipArchiveEntry entry, bool treatAsWarning)
+    {
+        return new FileProblemBuilder(entry.Name).HasNoDbaseRecords(treatAsWarning);
+    }
+
+    // shape
+
+    public static FileError HasNoShapeRecords(this ZipArchiveEntry entry)
+    {
+        return new FileProblemBuilder(entry.Name).HasNoShapeRecords();
+    }
+
+    public static FileError HasShapeHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
+    {
+        return new FileProblemBuilder(entry.Name).HasShapeRecordFormatError(exception);
+    }
+
+    public static FileProblem HasTooManyDbaseRecords(this ZipArchiveEntry entry, int expectedCount, int actualCount)
+    {
+        return new FileProblemBuilder(entry.Name).HasTooManyDbaseRecords(expectedCount, actualCount);
+    }
+
+    // projection format
+
+    public static FileError ProjectionFormatInvalid(this ZipArchiveEntry entry)
+    {
+        return new FileProblemBuilder(entry.Name).ProjectionFormatInvalid();
+    }
+
+    public static FileProblem RoadSegmentsWithoutLaneAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
+    {
+        return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutLaneAttributes(segments);
+    }
+
+    public static FileProblem RoadSegmentsWithoutSurfaceAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
+    {
+        return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutSurfaceAttributes(segments);
+    }
+
+    public static FileProblem RoadSegmentsWithoutWidthAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
+    {
+        return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutWidthAttributes(segments);
+    }
+
+    public static IFileWarningBuilder Warning(this ZipArchiveEntry entry, string reason)
+    {
+        if (reason == null) throw new ArgumentNullException(nameof(reason));
+
+        return new FileProblemBuilder(entry.Name).Warning(reason);
+    }
+
     private sealed class FileProblemBuilder : IFileProblemBuilder, IDbaseFileRecordProblemBuilder, IShapeFileRecordProblemBuilder
     {
         private readonly string _file;
@@ -60,6 +123,13 @@ public static class ZipArchiveEntryProblems
             if (reason == null) throw new ArgumentNullException(nameof(reason));
 
             return new FileErrorBuilder(_file, reason, _parameters);
+        }
+
+        public IFileWarningBuilder Warning(string reason)
+        {
+            if (reason == null) throw new ArgumentNullException(nameof(reason));
+
+            return new FileWarningBuilder(_file, reason, _parameters);
         }
 
         private sealed class FileErrorBuilder : IFileErrorBuilder
@@ -133,75 +203,5 @@ public static class ZipArchiveEntryProblems
                 return new FileWarningBuilder(_file, _reason, _parameters.AddRange(parameters));
             }
         }
-
-        public IFileWarningBuilder Warning(string reason)
-        {
-            if (reason == null) throw new ArgumentNullException(nameof(reason));
-
-            return new FileWarningBuilder(_file, reason, _parameters);
-        }
-    }
-
-    public static FileError HasDbaseHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
-    {
-        return new FileProblemBuilder(entry.Name).HasDbaseHeaderFormatError(exception);
-    }
-
-    public static FileError HasDbaseSchemaMismatch(this ZipArchiveEntry entry, DbaseSchema expectedSchema, DbaseSchema actualSchema)
-    {
-        return new FileProblemBuilder(entry.Name).HasDbaseSchemaMismatch(expectedSchema, actualSchema);
-    }
-
-    // dbase
-
-    public static FileProblem HasNoDbaseRecords(this ZipArchiveEntry entry, bool treatAsWarning)
-    {
-        return new FileProblemBuilder(entry.Name).HasNoDbaseRecords(treatAsWarning);
-    }
-
-    // shape
-
-    public static FileError HasNoShapeRecords(this ZipArchiveEntry entry)
-    {
-        return new FileProblemBuilder(entry.Name).HasNoShapeRecords();
-    }
-
-    public static FileError HasShapeHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
-    {
-        return new FileProblemBuilder(entry.Name).HasShapeRecordFormatError(exception);
-    }
-
-    public static FileProblem HasTooManyDbaseRecords(this ZipArchiveEntry entry, int expectedCount, int actualCount)
-    {
-        return new FileProblemBuilder(entry.Name).HasTooManyDbaseRecords(expectedCount, actualCount);
-    }
-
-    // projection format
-
-    public static FileError ProjectionFormatInvalid(this ZipArchiveEntry entry)
-    {
-        return new FileProblemBuilder(entry.Name).ProjectionFormatInvalid();
-    }
-
-    public static FileProblem RoadSegmentsWithoutLaneAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
-    {
-        return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutLaneAttributes(segments);
-    }
-
-    public static FileProblem RoadSegmentsWithoutSurfaceAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
-    {
-        return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutSurfaceAttributes(segments);
-    }
-
-    public static FileProblem RoadSegmentsWithoutWidthAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
-    {
-        return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutWidthAttributes(segments);
-    }
-
-    public static IFileWarningBuilder Warning(this ZipArchiveEntry entry, string reason)
-    {
-        if (reason == null) throw new ArgumentNullException(nameof(reason));
-
-        return new FileProblemBuilder(entry.Name).Warning(reason);
     }
 }

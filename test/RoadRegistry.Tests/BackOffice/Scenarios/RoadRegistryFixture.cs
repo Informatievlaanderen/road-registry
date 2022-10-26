@@ -51,13 +51,14 @@ public abstract class RoadRegistryFixture : IDisposable
 
     protected MemoryBlobClient Client { get; }
     protected FakeClock Clock { get; }
+    protected Fixture Fixture { get; }
+    protected IStreamStore Store { get; }
+    protected IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
 
     public void Dispose()
     {
         Store?.Dispose();
     }
-
-    protected Fixture Fixture { get; }
 
     protected Task Run(Func<Scenario, IExpectExceptionScenarioBuilder> builder)
     {
@@ -70,7 +71,4 @@ public abstract class RoadRegistryFixture : IDisposable
         if (builder == null) throw new ArgumentNullException(nameof(builder));
         return builder(new Scenario()).AssertAsync(_runner);
     }
-
-    protected IStreamStore Store { get; }
-    protected IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
 }

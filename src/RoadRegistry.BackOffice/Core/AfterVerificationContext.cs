@@ -13,7 +13,6 @@ public class AfterVerificationContext
     }
 
     public IScopedRoadNetworkView AfterView { get; }
-
     public IScopedRoadNetworkView BeforeView { get; }
     public VerificationContextTolerances Tolerances { get; }
     public IRequestedChangeIdentityTranslator Translator { get; }

@@ -37,21 +37,6 @@ public class ZipArchiveShapeEntryValidatorTests
         _context = ZipArchiveValidationContext.Empty;
     }
 
-    private class CollectShapeRecordValidator : IZipArchiveShapeRecordsValidator
-    {
-        public ShapeRecord[] Collected { get; private set; }
-
-        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
-        {
-            var collected = new List<ShapeRecord>();
-            while (records.MoveNext()) collected.Add(records.Current);
-
-            Collected = collected.ToArray();
-
-            return (ZipArchiveProblems.None, context);
-        }
-    }
-
     [Fact]
     public void EncodingCanNotBeNull()
     {
@@ -59,21 +44,6 @@ public class ZipArchiveShapeEntryValidatorTests
             () => new ZipArchiveShapeEntryValidator(
                 null,
                 new FakeShapeRecordValidator()));
-    }
-
-    private class FakeShapeRecordValidator : IZipArchiveShapeRecordsValidator
-    {
-        private readonly FileProblem[] _problems;
-
-        public FakeShapeRecordValidator(params FileProblem[] problems)
-        {
-            _problems = problems ?? throw new ArgumentNullException(nameof(problems));
-        }
-
-        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
-        {
-            return (ZipArchiveProblems.None.AddRange(_problems), context);
-        }
     }
 
     [Fact]
@@ -281,5 +251,35 @@ public class ZipArchiveShapeEntryValidatorTests
             () => new ZipArchiveShapeEntryValidator(
                 Encoding.Default,
                 null));
+    }
+
+    private class CollectShapeRecordValidator : IZipArchiveShapeRecordsValidator
+    {
+        public ShapeRecord[] Collected { get; private set; }
+
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
+        {
+            var collected = new List<ShapeRecord>();
+            while (records.MoveNext()) collected.Add(records.Current);
+
+            Collected = collected.ToArray();
+
+            return (ZipArchiveProblems.None, context);
+        }
+    }
+
+    private class FakeShapeRecordValidator : IZipArchiveShapeRecordsValidator
+    {
+        private readonly FileProblem[] _problems;
+
+        public FakeShapeRecordValidator(params FileProblem[] problems)
+        {
+            _problems = problems ?? throw new ArgumentNullException(nameof(problems));
+        }
+
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
+        {
+            return (ZipArchiveProblems.None.AddRange(_problems), context);
+        }
     }
 }

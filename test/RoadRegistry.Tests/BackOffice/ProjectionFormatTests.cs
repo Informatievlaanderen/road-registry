@@ -6,6 +6,16 @@ using Xunit;
 
 public class ProjectionFormatTests
 {
+    public static IEnumerable<object[]> ProjectionFormatCases
+    {
+        get
+        {
+            yield return new object[] { true, ProjectionFormat.BelgeLambert1972.Content };
+            yield return new object[] { false, @"PROJCS[""DHDN / 3-degree Gauss zone 1 (deprecated)"",GEOGCS[""DHDN"",DATUM[""D_Deutsches_Hauptdreiecksnetz"",SPHEROID[""Bessel_1841"",6377397.155,299.1528128]],PRIMEM[""Greenwich"",0],UNIT[""Degree"",0.017453292519943295]],PROJECTION[""Transverse_Mercator""],PARAMETER[""latitude_of_origin"",0],PARAMETER[""central_meridian"",3],PARAMETER[""scale_factor"",1],PARAMETER[""false_easting"",1500000],PARAMETER[""false_northing"",0],UNIT[""Meter"",1]]" };
+            yield return new object[] { false, @"PROJCS[""Belge 1972 / Belgian Lambert 72"",GEOGCS[""Belge 1972"",DATUM[""D_Belge_1972"",SPHEROID[""International_1924"",6378388,297]],PRIMEM[""Greenwich"",0],UNIT[""Degree"",0.017453292519943295]],PROJECTION[""Lambert_Conformal_Conic""],PARAMETER[""standard_parallel_1"",51.16666723333333],PARAMETER[""standard_parallel_2"",49.8333339],PARAMETER[""latitude_of_origin"",90],PARAMETER[""central_meridian"",4.367486666666666],PARAMETER[""false_easting"",150000.013],PARAMETER[""false_northing"",5400088.438],UNIT[""Meter"",1]]" };
+        }
+    }
+
     [Fact]
     public void ContentCanNotBeNull()
     {
@@ -27,16 +37,6 @@ public class ProjectionFormatTests
         var sut = new ProjectionFormat(content);
 
         Assert.Equal(expected, sut.IsBelgeLambert1972());
-    }
-
-    public static IEnumerable<object[]> ProjectionFormatCases
-    {
-        get
-        {
-            yield return new object[] { true, ProjectionFormat.BelgeLambert1972.Content };
-            yield return new object[] { false, @"PROJCS[""DHDN / 3-degree Gauss zone 1 (deprecated)"",GEOGCS[""DHDN"",DATUM[""D_Deutsches_Hauptdreiecksnetz"",SPHEROID[""Bessel_1841"",6377397.155,299.1528128]],PRIMEM[""Greenwich"",0],UNIT[""Degree"",0.017453292519943295]],PROJECTION[""Transverse_Mercator""],PARAMETER[""latitude_of_origin"",0],PARAMETER[""central_meridian"",3],PARAMETER[""scale_factor"",1],PARAMETER[""false_easting"",1500000],PARAMETER[""false_northing"",0],UNIT[""Meter"",1]]" };
-            yield return new object[] { false, @"PROJCS[""Belge 1972 / Belgian Lambert 72"",GEOGCS[""Belge 1972"",DATUM[""D_Belge_1972"",SPHEROID[""International_1924"",6378388,297]],PRIMEM[""Greenwich"",0],UNIT[""Degree"",0.017453292519943295]],PROJECTION[""Lambert_Conformal_Conic""],PARAMETER[""standard_parallel_1"",51.16666723333333],PARAMETER[""standard_parallel_2"",49.8333339],PARAMETER[""latitude_of_origin"",90],PARAMETER[""central_meridian"",4.367486666666666],PARAMETER[""false_easting"",150000.013],PARAMETER[""false_northing"",5400088.438],UNIT[""Meter"",1]]" };
-        }
     }
 
     [Fact]

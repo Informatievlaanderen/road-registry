@@ -46,6 +46,42 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
         _context = ZipArchiveValidationContext.Empty;
     }
 
+    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+    {
+        get
+        {
+            yield return new object[]
+            {
+                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.OK_OIDN.Reset()),
+                GradeSeparatedJunctionChangeDbaseRecord.Schema.OK_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
+                GradeSeparatedJunctionChangeDbaseRecord.Schema.RECORDTYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.BO_WS_OIDN.Reset()),
+                GradeSeparatedJunctionChangeDbaseRecord.Schema.BO_WS_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.TYPE.Reset()),
+                GradeSeparatedJunctionChangeDbaseRecord.Schema.TYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.ON_WS_OIDN.Reset()),
+                GradeSeparatedJunctionChangeDbaseRecord.Schema.ON_WS_OIDN
+            };
+        }
+    }
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -104,42 +140,6 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
             result,
             new FileProblemComparer());
         Assert.Same(_context, context);
-    }
-
-    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
-    {
-        get
-        {
-            yield return new object[]
-            {
-                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.OK_OIDN.Reset()),
-                GradeSeparatedJunctionChangeDbaseRecord.Schema.OK_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
-                GradeSeparatedJunctionChangeDbaseRecord.Schema.RECORDTYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.BO_WS_OIDN.Reset()),
-                GradeSeparatedJunctionChangeDbaseRecord.Schema.BO_WS_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.TYPE.Reset()),
-                GradeSeparatedJunctionChangeDbaseRecord.Schema.TYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<GradeSeparatedJunctionChangeDbaseRecord>(r => r.ON_WS_OIDN.Reset()),
-                GradeSeparatedJunctionChangeDbaseRecord.Schema.ON_WS_OIDN
-            };
-        }
     }
 
     [Theory]
@@ -259,7 +259,6 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
             result);
         Assert.Same(_context, context);
     }
-
 
     [Fact]
     public void ValidateWithRecordThatHasInvalidGradeSeparatedJunctionTypeReturnsExpectedResult()

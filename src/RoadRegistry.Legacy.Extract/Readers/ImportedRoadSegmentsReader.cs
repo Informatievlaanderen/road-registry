@@ -32,6 +32,46 @@ public class ImportedRoadSegmentsReader : IEventReader
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
+    {
+        if (connection == null) throw new ArgumentNullException(nameof(connection));
+
+        var watch = Stopwatch.StartNew();
+        foreach (var batch in new RoadSegmentEnumerator(connection, _clock, _reader, _logger).Batch(1000))
+        {
+            _logger.LogDebug("Reading a road segment batch took {0}ms", watch.ElapsedMilliseconds);
+
+            var lookup = batch.ToDictionary(@event => @event.Id);
+
+            watch.Restart();
+            EnrichImportedRoadSegmentsWithEuropeanRoadAttributes(connection, lookup);
+            _logger.LogDebug("Reading a road segment batch with european road attributes took {0}ms", watch.ElapsedMilliseconds);
+            watch.Restart();
+            EnrichImportedRoadSegmentsWithNationalRoadAttributes(connection, lookup);
+            _logger.LogDebug("Reading a road segment batch with national road attributes took {0}ms", watch.ElapsedMilliseconds);
+            watch.Restart();
+            EnrichImportedRoadSegmentsWithNumberedRoadAttributes(connection, lookup);
+            _logger.LogDebug("Reading a road segment batch with numbered road attributes took {0}ms", watch.ElapsedMilliseconds);
+
+            watch.Restart();
+            EnrichImportedRoadSegmentsWithLaneAttributes(connection, lookup);
+            _logger.LogDebug("Reading a road segment batch with lane attributes took {0}ms", watch.ElapsedMilliseconds);
+            watch.Restart();
+            EnrichImportedRoadSegmentsWithWidthAttributes(connection, lookup);
+            _logger.LogDebug("Reading a road segment batch with width attributes took {0}ms", watch.ElapsedMilliseconds);
+            watch.Restart();
+            EnrichImportedRoadSegmentsWithSurfaceAttributes(connection, lookup);
+            _logger.LogDebug("Reading a road segment batch with surface attributes took {0}ms", watch.ElapsedMilliseconds);
+
+            watch.Restart();
+            foreach (var @event in batch) yield return new StreamEvent(RoadNetworks.Stream, @event);
+            _logger.LogDebug("Yielding a road segment batch took {0}ms", watch.ElapsedMilliseconds);
+            watch.Restart();
+        }
+
+        watch.Stop();
+    }
+
     private void EnrichImportedRoadSegmentsWithEuropeanRoadAttributes(SqlConnection connection, IReadOnlyDictionary<int, ImportedRoadSegment> lookup)
     {
         var command = new SqlCommand(
@@ -317,53 +357,12 @@ public class ImportedRoadSegmentsReader : IEventReader
         return lookup.Select((item, index) => new SqlParameter("@P" + index, item.Key)).ToArray();
     }
 
-    public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
-    {
-        if (connection == null) throw new ArgumentNullException(nameof(connection));
-
-        var watch = Stopwatch.StartNew();
-        foreach (var batch in new RoadSegmentEnumerator(connection, _clock, _reader, _logger).Batch(1000))
-        {
-            _logger.LogDebug("Reading a road segment batch took {0}ms", watch.ElapsedMilliseconds);
-
-            var lookup = batch.ToDictionary(@event => @event.Id);
-
-            watch.Restart();
-            EnrichImportedRoadSegmentsWithEuropeanRoadAttributes(connection, lookup);
-            _logger.LogDebug("Reading a road segment batch with european road attributes took {0}ms", watch.ElapsedMilliseconds);
-            watch.Restart();
-            EnrichImportedRoadSegmentsWithNationalRoadAttributes(connection, lookup);
-            _logger.LogDebug("Reading a road segment batch with national road attributes took {0}ms", watch.ElapsedMilliseconds);
-            watch.Restart();
-            EnrichImportedRoadSegmentsWithNumberedRoadAttributes(connection, lookup);
-            _logger.LogDebug("Reading a road segment batch with numbered road attributes took {0}ms", watch.ElapsedMilliseconds);
-
-            watch.Restart();
-            EnrichImportedRoadSegmentsWithLaneAttributes(connection, lookup);
-            _logger.LogDebug("Reading a road segment batch with lane attributes took {0}ms", watch.ElapsedMilliseconds);
-            watch.Restart();
-            EnrichImportedRoadSegmentsWithWidthAttributes(connection, lookup);
-            _logger.LogDebug("Reading a road segment batch with width attributes took {0}ms", watch.ElapsedMilliseconds);
-            watch.Restart();
-            EnrichImportedRoadSegmentsWithSurfaceAttributes(connection, lookup);
-            _logger.LogDebug("Reading a road segment batch with surface attributes took {0}ms", watch.ElapsedMilliseconds);
-
-            watch.Restart();
-            foreach (var @event in batch) yield return new StreamEvent(RoadNetworks.Stream, @event);
-            _logger.LogDebug("Yielding a road segment batch took {0}ms", watch.ElapsedMilliseconds);
-            watch.Restart();
-        }
-
-        watch.Stop();
-    }
-
     private sealed class RoadSegmentEnumerator : IEnumerable<ImportedRoadSegment>, IEnumerator<ImportedRoadSegment>
     {
         private readonly IClock _clock;
         private readonly SqlConnection _connection;
         private readonly ILogger<ImportedRoadSegmentsReader> _logger;
         private readonly WellKnownBinaryReader _reader;
-
         private ImportedRoadSegment[] _batch;
         private int _index;
         private State _state;
@@ -448,6 +447,13 @@ public class ImportedRoadSegmentsReader : IEventReader
             }
 
             return false;
+        }
+
+        public void Reset()
+        {
+            _state = State.Initial;
+            _batch = Array.Empty<ImportedRoadSegment>();
+            _index = -1;
         }
 
         private ImportedRoadSegment[] ReadInitialBatch()
@@ -706,13 +712,6 @@ public class ImportedRoadSegmentsReader : IEventReader
                     });
                 });
             return events.ToArray();
-        }
-
-        public void Reset()
-        {
-            _state = State.Initial;
-            _batch = Array.Empty<ImportedRoadSegment>();
-            _index = -1;
         }
 
         private enum State

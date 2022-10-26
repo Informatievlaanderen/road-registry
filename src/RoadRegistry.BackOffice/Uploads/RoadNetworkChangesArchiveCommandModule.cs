@@ -36,9 +36,8 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 {
                     upload.ValidateArchiveUsing(archive, validator);
                 }
+
                 context.RoadNetworkChangesArchives.Add(upload);
             });
-
-
     }
 }

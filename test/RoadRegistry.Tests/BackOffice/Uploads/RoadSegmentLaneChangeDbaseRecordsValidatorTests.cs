@@ -62,6 +62,54 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
         _context = ZipArchiveValidationContext.Empty;
     }
 
+    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+    {
+        get
+        {
+            yield return new object[]
+            {
+                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
+                RoadSegmentLaneChangeDbaseRecord.Schema.WS_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
+                RoadSegmentLaneChangeDbaseRecord.Schema.RECORDTYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RS_OIDN.Reset()),
+                RoadSegmentLaneChangeDbaseRecord.Schema.RS_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.AANTAL.Reset()),
+                RoadSegmentLaneChangeDbaseRecord.Schema.AANTAL
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RICHTING.Reset()),
+                RoadSegmentLaneChangeDbaseRecord.Schema.RICHTING
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
+                RoadSegmentLaneChangeDbaseRecord.Schema.VANPOSITIE
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
+                RoadSegmentLaneChangeDbaseRecord.Schema.TOTPOSITIE
+            };
+        }
+    }
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -127,54 +175,6 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
             result,
             new FileProblemComparer());
         Assert.Same(initialContext, context);
-    }
-
-    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
-    {
-        get
-        {
-            yield return new object[]
-            {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.WS_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.RECORDTYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RS_OIDN.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.RS_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.AANTAL.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.AANTAL
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RICHTING.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.RICHTING
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.VANPOSITIE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.TOTPOSITIE
-            };
-        }
     }
 
     [Theory]
@@ -326,7 +326,6 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
             result);
         Assert.Same(initialContext, context);
     }
-
 
     [Fact]
     public void ValidateWithRecordThatHasInvalidCountReturnsExpectedResult()

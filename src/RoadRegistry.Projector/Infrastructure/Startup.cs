@@ -31,7 +31,6 @@ public class Startup
     private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
     private readonly ILoggerFactory _loggerFactory;
-
     private IContainer _applicationContainer;
 
     public Startup(

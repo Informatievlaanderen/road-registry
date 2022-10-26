@@ -63,6 +63,8 @@ public class GreaterThanOperatorException : Exception
         Type = (Type)info.GetValue("Type", typeof(Type));
     }
 
+    public Type Type { get; }
+
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         if (info == null)
@@ -71,6 +73,4 @@ public class GreaterThanOperatorException : Exception
         base.GetObjectData(info, context);
         info.AddValue("Type", Type);
     }
-
-    public Type Type { get; }
 }

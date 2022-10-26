@@ -44,7 +44,6 @@ public class Program
     private static string _apiSecret;
     private static long _workspaceId;
     private static string _workspaceUrlViewFormat;
-
     private static readonly string ContainerAggregateRootId = Ids.ContainerAggregateRoot.ToString();
     private static readonly string ContainerApiId = Ids.ContainerApi.ToString();
     private static readonly string ContainerApiRunnerId = Ids.ContainerApiRunner.ToString();
