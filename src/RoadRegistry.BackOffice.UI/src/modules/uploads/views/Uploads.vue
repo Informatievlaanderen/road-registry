@@ -3,9 +3,13 @@
     <vl-main>
       <vl-layout>
         <vl-grid mod-stacked>
-          <vl-column v-if="uploadResult.uploadResponseCode">
-            <vl-alert :title="alertInfo.title" :mod-success="alertInfo.success" :mod-warning="alertInfo.warning"
-              :mod-error="alertInfo.error">
+          <vl-column v-if="uploadResult.uploadResponseCode && alertInfo.title">
+            <vl-alert
+              :title="alertInfo.title"
+              :mod-success="alertInfo.success"
+              :mod-warning="alertInfo.warning"
+              :mod-error="alertInfo.error"
+            >
               <p>{{ alertInfo.text }}</p>
             </vl-alert>
           </vl-column>
@@ -24,17 +28,37 @@
             <!-- <vl-doormat v-if="isUploading" title="Upload bezig">
               Het door u geselecteerde zip‑bestand wordt geupload.
             </vl-doormat> -->
-            <vl-upload ref="vlUpload" id="upload-component" name="upload-component" url="#"
+            <vl-upload
+              ref="vlUpload"
+              id="upload-component"
+              name="upload-component"
+              url="#"
               upload-drag-text="Selecteer het zip‑bestand met de op te laden verschillen."
-              upload-label="Archief opladen" :auto-process="false" :options="options"
+              upload-label="Archief opladen"
+              :auto-process="false"
+              :options="options"
               :mod-success="uploadResult.uploadResponseCode && alertInfo.success"
               :mod-error="uploadResult.uploadResponseCode && (alertInfo.error || alertInfo.warning)"
-              :mod-disabled="isUploading" @upload-success="isUploading = false" @upload-complete="isUploading = false"
-              @upload-canceled="isUploading = false" @upload-file-added="processing"
-              @upload-file-added-manually="processing" />
+              :mod-disabled="isUploading || isProcessing"
+              @upload-success="isUploading = false"
+              @upload-complete="isUploading = false"
+              @upload-canceled="isUploading = false"
+              @upload-file-added="processing"
+              @upload-file-added-manually="processing"
+            />
+
+            <div v-if="alertInfo.fileProblems && alertInfo.fileProblems.length > 0">
+              <div v-for="fileProblem in alertInfo.fileProblems" :key="fileProblem.file">
+                <br />
+                <h3>
+                  <strong>{{ fileProblem.file.toUpperCase() }}</strong>
+                </h3>
+
+                <ActivityProblems :problems="fileProblem.problems" />                
+              </div>
+            </div>
             <!-- -->
           </vl-column>
-
         </vl-grid>
       </vl-layout>
     </vl-main>
@@ -44,12 +68,23 @@
 <script lang="ts">
 import Vue from "vue";
 import { BackOfficeApi } from "../../../services";
+import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 
 export default Vue.extend({
+  components: {
+    ActivityProblems,
+  },
   data() {
     return {
       isUploading: false,
-      uploadResult: { uploadResponseCode: undefined } as { uploadResponseCode: number | undefined },
+      isProcessing: false,
+      uploadResult: {
+        uploadResponseCode: undefined,
+        fileProblems: [],
+      } as {
+        uploadResponseCode: number | undefined;
+        fileProblems: Array<any> | undefined;
+      },
     };
   },
   computed: {
@@ -65,14 +100,27 @@ export default Vue.extend({
         headers: {},
       };
     },
-    alertInfo(): { success: boolean; warning: boolean; error: boolean; title: string; text: string } {
+    alertInfo(): {
+      success: boolean;
+      warning: boolean;
+      error: boolean;
+      title: string;
+      text: string;
+      fileProblems: Array<any> | undefined;
+    } {
       const status = {
         success: false,
         warning: false,
         error: false,
         title: "",
         text: "",
+        fileProblems: [] as Array<any> | undefined,
       };
+
+      if(this.uploadResult.fileProblems && this.uploadResult.fileProblems.length > 0) {
+        status.fileProblems = this.uploadResult.fileProblems;
+        return status;
+      }
 
       if (this.uploadResult.uploadResponseCode == 200) {
         status.success = true;
@@ -86,6 +134,7 @@ export default Vue.extend({
         status.warning = true;
         status.title = "Technische storing";
         status.text = "Door een technische storing is dit loket tijdelijk niet beschikbaar.";
+
         return status;
       }
 
@@ -126,23 +175,42 @@ export default Vue.extend({
   methods: {
     async processing(file: File) {
       this.startUpload();
-      const allowedFileTypes = ["application/zip", "application/x-zip-compressed"];
-      if (!allowedFileTypes.includes(file.type)) {
-        this.uploadResult = { uploadResponseCode: 2 };
-        this.endUpload();
-        return;
-      }
+      try {
+        const allowedFileTypes = ["application/zip", "application/x-zip-compressed"];
+        if (!allowedFileTypes.includes(file.type)) {
+          this.uploadResult = { uploadResponseCode: 2, fileProblems: undefined };
+          return;
+        }
 
-      if (file.size > this.options.maxFilesize) {
-        this.uploadResult = { uploadResponseCode: 1 };
-        this.endUpload();
-        return;
-      }
+        if (file.size > this.options.maxFilesize) {
+          this.uploadResult = { uploadResponseCode: 1, fileProblems: undefined };
+          return;
+        }
 
-      const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
-      this.uploadResult = { uploadResponseCode };
-      this.endUpload();
-      return;
+        try {
+          this.uploadResult = { uploadResponseCode: undefined, fileProblems: undefined };
+          const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
+          this.uploadResult = { uploadResponseCode, fileProblems: undefined };
+        } catch (err: any) {
+          if (err?.response?.status === 400) {
+            let validationErrors = err?.response?.data?.validationErrors;
+            let fileProblems = Object.keys(validationErrors).map((key) => {
+              return {
+                file: key,
+                problems: validationErrors[key].map((validationError: any) => ({
+                  severity: "Error",
+                  text: validationError.reason,
+                })),
+              };
+            });
+            this.uploadResult = { uploadResponseCode: 400, fileProblems };
+          } else {
+            throw err;
+          }
+        }
+      } finally {
+        this.endUpload();
+      }
     },
     emptyQueue(): void {
       const dropZone = this.$refs.vlUpload as any as { hasFiles: boolean; removeFiles: () => void };
@@ -153,10 +221,12 @@ export default Vue.extend({
     startUpload(): void {
       this.emptyQueue();
       this.isUploading = true;
+      this.isProcessing = true;
     },
     endUpload(): void {
       this.emptyQueue();
       this.isUploading = false;
+      this.isProcessing = false;
     },
   },
 });

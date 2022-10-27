@@ -1,15 +1,12 @@
-Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.Shaperon
-Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore
 
+AWSSDK.Core
 Microsoft.Data.SqlClient
+Microsoft.Extensions.DependencyInjection
 Microsoft.Extensions.Hosting
-Microsoft.Extensions.Hosting.Abstractions
-Microsoft.Extensions.Logging.Abstractions
-
-Newtonsoft.Json
-
-SqlStreamStore
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens
 SqlStreamStore.MsSql
-Autofac

@@ -1,5 +1,5 @@
 Microsoft.NET.Test.Sdk
-
 xunit
-xunit.runner.visualstudio
+xunit.assert
 xunit.categories
+xunit.runner.visualstudio

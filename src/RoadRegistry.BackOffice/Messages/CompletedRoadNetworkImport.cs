@@ -1,10 +1,10 @@
-﻿namespace RoadRegistry.BackOffice.Messages;
+namespace RoadRegistry.BackOffice.Messages;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("CompletedRoadNetworkImport")]
 [EventDescription("Indicates the import of the legacy road network was finished.")]
-public class CompletedRoadNetworkImport
+public class CompletedRoadNetworkImport : IMessage
 {
     public string When { get; set; }
 }

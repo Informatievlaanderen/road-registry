@@ -14,26 +14,26 @@ using Microsoft.Extensions.Configuration;
 
 public static class Ids
 {
-    public static int ContainerAggregateRoot = 10006;
-    public static int ContainerApi = 10002;
-    public static int ContainerApiRunner = 10003;
-    public static int ContainerApiStore = 10004;
-    public static int ContainerEventStore = 10005;
-    public static int PersonUser = 10000;
-    public static int SoftwareSystemApi = 10008;
-    public static int SoftwareSystemProjectionProducer = 10007;
-    public static int SoftwareSystemRoadRegistry = 10001;
+    public const int ContainerAggregateRoot = 10006;
+    public const int ContainerApi = 10002;
+    public const int ContainerApiRunner = 10003;
+    public const int ContainerApiStore = 10004;
+    public const int ContainerEventStore = 10005;
+    public const int PersonUser = 10000;
+    public const int SoftwareSystemApi = 10008;
+    public const int SoftwareSystemProjectionProducer = 10007;
+    public const int SoftwareSystemRoadRegistry = 10001;
 }
 
 public static class CustomTags
 {
-    public static string Command = "Command";
-    public static string Direct = "Direct";
-    public static string EntityFramework = "Entity Framework";
-    public static string Event = "Event";
-    public static string Https = "HTTPS";
-    public static string SqlStreamStore = "SqlStreamStore";
-    public static string Store = "Store";
+    public const string Command = "Command";
+    public const string Direct = "Direct";
+    public const string EntityFramework = "Entity Framework";
+    public const string Event = "Event";
+    public const string Https = "HTTPS";
+    public const string SqlStreamStore = "SqlStreamStore";
+    public const string Store = "Store";
 }
 
 public class Program
@@ -49,8 +49,6 @@ public class Program
     private static readonly string ContainerApiRunnerId = Ids.ContainerApiRunner.ToString();
     private static readonly string ContainerApiStoreId = Ids.ContainerApiStore.ToString();
     private static readonly string ContainerEventStoreId = Ids.ContainerEventStore.ToString();
-
-    // This crap is because structurizr.com expects integers for ids, while structurizr.net wants strings
     private static readonly string PersonUserId = Ids.PersonUser.ToString();
     private static readonly string SoftwareSystemApiId = Ids.SoftwareSystemApi.ToString();
     private static readonly string SoftwareSystemProjectionProducerId = Ids.SoftwareSystemProjectionProducer.ToString();

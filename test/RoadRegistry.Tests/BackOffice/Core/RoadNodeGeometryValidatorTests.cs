@@ -3,29 +3,27 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentValidation;
-using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
-using Point = RoadRegistry.BackOffice.Messages.Point;
+using Point = NetTopologySuite.Geometries.Point;
 
-public class RoadNodeGeometryValidatorTests
+public class RoadNodeGeometryValidatorTests : ValidatorTest<RoadNodeGeometry, RoadNodeGeometryValidator>
 {
     public RoadNodeGeometryValidatorTests()
     {
-        Fixture = new Fixture();
         Fixture.CustomizePolylineM();
+        Fixture.CustomizePoint();
 
-        Validator = new RoadNodeGeometryValidator();
+        Model = GeometryTranslator.Translate(Fixture.Create<Point>());
+        Model.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
     }
-
-    public Fixture Fixture { get; }
-    public RoadNodeGeometryValidator Validator { get; }
 
     [Fact]
     public void PointCanNotBeNull()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Point, (Point)null);
+        ShouldHaveValidationErrorFor(c => c.Point, null);
     }
 
     [Theory]
@@ -33,17 +31,6 @@ public class RoadNodeGeometryValidatorTests
     [InlineData(-1)]
     public void SpatialReferenceSystemIdentifierMustBeGreaterThan(int value)
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.SpatialReferenceSystemIdentifier, value);
-    }
-
-    [Fact]
-    public void VerifyValid()
-    {
-        Fixture.CustomizePoint();
-
-        var data = GeometryTranslator.Translate(Fixture.Create<NetTopologySuite.Geometries.Point>());
-        data.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
-
-        Validator.ValidateAndThrow(data);
+        ShouldHaveValidationErrorFor(c => c.SpatialReferenceSystemIdentifier, value);
     }
 }

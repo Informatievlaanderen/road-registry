@@ -2,16 +2,15 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 
 using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
-public class RequestedChangeValidatorTests
+public class RequestedChangeValidatorTests : ValidatorTest<RequestedChange, RequestedChangeValidator>
 {
     public RequestedChangeValidatorTests()
     {
-        Validator = new RequestedChangeValidator();
+        Model = new RequestedChange();
     }
-
-    public RequestedChangeValidator Validator { get; }
 
     [Fact]
     public void AddGradeSeparatedJunctionHasExpectedValidator()

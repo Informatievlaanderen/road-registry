@@ -93,17 +93,11 @@ public static class SharedCustomizations
     public static void CustomizeCrabStreetnameId(this IFixture fixture)
     {
         fixture.Customize<CrabStreetnameId>(composer =>
-            composer.FromFactory(generator =>
+            composer.FromFactory(generator => (generator.Next() % 3) switch
             {
-                switch (generator.Next() % 3)
-                {
-                    case 0:
-                        return new CrabStreetnameId(CrabStreetnameId.Unknown);
-                    case 1:
-                        return new CrabStreetnameId(CrabStreetnameId.NotApplicable);
-                    default:
-                        return new CrabStreetnameId(generator.Next(0, int.MaxValue));
-                }
+                0 => new CrabStreetnameId(CrabStreetnameId.Unknown),
+                1 => new CrabStreetnameId(CrabStreetnameId.NotApplicable),
+                _ => new CrabStreetnameId(generator.Next(0, int.MaxValue))
             })
         );
     }
