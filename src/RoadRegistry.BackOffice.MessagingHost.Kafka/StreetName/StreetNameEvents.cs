@@ -1,10 +1,9 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka.StreetName
+namespace RoadRegistry.BackOffice.MessagingHost.Kafka.StreetName;
+
+public enum StreetNameLanguage
 {
-    public enum StreetNameLanguage
-    {
-        Dutch = 0,
-        French = 1,
-        German = 2,
-        English = 3
-    }
+    Dutch = 0,
+    French = 1,
+    German = 2,
+    English = 3
 }

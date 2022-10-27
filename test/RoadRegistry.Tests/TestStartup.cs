@@ -93,12 +93,11 @@ public abstract class TestStartup
                     .AddLogging();
 
                 ConfigureServices(context, services);
-
-                hostBuilder.ConfigureContainer<ContainerBuilder>(builder =>
-                {
-                    ConfigureContainer(builder);
-                    builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
-                });
+            })
+            .ConfigureContainer<ContainerBuilder>(builder =>
+            {
+                ConfigureContainer(builder);
+                builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
             });
     }
 
