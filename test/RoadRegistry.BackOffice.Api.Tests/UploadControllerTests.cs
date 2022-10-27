@@ -43,22 +43,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
         var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None);
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
-
-    [Fact]
-    public async Task When_uploading_a_before_fc_file_with_featuretoggle_disabled()
-    {
-        var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
-        {
-            Headers = new HeaderDictionary(new Dictionary<string, StringValues>
-            {
-                { "Content-Type", StringValues.Concat(StringValues.Empty, "application/octet-stream") }
-            })
-        };
-
-        var result = await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None);
-        Assert.IsType<NotFoundResult>(result);
-    }
-
+    
     [Fact]
     public async Task When_uploading_an_after_fc_file_that_is_not_a_zip()
     {
