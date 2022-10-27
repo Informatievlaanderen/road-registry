@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
 using System.IO.Compression;
+using System.Threading;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
@@ -26,15 +27,18 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     private readonly RoadNetworkUploadsBlobClient _client;
     private readonly IZipArchiveAfterFeatureCompareValidator _validator;
+    private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkUploadsBlobClient client,
         IZipArchiveAfterFeatureCompareValidator validator,
+        UseUploadZipArchiveValidationFeatureToggle uploadZipArchiveValidationFeatureToggle,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
+        _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle ?? throw new ArgumentNullException(nameof(uploadZipArchiveValidationFeatureToggle));
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -42,7 +46,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         if (!ContentType.TryParse(request.Archive.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed)) throw new UnsupportedMediaTypeException();
 
         await using var readStream = request.Archive.ReadStream;
-
         ArchiveId archiveId = new(Guid.NewGuid().ToString("N"));
 
         var metadata = Metadata.None.Add(
@@ -52,6 +55,21 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                     : request.Archive.FileName)
         );
 
+
+        if (_uploadZipArchiveValidationFeatureToggle.FeatureEnabled)
+        {
+            await ValidateAndUploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
+        }
+        else
+        {
+            await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
+        }
+
+        return new UploadExtractResponse(archiveId);
+    }
+
+    private async Task ValidateAndUploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    {
         var entity = RoadNetworkChangesArchive.Upload(archiveId);
 
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
@@ -66,22 +84,25 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                     .Select(fileProblem => new ValidationFailure(fileProblem.File, ProblemWithZipArchive.Translator(fileProblem))));
             }
 
-            readStream.Position = 0;
-            await _client.CreateBlobAsync(
-                new BlobName(archiveId.ToString()),
-                metadata,
-                ContentType.Parse("application/zip"),
-                readStream,
-                cancellationToken
-            );
-
-            var message = new Command(new UploadRoadNetworkChangesArchive
-            {
-                ArchiveId = archiveId.ToString()
-            });
-            await Dispatcher(message, cancellationToken);
+            await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
         }
+    }
 
-        return new UploadExtractResponse(archiveId);
+    private async Task UploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    {
+        readStream.Position = 0;
+        await _client.CreateBlobAsync(
+            new BlobName(archiveId.ToString()),
+            metadata,
+            ContentType.Parse("application/zip"),
+            readStream,
+            cancellationToken
+        );
+
+        var message = new Command(new UploadRoadNetworkChangesArchive
+        {
+            ArchiveId = archiveId.ToString()
+        });
+        await Dispatcher(message, cancellationToken);
     }
 }
