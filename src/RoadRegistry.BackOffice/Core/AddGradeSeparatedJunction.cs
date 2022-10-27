@@ -28,6 +28,8 @@ public class AddGradeSeparatedJunction : IRequestedChange
     public GradeSeparatedJunctionId TemporaryId { get; }
     public RoadSegmentId? TemporaryLowerSegmentId { get; }
     public RoadSegmentId? TemporaryUpperSegmentId { get; }
+    public GradeSeparatedJunctionType Type { get; }
+    public RoadSegmentId UpperSegmentId { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -55,9 +57,6 @@ public class AddGradeSeparatedJunction : IRequestedChange
             LowerSegmentId = TemporaryLowerSegmentId ?? LowerSegmentId
         };
     }
-
-    public GradeSeparatedJunctionType Type { get; }
-    public RoadSegmentId UpperSegmentId { get; }
 
     public Problems VerifyAfter(AfterVerificationContext context)
     {

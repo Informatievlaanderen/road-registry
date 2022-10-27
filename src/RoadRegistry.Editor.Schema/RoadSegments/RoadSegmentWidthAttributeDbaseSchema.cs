@@ -65,7 +65,6 @@ public class RoadSegmentWidthAttributeDbaseSchema : DbaseSchema
     public DbaseField LBLBGNORG => Fields[8];
     public DbaseField TOTPOS => Fields[5];
     public DbaseField VANPOS => Fields[4];
-
     public DbaseField WB_OIDN => Fields[0];
     public DbaseField WS_GIDN => Fields[2];
     public DbaseField WS_OIDN => Fields[1];

@@ -12,6 +12,5 @@ public class StreamEvent
     }
 
     public object Event { get; }
-
     public StreamName Stream { get; }
 }

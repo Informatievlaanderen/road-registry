@@ -109,7 +109,6 @@ public class RoadNodeChangeDbaseRecordsTranslatorTests : IDisposable
 
         var result = _sut.Translate(_entry, enumerator, TranslatedChanges.Empty);
 
-
         var expected = records.Aggregate(
             TranslatedChanges.Empty,
             (previousChanges, current) =>

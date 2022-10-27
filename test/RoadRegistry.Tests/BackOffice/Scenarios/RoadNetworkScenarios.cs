@@ -640,13 +640,9 @@ public class RoadNetworkScenarios : RoadRegistryFixture
     public AddRoadSegment AddSegment1 { get; }
     public AddRoadSegment AddSegment2 { get; }
     public AddRoadSegment AddSegment3 { get; }
-
     public AddRoadNode AddStartNode1 { get; }
-
     public AddRoadNode AddStartNode2 { get; }
-
     public AddRoadNode AddStartNode3 { get; }
-
     public ArchiveId ArchiveId { get; }
     public OperatorName ChangedByOperator { get; }
     public OrganizationId ChangedByOrganization { get; }
@@ -661,9 +657,7 @@ public class RoadNetworkScenarios : RoadRegistryFixture
     public Point MiddlePoint1 { get; }
     public Point MiddlePoint2 { get; }
     public Point MiddlePoint3 { get; }
-
     public ModifyRoadNode ModifyEndNode1 { get; }
-
     public ModifyRoadNode ModifyStartNode1 { get; }
     public MultiLineString MultiLineString1 { get; }
     public MultiLineString MultiLineString2 { get; }
@@ -1141,15 +1135,10 @@ public class RoadNetworkScenarios : RoadRegistryFixture
 
     public RoadNodeAdded StartNode1Added { get; }
     public RoadNodeModified StartNode1Modified { get; }
-
     public RoadNodeAdded StartNode2Added { get; }
-
     public RoadNodeAdded StartNode3Added { get; }
-
     public Point StartPoint1 { get; }
-
     public Point StartPoint2 { get; }
-
     public Point StartPoint3 { get; }
     public TransactionId TransactionId { get; }
 
@@ -2904,7 +2893,6 @@ public class RoadNetworkScenarios : RoadRegistryFixture
             })
             .ToArray();
 
-
         return Run(scenario => scenario
             .Given(Organizations.ToStreamName(ChangedByOrganization),
                 new ImportedOrganization
@@ -4378,7 +4366,6 @@ public class RoadNetworkScenarios : RoadRegistryFixture
             {
                 SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
             });
-
 
         AddStartNode1.Type = RoadNodeType.FakeNode.ToString();
         StartNode1Added.Type = RoadNodeType.FakeNode.ToString();

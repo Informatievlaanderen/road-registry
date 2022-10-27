@@ -9,13 +9,13 @@ using Handlers.Extracts;
 using NetTopologySuite.Geometries;
 
 [Collection(nameof(SqlServerCollection))]
-public class DownloadExtractByNisCodeRequestBodyValidatorTests
+public class DownloadExtractByNisCodeRequestValidatorTests
 {
     private const int ValidBuffer = 50;
     private const string ValidDescription = "description";
     private readonly SqlServer _sqlServerFixture;
 
-    public DownloadExtractByNisCodeRequestBodyValidatorTests(SqlServer sqlServerFixture)
+    public DownloadExtractByNisCodeRequestValidatorTests(SqlServer sqlServerFixture)
     {
         _sqlServerFixture = sqlServerFixture;
     }

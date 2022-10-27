@@ -28,7 +28,6 @@ public class RoadSegmentEuropeanRoadAttributeDbaseRecord : DbaseRecord
 
     public DbaseString BEGINORG { get; }
     public DbaseDateTime BEGINTIJD { get; }
-
     public DbaseInt32 EU_OIDN { get; }
     public DbaseString EUNUMMER { get; }
     public DbaseString LBLBGNORG { get; }

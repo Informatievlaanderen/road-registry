@@ -13,6 +13,8 @@ public class Organization : EventSourcedEntity
         On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
     }
 
+    public DutchTranslation Translation { get; private set; }
+
     public class DutchTranslation
     {
         internal DutchTranslation(OrganizationId identifier, OrganizationName name)
@@ -31,6 +33,4 @@ public class Organization : EventSourcedEntity
         public static readonly DutchTranslation Unknown = new(OrganizationId.Unknown, new OrganizationName("niet gekend"));
         public static readonly DutchTranslation[] All = { Other, Unknown };
     }
-
-    public DutchTranslation Translation { get; private set; }
 }

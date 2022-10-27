@@ -23,10 +23,7 @@ public class RoadNodeChangeDbaseRecord : DbaseRecord
     }
 
     public DbaseInt16 RECORDTYPE { get; }
-
     public DbaseInt16 TRANSACTID { get; }
-
     public DbaseInt16 TYPE { get; }
-
     public DbaseInt32 WEGKNOOPID { get; }
 }

@@ -221,6 +221,13 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
         Translation = dutchTranslation;
     }
 
+    public DutchTranslation Translation { get; }
+
+    public bool Equals(RoadSegmentCategory other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -228,37 +235,15 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public class DutchTranslation
-    {
-        internal DutchTranslation(string identifier, string name, string description)
-        {
-            Identifier = identifier;
-            Name = name;
-            Description = description;
-        }
-
-        public string Description { get; }
-
-        public string Identifier { get; }
-
-        public string Name { get; }
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentCategory type && Equals(type);
-    }
-
-    public bool Equals(RoadSegmentCategory other)
-    {
-        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()
     {
         return _value.GetHashCode();
     }
-
 
     public static bool operator ==(RoadSegmentCategory left, RoadSegmentCategory right)
     {
@@ -284,13 +269,10 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
         return parsed;
     }
 
-
     public override string ToString()
     {
         return _value;
     }
-
-    public DutchTranslation Translation { get; }
 
     public static bool TryParse(string value, out RoadSegmentCategory parsed)
     {
@@ -298,5 +280,19 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
+    }
+
+    public class DutchTranslation
+    {
+        internal DutchTranslation(string identifier, string name, string description)
+        {
+            Identifier = identifier;
+            Name = name;
+            Description = description;
+        }
+
+        public string Description { get; }
+        public string Identifier { get; }
+        public string Name { get; }
     }
 }

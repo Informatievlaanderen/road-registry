@@ -3,13 +3,14 @@ namespace RoadRegistry.BackOffice;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Messages;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
-using Polygon = NetTopologySuite.Geometries.Polygon;
+using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
 
 public static class GeometryTranslator
 {
@@ -19,7 +20,7 @@ public static class GeometryTranslator
         {
             case MultiPolygon multiPolygon:
                 return multiPolygon.Buffer(buffer);
-            case Polygon polygon:
+            case NetTopologySuite.Geometries.Polygon polygon:
                 return polygon.Buffer(buffer);
             default:
                 throw new InvalidOperationException(
@@ -36,6 +37,26 @@ public static class GeometryTranslator
             geometry.MultiPolygon,
             geometry.Polygon
         }.SingleOrDefault(value => !ReferenceEquals(value, null));
+    }
+
+    public static MultiLineString ToGeometryMultiLineString(PolyLineM polyLineM)
+    {
+        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(polyLineM);
+    }
+
+    public static MultiPolygon ToGeometryMultiPolygon(Polygon polygon)
+    {
+        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiPolygon(polygon);
+    }
+
+    public static Point ToGeometryPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
+    {
+        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(point);
+    }
+
+    public static NetTopologySuite.Geometries.Polygon ToGeometryPolygon(Polygon polygon)
+    {
+        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPolygon(polygon);
     }
 
     public static Point Translate(RoadNodeGeometry geometry)
@@ -130,7 +151,7 @@ public static class GeometryTranslator
         if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
         return new MultiPolygon(
-            Array.ConvertAll(geometry.MultiPolygon, polygon => new Polygon(
+            Array.ConvertAll(geometry.MultiPolygon, polygon => new NetTopologySuite.Geometries.Polygon(
                 new LinearRing(
                     GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(Array.ConvertAll(polygon.Shell.Points, point => new Coordinate(point.X, point.Y)))
                     , GeometryConfiguration.GeometryFactory),
@@ -150,7 +171,7 @@ public static class GeometryTranslator
             case Messages.Polygon[] multiPolygon:
                 return new MultiPolygon(
                     Array.ConvertAll(multiPolygon, polygon =>
-                        new Polygon(
+                        new NetTopologySuite.Geometries.Polygon(
                             new LinearRing(
                                 GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
                                     Array.ConvertAll(polygon.Shell.Points,
@@ -164,7 +185,7 @@ public static class GeometryTranslator
                             , GeometryConfiguration.GeometryFactory))
                     , GeometryConfiguration.GeometryFactory);
             case Messages.Polygon polygon:
-                return new Polygon(
+                return new NetTopologySuite.Geometries.Polygon(
                     new LinearRing(
                         GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
                             Array.ConvertAll(polygon.Shell.Points,
@@ -194,7 +215,7 @@ public static class GeometryTranslator
             {
                 var polygons = new Messages.Polygon[multiPolygon.NumGeometries];
                 var polygonIndex = 0;
-                foreach (var fromPolygon in multiPolygon.Geometries.OfType<Polygon>())
+                foreach (var fromPolygon in multiPolygon.Geometries.OfType<NetTopologySuite.Geometries.Polygon>())
                 {
                     var toShell = new Ring
                     {
@@ -238,7 +259,7 @@ public static class GeometryTranslator
                     Polygon = null
                 };
             }
-            case Polygon polygon:
+            case NetTopologySuite.Geometries.Polygon polygon:
             {
                 var toShell = new Ring
                 {

@@ -11,7 +11,6 @@ public readonly struct RoadSegmentWidth : IEquatable<RoadSegmentWidth>
     public static readonly RoadSegmentWidth Unknown = new(UnknownValue);
     public static readonly RoadSegmentWidth NotApplicable = new(NotApplicableValue);
     public static readonly RoadSegmentWidth Maximum = new(MaximumValue);
-
     private readonly int _value;
 
     public RoadSegmentWidth(int value)

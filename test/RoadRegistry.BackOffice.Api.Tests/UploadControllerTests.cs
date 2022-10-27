@@ -141,31 +141,30 @@ public class UploadControllerTests : ControllerTests<UploadController>
                 })
             };
 
-            var result = await Controller.PostUploadAfterFeatureCompare(formFile, CancellationToken.None);
+            try
+            {
+                var result = await Controller.PostUploadAfterFeatureCompare(formFile, CancellationToken.None);
+                Assert.IsType<OkResult>(result);
+            }
+            catch (ValidationException ex)
+            {
+                var validationFileProblems = ex.Errors.Select(ex => ex.PropertyName);
 
-            Assert.IsType<OkResult>(result);
-
-            var page = await StreamStore.ReadAllBackwards(Position.End, 1);
-            var message = page.Messages.Single();
-            Assert.Equal(nameof(RoadNetworkChangesArchiveRejected), message.Type);
-
-            var archiveRejectedMessage = JsonConvert.DeserializeObject<RoadNetworkChangesArchiveRejected>(await message.GetJsonData());
-            var validationFileProblems = archiveRejectedMessage!.Problems.Select(x => x.File).ToArray();
-
-            Assert.Contains("TRANSACTIEZONES.DBF", validationFileProblems);
-            Assert.Contains("WEGKNOOP_ALL.DBF", validationFileProblems);
-            Assert.Contains("WEGKNOOP_ALL.SHP", validationFileProblems);
-            Assert.Contains("WEGKNOOP_ALL.PRJ", validationFileProblems);
-            Assert.Contains("WEGSEGMENT_ALL.DBF", validationFileProblems);
-            Assert.Contains("ATTRIJSTROKEN_ALL.DBF", validationFileProblems);
-            Assert.Contains("ATTWEGBREEDTE_ALL.DBF", validationFileProblems);
-            Assert.Contains("ATTWEGVERHARDING_ALL.DBF", validationFileProblems);
-            Assert.Contains("WEGSEGMENT_ALL.SHP", validationFileProblems);
-            Assert.Contains("WEGSEGMENT_ALL.PRJ", validationFileProblems);
-            Assert.Contains("ATTEUROPWEG_ALL.DBF", validationFileProblems);
-            Assert.Contains("ATTNATIONWEG_ALL.DBF", validationFileProblems);
-            Assert.Contains("ATTGENUMWEG_ALL.DBF", validationFileProblems);
-            Assert.Contains("RLTOGKRUISING_ALL.DBF", validationFileProblems);
+                Assert.Contains("TRANSACTIEZONES.DBF", validationFileProblems);
+                Assert.Contains("WEGKNOOP_ALL.DBF", validationFileProblems);
+                Assert.Contains("WEGKNOOP_ALL.SHP", validationFileProblems);
+                Assert.Contains("WEGKNOOP_ALL.PRJ", validationFileProblems);
+                Assert.Contains("WEGSEGMENT_ALL.DBF", validationFileProblems);
+                Assert.Contains("ATTRIJSTROKEN_ALL.DBF", validationFileProblems);
+                Assert.Contains("ATTWEGBREEDTE_ALL.DBF", validationFileProblems);
+                Assert.Contains("ATTWEGVERHARDING_ALL.DBF", validationFileProblems);
+                Assert.Contains("WEGSEGMENT_ALL.SHP", validationFileProblems);
+                Assert.Contains("WEGSEGMENT_ALL.PRJ", validationFileProblems);
+                Assert.Contains("ATTEUROPWEG_ALL.DBF", validationFileProblems);
+                Assert.Contains("ATTNATIONWEG_ALL.DBF", validationFileProblems);
+                Assert.Contains("ATTGENUMWEG_ALL.DBF", validationFileProblems);
+                Assert.Contains("RLTOGKRUISING_ALL.DBF", validationFileProblems);
+            }
         }
     }
 
@@ -236,10 +235,9 @@ public class UploadControllerTests : ControllerTests<UploadController>
                 await Controller.PostUploadBeforeFeatureCompare(formFile, CancellationToken.None);
                 throw new ValidationException("This should not be reachable");
             }
-            catch (ApiProblemDetailsException ex)
+            catch (ValidationException ex)
             {
-                var validationException = Assert.IsType<ValidationException>(ex.InnerException);
-                var validationFileProblems = validationException.Errors.Select(ex => ex.PropertyName);
+                var validationFileProblems = ex.Errors.Select(ex => ex.PropertyName);
 
                 Assert.Contains("WEGKNOOP.SHP", validationFileProblems);
                 Assert.Contains("WEGKNOOP.DBF", validationFileProblems);

@@ -20,7 +20,6 @@ public class Event
     }
 
     public object Body { get; }
-
     public Guid MessageId { get; }
     public ClaimsPrincipal Principal { get; }
 

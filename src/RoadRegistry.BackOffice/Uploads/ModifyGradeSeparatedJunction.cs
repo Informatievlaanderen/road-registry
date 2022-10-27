@@ -22,8 +22,9 @@ public class ModifyGradeSeparatedJunction : ITranslatedChange
 
     public GradeSeparatedJunctionId Id { get; }
     public RoadSegmentId LowerSegmentId { get; }
-
     public RecordNumber RecordNumber { get; }
+    public GradeSeparatedJunctionType Type { get; }
+    public RoadSegmentId UpperSegmentId { get; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -37,7 +38,4 @@ public class ModifyGradeSeparatedJunction : ITranslatedChange
             LowerSegmentId = LowerSegmentId
         };
     }
-
-    public GradeSeparatedJunctionType Type { get; }
-    public RoadSegmentId UpperSegmentId { get; }
 }

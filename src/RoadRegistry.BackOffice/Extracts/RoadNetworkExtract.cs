@@ -11,9 +11,7 @@ public class RoadNetworkExtract : EventSourcedEntity
     public static readonly Func<RoadNetworkExtract> Factory = () => new RoadNetworkExtract();
     private readonly HashSet<DownloadId> _announcedDownloads;
     private readonly HashSet<UploadId> _knownUploads;
-
     private readonly List<DownloadId> _requestedDownloads;
-
     private ExternalExtractRequestId _externalExtractRequestId;
     private ExtractDescription _extractDescription;
 
@@ -41,6 +39,8 @@ public class RoadNetworkExtract : EventSourcedEntity
         On<RoadNetworkExtractChangesArchiveUploaded>(e => { _knownUploads.Add(new UploadId(e.UploadId)); });
     }
 
+    public ExtractRequestId Id { get; private set; }
+
     public void Announce(DownloadId downloadId, ArchiveId archiveId)
     {
         if (_requestedDownloads.Contains(downloadId) && !_announcedDownloads.Contains(downloadId))
@@ -53,8 +53,6 @@ public class RoadNetworkExtract : EventSourcedEntity
                 ArchiveId = archiveId
             });
     }
-
-    public ExtractRequestId Id { get; private set; }
 
     public static RoadNetworkExtract Request(
         ExternalExtractRequestId externalExtractRequestId,

@@ -21,7 +21,6 @@ internal class LegacyStreamEventsWriter
 
     private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     private readonly ILogger<LegacyStreamEventsWriter> _logger;
-
     private readonly IStreamStore _streamStore;
 
     public LegacyStreamEventsWriter(IStreamStore streamStore, ILogger<LegacyStreamEventsWriter> logger)

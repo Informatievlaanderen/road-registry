@@ -18,9 +18,7 @@ public class DbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbase
     }
 
     public TDbaseRecord Current => _enumerator.Current;
-
     object IEnumerator.Current => Current;
-
     public RecordNumber CurrentRecordNumber => _number;
 
     public void Dispose()

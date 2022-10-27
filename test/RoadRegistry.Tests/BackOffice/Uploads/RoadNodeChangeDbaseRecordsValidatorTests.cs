@@ -42,6 +42,36 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
         _context = ZipArchiveValidationContext.Empty;
     }
 
+    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+    {
+        get
+        {
+            yield return new object[]
+            {
+                new Action<RoadNodeChangeDbaseRecord>(r => r.WEGKNOOPID.Reset()),
+                RoadNodeChangeDbaseRecord.Schema.WEGKNOOPID
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadNodeChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
+                RoadNodeChangeDbaseRecord.Schema.RECORDTYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<RoadNodeChangeDbaseRecord>(r => r.TYPE.Reset()),
+                RoadNodeChangeDbaseRecord.Schema.TYPE
+            };
+        }
+    }
+
+    public void Dispose()
+    {
+        _archive?.Dispose();
+        _stream?.Dispose();
+    }
+
     private static ZipArchiveValidationContext BuildValidationContext(RoadNodeChangeDbaseRecord record, ZipArchiveValidationContext context)
     {
         if (!record.WEGKNOOPID.HasValue || !record.RECORDTYPE.HasValue) return context;
@@ -49,12 +79,6 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
         if (RecordType.ByIdentifier.TryGetValue(record.RECORDTYPE.Value, out var recordType)) return context.WithRoadNode(new RoadNodeId(record.WEGKNOOPID.Value), recordType);
 
         return context;
-    }
-
-    public void Dispose()
-    {
-        _archive?.Dispose();
-        _stream?.Dispose();
     }
 
     [Fact]
@@ -116,30 +140,6 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
             result,
             new FileProblemComparer());
         Assert.Equal(expectedContext, context);
-    }
-
-    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
-    {
-        get
-        {
-            yield return new object[]
-            {
-                new Action<RoadNodeChangeDbaseRecord>(r => r.WEGKNOOPID.Reset()),
-                RoadNodeChangeDbaseRecord.Schema.WEGKNOOPID
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadNodeChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
-                RoadNodeChangeDbaseRecord.Schema.RECORDTYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadNodeChangeDbaseRecord>(r => r.TYPE.Reset()),
-                RoadNodeChangeDbaseRecord.Schema.TYPE
-            };
-        }
     }
 
     [Theory]

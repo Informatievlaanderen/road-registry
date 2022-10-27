@@ -22,6 +22,5 @@ public class RoadSegmentAccessRestrictionDbaseRecord : DbaseRecord
 
     public DbaseString DEFTYPE { get; }
     public DbaseString LBLTYPE { get; }
-
     public DbaseInt32 TYPE { get; }
 }

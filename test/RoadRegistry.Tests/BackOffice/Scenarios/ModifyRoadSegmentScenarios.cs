@@ -124,6 +124,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
     public OperatorName ChangedByOperator { get; }
     public OrganizationId ChangedByOrganization { get; }
     public OrganizationName ChangedByOrganizationName { get; }
+    public Reason ReasonForChange { get; }
+    public ChangeRequestId RequestId { get; }
 
     [Fact]
     public Task modify_segment_that_intersects_without_grade_separated_junction()
@@ -751,7 +753,4 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                 })
         );
     }
-
-    public Reason ReasonForChange { get; }
-    public ChangeRequestId RequestId { get; }
 }

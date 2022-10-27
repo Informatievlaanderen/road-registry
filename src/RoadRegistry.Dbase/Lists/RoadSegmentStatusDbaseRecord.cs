@@ -22,6 +22,5 @@ public class RoadSegmentStatusDbaseRecord : DbaseRecord
 
     public DbaseString DEFSTATUS { get; }
     public DbaseString LBLSTATUS { get; }
-
     public DbaseInt32 STATUS { get; }
 }

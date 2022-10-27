@@ -73,6 +73,5 @@ public class RoadSegmentSurfaceAttributeDbaseSchema : DbaseSchema
     public DbaseField VANPOS => Fields[5];
     public DbaseField WS_GIDN => Fields[2];
     public DbaseField WS_OIDN => Fields[1];
-
     public DbaseField WV_OIDN => Fields[0];
 }

@@ -214,7 +214,6 @@ public class ListsTests
         };
     }
 
-
     private static RoadSegmentStatusDbaseRecord RecordFrom(RoadSegmentStatus item)
     {
         return new RoadSegmentStatusDbaseRecord

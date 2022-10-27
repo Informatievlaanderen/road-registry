@@ -32,7 +32,6 @@ public class ProblematicDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumer
     }
 
     object IEnumerator.Current => Current;
-
     public RecordNumber CurrentRecordNumber => _number;
 
     public void Dispose()

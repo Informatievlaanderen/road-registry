@@ -32,6 +32,21 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         _provisionalChanges = provisionalChanges ?? throw new ArgumentNullException(nameof(provisionalChanges));
     }
 
+    public int Count => _changes.Count;
+    public OperatorName Operator { get; }
+    public OrganizationId Organization { get; }
+    public Reason Reason { get; }
+
+    public IEnumerator<ITranslatedChange> GetEnumerator()
+    {
+        return _changes.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
     public TranslatedChanges AppendChange(AddRoadNode change)
     {
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
@@ -117,23 +132,6 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         //NOTE: Only road segment modifications are currently considered provisional
         return new TranslatedChanges(Reason, Operator, Organization, _changes, _provisionalChanges.Add(change));
     }
-
-    public int Count => _changes.Count;
-
-    public IEnumerator<ITranslatedChange> GetEnumerator()
-    {
-        return _changes.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
-
-    public OperatorName Operator { get; }
-    public OrganizationId Organization { get; }
-
-    public Reason Reason { get; }
 
     public TranslatedChanges ReplaceChange(AddRoadNode before, AddRoadNode after)
     {

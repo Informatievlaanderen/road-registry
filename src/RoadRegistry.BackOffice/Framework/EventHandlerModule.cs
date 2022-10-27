@@ -14,6 +14,8 @@ public abstract class EventHandlerModule
         _handlers = new List<EventHandler>();
     }
 
+    public EventHandler[] Handlers => _handlers.ToArray();
+
     protected IEventHandlerBuilder<TEvent> For<TEvent>()
     {
         return new EventHandlerBuilder<TEvent>(handler =>
@@ -36,6 +38,4 @@ public abstract class EventHandlerModule
                 (message, ct) => handler(new Event<TEvent>(message), ct)
             ));
     }
-
-    public EventHandler[] Handlers => _handlers.ToArray();
 }

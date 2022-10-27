@@ -7,7 +7,6 @@ public readonly struct TransactionId : IEquatable<TransactionId>, IComparable<Tr
 {
     private const int UnknownValue = -8;
     public static readonly TransactionId Unknown = new(UnknownValue);
-
     private readonly int _value;
 
     public TransactionId(int value)

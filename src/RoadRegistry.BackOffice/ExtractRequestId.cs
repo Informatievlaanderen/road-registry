@@ -11,7 +11,6 @@ public readonly struct ExtractRequestId : IEquatable<ExtractRequestId>
 {
     public const int ExactLength = 32;
     public const int ExactStringLength = 64;
-
     private readonly byte[] _value;
 
     public ExtractRequestId(byte[] value)

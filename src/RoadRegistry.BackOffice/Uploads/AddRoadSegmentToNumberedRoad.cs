@@ -25,7 +25,6 @@ public class AddRoadSegmentToNumberedRoad : ITranslatedChange
     public RoadSegmentNumberedRoadDirection Direction { get; }
     public NumberedRoadNumber Number { get; }
     public RoadSegmentNumberedRoadOrdinal Ordinal { get; }
-
     public RecordNumber RecordNumber { get; }
     public RoadSegmentId SegmentId { get; }
     public AttributeId TemporaryAttributeId { get; }

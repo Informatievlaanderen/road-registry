@@ -298,7 +298,6 @@ public class Program
             gradeSeparatedJunctionDbaseWriter.Write(gradeSeparatedJunctionRecord);
         }
 
-
         // transaction zone
         var transactionZoneRecord = new TransactionZoneDbaseRecord
         {

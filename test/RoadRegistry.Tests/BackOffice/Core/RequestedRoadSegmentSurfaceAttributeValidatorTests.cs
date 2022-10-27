@@ -2,21 +2,29 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using FluentValidation;
-using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
-public class RequestedRoadSegmentSurfaceAttributeValidatorTests
+public class RequestedRoadSegmentSurfaceAttributeValidatorTests : ValidatorTest<RequestedRoadSegmentSurfaceAttribute, RequestedRoadSegmentSurfaceAttributeValidator>
 {
     public RequestedRoadSegmentSurfaceAttributeValidatorTests()
     {
-        Fixture = new Fixture();
         Fixture.CustomizeAttributeId();
         Fixture.CustomizeRoadSegmentPosition();
         Fixture.CustomizeRoadSegmentSurfaceType();
-        Validator = new RequestedRoadSegmentSurfaceAttributeValidator();
+
+        var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
+        var from = positionGenerator.First(candidate => candidate >= 0.0m);
+
+        Model = new RequestedRoadSegmentSurfaceAttribute
+        {
+            AttributeId = Fixture.Create<AttributeId>(),
+            FromPosition = from,
+            ToPosition = positionGenerator.First(candidate => candidate > from),
+            Type = Fixture.Create<RoadSegmentSurfaceType>()
+        };
     }
 
     [Theory]
@@ -24,52 +32,26 @@ public class RequestedRoadSegmentSurfaceAttributeValidatorTests
     [InlineData(-1)]
     public void AttributeIdMustBeGreaterThan(int value)
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.AttributeId, value);
+        ShouldHaveValidationErrorFor(c => c.AttributeId, value);
     }
-
-    public Fixture Fixture { get; }
 
     [Theory]
     [MemberData(nameof(DynamicAttributePositionCases.NegativeFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
     public void FromPositionMustBePositive(decimal value)
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.FromPosition, value);
+        ShouldHaveValidationErrorFor(c => c.FromPosition, value);
     }
 
     [Theory]
     [MemberData(nameof(DynamicAttributePositionCases.ToPositionLessThanFromPosition), MemberType = typeof(DynamicAttributePositionCases))]
-    public void ToPositionMustBeGreaterThanFromPosition(decimal from, decimal to)
+    public void ToPositionMustBeGreaterThanFromPosition(decimal to)
     {
-        var data = new RequestedRoadSegmentSurfaceAttribute
-        {
-            FromPosition = from,
-            ToPosition = to
-        };
-        Validator.ShouldHaveValidationErrorFor(c => c.ToPosition, data);
+        ShouldHaveValidationErrorFor(c => c.ToPosition, to);
     }
 
     [Fact]
     public void TypeMustBeWithinDomain()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
-    }
-
-    public RequestedRoadSegmentSurfaceAttributeValidator Validator { get; }
-
-    [Fact]
-    public void VerifyValid()
-    {
-        var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
-        var from = positionGenerator.First(candidate => candidate >= 0.0m);
-
-        var data = new RequestedRoadSegmentSurfaceAttribute
-        {
-            AttributeId = Fixture.Create<AttributeId>(),
-            FromPosition = from,
-            ToPosition = positionGenerator.First(candidate => candidate > from),
-            Type = Fixture.Create<RoadSegmentSurfaceType>()
-        };
-
-        Validator.ValidateAndThrow(data);
+        ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
     }
 }

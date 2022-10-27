@@ -29,6 +29,5 @@ public class RoadSegmentMorphologyDbaseSchema : DbaseSchema
 
     public DbaseField DEFMORF => Fields[2];
     public DbaseField LBLMORF => Fields[1];
-
     public DbaseField MORF => Fields[0];
 }

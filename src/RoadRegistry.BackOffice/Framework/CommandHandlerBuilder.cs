@@ -56,6 +56,10 @@ public class CommandHandlerBuilder<TCommand>
 
         private Action<Func<Command<TCommand>, CancellationToken, Task>> Builder { get; }
 
+        private Func<
+            Func<TContext, Command<TCommand>, CancellationToken, Task>,
+            Func<Command<TCommand>, CancellationToken, Task>> Pipeline { get; }
+
         public void Handle(Func<TContext, Command<TCommand>, CancellationToken, Task> handler)
         {
             if (handler == null) throw new ArgumentNullException(nameof(handler));
@@ -72,10 +76,6 @@ public class CommandHandlerBuilder<TCommand>
 
             return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
         }
-
-        private Func<
-            Func<TContext, Command<TCommand>, CancellationToken, Task>,
-            Func<Command<TCommand>, CancellationToken, Task>> Pipeline { get; }
     }
 
     private sealed class WithPipeline : ICommandHandlerBuilder<TCommand>
@@ -92,6 +92,9 @@ public class CommandHandlerBuilder<TCommand>
 
         private Action<Func<Command<TCommand>, CancellationToken, Task>> Builder { get; }
 
+        private Func<
+            Func<Command<TCommand>, CancellationToken, Task>,
+            Func<Command<TCommand>, CancellationToken, Task>> Pipeline { get; }
 
         public void Handle(Func<Command<TCommand>, CancellationToken, Task> handler)
         {
@@ -119,9 +122,5 @@ public class CommandHandlerBuilder<TCommand>
 
             return new WithContextPipeline<TContext>(Builder, next => Pipeline(pipe(next)));
         }
-
-        private Func<
-            Func<Command<TCommand>, CancellationToken, Task>,
-            Func<Command<TCommand>, CancellationToken, Task>> Pipeline { get; }
     }
 }

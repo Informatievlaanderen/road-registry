@@ -10,7 +10,6 @@ public class SqlCommandProcessorPositionStoreTests : IAsyncLifetime
 {
     private readonly IFixture _fixture;
     private readonly SqlServer _server;
-
     private SqlConnectionStringBuilder _builder;
 
     public SqlCommandProcessorPositionStoreTests(SqlServer server)

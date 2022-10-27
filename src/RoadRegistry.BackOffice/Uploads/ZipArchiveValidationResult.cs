@@ -21,6 +21,26 @@ public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem
         _segments = segments;
     }
 
+    public int Count => _problems.Count;
+    public IReadOnlyCollection<RoadSegmentId> RoadSegments => _segments;
+
+    public bool Equals(ZipArchiveValidationResult other)
+    {
+        return other != null
+               && _problems.SequenceEqual(other._problems)
+               && _segments.SetEquals(other._segments);
+    }
+
+    public IEnumerator<FileProblem> GetEnumerator()
+    {
+        return _problems.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
     public ZipArchiveValidationResult Add(FileProblem problem)
     {
         if (problem == null) throw new ArgumentNullException(nameof(problem));
@@ -45,28 +65,9 @@ public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem
         return _segments.Contains(id);
     }
 
-    public int Count => _problems.Count;
-
     public override bool Equals(object obj)
     {
         return obj is ZipArchiveValidationResult other && Equals(other);
-    }
-
-    public bool Equals(ZipArchiveValidationResult other)
-    {
-        return other != null
-               && _problems.SequenceEqual(other._problems)
-               && _segments.SetEquals(other._segments);
-    }
-
-    public IEnumerator<FileProblem> GetEnumerator()
-    {
-        return _problems.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
     }
 
     public override int GetHashCode()
@@ -100,6 +101,4 @@ public sealed class ZipArchiveValidationResult : IReadOnlyCollection<FileProblem
             _segments
         );
     }
-
-    public IReadOnlyCollection<RoadSegmentId> RoadSegments => _segments;
 }

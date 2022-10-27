@@ -1,5 +1,16 @@
 <template>
   <div>
+    <vl-column v-if="alertInfo.title">
+      <vl-alert
+        :title="alertInfo.title"
+        :mod-success="alertInfo.success"
+        :mod-warning="alertInfo.warning"
+        :mod-error="alertInfo.error"
+      >
+        <p>{{ alertInfo.text }}</p>
+      </vl-alert>
+    </vl-column>
+
     <div class="vl-typography">
       <h2>Wizard extract downloaden</h2>
       <p>Volg de stappen hieronder om een extract van het Wegenregister te downloaden.</p>
@@ -20,12 +31,21 @@
         <h3>Stap 2: Details van de contour</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="select-municipality" class="vl-form__label __field__label">Vul hieronder de gemeente in waarvoor u de contour wenst op te halen</label>
+            <label for="select-municipality" class="vl-form__label __field__label"
+              >Vul hieronder de gemeente in waarvoor u de contour wenst op te halen</label
+            >
           </div>
           <div class="vl-form-col--3-12">
-            <select id="select-municipality" class="vl-select--block vl-select vl-select--block"
-              v-model="municipalityFlow.nisCode">
-              <option v-for="municipality in municipalities" :key="municipality.identificator.objectId" :value="municipality.identificator.objectId">
+            <select
+              id="select-municipality"
+              class="vl-select--block vl-select vl-select--block"
+              v-model="municipalityFlow.nisCode"
+            >
+              <option
+                v-for="municipality in municipalities"
+                :key="municipality.identificator.objectId"
+                :value="municipality.identificator.objectId"
+              >
                 {{ municipality.gemeentenaam.geografischeNaam.spelling }}
               </option>
             </select>
@@ -36,8 +56,12 @@
           </div>
           <div class="vl-form-col--12-12">
             <label class="vl-checkbox" for="municipality-buffer">
-              <input class="vl-checkbox__toggle" type="checkbox" id="municipality-buffer"
-                v-model="municipalityFlow.buffer" />
+              <input
+                class="vl-checkbox__toggle"
+                type="checkbox"
+                id="municipality-buffer"
+                v-model="municipalityFlow.buffer"
+              />
               <span class="vl-checkbox__label">
                 <i class="vl-checkbox__box" aria-hidden="true"></i>
                 Voeg buffer toe
@@ -56,37 +80,106 @@
         <h3>Stap 3: Beschrijving van het extract</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="municipality-description" class="vl-form__label __field__label">Geef een beschrijving op van het extract.</label>
+            <label for="municipality-description" class="vl-form__label __field__label">
+              Geef een beschrijving op van het extract.
+            </label>
           </div>
           <div class="vl-form-col--12-12">
-            <vl-textarea id="municipality-description" cols="40" rows="4" v-model="municipalityFlow.description" mod-block></vl-textarea>
+            <vl-textarea
+              id="municipality-description"
+              cols="40"
+              rows="4"
+              v-model="municipalityFlow.description"
+              mod-block
+            ></vl-textarea>
           </div>
-         <div class="vl-form-col--12-12">
+          <div class="vl-form-col--12-12">
             <vl-action-group>
-              <vl-button v-on:click="currentStep = steps.Step2_Municipality">Vorige</vl-button>
-              <vl-button v-if="!isDescriptionValid(municipalityFlow.description)" mod-disabled>Extract aanvragen
+              <vl-button @click="currentStep = steps.Step2_Municipality">Vorige</vl-button>
+              <vl-button
+                @click="submitMunicipalityRequest"
+                :mod-disabled="isSubmitting || !isDescriptionValid(municipalityFlow.description)"
+              >
+                Extract aanvragen
               </vl-button>
-              <vl-button v-else v-on:click="submitMunicipalityRequest">Extract aanvragen</vl-button>
             </vl-action-group>
           </div>
           <div class="vl-form-col--12-12">
-            <vl-alert icon="warning" title="Opgelet!" mod-small role="alertdialog"
-              v-if="!isDescriptionValid(municipalityFlow.description)">
+            <vl-alert
+              icon="warning"
+              title="Opgelet!"
+              mod-small
+              role="alertdialog"
+              v-if="!isDescriptionValid(municipalityFlow.description)"
+            >
               <p>Gelieve een beschrijving mee te geven van maximaal 250 karakters.</p>
             </vl-alert>
           </div>
         </div>
       </div>
 
-      <div v-else-if="currentStep == steps.Step2_Contour">
+      <div v-show="currentStep == steps.Step2_Contour">
         <h3>Stap 2: Details van de contour</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="contour-wkt" class="vl-form__label __field__label">Geef een contour op (in WKT-formaat, coördinatensysteem Lambert 1972) waarvoor u het extract wenst op te halen:</label>
+            <p>Geef een contour op waarvoor u het extract wenst op te halen. Dit kan op één van twee manieren:</p>
           </div>
-          <div class="vl-form-col--3-12">
-            <textarea class="vl-textarea" id="contour-wkt" value="" cols="40" rows="4" v-model="contourFlow.wkt"></textarea>
+          <div class="vl-form-col--12-12">
+            <label>
+              <input v-model="contourFlow.contourType" type="radio" value="zip" />
+              Laad een contour op in shapefile formaat
+            </label>
           </div>
+          <div class="vl-form-col--12-12">
+            <label>
+              <input v-model="contourFlow.contourType" type="radio" value="wkt" />
+              Geef een contour op in WKT formaat
+            </label>
+          </div>
+          <template v-if="contourFlow.contourType === 'zip'">
+            <div class="vl-form-col--12-12">
+              <p>
+                <br />
+                Laad een shapefile op voor een (multi)polygoon in coördinatensysteem Lambert 1972.
+              </p>
+              <vl-upload
+                ref="vlUpload"
+                id="upload-component"
+                name="upload-component"
+                url="#"
+                upload-drag-text="Selecteer de op te laden bestanden (.shp, .prj)"
+                upload-label="Shapefile"
+                :auto-process="false"
+                :options="uploadOptions"
+                :max-files-msg="`Je mag maximaal ${uploadOptions.maxFiles} bestanden opladen.`"
+                :mod-disabled="isUploading"
+                @upload-success="isUploading = false"
+                @upload-complete="isUploading = false"
+                @upload-canceled="isUploading = false"
+                @upload-file-added="uploadFileAdded"
+                @upload-file-added-manually="uploadFileAdded"
+                @upload-removed-file="uploadFileRemoved"
+              />
+            </div>
+          </template>
+          <template v-if="contourFlow.contourType === 'wkt'">
+            <div class="vl-form-col--12-12">
+              <p>
+                <br />
+                Geef een contour op (in WKT formaat, coördinatensysteem Lambert 1972) waarvoor u het extract wenst op te
+                halen.
+              </p>
+              <textarea
+                class="vl-textarea"
+                id="contour-wkt"
+                value=""
+                cols="200"
+                rows="4"
+                v-model="contourFlow.wkt"
+                @input="contourFlowWktChanged"
+              ></textarea>
+            </div>
+          </template>
           <div class="vl-form-col--9-12"></div>
           <div class="vl-form-col--12-12">
             <p>Wenst u een bufferzone van 100m toe te voegen aan de contour?</p>
@@ -100,49 +193,67 @@
               </span>
             </label>
           </div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step1">
-              <span class="vl-button__label">Vorige</span>
-            </button>
-          </div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step3_Contour"
-              v-bind:class="{ 'vl-button--disabled': contourFlow.wkt == '' }" :disabled="contourFlow.wkt == ''">
-              <span class="vl-button__label">Volgende</span>
-            </button>
+
+          <div class="vl-form-col--2-12"></div>
+          <div class="vl-form-col--2-12"></div>
+          <div class="vl-form-col--12-12">
+            <vl-action-group>
+              <vl-button @click="currentStep = steps.Step1">Vorige</vl-button>
+              <vl-button
+                @click="currentStep = steps.Step3_Contour"
+                :class="{ 'vl-button--disabled': !contourFlowHasValidInput }"
+                :disabled="!contourFlowHasValidInput"
+              >
+                Volgende
+              </vl-button>
+            </vl-action-group>
           </div>
         </div>
       </div>
 
-      <div v-else-if="currentStep == steps.Step3_Contour">
+      <div v-show="currentStep == steps.Step3_Contour">
         <h3>Stap 3: Beschrijving van het extract</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="municipality-description" class="vl-form__label __field__label">Geef een beschrijving op van het extract.</label>
+            <label for="municipality-description" class="vl-form__label __field__label">
+              Geef een beschrijving op van het extract.
+            </label>
           </div>
-          <div class="vl-form-col--3-12">
-            <textarea class="vl-textarea" id="municipality-description" value="" cols="40" rows="4" v-model="contourFlow.description"></textarea>
+          <div class="vl-form-col--12-12">
+            <textarea
+              class="vl-textarea"
+              id="municipality-description"
+              value=""
+              cols="200"
+              rows="4"
+              v-model="contourFlow.description"
+            ></textarea>
           </div>
-          <div class="vl-form-col--9-12"></div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="currentStep = steps.Step2_Contour">
-              <span class="vl-button__label">Vorige</span>
-            </button>
+          <div class="vl-form-col--12-12">
+            <vl-action-group>
+              <vl-button @click="currentStep = steps.Step2_Contour">Vorige</vl-button>
+              <vl-button
+                @click="submitContourRequest"
+                :mod-disabled="isSubmitting || !isDescriptionValid(contourFlow.description)"
+              >
+                Extract aanvragen
+              </vl-button>
+            </vl-action-group>
           </div>
-          <div class="vl-form-col--2-12">
-            <button class="vl-button vl-button--block" vl-button v-on:click="submitContourRequest" v-bind:class="{ 'vl-button--disabled': !isDescriptionValid(contourFlow.description) }" :disabled="!isDescriptionValid(contourFlow.description)">
-              <span class="vl-button__label">Extract aanvragen</span>
-            </button>
-          </div>
+
           <div class="vl-form-col--8-12"></div>
           <div class="vl-form-col--6-12">
             <span v-if="!isDescriptionValid(contourFlow.description)">
               Gelieve een beschrijving mee te geven van maximaal 250 karakters.
             </span>
-            <vl-alert v-if="contourFlow.hasValidationErrors" icon="warning" title="Opgelet!" mod-small role="alertdialog">
-              <p>Er zijn validatie errors:</p>
+            <vl-alert v-if="contourFlow.hasValidationErrors" mod-error title="Validatie fouten" mod-small>
               <ul>
-                <li v-for="contourValidationError in contourFlow.validationErrors.contour" :key="contourValidationError.code">{{contourValidationError.reason}}</li>
+                <li
+                  v-for="contourValidationError in contourFlow.validationErrors.contour"
+                  :key="contourValidationError.code"
+                >
+                  {{ contourValidationError.reason }}
+                </li>
               </ul>
             </vl-alert>
           </div>
@@ -153,12 +264,14 @@
 </template>
 
 <script lang="ts">
-import { PublicApi } from "../../../services";
+import { BackOfficeApi, PublicApi } from "../../../services";
+import ValidationUtils from "@/core/utils/validation-utils";
 import Municipalities from "../../../types/municipalities";
 import RoadRegistry from "../../../types/road-registry";
 import RoadRegistryExceptions from "../../../types/road-registry-exceptions";
 
 import Vue from "vue";
+import { debounce } from "lodash";
 
 enum WizardSteps {
   Step1 = 1,
@@ -170,29 +283,127 @@ enum WizardSteps {
 
 export default Vue.extend({
   data() {
+    const contourTypes = ["zip", "wkt"];
+
     return {
       steps: WizardSteps,
       currentStep: WizardSteps.Step1,
       municipalities: [] as Municipalities.Gemeenten[],
       municipalityFlow: {
-        nisCode: '',
+        nisCode: "",
         buffer: false,
-        description: ''
+        description: "",
       },
       contourFlow: {
-        wkt: '',
+        contourTypes,
+        contourType: contourTypes[0],
+        wkt: "",
+        wktIsValid: false,
+        files: [] as Array<File>,
         buffer: false,
-        description: '',
+        description: "",
         hasValidationErrors: false,
-        validationErrors: {} as RoadRegistry.PerContourValidationErrors
+        validationErrors: {} as RoadRegistry.PerContourValidationErrors,
       },
       validation: {
         description: {
           minLength: 1,
-          maxLength: 250
-        }
-      }
+          maxLength: 250,
+        },
+      },
+      isCheckingWkt: false as Boolean,
+      isUploading: false as Boolean,
+      isSubmitting: false as Boolean,
+      debouncedCheckIfContourWktIsValid: () => {},
     };
+  },
+  computed: {
+    uploadOptions() {
+      return {
+        uploadMultiple: true,
+        autoQueue: false,
+        autoProcessQueue: false,
+        maxFiles: 2,
+        maxFilesize: 28672000, //28MB,
+        acceptedFiles: ".shp, .prj",
+        paramName: "archive",
+        headers: {},
+      };
+    },
+    hasAllRequiredUploadFiles(): Boolean {
+      const requiredFileExtensions = [".shp", ".prj"];
+
+      let fileNameWithoutExt = "";
+
+      const files = this.contourFlow.files as Array<File>;
+
+      if (files.length !== requiredFileExtensions.length) {
+        return false;
+      }
+
+      return (
+        requiredFileExtensions.filter((ext) => {
+          let file = files.find((file) => file.name.toLowerCase().endsWith(ext));
+          if (!file) {
+            return false;
+          }
+
+          let name = file.name.substring(0, file.name.length - ext.length);
+          if (!fileNameWithoutExt) {
+            fileNameWithoutExt = name;
+            return true;
+          }
+
+          return name === fileNameWithoutExt;
+        }).length === requiredFileExtensions.length
+      );
+    },
+    contourFlowHasValidInput(): Boolean {
+      switch (this.contourFlow.contourType) {
+        case "wkt":
+          return !!this.contourFlow.wkt && this.contourFlow.wktIsValid;
+        case "zip":
+          return this.hasAllRequiredUploadFiles;
+      }
+
+      throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
+    },
+    alertInfo(): { success: boolean; warning: boolean; error: boolean; title: string; text: string } {
+      const status = {
+        success: false,
+        warning: false,
+        error: false,
+        title: "",
+        text: "",
+      };
+
+      if (
+        this.contourFlow.contourType === "wkt" &&
+        this.contourFlow.wkt &&
+        !this.contourFlow.wktIsValid &&
+        !this.isCheckingWkt
+      ) {
+        status.title = "Ongeldige contour";
+        status.text =
+          "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
+        status.error = true;
+      }
+
+      if (
+        this.contourFlow.contourType === "zip" &&
+        this.contourFlow.files.length > 0 &&
+        !this.contourFlowHasValidInput
+      ) {
+        status.title = "Ongeldige contour";
+        status.text = "Gelieve precies één .shp en .prj bestand op te laden.";
+        status.error = true;
+      }
+
+      return status;
+    },
+  },
+  created() {
+    this.debouncedCheckIfContourWktIsValid = debounce(this.checkIfContourWktIsValid, 500, { trailing: true });
   },
   async mounted() {
     // fetch paginated data
@@ -210,33 +421,72 @@ export default Vue.extend({
     });
   },
   methods: {
+    contourTypeChanged(value: string) {
+      this.contourFlow.contourType = value;
+    },
     async submitMunicipalityRequest() {
-      const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
-        buffer: this.municipalityFlow.buffer ? 100 : 0,
-        nisCode: this.municipalityFlow.nisCode,
-        description: this.municipalityFlow.description
-      };
+      this.isSubmitting = true;
+      try {
+        const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
+          buffer: this.municipalityFlow.buffer ? 100 : 0,
+          nisCode: this.municipalityFlow.nisCode,
+          description: this.municipalityFlow.description,
+        };
 
-      const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
-      this.$router.push({ name: 'activiteit', params: { downloadId: response.downloadId } });
+        const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
+        this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
+      } finally {
+        this.isSubmitting = false;
+      }
     },
 
     async submitContourRequest() {
+      this.isSubmitting = true;
       try {
         this.contourFlow.hasValidationErrors = false;
-        const requestData: RoadRegistry.DownloadExtractByContourRequest = {
-          buffer: this.contourFlow.buffer ? 100 : 0,
-          contour: this.contourFlow.wkt,
-          description: this.contourFlow.description
-        };
 
-        const response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
-        this.$router.push({ name: 'activiteit', params: { downloadId: response.downloadId } });
+        let response: RoadRegistry.DownloadExtractResponse;
+
+        const buffer = this.contourFlow.buffer ? 100 : 0;
+
+        switch (this.contourFlow.contourType) {
+          case "zip":
+            {
+              const requestData: RoadRegistry.DownloadExtractByFileRequest = {
+                buffer,
+                files: this.contourFlow.files,
+                description: this.contourFlow.description,
+              };
+              response = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
+            }
+            break;
+          case "wkt":
+            {
+              const requestData: RoadRegistry.DownloadExtractByContourRequest = {
+                buffer,
+                contour: this.contourFlow.wkt,
+                description: this.contourFlow.description,
+              };
+
+              response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
+            }
+            break;
+          default:
+            throw new Error(`Not implemented contour type: ${this.contourFlow.contourType}`);
+        }
+
+        this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
       } catch (exception) {
         if (exception instanceof RoadRegistryExceptions.RequestExtractPerContourError) {
           this.contourFlow.hasValidationErrors = true;
-          this.contourFlow.validationErrors = exception.error.validationErrors;
-        } 
+          this.contourFlow.validationErrors = {
+            contour: ValidationUtils.convertValidationErrorsToContourValidationErrors(exception.error.validationErrors),
+          };
+        } else {
+          throw exception;
+        }
+      } finally {
+        this.isSubmitting = false;
       }
     },
 
@@ -248,11 +498,41 @@ export default Vue.extend({
       if (description.length > validationRules.maxLength) return false;
 
       return true;
-    }
-  }
-});
+    },
 
+    uploadFileAdded(file: File) {
+      this.contourFlow.files.push(file);
+    },
+    uploadFileRemoved(file: File) {
+      let index = this.contourFlow.files.indexOf(file);
+      this.contourFlow.files.splice(index, 1);
+    },
+    async contourFlowWktChanged() {
+      this.contourFlow.wktIsValid = false;
+      this.isCheckingWkt = true;
+      this.debouncedCheckIfContourWktIsValid();
+    },
+    async checkIfContourWktIsValid(): Promise<void> {
+      this.contourFlow.wktIsValid = false;
+
+      if (!this.contourFlow.wkt) {
+        return;
+      }
+
+      this.isCheckingWkt = true;
+
+      try {
+        await BackOfficeApi.Information.postValidateWkt(this.contourFlow.wkt);
+        this.contourFlow.wktIsValid = true;
+      } catch (err) {
+        console.error("WKT is invalid", err);
+        this.contourFlow.wktIsValid = false;
+      } finally {
+        this.isCheckingWkt = false;
+      }
+    },
+  },
+});
 </script>
 
-<style lang="scss">
-</style>
+<style lang="scss"></style>

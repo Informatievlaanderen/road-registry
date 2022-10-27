@@ -22,6 +22,5 @@ public class RoadSegmentMorphologyDbaseRecord : DbaseRecord
 
     public DbaseString DEFMORF { get; }
     public DbaseString LBLMORF { get; }
-
     public DbaseInt32 MORF { get; }
 }

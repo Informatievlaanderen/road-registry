@@ -7,20 +7,19 @@ using FluentValidation.TestHelper;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 using LineString = RoadRegistry.BackOffice.Messages.LineString;
 
-public class RoadSegmentGeometryValidatorTests
+public class RoadSegmentGeometryValidatorTests : ValidatorTest<RoadSegmentGeometry, RoadSegmentGeometryValidator>
 {
     public RoadSegmentGeometryValidatorTests()
     {
-        Fixture = new Fixture();
         Fixture.CustomizePolylineM();
 
-        Validator = new RoadSegmentGeometryValidator();
+        Model = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
+        Model.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
     }
-
-    public Fixture Fixture { get; }
 
     [Fact]
     public void LineStringCanNotBeNull()
@@ -29,7 +28,7 @@ public class RoadSegmentGeometryValidatorTests
         var index = new Random().Next(0, data.Length);
         data[index] = null;
 
-        Validator.ShouldHaveValidationErrorFor(c => c.MultiLineString, data);
+        ShouldHaveValidationErrorFor(c => c.MultiLineString, data);
     }
 
     [Fact]
@@ -41,14 +40,14 @@ public class RoadSegmentGeometryValidatorTests
     [Fact]
     public void MultiLineStringCanNotBeNull()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.MultiLineString, (LineString[])null);
+        ShouldHaveValidationErrorFor(c => c.MultiLineString, null);
     }
 
     [Fact]
     public void MultiLineStringCanOnlyHaveOneLineString()
     {
         var lineStrings = Fixture.CreateMany<LineString>(new Random().Next(2, 10)).ToArray();
-        Validator.ShouldHaveValidationErrorFor(c => c.MultiLineString, lineStrings);
+        ShouldHaveValidationErrorFor(c => c.MultiLineString, lineStrings);
     }
 
     [Theory]
@@ -56,17 +55,6 @@ public class RoadSegmentGeometryValidatorTests
     [InlineData(-1)]
     public void SpatialReferenceSystemIdentifierMustBeGreaterThan(int value)
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.SpatialReferenceSystemIdentifier, value);
-    }
-
-    public RoadSegmentGeometryValidator Validator { get; }
-
-    [Fact]
-    public void VerifyValid()
-    {
-        var data = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
-        data.SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
-
-        Validator.ValidateAndThrow(data);
+        ShouldHaveValidationErrorFor(c => c.SpatialReferenceSystemIdentifier, value);
     }
 }

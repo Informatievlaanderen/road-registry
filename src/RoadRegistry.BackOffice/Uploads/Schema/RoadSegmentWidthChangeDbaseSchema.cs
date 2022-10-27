@@ -52,16 +52,10 @@ public class RoadSegmentWidthChangeDbaseSchema : DbaseSchema
     }
 
     public DbaseField BREEDTE => Fields[4];
-
     public DbaseField RECORDTYPE => Fields[6];
-
     public DbaseField TOTPOSITIE => Fields[3];
-
     public DbaseField TRANSACTID => Fields[5];
-
     public DbaseField VANPOSITIE => Fields[2];
-
     public DbaseField WB_OIDN => Fields[0];
-
     public DbaseField WS_OIDN => Fields[1];
 }

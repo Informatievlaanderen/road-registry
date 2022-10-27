@@ -9,6 +9,5 @@ public class ScenarioExpectedEventsButThrewException
     }
 
     public Exception Actual { get; }
-
     public ExpectEventsScenario Scenario { get; }
 }

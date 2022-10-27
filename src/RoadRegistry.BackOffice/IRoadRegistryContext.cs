@@ -7,9 +7,7 @@ using Uploads;
 public interface IRoadRegistryContext
 {
     IOrganizations Organizations { get; }
-
     IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
-
     IRoadNetworkExtracts RoadNetworkExtracts { get; }
     IRoadNetworks RoadNetworks { get; }
 }

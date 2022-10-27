@@ -5,7 +5,6 @@ using System;
 public readonly struct ArchiveId : IEquatable<ArchiveId>
 {
     public const int MaxLength = 32;
-
     private readonly string _value;
 
     public ArchiveId(string value)

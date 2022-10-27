@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkChangesAccepted")]
 [EventDescription("Indicates the road network changes were accepted.")]
-public class RoadNetworkChangesAccepted
+public class RoadNetworkChangesAccepted : IMessage
 {
     public AcceptedChange[] Changes { get; set; }
     public string Operator { get; set; }

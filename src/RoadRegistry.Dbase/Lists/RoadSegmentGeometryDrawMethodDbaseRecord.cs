@@ -22,6 +22,5 @@ public class RoadSegmentGeometryDrawMethodDbaseRecord : DbaseRecord
 
     public DbaseString DEFMETHOD { get; }
     public DbaseString LBLMETHOD { get; }
-
     public DbaseInt32 METHODE { get; }
 }

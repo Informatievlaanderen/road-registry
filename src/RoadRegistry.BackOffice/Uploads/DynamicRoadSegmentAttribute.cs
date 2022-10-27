@@ -20,8 +20,6 @@ public abstract class DynamicRoadSegmentAttribute
     }
 
     public RoadSegmentPosition From { get; }
-
     public AttributeId TemporaryId { get; }
-
     public RoadSegmentPosition To { get; }
 }

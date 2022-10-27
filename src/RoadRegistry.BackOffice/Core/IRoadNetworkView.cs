@@ -7,8 +7,6 @@ using NetTopologySuite.Geometries;
 
 public interface IRoadNetworkView
 {
-    // scoping
-    IScopedRoadNetworkView CreateScopedView(Envelope envelope);
     IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
     AttributeId MaximumEuropeanRoadAttributeId { get; }
     GradeSeparatedJunctionId MaximumGradeSeparatedJunctionId { get; }
@@ -19,20 +17,22 @@ public interface IRoadNetworkView
     RoadSegmentId MaximumSegmentId { get; }
     AttributeId MaximumSurfaceAttributeId { get; }
     TransactionId MaximumTransactionId { get; }
-
     AttributeId MaximumWidthAttributeId { get; }
 
     // data
     IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes { get; }
+    ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentReusableLaneAttributeIdentifiers { get; }
+    ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentReusableSurfaceAttributeIdentifiers { get; }
+    ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentReusableWidthAttributeIdentifiers { get; }
+    IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments { get; }
+
+    // scoping
+    IScopedRoadNetworkView CreateScopedView(Envelope envelope);
     IRoadNetworkView RestoreFromEvent(object @event);
 
     // based on events
     IRoadNetworkView RestoreFromEvents(IReadOnlyCollection<object> events);
     IRoadNetworkView RestoreFromSnapshot(RoadNetworkSnapshot snapshot);
-    ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentReusableLaneAttributeIdentifiers { get; }
-    ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentReusableSurfaceAttributeIdentifiers { get; }
-    ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>> SegmentReusableWidthAttributeIdentifiers { get; }
-    IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments { get; }
 
     // snapshot support
     RoadNetworkSnapshot TakeSnapshot();

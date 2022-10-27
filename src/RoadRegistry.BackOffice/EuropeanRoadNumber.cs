@@ -28,6 +28,11 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
         _value = value;
     }
 
+    public bool Equals(EuropeanRoadNumber other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -35,16 +40,9 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-
     public override bool Equals(object obj)
     {
         return obj is EuropeanRoadNumber type && Equals(type);
-    }
-
-
-    public bool Equals(EuropeanRoadNumber other)
-    {
-        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()

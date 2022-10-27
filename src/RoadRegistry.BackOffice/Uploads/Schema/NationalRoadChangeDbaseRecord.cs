@@ -25,12 +25,8 @@ public class NationalRoadChangeDbaseRecord : DbaseRecord
     }
 
     public DbaseString IDENT2 { get; }
-
     public DbaseInt32 NW_OIDN { get; }
-
     public DbaseInt16 RECORDTYPE { get; }
-
     public DbaseInt16 TRANSACTID { get; }
-
     public DbaseInt32 WS_OIDN { get; }
 }

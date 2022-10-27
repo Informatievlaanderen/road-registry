@@ -52,16 +52,10 @@ public class RoadSegmentSurfaceChangeDbaseSchema : DbaseSchema
     }
 
     public DbaseField RECORDTYPE => Fields[6];
-
     public DbaseField TOTPOSITIE => Fields[3];
-
     public DbaseField TRANSACTID => Fields[5];
-
     public DbaseField TYPE => Fields[4];
-
     public DbaseField VANPOSITIE => Fields[2];
-
     public DbaseField WS_OIDN => Fields[1];
-
     public DbaseField WV_OIDN => Fields[0];
 }

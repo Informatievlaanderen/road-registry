@@ -14,6 +14,10 @@ public class ExpectEventsScenario
         Thens = thens ?? throw new ArgumentNullException(nameof(thens));
     }
 
+    public RecordedEvent[] Givens { get; }
+    public RecordedEvent[] Thens { get; }
+    public Command When { get; }
+
     public ScenarioExpectedEventsButRecordedOtherEvents ButRecordedOtherEvents(RecordedEvent[] events)
     {
         return new ScenarioExpectedEventsButRecordedOtherEvents(this, events);
@@ -24,13 +28,8 @@ public class ExpectEventsScenario
         return new ScenarioExpectedEventsButThrewException(this, threw);
     }
 
-    public RecordedEvent[] Givens { get; }
-
     public ExpectEventsScenarioPassed Pass()
     {
         return new ExpectEventsScenarioPassed(this);
     }
-
-    public RecordedEvent[] Thens { get; }
-    public Command When { get; }
 }

@@ -2,10 +2,11 @@ namespace RoadRegistry.Syndication.Projections.StreetNameEvents;
 
 using System;
 using System.Runtime.Serialization;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using NodaTime;
 
 [DataContract(Name = "StreetNameWasRegistered", Namespace = "")]
-public class StreetNameWasRegistered
+public class StreetNameWasRegistered : IMessage
 {
     [DataMember(Name = "MunicipalityId", Order = 2)]
     public Guid MunicipalityId { get; set; }
@@ -18,7 +19,7 @@ public class StreetNameWasRegistered
 }
 
 [DataContract(Name = "StreetNamePersistentLocalIdentifierWasAssigned", Namespace = "")]
-public class StreetNamePersistentLocalIdentifierWasAssigned
+public class StreetNamePersistentLocalIdentifierWasAssigned : IMessage
 {
     [DataMember(Name = "AssignmentDate", Order = 3)]
     public Instant AssignmentDate { get; set; }
@@ -31,7 +32,7 @@ public class StreetNamePersistentLocalIdentifierWasAssigned
 }
 
 [DataContract(Name = "StreetNameWasNamed", Namespace = "")]
-public class StreetNameWasNamed
+public class StreetNameWasNamed : IMessage
 {
     [IgnoreDataMember]
     public StreetNameLanguage? Language =>
@@ -49,7 +50,7 @@ public class StreetNameWasNamed
 }
 
 [DataContract(Name = "StreetNameNameWasCleared", Namespace = "")]
-public class StreetNameNameWasCleared
+public class StreetNameNameWasCleared : IMessage
 {
     [IgnoreDataMember]
     public StreetNameLanguage? Language =>
@@ -65,7 +66,7 @@ public class StreetNameNameWasCleared
 }
 
 [DataContract(Name = "StreetNameNameWasCorrected", Namespace = "")]
-public class StreetNameNameWasCorrected
+public class StreetNameNameWasCorrected : IMessage
 {
     [IgnoreDataMember]
     public StreetNameLanguage? Language =>
@@ -83,7 +84,7 @@ public class StreetNameNameWasCorrected
 }
 
 [DataContract(Name = "StreetNameNameWasCorrectedToCleared", Namespace = "")]
-public class StreetNameNameWasCorrectedToCleared
+public class StreetNameNameWasCorrectedToCleared : IMessage
 {
     [IgnoreDataMember]
     public StreetNameLanguage? Language =>
@@ -99,84 +100,84 @@ public class StreetNameNameWasCorrectedToCleared
 }
 
 [DataContract(Name = "StreetNameBecameCurrent", Namespace = "")]
-public class StreetNameBecameCurrent
+public class StreetNameBecameCurrent : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameWasCorrectedToCurrent", Namespace = "")]
-public class StreetNameWasCorrectedToCurrent
+public class StreetNameWasCorrectedToCurrent : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameWasProposed", Namespace = "")]
-public class StreetNameWasProposed
+public class StreetNameWasProposed : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameWasCorrectedToProposed", Namespace = "")]
-public class StreetNameWasCorrectedToProposed
+public class StreetNameWasCorrectedToProposed : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameWasRetired", Namespace = "")]
-public class StreetNameWasRetired
+public class StreetNameWasRetired : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameWasCorrectedToRetired", Namespace = "")]
-public class StreetNameWasCorrectedToRetired
+public class StreetNameWasCorrectedToRetired : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameStatusWasRemoved", Namespace = "")]
-public class StreetNameStatusWasRemoved
+public class StreetNameStatusWasRemoved : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameStatusWasCorrectedToRemoved", Namespace = "")]
-public class StreetNameStatusWasCorrectedToRemoved
+public class StreetNameStatusWasCorrectedToRemoved : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameBecameComplete", Namespace = "")]
-public class StreetNameBecameComplete
+public class StreetNameBecameComplete : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameBecameIncomplete", Namespace = "")]
-public class StreetNameBecameIncomplete
+public class StreetNameBecameIncomplete : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameWasRemoved", Namespace = "")]
-public class StreetNameWasRemoved
+public class StreetNameWasRemoved : IMessage
 {
     [DataMember(Name = "StreetNameId", Order = 1)]
     public Guid StreetNameId { get; set; }
 }
 
 [DataContract(Name = "StreetNameHomonymAdditionWasCleared", Namespace = "")]
-public class StreetNameHomonymAdditionWasCleared
+public class StreetNameHomonymAdditionWasCleared : IMessage
 {
     [IgnoreDataMember]
     public StreetNameLanguage? Language =>
@@ -192,7 +193,7 @@ public class StreetNameHomonymAdditionWasCleared
 }
 
 [DataContract(Name = "StreetNameHomonymAdditionWasCorrected", Namespace = "")]
-public class StreetNameHomonymAdditionWasCorrected
+public class StreetNameHomonymAdditionWasCorrected : IMessage
 {
     [DataMember(Name = "HomonymAddition", Order = 2)]
     public string HomonymAddition { get; set; }
@@ -211,7 +212,7 @@ public class StreetNameHomonymAdditionWasCorrected
 }
 
 [DataContract(Name = "StreetNameHomonymAdditionWasCorrectedToCleared", Namespace = "")]
-public class StreetNameHomonymAdditionWasCorrectedToCleared
+public class StreetNameHomonymAdditionWasCorrectedToCleared : IMessage
 {
     [IgnoreDataMember]
     public StreetNameLanguage? Language =>
@@ -227,7 +228,7 @@ public class StreetNameHomonymAdditionWasCorrectedToCleared
 }
 
 [DataContract(Name = "StreetNameHomonymAdditionWasDefined", Namespace = "")]
-public class StreetNameHomonymAdditionWasDefined
+public class StreetNameHomonymAdditionWasDefined : IMessage
 {
     [DataMember(Name = "HomonymAddition", Order = 2)]
     public string HomonymAddition { get; set; }
@@ -246,7 +247,7 @@ public class StreetNameHomonymAdditionWasDefined
 }
 
 [DataContract(Name = "StreetNamePrimaryLanguageWasCleared", Namespace = "")]
-public class StreetNamePrimaryLanguageWasCleared
+public class StreetNamePrimaryLanguageWasCleared : IMessage
 {
     [DataMember(Name = "MunicipalityId", Order = 2)]
     public Guid MunicipalityId { get; set; }
@@ -256,7 +257,7 @@ public class StreetNamePrimaryLanguageWasCleared
 }
 
 [DataContract(Name = "StreetNamePrimaryLanguageWasCorrected", Namespace = "")]
-public class StreetNamePrimaryLanguageWasCorrected
+public class StreetNamePrimaryLanguageWasCorrected : IMessage
 {
     [DataMember(Name = "MunicipalityId", Order = 2)]
     public Guid MunicipalityId { get; set; }
@@ -275,7 +276,7 @@ public class StreetNamePrimaryLanguageWasCorrected
 }
 
 [DataContract(Name = "StreetNamePrimaryLanguageWasCorrectedToCleared", Namespace = "")]
-public class StreetNamePrimaryLanguageWasCorrectedToCleared
+public class StreetNamePrimaryLanguageWasCorrectedToCleared : IMessage
 {
     [DataMember(Name = "MunicipalityId", Order = 2)]
     public Guid MunicipalityId { get; set; }
@@ -285,7 +286,7 @@ public class StreetNamePrimaryLanguageWasCorrectedToCleared
 }
 
 [DataContract(Name = "StreetNamePrimaryLanguageWasDefined", Namespace = "")]
-public class StreetNamePrimaryLanguageWasDefined
+public class StreetNamePrimaryLanguageWasDefined : IMessage
 {
     [DataMember(Name = "MunicipalityId", Order = 2)]
     public Guid MunicipalityId { get; set; }
@@ -304,7 +305,7 @@ public class StreetNamePrimaryLanguageWasDefined
 }
 
 [DataContract(Name = "StreetNamePrimaryLanguageWasCleared", Namespace = "")]
-public class StreetNameSecondaryLanguageWasCleared
+public class StreetNameSecondaryLanguageWasCleared : IMessage
 {
     [DataMember(Name = "MunicipalityId", Order = 2)]
     public Guid MunicipalityId { get; set; }
@@ -314,7 +315,7 @@ public class StreetNameSecondaryLanguageWasCleared
 }
 
 [DataContract(Name = "StreetNameSecondaryLanguageWasCorrected", Namespace = "")]
-public class StreetNameSecondaryLanguageWasCorrected
+public class StreetNameSecondaryLanguageWasCorrected : IMessage
 {
     [DataMember(Name = "MunicipalityId", Order = 2)]
     public Guid MunicipalityId { get; set; }
@@ -333,7 +334,7 @@ public class StreetNameSecondaryLanguageWasCorrected
 }
 
 [DataContract(Name = "StreetNameSecondaryLanguageWasCorrectedToCleared", Namespace = "")]
-public class StreetNameSecondaryLanguageWasCorrectedToCleared
+public class StreetNameSecondaryLanguageWasCorrectedToCleared : IMessage
 {
     [DataMember(Name = "MunicipalityId", Order = 2)]
     public Guid MunicipalityId { get; set; }
@@ -343,7 +344,7 @@ public class StreetNameSecondaryLanguageWasCorrectedToCleared
 }
 
 [DataContract(Name = "StreetNameSecondaryLanguageWasDefined", Namespace = "")]
-public class StreetNameSecondaryLanguageWasDefined
+public class StreetNameSecondaryLanguageWasDefined : IMessage
 {
     [DataMember(Name = "MunicipalityId", Order = 2)]
     public Guid MunicipalityId { get; set; }

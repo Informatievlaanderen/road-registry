@@ -49,6 +49,48 @@ public class NumberedRoadChangeDbaseRecordsValidatorTests : IDisposable
         _context = ZipArchiveValidationContext.Empty;
     }
 
+    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
+    {
+        get
+        {
+            yield return new object[]
+            {
+                new Action<NumberedRoadChangeDbaseRecord>(r => r.GW_OIDN.Reset()),
+                NumberedRoadChangeDbaseRecord.Schema.GW_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<NumberedRoadChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
+                NumberedRoadChangeDbaseRecord.Schema.RECORDTYPE
+            };
+
+            yield return new object[]
+            {
+                new Action<NumberedRoadChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
+                NumberedRoadChangeDbaseRecord.Schema.WS_OIDN
+            };
+
+            yield return new object[]
+            {
+                new Action<NumberedRoadChangeDbaseRecord>(r => r.IDENT8.Reset()),
+                NumberedRoadChangeDbaseRecord.Schema.IDENT8
+            };
+
+            yield return new object[]
+            {
+                new Action<NumberedRoadChangeDbaseRecord>(r => r.RICHTING.Reset()),
+                NumberedRoadChangeDbaseRecord.Schema.RICHTING
+            };
+
+            yield return new object[]
+            {
+                new Action<NumberedRoadChangeDbaseRecord>(r => r.VOLGNUMMER.Reset()),
+                NumberedRoadChangeDbaseRecord.Schema.VOLGNUMMER
+            };
+        }
+    }
+
     public void Dispose()
     {
         _archive?.Dispose();
@@ -108,48 +150,6 @@ public class NumberedRoadChangeDbaseRecordsValidatorTests : IDisposable
             result,
             new FileProblemComparer());
         Assert.Same(_context, context);
-    }
-
-    public static IEnumerable<object[]> ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases
-    {
-        get
-        {
-            yield return new object[]
-            {
-                new Action<NumberedRoadChangeDbaseRecord>(r => r.GW_OIDN.Reset()),
-                NumberedRoadChangeDbaseRecord.Schema.GW_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<NumberedRoadChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
-                NumberedRoadChangeDbaseRecord.Schema.RECORDTYPE
-            };
-
-            yield return new object[]
-            {
-                new Action<NumberedRoadChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
-                NumberedRoadChangeDbaseRecord.Schema.WS_OIDN
-            };
-
-            yield return new object[]
-            {
-                new Action<NumberedRoadChangeDbaseRecord>(r => r.IDENT8.Reset()),
-                NumberedRoadChangeDbaseRecord.Schema.IDENT8
-            };
-
-            yield return new object[]
-            {
-                new Action<NumberedRoadChangeDbaseRecord>(r => r.RICHTING.Reset()),
-                NumberedRoadChangeDbaseRecord.Schema.RICHTING
-            };
-
-            yield return new object[]
-            {
-                new Action<NumberedRoadChangeDbaseRecord>(r => r.VOLGNUMMER.Reset()),
-                NumberedRoadChangeDbaseRecord.Schema.VOLGNUMMER
-            };
-        }
     }
 
     [Theory]

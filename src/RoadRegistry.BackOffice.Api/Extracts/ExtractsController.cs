@@ -1,6 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
+using System;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,11 +13,11 @@ using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
-using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
@@ -88,17 +91,54 @@ public class ExtractsController : ControllerBase
     [HttpPost("downloadrequests/bycontour")]
     public async Task<ActionResult> PostDownloadRequestByContour([FromBody] DownloadExtractByContourRequestBody body, CancellationToken cancellationToken)
     {
-        DownloadExtractByContourRequest request = new(body.Contour, body.Buffer, body.Description);
-        var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+        try
+        {
+            DownloadExtractByContourRequest request = new(body.Contour, body.Buffer, body.Description);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+        }
+        catch (DownloadExtractByNisCodeNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPost("downloadrequests/byfile")]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public async Task<ActionResult> PostDownloadRequestByFile(DownloadExtractByFileRequestBody body, CancellationToken cancellationToken)
+    {
+        try
+        {
+            DownloadExtractByFileRequest request = new(
+                BuildRequestItem(".shp"),
+                BuildRequestItem(".prj"),
+                body.Buffer,
+                body.Description);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
+
+            DownloadExtractByFileRequestItem BuildRequestItem(string extension)
+            {
+                var file = body.Files.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
+                           ?? throw new ArgumentNullException();
+                var fileStream = new MemoryStream();
+                file.CopyTo(fileStream);
+                fileStream.Position = 0;
+                return new DownloadExtractByFileRequestItem(file.FileName, fileStream, ContentType.Parse(file.ContentType));
+            }
+        }
+        catch (DownloadExtractByFileNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpPost("downloadrequests/byniscode")]
     public async Task<ActionResult> PostDownloadRequestByNisCode([FromBody] DownloadExtractByNisCodeRequestBody body, CancellationToken cancellationToken)
     {
-        DownloadExtractByNisCodeRequest request = new(body.NisCode, body.Buffer, body.Description);
         try
         {
+            DownloadExtractByNisCodeRequest request = new(body.NisCode, body.Buffer, body.Description);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
         }

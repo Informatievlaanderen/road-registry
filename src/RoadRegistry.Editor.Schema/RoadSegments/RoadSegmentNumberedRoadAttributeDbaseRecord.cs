@@ -34,7 +34,6 @@ public class RoadSegmentNumberedRoadAttributeDbaseRecord : DbaseRecord
 
     public DbaseString BEGINORG { get; }
     public DbaseDateTime BEGINTIJD { get; }
-
     public DbaseInt32 GW_OIDN { get; }
     public DbaseString IDENT8 { get; }
     public DbaseString LBLBGNORG { get; }

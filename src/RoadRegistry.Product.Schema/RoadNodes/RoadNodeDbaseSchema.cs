@@ -51,7 +51,6 @@ public class RoadNodeDbaseSchema : DbaseSchema
     public DbaseField LBLBGNORG => Fields[6];
     public DbaseField LBLTYPE => Fields[3];
     public DbaseField TYPE => Fields[2];
-
     public DbaseField WK_OIDN => Fields[0];
     public DbaseField WK_UIDN => Fields[1];
 }

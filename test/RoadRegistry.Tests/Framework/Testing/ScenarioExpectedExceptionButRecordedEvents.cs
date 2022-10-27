@@ -11,6 +11,5 @@ public class ScenarioExpectedExceptionButRecordedEvents
     }
 
     public RecordedEvent[] Actual { get; }
-
     public ExpectExceptionScenario Scenario { get; }
 }

@@ -46,7 +46,6 @@ public class RoadSegmentWidthChangeDbaseRecordsTranslatorTests : IDisposable
                 })
                 .OmitAutoProperties());
 
-
         _sut = new RoadSegmentWidthChangeDbaseRecordsTranslator();
         _enumerator = new List<RoadSegmentWidthChangeDbaseRecord>().ToDbaseRecordEnumerator();
         _stream = new MemoryStream();
@@ -124,7 +123,6 @@ public class RoadSegmentWidthChangeDbaseRecordsTranslatorTests : IDisposable
 
         Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
     }
-
 
     [Fact]
     public void TranslateWithIdenticalRecordsForModifyRoadSegmentReturnsExpectedResult()

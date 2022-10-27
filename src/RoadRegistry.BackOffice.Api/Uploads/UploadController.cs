@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Extracts;
@@ -8,14 +11,12 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentValidation;
+using FluentValidation.Results;
 using Framework;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
@@ -58,13 +59,6 @@ public class UploadController : ControllerBase
         catch (UnsupportedMediaTypeException)
         {
             return new UnsupportedMediaTypeResult();
-        }
-        catch (ValidationException exception)
-        {
-            throw new ApiProblemDetailsException(
-                "Could not upload roadnetwork extract because of validation errors",
-                400,
-                new ExceptionProblemDetails(exception), exception);
         }
         catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
         {

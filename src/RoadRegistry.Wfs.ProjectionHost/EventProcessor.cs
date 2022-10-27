@@ -22,9 +22,7 @@ using SqlStreamStore.Streams;
 public class EventProcessor
 {
     private const int CatchUpBatchSize = 5000;
-
     private const string QueueName = "roadregistry-wfs-projectionhost";
-
     private const int SynchronizeWithCacheBatchSize = 5000;
 
     public static readonly EventMapping EventMapping =
@@ -44,8 +42,6 @@ public class EventProcessor
     private readonly ILogger<EventProcessor> _logger;
     private readonly IMetadataUpdater _metadataUpdater;
     private readonly ConnectedProjectionHandlerResolver<WfsContext> _resolver;
-
-
     private readonly IStreamStore _streamStore;
     private readonly IStreetNameCache _streetNameCache;
 

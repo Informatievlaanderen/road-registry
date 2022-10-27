@@ -13,14 +13,14 @@ public class EventSourcedEntityMap
         _entries = new ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry>();
     }
 
+    public IEnumerable<EventSourcedEntityMapEntry> Entries => _entries.Values;
+
     public void Attach(EventSourcedEntityMapEntry entry)
     {
         if (entry == null) throw new ArgumentNullException(nameof(entry));
 
         if (!_entries.TryAdd(entry.Stream, entry)) throw new ArgumentException($"The event source of stream {entry.Stream} was already attached.");
     }
-
-    public IEnumerable<EventSourcedEntityMapEntry> Entries => _entries.Values;
 
     public bool TryGet(StreamName stream, out EventSourcedEntityMapEntry entry)
     {

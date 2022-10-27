@@ -41,7 +41,6 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
         Unknown, Tunnel, Bridge
     };
 
-
     public static readonly IReadOnlyDictionary<int, GradeSeparatedJunctionType> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
@@ -53,6 +52,13 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
         Translation = dutchTranslation;
     }
 
+    public DutchTranslation Translation { get; }
+
+    public bool Equals(GradeSeparatedJunctionType other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public static bool CanParse(string value)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
@@ -60,30 +66,9 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public class DutchTranslation
-    {
-        internal DutchTranslation(int identifier, string name, string description)
-        {
-            Identifier = identifier;
-            Name = name;
-            Description = description;
-        }
-
-        public string Description { get; }
-
-        public int Identifier { get; }
-
-        public string Name { get; }
-    }
-
     public override bool Equals(object obj)
     {
         return obj is GradeSeparatedJunctionType type && Equals(type);
-    }
-
-    public bool Equals(GradeSeparatedJunctionType other)
-    {
-        return other != null && other._value == _value;
     }
 
     public override int GetHashCode()
@@ -119,13 +104,25 @@ public sealed class GradeSeparatedJunctionType : IEquatable<GradeSeparatedJuncti
         return _value;
     }
 
-    public DutchTranslation Translation { get; }
-
     public static bool TryParse(string value, out GradeSeparatedJunctionType parsed)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;
+    }
+
+    public class DutchTranslation
+    {
+        internal DutchTranslation(int identifier, string name, string description)
+        {
+            Identifier = identifier;
+            Name = name;
+            Description = description;
+        }
+
+        public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

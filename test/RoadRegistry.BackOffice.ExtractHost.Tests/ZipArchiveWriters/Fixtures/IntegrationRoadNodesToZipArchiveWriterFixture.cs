@@ -22,14 +22,19 @@ public class IntegrationRoadNodesToZipArchiveWriterFixture : ZipArchiveWriterFix
             new IntegrationRoadNodesToZipArchiveWriter(memoryStreamManager, Encoding.UTF8));
     }
 
+    public TimeSpan ElapsedTimeSpan { get; private set; }
+    public override FileInfo FileInfo => new(Path.Combine("ZipArchiveWriters", "Fixtures", "RoadNodesToZipArchiveWriterFixture.wkt"));
+
+    public override RoadNetworkExtractAssemblyRequest Request => new(
+        new ExternalExtractRequestId("TEST"),
+        new DownloadId(),
+        new ExtractDescription("TEST"),
+        (IPolygonal)Result.Single());
+
     public Task DisposeAsync()
     {
         return Task.CompletedTask;
     }
-
-    public TimeSpan ElapsedTimeSpan { get; private set; }
-
-    public override FileInfo FileInfo => new(Path.Combine("ZipArchiveWriters", "Fixtures", "RoadNodesToZipArchiveWriterFixture.wkt"));
 
     public async Task InitializeAsync()
     {
@@ -46,10 +51,4 @@ public class IntegrationRoadNodesToZipArchiveWriterFixture : ZipArchiveWriterFix
             File.WriteAllBytes(Path.ChangeExtension(FileInfo.FullName, ".zip"), fileBytes);
         }
     }
-
-    public override RoadNetworkExtractAssemblyRequest Request => new(
-        new ExternalExtractRequestId("TEST"),
-        new DownloadId(),
-        new ExtractDescription("TEST"),
-        (IPolygonal)Result.Single());
 }

@@ -1,10 +1,13 @@
 namespace RoadRegistry.BackOffice.Api;
 
+using System;
+using System.Linq;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -17,14 +20,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using System;
-using System.Linq;
 
 public class Startup
 {
     private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
-
     private IContainer _applicationContainer;
 
     public Startup(IConfiguration configuration)
@@ -142,8 +142,6 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
-                    FluentValidation = fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>(),
-
                     AfterHealthChecks = health =>
                     {
                         var connectionStrings = _configuration
@@ -162,8 +160,10 @@ public class Startup
             {
                 options.BindNonPublicProperties = true;
             })
+            .AddValidatorsFromAssemblyContaining<Startup>()
             .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
             .AddSingleton(c => new UseApiKeyAuthenticationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))
+            .AddSingleton(c => new UseUploadZipArchiveValidationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseUploadZipArchiveValidation))
             ;
 
         var builder = new ContainerBuilder();
