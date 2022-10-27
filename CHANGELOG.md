@@ -1,3 +1,20 @@
+# [3.16.0](https://github.com/informatievlaanderen/road-registry/compare/v3.15.1...v3.16.0) (2022-10-27)
+
+
+### Bug Fixes
+
+* Add missing registrations in test startup class ([038c852](https://github.com/informatievlaanderen/road-registry/commit/038c8525e8f20b2e13e614b005ceb2c041498a3d))
+* add support for public-api debugging ([df09172](https://github.com/informatievlaanderen/road-registry/commit/df091722461f3c907e68208660279d86750b036c))
+* UI router auth check; display validation errors on upload immediately ([32bf448](https://github.com/informatievlaanderen/road-registry/commit/32bf4489279e8eb311f45de387012fee869ac355))
+
+
+### Features
+
+* Merge from main ([0728dda](https://github.com/informatievlaanderen/road-registry/commit/0728ddac4e95c262486d2fc6d6e1cfd02779d0fb))
+* Paket version update ([158c878](https://github.com/informatievlaanderen/road-registry/commit/158c878cdf3f5e5dee73fde4aedf94aa634937dd))
+* Safeguard input zip archive validation through feature toggle ([e844f2c](https://github.com/informatievlaanderen/road-registry/commit/e844f2ccec7b96d5cc7e0de9f889d7c53a9869c9))
+* Updated FluentValidation and removed deprecated test method ([32c2d8a](https://github.com/informatievlaanderen/road-registry/commit/32c2d8ab3bc298cef7f2d35ae817da3a72f88d9a))
+
 ## [3.15.1](https://github.com/informatievlaanderen/road-registry/compare/v3.15.0...v3.15.1) (2022-10-26)
 
 
