@@ -68,6 +68,13 @@ public class Program
                         CommandLineArgs = args
                     }
                 })
+            .UseKestrel((context, builder) =>
+            {
+                if (context.HostingEnvironment.EnvironmentName == "Development")
+                {
+                    builder.ListenLocalhost(HostingPort);
+                }
+            })
             .ConfigureServices((hostContext, builder) =>
             {
                 var blobOptions = new BlobClientOptions();
