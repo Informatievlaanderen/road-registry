@@ -17,9 +17,9 @@ public static class DynamicAttributePositionCases
     {
         get
         {
-            yield return new object[] { 0.0m, 0.0m };
-            yield return new object[] { 0.1m, 0.0m };
-            yield return new object[] { 0.1m, 0.1m };
+            yield return new object[] { 0.0m };
+            yield return new object[] { 0.0m };
+            yield return new object[] { 0.1m };
         }
     }
 }

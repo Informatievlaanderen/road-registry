@@ -2,37 +2,39 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using FluentValidation;
-using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using Xunit;
 using AddRoadSegmentToNumberedRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad;
 
-public class AddRoadSegmentToNumberedRoadValidatorTests
+public class AddRoadSegmentToNumberedRoadValidatorTests : ValidatorTest<AddRoadSegmentToNumberedRoad, AddRoadSegmentToNumberedRoadValidator>
 {
     public AddRoadSegmentToNumberedRoadValidatorTests()
     {
-        Fixture = new Fixture();
         Fixture.CustomizeAttributeId();
         Fixture.CustomizeNumberedRoadNumber();
         Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
         Fixture.CustomizeRoadSegmentNumberedRoadDirection();
-        Validator = new AddRoadSegmentToNumberedRoadValidator();
-    }
 
-    public Fixture Fixture { get; }
-    public AddRoadSegmentToNumberedRoadValidator Validator { get; }
+        Model = new AddRoadSegmentToNumberedRoad
+        {
+            TemporaryAttributeId = Fixture.Create<AttributeId>(),
+            Number = Fixture.Create<NumberedRoadNumber>(),
+            Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
+            Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>()
+        };
+    }
 
     [Fact]
     public void DirectionMustBeWithinDomain()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
+        ShouldHaveValidationErrorFor(c => c.Direction, Fixture.Create<string>());
     }
 
     [Fact]
     public void Ident8MustBeWithinDomain()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Number, Fixture.Create<string>());
+        ShouldHaveValidationErrorFor(c => c.Number, Fixture.Create<string>());
     }
 
     [Theory]
@@ -40,7 +42,7 @@ public class AddRoadSegmentToNumberedRoadValidatorTests
     [InlineData(-1)]
     public void OrdinalMustBeGreaterThanOrEqualToZero(int value)
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Ordinal, value);
+        ShouldHaveValidationErrorFor(c => c.Ordinal, value);
     }
 
     [Theory]
@@ -49,7 +51,7 @@ public class AddRoadSegmentToNumberedRoadValidatorTests
     [InlineData(RoadSegmentNumberedRoadOrdinal.WellKnownValues.NotKnown)]
     public void OrdinalMustBeGreaterThanOrEqualToZeroOrAcceptedValue(int value)
     {
-        Validator.ShouldNotHaveValidationErrorFor(c => c.Ordinal, value);
+        ShouldNotHaveValidationErrorFor(c => c.Ordinal, value);
     }
 
     [Theory]
@@ -57,20 +59,6 @@ public class AddRoadSegmentToNumberedRoadValidatorTests
     [InlineData(-1)]
     public void TemporaryAttributeIdMustBeGreaterThan(int value)
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
-    }
-
-    [Fact]
-    public void VerifyValid()
-    {
-        var data = new AddRoadSegmentToNumberedRoad
-        {
-            TemporaryAttributeId = Fixture.Create<AttributeId>(),
-            Number = Fixture.Create<NumberedRoadNumber>(),
-            Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
-            Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>()
-        };
-
-        Validator.ValidateAndThrow(data);
+        ShouldHaveValidationErrorFor(c => c.TemporaryAttributeId, value);
     }
 }

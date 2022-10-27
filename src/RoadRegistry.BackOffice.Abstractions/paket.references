@@ -1,6 +1,10 @@
 Be.Vlaanderen.Basisregisters.BlobStore
 
 MediatR.Contracts
-Microsoft.Net.Http.Headers
 Microsoft.Extensions.Logging
-AWSSDK.Core
+Microsoft.Net.Http.Headers
+Microsoft.Extensions.DependencyInjection
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens

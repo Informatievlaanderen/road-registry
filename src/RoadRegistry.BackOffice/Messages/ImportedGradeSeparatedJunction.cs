@@ -1,10 +1,10 @@
-﻿namespace RoadRegistry.BackOffice.Messages;
+namespace RoadRegistry.BackOffice.Messages;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("ImportedGradeSeparatedJunction")]
 [EventDescription("Indicates a road network grade separated junction was imported.")]
-public class ImportedGradeSeparatedJunction
+public class ImportedGradeSeparatedJunction : IMessage
 {
     public int Id { get; set; }
     public int LowerRoadSegmentId { get; set; }

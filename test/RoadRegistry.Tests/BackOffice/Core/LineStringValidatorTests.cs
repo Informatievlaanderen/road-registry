@@ -2,24 +2,21 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using FluentValidation;
-using FluentValidation.TestHelper;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using Xunit;
+using LineString = RoadRegistry.BackOffice.Messages.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 
-public class LineStringValidatorTests
+public class LineStringValidatorTests : ValidatorTest<LineString, LineStringValidator>
 {
     public LineStringValidatorTests()
     {
-        Fixture = new Fixture();
         Fixture.CustomizePolylineM();
 
-        Validator = new LineStringValidator();
+        var geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
+        Model = geometry.MultiLineString[new Random().Next(0, geometry.MultiLineString.Length)];
     }
-
-    public Fixture Fixture { get; }
-    public LineStringValidator Validator { get; }
 
     [Fact]
     public void MeasureCanNotBeNaN()
@@ -28,7 +25,7 @@ public class LineStringValidatorTests
         var index = new Random().Next(0, data.Length);
         data[index] = double.NaN;
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Measures, data);
+        ShouldHaveValidationErrorFor(c => c.Measures, data);
     }
 
     [Fact]
@@ -38,7 +35,7 @@ public class LineStringValidatorTests
         var index = new Random().Next(0, data.Length);
         data[index] = double.NegativeInfinity;
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Measures, data);
+        ShouldHaveValidationErrorFor(c => c.Measures, data);
     }
 
     [Fact]
@@ -48,13 +45,13 @@ public class LineStringValidatorTests
         var index = new Random().Next(0, data.Length);
         data[index] = double.PositiveInfinity;
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Measures, data);
+        ShouldHaveValidationErrorFor(c => c.Measures, data);
     }
 
     [Fact]
     public void MeasuresCanNotBeNull()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Measures, (double[])null);
+        ShouldHaveValidationErrorFor(c => c.Measures, null);
     }
 
     [Fact]
@@ -64,23 +61,12 @@ public class LineStringValidatorTests
         var index = new Random().Next(0, data.Length);
         data[index] = null;
 
-        Validator.ShouldHaveValidationErrorFor(c => c.Points, data);
+        ShouldHaveValidationErrorFor(c => c.Points, data);
     }
 
     [Fact]
     public void PointsCanNotBeNull()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Points, (Point[])null);
-    }
-
-    [Fact]
-    public void VerifyValid()
-    {
-        Fixture.CustomizePolylineM();
-
-        var geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>());
-        var data = geometry.MultiLineString[new Random().Next(0, geometry.MultiLineString.Length)];
-
-        Validator.ValidateAndThrow(data);
+        ShouldHaveValidationErrorFor(c => c.Points, null);
     }
 }

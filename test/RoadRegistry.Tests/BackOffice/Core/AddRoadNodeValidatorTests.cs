@@ -9,18 +9,21 @@ using RoadRegistry.BackOffice.Messages;
 using Xunit;
 using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
 
-public class AddRoadNodeValidatorTests
+public class AddRoadNodeValidatorTests : ValidatorTest<AddRoadNode, AddRoadNodeValidator>
 {
     public AddRoadNodeValidatorTests()
     {
-        Fixture = new Fixture();
         Fixture.CustomizeRoadNodeId();
         Fixture.CustomizeRoadNodeType();
-        Validator = new AddRoadNodeValidator();
-    }
+        Fixture.CustomizePoint();
 
-    public Fixture Fixture { get; }
-    public AddRoadNodeValidator Validator { get; }
+        Model = new AddRoadNode
+        {
+            TemporaryId = Fixture.Create<RoadNodeId>(),
+            Type = Fixture.Create<RoadNodeType>(),
+            Geometry = Fixture.Create<RoadNodeGeometry>()
+        };
+    }
 
     [Fact]
     public void GeometryHasExpectedValidator()
@@ -31,7 +34,7 @@ public class AddRoadNodeValidatorTests
     [Fact]
     public void GeometryMustNotBeNull()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (RoadNodeGeometry)null);
+        ShouldHaveValidationErrorFor(c => c.Geometry, null);
     }
 
     [Theory]
@@ -40,27 +43,12 @@ public class AddRoadNodeValidatorTests
     [InlineData(0)]
     public void TemporaryIdMustBeGreaterThan(int value)
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
+        ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
     }
 
     [Fact]
     public void TypeMustBeWithinDomain()
     {
-        Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
-    }
-
-    [Fact]
-    public void VerifyValid()
-    {
-        Fixture.CustomizePoint();
-
-        var data = new AddRoadNode
-        {
-            TemporaryId = Fixture.Create<RoadNodeId>(),
-            Type = Fixture.Create<RoadNodeType>(),
-            Geometry = Fixture.Create<RoadNodeGeometry>()
-        };
-
-        Validator.ValidateAndThrow(data);
+        ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
     }
 }

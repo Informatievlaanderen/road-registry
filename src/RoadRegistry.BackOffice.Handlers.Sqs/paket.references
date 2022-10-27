@@ -1,4 +1,9 @@
 Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 
+AWSSDK.SQS
 MediatR
-AWSSDK.Core
+Microsoft.Extensions.DependencyInjection
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens

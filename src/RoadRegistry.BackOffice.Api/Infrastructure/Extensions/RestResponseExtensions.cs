@@ -11,7 +11,7 @@ using RestSharp;
 
 public static class RestResponseExtensions
 {
-    private static T DataContractDeserializeXlmResponse<T>(IRestResponse restResponse) where T : class, new()
+    private static T DataContractDeserializeXlmResponse<T>(RestResponse restResponse) where T : class, new()
     {
         try
         {
@@ -25,14 +25,14 @@ public static class RestResponseExtensions
         }
     }
 
-    public static ProblemDetails GetProblemDetails(this IRestResponse response)
+    public static ProblemDetails GetProblemDetails(this RestResponse response)
     {
         return response.ContentType.Contains("xml", StringComparison.InvariantCultureIgnoreCase)
             ? DataContractDeserializeXlmResponse<ProblemDetails>(response)
             : JsonConvert.DeserializeObject<ProblemDetails>(response.Content);
     }
 
-    public static IEnumerable<KeyValuePair<string, StringValues>> HeadersToKeyValuePairs(this IRestResponse restResponse)
+    public static IEnumerable<KeyValuePair<string, StringValues>> HeadersToKeyValuePairs(this RestResponse restResponse)
     {
         foreach (var header in restResponse.Headers)
             switch (header.Value)
