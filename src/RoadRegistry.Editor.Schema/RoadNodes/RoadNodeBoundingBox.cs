@@ -5,10 +5,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 
 public class RoadNodeBoundingBox
 {
-    public double MinimumX { get; set; }
     public double MaximumX { get; set; }
-    public double MinimumY { get; set; }
     public double MaximumY { get; set; }
+    public double MinimumX { get; set; }
+    public double MinimumY { get; set; }
 
     public static RoadNodeBoundingBox From(Point shape)
     {

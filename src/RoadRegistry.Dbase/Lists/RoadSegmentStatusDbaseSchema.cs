@@ -27,7 +27,7 @@ public class RoadSegmentStatusDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField STATUS => Fields[0];
-    public DbaseField LBLSTATUS => Fields[1];
     public DbaseField DEFSTATUS => Fields[2];
+    public DbaseField LBLSTATUS => Fields[1];
+    public DbaseField STATUS => Fields[0];
 }

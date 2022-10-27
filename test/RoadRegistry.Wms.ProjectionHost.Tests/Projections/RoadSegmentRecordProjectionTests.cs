@@ -51,6 +51,72 @@ public class RoadSegmentRecordProjectionTests
         _fixture.CustomizeRoadNetworkChangesAccepted();
     }
 
+    [Fact]
+    public Task When_adding_road_segments()
+    {
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var segment = change.RoadSegmentAdded;
+            return (object)new RoadSegmentRecord
+            {
+                Id = segment.Id,
+                BeginOperator = message.Operator,
+                BeginOrganizationId = message.OrganizationId,
+                BeginOrganizationName = message.Organization,
+                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When),
+                BeginApplication = null,
+
+                MaintainerId = segment.MaintenanceAuthority.Code,
+                MaintainerName = segment.MaintenanceAuthority.Name,
+
+                MethodId = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Identifier,
+                MethodDutchName = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Name,
+
+                CategoryId = RoadSegmentCategory.Parse(segment.Category).Translation.Identifier,
+                CategoryDutchName = RoadSegmentCategory.Parse(segment.Category).Translation.Name,
+
+                Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry),
+                GeometryVersion = segment.GeometryVersion,
+
+                MorphologyId = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Identifier,
+                MorphologyDutchName = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Name,
+
+                StatusId = RoadSegmentStatus.Parse(segment.Status).Translation.Identifier,
+                StatusDutchName = RoadSegmentStatus.Parse(segment.Status).Translation.Name,
+
+                AccessRestrictionId = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier,
+                AccessRestrictionDutchName = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name,
+
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(message.When),
+
+                TransactionId = message.TransactionId,
+
+                LeftSideMunicipalityId = null,
+                LeftSideStreetNameId = segment.LeftSide.StreetNameId,
+                LeftSideStreetName = null,
+
+                RightSideMunicipalityId = null,
+                RightSideStreetNameId = segment.RightSide.StreetNameId,
+                RightSideStreetName = null,
+
+                RoadSegmentVersion = segment.Version,
+                BeginRoadNodeId = segment.StartNodeId,
+                EndRoadNodeId = segment.EndNodeId,
+
+                StreetNameCachePosition = -1L
+            };
+        });
+
+        return new RoadSegmentRecordProjection(new StreetNameCacheStub())
+            .Scenario()
+            .Given(message)
+            .Expect(expectedRecords);
+    }
+
     [Theory]
     [InlineData(904)]
     [InlineData(458)]
@@ -186,72 +252,6 @@ public class RoadSegmentRecordProjectionTests
 
                 StreetNameCachePosition = streetNameCachePosition
             });
-    }
-
-    [Fact]
-    public Task When_adding_road_segments()
-    {
-        var message = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
-
-        var expectedRecords = Array.ConvertAll(message.Changes, change =>
-        {
-            var segment = change.RoadSegmentAdded;
-            return (object)new RoadSegmentRecord
-            {
-                Id = segment.Id,
-                BeginOperator = message.Operator,
-                BeginOrganizationId = message.OrganizationId,
-                BeginOrganizationName = message.Organization,
-                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                BeginApplication = null,
-
-                MaintainerId = segment.MaintenanceAuthority.Code,
-                MaintainerName = segment.MaintenanceAuthority.Name,
-
-                MethodId = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Identifier,
-                MethodDutchName = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Name,
-
-                CategoryId = RoadSegmentCategory.Parse(segment.Category).Translation.Identifier,
-                CategoryDutchName = RoadSegmentCategory.Parse(segment.Category).Translation.Name,
-
-                Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry),
-                GeometryVersion = segment.GeometryVersion,
-
-                MorphologyId = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Identifier,
-                MorphologyDutchName = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Name,
-
-                StatusId = RoadSegmentStatus.Parse(segment.Status).Translation.Identifier,
-                StatusDutchName = RoadSegmentStatus.Parse(segment.Status).Translation.Name,
-
-                AccessRestrictionId = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier,
-                AccessRestrictionDutchName = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name,
-
-                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(message.When),
-
-                TransactionId = message.TransactionId,
-
-                LeftSideMunicipalityId = null,
-                LeftSideStreetNameId = segment.LeftSide.StreetNameId,
-                LeftSideStreetName = null,
-
-                RightSideMunicipalityId = null,
-                RightSideStreetNameId = segment.RightSide.StreetNameId,
-                RightSideStreetName = null,
-
-                RoadSegmentVersion = segment.Version,
-                BeginRoadNodeId = segment.StartNodeId,
-                EndRoadNodeId = segment.EndNodeId,
-
-                StreetNameCachePosition = -1L
-            };
-        });
-
-        return new RoadSegmentRecordProjection(new StreetNameCacheStub())
-            .Scenario()
-            .Given(message)
-            .Expect(expectedRecords);
     }
 
     [Fact]

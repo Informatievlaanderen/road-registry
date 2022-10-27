@@ -15,12 +15,12 @@ public class ExpectExceptionScenario
     }
 
     public RecordedEvent[] Givens { get; }
-    public Command When { get; }
     public Exception Throws { get; }
+    public Command When { get; }
 
-    public ExpectExceptionScenarioPassed Pass()
+    public ScenarioExpectedExceptionButRecordedEvents ButRecordedEvents(RecordedEvent[] events)
     {
-        return new ExpectExceptionScenarioPassed(this);
+        return new ScenarioExpectedExceptionButRecordedEvents(this, events);
     }
 
     public ScenarioExpectedExceptionButThrewOtherException ButThrewException(Exception threw)
@@ -33,8 +33,8 @@ public class ExpectExceptionScenario
         return new ScenarioExpectedExceptionButThrewNoException(this);
     }
 
-    public ScenarioExpectedExceptionButRecordedEvents ButRecordedEvents(RecordedEvent[] events)
+    public ExpectExceptionScenarioPassed Pass()
     {
-        return new ScenarioExpectedExceptionButRecordedEvents(this, events);
+        return new ExpectExceptionScenarioPassed(this);
     }
 }

@@ -8,8 +8,8 @@ public class ScenarioPrinter
         Translator = translator ?? throw new ArgumentNullException(nameof(translator));
     }
 
-    public TextWriter Writer { get; }
     public IMessageTranslator Translator { get; }
+    public TextWriter Writer { get; }
 
     public async Task WriteAsync(ExpectEventsScenario scenario)
     {

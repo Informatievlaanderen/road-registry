@@ -5,7 +5,6 @@ using System;
 public abstract class EventSourcedEntity : IEventSourcedEntity
 {
     private readonly EventPlayer Player = new();
-
     private readonly EventRecorder Recorder = new();
 
     void IEventSourcedEntity.RestoreFromEvents(object[] events)
@@ -31,14 +30,14 @@ public abstract class EventSourcedEntity : IEventSourcedEntity
         return recorded;
     }
 
-    protected void On<TEvent>(Action<TEvent> handler)
-    {
-        Player.Register(handler);
-    }
-
     protected void Apply(object @event)
     {
         Player.Play(@event);
         Recorder.Record(@event);
+    }
+
+    protected void On<TEvent>(Action<TEvent> handler)
+    {
+        Player.Register(handler);
     }
 }

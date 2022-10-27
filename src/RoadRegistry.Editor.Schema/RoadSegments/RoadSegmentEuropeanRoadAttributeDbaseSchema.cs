@@ -41,10 +41,10 @@ public class RoadSegmentEuropeanRoadAttributeDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField EU_OIDN => Fields[0];
-    public DbaseField WS_OIDN => Fields[1];
-    public DbaseField EUNUMMER => Fields[2];
-    public DbaseField BEGINTIJD => Fields[3];
     public DbaseField BEGINORG => Fields[4];
+    public DbaseField BEGINTIJD => Fields[3];
+    public DbaseField EU_OIDN => Fields[0];
+    public DbaseField EUNUMMER => Fields[2];
     public DbaseField LBLBGNORG => Fields[5];
+    public DbaseField WS_OIDN => Fields[1];
 }

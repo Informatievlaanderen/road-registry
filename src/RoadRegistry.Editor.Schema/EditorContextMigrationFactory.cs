@@ -19,14 +19,14 @@ public class EditorContextMigrationFactory : RunnerDbContextMigrationFactory<Edi
             Table = MigrationTables.Editor
         };
 
-    protected override EditorContext CreateContext(DbContextOptions<EditorContext> migrationContextOptions)
-    {
-        return new EditorContext(migrationContextOptions);
-    }
-
     protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
     {
         sqlServerOptions.UseNetTopologySuite();
         base.ConfigureSqlServerOptions(sqlServerOptions);
+    }
+
+    protected override EditorContext CreateContext(DbContextOptions<EditorContext> migrationContextOptions)
+    {
+        return new EditorContext(migrationContextOptions);
     }
 }

@@ -8,73 +8,23 @@ using System.Linq;
 
 public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 {
-    public static readonly RoadSegmentMorphology Unknown =
+    public static readonly RoadSegmentMorphology Entry_or_exit_of_a_car_park =
         new(
-            nameof(Unknown),
+            nameof(Entry_or_exit_of_a_car_park),
             new DutchTranslation(
-                -8,
-                "niet gekend",
-                "Geen informatie beschikbaar"
+                111,
+                "in- of uitrit van een parking",
+                "Een \"in- of uitrit van een parking\" is een weg die speciaal ontworpen is om een parkeerterrein of parkeergarage te bereiken of te verlaten."
             )
         );
 
-    public static readonly RoadSegmentMorphology Motorway =
+    public static readonly RoadSegmentMorphology Entry_or_exit_of_a_service =
         new(
-            nameof(Motorway),
+            nameof(Entry_or_exit_of_a_service),
             new DutchTranslation(
-                101,
-                "autosnelweg",
-                "Een \"autosnelweg\" heeft typisch twee gescheiden parallelle rijbanen met tegengestelde toegelaten rijrichtingen. Op een autosnelweg komen geen gelijkgrondse kruisingen voor. Kruisingen met andere wegen gebeuren steeds ofwel over bruggen of in tunnels."
-            )
-        );
-
-    public static readonly RoadSegmentMorphology Road_with_separate_lanes_that_is_not_a_motorway =
-        new(
-            nameof(Road_with_separate_lanes_that_is_not_a_motorway),
-            new DutchTranslation(
-                102,
-                "weg met gescheiden rijbanen die geen autosnelweg is",
-                "\"Een weg met gescheiden rijbanen die geen autosnelweg is\" wordt gekenmerkt door de aanwezigheid van minstens twee rijbanen (onafhankelijk van het aantal rijstroken) die fysiek gescheiden zijn en tegengestelde toegelaten rijrichtingen hebben."
-            )
-        );
-
-    public static readonly RoadSegmentMorphology Road_consisting_of_one_roadway =
-        new(
-            nameof(Road_consisting_of_one_roadway),
-            new DutchTranslation(
-                103,
-                "weg bestaande uit één rijbaan",
-                "Wegsegmenten die behoren tot een weg waar het verkeer niet fysiek gescheiden wordt."
-            )
-        );
-
-    public static readonly RoadSegmentMorphology TrafficCircle =
-        new(
-            nameof(TrafficCircle),
-            new DutchTranslation(
-                104,
-                "rotonde",
-                "Wegsegmenten die tot de rotonde behoren vormen een gesloten ringvormige structuur. Op deze wegsegmenten is enkel eenrichtingsverkeer toegelaten."
-            )
-        );
-
-    public static readonly RoadSegmentMorphology SpecialTrafficSituation =
-        new(
-            nameof(SpecialTrafficSituation),
-            new DutchTranslation(
-                105,
-                "speciale verkeerssituatie",
-                "Wegsegmenten die behoren tot een min of meer cirkelvormige constructie die geen rotonde is."
-            )
-        );
-
-    public static readonly RoadSegmentMorphology TrafficSquare =
-        new(
-            nameof(TrafficSquare),
-            new DutchTranslation(
-                106,
-                "verkeersplein",
-                "Wegsegmenten die worden opgenomen in gebieden waar het verkeer ongestructureerd verloopt. Het gaat typisch om marktpleinen, parkeerterreinen of terreinen met een andere functie dan een zuivere verkeersfunctie."
+                112,
+                "in- of uitrit van een dienst",
+                "Een \"in- of uitrit van een dienst\" is een weg die speciaal ontworpen is om een dienst (voorbeeld: luchthaven, station, ziekenhuis, brandweerkazerne, politie, openbare dienst, hotel, restaurant) te bereiken of te verlaten."
             )
         );
 
@@ -98,13 +48,13 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
             )
         );
 
-    public static readonly RoadSegmentMorphology ParallelRoad =
+    public static readonly RoadSegmentMorphology Ferry =
         new(
-            nameof(ParallelRoad),
+            nameof(Ferry),
             new DutchTranslation(
-                109,
-                "parallelweg",
-                "Een \"parallelweg\" is een op- of afrit waarvan de begin- en eindpositie verbonden is met dezelfde autosnelweg. Een \"parallelweg\" heeft een rechtstreekse verbinding of een verbinding via op- of afritten van een ander type met de bijhorende autosnelweg."
+                130,
+                "veer",
+                "Een \"veer\" is bedoeld voor het transport van passagiers, voertuigen of vracht over het water en verbindt vaak twee of meerdere landwegen."
             )
         );
 
@@ -118,23 +68,23 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
             )
         );
 
-    public static readonly RoadSegmentMorphology Entry_or_exit_of_a_car_park =
+    public static readonly RoadSegmentMorphology Motorway =
         new(
-            nameof(Entry_or_exit_of_a_car_park),
+            nameof(Motorway),
             new DutchTranslation(
-                111,
-                "in- of uitrit van een parking",
-                "Een \"in- of uitrit van een parking\" is een weg die speciaal ontworpen is om een parkeerterrein of parkeergarage te bereiken of te verlaten."
+                101,
+                "autosnelweg",
+                "Een \"autosnelweg\" heeft typisch twee gescheiden parallelle rijbanen met tegengestelde toegelaten rijrichtingen. Op een autosnelweg komen geen gelijkgrondse kruisingen voor. Kruisingen met andere wegen gebeuren steeds ofwel over bruggen of in tunnels."
             )
         );
 
-    public static readonly RoadSegmentMorphology Entry_or_exit_of_a_service =
+    public static readonly RoadSegmentMorphology ParallelRoad =
         new(
-            nameof(Entry_or_exit_of_a_service),
+            nameof(ParallelRoad),
             new DutchTranslation(
-                112,
-                "in- of uitrit van een dienst",
-                "Een \"in- of uitrit van een dienst\" is een weg die speciaal ontworpen is om een dienst (voorbeeld: luchthaven, station, ziekenhuis, brandweerkazerne, politie, openbare dienst, hotel, restaurant) te bereiken of te verlaten."
+                109,
+                "parallelweg",
+                "Een \"parallelweg\" is een op- of afrit waarvan de begin- en eindpositie verbonden is met dezelfde autosnelweg. Een \"parallelweg\" heeft een rechtstreekse verbinding of een verbinding via op- of afritten van een ander type met de bijhorende autosnelweg."
             )
         );
 
@@ -148,23 +98,33 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
             )
         );
 
-    public static readonly RoadSegmentMorphology Walking_or_cycling_path_not_accessible_to_other_vehicles =
+    public static readonly RoadSegmentMorphology PrimitiveRoad =
         new(
-            nameof(Walking_or_cycling_path_not_accessible_to_other_vehicles),
+            nameof(PrimitiveRoad),
             new DutchTranslation(
-                114,
-                "wandel- of fietsweg, niet toegankelijk voor andere voertuigen",
-                "Op een \"wandel- en/of fietsweg\" is de verkeerstoegang beperkt tot voetgangers en/of fietsers. De fysieke kenmerken van een \"wandel- en/of fietsweg\" laten de toegang van andere voertuigen niet toe (smaller dan 2.5m)."
+                125,
+                "aardeweg",
+                "Een \"aardeweg\" is een weg zonder wegverharding die op zijn minst berijdbaar is voor bepaalde vierwielige motorvoertuigen (bv. terreinwagens, landbouwvoertuigen,…)."
             )
         );
 
-    public static readonly RoadSegmentMorphology Tramway_not_accessible_to_other_vehicles =
+    public static readonly RoadSegmentMorphology Road_consisting_of_one_roadway =
         new(
-            nameof(Tramway_not_accessible_to_other_vehicles),
+            nameof(Road_consisting_of_one_roadway),
             new DutchTranslation(
-                116,
-                "tramweg, niet toegankelijk voor andere voertuigen",
-                "Een \"tramweg\" is een weg die speciaal ontworpen is voor het tramverkeer. De fysieke kenmerken van een \"tramweg\" laten de toegang van andere voertuigen niet toe."
+                103,
+                "weg bestaande uit één rijbaan",
+                "Wegsegmenten die behoren tot een weg waar het verkeer niet fysiek gescheiden wordt."
+            )
+        );
+
+    public static readonly RoadSegmentMorphology Road_with_separate_lanes_that_is_not_a_motorway =
+        new(
+            nameof(Road_with_separate_lanes_that_is_not_a_motorway),
+            new DutchTranslation(
+                102,
+                "weg met gescheiden rijbanen die geen autosnelweg is",
+                "\"Een weg met gescheiden rijbanen die geen autosnelweg is\" wordt gekenmerkt door de aanwezigheid van minstens twee rijbanen (onafhankelijk van het aantal rijstroken) die fysiek gescheiden zijn en tegengestelde toegelaten rijrichtingen hebben."
             )
         );
 
@@ -178,23 +138,63 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
             )
         );
 
-    public static readonly RoadSegmentMorphology PrimitiveRoad =
+    public static readonly RoadSegmentMorphology SpecialTrafficSituation =
         new(
-            nameof(PrimitiveRoad),
+            nameof(SpecialTrafficSituation),
             new DutchTranslation(
-                125,
-                "aardeweg",
-                "Een \"aardeweg\" is een weg zonder wegverharding die op zijn minst berijdbaar is voor bepaalde vierwielige motorvoertuigen (bv. terreinwagens, landbouwvoertuigen,…)."
+                105,
+                "speciale verkeerssituatie",
+                "Wegsegmenten die behoren tot een min of meer cirkelvormige constructie die geen rotonde is."
             )
         );
 
-    public static readonly RoadSegmentMorphology Ferry =
+    public static readonly RoadSegmentMorphology TrafficCircle =
         new(
-            nameof(Ferry),
+            nameof(TrafficCircle),
             new DutchTranslation(
-                130,
-                "veer",
-                "Een \"veer\" is bedoeld voor het transport van passagiers, voertuigen of vracht over het water en verbindt vaak twee of meerdere landwegen."
+                104,
+                "rotonde",
+                "Wegsegmenten die tot de rotonde behoren vormen een gesloten ringvormige structuur. Op deze wegsegmenten is enkel eenrichtingsverkeer toegelaten."
+            )
+        );
+
+    public static readonly RoadSegmentMorphology TrafficSquare =
+        new(
+            nameof(TrafficSquare),
+            new DutchTranslation(
+                106,
+                "verkeersplein",
+                "Wegsegmenten die worden opgenomen in gebieden waar het verkeer ongestructureerd verloopt. Het gaat typisch om marktpleinen, parkeerterreinen of terreinen met een andere functie dan een zuivere verkeersfunctie."
+            )
+        );
+
+    public static readonly RoadSegmentMorphology Tramway_not_accessible_to_other_vehicles =
+        new(
+            nameof(Tramway_not_accessible_to_other_vehicles),
+            new DutchTranslation(
+                116,
+                "tramweg, niet toegankelijk voor andere voertuigen",
+                "Een \"tramweg\" is een weg die speciaal ontworpen is voor het tramverkeer. De fysieke kenmerken van een \"tramweg\" laten de toegang van andere voertuigen niet toe."
+            )
+        );
+
+    public static readonly RoadSegmentMorphology Unknown =
+        new(
+            nameof(Unknown),
+            new DutchTranslation(
+                -8,
+                "niet gekend",
+                "Geen informatie beschikbaar"
+            )
+        );
+
+    public static readonly RoadSegmentMorphology Walking_or_cycling_path_not_accessible_to_other_vehicles =
+        new(
+            nameof(Walking_or_cycling_path_not_accessible_to_other_vehicles),
+            new DutchTranslation(
+                114,
+                "wandel- of fietsweg, niet toegankelijk voor andere voertuigen",
+                "Op een \"wandel- en/of fietsweg\" is de verkeerstoegang beperkt tot voetgangers en/of fietsers. De fysieke kenmerken van een \"wandel- en/of fietsweg\" laten de toegang van andere voertuigen niet toe (smaller dan 2.5m)."
             )
         );
 
@@ -246,22 +246,6 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public static bool TryParse(string value, out RoadSegmentMorphology parsed)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
-    }
-
-    public static RoadSegmentMorphology Parse(string value)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment morphology.");
-        return parsed;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentMorphology type && Equals(type);
@@ -272,9 +256,9 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         return _value.GetHashCode();
     }
 
-    public override string ToString()
+    public static bool operator ==(RoadSegmentMorphology left, RoadSegmentMorphology right)
     {
-        return _value;
+        return Equals(left, right);
     }
 
     public static implicit operator string(RoadSegmentMorphology instance)
@@ -282,14 +266,30 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         return instance.ToString();
     }
 
-    public static bool operator ==(RoadSegmentMorphology left, RoadSegmentMorphology right)
-    {
-        return Equals(left, right);
-    }
-
     public static bool operator !=(RoadSegmentMorphology left, RoadSegmentMorphology right)
     {
         return !Equals(left, right);
+    }
+
+    public static RoadSegmentMorphology Parse(string value)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment morphology.");
+        return parsed;
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static bool TryParse(string value, out RoadSegmentMorphology parsed)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 
     public class DutchTranslation
@@ -301,10 +301,8 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
             Description = description;
         }
 
-        public int Identifier { get; }
-
-        public string Name { get; }
-
         public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

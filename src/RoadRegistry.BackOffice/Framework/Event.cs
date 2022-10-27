@@ -19,9 +19,9 @@ public class Event
         Body = body;
     }
 
+    public object Body { get; }
     public Guid MessageId { get; }
     public ClaimsPrincipal Principal { get; }
-    public object Body { get; }
 
     public Event WithMessageId(Guid value)
     {

@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
@@ -12,15 +11,19 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentValidation;
+using FluentValidation.Results;
 using Framework;
+using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Version = Infrastructure.Version;
 
-[ApiVersion("2.0")]
-[AdvertiseApiVersions("2.0")]
+[ApiVersion(Version.Current)]
+[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("upload")]
 [ApiExplorerSettings(GroupName = "Uploads")]
+[ApiKeyAuth("Road")]
 public class UploadController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -28,32 +31,6 @@ public class UploadController : ControllerBase
     public UploadController(IMediator mediator)
     {
         _mediator = mediator;
-    }
-
-    [HttpPost("")]
-    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadAfterFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
-    {
-        return await Post(archive, async () =>
-        {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractRequest(archive.FileName, requestArchive);
-            await _mediator.Send(request, cancellationToken);
-            return Ok();
-        }, cancellationToken);
-    }
-
-    [HttpPost("fc")]
-    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadBeforeFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
-    {
-        return await Post(archive, async () =>
-        {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Ok(response);
-        }, cancellationToken);
     }
 
     [HttpGet("{identifier}")]
@@ -71,7 +48,7 @@ public class UploadController : ControllerBase
         }
     }
 
-    private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback, CancellationToken cancellationToken)
+    private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback)
     {
         if (archive == null) throw new ArgumentNullException(nameof(archive));
 
@@ -82,13 +59,6 @@ public class UploadController : ControllerBase
         catch (UnsupportedMediaTypeException)
         {
             return new UnsupportedMediaTypeResult();
-        }
-        catch (ValidationException exception)
-        {
-            throw new ApiProblemDetailsException(
-                "Could not upload roadnetwork extract because of validation errors",
-                400,
-                new ExceptionProblemDetails(exception), exception);
         }
         catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
         {
@@ -104,5 +74,33 @@ public class UploadController : ControllerBase
                 409,
                 new ExceptionProblemDetails(exception), exception);
         }
+    }
+
+    [HttpPost("")]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public async Task<IActionResult> PostUploadAfterFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
+    {
+        return await Post(archive, async () =>
+        {
+            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractRequest(archive.FileName, requestArchive);
+            await _mediator.Send(request, cancellationToken);
+            return Ok();
+        });
+    }
+
+    [HttpPost("fc")]
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
+    {
+        if (!useFeatureCompareToggle.FeatureEnabled) return NotFound();
+
+        return await Post(archive, async () =>
+        {
+            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
+            var response = await _mediator.Send(request, cancellationToken);
+            return Ok(response);
+        });
     }
 }

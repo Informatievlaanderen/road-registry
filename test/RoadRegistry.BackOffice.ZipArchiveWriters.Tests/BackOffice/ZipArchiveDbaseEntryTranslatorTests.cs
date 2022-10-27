@@ -3,10 +3,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using RoadRegistry.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Uploads;
-using Xunit;
 
 public class ZipArchiveDbaseEntryTranslatorTests
 {
@@ -17,25 +15,6 @@ public class ZipArchiveDbaseEntryTranslatorTests
             () => new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
                 null, DbaseFileHeaderReadBehavior.Default,
                 new FakeDbaseRecordTranslator()));
-    }
-
-    [Fact]
-    public void TranslatorCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(
-            () => new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
-                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
-                null));
-    }
-
-    [Fact]
-    public void TranslateEntryCanNotBeNull()
-    {
-        var sut = new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
-            Encoding.Default, DbaseFileHeaderReadBehavior.Default,
-            new FakeDbaseRecordTranslator());
-
-        Assert.Throws<ArgumentNullException>(() => sut.Translate(null, TranslatedChanges.Empty));
     }
 
     [Fact]
@@ -54,49 +33,13 @@ public class ZipArchiveDbaseEntryTranslatorTests
     }
 
     [Fact]
-    public void TranslateReturnsExpectedResultWhenDbaseRecordTranslatorReturnsChanges()
+    public void TranslateEntryCanNotBeNull()
     {
-        var changes = TranslatedChanges.Empty
-            .AppendChange(new AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.FakeNode))
-            .AppendChange(new AddRoadNode(new RecordNumber(2), new RoadNodeId(2), RoadNodeType.FakeNode));
         var sut = new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
-            Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
-            new FakeDbaseRecordTranslator(ignored => changes));
-        var date = DateTime.Today;
-        var header = new DbaseFileHeader(
-            date,
-            DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(0),
-            new FakeDbaseSchema());
+            Encoding.Default, DbaseFileHeaderReadBehavior.Default,
+            new FakeDbaseRecordTranslator());
 
-        using (var stream = new MemoryStream())
-        {
-            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
-            {
-                var entry = archive.CreateEntry("entry");
-                using (var entryStream = entry.Open())
-                using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
-                {
-                    header.Write(writer);
-                    entryStream.Flush();
-                }
-            }
-
-            stream.Flush();
-            stream.Position = 0;
-
-            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
-            {
-                var entry = archive.GetEntry("entry");
-
-                var result = sut.Translate(entry, TranslatedChanges.Empty);
-
-                Assert.Equal(
-                    changes,
-                    result,
-                    new TranslatedChangeEqualityComparer());
-            }
-        }
+        Assert.Throws<ArgumentNullException>(() => sut.Translate(null, TranslatedChanges.Empty));
     }
 
     [Fact]
@@ -149,6 +92,75 @@ public class ZipArchiveDbaseEntryTranslatorTests
         }
     }
 
+    [Fact]
+    public void TranslateReturnsExpectedResultWhenDbaseRecordTranslatorReturnsChanges()
+    {
+        var changes = TranslatedChanges.Empty
+            .AppendChange(new AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.FakeNode))
+            .AppendChange(new AddRoadNode(new RecordNumber(2), new RoadNodeId(2), RoadNodeType.FakeNode));
+        var sut = new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
+            Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
+            new FakeDbaseRecordTranslator(ignored => changes));
+        var date = DateTime.Today;
+        var header = new DbaseFileHeader(
+            date,
+            DbaseCodePage.Western_European_ANSI,
+            new DbaseRecordCount(0),
+            new FakeDbaseSchema());
+
+        using (var stream = new MemoryStream())
+        {
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
+            {
+                var entry = archive.CreateEntry("entry");
+                using (var entryStream = entry.Open())
+                using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
+                {
+                    header.Write(writer);
+                    entryStream.Flush();
+                }
+            }
+
+            stream.Flush();
+            stream.Position = 0;
+
+            using (var archive = new ZipArchive(stream, ZipArchiveMode.Read, true))
+            {
+                var entry = archive.GetEntry("entry");
+
+                var result = sut.Translate(entry, TranslatedChanges.Empty);
+
+                Assert.Equal(
+                    changes,
+                    result,
+                    new TranslatedChangeEqualityComparer());
+            }
+        }
+    }
+
+    [Fact]
+    public void TranslatorCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(
+            () => new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
+                Encoding.Default, DbaseFileHeaderReadBehavior.Default,
+                null));
+    }
+
+    private class CollectDbaseRecordTranslator : IZipArchiveDbaseRecordsTranslator<FakeDbaseRecord>
+    {
+        public FakeDbaseRecord[] Collected { get; private set; }
+
+        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, TranslatedChanges changes)
+        {
+            var collected = new List<FakeDbaseRecord>();
+            while (records.MoveNext()) collected.Add(records.Current);
+            Collected = collected.ToArray();
+
+            return changes;
+        }
+    }
+
     private class FakeDbaseRecord : DbaseRecord
     {
         private static readonly FakeDbaseSchema Schema = new();
@@ -161,37 +173,21 @@ public class ZipArchiveDbaseEntryTranslatorTests
 
         public DbaseNumber Field { get; }
 
+        public override bool Equals(object obj)
+        {
+            return obj is FakeDbaseRecord other && Equals(other);
+        }
+
         public bool Equals(FakeDbaseRecord other)
         {
             return other != null && Field.Field.Equals(other.Field.Field) &&
                    Field.Value.Equals(other.Field.Value);
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj is FakeDbaseRecord other && Equals(other);
-        }
-
         public override int GetHashCode()
         {
             return Field.GetHashCode();
         }
-    }
-
-    private class FakeDbaseSchema : DbaseSchema
-    {
-        public FakeDbaseSchema()
-        {
-            Fields = new[]
-            {
-                DbaseField.CreateNumberField(
-                    new DbaseFieldName(nameof(Field)),
-                    new DbaseFieldLength(10),
-                    new DbaseDecimalCount(0))
-            };
-        }
-
-        public DbaseField Field => Fields[0];
     }
 
     private class FakeDbaseRecordTranslator : IZipArchiveDbaseRecordsTranslator<FakeDbaseRecord>
@@ -209,17 +205,19 @@ public class ZipArchiveDbaseEntryTranslatorTests
         }
     }
 
-    private class CollectDbaseRecordTranslator : IZipArchiveDbaseRecordsTranslator<FakeDbaseRecord>
+    private class FakeDbaseSchema : DbaseSchema
     {
-        public FakeDbaseRecord[] Collected { get; private set; }
-
-        public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, TranslatedChanges changes)
+        public FakeDbaseSchema()
         {
-            var collected = new List<FakeDbaseRecord>();
-            while (records.MoveNext()) collected.Add(records.Current);
-            Collected = collected.ToArray();
-
-            return changes;
+            Fields = new[]
+            {
+                DbaseField.CreateNumberField(
+                    new DbaseFieldName(nameof(Field)),
+                    new DbaseFieldLength(10),
+                    new DbaseDecimalCount(0))
+            };
         }
+
+        public DbaseField Field => Fields[0];
     }
 }

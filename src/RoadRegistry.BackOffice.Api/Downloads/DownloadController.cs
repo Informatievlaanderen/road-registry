@@ -6,13 +6,16 @@ using Abstractions.Downloads;
 using Abstractions.Exceptions;
 using Be.Vlaanderen.Basisregisters.Api;
 using Framework;
+using Infrastructure;
+using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-[ApiVersion("2.0")]
-[AdvertiseApiVersions("2.0")]
+[ApiVersion(Version.Current)]
+[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("download")]
 [ApiExplorerSettings(GroupName = "Downloads")]
+[ApiKeyAuth("Road")]
 public class DownloadController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -46,7 +49,8 @@ public class DownloadController : ControllerBase
             var response = await _mediator.Send(request, cancellationToken);
             return new FileCallbackResult(response);
         }
-        catch (DownloadProductNotFoundException) {
+        catch (DownloadProductNotFoundException)
+        {
             return NotFound();
         }
     }

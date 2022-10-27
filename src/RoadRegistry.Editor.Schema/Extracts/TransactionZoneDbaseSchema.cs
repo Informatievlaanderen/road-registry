@@ -34,11 +34,11 @@ public class TransactionZoneDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField SOURCEID => Fields[0];
-    public DbaseField TYPE => Fields[1];
+    public DbaseField APPLICATIE => Fields[5];
     public DbaseField BESCHRIJV => Fields[2];
+    public DbaseField DOWNLOADID => Fields[6];
     public DbaseField OPERATOR => Fields[3];
     public DbaseField ORG => Fields[4];
-    public DbaseField APPLICATIE => Fields[5];
-    public DbaseField DOWNLOADID => Fields[6];
+    public DbaseField SOURCEID => Fields[0];
+    public DbaseField TYPE => Fields[1];
 }

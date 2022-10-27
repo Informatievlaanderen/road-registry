@@ -16,9 +16,8 @@ public class SyndicationContext : RunnerDbContext<SyndicationContext>
     {
     }
 
-    public override string ProjectionStateSchema => WellknownSchemas.SyndicationMetaSchema;
-
     public DbSet<MunicipalityRecord> Municipalities { get; set; }
+    public override string ProjectionStateSchema => WellknownSchemas.SyndicationMetaSchema;
     public DbSet<StreetNameRecord> StreetNames { get; set; }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)

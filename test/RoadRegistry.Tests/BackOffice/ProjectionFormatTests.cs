@@ -17,6 +17,29 @@ public class ProjectionFormatTests
     }
 
     [Fact]
+    public void ContentCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new ProjectionFormat(null));
+    }
+
+    [Fact]
+    public void IsBelgeLambert1972DoesNotThrowGivenInvalidContent()
+    {
+        var sut = new ProjectionFormat("invalid");
+
+        Assert.False(sut.IsBelgeLambert1972());
+    }
+
+    [Theory]
+    [MemberData(nameof(ProjectionFormatCases))]
+    public void IsBelgeLambert1972ReturnsExpectedResult(bool expected, string content)
+    {
+        var sut = new ProjectionFormat(content);
+
+        Assert.Equal(expected, sut.IsBelgeLambert1972());
+    }
+
+    [Fact]
     public void ReadCanReadFromStream()
     {
         using (var stream = new MemoryStream())
@@ -51,28 +74,5 @@ public class ProjectionFormatTests
 
             Assert.Equal(expectedContent, result.Content);
         }
-    }
-
-    [Theory]
-    [MemberData(nameof(ProjectionFormatCases))]
-    public void IsBelgeLambert1972ReturnsExpectedResult(bool expected, string content)
-    {
-        var sut = new ProjectionFormat(content);
-
-        Assert.Equal(expected, sut.IsBelgeLambert1972());
-    }
-
-    [Fact]
-    public void IsBelgeLambert1972DoesNotThrowGivenInvalidContent()
-    {
-        var sut = new ProjectionFormat("invalid");
-
-        Assert.False(sut.IsBelgeLambert1972());
-    }
-
-    [Fact]
-    public void ContentCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => new ProjectionFormat(null));
     }
 }

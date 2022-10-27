@@ -6,10 +6,10 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 [EventDescription("Indicates a road network node was imported.")]
 public class ImportedRoadNode : IMessage
 {
-    public int Id { get; set; }
-    public int Version { get; set; }
     public RoadNodeGeometry Geometry { get; set; }
-    public string Type { get; set; }
+    public int Id { get; set; }
     public ImportedOriginProperties Origin { get; set; }
+    public string Type { get; set; }
+    public int Version { get; set; }
     public string When { get; set; }
 }

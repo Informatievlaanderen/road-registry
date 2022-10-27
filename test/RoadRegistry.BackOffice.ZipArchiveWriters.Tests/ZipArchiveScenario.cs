@@ -17,12 +17,6 @@ public class ZipArchiveScenario<TContext> where TContext : DbContext
         _writer = writer;
     }
 
-    public ZipArchiveScenario<TContext> WithContext(TContext context)
-    {
-        _context = context;
-        return this;
-    }
-
     public async Task Assert(Action<ZipArchive> assert)
     {
         using (var memoryStream = _manager.GetStream())
@@ -38,5 +32,11 @@ public class ZipArchiveScenario<TContext> where TContext : DbContext
                 assert(readArchive);
             }
         }
+    }
+
+    public ZipArchiveScenario<TContext> WithContext(TContext context)
+    {
+        _context = context;
+        return this;
     }
 }

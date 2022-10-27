@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.EventHost;
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.S3;
@@ -30,7 +31,14 @@ internal static class BlobClientExtensions
                     configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
                     var buckets = await s3Client.ListBucketsAsync(token);
-                    if (!buckets.Buckets.Exists(bucket => bucket.BucketName == s3Options.Buckets[WellknownBuckets.UploadsBucket])) await s3Client.PutBucketAsync(s3Options.Buckets[WellknownBuckets.UploadsBucket], token);
+                    var bucketNames = typeof(WellknownBuckets)
+                        .GetFields()
+                        .Select(fi => (string)fi.GetValue(null))
+                        .ToArray();
+
+                    foreach (var bucketName in bucketNames)
+                        if (s3Options.Buckets.ContainsKey(bucketName) && !buckets.Buckets.Exists(bucket => bucket.BucketName == s3Options.Buckets[bucketName]))
+                            await s3Client.PutBucketAsync(s3Options.Buckets[bucketName], token);
                 }
 
                 break;
@@ -38,7 +46,7 @@ internal static class BlobClientExtensions
                 var fileOptions = new FileBlobClientOptions();
                 configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 
-                if (!Directory.Exists(fileOptions.Directory)) Directory.CreateDirectory(fileOptions.Directory);
+                Directory.CreateDirectory(fileOptions.Directory);
                 break;
         }
     }

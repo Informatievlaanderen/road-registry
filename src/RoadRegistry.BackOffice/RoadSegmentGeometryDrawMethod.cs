@@ -8,16 +8,6 @@ using System.Linq;
 
 public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeometryDrawMethod>
 {
-    public static readonly RoadSegmentGeometryDrawMethod Outlined =
-        new(
-            nameof(Outlined),
-            new DutchTranslation(
-                1,
-                "ingeschetst",
-                "Wegsegment waarvan de geometrie ingeschetst werd."
-            )
-        );
-
     public static readonly RoadSegmentGeometryDrawMethod Measured =
         new(
             nameof(Measured),
@@ -35,6 +25,16 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
                 3,
                 "ingemeten volgens GRB-specificaties",
                 "Wegsegment waarvan de geometrie werd ingemeten volgens GRB-specificaties."
+            )
+        );
+
+    public static readonly RoadSegmentGeometryDrawMethod Outlined =
+        new(
+            nameof(Outlined),
+            new DutchTranslation(
+                1,
+                "ingeschetst",
+                "Wegsegment waarvan de geometrie ingeschetst werd."
             )
         );
 
@@ -68,22 +68,6 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public static bool TryParse(string value, out RoadSegmentGeometryDrawMethod parsed)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
-    }
-
-    public static RoadSegmentGeometryDrawMethod Parse(string value)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment geometry draw method.");
-        return parsed;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentGeometryDrawMethod type && Equals(type);
@@ -94,9 +78,9 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         return _value.GetHashCode();
     }
 
-    public override string ToString()
+    public static bool operator ==(RoadSegmentGeometryDrawMethod left, RoadSegmentGeometryDrawMethod right)
     {
-        return _value;
+        return Equals(left, right);
     }
 
     public static implicit operator string(RoadSegmentGeometryDrawMethod instance)
@@ -104,14 +88,30 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         return instance.ToString();
     }
 
-    public static bool operator ==(RoadSegmentGeometryDrawMethod left, RoadSegmentGeometryDrawMethod right)
-    {
-        return Equals(left, right);
-    }
-
     public static bool operator !=(RoadSegmentGeometryDrawMethod left, RoadSegmentGeometryDrawMethod right)
     {
         return !Equals(left, right);
+    }
+
+    public static RoadSegmentGeometryDrawMethod Parse(string value)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment geometry draw method.");
+        return parsed;
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static bool TryParse(string value, out RoadSegmentGeometryDrawMethod parsed)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 
     public class DutchTranslation
@@ -123,10 +123,8 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
             Description = description;
         }
 
-        public int Identifier { get; }
-
-        public string Name { get; }
-
         public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

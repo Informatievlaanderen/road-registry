@@ -52,12 +52,12 @@ public class GradeSeparatedJunctionDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField OK_OIDN => Fields[0];
-    public DbaseField TYPE => Fields[1];
-    public DbaseField LBLTYPE => Fields[2];
-    public DbaseField BO_WS_OIDN => Fields[3];
-    public DbaseField ON_WS_OIDN => Fields[4];
-    public DbaseField BEGINTIJD => Fields[5];
     public DbaseField BEGINORG => Fields[6];
+    public DbaseField BEGINTIJD => Fields[5];
+    public DbaseField BO_WS_OIDN => Fields[3];
     public DbaseField LBLBGNORG => Fields[7];
+    public DbaseField LBLTYPE => Fields[2];
+    public DbaseField OK_OIDN => Fields[0];
+    public DbaseField ON_WS_OIDN => Fields[4];
+    public DbaseField TYPE => Fields[1];
 }

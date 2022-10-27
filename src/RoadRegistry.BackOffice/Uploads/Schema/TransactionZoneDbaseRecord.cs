@@ -1,9 +1,9 @@
-using Be.Vlaanderen.Basisregisters.Shaperon;
-
 namespace RoadRegistry.BackOffice.Uploads.Schema
 {
     namespace V1
     {
+        using Be.Vlaanderen.Basisregisters.Shaperon;
+
         public class TransactionZoneDbaseRecord : DbaseRecord
         {
             public static readonly TransactionZoneDbaseSchema Schema = new();
@@ -23,17 +23,19 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
                 };
             }
 
-            public DbaseInt32 SOURCEID { get; }
-            public DbaseInt32 TYPE { get; }
+            public DbaseString APPLICATIE { get; }
             public DbaseString BESCHRIJV { get; }
             public DbaseString OPERATOR { get; }
             public DbaseString ORG { get; }
-            public DbaseString APPLICATIE { get; }
+            public DbaseInt32 SOURCEID { get; }
+            public DbaseInt32 TYPE { get; }
         }
     }
 
     namespace V2
     {
+        using Be.Vlaanderen.Basisregisters.Shaperon;
+
         public class TransactionZoneDbaseRecord : DbaseRecord
         {
             public static readonly TransactionZoneDbaseSchema Schema = new();
@@ -54,13 +56,13 @@ namespace RoadRegistry.BackOffice.Uploads.Schema
                 };
             }
 
-            public DbaseInt32 SOURCEID { get; }
-            public DbaseInt32 TYPE { get; }
+            public DbaseString APPLICATIE { get; }
             public DbaseString BESCHRIJV { get; }
+            public DbaseString DOWNLOADID { get; }
             public DbaseString OPERATOR { get; }
             public DbaseString ORG { get; }
-            public DbaseString APPLICATIE { get; }
-            public DbaseString DOWNLOADID { get; }
+            public DbaseInt32 SOURCEID { get; }
+            public DbaseInt32 TYPE { get; }
         }
     }
 }

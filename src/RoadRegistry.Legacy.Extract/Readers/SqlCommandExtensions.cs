@@ -1,31 +1,30 @@
-namespace RoadRegistry.Legacy.Extract.Readers
+namespace RoadRegistry.Legacy.Extract.Readers;
+
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
+
+internal static class SqlCommandExtensions
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
-
-    internal static class SqlCommandExtensions
+    public static void ForEachDataRecord(this SqlCommand command, Action<SqlDataReader> handler)
     {
-        public static void ForEachDataRecord(this SqlCommand command, Action<SqlDataReader> handler)
+        using (command)
+        using (var reader = command.ExecuteReader())
         {
-            using (command)
-            using (var reader = command.ExecuteReader())
-            {
-                if (!reader.IsClosed)
-                    while (reader.Read())
-                        handler(reader);
-            }
+            if (!reader.IsClosed)
+                while (reader.Read())
+                    handler(reader);
         }
+    }
 
-        public static IEnumerable<T> YieldEachDataRecord<T>(this SqlCommand command, Func<SqlDataReader, T> handler)
+    public static IEnumerable<T> YieldEachDataRecord<T>(this SqlCommand command, Func<SqlDataReader, T> handler)
+    {
+        using (command)
+        using (var reader = command.ExecuteReader())
         {
-            using (command)
-            using (var reader = command.ExecuteReader())
-            {
-                if (!reader.IsClosed)
-                    while (reader.Read())
-                        yield return handler(reader);
-            }
+            if (!reader.IsClosed)
+                while (reader.Read())
+                    yield return handler(reader);
         }
     }
 }

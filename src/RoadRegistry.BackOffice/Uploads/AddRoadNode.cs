@@ -23,10 +23,10 @@ public class AddRoadNode : ITranslatedChange
         Geometry = geometry;
     }
 
+    public Point Geometry { get; }
     public RecordNumber RecordNumber { get; }
     public RoadNodeId TemporaryId { get; }
     public RoadNodeType Type { get; }
-    public Point Geometry { get; }
 
     public void TranslateTo(RequestedChange message)
     {

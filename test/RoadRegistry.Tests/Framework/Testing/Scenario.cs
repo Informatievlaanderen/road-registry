@@ -11,14 +11,14 @@ public class Scenario : IScenarioInitialStateBuilder
             Array.Empty<RecordedEvent>(),
             null);
 
-    public IScenarioGivenNoneStateBuilder GivenNone()
-    {
-        return Builder.GivenNone();
-    }
-
     public IScenarioGivenStateBuilder Given(IEnumerable<RecordedEvent> events)
     {
         return Builder.Given(events);
+    }
+
+    public IScenarioGivenNoneStateBuilder GivenNone()
+    {
+        return Builder.GivenNone();
     }
 
     public IScenarioWhenStateBuilder When(Command command)
@@ -48,9 +48,14 @@ public class Scenario : IScenarioInitialStateBuilder
             _throws = throws;
         }
 
-        IScenarioWhenStateBuilder IScenarioGivenNoneStateBuilder.When(Command command)
+        ExpectEventsScenario IExpectEventsScenarioBuilder.Build()
         {
-            return When(command);
+            return new ExpectEventsScenario(_givens, _when, _thens);
+        }
+
+        ExpectExceptionScenario IExpectExceptionScenarioBuilder.Build()
+        {
+            return new ExpectExceptionScenario(_givens, _when, _throws);
         }
 
         IScenarioGivenStateBuilder IScenarioGivenStateBuilder.Given(IEnumerable<RecordedEvent> events)
@@ -59,9 +64,10 @@ public class Scenario : IScenarioInitialStateBuilder
             return new ScenarioBuilder(_givens.Concat(events).ToArray(), _when, _thens, _throws);
         }
 
-        IScenarioWhenStateBuilder IScenarioGivenStateBuilder.When(Command command)
+        IScenarioGivenStateBuilder IScenarioInitialStateBuilder.Given(IEnumerable<RecordedEvent> events)
         {
-            return When(command);
+            if (events == null) throw new ArgumentNullException(nameof(events));
+            return new ScenarioBuilder(events.ToArray(), _when, _thens, _throws);
         }
 
         IScenarioGivenNoneStateBuilder IScenarioInitialStateBuilder.GivenNone()
@@ -69,35 +75,9 @@ public class Scenario : IScenarioInitialStateBuilder
             return this;
         }
 
-        IScenarioGivenStateBuilder IScenarioInitialStateBuilder.Given(IEnumerable<RecordedEvent> events)
-        {
-            if (events == null) throw new ArgumentNullException(nameof(events));
-            return new ScenarioBuilder(events.ToArray(), _when, _thens, _throws);
-        }
-
-        IScenarioWhenStateBuilder IScenarioInitialStateBuilder.When(Command command)
-        {
-            return When(command);
-        }
-
-        ExpectEventsScenario IExpectEventsScenarioBuilder.Build()
-        {
-            return new ExpectEventsScenario(_givens, _when, _thens);
-        }
-
         IScenarioThenStateBuilder IScenarioThenStateBuilder.Then(IEnumerable<RecordedEvent> events)
         {
             return new ScenarioBuilder(_givens, _when, _thens.Concat(events).ToArray(), _throws);
-        }
-
-        ExpectExceptionScenario IExpectExceptionScenarioBuilder.Build()
-        {
-            return new ExpectExceptionScenario(_givens, _when, _throws);
-        }
-
-        IScenarioThenNoneStateBuilder IScenarioWhenStateBuilder.ThenNone()
-        {
-            return this;
         }
 
         IScenarioThenStateBuilder IScenarioWhenStateBuilder.Then(IEnumerable<RecordedEvent> events)
@@ -105,9 +85,29 @@ public class Scenario : IScenarioInitialStateBuilder
             return new ScenarioBuilder(_givens, _when, events.ToArray(), _throws);
         }
 
+        IScenarioThenNoneStateBuilder IScenarioWhenStateBuilder.ThenNone()
+        {
+            return this;
+        }
+
         IScenarioThrowsStateBuilder IScenarioWhenStateBuilder.Throws(Exception exception)
         {
             return new ScenarioBuilder(_givens, _when, _thens, exception);
+        }
+
+        IScenarioWhenStateBuilder IScenarioGivenNoneStateBuilder.When(Command command)
+        {
+            return When(command);
+        }
+
+        IScenarioWhenStateBuilder IScenarioGivenStateBuilder.When(Command command)
+        {
+            return When(command);
+        }
+
+        IScenarioWhenStateBuilder IScenarioInitialStateBuilder.When(Command command)
+        {
+            return When(command);
         }
 
         private IScenarioWhenStateBuilder When(Command command)

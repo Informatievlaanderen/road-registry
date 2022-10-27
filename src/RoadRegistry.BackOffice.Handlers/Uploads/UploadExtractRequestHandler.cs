@@ -1,11 +1,15 @@
 namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
+using System.IO.Compression;
+using System.Threading;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
-using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Editor.Projections.DutchTranslations;
+using FluentValidation;
+using FluentValidation.Results;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -21,14 +25,20 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         ContentType.Parse("application/x-zip-compressed")
     };
 
-    private readonly RoadNetworkFeatureCompareBlobClient _client;
+    private readonly RoadNetworkUploadsBlobClient _client;
+    private readonly IZipArchiveAfterFeatureCompareValidator _validator;
+    private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
-        RoadNetworkFeatureCompareBlobClient client,
+        RoadNetworkUploadsBlobClient client,
+        IZipArchiveAfterFeatureCompareValidator validator,
+        UseUploadZipArchiveValidationFeatureToggle uploadZipArchiveValidationFeatureToggle,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
+        _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
+        _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle ?? throw new ArgumentNullException(nameof(uploadZipArchiveValidationFeatureToggle));
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -45,6 +55,42 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                     : request.Archive.FileName)
         );
 
+
+        if (_uploadZipArchiveValidationFeatureToggle.FeatureEnabled)
+        {
+            await ValidateAndUploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
+        }
+        else
+        {
+            await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
+        }
+
+        return new UploadExtractResponse(archiveId);
+    }
+
+    private async Task ValidateAndUploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    {
+        var entity = RoadNetworkChangesArchive.Upload(archiveId);
+
+        using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
+        {
+            var problems = entity.ValidateArchiveUsing(archive, _validator);
+
+            var fileProblems = problems.OfType<FileError>().ToArray();
+            if (fileProblems.Any())
+            {
+                throw new ValidationException(fileProblems
+                    .Select(problem => problem.Translate())
+                    .Select(fileProblem => new ValidationFailure(fileProblem.File, ProblemWithZipArchive.Translator(fileProblem))));
+            }
+
+            await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
+        }
+    }
+
+    private async Task UploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    {
+        readStream.Position = 0;
         await _client.CreateBlobAsync(
             new BlobName(archiveId.ToString()),
             metadata,
@@ -58,7 +104,5 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             ArchiveId = archiveId.ToString()
         });
         await Dispatcher(message, cancellationToken);
-
-        return new UploadExtractResponse(archiveId);
     }
 }

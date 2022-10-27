@@ -26,7 +26,7 @@ public class RoadSegmentCategoryDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField WEGCAT => Fields[0];
-    public DbaseField LBLWEGCAT => Fields[1];
     public DbaseField DEFWEGCAT => Fields[2];
+    public DbaseField LBLWEGCAT => Fields[1];
+    public DbaseField WEGCAT => Fields[0];
 }

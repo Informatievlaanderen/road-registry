@@ -7,6 +7,7 @@ using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -17,78 +18,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 public class Startup
 {
     private const string DatabaseTag = "db";
-
     private readonly IConfiguration _configuration;
-
     private IContainer _applicationContainer;
 
     public Startup(IConfiguration configuration)
     {
         _configuration = configuration;
-    }
-
-    public IServiceProvider ConfigureServices(IServiceCollection services)
-    {
-        services
-            .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
-            {
-                Cors =
-                {
-                    Origins = _configuration
-                        .GetSection("Cors")
-                        .GetChildren()
-                        .Select(c => c.Value)
-                        .ToArray(),
-                    ExposedHeaders = new[] { "Retry-After" }
-                },
-                Swagger =
-                {
-                    ApiInfo = (provider, description) => new OpenApiInfo
-                    {
-                        Version = description.ApiVersion.ToString(),
-                        Title = "Basisregisters Vlaanderen Road Registry API",
-                        Description = GetApiLeadingText(description),
-                        Contact = new OpenApiContact
-                        {
-                            Name = "Digitaal Vlaanderen",
-                            Email = "digitaal.vlaanderen@vlaanderen.be",
-                            Url = new Uri("https://legacy.basisregisters.vlaanderen")
-                        }
-                    }
-                },
-                MiddlewareHooks =
-                {
-                    FluentValidation = fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>(),
-
-                    AfterHealthChecks = health =>
-                    {
-                        var connectionStrings = _configuration
-                            .GetSection("ConnectionStrings")
-                            .GetChildren();
-
-                        foreach (var connectionString in connectionStrings)
-                            health.AddSqlServer(
-                                connectionString.Value,
-                                name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
-                                tags: new[] { DatabaseTag, "sql", "sqlserver" });
-                    }
-                }
-            });
-
-        var builder = new ContainerBuilder();
-        builder.Populate(services);
-        builder.RegisterModule(new DataDogModule(_configuration));
-        builder.RegisterModule(new MediatorModule());
-        builder.RegisterModule(new BackOffice.Handlers.MediatorModule());
-        builder.RegisterModule(new BackOffice.Handlers.Sqs.MediatorModule());
-        _applicationContainer = builder.Build();
-
-        return new AutofacServiceProvider(_applicationContainer);
     }
 
     public void Configure(
@@ -168,6 +109,73 @@ public class Startup
                     }
                 }
             });
+    }
+
+    public IServiceProvider ConfigureServices(IServiceCollection services)
+    {
+        services
+            .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
+            {
+                Cors =
+                {
+                    Origins = _configuration
+                        .GetSection("Cors")
+                        .GetChildren()
+                        .Select(c => c.Value)
+                        .ToArray(),
+                    ExposedHeaders = new[] { "Retry-After" }
+                },
+                Swagger =
+                {
+                    ApiInfo = (provider, description) => new OpenApiInfo
+                    {
+                        Version = description.ApiVersion.ToString(),
+                        Title = "Basisregisters Vlaanderen Road Registry API",
+                        Description = GetApiLeadingText(description),
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Digitaal Vlaanderen",
+                            Email = "digitaal.vlaanderen@vlaanderen.be",
+                            Url = new Uri("https://legacy.basisregisters.vlaanderen")
+                        }
+                    }
+                },
+                MiddlewareHooks =
+                {
+                    AfterHealthChecks = health =>
+                    {
+                        var connectionStrings = _configuration
+                            .GetSection("ConnectionStrings")
+                            .GetChildren();
+
+                        foreach (var connectionString in connectionStrings)
+                            health.AddSqlServer(
+                                connectionString.Value,
+                                name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
+                                tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                    }
+                }
+            })
+            .Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey), options =>
+            {
+                options.BindNonPublicProperties = true;
+            })
+            .AddValidatorsFromAssemblyContaining<Startup>()
+            .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
+            .AddSingleton(c => new UseFeatureCompareFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare))
+            .AddSingleton(c => new UseApiKeyAuthenticationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))
+            .AddSingleton(c => new UseUploadZipArchiveValidationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseUploadZipArchiveValidation))
+            ;
+
+        var builder = new ContainerBuilder();
+        builder.Populate(services);
+        builder.RegisterModule(new DataDogModule(_configuration));
+        builder.RegisterModule(new MediatorModule());
+        builder.RegisterModule(new Handlers.MediatorModule());
+        builder.RegisterModule(new Handlers.Sqs.MediatorModule());
+        _applicationContainer = builder.Build();
+
+        return new AutofacServiceProvider(_applicationContainer);
     }
 
     private static string GetApiLeadingText(ApiVersionDescription description)

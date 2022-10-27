@@ -24,37 +24,12 @@ public class AddGradeSeparatedJunction : IRequestedChange
     }
 
     public GradeSeparatedJunctionId Id { get; }
+    public RoadSegmentId LowerSegmentId { get; }
     public GradeSeparatedJunctionId TemporaryId { get; }
+    public RoadSegmentId? TemporaryLowerSegmentId { get; }
+    public RoadSegmentId? TemporaryUpperSegmentId { get; }
     public GradeSeparatedJunctionType Type { get; }
     public RoadSegmentId UpperSegmentId { get; }
-    public RoadSegmentId? TemporaryUpperSegmentId { get; }
-    public RoadSegmentId LowerSegmentId { get; }
-    public RoadSegmentId? TemporaryLowerSegmentId { get; }
-
-    public Problems VerifyBefore(BeforeVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        return Problems.None;
-    }
-
-    public Problems VerifyAfter(AfterVerificationContext context)
-    {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        var problems = Problems.None;
-
-        if (!context.AfterView.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment)) problems = problems.Add(new UpperRoadSegmentMissing());
-
-        if (!context.AfterView.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment)) problems = problems.Add(new LowerRoadSegmentMissing());
-
-        if (upperSegment != null
-            && lowerSegment != null
-            && !upperSegment.Geometry.Intersects(lowerSegment.Geometry))
-            problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
-
-        return problems;
-    }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -81,5 +56,30 @@ public class AddGradeSeparatedJunction : IRequestedChange
             UpperSegmentId = TemporaryUpperSegmentId ?? UpperSegmentId,
             LowerSegmentId = TemporaryLowerSegmentId ?? LowerSegmentId
         };
+    }
+
+    public Problems VerifyAfter(AfterVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        var problems = Problems.None;
+
+        if (!context.AfterView.View.Segments.TryGetValue(UpperSegmentId, out var upperSegment)) problems = problems.Add(new UpperRoadSegmentMissing());
+
+        if (!context.AfterView.View.Segments.TryGetValue(LowerSegmentId, out var lowerSegment)) problems = problems.Add(new LowerRoadSegmentMissing());
+
+        if (upperSegment != null
+            && lowerSegment != null
+            && !upperSegment.Geometry.Intersects(lowerSegment.Geometry))
+            problems = problems.Add(new UpperAndLowerRoadSegmentDoNotIntersect());
+
+        return problems;
+    }
+
+    public Problems VerifyBefore(BeforeVerificationContext context)
+    {
+        if (context == null) throw new ArgumentNullException(nameof(context));
+
+        return Problems.None;
     }
 }

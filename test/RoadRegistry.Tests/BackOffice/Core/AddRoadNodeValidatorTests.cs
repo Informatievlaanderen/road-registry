@@ -7,40 +7,22 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
+using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
 
-public class AddRoadNodeValidatorTests
+public class AddRoadNodeValidatorTests : ValidatorTest<AddRoadNode, AddRoadNodeValidator>
 {
     public AddRoadNodeValidatorTests()
     {
-        Fixture = new Fixture();
         Fixture.CustomizeRoadNodeId();
         Fixture.CustomizeRoadNodeType();
-        Validator = new AddRoadNodeValidator();
-    }
+        Fixture.CustomizePoint();
 
-    public Fixture Fixture { get; }
-
-    public AddRoadNodeValidator Validator { get; }
-
-    [Theory]
-    [InlineData(int.MinValue)]
-    [InlineData(-1)]
-    [InlineData(0)]
-    public void TemporaryIdMustBeGreaterThan(int value)
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
-    }
-
-    [Fact]
-    public void TypeMustBeWithinDomain()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
-    }
-
-    [Fact]
-    public void GeometryMustNotBeNull()
-    {
-        Validator.ShouldHaveValidationErrorFor(c => c.Geometry, (RoadNodeGeometry)null);
+        Model = new AddRoadNode
+        {
+            TemporaryId = Fixture.Create<RoadNodeId>(),
+            Type = Fixture.Create<RoadNodeType>(),
+            Geometry = Fixture.Create<RoadNodeGeometry>()
+        };
     }
 
     [Fact]
@@ -50,17 +32,23 @@ public class AddRoadNodeValidatorTests
     }
 
     [Fact]
-    public void VerifyValid()
+    public void GeometryMustNotBeNull()
     {
-        Fixture.CustomizePoint();
+        ShouldHaveValidationErrorFor(c => c.Geometry, null);
+    }
 
-        var data = new RoadRegistry.BackOffice.Messages.AddRoadNode
-        {
-            TemporaryId = Fixture.Create<RoadNodeId>(),
-            Type = Fixture.Create<RoadNodeType>(),
-            Geometry = Fixture.Create<RoadNodeGeometry>()
-        };
+    [Theory]
+    [InlineData(int.MinValue)]
+    [InlineData(-1)]
+    [InlineData(0)]
+    public void TemporaryIdMustBeGreaterThan(int value)
+    {
+        ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
+    }
 
-        Validator.ValidateAndThrow(data);
+    [Fact]
+    public void TypeMustBeWithinDomain()
+    {
+        ShouldHaveValidationErrorFor(c => c.Type, Fixture.Create<string>());
     }
 }

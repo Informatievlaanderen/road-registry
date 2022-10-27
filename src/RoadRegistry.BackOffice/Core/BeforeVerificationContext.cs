@@ -15,8 +15,8 @@ public class BeforeVerificationContext
     }
 
     public IScopedRoadNetworkView BeforeView { get; }
-    public IRequestedChangeIdentityTranslator Translator { get; }
     public VerificationContextTolerances Tolerances { get; }
+    public IRequestedChangeIdentityTranslator Translator { get; }
 
     public AfterVerificationContext CreateAfterVerificationContext(IRoadNetworkView afterView)
     {

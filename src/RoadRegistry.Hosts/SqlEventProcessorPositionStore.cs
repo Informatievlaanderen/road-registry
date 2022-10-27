@@ -17,7 +17,6 @@ public class SqlEventProcessorPositionStore : IEventProcessorPositionStore
         _text = new SqlCommandText(schema);
     }
 
-
     public async Task<long?> ReadPosition(string name, CancellationToken cancellationToken)
     {
         if (name == null) throw new ArgumentNullException(nameof(name));

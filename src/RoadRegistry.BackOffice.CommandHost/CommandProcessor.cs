@@ -21,19 +21,18 @@ using SqlStreamStore.Subscriptions;
 
 public class CommandProcessor : IHostedService
 {
-    private static readonly JsonSerializerSettings SerializerSettings =
-        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
     private static readonly EventMapping CommandMapping =
         new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
 
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
-    private readonly ILogger<CommandProcessor> _logger;
 
+    private static readonly JsonSerializerSettings SerializerSettings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
+    private readonly ILogger<CommandProcessor> _logger;
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
-
     private readonly Scheduler _scheduler;
 
     public CommandProcessor(
@@ -207,6 +206,30 @@ public class CommandProcessor : IHostedService
                    dropped.Exception is IOException { InnerException: SqlException { Number: timeout } });
     }
 
+    private sealed class ProcessStreamMessage
+    {
+        private readonly TaskCompletionSource<object> _source;
+
+        public ProcessStreamMessage(StreamMessage message)
+        {
+            Message = message;
+            _source = new TaskCompletionSource<object>();
+        }
+
+        public Task Completion => _source.Task;
+        public StreamMessage Message { get; }
+
+        public void Complete()
+        {
+            _source.TrySetResult(null);
+        }
+
+        public void Fault(Exception exception)
+        {
+            _source.TrySetException(exception);
+        }
+    }
+
     private sealed class Subscribe
     {
     }
@@ -219,32 +242,7 @@ public class CommandProcessor : IHostedService
             Exception = exception;
         }
 
-        public SubscriptionDroppedReason Reason { get; }
         public Exception Exception { get; }
-    }
-
-    private sealed class ProcessStreamMessage
-    {
-        private readonly TaskCompletionSource<object> _source;
-
-        public ProcessStreamMessage(StreamMessage message)
-        {
-            Message = message;
-            _source = new TaskCompletionSource<object>();
-        }
-
-        public StreamMessage Message { get; }
-
-        public Task Completion => _source.Task;
-
-        public void Complete()
-        {
-            _source.TrySetResult(null);
-        }
-
-        public void Fault(Exception exception)
-        {
-            _source.TrySetException(exception);
-        }
+        public SubscriptionDroppedReason Reason { get; }
     }
 }

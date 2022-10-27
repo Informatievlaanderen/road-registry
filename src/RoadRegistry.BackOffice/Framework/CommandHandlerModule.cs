@@ -16,17 +16,6 @@ public abstract class CommandHandlerModule
 
     public CommandHandler[] Handlers => _handlers.ToArray();
 
-    protected void Handle<TCommand>(Func<Command<TCommand>, CancellationToken, Task> handler)
-    {
-        if (handler == null)
-            throw new ArgumentNullException(nameof(handler));
-        _handlers.Add(
-            new CommandHandler(
-                typeof(TCommand),
-                (message, ct) => handler(new Command<TCommand>(message), ct)
-            ));
-    }
-
     protected ICommandHandlerBuilder<TCommand> For<TCommand>()
     {
         return new CommandHandlerBuilder<TCommand>(handler =>
@@ -37,5 +26,16 @@ public abstract class CommandHandlerModule
                     (message, ct) => handler(new Command<TCommand>(message), ct)
                 ));
         });
+    }
+
+    protected void Handle<TCommand>(Func<Command<TCommand>, CancellationToken, Task> handler)
+    {
+        if (handler == null)
+            throw new ArgumentNullException(nameof(handler));
+        _handlers.Add(
+            new CommandHandler(
+                typeof(TCommand),
+                (message, ct) => handler(new Command<TCommand>(message), ct)
+            ));
     }
 }

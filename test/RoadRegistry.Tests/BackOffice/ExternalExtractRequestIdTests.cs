@@ -19,6 +19,53 @@ public class ExternalExtractRequestIdTests
     }
 
     [Fact]
+    public void AcceptsValueReturnsExpectedResult()
+    {
+        var value = _fixture.Create<ExternalExtractRequestId>().ToString();
+
+        Assert.True(ExternalExtractRequestId.AcceptsValue(value));
+    }
+
+    [Fact]
+    public void AcceptsValueReturnsExpectedResultWhenValueLongerThan256Chars()
+    {
+        const int length = ExternalExtractRequestId.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+
+        Assert.False(ExternalExtractRequestId.AcceptsValue(value));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
+    {
+        Assert.False(OrganizationId.AcceptsValue(value));
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = new string(
+            (char)new Random().Next(97, 123), // a-z
+            new Random().Next(1, ExternalExtractRequestId.MaxLength + 1)
+        );
+        var sut = new ExternalExtractRequestId(value);
+
+        Assert.Equal(value, sut.ToString());
+    }
+
+    [Fact]
+    public void ValueCanNotBeLongerThan256Chars()
+    {
+        const int length = ExternalExtractRequestId.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+        Assert.Throws<ArgumentOutOfRangeException>(() => new ExternalExtractRequestId(value));
+    }
+
+    [Fact]
     public void VerifyBehavior()
     {
         var customizedString = new Fixture();
@@ -54,52 +101,5 @@ public class ExternalExtractRequestIdTests
                 new EmptyStringBehaviorExpectation()
             )
         ).Verify(Constructors.Select(() => new ExternalExtractRequestId(null)));
-    }
-
-    [Fact]
-    public void AcceptsValueReturnsExpectedResultWhenValueLongerThan256Chars()
-    {
-        const int length = ExternalExtractRequestId.MaxLength + 1;
-
-        var value = new string((char)new Random().Next(97, 123), length);
-
-        Assert.False(ExternalExtractRequestId.AcceptsValue(value));
-    }
-
-    [Theory]
-    [InlineData("")]
-    [InlineData(null)]
-    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
-    {
-        Assert.False(OrganizationId.AcceptsValue(value));
-    }
-
-    [Fact]
-    public void AcceptsValueReturnsExpectedResult()
-    {
-        var value = _fixture.Create<ExternalExtractRequestId>().ToString();
-
-        Assert.True(ExternalExtractRequestId.AcceptsValue(value));
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = new string(
-            (char)new Random().Next(97, 123), // a-z
-            new Random().Next(1, ExternalExtractRequestId.MaxLength + 1)
-        );
-        var sut = new ExternalExtractRequestId(value);
-
-        Assert.Equal(value, sut.ToString());
-    }
-
-    [Fact]
-    public void ValueCanNotBeLongerThan256Chars()
-    {
-        const int length = ExternalExtractRequestId.MaxLength + 1;
-
-        var value = new string((char)new Random().Next(97, 123), length);
-        Assert.Throws<ArgumentOutOfRangeException>(() => new ExternalExtractRequestId(value));
     }
 }

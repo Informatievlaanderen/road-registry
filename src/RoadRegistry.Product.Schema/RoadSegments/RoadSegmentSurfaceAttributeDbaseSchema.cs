@@ -64,14 +64,14 @@ public class RoadSegmentSurfaceAttributeDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField WV_OIDN => Fields[0];
-    public DbaseField WS_OIDN => Fields[1];
-    public DbaseField WS_GIDN => Fields[2];
-    public DbaseField TYPE => Fields[3];
-    public DbaseField LBLTYPE => Fields[4];
-    public DbaseField VANPOS => Fields[5];
-    public DbaseField TOTPOS => Fields[6];
-    public DbaseField BEGINTIJD => Fields[7];
     public DbaseField BEGINORG => Fields[8];
+    public DbaseField BEGINTIJD => Fields[7];
     public DbaseField LBLBGNORG => Fields[9];
+    public DbaseField LBLTYPE => Fields[4];
+    public DbaseField TOTPOS => Fields[6];
+    public DbaseField TYPE => Fields[3];
+    public DbaseField VANPOS => Fields[5];
+    public DbaseField WS_GIDN => Fields[2];
+    public DbaseField WS_OIDN => Fields[1];
+    public DbaseField WV_OIDN => Fields[0];
 }

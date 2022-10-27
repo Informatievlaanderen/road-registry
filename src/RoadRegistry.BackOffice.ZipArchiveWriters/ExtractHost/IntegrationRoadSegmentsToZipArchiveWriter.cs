@@ -4,11 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
 using Editor.Schema.RoadSegments;
+using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 
@@ -42,17 +41,17 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
         const int integrationBufferInMeters = 350;
 
         var segmentsInContour = await context.RoadSegments
-            .InsideContour(request.Contour)
-            .ToListAsync(cancellationToken);
-        var geometryForSegmentsInContour = GeometryConfiguration.GeometryFactory
-            .BuildGeometry(segmentsInContour.Select(segment => segment.Geometry));
-
-        var boundaryForSegments = geometryForSegmentsInContour.ConvexHull();
-        var boundaryWithIntegrationBuffer = boundaryForSegments.Buffer(integrationBufferInMeters);
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour(polygon),
+                x => x.Id,
+                cancellationToken);
 
         var segmentsInIntegrationBuffer = await context.RoadSegments
-            .InsideContour(boundaryWithIntegrationBuffer as IPolygonal)
-            .ToListAsync(cancellationToken);
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour((IPolygonal)((Geometry)polygon).Buffer(integrationBufferInMeters)),
+                x => x.Id,
+                cancellationToken);
+
         var integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
 
         var dbfEntry = archive.CreateEntry("iWegsegment.dbf");

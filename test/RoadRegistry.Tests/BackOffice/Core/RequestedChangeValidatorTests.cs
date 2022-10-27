@@ -2,27 +2,26 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 
 using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using Xunit;
 
-public class RequestedChangeValidatorTests
+public class RequestedChangeValidatorTests : ValidatorTest<RequestedChange, RequestedChangeValidator>
 {
     public RequestedChangeValidatorTests()
     {
-        Validator = new RequestedChangeValidator();
+        Model = new RequestedChange();
     }
 
-    public RequestedChangeValidator Validator { get; }
+    [Fact]
+    public void AddGradeSeparatedJunctionHasExpectedValidator()
+    {
+        Validator.ShouldHaveChildValidator(c => c.AddGradeSeparatedJunction, typeof(AddGradeSeparatedJunctionValidator));
+    }
 
     [Fact]
     public void AddRoadNodeHasExpectedValidator()
     {
         Validator.ShouldHaveChildValidator(c => c.AddRoadNode, typeof(AddRoadNodeValidator));
-    }
-
-    [Fact]
-    public void ModifyRoadNodeHasExpectedValidator()
-    {
-        Validator.ShouldHaveChildValidator(c => c.ModifyRoadNode, typeof(ModifyRoadNodeValidator));
     }
 
     [Fact]
@@ -50,8 +49,8 @@ public class RequestedChangeValidatorTests
     }
 
     [Fact]
-    public void AddGradeSeparatedJunctionHasExpectedValidator()
+    public void ModifyRoadNodeHasExpectedValidator()
     {
-        Validator.ShouldHaveChildValidator(c => c.AddGradeSeparatedJunction, typeof(AddGradeSeparatedJunctionValidator));
+        Validator.ShouldHaveChildValidator(c => c.ModifyRoadNode, typeof(ModifyRoadNodeValidator));
     }
 }

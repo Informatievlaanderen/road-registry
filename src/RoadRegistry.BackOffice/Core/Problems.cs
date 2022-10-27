@@ -15,6 +15,8 @@ public class Problems : IReadOnlyCollection<Problem>
         _problems = problems;
     }
 
+    public int Count => _problems.Count;
+
     public IEnumerator<Problem> GetEnumerator()
     {
         return _problems.GetEnumerator();
@@ -23,29 +25,6 @@ public class Problems : IReadOnlyCollection<Problem>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
-    }
-
-    public int Count => _problems.Count;
-
-    public static Problems Single(Problem problem)
-    {
-        if (problem == null) throw new ArgumentNullException(nameof(problem));
-
-        return None.Add(problem);
-    }
-
-    public static Problems Many(params Problem[] problems)
-    {
-        if (problems == null) throw new ArgumentNullException(nameof(problems));
-
-        return None.AddRange(problems);
-    }
-
-    public static Problems Many(IEnumerable<Problem> problems)
-    {
-        if (problems == null) throw new ArgumentNullException(nameof(problems));
-
-        return None.AddRange(problems);
     }
 
     public Problems Add(Problem problem)
@@ -66,6 +45,20 @@ public class Problems : IReadOnlyCollection<Problem>
         return new Problems(_problems.AddRange(problems));
     }
 
+    public static Problems Many(params Problem[] problems)
+    {
+        if (problems == null) throw new ArgumentNullException(nameof(problems));
+
+        return None.AddRange(problems);
+    }
+
+    public static Problems Many(IEnumerable<Problem> problems)
+    {
+        if (problems == null) throw new ArgumentNullException(nameof(problems));
+
+        return None.AddRange(problems);
+    }
+
     public static Problems operator +(Problems left, Problem right)
     {
         return left.Add(right);
@@ -79,5 +72,12 @@ public class Problems : IReadOnlyCollection<Problem>
     public static Problems operator +(Problems left, Problems right)
     {
         return left.AddRange(right);
+    }
+
+    public static Problems Single(Problem problem)
+    {
+        if (problem == null) throw new ArgumentNullException(nameof(problem));
+
+        return None.Add(problem);
     }
 }

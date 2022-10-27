@@ -28,11 +28,14 @@ public static class ZipArchiveEntryProblems
         return new FileProblemBuilder(entry.Name).Error(reason);
     }
 
-    public static IFileWarningBuilder Warning(this ZipArchiveEntry entry, string reason)
+    public static FileError HasDbaseHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
     {
-        if (reason == null) throw new ArgumentNullException(nameof(reason));
+        return new FileProblemBuilder(entry.Name).HasDbaseHeaderFormatError(exception);
+    }
 
-        return new FileProblemBuilder(entry.Name).Warning(reason);
+    public static FileError HasDbaseSchemaMismatch(this ZipArchiveEntry entry, DbaseSchema expectedSchema, DbaseSchema actualSchema)
+    {
+        return new FileProblemBuilder(entry.Name).HasDbaseSchemaMismatch(expectedSchema, actualSchema);
     }
 
     // dbase
@@ -42,19 +45,28 @@ public static class ZipArchiveEntryProblems
         return new FileProblemBuilder(entry.Name).HasNoDbaseRecords(treatAsWarning);
     }
 
+    // shape
+
+    public static FileError HasNoShapeRecords(this ZipArchiveEntry entry)
+    {
+        return new FileProblemBuilder(entry.Name).HasNoShapeRecords();
+    }
+
+    public static FileError HasShapeHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
+    {
+        return new FileProblemBuilder(entry.Name).HasShapeRecordFormatError(exception);
+    }
+
     public static FileProblem HasTooManyDbaseRecords(this ZipArchiveEntry entry, int expectedCount, int actualCount)
     {
         return new FileProblemBuilder(entry.Name).HasTooManyDbaseRecords(expectedCount, actualCount);
     }
 
-    public static FileError HasDbaseHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
-    {
-        return new FileProblemBuilder(entry.Name).HasDbaseHeaderFormatError(exception);
-    }
+    // projection format
 
-    public static FileError HasDbaseSchemaMismatch(this ZipArchiveEntry entry, DbaseSchema expectedSchema, DbaseSchema actualSchema)
+    public static FileError ProjectionFormatInvalid(this ZipArchiveEntry entry)
     {
-        return new FileProblemBuilder(entry.Name).HasDbaseSchemaMismatch(expectedSchema, actualSchema);
+        return new FileProblemBuilder(entry.Name).ProjectionFormatInvalid();
     }
 
     public static FileProblem RoadSegmentsWithoutLaneAttributes(this ZipArchiveEntry entry, RoadSegmentId[] segments)
@@ -72,23 +84,11 @@ public static class ZipArchiveEntryProblems
         return new FileProblemBuilder(entry.Name).RoadSegmentsWithoutWidthAttributes(segments);
     }
 
-    // shape
-
-    public static FileError HasNoShapeRecords(this ZipArchiveEntry entry)
+    public static IFileWarningBuilder Warning(this ZipArchiveEntry entry, string reason)
     {
-        return new FileProblemBuilder(entry.Name).HasNoShapeRecords();
-    }
+        if (reason == null) throw new ArgumentNullException(nameof(reason));
 
-    public static FileError HasShapeHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
-    {
-        return new FileProblemBuilder(entry.Name).HasShapeRecordFormatError(exception);
-    }
-
-    // projection format
-
-    public static FileError ProjectionFormatInvalid(this ZipArchiveEntry entry)
-    {
-        return new FileProblemBuilder(entry.Name).ProjectionFormatInvalid();
+        return new FileProblemBuilder(entry.Name).Warning(reason);
     }
 
     private sealed class FileProblemBuilder : IFileProblemBuilder, IDbaseFileRecordProblemBuilder, IShapeFileRecordProblemBuilder
@@ -148,6 +148,11 @@ public static class ZipArchiveEntryProblems
                 _parameters = parameters;
             }
 
+            public FileError Build()
+            {
+                return new FileError(_file.ToUpperInvariant(), _reason, _parameters.ToArray());
+            }
+
             public IFileErrorBuilder WithParameter(ProblemParameter parameter)
             {
                 if (parameter == null) throw new ArgumentNullException(nameof(parameter));
@@ -160,11 +165,6 @@ public static class ZipArchiveEntryProblems
                 if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 
                 return new FileErrorBuilder(_file, _reason, _parameters.AddRange(parameters));
-            }
-
-            public FileError Build()
-            {
-                return new FileError(_file.ToUpperInvariant(), _reason, _parameters.ToArray());
             }
         }
 
@@ -184,6 +184,11 @@ public static class ZipArchiveEntryProblems
                 _parameters = parameters;
             }
 
+            public FileWarning Build()
+            {
+                return new FileWarning(_file.ToUpperInvariant(), _reason, _parameters.ToArray());
+            }
+
             public IFileWarningBuilder WithParameter(ProblemParameter parameter)
             {
                 if (parameter == null) throw new ArgumentNullException(nameof(parameter));
@@ -196,11 +201,6 @@ public static class ZipArchiveEntryProblems
                 if (parameters == null) throw new ArgumentNullException(nameof(parameters));
 
                 return new FileWarningBuilder(_file, _reason, _parameters.AddRange(parameters));
-            }
-
-            public FileWarning Build()
-            {
-                return new FileWarning(_file.ToUpperInvariant(), _reason, _parameters.ToArray());
             }
         }
     }

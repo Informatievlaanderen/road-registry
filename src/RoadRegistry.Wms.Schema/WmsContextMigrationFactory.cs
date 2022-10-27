@@ -19,14 +19,14 @@ public class WmsContextMigrationFactory : RunnerDbContextMigrationFactory<WmsCon
             Table = MigrationTables.Wms
         };
 
-    protected override WmsContext CreateContext(DbContextOptions<WmsContext> migrationContextOptions)
-    {
-        return new WmsContext(migrationContextOptions);
-    }
-
     protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
     {
         sqlServerOptions.UseNetTopologySuite();
         base.ConfigureSqlServerOptions(sqlServerOptions);
+    }
+
+    protected override WmsContext CreateContext(DbContextOptions<WmsContext> migrationContextOptions)
+    {
+        return new WmsContext(migrationContextOptions);
     }
 }

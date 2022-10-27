@@ -7,12 +7,12 @@ using NetTopologySuite.Geometries;
 
 public class RoadSegmentBoundingBox
 {
-    public double MinimumX { get; set; }
+    public double MaximumM { get; set; }
     public double MaximumX { get; set; }
-    public double MinimumY { get; set; }
     public double MaximumY { get; set; }
     public double MinimumM { get; set; }
-    public double MaximumM { get; set; }
+    public double MinimumX { get; set; }
+    public double MinimumY { get; set; }
 
     public static RoadSegmentBoundingBox From(PolyLineM shape)
     {

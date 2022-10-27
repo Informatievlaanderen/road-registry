@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.ExtractHost.Tests.Framework.Containers;
 
+using Abstractions;
+using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.Editor.Schema;
-using RoadRegistry.Product.Schema;
+using Product.Schema;
 using RoadRegistry.Tests.Framework.Containers;
 
 public class SqlServer : ISqlServerDatabase
@@ -27,9 +27,9 @@ public class SqlServer : ISqlServerDatabase
     public RecyclableMemoryStreamManager MemoryStreamManager { get; }
     public IStreetNameCache StreetNameCache { get; }
 
-    public Task InitializeAsync()
+    public Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
     {
-        return _inner.InitializeAsync();
+        return _inner.CreateDatabaseAsync();
     }
 
     public Task DisposeAsync()
@@ -37,9 +37,9 @@ public class SqlServer : ISqlServerDatabase
         return _inner.DisposeAsync();
     }
 
-    public Task<SqlConnectionStringBuilder> CreateDatabaseAsync()
+    public Task InitializeAsync()
     {
-        return _inner.CreateDatabaseAsync();
+        return _inner.InitializeAsync();
     }
 
     public async Task<EditorContext> CreateEditorContextAsync(SqlConnectionStringBuilder builder)
@@ -76,18 +76,6 @@ public class SqlServer : ISqlServerDatabase
         return context;
     }
 
-    public async Task<ProductContext> CreateProductContextAsync(SqlConnectionStringBuilder builder)
-    {
-        var options = new DbContextOptionsBuilder<ProductContext>()
-            .UseSqlServer(builder.ConnectionString)
-            .EnableSensitiveDataLogging()
-            .Options;
-
-        var context = new ProductContext(options);
-        await context.Database.MigrateAsync();
-        return context;
-    }
-
     public async Task<ProductContext> CreateEmptyProductContextAsync(SqlConnectionStringBuilder builder)
     {
         var context = await CreateProductContextAsync(builder);
@@ -106,6 +94,18 @@ public class SqlServer : ISqlServerDatabase
         context.ProjectionStates.RemoveRange(context.ProjectionStates);
         await context.SaveChangesAsync();
 
+        return context;
+    }
+
+    public async Task<ProductContext> CreateProductContextAsync(SqlConnectionStringBuilder builder)
+    {
+        var options = new DbContextOptionsBuilder<ProductContext>()
+            .UseSqlServer(builder.ConnectionString)
+            .EnableSensitiveDataLogging()
+            .Options;
+
+        var context = new ProductContext(options);
+        await context.Database.MigrateAsync();
         return context;
     }
 }

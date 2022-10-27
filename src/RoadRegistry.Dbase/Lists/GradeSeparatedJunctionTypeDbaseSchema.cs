@@ -27,7 +27,7 @@ public class GradeSeparatedJunctionTypeDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField TYPE => Fields[0];
-    public DbaseField LBLTYPE => Fields[1];
     public DbaseField DEFTYPE => Fields[2];
+    public DbaseField LBLTYPE => Fields[1];
+    public DbaseField TYPE => Fields[0];
 }

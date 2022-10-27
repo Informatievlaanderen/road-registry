@@ -1,14 +1,13 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForProduct;
 
+using System.IO.Compression;
+using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase;
 using Framework.Containers;
 using Product.Schema;
 using Product.Schema.RoadSegments;
-using System.IO.Compression;
-using System.Text;
-using Xunit;
 using ZipArchiveWriters.ForProduct;
 
 [Collection(nameof(SqlServerCollection))]
@@ -35,12 +34,6 @@ public class RoadSegmentsArchiveWriterTests
         var sut = new RoadSegmentsToZipArchiveWriter("{0}", new ZipArchiveWriterOptions(), new FakeStreetNameCache(), _fixture.MemoryStreamManager, Encoding.UTF8);
         return Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
-    }
-
-    [Fact(Skip = "Complete once value objects become available")]
-    public Task WriteAsyncHasExpectedResult()
-    {
-        return Task.CompletedTask;
     }
 
     [Fact]
@@ -112,5 +105,11 @@ public class RoadSegmentsArchiveWriterTests
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
             });
+    }
+
+    [Fact(Skip = "Complete once value objects become available")]
+    public Task WriteAsyncHasExpectedResult()
+    {
+        return Task.CompletedTask;
     }
 }

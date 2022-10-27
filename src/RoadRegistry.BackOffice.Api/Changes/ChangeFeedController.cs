@@ -9,6 +9,8 @@ using Editor.Schema;
 using Editor.Schema.RoadNetworkChanges;
 using FluentValidation;
 using FluentValidation.Results;
+using Infrastructure;
+using Infrastructure.Controllers.Attributes;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +19,11 @@ using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Text;
 
-[ApiVersion("1.0")]
-[AdvertiseApiVersions("1.0")]
+[ApiVersion(Version.Current)]
+[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("changefeed")]
 [ApiExplorerSettings(GroupName = "ChangeFeed")]
+[ApiKeyAuth("Road")]
 public class ChangeFeedController : ControllerBase
 {
     private readonly LocalDatePattern _localMonthPattern;
@@ -32,6 +35,51 @@ public class ChangeFeedController : ControllerBase
         _localTimeZone = DateTimeZoneProviders.Tzdb["Europe/Brussels"];
         _localMonthPattern = LocalDatePattern.Create("MMM", new CultureInfo("nl-BE"));
         _localTimeOfDayPattern = LocalTimePattern.CreateWithInvariantCulture("HH':'mm");
+    }
+
+    [HttpGet("entry/{id}/content")]
+    public async Task<IActionResult> GetContent([FromServices] EditorContext context, long id)
+    {
+        var entry = await context
+            .RoadNetworkChanges
+            .SingleOrDefaultAsync(change => change.Id == id, HttpContext.RequestAborted);
+        if (entry == null) return NotFound();
+
+        var content = entry.Type switch
+        {
+            nameof(RoadNetworkChangesArchiveUploaded) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkChangesArchiveUploadedEntry)),
+            nameof(RoadNetworkChangesArchiveAccepted) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkChangesArchiveAcceptedEntry)),
+            nameof(RoadNetworkChangesArchiveRejected) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkChangesArchiveRejectedEntry)),
+            nameof(RoadNetworkChangesAccepted) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkChangesBasedOnArchiveAcceptedEntry)),
+            nameof(RoadNetworkChangesAccepted) + ":v2" => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkChangesBasedOnArchiveAcceptedEntry)),
+            nameof(RoadNetworkChangesRejected) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkChangesBasedOnArchiveRejectedEntry)),
+            nameof(NoRoadNetworkChanges) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(NoRoadNetworkChangesBasedOnArchiveEntry)),
+            nameof(RoadNetworkExtractChangesArchiveUploaded) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkExtractChangesArchiveUploadedEntry)),
+            nameof(RoadNetworkExtractChangesArchiveAccepted) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkExtractChangesArchiveAcceptedEntry)),
+            nameof(RoadNetworkExtractChangesArchiveRejected) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkExtractChangesArchiveRejectedEntry)),
+            nameof(RoadNetworkExtractDownloadBecameAvailable) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkExtractDownloadBecameAvailableEntry)),
+            _ => null
+        };
+        return new JsonResult(new ChangeFeedEntryContent
+        {
+            Id = entry.Id,
+            Type = entry.Type,
+            Content = content
+        })
+        {
+            StatusCode = StatusCodes.Status200OK
+        };
     }
 
     [HttpGet("head")]
@@ -189,51 +237,6 @@ public class ChangeFeedController : ControllerBase
         return new JsonResult(new ChangeFeedResponse
         {
             Entries = entries.OrderByDescending(entry => entry.Id).ToArray()
-        })
-        {
-            StatusCode = StatusCodes.Status200OK
-        };
-    }
-
-    [HttpGet("entry/{id}/content")]
-    public async Task<IActionResult> GetContent([FromServices] EditorContext context, long id)
-    {
-        var entry = await context
-            .RoadNetworkChanges
-            .SingleOrDefaultAsync(change => change.Id == id, HttpContext.RequestAborted);
-        if (entry == null) return NotFound();
-
-        var content = entry.Type switch
-        {
-            nameof(RoadNetworkChangesArchiveUploaded) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkChangesArchiveUploadedEntry)),
-            nameof(RoadNetworkChangesArchiveAccepted) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkChangesArchiveAcceptedEntry)),
-            nameof(RoadNetworkChangesArchiveRejected) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkChangesArchiveRejectedEntry)),
-            nameof(RoadNetworkChangesAccepted) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkChangesBasedOnArchiveAcceptedEntry)),
-            nameof(RoadNetworkChangesAccepted) + ":v2" => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkChangesBasedOnArchiveAcceptedEntry)),
-            nameof(RoadNetworkChangesRejected) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkChangesBasedOnArchiveRejectedEntry)),
-            nameof(NoRoadNetworkChanges) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(NoRoadNetworkChangesBasedOnArchiveEntry)),
-            nameof(RoadNetworkExtractChangesArchiveUploaded) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkExtractChangesArchiveUploadedEntry)),
-            nameof(RoadNetworkExtractChangesArchiveAccepted) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkExtractChangesArchiveAcceptedEntry)),
-            nameof(RoadNetworkExtractChangesArchiveRejected) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkExtractChangesArchiveRejectedEntry)),
-            nameof(RoadNetworkExtractDownloadBecameAvailable) => JsonConvert.DeserializeObject(entry.Content,
-                typeof(RoadNetworkExtractDownloadBecameAvailableEntry)),
-            _ => null
-        };
-        return new JsonResult(new ChangeFeedEntryContent
-        {
-            Id = entry.Id,
-            Type = entry.Type,
-            Content = content
         })
         {
             StatusCode = StatusCodes.Status200OK

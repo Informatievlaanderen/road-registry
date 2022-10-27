@@ -15,7 +15,6 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
     public static readonly EuropeanRoadNumber E411 = new(nameof(E411));
     public static readonly EuropeanRoadNumber E429 = new(nameof(E429));
 
-
     public static readonly EuropeanRoadNumber[] All =
     {
         E17, E19, E25, E313, E314, E34,
@@ -41,22 +40,6 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public static bool TryParse(string value, out EuropeanRoadNumber parsed)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
-    }
-
-    public static EuropeanRoadNumber Parse(string value)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known european road number.");
-        return parsed;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is EuropeanRoadNumber type && Equals(type);
@@ -67,9 +50,9 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
         return _value.GetHashCode();
     }
 
-    public override string ToString()
+    public static bool operator ==(EuropeanRoadNumber left, EuropeanRoadNumber right)
     {
-        return _value;
+        return Equals(left, right);
     }
 
     public static implicit operator string(EuropeanRoadNumber instance)
@@ -77,13 +60,29 @@ public sealed class EuropeanRoadNumber : IEquatable<EuropeanRoadNumber>
         return instance.ToString();
     }
 
-    public static bool operator ==(EuropeanRoadNumber left, EuropeanRoadNumber right)
-    {
-        return Equals(left, right);
-    }
-
     public static bool operator !=(EuropeanRoadNumber left, EuropeanRoadNumber right)
     {
         return !Equals(left, right);
+    }
+
+    public static EuropeanRoadNumber Parse(string value)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known european road number.");
+        return parsed;
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static bool TryParse(string value, out EuropeanRoadNumber parsed)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 }

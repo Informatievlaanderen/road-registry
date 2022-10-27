@@ -13,14 +13,13 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworkExtractCommandQueue : IRoadNetworkExtractCommandQueue
 {
-    public static readonly StreamName Stream = new("roadnetworkextract-command-queue");
+    private static readonly EventMapping CommandMapping =
+        new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
 
     private static readonly JsonSerializerSettings SerializerSettings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    private static readonly EventMapping CommandMapping =
-        new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
-
+    public static readonly StreamName Stream = new("roadnetworkextract-command-queue");
     private readonly IStreamStore _store;
 
     public RoadNetworkExtractCommandQueue(IStreamStore store)

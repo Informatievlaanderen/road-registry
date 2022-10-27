@@ -6,6 +6,16 @@ using System.Linq;
 
 public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
 {
+    public static readonly RoadSegmentSurfaceType LooseSurface =
+        new(
+            nameof(LooseSurface),
+            new DutchTranslation(
+                2,
+                "weg met losse verharding",
+                "Weg met een wegverharding bestaande uit losliggende materialen (bv. grind, kiezel, steenslag, puin, enz.)."
+            )
+        );
+
     public static readonly RoadSegmentSurfaceType NotApplicable =
         new(
             nameof(NotApplicable),
@@ -13,16 +23,6 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
                 -9,
                 "niet van toepassing",
                 "Niet van toepassing"
-            )
-        );
-
-    public static readonly RoadSegmentSurfaceType Unknown =
-        new(
-            nameof(Unknown),
-            new DutchTranslation(
-                -8,
-                "niet gekend",
-                "Geen informatie beschikbaar"
             )
         );
 
@@ -36,13 +36,13 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
             )
         );
 
-    public static readonly RoadSegmentSurfaceType LooseSurface =
+    public static readonly RoadSegmentSurfaceType Unknown =
         new(
-            nameof(LooseSurface),
+            nameof(Unknown),
             new DutchTranslation(
-                2,
-                "weg met losse verharding",
-                "Weg met een wegverharding bestaande uit losliggende materialen (bv. grind, kiezel, steenslag, puin, enz.)."
+                -8,
+                "niet gekend",
+                "Geen informatie beschikbaar"
             )
         );
 
@@ -76,22 +76,6 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public static bool TryParse(string value, out RoadSegmentSurfaceType parsed)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
-    }
-
-    public static RoadSegmentSurfaceType Parse(string value)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known type of road surface.");
-        return parsed;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentSurfaceType type && Equals(type);
@@ -102,9 +86,9 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
         return _value.GetHashCode();
     }
 
-    public override string ToString()
+    public static bool operator ==(RoadSegmentSurfaceType left, RoadSegmentSurfaceType right)
     {
-        return _value;
+        return Equals(left, right);
     }
 
     public static implicit operator string(RoadSegmentSurfaceType instance)
@@ -112,14 +96,30 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
         return instance.ToString();
     }
 
-    public static bool operator ==(RoadSegmentSurfaceType left, RoadSegmentSurfaceType right)
-    {
-        return Equals(left, right);
-    }
-
     public static bool operator !=(RoadSegmentSurfaceType left, RoadSegmentSurfaceType right)
     {
         return !Equals(left, right);
+    }
+
+    public static RoadSegmentSurfaceType Parse(string value)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known type of road surface.");
+        return parsed;
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static bool TryParse(string value, out RoadSegmentSurfaceType parsed)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 
     public class DutchTranslation
@@ -131,10 +131,8 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
             Description = description;
         }
 
-        public int Identifier { get; }
-
-        public string Name { get; }
-
         public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

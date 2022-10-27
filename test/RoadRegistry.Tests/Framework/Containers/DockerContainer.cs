@@ -21,7 +21,6 @@ public abstract class DockerContainer : IAsyncLifetime
         );
 
     private static readonly DockerClientConfiguration DockerClientConfiguration = new(DockerUri);
-
     private readonly DockerClient _client;
 
     protected DockerContainer()
@@ -30,6 +29,21 @@ public abstract class DockerContainer : IAsyncLifetime
     }
 
     public DockerContainerConfiguration Configuration { get; protected set; }
+
+    public async Task DisposeAsync()
+    {
+        if (Configuration.Container.StopContainer)
+        {
+            var found = await TryFindContainer();
+            if (found != null)
+            {
+                await StopContainer(found);
+                if (Configuration.Container.RemoveContainer) await RemoveContainer(found);
+            }
+        }
+
+        _client.Dispose();
+    }
 
     public async Task InitializeAsync()
     {
@@ -49,41 +63,6 @@ public abstract class DockerContainer : IAsyncLifetime
             var created = await CreateContainer();
             if (created != null) await StartContainer(created);
         }
-    }
-
-    public async Task DisposeAsync()
-    {
-        if (Configuration.Container.StopContainer)
-        {
-            var found = await TryFindContainer();
-            if (found != null)
-            {
-                await StopContainer(found);
-                if (Configuration.Container.RemoveContainer) await RemoveContainer(found);
-            }
-        }
-
-        _client.Dispose();
-    }
-
-    private async Task<string> TryFindContainer()
-    {
-        var containers = await _client.Containers.ListContainersAsync(
-            new ContainersListParameters
-            {
-                All = true,
-                Filters = new Dictionary<string, IDictionary<string, bool>>
-                {
-                    ["name"] = new Dictionary<string, bool>
-                    {
-                        [Configuration.Container.Name] = true
-                    }
-                }
-            }).ConfigureAwait(false);
-
-        return containers
-            .FirstOrDefault(container => container.State != "exited")
-            ?.ID;
     }
 
     private async Task<string> CreateContainer()
@@ -112,41 +91,6 @@ public abstract class DockerContainer : IAsyncLifetime
             .ConfigureAwait(false);
 
         return container.ID;
-    }
-
-    private async Task StartContainer(string id)
-    {
-        var started = await _client
-            .Containers
-            .StartContainerAsync(id, new ContainerStartParameters())
-            .ConfigureAwait(false);
-
-        if (started)
-        {
-            var attempt = 0;
-            var result = await Configuration.WaitUntilAvailable(attempt++);
-            while (result > TimeSpan.Zero)
-            {
-                await Task.Delay(result);
-                result = await Configuration.WaitUntilAvailable(attempt++);
-            }
-        }
-    }
-
-    private async Task StopContainer(string id)
-    {
-        await _client
-            .Containers
-            .StopContainerAsync(id, new ContainerStopParameters { WaitBeforeKillSeconds = 10 })
-            .ConfigureAwait(false);
-    }
-
-    private async Task RemoveContainer(string id)
-    {
-        await _client
-            .Containers
-            .RemoveContainerAsync(id, new ContainerRemoveParameters { Force = false })
-            .ConfigureAwait(false);
     }
 
     private async Task CreateImageIfNotExists()
@@ -181,6 +125,61 @@ public abstract class DockerContainer : IAsyncLifetime
             })
             .ConfigureAwait(false);
         return images.Count != 0;
+    }
+
+    private async Task RemoveContainer(string id)
+    {
+        await _client
+            .Containers
+            .RemoveContainerAsync(id, new ContainerRemoveParameters { Force = false })
+            .ConfigureAwait(false);
+    }
+
+    private async Task StartContainer(string id)
+    {
+        var started = await _client
+            .Containers
+            .StartContainerAsync(id, new ContainerStartParameters())
+            .ConfigureAwait(false);
+
+        if (started)
+        {
+            var attempt = 0;
+            var result = await Configuration.WaitUntilAvailable(attempt++);
+            while (result > TimeSpan.Zero)
+            {
+                await Task.Delay(result);
+                result = await Configuration.WaitUntilAvailable(attempt++);
+            }
+        }
+    }
+
+    private async Task StopContainer(string id)
+    {
+        await _client
+            .Containers
+            .StopContainerAsync(id, new ContainerStopParameters { WaitBeforeKillSeconds = 10 })
+            .ConfigureAwait(false);
+    }
+
+    private async Task<string> TryFindContainer()
+    {
+        var containers = await _client.Containers.ListContainersAsync(
+            new ContainersListParameters
+            {
+                All = true,
+                Filters = new Dictionary<string, IDictionary<string, bool>>
+                {
+                    ["name"] = new Dictionary<string, bool>
+                    {
+                        [Configuration.Container.Name] = true
+                    }
+                }
+            }).ConfigureAwait(false);
+
+        return containers
+            .FirstOrDefault(container => container.State != "exited")
+            ?.ID;
     }
 
     private class Progress : IProgress<JSONMessage>

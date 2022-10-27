@@ -8,37 +8,6 @@ using System.Linq;
 
 public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 {
-    public static readonly RoadSegmentCategory Unknown =
-        new(
-            nameof(Unknown),
-            new DutchTranslation(
-                "-8",
-                "niet gekend",
-                "Geen informatie beschikbaar"
-            )
-        );
-
-
-    public static readonly RoadSegmentCategory NotApplicable =
-        new(
-            nameof(NotApplicable),
-            new DutchTranslation(
-                "-9",
-                "niet van toepassing",
-                "Niet van toepassing"
-            )
-        );
-
-    public static readonly RoadSegmentCategory MainRoad =
-        new(
-            nameof(MainRoad),
-            new DutchTranslation(
-                "H",
-                "hoofdweg",
-                "Wegen die de verbindingsfunctie verzorgen voor de grootstedelijke- en regionaalstedelijke gebieden met elkaar, met het Brussels Hoofdstedelijk Gewest en met de groot- en regionaalstedelijke gebieden in Wallonië en de buurlanden."
-            )
-        );
-
     public static readonly RoadSegmentCategory LocalRoad =
         new(
             nameof(LocalRoad),
@@ -76,6 +45,26 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
                 "L3",
                 "lokale weg type 3",
                 "Lokale erftoegangsweg"
+            )
+        );
+
+    public static readonly RoadSegmentCategory MainRoad =
+        new(
+            nameof(MainRoad),
+            new DutchTranslation(
+                "H",
+                "hoofdweg",
+                "Wegen die de verbindingsfunctie verzorgen voor de grootstedelijke- en regionaalstedelijke gebieden met elkaar, met het Brussels Hoofdstedelijk Gewest en met de groot- en regionaalstedelijke gebieden in Wallonië en de buurlanden."
+            )
+        );
+
+    public static readonly RoadSegmentCategory NotApplicable =
+        new(
+            nameof(NotApplicable),
+            new DutchTranslation(
+                "-9",
+                "niet van toepassing",
+                "Niet van toepassing"
             )
         );
 
@@ -179,7 +168,6 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
             )
         );
 
-
     public static readonly RoadSegmentCategory SecondaryRoadType4 =
         new(
             nameof(SecondaryRoadType4),
@@ -187,6 +175,16 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
                 "S4",
                 "secundaire weg type 4",
                 "De weg had oorspronkelijk een verbindende functie op Vlaams niveau als \"steenweg\". Deze functie wordt door een autosnelweg (hoofdweg) overgenomen. Momenteel heeft de weg een verbindings- en verzamelfunctie op (boven-)lokaal niveau."
+            )
+        );
+
+    public static readonly RoadSegmentCategory Unknown =
+        new(
+            nameof(Unknown),
+            new DutchTranslation(
+                "-8",
+                "niet gekend",
+                "Geen informatie beschikbaar"
             )
         );
 
@@ -237,12 +235,29 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public static bool TryParse(string value, out RoadSegmentCategory parsed)
+    public override bool Equals(object obj)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        return obj is RoadSegmentCategory type && Equals(type);
+    }
 
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
+    public override int GetHashCode()
+    {
+        return _value.GetHashCode();
+    }
+
+    public static bool operator ==(RoadSegmentCategory left, RoadSegmentCategory right)
+    {
+        return Equals(left, right);
+    }
+
+    public static implicit operator string(RoadSegmentCategory instance)
+    {
+        return instance.ToString();
+    }
+
+    public static bool operator !=(RoadSegmentCategory left, RoadSegmentCategory right)
+    {
+        return !Equals(left, right);
     }
 
     public static RoadSegmentCategory Parse(string value)
@@ -254,34 +269,17 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
         return parsed;
     }
 
-    public override bool Equals(object obj)
-    {
-        return obj is RoadSegmentCategory type && Equals(type);
-    }
-
-    public override int GetHashCode()
-    {
-        return _value.GetHashCode();
-    }
-
     public override string ToString()
     {
         return _value;
     }
 
-    public static implicit operator string(RoadSegmentCategory instance)
+    public static bool TryParse(string value, out RoadSegmentCategory parsed)
     {
-        return instance.ToString();
-    }
+        if (value == null) throw new ArgumentNullException(nameof(value));
 
-    public static bool operator ==(RoadSegmentCategory left, RoadSegmentCategory right)
-    {
-        return Equals(left, right);
-    }
-
-    public static bool operator !=(RoadSegmentCategory left, RoadSegmentCategory right)
-    {
-        return !Equals(left, right);
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 
     public class DutchTranslation
@@ -293,10 +291,8 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
             Description = description;
         }
 
-        public string Identifier { get; }
-
-        public string Name { get; }
-
         public string Description { get; }
+        public string Identifier { get; }
+        public string Name { get; }
     }
 }

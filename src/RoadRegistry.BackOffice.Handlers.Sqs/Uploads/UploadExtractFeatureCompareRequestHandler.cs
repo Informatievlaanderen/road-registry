@@ -12,9 +12,8 @@ using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using Framework;
+using Messages;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.Messages;
-using static Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Sqs;
 
 /// <summary>Upload controller, post upload</summary>
 /// <exception cref="UploadExtractBlobClientNotFoundException"></exception>
@@ -28,8 +27,8 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
     };
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
-    private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
+    private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
 
     public UploadExtractFeatureCompareRequestHandler(
         CommandHandlerDispatcher dispatcher,
@@ -79,13 +78,12 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 cancellationToken
             );
 
-            var message = new UploadRoadNetworkChangesArchive()
+            var message = new UploadRoadNetworkChangesArchive
             {
                 ArchiveId = archiveId.ToString()
             };
 
             await _sqsQueuePublisher.CopyToQueue(SqsQueueName.FeatureCompare.RequestQueue, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
-
         }
 
         return new UploadExtractFeatureCompareResponse(archiveId);

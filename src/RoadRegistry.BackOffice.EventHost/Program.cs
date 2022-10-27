@@ -13,6 +13,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Core;
+using Extracts;
 using Framework;
 using Hosts;
 using Hosts.Configuration;
@@ -23,7 +24,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
-using RoadRegistry.BackOffice.Extracts;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
@@ -128,6 +128,12 @@ public class Program
                         }
 
                         builder
+                            .AddSingleton<IBlobClient>(sp =>
+                                new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                )
+                            )
                             .AddSingleton(sp =>
                                 new RoadNetworkUploadsBlobClient(new S3BlobClient(
                                     sp.GetRequiredService<AmazonS3Client>(),

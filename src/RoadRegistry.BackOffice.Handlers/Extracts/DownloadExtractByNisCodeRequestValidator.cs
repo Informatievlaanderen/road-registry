@@ -36,13 +36,13 @@ public sealed class DownloadExtractByNisCodeRequestValidator : AbstractValidator
         return response;
     }
 
-    private static bool BeNisCodeWithExpectedFormat(string nisCode)
-    {
-        return new Regex(@"^\d{5}$").IsMatch(nisCode);
-    }
-
     private Task<bool> BeKnownNisCode(string nisCode, CancellationToken cancellationToken)
     {
         return _editorContext.MunicipalityGeometries.AnyAsync(x => x.NisCode == nisCode, cancellationToken);
+    }
+
+    private static bool BeNisCodeWithExpectedFormat(string nisCode)
+    {
+        return new Regex(@"^\d{5}$").IsMatch(nisCode);
     }
 }

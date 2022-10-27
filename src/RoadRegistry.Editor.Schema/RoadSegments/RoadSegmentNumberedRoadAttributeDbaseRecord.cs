@@ -32,13 +32,13 @@ public class RoadSegmentNumberedRoadAttributeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 GW_OIDN { get; }
-    public DbaseInt32 WS_OIDN { get; }
-    public DbaseString IDENT8 { get; }
-    public DbaseInt32 RICHTING { get; }
-    public DbaseString LBLRICHT { get; }
-    public DbaseInt32 VOLGNUMMER { get; }
-    public DbaseDateTime BEGINTIJD { get; }
     public DbaseString BEGINORG { get; }
+    public DbaseDateTime BEGINTIJD { get; }
+    public DbaseInt32 GW_OIDN { get; }
+    public DbaseString IDENT8 { get; }
     public DbaseString LBLBGNORG { get; }
+    public DbaseString LBLRICHT { get; }
+    public DbaseInt32 RICHTING { get; }
+    public DbaseInt32 VOLGNUMMER { get; }
+    public DbaseInt32 WS_OIDN { get; }
 }

@@ -20,8 +20,8 @@ public class CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThan
     {
     }
 
+    public DownloadId DownloadId { get; }
     public ExternalExtractRequestId ExternalRequestId { get; }
     public ExtractRequestId RequestId { get; }
-    public DownloadId DownloadId { get; }
     public UploadId UploadId { get; }
 }

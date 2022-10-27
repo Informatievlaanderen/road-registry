@@ -1,3 +1,138 @@
+# [3.16.0](https://github.com/informatievlaanderen/road-registry/compare/v3.15.1...v3.16.0) (2022-10-27)
+
+
+### Bug Fixes
+
+* Add missing registrations in test startup class ([038c852](https://github.com/informatievlaanderen/road-registry/commit/038c8525e8f20b2e13e614b005ceb2c041498a3d))
+* add support for public-api debugging ([df09172](https://github.com/informatievlaanderen/road-registry/commit/df091722461f3c907e68208660279d86750b036c))
+* UI router auth check; display validation errors on upload immediately ([32bf448](https://github.com/informatievlaanderen/road-registry/commit/32bf4489279e8eb311f45de387012fee869ac355))
+
+
+### Features
+
+* Merge from main ([0728dda](https://github.com/informatievlaanderen/road-registry/commit/0728ddac4e95c262486d2fc6d6e1cfd02779d0fb))
+* Paket version update ([158c878](https://github.com/informatievlaanderen/road-registry/commit/158c878cdf3f5e5dee73fde4aedf94aa634937dd))
+* Safeguard input zip archive validation through feature toggle ([e844f2c](https://github.com/informatievlaanderen/road-registry/commit/e844f2ccec7b96d5cc7e0de9f889d7c53a9869c9))
+* Updated FluentValidation and removed deprecated test method ([32c2d8a](https://github.com/informatievlaanderen/road-registry/commit/32c2d8ab3bc298cef7f2d35ae817da3a72f88d9a))
+
+## [3.15.1](https://github.com/informatievlaanderen/road-registry/compare/v3.15.0...v3.15.1) (2022-10-26)
+
+
+### Bug Fixes
+
+* add current request info logging ([265c109](https://github.com/informatievlaanderen/road-registry/commit/265c109d42ca56081e86698685df3607229d0e41))
+
+# [3.15.0](https://github.com/informatievlaanderen/road-registry/compare/v3.14.0...v3.15.0) (2022-10-26)
+
+
+### Features
+
+* Fix inconsistent code style and document layout ([a02bc47](https://github.com/informatievlaanderen/road-registry/commit/a02bc471f93662eb06d88d9dce7d0c5eec56a99f))
+
+# [3.14.0](https://github.com/informatievlaanderen/road-registry/compare/v3.13.3...v3.14.0) (2022-10-25)
+
+
+### Bug Fixes
+
+* add missing [FromBody] attribute for validate-wkt ([c93f11c](https://github.com/informatievlaanderen/road-registry/commit/c93f11c8457bd84cad189d0217b3670427d040fb))
+* auth check on routes ([6181320](https://github.com/informatievlaanderen/road-registry/commit/6181320a34209ecba0800748f73ccfa06fa5a31f))
+* show validation msg on top of page for download extract ([fd3f56b](https://github.com/informatievlaanderen/road-registry/commit/fd3f56bddfc4621e219e22d055a22c4491f70398))
+* use FormData to upload multiple files ([155e6d5](https://github.com/informatievlaanderen/road-registry/commit/155e6d535aab171c0eb36ede8b9c115e980ee313))
+
+
+### Features
+
+* add file selection to `Download Extract` page ([b1ca0bd](https://github.com/informatievlaanderen/road-registry/commit/b1ca0bd7042e6dbfcb6275889f40cb8048f82145))
+* Add handlers and request objects for file collections ([bbf7875](https://github.com/informatievlaanderen/road-registry/commit/bbf7875b85fd2c11f1459f6b0ba1565f6064ad47))
+* Add validation for WKT ([bb7e389](https://github.com/informatievlaanderen/road-registry/commit/bb7e389960fceff8df014ab2ec862aaded5e62ea))
+* convert uploaded geometry to multipolygon ([09f14ca](https://github.com/informatievlaanderen/road-registry/commit/09f14cae8d322481925efceb54bfd6c345c46894))
+* disable submit button when api call is busy ([a4e10c3](https://github.com/informatievlaanderen/road-registry/commit/a4e10c31a251fc9788fc82a62a2887aa4ea1e405))
+* finalize tests for download extract by file ([1cd244b](https://github.com/informatievlaanderen/road-registry/commit/1cd244b35cab3997d27ac04a845e07220fc1940d))
+* Geometry translator ([4e2ff68](https://github.com/informatievlaanderen/road-registry/commit/4e2ff6843118d989c57680a72bce2c4cf8cfbba0))
+* handle validation errors for download extract; remove .shx file ([e619339](https://github.com/informatievlaanderen/road-registry/commit/e619339bde3892f1db6ea52a3c8ea9ee937ea9dc))
+* Shape file handler asynchronicity unnecessary ([c8783a9](https://github.com/informatievlaanderen/road-registry/commit/c8783a9bd0c798e39ddeea8faabb21f5b54fb6ef))
+* Update handler for shape files ([ae47f4d](https://github.com/informatievlaanderen/road-registry/commit/ae47f4dad3a45b7306d57264bc16df2742e1d52f))
+* WKT validation ([f9a736d](https://github.com/informatievlaanderen/road-registry/commit/f9a736ddc479e3a6a00cc2c669827d0d1b36b68b))
+
+## [3.13.3](https://github.com/informatievlaanderen/road-registry/compare/v3.13.2...v3.13.3) (2022-10-21)
+
+
+### Bug Fixes
+
+* remove api_key from env; remove .map files on build ([4bc218c](https://github.com/informatievlaanderen/road-registry/commit/4bc218cb92f32bb535e19f57b9c2addaca34dbdb))
+
+## [3.13.2](https://github.com/informatievlaanderen/road-registry/compare/v3.13.1...v3.13.2) (2022-10-20)
+
+
+### Bug Fixes
+
+* add missing IBlobClient registration when using S3BlobClient ([7bdf81b](https://github.com/informatievlaanderen/road-registry/commit/7bdf81b559a8f1bc3ea5f5762da85f2557c08484))
+
+## [3.13.1](https://github.com/informatievlaanderen/road-registry/compare/v3.13.0...v3.13.1) (2022-10-19)
+
+
+### Bug Fixes
+
+* add testje.yml ([0bdb7f7](https://github.com/informatievlaanderen/road-registry/commit/0bdb7f74ef47450842ab6a5433f6e4428267cea1))
+* csproj file cleanup ([b7256c7](https://github.com/informatievlaanderen/road-registry/commit/b7256c7a8db8b04c60933dc62de2ea09168e8976))
+* Incorrect blob client ([d558b85](https://github.com/informatievlaanderen/road-registry/commit/d558b85de506454b6e39135da7d00174ac604ae4))
+* services indentation ([4a9a6cc](https://github.com/informatievlaanderen/road-registry/commit/4a9a6ccf977c5e21d7f2637cca17be569d64d68b))
+* testje workflow name ([2b79bbf](https://github.com/informatievlaanderen/road-registry/commit/2b79bbfda1c4da8e93a7af39bf3a3db7facd5a7f))
+
+# [3.13.0](https://github.com/informatievlaanderen/road-registry/compare/v3.12.1...v3.13.0) (2022-10-19)
+
+
+### Bug Fixes
+
+* assert correct response for test; remove gitignored xml files ([7b543b7](https://github.com/informatievlaanderen/road-registry/commit/7b543b71bea02ca850bd0732cf04453a5d0b3446))
+* Build warning cleanup; File layout refactoring ([7ba86e3](https://github.com/informatievlaanderen/road-registry/commit/7ba86e34fff67d43eac41bfa7ad7d1b9ff1b07b4))
+* conform to Serializable pattern ([883587b](https://github.com/informatievlaanderen/road-registry/commit/883587bb16e288e62416b80c7c73e0ece78272f4))
+* fix corrupt previous merge ([13dd7fb](https://github.com/informatievlaanderen/road-registry/commit/13dd7fbdd3f2a9f7f72b7ee4384114d455a70285))
+* return Retry-After header also when successful ([f94cab2](https://github.com/informatievlaanderen/road-registry/commit/f94cab2996c0323e5dd8bda4ff37763dc4eb5d40))
+* Upload test file incorrect merge ([1e64778](https://github.com/informatievlaanderen/road-registry/commit/1e64778eb2ebce377b93f7c1f71c8fb96e0affad))
+* use existing response classes with ID properties as strings ([af399d3](https://github.com/informatievlaanderen/road-registry/commit/af399d34307f61950ce4c3f88fdca317274a9674))
+
+
+### Features
+
+* Add api key authentication through attributes ([ea14b10](https://github.com/informatievlaanderen/road-registry/commit/ea14b10c5ee64811bce0ea65c41c54f44332fb46))
+* Remove user secrets id ([bd739d4](https://github.com/informatievlaanderen/road-registry/commit/bd739d44176a97704cf12c32515c664674ef8c2c))
+
+## [3.12.1](https://github.com/informatievlaanderen/road-registry/compare/v3.12.0...v3.12.1) (2022-10-17)
+
+
+### Bug Fixes
+
+* new release ([103f408](https://github.com/informatievlaanderen/road-registry/commit/103f408deb67252fec56802b7595bbba03e93dc9))
+
+# [3.12.0](https://github.com/informatievlaanderen/road-registry/compare/v3.11.0...v3.12.0) (2022-10-17)
+
+
+### Bug Fixes
+
+* include solution name in build.yml ([9470f0b](https://github.com/informatievlaanderen/road-registry/commit/9470f0b8a0766cb67e22bbb54d3d37d43a1ff3c5))
+* make DownloadEditorNotFoundException conform to serialiizable pattern ([6bb01b0](https://github.com/informatievlaanderen/road-registry/commit/6bb01b0b29ba3a13c51102b7a82ff0e755c34919))
+* remove ConvexPolygon for finding integrationdata for extract, use buffer on each underlying polygon of the contour ([dcb1f8d](https://github.com/informatievlaanderen/road-registry/commit/dcb1f8d435109191c35dcc2bb84280613c8b87b8))
+* skip test ([d534fb4](https://github.com/informatievlaanderen/road-registry/commit/d534fb42b0dd0abb795f77779c1a2f83639619ed))
+* skip test for live debugging ([4fa8457](https://github.com/informatievlaanderen/road-registry/commit/4fa84576e1456c96eb55af60df7eb3770162cf71))
+* skip test for live debugging purposes ([78676a8](https://github.com/informatievlaanderen/road-registry/commit/78676a8e08c903639335e7aabf4a44a4de67fb3d))
+
+
+### Features
+
+* add featuretoggle for FeatureCompare upload endpoint ([6ca59ae](https://github.com/informatievlaanderen/road-registry/commit/6ca59ae8071fa854ffe4ddac43be51ef860ea2b2))
+* Performance improvement for query ([4c90b0e](https://github.com/informatievlaanderen/road-registry/commit/4c90b0ef546e412b9c1a297168ccb32470bee034))
+* UI terug naar originele post-FC endpoint laten kijken + removal VUE_APP_API_KEY from env files ([61412f9](https://github.com/informatievlaanderen/road-registry/commit/61412f95b35e8d671e82974ba177c49aab482df5))
+
+# [3.11.0](https://github.com/informatievlaanderen/road-registry/compare/v3.10.2...v3.11.0) (2022-10-07)
+
+
+### Features
+
+* fix tests for restored upload fc endpoint ([4c86c50](https://github.com/informatievlaanderen/road-registry/commit/4c86c507c1df0b6d7838aab4f1a8fd717d84229b))
+* fix upload after fc endpoint to accept zip files ([f522712](https://github.com/informatievlaanderen/road-registry/commit/f5227120327af28b2dcc0f1caf179d7ab89d0227))
+* restore endpoint upload zip after featurecompare ([5098896](https://github.com/informatievlaanderen/road-registry/commit/509889699b05b4031bcd0e35d13bce142228f5b0))
+
 ## [3.10.2](https://github.com/informatievlaanderen/road-registry/compare/v3.10.1...v3.10.2) (2022-10-04)
 
 

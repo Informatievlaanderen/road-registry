@@ -1,16 +1,15 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Abstractions.FeatureCompare;
 using Configuration;
 using Exceptions;
 using MediatR;
 using Messages;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Abstractions.FeatureCompare;
 
 public class FeatureCompareMessageResponseConsumer : BackgroundService
 {
@@ -37,21 +36,21 @@ public class FeatureCompareMessageResponseConsumer : BackgroundService
         {
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
-            await _sqsConsumer.Consume(_messagingOptions.ResponseQueueUrl, async (message) =>
+            await _sqsConsumer.Consume(_messagingOptions.ResponseQueueUrl, async message =>
             {
                 switch (message)
                 {
                     case UploadRoadNetworkChangesArchive uploadRoadNetworkChangesArchive:
-                        {
-                            var request = new FeatureCompareMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
-                            await _mediator.Send(request, cancellationToken);
-                        }
+                    {
+                        var request = new FeatureCompareMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
+                        await _mediator.Send(request, cancellationToken);
+                    }
                         break;
                     case UploadRoadNetworkExtractChangesArchive uploadRoadNetworkExtractChangesArchive:
-                        {
-                            var request = new FeatureCompareMessageRequest(uploadRoadNetworkExtractChangesArchive.ArchiveId);
-                            await _mediator.Send(request, cancellationToken);
-                        }
+                    {
+                        var request = new FeatureCompareMessageRequest(uploadRoadNetworkExtractChangesArchive.ArchiveId);
+                        await _mediator.Send(request, cancellationToken);
+                    }
                         break;
                     default:
                         throw new UnknownSqsMessageTypeException($"Unhandled message type '{message.GetType()}' found on queue '{_messagingOptions.ResponseQueueName}'", message.GetType().FullName);

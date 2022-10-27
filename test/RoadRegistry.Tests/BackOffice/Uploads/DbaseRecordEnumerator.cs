@@ -17,6 +17,15 @@ public class DbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbase
         _state = State.Initial;
     }
 
+    public TDbaseRecord Current => _enumerator.Current;
+    object IEnumerator.Current => Current;
+    public RecordNumber CurrentRecordNumber => _number;
+
+    public void Dispose()
+    {
+        _enumerator.Dispose();
+    }
+
     public bool MoveNext()
     {
         if (_state == State.Ended) return false;
@@ -43,20 +52,9 @@ public class DbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbase
         return false;
     }
 
-    public RecordNumber CurrentRecordNumber => _number;
-
     public void Reset()
     {
         _enumerator.Reset();
-    }
-
-    public TDbaseRecord Current => _enumerator.Current;
-
-    object IEnumerator.Current => Current;
-
-    public void Dispose()
-    {
-        _enumerator.Dispose();
     }
 
     private enum State

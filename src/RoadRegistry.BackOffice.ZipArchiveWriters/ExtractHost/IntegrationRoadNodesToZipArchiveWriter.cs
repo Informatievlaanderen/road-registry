@@ -3,11 +3,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
 using Editor.Schema.RoadNodes;
+using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 
@@ -33,19 +32,18 @@ public class IntegrationRoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorCo
         const int integrationBufferInMeters = 350;
 
         var nodesInContour = await context.RoadNodes
-            .InsideContour(request.Contour)
-            .ToListAsync(cancellationToken);
-        var geometryForNodesInContour = GeometryConfiguration.GeometryFactory
-            .BuildGeometry(nodesInContour.Select(node => node.Geometry));
-
-        var boundaryForNodes = geometryForNodesInContour.ConvexHull();
-        var boundaryWithIntegrationBuffer = boundaryForNodes.Buffer(integrationBufferInMeters);
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour(polygon),
+                x => x.Id,
+                cancellationToken);
 
         var nodesInIntegrationBuffer = await context.RoadNodes
-            .InsideContour(boundaryWithIntegrationBuffer as IPolygonal)
-            .ToListAsync(cancellationToken);
-        var integrationNodes = nodesInIntegrationBuffer.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour((IPolygonal)((Geometry)polygon).Buffer(integrationBufferInMeters)),
+                x => x.Id,
+                cancellationToken);
 
+        var integrationNodes = nodesInIntegrationBuffer.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
 
         var dbfEntry = archive.CreateEntry("iWegknoop.dbf");
         var dbfHeader = new DbaseFileHeader(

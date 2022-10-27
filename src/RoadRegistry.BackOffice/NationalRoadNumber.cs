@@ -7,7 +7,6 @@ public readonly struct NationalRoadNumber : IEquatable<NationalRoadNumber>
 {
     public const int MinimumLength = 2;
     public const int MaximumLength = 5;
-
     private readonly char[] _value;
 
     private NationalRoadNumber(char[] value)

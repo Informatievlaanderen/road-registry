@@ -12,8 +12,8 @@ public class RemoveRoadSegment : ITranslatedChange
         Id = id;
     }
 
-    public RecordNumber RecordNumber { get; }
     public RoadSegmentId Id { get; }
+    public RecordNumber RecordNumber { get; }
 
     public void TranslateTo(RequestedChange message)
     {

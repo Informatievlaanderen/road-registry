@@ -7,47 +7,38 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.Syndication.Schema;
+using Syndication.Schema;
 using Xunit.Sdk;
 
 public static class SyndicationContextScenarioExtensions
 {
-    public static ConnectedProjectionScenario<SyndicationContext> Scenario(this ConnectedProjection<SyndicationContext> projection)
+    private static async Task<object[]> AllRecords(this SyndicationContext context)
     {
-        return new ConnectedProjectionScenario<SyndicationContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        var records = new List<object>();
+        records.AddRange(await context.Municipalities.ToArrayAsync());
+        records.AddRange(await context.StreetNames.ToArrayAsync());
+        return records.ToArray();
     }
 
-    public static async Task ExpectNone(this ConnectedProjectionScenario<SyndicationContext> scenario)
+    private static SyndicationContext CreateContextFor(string database)
     {
-        var database = Guid.NewGuid().ToString("N");
+        var options = new DbContextOptionsBuilder<SyndicationContext>()
+            .UseInMemoryDatabase(database)
+            .EnableSensitiveDataLogging()
+            .Options;
 
-        var specification = scenario.Verify(async context =>
-        {
-            var actualRecords = await context.AllRecords();
-            return actualRecords.Length == 0
-                ? VerificationResult.Pass()
-                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
-        });
+        return new SyndicationContext(options);
+    }
 
-        await using (var context = CreateContextFor(database))
-        {
-            var projector = new ConnectedProjector<SyndicationContext>(specification.Resolver);
-            foreach (var message in specification.Messages)
-            {
-                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
-                await projector.ProjectAsync(context, envelope);
-            }
+    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<SyndicationContext> specification, VerificationResult result)
+    {
+        var title = string.Empty;
+        var exceptionMessage = new StringBuilder()
+            .AppendLine(title)
+            .AppendTitleBlock("Given", specification.Messages, Formatters.NamedJsonMessage)
+            .Append(result.Message);
 
-            await context.SaveChangesAsync();
-        }
-
-        await using (var context = CreateContextFor(database))
-        {
-            var result = await specification.Verification(context, CancellationToken.None);
-
-            if (result.Failed)
-                throw specification.CreateFailedScenarioExceptionFor(result);
-        }
+        return new XunitException(exceptionMessage.ToString());
     }
 
     public static Task Expect(
@@ -108,32 +99,41 @@ public static class SyndicationContextScenarioExtensions
         }
     }
 
-    private static async Task<object[]> AllRecords(this SyndicationContext context)
+    public static async Task ExpectNone(this ConnectedProjectionScenario<SyndicationContext> scenario)
     {
-        var records = new List<object>();
-        records.AddRange(await context.Municipalities.ToArrayAsync());
-        records.AddRange(await context.StreetNames.ToArrayAsync());
-        return records.ToArray();
+        var database = Guid.NewGuid().ToString("N");
+
+        var specification = scenario.Verify(async context =>
+        {
+            var actualRecords = await context.AllRecords();
+            return actualRecords.Length == 0
+                ? VerificationResult.Pass()
+                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
+        });
+
+        await using (var context = CreateContextFor(database))
+        {
+            var projector = new ConnectedProjector<SyndicationContext>(specification.Resolver);
+            foreach (var message in specification.Messages)
+            {
+                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
+                await projector.ProjectAsync(context, envelope);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = CreateContextFor(database))
+        {
+            var result = await specification.Verification(context, CancellationToken.None);
+
+            if (result.Failed)
+                throw specification.CreateFailedScenarioExceptionFor(result);
+        }
     }
 
-    private static SyndicationContext CreateContextFor(string database)
+    public static ConnectedProjectionScenario<SyndicationContext> Scenario(this ConnectedProjection<SyndicationContext> projection)
     {
-        var options = new DbContextOptionsBuilder<SyndicationContext>()
-            .UseInMemoryDatabase(database)
-            .EnableSensitiveDataLogging()
-            .Options;
-
-        return new SyndicationContext(options);
-    }
-
-    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<SyndicationContext> specification, VerificationResult result)
-    {
-        var title = string.Empty;
-        var exceptionMessage = new StringBuilder()
-            .AppendLine(title)
-            .AppendTitleBlock("Given", specification.Messages, Formatters.NamedJsonMessage)
-            .Append(result.Message);
-
-        return new XunitException(exceptionMessage.ToString());
+        return new ConnectedProjectionScenario<SyndicationContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
 }

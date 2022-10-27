@@ -20,7 +20,7 @@ public class RoadSegmentAccessRestrictionDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 TYPE { get; }
-    public DbaseString LBLTYPE { get; }
     public DbaseString DEFTYPE { get; }
+    public DbaseString LBLTYPE { get; }
+    public DbaseInt32 TYPE { get; }
 }

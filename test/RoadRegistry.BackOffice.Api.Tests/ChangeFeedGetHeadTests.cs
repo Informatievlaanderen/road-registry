@@ -25,90 +25,6 @@ public class ChangeFeedGetHeadTests
     }
 
     [Fact]
-    public async Task When_downloading_head_changes_without_specifying_a_max_entry_count()
-    {
-        var controller = new ChangeFeedController
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            }
-        };
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
-        {
-            try
-            {
-                await controller.GetHead(new string[] { }, context);
-                throw new XunitException("Expected a validation exception but did not receive any");
-            }
-            catch (ValidationException exception)
-            {
-                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
-            }
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_head_changes_with_too_many_max_entry_counts_specified()
-    {
-        var controller = new ChangeFeedController
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    Request =
-                    {
-                        QueryString = new QueryString("?maxEntryCount=5&maxEntryCount=10")
-                    }
-                }
-            }
-        };
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
-        {
-            try
-            {
-                await controller.GetHead(new[] { "5", "10" }, context);
-                throw new XunitException("Expected a validation exception but did not receive any");
-            }
-            catch (ValidationException exception)
-            {
-                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
-            }
-        }
-    }
-
-    [Fact]
-    public async Task When_downloading_head_changes_with_a_max_entry_count_that_is_not_an_integer()
-    {
-        var controller = new ChangeFeedController
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    Request =
-                    {
-                        QueryString = new QueryString("?maxEntryCount=abc")
-                    }
-                }
-            }
-        };
-        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
-        {
-            try
-            {
-                await controller.GetHead(new[] { "abc" }, context);
-                throw new XunitException("Expected a validation exception but did not receive any");
-            }
-            catch (ValidationException exception)
-            {
-                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
-            }
-        }
-    }
-
-    [Fact]
     public async Task When_downloading_head_changes_of_an_empty_registry()
     {
         var controller = new ChangeFeedController
@@ -184,6 +100,90 @@ public class ChangeFeedGetHeadTests
             // YR: Different versions of libicu use different casing
             Assert.Equal("jan.", item.Month.ToLowerInvariant());
             Assert.Equal("01:00", item.TimeOfDay);
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_head_changes_with_a_max_entry_count_that_is_not_an_integer()
+    {
+        var controller = new ChangeFeedController
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Request =
+                    {
+                        QueryString = new QueryString("?maxEntryCount=abc")
+                    }
+                }
+            }
+        };
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        {
+            try
+            {
+                await controller.GetHead(new[] { "abc" }, context);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException exception)
+            {
+                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter value must be an integer.") });
+            }
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_head_changes_with_too_many_max_entry_counts_specified()
+    {
+        var controller = new ChangeFeedController
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    Request =
+                    {
+                        QueryString = new QueryString("?maxEntryCount=5&maxEntryCount=10")
+                    }
+                }
+            }
+        };
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        {
+            try
+            {
+                await controller.GetHead(new[] { "5", "10" }, context);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException exception)
+            {
+                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter requires exactly 1 value.") });
+            }
+        }
+    }
+
+    [Fact]
+    public async Task When_downloading_head_changes_without_specifying_a_max_entry_count()
+    {
+        var controller = new ChangeFeedController
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+        await using (var context = await _fixture.CreateEmptyEditorContextAsync(await _fixture.CreateDatabaseAsync()))
+        {
+            try
+            {
+                await controller.GetHead(new string[] { }, context);
+                throw new XunitException("Expected a validation exception but did not receive any");
+            }
+            catch (ValidationException exception)
+            {
+                exception.Errors.Should().BeEquivalentTo(new List<ValidationFailure> { new("MaxEntryCount", "MaxEntryCount query string parameter is missing.") });
+            }
         }
     }
 }

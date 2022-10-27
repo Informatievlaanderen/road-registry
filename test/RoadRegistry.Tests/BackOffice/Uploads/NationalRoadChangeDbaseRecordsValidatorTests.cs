@@ -88,6 +88,12 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
+    public void ValidateContextCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void ValidateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
@@ -97,12 +103,6 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
     public void ValidateRecordsCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
-    }
-
-    [Fact]
-    public void ValidateContextCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
     }
 
     [Fact]
@@ -117,22 +117,35 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithValidRecordsReturnsExpectedResult()
+    public void ValidateWithProblematicRecordsReturnsExpectedResult()
     {
         var records = _fixture
-            .CreateMany<NationalRoadChangeDbaseRecord>(new Random().Next(1, 5))
-            .Select((record, index) =>
-            {
-                record.NW_OIDN.Value = index + 1;
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
+            .CreateMany<NationalRoadChangeDbaseRecord>(2)
+            .ToArray();
+        var exception = new Exception("problem");
+        var enumerator = new ProblematicDbaseRecordEnumerator<NationalRoadChangeDbaseRecord>(records, 1, exception);
+
+        var (result, context) = _sut.Validate(_entry, enumerator, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)),
+            result,
+            new FileProblemComparer());
+        Assert.Same(_context, context);
+    }
+
+    [Theory]
+    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+        Action<NationalRoadChangeDbaseRecord> modifier, DbaseField field)
+    {
+        var record = _fixture.Create<NationalRoadChangeDbaseRecord>();
+        modifier(record);
+        var records = new[] { record }.ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, _context);
 
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
+        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
         Assert.Same(_context, context);
     }
 
@@ -161,6 +174,58 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
                     .RecordTypeMismatch(-1)
             ),
             result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierAndHaveAddedAndRemovedAsRecordTypeReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<NationalRoadChangeDbaseRecord>(2)
+            .Select((record, index) =>
+            {
+                record.NW_OIDN.Value = 1;
+                if (index == 0)
+                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.None,
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierButNotRecordTypeAddedReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<NationalRoadChangeDbaseRecord>(2)
+            .Select((record, index) =>
+            {
+                record.NW_OIDN.Value = 1;
+                switch (index % 2)
+                {
+                    case 0:
+                        record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
+                        break;
+                    case 1:
+                        record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                        break;
+                }
+
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(ZipArchiveProblems.None, result);
         Assert.Same(_context, context);
     }
 
@@ -200,58 +265,6 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierButNotRecordTypeAddedReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<NationalRoadChangeDbaseRecord>(2)
-            .Select((record, index) =>
-            {
-                record.NW_OIDN.Value = 1;
-                switch (index % 2)
-                {
-                    case 0:
-                        record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
-                        break;
-                    case 1:
-                        record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
-                        break;
-                }
-
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(ZipArchiveProblems.None, result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierAndHaveAddedAndRemovedAsRecordTypeReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<NationalRoadChangeDbaseRecord>(2)
-            .Select((record, index) =>
-            {
-                record.NW_OIDN.Value = 1;
-                if (index == 0)
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
-
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
     public void ValidateWithRecordsThatHaveZeroAsAttributeIdentifierReturnsExpectedResult()
     {
         var records = _fixture
@@ -274,36 +287,18 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Same(_context, context);
     }
 
-    [Theory]
-    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
-    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
-        Action<NationalRoadChangeDbaseRecord> modifier, DbaseField field)
+    [Fact]
+    public void ValidateWithRecordThatHasInvalidNationalRoadNumberReturnsExpectedResult()
     {
         var record = _fixture.Create<NationalRoadChangeDbaseRecord>();
-        modifier(record);
+        record.IDENT2.Value = "-1";
         var records = new[] { record }.ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, _context);
 
-        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithProblematicRecordsReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<NationalRoadChangeDbaseRecord>(2)
-            .ToArray();
-        var exception = new Exception("problem");
-        var enumerator = new ProblematicDbaseRecordEnumerator<NationalRoadChangeDbaseRecord>(records, 1, exception);
-
-        var (result, context) = _sut.Validate(_entry, enumerator, _context);
-
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)),
-            result,
-            new FileProblemComparer());
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).NotNationalRoadNumber("-1")),
+            result);
         Assert.Same(_context, context);
     }
 
@@ -323,16 +318,21 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithRecordThatHasInvalidNationalRoadNumberReturnsExpectedResult()
+    public void ValidateWithValidRecordsReturnsExpectedResult()
     {
-        var record = _fixture.Create<NationalRoadChangeDbaseRecord>();
-        record.IDENT2.Value = "-1";
-        var records = new[] { record }.ToDbaseRecordEnumerator();
+        var records = _fixture
+            .CreateMany<NationalRoadChangeDbaseRecord>(new Random().Next(1, 5))
+            .Select((record, index) =>
+            {
+                record.NW_OIDN.Value = index + 1;
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).NotNationalRoadNumber("-1")),
+            ZipArchiveProblems.None,
             result);
         Assert.Same(_context, context);
     }

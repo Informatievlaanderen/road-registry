@@ -6,7 +6,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.Product.Schema;
+using Product.Schema;
 using Xunit.Sdk;
 
 internal class MemoryProductContext : ProductContext
@@ -54,42 +54,42 @@ internal class MemoryProductContext : ProductContext
 
 public static class ProductContextScenarioExtensions
 {
-    public static ConnectedProjectionScenario<ProductContext> Scenario(this ConnectedProjection<ProductContext> projection)
+    private static async Task<object[]> AllRecords(this ProductContext context)
     {
-        return new ConnectedProjectionScenario<ProductContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        var records = new List<object>();
+        records.AddRange(await context.RoadNodes.ToArrayAsync());
+        records.AddRange(await context.RoadSegments.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentLaneAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentWidthAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentSurfaceAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentEuropeanRoadAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentNationalRoadAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentNumberedRoadAttributes.ToArrayAsync());
+        records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
+        records.AddRange(await context.Organizations.ToArrayAsync());
+        records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
+        return records.ToArray();
     }
 
-    public static async Task ExpectNone(this ConnectedProjectionScenario<ProductContext> scenario)
+    private static ProductContext CreateContextFor(string database)
     {
-        var database = Guid.NewGuid().ToString("N");
+        var options = new DbContextOptionsBuilder<ProductContext>()
+            .UseInMemoryDatabase(database)
+            .EnableSensitiveDataLogging()
+            .Options;
 
-        var specification = scenario.Verify(async context =>
-        {
-            var actualRecords = await context.AllRecords();
-            return actualRecords.Length == 0
-                ? VerificationResult.Pass()
-                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
-        });
+        return new MemoryProductContext(options);
+    }
 
-        await using (var context = CreateContextFor(database))
-        {
-            var projector = new ConnectedProjector<ProductContext>(specification.Resolver);
-            foreach (var message in specification.Messages)
-            {
-                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
-                await projector.ProjectAsync(context, envelope);
-            }
+    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<ProductContext> specification, VerificationResult result)
+    {
+        var title = string.Empty;
+        var exceptionMessage = new StringBuilder()
+            .AppendLine(title)
+            .AppendTitleBlock("Given", specification.Messages, Formatters.NamedJsonMessage)
+            .Append(result.Message);
 
-            await context.SaveChangesAsync();
-        }
-
-        await using (var context = CreateContextFor(database))
-        {
-            var result = await specification.Verification(context, CancellationToken.None);
-
-            if (result.Failed)
-                throw specification.CreateFailedScenarioExceptionFor(result);
-        }
+        return new XunitException(exceptionMessage.ToString());
     }
 
     public static Task Expect(
@@ -194,41 +194,41 @@ public static class ProductContextScenarioExtensions
         }
     }
 
-    private static async Task<object[]> AllRecords(this ProductContext context)
+    public static async Task ExpectNone(this ConnectedProjectionScenario<ProductContext> scenario)
     {
-        var records = new List<object>();
-        records.AddRange(await context.RoadNodes.ToArrayAsync());
-        records.AddRange(await context.RoadSegments.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentLaneAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentWidthAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentSurfaceAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentEuropeanRoadAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentNationalRoadAttributes.ToArrayAsync());
-        records.AddRange(await context.RoadSegmentNumberedRoadAttributes.ToArrayAsync());
-        records.AddRange(await context.GradeSeparatedJunctions.ToArrayAsync());
-        records.AddRange(await context.Organizations.ToArrayAsync());
-        records.AddRange(await context.RoadNetworkInfo.ToArrayAsync());
-        return records.ToArray();
+        var database = Guid.NewGuid().ToString("N");
+
+        var specification = scenario.Verify(async context =>
+        {
+            var actualRecords = await context.AllRecords();
+            return actualRecords.Length == 0
+                ? VerificationResult.Pass()
+                : VerificationResult.Fail($"Expected 0 records but found {actualRecords.Length}.");
+        });
+
+        await using (var context = CreateContextFor(database))
+        {
+            var projector = new ConnectedProjector<ProductContext>(specification.Resolver);
+            foreach (var message in specification.Messages)
+            {
+                var envelope = new Envelope(message, new Dictionary<string, object>()).ToGenericEnvelope();
+                await projector.ProjectAsync(context, envelope);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+        await using (var context = CreateContextFor(database))
+        {
+            var result = await specification.Verification(context, CancellationToken.None);
+
+            if (result.Failed)
+                throw specification.CreateFailedScenarioExceptionFor(result);
+        }
     }
 
-    private static ProductContext CreateContextFor(string database)
+    public static ConnectedProjectionScenario<ProductContext> Scenario(this ConnectedProjection<ProductContext> projection)
     {
-        var options = new DbContextOptionsBuilder<ProductContext>()
-            .UseInMemoryDatabase(database)
-            .EnableSensitiveDataLogging()
-            .Options;
-
-        return new MemoryProductContext(options);
-    }
-
-    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<ProductContext> specification, VerificationResult result)
-    {
-        var title = string.Empty;
-        var exceptionMessage = new StringBuilder()
-            .AppendLine(title)
-            .AppendTitleBlock("Given", specification.Messages, Formatters.NamedJsonMessage)
-            .Append(result.Message);
-
-        return new XunitException(exceptionMessage.ToString());
+        return new ConnectedProjectionScenario<ProductContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
 }

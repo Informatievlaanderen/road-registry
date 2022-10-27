@@ -22,19 +22,16 @@ using SqlStreamStore.Subscriptions;
 public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     where TDbContext : RunnerDbContext<TDbContext>
 {
-    private const int CatchUpThreshold = 1000;
     private const int CatchUpBatchSize = 5000;
+    private const int CatchUpThreshold = 1000;
     private const int RecordPositionThreshold = 1000;
-    public static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
-
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
+    public static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     private readonly ILogger<DbContextEventProcessor<TDbContext>> _logger;
-
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
-
     private readonly Scheduler _scheduler;
 
     protected DbContextEventProcessor(
@@ -354,10 +351,6 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                    || dropped.Exception is IOException { InnerException: SqlException { Number: timeout } });
     }
 
-    private sealed class Resume
-    {
-    }
-
     private sealed class CatchUp
     {
         public CatchUp(long? afterPosition, int batchSize)
@@ -370,28 +363,6 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         public int BatchSize { get; }
     }
 
-    private sealed class Subscribe
-    {
-        public Subscribe(long? afterPosition)
-        {
-            AfterPosition = afterPosition;
-        }
-
-        public long? AfterPosition { get; }
-    }
-
-    private sealed class SubscriptionDropped
-    {
-        public SubscriptionDropped(SubscriptionDroppedReason reason, Exception exception)
-        {
-            Reason = reason;
-            Exception = exception;
-        }
-
-        public SubscriptionDroppedReason Reason { get; }
-        public Exception Exception { get; }
-    }
-
     private sealed class ProcessStreamMessage
     {
         private readonly TaskCompletionSource<object> _source;
@@ -402,9 +373,8 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
             _source = new TaskCompletionSource<object>();
         }
 
-        public StreamMessage Message { get; }
-
         public Task Completion => _source.Task;
+        public StreamMessage Message { get; }
 
         public void Complete()
         {
@@ -425,5 +395,31 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         }
 
         public StreamMessage Message { get; }
+    }
+
+    private sealed class Resume
+    {
+    }
+
+    private sealed class Subscribe
+    {
+        public Subscribe(long? afterPosition)
+        {
+            AfterPosition = afterPosition;
+        }
+
+        public long? AfterPosition { get; }
+    }
+
+    private sealed class SubscriptionDropped
+    {
+        public SubscriptionDropped(SubscriptionDroppedReason reason, Exception exception)
+        {
+            Reason = reason;
+            Exception = exception;
+        }
+
+        public Exception Exception { get; }
+        public SubscriptionDroppedReason Reason { get; }
     }
 }

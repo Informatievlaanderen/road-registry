@@ -7,7 +7,6 @@ using Core;
 using Framework.Containers;
 using Product.Schema;
 using Product.Schema.Organizations;
-using Xunit;
 using ZipArchiveWriters.ForProduct;
 
 [Collection(nameof(SqlServerCollection))]

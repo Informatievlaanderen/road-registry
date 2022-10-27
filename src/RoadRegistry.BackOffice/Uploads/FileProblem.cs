@@ -15,9 +15,8 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
     }
 
     public string File { get; }
-    public string Reason { get; }
-
     public IReadOnlyCollection<ProblemParameter> Parameters { get; }
+    public string Reason { get; }
 
     public bool Equals(FileProblem x, FileProblem y)
     {
@@ -34,17 +33,17 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
                && Equals(x.Parameters, y.Parameters);
     }
 
-    public int GetHashCode(FileProblem obj)
-    {
-        return HashCode.Combine(obj.File, obj.Reason, obj.Parameters);
-    }
-
     public virtual bool Equals(FileProblem other)
     {
         return other != null
                && string.Equals(File, other.File, StringComparison.InvariantCultureIgnoreCase)
                && string.Equals(Reason, other.Reason)
                && Parameters.SequenceEqual(other.Parameters);
+    }
+
+    public int GetHashCode(FileProblem obj)
+    {
+        return HashCode.Combine(obj.File, obj.Reason, obj.Parameters);
     }
 
     public override bool Equals(object obj)

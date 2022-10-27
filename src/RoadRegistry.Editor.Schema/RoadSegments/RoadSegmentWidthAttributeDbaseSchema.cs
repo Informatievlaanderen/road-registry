@@ -59,13 +59,13 @@ public class RoadSegmentWidthAttributeDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField WB_OIDN => Fields[0];
-    public DbaseField WS_OIDN => Fields[1];
-    public DbaseField WS_GIDN => Fields[2];
-    public DbaseField BREEDTE => Fields[3];
-    public DbaseField VANPOS => Fields[4];
-    public DbaseField TOTPOS => Fields[5];
-    public DbaseField BEGINTIJD => Fields[6];
     public DbaseField BEGINORG => Fields[7];
+    public DbaseField BEGINTIJD => Fields[6];
+    public DbaseField BREEDTE => Fields[3];
     public DbaseField LBLBGNORG => Fields[8];
+    public DbaseField TOTPOS => Fields[5];
+    public DbaseField VANPOS => Fields[4];
+    public DbaseField WB_OIDN => Fields[0];
+    public DbaseField WS_GIDN => Fields[2];
+    public DbaseField WS_OIDN => Fields[1];
 }

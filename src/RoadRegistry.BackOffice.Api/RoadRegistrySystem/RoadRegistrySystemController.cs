@@ -4,13 +4,16 @@ using System.Threading.Tasks;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Api;
 using FluentValidation;
-using Hosts;
+using Infrastructure;
+using Infrastructure.Controllers.Attributes;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
 using SqlStreamStore;
 
-[ApiVersion("1.0")]
+[ApiVersion(Version.Current)]
+[AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("system")]
+[ApiKeyAuth("Road")]
 public class RoadRegistrySystemController : ControllerBase
 {
     private readonly IValidator<RebuildSnapshotParameters> _rebuildSnapshotParametersValidator;

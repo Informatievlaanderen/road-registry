@@ -12,8 +12,8 @@ public class RemoveGradeSeparatedJunction : ITranslatedChange
         Id = id;
     }
 
-    public RecordNumber RecordNumber { get; }
     public GradeSeparatedJunctionId Id { get; }
+    public RecordNumber RecordNumber { get; }
 
     public void TranslateTo(RequestedChange message)
     {

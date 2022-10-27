@@ -8,6 +8,6 @@ public class ScenarioExpectedEventsButThrewException
         Actual = actual ?? throw new ArgumentNullException(nameof(actual));
     }
 
-    public ExpectEventsScenario Scenario { get; }
     public Exception Actual { get; }
+    public ExpectEventsScenario Scenario { get; }
 }

@@ -70,16 +70,6 @@ public class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>
         throw new NotImplementedException($"No equality impelemented for {x.GetType().FullName}");
     }
 
-    private static int GetValuesHash(DbaseFieldValue[] values)
-    {
-        if (null == values || 0 == values.Length)
-            return 0;
-
-        return values
-            .Select(GetHashCode)
-            .Aggregate((i, j) => { return i ^ j; });
-    }
-
     private static int GetHashCode(DbaseFieldValue fieldValue)
     {
         if (null == fieldValue)
@@ -109,5 +99,15 @@ public class DbaseRecordComparer<TDbaseRecord> : IEqualityComparer<TDbaseRecord>
             return CreateFieldHashForValue(dbaseString.Value);
 
         throw new NotImplementedException($"No GetHashCode implementation for {fieldValue.GetType().FullName}");
+    }
+
+    private static int GetValuesHash(DbaseFieldValue[] values)
+    {
+        if (null == values || 0 == values.Length)
+            return 0;
+
+        return values
+            .Select(GetHashCode)
+            .Aggregate((i, j) => { return i ^ j; });
     }
 }

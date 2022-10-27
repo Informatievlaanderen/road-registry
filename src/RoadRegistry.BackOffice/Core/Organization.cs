@@ -15,13 +15,6 @@ public class Organization : EventSourcedEntity
 
     public DutchTranslation Translation { get; private set; }
 
-    public static class PredefinedTranslations
-    {
-        public static readonly DutchTranslation Other = new(OrganizationId.Other, new OrganizationName("andere"));
-        public static readonly DutchTranslation Unknown = new(OrganizationId.Unknown, new OrganizationName("niet gekend"));
-        public static readonly DutchTranslation[] All = { Other, Unknown };
-    }
-
     public class DutchTranslation
     {
         internal DutchTranslation(OrganizationId identifier, OrganizationName name)
@@ -32,5 +25,12 @@ public class Organization : EventSourcedEntity
 
         public OrganizationId Identifier { get; }
         public OrganizationName Name { get; }
+    }
+
+    public static class PredefinedTranslations
+    {
+        public static readonly DutchTranslation Other = new(OrganizationId.Other, new OrganizationName("andere"));
+        public static readonly DutchTranslation Unknown = new(OrganizationId.Unknown, new OrganizationName("niet gekend"));
+        public static readonly DutchTranslation[] All = { Other, Unknown };
     }
 }

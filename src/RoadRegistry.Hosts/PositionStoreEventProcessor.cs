@@ -20,15 +20,13 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
     where TEventProcessorPositionStore : IEventProcessorPositionStore
 {
     private const int RecordPositionThreshold = 1000;
-    private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-    private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
     public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+    private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
+    private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     private readonly ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> _logger;
-
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
-
     private readonly Scheduler _scheduler;
 
     protected PositionStoreEventProcessor(
@@ -105,6 +103,12 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         _messagePumpCancellation.Dispose();
         await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("Stopped event processor.");
+    }
+
+    private static bool CanResumeFrom(SubscriptionDropped dropped)
+    {
+        const int timeout = -2;
+        return dropped.Exception is SqlException { Number: timeout } or IOException { InnerException: SqlException { Number: timeout } };
     }
 
     private async Task ProcessMessage(
@@ -238,10 +242,38 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         }
     }
 
-    private static bool CanResumeFrom(SubscriptionDropped dropped)
+    private sealed class ProcessStreamMessage
     {
-        const int timeout = -2;
-        return dropped.Exception is SqlException { Number: timeout } or IOException { InnerException: SqlException { Number: timeout } };
+        private readonly TaskCompletionSource<object> _source;
+
+        public ProcessStreamMessage(StreamMessage message)
+        {
+            Message = message;
+            _source = new TaskCompletionSource<object>();
+        }
+
+        public Task Completion => _source.Task;
+        public StreamMessage Message { get; }
+
+        public void Complete()
+        {
+            _source.TrySetResult(null);
+        }
+
+        public void Fault(Exception exception)
+        {
+            _source.TrySetException(exception);
+        }
+    }
+
+    private sealed class RecordPosition
+    {
+        public RecordPosition(StreamMessage message)
+        {
+            Message = message;
+        }
+
+        public StreamMessage Message { get; }
     }
 
     public sealed class Ref<T>
@@ -266,42 +298,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             Exception = exception;
         }
 
-        public SubscriptionDroppedReason Reason { get; }
         public Exception Exception { get; }
-    }
-
-    private sealed class ProcessStreamMessage
-    {
-        private readonly TaskCompletionSource<object> _source;
-
-        public ProcessStreamMessage(StreamMessage message)
-        {
-            Message = message;
-            _source = new TaskCompletionSource<object>();
-        }
-
-        public StreamMessage Message { get; }
-
-        public Task Completion => _source.Task;
-
-        public void Complete()
-        {
-            _source.TrySetResult(null);
-        }
-
-        public void Fault(Exception exception)
-        {
-            _source.TrySetException(exception);
-        }
-    }
-
-    private sealed class RecordPosition
-    {
-        public RecordPosition(StreamMessage message)
-        {
-            Message = message;
-        }
-
-        public StreamMessage Message { get; }
+        public SubscriptionDroppedReason Reason { get; }
     }
 }

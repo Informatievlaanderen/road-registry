@@ -18,88 +18,6 @@ public class RoadNodeTypeTests
     }
 
     [Fact]
-    public void VerifyBehavior()
-    {
-        _fixture.Customizations.Add(
-            new FiniteSequenceGenerator<string>(_knownValues));
-        new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<string>(_fixture),
-            new EquatableEqualsSelfAssertion(_fixture),
-            new EquatableEqualsOtherAssertion(_fixture),
-            new EqualityOperatorEqualsSelfAssertion(_fixture),
-            new EqualityOperatorEqualsOtherAssertion(_fixture),
-            new InequalityOperatorEqualsSelfAssertion(_fixture),
-            new InequalityOperatorEqualsOtherAssertion(_fixture),
-            new EqualsNewObjectAssertion(_fixture),
-            new EqualsNullAssertion(_fixture),
-            new EqualsSelfAssertion(_fixture),
-            new EqualsOtherAssertion(_fixture),
-            new EqualsSuccessiveAssertion(_fixture),
-            new GetHashCodeSuccessiveAssertion(_fixture)
-        ).Verify(typeof(RoadNodeType));
-    }
-
-    [Fact]
-    public void RealNodeReturnsExpectedResult()
-    {
-        Assert.Equal("RealNode", RoadNodeType.RealNode);
-    }
-
-    [Fact]
-    public void RealNodeTranslationReturnsExpectedResult()
-    {
-        Assert.Equal(1, RoadNodeType.RealNode.Translation.Identifier);
-    }
-
-    [Fact]
-    public void FakeNodeReturnsExpectedResult()
-    {
-        Assert.Equal("FakeNode", RoadNodeType.FakeNode);
-    }
-
-    [Fact]
-    public void FakeNodeTranslationReturnsExpectedResult()
-    {
-        Assert.Equal(2, RoadNodeType.FakeNode.Translation.Identifier);
-    }
-
-    [Fact]
-    public void EndNodeReturnsExpectedResult()
-    {
-        Assert.Equal("EndNode", RoadNodeType.EndNode);
-    }
-
-    [Fact]
-    public void EndNodeTranslationReturnsExpectedResult()
-    {
-        Assert.Equal(3, RoadNodeType.EndNode.Translation.Identifier);
-    }
-
-    [Fact]
-    public void MiniRoundaboutReturnsExpectedResult()
-    {
-        Assert.Equal("MiniRoundabout", RoadNodeType.MiniRoundabout);
-    }
-
-    [Fact]
-    public void MiniRoundaboutTranslationReturnsExpectedResult()
-    {
-        Assert.Equal(4, RoadNodeType.MiniRoundabout.Translation.Identifier);
-    }
-
-    [Fact]
-    public void TurningLoopNodeReturnsExpectedResult()
-    {
-        Assert.Equal("TurningLoopNode", RoadNodeType.TurningLoopNode);
-    }
-
-    [Fact]
-    public void TurningLoopNodeTranslationReturnsExpectedResult()
-    {
-        Assert.Equal(5, RoadNodeType.TurningLoopNode.Translation.Identifier);
-    }
-
-    [Fact]
     public void AllReturnsExpectedResult()
     {
         Assert.Equal(
@@ -115,12 +33,49 @@ public class RoadNodeTypeTests
     }
 
     [Fact]
-    public void IsAnyOfReturnsThrowsWhenTypesIsNull()
+    public void CanParseReturnsExpectedResultWhenValueIsUnknown()
     {
-        _fixture.CustomizeRoadNodeType();
+        var value = _fixture.Create<string>();
+        var result = RoadNodeType.CanParse(value);
+        Assert.False(result);
+    }
 
-        var sut = _fixture.Create<RoadNodeType>();
-        Assert.Throws<ArgumentNullException>(() => sut.IsAnyOf(null));
+    [Fact]
+    public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+    {
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        var result = RoadNodeType.CanParse(value);
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void CanParseValueCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => RoadNodeType.CanParse(null));
+    }
+
+    [Fact]
+    public void EndNodeReturnsExpectedResult()
+    {
+        Assert.Equal("EndNode", RoadNodeType.EndNode);
+    }
+
+    [Fact]
+    public void EndNodeTranslationReturnsExpectedResult()
+    {
+        Assert.Equal(3, RoadNodeType.EndNode.Translation.Identifier);
+    }
+
+    [Fact]
+    public void FakeNodeReturnsExpectedResult()
+    {
+        Assert.Equal("FakeNode", RoadNodeType.FakeNode);
+    }
+
+    [Fact]
+    public void FakeNodeTranslationReturnsExpectedResult()
+    {
+        Assert.Equal(2, RoadNodeType.FakeNode.Translation.Identifier);
     }
 
     [Fact]
@@ -148,26 +103,24 @@ public class RoadNodeTypeTests
     }
 
     [Fact]
-    public void ToStringReturnsExpectedResult()
+    public void IsAnyOfReturnsThrowsWhenTypesIsNull()
     {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        var sut = RoadNodeType.Parse(value);
-        var result = sut.ToString();
+        _fixture.CustomizeRoadNodeType();
 
-        Assert.Equal(value, result);
+        var sut = _fixture.Create<RoadNodeType>();
+        Assert.Throws<ArgumentNullException>(() => sut.IsAnyOf(null));
     }
 
     [Fact]
-    public void ParseValueCanNotBeNull()
+    public void MiniRoundaboutReturnsExpectedResult()
     {
-        Assert.Throws<ArgumentNullException>(() => RoadNodeType.Parse(null));
+        Assert.Equal("MiniRoundabout", RoadNodeType.MiniRoundabout);
     }
 
     [Fact]
-    public void ParseReturnsExpectedResultWhenValueIsWellKnown()
+    public void MiniRoundaboutTranslationReturnsExpectedResult()
     {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        Assert.NotNull(RoadNodeType.Parse(value));
+        Assert.Equal(4, RoadNodeType.MiniRoundabout.Translation.Identifier);
     }
 
     [Fact]
@@ -178,9 +131,47 @@ public class RoadNodeTypeTests
     }
 
     [Fact]
-    public void TryParseValueCanNotBeNull()
+    public void ParseReturnsExpectedResultWhenValueIsWellKnown()
     {
-        Assert.Throws<ArgumentNullException>(() => RoadNodeType.TryParse(null, out _));
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        Assert.NotNull(RoadNodeType.Parse(value));
+    }
+
+    [Fact]
+    public void ParseValueCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => RoadNodeType.Parse(null));
+    }
+
+    [Fact]
+    public void RealNodeReturnsExpectedResult()
+    {
+        Assert.Equal("RealNode", RoadNodeType.RealNode);
+    }
+
+    [Fact]
+    public void RealNodeTranslationReturnsExpectedResult()
+    {
+        Assert.Equal(1, RoadNodeType.RealNode.Translation.Identifier);
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
+        var sut = RoadNodeType.Parse(value);
+        var result = sut.ToString();
+
+        Assert.Equal(value, result);
+    }
+
+    [Fact]
+    public void TryParseReturnsExpectedResultWhenValueIsUnknown()
+    {
+        var value = _fixture.Create<string>();
+        var result = RoadNodeType.TryParse(value, out var parsed);
+        Assert.False(result);
+        Assert.Null(parsed);
     }
 
     [Fact]
@@ -194,33 +185,42 @@ public class RoadNodeTypeTests
     }
 
     [Fact]
-    public void TryParseReturnsExpectedResultWhenValueIsUnknown()
+    public void TryParseValueCanNotBeNull()
     {
-        var value = _fixture.Create<string>();
-        var result = RoadNodeType.TryParse(value, out var parsed);
-        Assert.False(result);
-        Assert.Null(parsed);
+        Assert.Throws<ArgumentNullException>(() => RoadNodeType.TryParse(null, out _));
     }
 
     [Fact]
-    public void CanParseValueCanNotBeNull()
+    public void TurningLoopNodeReturnsExpectedResult()
     {
-        Assert.Throws<ArgumentNullException>(() => RoadNodeType.CanParse(null));
+        Assert.Equal("TurningLoopNode", RoadNodeType.TurningLoopNode);
     }
 
     [Fact]
-    public void CanParseReturnsExpectedResultWhenValueIsWellKnown()
+    public void TurningLoopNodeTranslationReturnsExpectedResult()
     {
-        var value = _knownValues[new Random().Next(0, _knownValues.Length)];
-        var result = RoadNodeType.CanParse(value);
-        Assert.True(result);
+        Assert.Equal(5, RoadNodeType.TurningLoopNode.Translation.Identifier);
     }
 
     [Fact]
-    public void CanParseReturnsExpectedResultWhenValueIsUnknown()
+    public void VerifyBehavior()
     {
-        var value = _fixture.Create<string>();
-        var result = RoadNodeType.CanParse(value);
-        Assert.False(result);
+        _fixture.Customizations.Add(
+            new FiniteSequenceGenerator<string>(_knownValues));
+        new CompositeIdiomaticAssertion(
+            new ImplicitConversionOperatorAssertion<string>(_fixture),
+            new EquatableEqualsSelfAssertion(_fixture),
+            new EquatableEqualsOtherAssertion(_fixture),
+            new EqualityOperatorEqualsSelfAssertion(_fixture),
+            new EqualityOperatorEqualsOtherAssertion(_fixture),
+            new InequalityOperatorEqualsSelfAssertion(_fixture),
+            new InequalityOperatorEqualsOtherAssertion(_fixture),
+            new EqualsNewObjectAssertion(_fixture),
+            new EqualsNullAssertion(_fixture),
+            new EqualsSelfAssertion(_fixture),
+            new EqualsOtherAssertion(_fixture),
+            new EqualsSuccessiveAssertion(_fixture),
+            new GetHashCodeSuccessiveAssertion(_fixture)
+        ).Verify(typeof(RoadNodeType));
     }
 }

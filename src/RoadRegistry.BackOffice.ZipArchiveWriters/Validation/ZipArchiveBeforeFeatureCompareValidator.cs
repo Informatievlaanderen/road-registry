@@ -136,7 +136,6 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
             };
     }
 
-
     public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
     {
         if (archive == null)
@@ -160,7 +159,6 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
         problems = missingRequiredFiles.Aggregate(
             problems,
             (current, file) => current.RequiredFileMissing(file));
-
 
         // Validate all required files (if a validator was registered for it)
 

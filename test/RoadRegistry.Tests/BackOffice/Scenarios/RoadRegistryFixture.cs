@@ -17,11 +17,11 @@ using SqlStreamStore;
 
 public abstract class RoadRegistryFixture : IDisposable
 {
-    private static readonly JsonSerializerSettings Settings =
-        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
     private static readonly EventMapping Mapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+
+    private static readonly JsonSerializerSettings Settings =
+        EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     private readonly ScenarioRunner _runner;
 
@@ -49,10 +49,10 @@ public abstract class RoadRegistryFixture : IDisposable
         };
     }
 
+    protected MemoryBlobClient Client { get; }
+    protected FakeClock Clock { get; }
     protected Fixture Fixture { get; }
     protected IStreamStore Store { get; }
-    protected FakeClock Clock { get; }
-    protected MemoryBlobClient Client { get; }
     protected IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
 
     public void Dispose()

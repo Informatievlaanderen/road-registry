@@ -32,6 +32,14 @@ public class DownloadFileContentRequestHandler : EndpointRequestHandler<Download
         _context = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
     }
 
+    private async Task<int> CalculateRetryAfter(DownloadFileContentRequest request)
+    {
+        return await _context.ExtractUploads.TookAverageProcessDuration(_clock
+                .GetCurrentInstant()
+                .Minus(Duration.FromDays(request.RetryAfterAverageWindowInDays)),
+            request.DefaultRetryAfter);
+    }
+
     public override async Task<DownloadFileContentResponse> HandleAsync(DownloadFileContentRequest request, CancellationToken cancellationToken)
     {
         if (request.DownloadId is null) throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
@@ -69,13 +77,5 @@ public class DownloadFileContentRequestHandler : EndpointRequestHandler<Download
                 nameof(request.DownloadId),
                 $"'{nameof(request.DownloadId)}' path parameter is not a global unique identifier without dashes.")
         });
-    }
-
-    private async Task<int> CalculateRetryAfter(DownloadFileContentRequest request)
-    {
-        return await _context.ExtractUploads.TookAverageProcessDuration(_clock
-                .GetCurrentInstant()
-                .Minus(Duration.FromDays(request.RetryAfterAverageWindowInDays)),
-            request.DefaultRetryAfter);
     }
 }

@@ -77,22 +77,22 @@ public class ModifyRoadSegment : ITranslatedChange
         Surfaces = surfaces;
     }
 
-    public RecordNumber RecordNumber { get; }
-    public RoadSegmentId Id { get; }
-    public RoadNodeId StartNodeId { get; }
+    public RoadSegmentAccessRestriction AccessRestriction { get; }
+    public RoadSegmentCategory Category { get; }
     public RoadNodeId EndNodeId { get; }
     public MultiLineString Geometry { get; }
-    public OrganizationId MaintenanceAuthority { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
-    public RoadSegmentMorphology Morphology { get; }
-    public RoadSegmentStatus Status { get; }
-    public RoadSegmentCategory Category { get; }
-    public RoadSegmentAccessRestriction AccessRestriction { get; }
-    public CrabStreetnameId? LeftSideStreetNameId { get; }
-    public CrabStreetnameId? RightSideStreetNameId { get; }
+    public RoadSegmentId Id { get; }
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
-    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
+    public CrabStreetnameId? LeftSideStreetNameId { get; }
+    public OrganizationId MaintenanceAuthority { get; }
+    public RoadSegmentMorphology Morphology { get; }
+    public RecordNumber RecordNumber { get; }
+    public CrabStreetnameId? RightSideStreetNameId { get; }
+    public RoadNodeId StartNodeId { get; }
+    public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
+    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -163,17 +163,6 @@ public class ModifyRoadSegment : ITranslatedChange
             lanes, Widths, Surfaces);
     }
 
-    public ModifyRoadSegment WithWidth(RoadSegmentWidthAttribute width)
-    {
-        var widths = new List<RoadSegmentWidthAttribute>(Widths) { width };
-        widths.Sort((left, right) => left.From.CompareTo(right.From));
-        return new ModifyRoadSegment(
-            RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
-            MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
-            LeftSideStreetNameId, RightSideStreetNameId,
-            Lanes, widths, Surfaces);
-    }
-
     public ModifyRoadSegment WithSurface(RoadSegmentSurfaceAttribute surface)
     {
         var surfaces = new List<RoadSegmentSurfaceAttribute>(Surfaces) { surface };
@@ -183,5 +172,16 @@ public class ModifyRoadSegment : ITranslatedChange
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
             Lanes, Widths, surfaces);
+    }
+
+    public ModifyRoadSegment WithWidth(RoadSegmentWidthAttribute width)
+    {
+        var widths = new List<RoadSegmentWidthAttribute>(Widths) { width };
+        widths.Sort((left, right) => left.From.CompareTo(right.From));
+        return new ModifyRoadSegment(
+            RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
+            MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
+            LeftSideStreetNameId, RightSideStreetNameId,
+            Lanes, widths, Surfaces);
     }
 }

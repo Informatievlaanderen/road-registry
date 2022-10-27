@@ -28,17 +28,11 @@ public class RoadSegmentWidthChangeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 WB_OIDN { get; }
-
-    public DbaseInt32 WS_OIDN { get; }
-
-    public DbaseDouble VANPOSITIE { get; }
-
-    public DbaseDouble TOTPOSITIE { get; }
-
     public DbaseInt16 BREEDTE { get; }
-
-    public DbaseInt16 TRANSACTID { get; }
-
     public DbaseInt16 RECORDTYPE { get; }
+    public DbaseDouble TOTPOSITIE { get; }
+    public DbaseInt16 TRANSACTID { get; }
+    public DbaseDouble VANPOSITIE { get; }
+    public DbaseInt32 WB_OIDN { get; }
+    public DbaseInt32 WS_OIDN { get; }
 }

@@ -6,13 +6,13 @@ using System.Linq;
 
 public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessRestriction>
 {
-    public static readonly RoadSegmentAccessRestriction PublicRoad =
+    public static readonly RoadSegmentAccessRestriction LegallyForbidden =
         new(
-            nameof(PublicRoad),
+            nameof(LegallyForbidden),
             new DutchTranslation(
-                1,
-                "openbare weg",
-                "Weg is publiek toegankelijk."
+                3,
+                "verboden toegang",
+                "Toegang tot de weg is bij wet verboden."
             )
         );
 
@@ -26,16 +26,6 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
             )
         );
 
-    public static readonly RoadSegmentAccessRestriction LegallyForbidden =
-        new(
-            nameof(LegallyForbidden),
-            new DutchTranslation(
-                3,
-                "verboden toegang",
-                "Toegang tot de weg is bij wet verboden."
-            )
-        );
-
     public static readonly RoadSegmentAccessRestriction PrivateRoad =
         new(
             nameof(PrivateRoad),
@@ -43,6 +33,16 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
                 4,
                 "privaatweg",
                 "Toegang tot de weg is beperkt aangezien deze een private eigenaar heeft."
+            )
+        );
+
+    public static readonly RoadSegmentAccessRestriction PublicRoad =
+        new(
+            nameof(PublicRoad),
+            new DutchTranslation(
+                1,
+                "openbare weg",
+                "Weg is publiek toegankelijk."
             )
         );
 
@@ -101,22 +101,6 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
-    public static bool TryParse(string value, out RoadSegmentAccessRestriction parsed)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        parsed = Array.Find(All, candidate => candidate._value == value);
-        return parsed != null;
-    }
-
-    public static RoadSegmentAccessRestriction Parse(string value)
-    {
-        if (value == null) throw new ArgumentNullException(nameof(value));
-
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment access restriction.");
-        return parsed;
-    }
-
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentAccessRestriction type && Equals(type);
@@ -127,9 +111,9 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
         return _value.GetHashCode();
     }
 
-    public override string ToString()
+    public static bool operator ==(RoadSegmentAccessRestriction left, RoadSegmentAccessRestriction right)
     {
-        return _value;
+        return Equals(left, right);
     }
 
     public static implicit operator string(RoadSegmentAccessRestriction instance)
@@ -137,14 +121,30 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
         return instance.ToString();
     }
 
-    public static bool operator ==(RoadSegmentAccessRestriction left, RoadSegmentAccessRestriction right)
-    {
-        return Equals(left, right);
-    }
-
     public static bool operator !=(RoadSegmentAccessRestriction left, RoadSegmentAccessRestriction right)
     {
         return !Equals(left, right);
+    }
+
+    public static RoadSegmentAccessRestriction Parse(string value)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment access restriction.");
+        return parsed;
+    }
+
+    public override string ToString()
+    {
+        return _value;
+    }
+
+    public static bool TryParse(string value, out RoadSegmentAccessRestriction parsed)
+    {
+        if (value == null) throw new ArgumentNullException(nameof(value));
+
+        parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
     }
 
     public class DutchTranslation
@@ -156,10 +156,8 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
             Description = description;
         }
 
-        public int Identifier { get; }
-
-        public string Name { get; }
-
         public string Description { get; }
+        public int Identifier { get; }
+        public string Name { get; }
     }
 }

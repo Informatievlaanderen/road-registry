@@ -136,7 +136,7 @@ public class RoadNetworkTestHelpers
                 )
             }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
-        AddStartNode1 = new RoadRegistry.BackOffice.Messages.AddRoadNode
+        AddStartNode1 = new AddRoadNode
         {
             TemporaryId = Fixture.Create<RoadNodeId>(),
             Geometry = GeometryTranslator.Translate(StartPoint1),
@@ -151,7 +151,7 @@ public class RoadNetworkTestHelpers
             Type = AddStartNode1.Type
         };
 
-        ModifyStartNode1 = new RoadRegistry.BackOffice.Messages.ModifyRoadNode
+        ModifyStartNode1 = new ModifyRoadNode
         {
             Id = 1,
             Geometry = GeometryTranslator.Translate(StartPoint1),
@@ -165,7 +165,7 @@ public class RoadNetworkTestHelpers
             Type = AddStartNode1.Type
         };
 
-        AddEndNode1 = new RoadRegistry.BackOffice.Messages.AddRoadNode
+        AddEndNode1 = new AddRoadNode
         {
             TemporaryId = AddStartNode1.TemporaryId + 1,
             Geometry = GeometryTranslator.Translate(EndPoint1),
@@ -180,7 +180,7 @@ public class RoadNetworkTestHelpers
             Type = AddEndNode1.Type
         };
 
-        ModifyEndNode1 = new RoadRegistry.BackOffice.Messages.ModifyRoadNode
+        ModifyEndNode1 = new ModifyRoadNode
         {
             Id = 2,
             Geometry = GeometryTranslator.Translate(StartPoint2),
@@ -194,7 +194,7 @@ public class RoadNetworkTestHelpers
             Type = ModifyEndNode1.Type
         };
 
-        AddStartNode2 = new RoadRegistry.BackOffice.Messages.AddRoadNode
+        AddStartNode2 = new AddRoadNode
         {
             TemporaryId = AddEndNode1.TemporaryId + 1,
             Geometry = GeometryTranslator.Translate(StartPoint2),
@@ -209,7 +209,7 @@ public class RoadNetworkTestHelpers
             Type = AddStartNode2.Type
         };
 
-        AddEndNode2 = new RoadRegistry.BackOffice.Messages.AddRoadNode
+        AddEndNode2 = new AddRoadNode
         {
             TemporaryId = AddStartNode2.TemporaryId + 1,
             Geometry = GeometryTranslator.Translate(EndPoint2),
@@ -224,7 +224,7 @@ public class RoadNetworkTestHelpers
             Type = AddEndNode2.Type
         };
 
-        AddStartNode3 = new RoadRegistry.BackOffice.Messages.AddRoadNode
+        AddStartNode3 = new AddRoadNode
         {
             TemporaryId = AddEndNode2.TemporaryId + 1,
             Geometry = GeometryTranslator.Translate(StartPoint3),
@@ -239,7 +239,7 @@ public class RoadNetworkTestHelpers
             Type = AddStartNode3.Type
         };
 
-        AddEndNode3 = new RoadRegistry.BackOffice.Messages.AddRoadNode
+        AddEndNode3 = new AddRoadNode
         {
             TemporaryId = AddStartNode3.TemporaryId + 1,
             Geometry = GeometryTranslator.Translate(EndPoint3),
@@ -257,7 +257,7 @@ public class RoadNetworkTestHelpers
         var laneCount1 = new Random().Next(1, 10);
         var widthCount1 = new Random().Next(1, 10);
         var surfaceCount1 = new Random().Next(1, 10);
-        AddSegment1 = new RoadRegistry.BackOffice.Messages.AddRoadSegment
+        AddSegment1 = new AddRoadSegment
         {
             TemporaryId = Fixture.Create<RoadSegmentId>(),
             StartNodeId = AddStartNode1.TemporaryId,
@@ -339,7 +339,7 @@ public class RoadNetworkTestHelpers
                 StreetNameId = AddSegment1.RightSideStreetNameId
             },
             Lanes = AddSegment1.Lanes
-                .Select((lane, index) => new RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes
+                .Select((lane, index) => new RoadSegmentLaneAttributes
                 {
                     AttributeId = index + 1,
                     Direction = lane.Direction,
@@ -350,7 +350,7 @@ public class RoadNetworkTestHelpers
                 })
                 .ToArray(),
             Widths = AddSegment1.Widths
-                .Select((width, index) => new RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes
+                .Select((width, index) => new RoadSegmentWidthAttributes
                 {
                     AttributeId = index + 1,
                     Width = width.Width,
@@ -360,7 +360,7 @@ public class RoadNetworkTestHelpers
                 })
                 .ToArray(),
             Surfaces = AddSegment1.Surfaces
-                .Select((surface, index) => new RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes
+                .Select((surface, index) => new RoadSegmentSurfaceAttributes
                 {
                     AttributeId = index + 1,
                     Type = surface.Type,
@@ -375,7 +375,7 @@ public class RoadNetworkTestHelpers
         var laneCount2 = new Random().Next(1, 10);
         var widthCount2 = new Random().Next(1, 10);
         var surfaceCount2 = new Random().Next(1, 10);
-        AddSegment2 = new RoadRegistry.BackOffice.Messages.AddRoadSegment
+        AddSegment2 = new AddRoadSegment
         {
             TemporaryId = AddSegment1.TemporaryId + 1,
             StartNodeId = AddStartNode2.TemporaryId,
@@ -457,7 +457,7 @@ public class RoadNetworkTestHelpers
                 StreetNameId = AddSegment2.RightSideStreetNameId
             },
             Lanes = AddSegment2.Lanes
-                .Select((lane, index) => new RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes
+                .Select((lane, index) => new RoadSegmentLaneAttributes
                 {
                     AttributeId = laneCount1 + index + 1,
                     Direction = lane.Direction,
@@ -468,7 +468,7 @@ public class RoadNetworkTestHelpers
                 })
                 .ToArray(),
             Widths = AddSegment2.Widths
-                .Select((width, index) => new RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes
+                .Select((width, index) => new RoadSegmentWidthAttributes
                 {
                     AttributeId = widthCount1 + index + 1,
                     Width = width.Width,
@@ -478,7 +478,7 @@ public class RoadNetworkTestHelpers
                 })
                 .ToArray(),
             Surfaces = AddSegment2.Surfaces
-                .Select((surface, index) => new RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes
+                .Select((surface, index) => new RoadSegmentSurfaceAttributes
                 {
                     AttributeId = surfaceCount1 + index + 1,
                     Type = surface.Type,
@@ -493,7 +493,7 @@ public class RoadNetworkTestHelpers
         var laneCount3 = new Random().Next(1, 10);
         var widthCount3 = new Random().Next(1, 10);
         var surfaceCount3 = new Random().Next(1, 10);
-        AddSegment3 = new RoadRegistry.BackOffice.Messages.AddRoadSegment
+        AddSegment3 = new AddRoadSegment
         {
             TemporaryId = AddSegment2.TemporaryId + 1,
             StartNodeId = AddStartNode3.TemporaryId,
@@ -575,7 +575,7 @@ public class RoadNetworkTestHelpers
                 StreetNameId = AddSegment3.RightSideStreetNameId
             },
             Lanes = AddSegment3.Lanes
-                .Select((lane, index) => new RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes
+                .Select((lane, index) => new RoadSegmentLaneAttributes
                 {
                     AttributeId = laneCount1 + laneCount2 + index + 1,
                     Direction = lane.Direction,
@@ -586,7 +586,7 @@ public class RoadNetworkTestHelpers
                 })
                 .ToArray(),
             Widths = AddSegment3.Widths
-                .Select((width, index) => new RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes
+                .Select((width, index) => new RoadSegmentWidthAttributes
                 {
                     AttributeId = widthCount1 + widthCount2 + index + 1,
                     Width = width.Width,
@@ -596,7 +596,7 @@ public class RoadNetworkTestHelpers
                 })
                 .ToArray(),
             Surfaces = AddSegment3.Surfaces
-                .Select((surface, index) => new RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes
+                .Select((surface, index) => new RoadSegmentSurfaceAttributes
                 {
                     AttributeId = surfaceCount1 + surfaceCount2 + index + 1,
                     Type = surface.Type,
@@ -617,59 +617,48 @@ public class RoadNetworkTestHelpers
         TransactionId = Fixture.Create<TransactionId>();
     }
 
-    public IFixture Fixture { get; }
+    public AddRoadNode AddEndNode1 { get; }
+    public AddRoadNode AddEndNode2 { get; }
+    public AddRoadNode AddEndNode3 { get; }
+    public AddRoadSegment AddSegment1 { get; }
+    public AddRoadSegment AddSegment2 { get; }
+    public AddRoadSegment AddSegment3 { get; }
+    public AddRoadNode AddStartNode1 { get; }
+    public AddRoadNode AddStartNode2 { get; }
+    public AddRoadNode AddStartNode3 { get; }
     public ArchiveId ArchiveId { get; }
-    public ChangeRequestId RequestId { get; }
-    public Reason ReasonForChange { get; }
     public OperatorName ChangedByOperator { get; }
     public OrganizationId ChangedByOrganization { get; }
     public OrganizationName ChangedByOrganizationName { get; }
-    public TransactionId TransactionId { get; }
-
-    public Point StartPoint1 { get; }
-    public Point MiddlePoint1 { get; }
-    public Point EndPoint1 { get; }
-    public MultiLineString MultiLineString1 { get; }
-
-    public Point StartPoint2 { get; }
-    public Point MiddlePoint2 { get; }
-    public Point EndPoint2 { get; }
-    public MultiLineString MultiLineString2 { get; }
-
-    public Point StartPoint3 { get; }
-    public Point MiddlePoint3 { get; }
-    public Point EndPoint3 { get; }
-    public MultiLineString MultiLineString3 { get; }
-
-    public RoadRegistry.BackOffice.Messages.AddRoadNode AddStartNode1 { get; }
-    public RoadRegistry.BackOffice.Messages.AddRoadNode AddEndNode1 { get; }
-    public RoadRegistry.BackOffice.Messages.AddRoadSegment AddSegment1 { get; }
-
-    public RoadRegistry.BackOffice.Messages.ModifyRoadNode ModifyStartNode1 { get; }
-    public RoadNodeModified StartNode1Modified { get; }
-
-    public RoadRegistry.BackOffice.Messages.ModifyRoadNode ModifyEndNode1 { get; }
-    public RoadNodeModified EndNode1Modified { get; }
-
-    public RoadNodeAdded StartNode1Added { get; }
     public RoadNodeAdded EndNode1Added { get; }
-    public RoadSegmentAdded Segment1Added { get; }
-
-    public RoadRegistry.BackOffice.Messages.AddRoadNode AddStartNode2 { get; }
-    public RoadRegistry.BackOffice.Messages.AddRoadNode AddEndNode2 { get; }
-    public RoadRegistry.BackOffice.Messages.AddRoadSegment AddSegment2 { get; }
-
-    public RoadNodeAdded StartNode2Added { get; }
+    public RoadNodeModified EndNode1Modified { get; }
     public RoadNodeAdded EndNode2Added { get; }
-    public RoadSegmentAdded Segment2Added { get; }
-
-    public RoadRegistry.BackOffice.Messages.AddRoadNode AddStartNode3 { get; }
-    public RoadRegistry.BackOffice.Messages.AddRoadNode AddEndNode3 { get; }
-    public RoadRegistry.BackOffice.Messages.AddRoadSegment AddSegment3 { get; }
-
-    public RoadNodeAdded StartNode3Added { get; }
     public RoadNodeAdded EndNode3Added { get; }
+    public Point EndPoint1 { get; }
+    public Point EndPoint2 { get; }
+    public Point EndPoint3 { get; }
+    public IFixture Fixture { get; }
+    public Point MiddlePoint1 { get; }
+    public Point MiddlePoint2 { get; }
+    public Point MiddlePoint3 { get; }
+    public ModifyRoadNode ModifyEndNode1 { get; }
+    public ModifyRoadNode ModifyStartNode1 { get; }
+    public MultiLineString MultiLineString1 { get; }
+    public MultiLineString MultiLineString2 { get; }
+    public MultiLineString MultiLineString3 { get; }
+    public Reason ReasonForChange { get; }
+    public ChangeRequestId RequestId { get; }
+    public RoadSegmentAdded Segment1Added { get; }
+    public RoadSegmentAdded Segment2Added { get; }
     public RoadSegmentAdded Segment3Added { get; }
+    public RoadNodeAdded StartNode1Added { get; }
+    public RoadNodeModified StartNode1Modified { get; }
+    public RoadNodeAdded StartNode2Added { get; }
+    public RoadNodeAdded StartNode3Added { get; }
+    public Point StartPoint1 { get; }
+    public Point StartPoint2 { get; }
+    public Point StartPoint3 { get; }
+    public TransactionId TransactionId { get; }
 
     public static RoadNetworkTestHelpers Create()
     {

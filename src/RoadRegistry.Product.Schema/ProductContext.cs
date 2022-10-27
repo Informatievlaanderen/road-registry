@@ -26,23 +26,21 @@ public class ProductContext : RunnerDbContext<ProductContext>
     {
     }
 
-    public override string ProjectionStateSchema => WellknownSchemas.ProductMetaSchema;
-
-    public DbSet<RoadNodeRecord> RoadNodes { get; set; }
-    public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
-    public DbSet<RoadSegmentLaneAttributeRecord> RoadSegmentLaneAttributes { get; set; }
-    public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
-    public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
-    public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
-    public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
-    public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<OrganizationRecord> Organizations { get; set; }
+    public override string ProjectionStateSchema => WellknownSchemas.ProductMetaSchema;
     public DbSet<RoadNetworkInfo> RoadNetworkInfo { get; set; }
     public DbSet<RoadNetworkInfoSegmentCache> RoadNetworkInfoSegmentCache { get; set; }
-
     public DbSet<RoadNodeBoundingBox2D> RoadNodeBoundingBox { get; set; }
+    public DbSet<RoadNodeRecord> RoadNodes { get; set; }
     public DbSet<RoadSegmentBoundingBox3D> RoadSegmentBoundingBox { get; set; }
+    public DbSet<RoadSegmentEuropeanRoadAttributeRecord> RoadSegmentEuropeanRoadAttributes { get; set; }
+    public DbSet<RoadSegmentLaneAttributeRecord> RoadSegmentLaneAttributes { get; set; }
+    public DbSet<RoadSegmentNationalRoadAttributeRecord> RoadSegmentNationalRoadAttributes { get; set; }
+    public DbSet<RoadSegmentNumberedRoadAttributeRecord> RoadSegmentNumberedRoadAttributes { get; set; }
+    public DbSet<RoadSegmentRecord> RoadSegments { get; set; }
+    public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
+    public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
 
     public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken token)
     {

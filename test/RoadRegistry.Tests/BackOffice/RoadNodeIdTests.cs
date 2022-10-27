@@ -17,38 +17,17 @@ public class RoadNodeIdTests
         _fixture = new Fixture();
     }
 
-    [Fact]
-    public void VerifyBehavior()
+    [Theory]
+    [InlineData(int.MinValue, false)]
+    [InlineData(-1, false)]
+    [InlineData(0, true)]
+    [InlineData(1, true)]
+    [InlineData(int.MaxValue, true)]
+    public void AcceptsReturnsExpectedResult(int value, bool expected)
     {
-        new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<int>(_fixture),
-            new ExplicitConversionMethodAssertion<int>(_fixture),
-            new EquatableEqualsSelfAssertion(_fixture),
-            new EquatableEqualsOtherAssertion(_fixture),
-            new EqualityOperatorEqualsSelfAssertion(_fixture),
-            new EqualityOperatorEqualsOtherAssertion(_fixture),
-            new InequalityOperatorEqualsSelfAssertion(_fixture),
-            new InequalityOperatorEqualsOtherAssertion(_fixture),
-            new EqualsNewObjectAssertion(_fixture),
-            new EqualsNullAssertion(_fixture),
-            new EqualsSelfAssertion(_fixture),
-            new EqualsOtherAssertion(_fixture),
-            new EqualsSuccessiveAssertion(_fixture),
-            new GetHashCodeSuccessiveAssertion(_fixture),
-            new ComparableCompareToSelfAssertion(_fixture)
-        ).Verify(typeof(RoadNodeId));
+        var result = RoadNodeId.Accepts(value);
 
-        new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation())
-            .Verify(Constructors.Select(() => new RoadNodeId(0)));
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = _fixture.Create<int>();
-        var sut = new RoadNodeId(value);
-
-        Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
+        Assert.Equal(expected, result);
     }
 
     [Theory]
@@ -59,38 +38,6 @@ public class RoadNodeIdTests
         var sut = new RoadNodeId(left);
 
         var result = sut.CompareTo(new RoadNodeId(right));
-
-        Assert.Equal(expected, result);
-    }
-
-    [Fact]
-    public void NextHasExpectedResult()
-    {
-        var value = new Generator<int>(_fixture).First(candidate => candidate >= 0 && candidate < int.MaxValue);
-        var sut = new RoadNodeId(value);
-
-        var result = sut.Next();
-
-        Assert.Equal(new RoadNodeId(value + 1), result);
-    }
-
-    [Fact]
-    public void NextThrowsWhenMaximumHasBeenReached()
-    {
-        var sut = new RoadNodeId(int.MaxValue);
-
-        Assert.Throws<NotSupportedException>(() => sut.Next());
-    }
-
-    [Theory]
-    [InlineData(int.MinValue, false)]
-    [InlineData(-1, false)]
-    [InlineData(0, true)]
-    [InlineData(1, true)]
-    [InlineData(int.MaxValue, true)]
-    public void AcceptsReturnsExpectedResult(int value, bool expected)
-    {
-        var result = RoadNodeId.Accepts(value);
 
         Assert.Equal(expected, result);
     }
@@ -115,5 +62,58 @@ public class RoadNodeIdTests
         var result = RoadNodeId.Min(new RoadNodeId(left), new RoadNodeId(right));
 
         Assert.Equal(new RoadNodeId(expected), result);
+    }
+
+    [Fact]
+    public void NextHasExpectedResult()
+    {
+        var value = new Generator<int>(_fixture).First(candidate => candidate >= 0 && candidate < int.MaxValue);
+        var sut = new RoadNodeId(value);
+
+        var result = sut.Next();
+
+        Assert.Equal(new RoadNodeId(value + 1), result);
+    }
+
+    [Fact]
+    public void NextThrowsWhenMaximumHasBeenReached()
+    {
+        var sut = new RoadNodeId(int.MaxValue);
+
+        Assert.Throws<NotSupportedException>(() => sut.Next());
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _fixture.Create<int>();
+        var sut = new RoadNodeId(value);
+
+        Assert.Equal(value.ToString(CultureInfo.InvariantCulture), sut.ToString());
+    }
+
+    [Fact]
+    public void VerifyBehavior()
+    {
+        new CompositeIdiomaticAssertion(
+            new ImplicitConversionOperatorAssertion<int>(_fixture),
+            new ExplicitConversionMethodAssertion<int>(_fixture),
+            new EquatableEqualsSelfAssertion(_fixture),
+            new EquatableEqualsOtherAssertion(_fixture),
+            new EqualityOperatorEqualsSelfAssertion(_fixture),
+            new EqualityOperatorEqualsOtherAssertion(_fixture),
+            new InequalityOperatorEqualsSelfAssertion(_fixture),
+            new InequalityOperatorEqualsOtherAssertion(_fixture),
+            new EqualsNewObjectAssertion(_fixture),
+            new EqualsNullAssertion(_fixture),
+            new EqualsSelfAssertion(_fixture),
+            new EqualsOtherAssertion(_fixture),
+            new EqualsSuccessiveAssertion(_fixture),
+            new GetHashCodeSuccessiveAssertion(_fixture),
+            new ComparableCompareToSelfAssertion(_fixture)
+        ).Verify(typeof(RoadNodeId));
+
+        new GuardClauseAssertion(_fixture, new NegativeInt32BehaviorExpectation())
+            .Verify(Constructors.Select(() => new RoadNodeId(0)));
     }
 }

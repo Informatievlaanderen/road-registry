@@ -15,14 +15,12 @@ using Schema;
 public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedService where TConfiguration : ISyndicationFeedConfiguration
 {
     private const int CatchUpBatchSize = 5000;
-
     private static readonly TimeSpan CatchUpAfter = TimeSpan.FromMinutes(5);
     private static readonly TimeSpan ResumeAfter = TimeSpan.FromMinutes(5);
     private readonly ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> _logger;
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
-
     private readonly Scheduler _scheduler;
 
     public AtomFeedProcessor(
@@ -228,10 +226,6 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
         _logger.LogInformation("[{Context}] Stopped event processor.", typeof(TSyndicationContent).Name);
     }
 
-    private sealed class Resume
-    {
-    }
-
     private sealed class CatchUp
     {
         public CatchUp(long? afterPosition, int batchSize)
@@ -242,5 +236,9 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
 
         public long? AfterPosition { get; }
         private int BatchSize { get; }
+    }
+
+    private sealed class Resume
+    {
     }
 }

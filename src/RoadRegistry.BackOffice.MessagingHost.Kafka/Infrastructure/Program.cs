@@ -67,7 +67,7 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure
         private static CommandHandlerResolver ConfigureCommandDispatcher(IServiceProvider sp) => Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
                 new RoadNetworkChangesArchiveCommandModule(
-                    sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
+                    sp.GetService<RoadNetworkUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),

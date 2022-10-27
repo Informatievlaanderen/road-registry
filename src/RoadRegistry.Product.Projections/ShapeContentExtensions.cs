@@ -1,21 +1,20 @@
-namespace RoadRegistry.Product.Projections
-{
-    using System.IO;
-    using System.Text;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Microsoft.IO;
+namespace RoadRegistry.Product.Projections;
 
-    public static class ShapeContentExtensions
+using System.IO;
+using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Microsoft.IO;
+
+public static class ShapeContentExtensions
+{
+    public static byte[] ToBytes(this ShapeContent content, RecyclableMemoryStreamManager manager, Encoding encoding)
     {
-        public static byte[] ToBytes(this ShapeContent content, RecyclableMemoryStreamManager manager, Encoding encoding)
+        using (var output = manager.GetStream())
+        using (var writer = new BinaryWriter(output, encoding))
         {
-            using (var output = manager.GetStream())
-            using (var writer = new BinaryWriter(output, encoding))
-            {
-                content.Write(writer);
-                writer.Flush();
-                return output.ToArray();
-            }
+            content.Write(writer);
+            writer.Flush();
+            return output.ToArray();
         }
     }
 }

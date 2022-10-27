@@ -34,14 +34,14 @@ public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 WV_OIDN { get; set; }
-    public DbaseInt32 WS_OIDN { get; set; }
-    public DbaseString WS_GIDN { get; set; }
-    public DbaseInt32 TYPE { get; set; }
-    public DbaseString LBLTYPE { get; set; }
-    public DbaseDouble VANPOS { get; set; }
-    public DbaseDouble TOTPOS { get; set; }
-    public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseString BEGINORG { get; set; }
+    public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseString LBLBGNORG { get; set; }
+    public DbaseString LBLTYPE { get; set; }
+    public DbaseDouble TOTPOS { get; set; }
+    public DbaseInt32 TYPE { get; set; }
+    public DbaseDouble VANPOS { get; set; }
+    public DbaseString WS_GIDN { get; set; }
+    public DbaseInt32 WS_OIDN { get; set; }
+    public DbaseInt32 WV_OIDN { get; set; }
 }

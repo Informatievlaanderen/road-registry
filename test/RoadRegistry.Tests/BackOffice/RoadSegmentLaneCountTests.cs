@@ -17,6 +17,32 @@ public class RoadSegmentLaneCountTests
         _fixture.CustomizeRoadSegmentLaneCount();
     }
 
+    [Theory]
+    [InlineData(int.MinValue, false)]
+    [InlineData(-9, true)]
+    [InlineData(-8, true)]
+    [InlineData(-1, false)]
+    [InlineData(0, true)]
+    [InlineData(1, true)]
+    [InlineData(7, true)]
+    [InlineData(8, false)]
+    [InlineData(int.MaxValue, false)]
+    public void AcceptsReturnsExpectedResult(int value, bool expected)
+    {
+        var result = RoadSegmentLaneCount.Accepts(value);
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void ToStringReturnsExpectedResult()
+    {
+        var value = _fixture.Create<int>() % RoadSegmentLaneCount.Maximum.ToInt32();
+        var sut = new RoadSegmentLaneCount(value);
+
+        Assert.Equal(value.ToString(), sut.ToString());
+    }
+
     [Fact]
     public void VerifyBehavior()
     {
@@ -41,31 +67,5 @@ public class RoadSegmentLaneCountTests
 
         new GuardClauseAssertion(_fixture, new Int32RangeBehaviorExpectation(0, RoadSegmentLaneCount.Maximum.ToInt32()))
             .Verify(Constructors.Select(() => new RoadSegmentLaneCount(0)));
-    }
-
-    [Fact]
-    public void ToStringReturnsExpectedResult()
-    {
-        var value = _fixture.Create<int>() % RoadSegmentLaneCount.Maximum.ToInt32();
-        var sut = new RoadSegmentLaneCount(value);
-
-        Assert.Equal(value.ToString(), sut.ToString());
-    }
-
-    [Theory]
-    [InlineData(int.MinValue, false)]
-    [InlineData(-9, true)]
-    [InlineData(-8, true)]
-    [InlineData(-1, false)]
-    [InlineData(0, true)]
-    [InlineData(1, true)]
-    [InlineData(7, true)]
-    [InlineData(8, false)]
-    [InlineData(int.MaxValue, false)]
-    public void AcceptsReturnsExpectedResult(int value, bool expected)
-    {
-        var result = RoadSegmentLaneCount.Accepts(value);
-
-        Assert.Equal(expected, result);
     }
 }

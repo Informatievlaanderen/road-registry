@@ -12,8 +12,8 @@ export const AuthService = {
     },
     login(key : string, url : string) : void {
         sessionStorage.setItem(WR_AUTH_APIKEY, key)
-        router.push(url)
         this.checkAuthentication()
+        router.push(url)
     },
     logout() : void {
         sessionStorage.removeItem(WR_AUTH_APIKEY)

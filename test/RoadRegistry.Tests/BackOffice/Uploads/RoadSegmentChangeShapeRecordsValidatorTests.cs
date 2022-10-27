@@ -77,6 +77,12 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
     }
 
     [Fact]
+    public void ValidateContextCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void ValidateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
@@ -86,71 +92,6 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
     public void ValidateRecordsCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
-    }
-
-    [Fact]
-    public void ValidateContextCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
-    }
-
-    [Fact]
-    public void ValidateWithoutRecordsReturnsExpectedResult()
-    {
-        var (result, context) = _sut.Validate(_entry, _enumerator, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithValidRecordsReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<ShapeRecord>(new Random().Next(1, 5))
-            .Select((record, index) => new PolyLineMShapeContent(
-                GeometryTranslator.FromGeometryMultiLineString(
-                    new MultiLineString(
-                        new[]
-                        {
-                            new LineString(new CoordinateArraySequence(new[]
-                            {
-                                new Coordinate(index * 2.0, index * 2.0),
-                                new Coordinate(index * 2.0 + 1.0, index * 2.0 + 1.0)
-                            }), GeometryConfiguration.GeometryFactory)
-                        }))).RecordAs(new RecordNumber(index + 1)))
-            .GetEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithNullRecordsReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<ShapeRecord>(new Random().Next(1, 5))
-            .Select((record, index) => index == 0
-                ? NullShapeContent.Instance.RecordAs(new RecordNumber(1))
-                : record.Content.RecordAs(new RecordNumber(index + 1)))
-            .GetEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(
-                _entry.AtShapeRecord(RecordNumber.Initial).ShapeRecordShapeTypeMismatch(
-                    ShapeType.PolyLineM,
-                    ShapeType.NullShape)
-            ),
-            result);
-        Assert.Same(_context, context);
     }
 
     [Fact(Skip = "It's impossible to mimic poly lines with empty points at this time because they can no longer be serialized.")]
@@ -185,86 +126,54 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithTooLittleOrTooManyLinesPolyLineMRecordsReturnsExpectedResult()
+    public void ValidateWithNullRecordsReturnsExpectedResult()
     {
-        var records = Enumerable.Range(0, 2)
-            .Select(index =>
-            {
-                if (index == 0)
-                    return new PolyLineMShapeContent(
-                        GeometryTranslator.FromGeometryMultiLineString(new MultiLineString(Array.Empty<LineString>()))
-                    ).RecordAs(new RecordNumber(1));
-
-                return new PolyLineMShapeContent(
-                    GeometryTranslator.FromGeometryMultiLineString(
-                        new MultiLineString(new[]
-                        {
-                            new LineString(
-                                new CoordinateArraySequence(new[]
-                                {
-                                    new Coordinate(index * 2.0, index * 2.0),
-                                    new Coordinate(index * 2.0 + 1.0, index * 2.0 + 1.0)
-                                }),
-                                GeometryConfiguration.GeometryFactory),
-                            new LineString(
-                                new CoordinateArraySequence(new[]
-                                {
-                                    new Coordinate(index * 4.0, index * 4.0),
-                                    new Coordinate(index * 4.0 + 1.0, index * 4.0 + 1.0)
-                                }),
-                                GeometryConfiguration.GeometryFactory)
-                        }))
-                ).RecordAs(new RecordNumber(index + 1));
-            })
+        var records = _fixture
+            .CreateMany<ShapeRecord>(new Random().Next(1, 5))
+            .Select((record, index) => index == 0
+                ? NullShapeContent.Instance.RecordAs(new RecordNumber(1))
+                : record.Content.RecordAs(new RecordNumber(index + 1)))
             .GetEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Many(
-                _entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryLineCountMismatch(1, 0),
-                _entry.AtShapeRecord(new RecordNumber(2)).ShapeRecordGeometryLineCountMismatch(1, 2)
+            ZipArchiveProblems.Single(
+                _entry.AtShapeRecord(RecordNumber.Initial).ShapeRecordShapeTypeMismatch(
+                    ShapeType.PolyLineM,
+                    ShapeType.NullShape)
             ),
             result);
+        Assert.Same(_context, context);
     }
 
     [Fact]
-    public void ValidateWithSelfOverlappingRecordsReturnsExpectedResult()
+    public void ValidateWithoutRecordsReturnsExpectedResult()
     {
-        var startPoint = new Point(new CoordinateM(0.0, 0.0, 0.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var middlePoint = new Point(new CoordinateM(10.0, 0.0, 10.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var endPoint = new Point(new CoordinateM(5.0, 0.0, 15.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var multiLineString = new MultiLineString(
-            new[]
-            {
-                new LineString(
-                    new CoordinateArraySequence(new[] { startPoint.Coordinate, middlePoint.Coordinate, endPoint.Coordinate }),
-                    GeometryConfiguration.GeometryFactory
-                )
-            })
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var records = new List<ShapeRecord>
-            {
-                new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(multiLineString)).RecordAs(new RecordNumber(1))
-            }
-            .GetEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
+        var (result, context) = _sut.Validate(_entry, _enumerator, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometrySelfOverlaps()),
+            ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
             result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithProblematicRecordsReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<ShapeRecord>(new Random().Next(1, 5))
+            .Select((record, index) => record.Content.RecordAs(new RecordNumber(index + 1)))
+            .ToArray();
+        var exception = new Exception("problem");
+        var enumerator = new ProblematicShapeRecordEnumerator(records, 1, exception);
+
+        var (result, context) = _sut.Validate(_entry, enumerator, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(2)).HasShapeRecordFormatError(exception)),
+            result,
+            new FileProblemComparer());
         Assert.Same(_context, context);
     }
 
@@ -314,21 +223,112 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithProblematicRecordsReturnsExpectedResult()
+    public void ValidateWithSelfOverlappingRecordsReturnsExpectedResult()
+    {
+        var startPoint = new Point(new CoordinateM(0.0, 0.0, 0.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var middlePoint = new Point(new CoordinateM(10.0, 0.0, 10.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var endPoint = new Point(new CoordinateM(5.0, 0.0, 15.0))
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var multiLineString = new MultiLineString(
+            new[]
+            {
+                new LineString(
+                    new CoordinateArraySequence(new[] { startPoint.Coordinate, middlePoint.Coordinate, endPoint.Coordinate }),
+                    GeometryConfiguration.GeometryFactory
+                )
+            })
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        var records = new List<ShapeRecord>
+            {
+                new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(multiLineString)).RecordAs(new RecordNumber(1))
+            }
+            .GetEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometrySelfOverlaps()),
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithTooLittleOrTooManyLinesPolyLineMRecordsReturnsExpectedResult()
+    {
+        var records = Enumerable.Range(0, 2)
+            .Select(index =>
+            {
+                if (index == 0)
+                    return new PolyLineMShapeContent(
+                        GeometryTranslator.FromGeometryMultiLineString(new MultiLineString(Array.Empty<LineString>()))
+                    ).RecordAs(new RecordNumber(1));
+
+                return new PolyLineMShapeContent(
+                    GeometryTranslator.FromGeometryMultiLineString(
+                        new MultiLineString(new[]
+                        {
+                            new LineString(
+                                new CoordinateArraySequence(new[]
+                                {
+                                    new Coordinate(index * 2.0, index * 2.0),
+                                    new Coordinate(index * 2.0 + 1.0, index * 2.0 + 1.0)
+                                }),
+                                GeometryConfiguration.GeometryFactory),
+                            new LineString(
+                                new CoordinateArraySequence(new[]
+                                {
+                                    new Coordinate(index * 4.0, index * 4.0),
+                                    new Coordinate(index * 4.0 + 1.0, index * 4.0 + 1.0)
+                                }),
+                                GeometryConfiguration.GeometryFactory)
+                        }))
+                ).RecordAs(new RecordNumber(index + 1));
+            })
+            .GetEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Many(
+                _entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryLineCountMismatch(1, 0),
+                _entry.AtShapeRecord(new RecordNumber(2)).ShapeRecordGeometryLineCountMismatch(1, 2)
+            ),
+            result);
+    }
+
+    [Fact]
+    public void ValidateWithValidRecordsReturnsExpectedResult()
     {
         var records = _fixture
             .CreateMany<ShapeRecord>(new Random().Next(1, 5))
-            .Select((record, index) => record.Content.RecordAs(new RecordNumber(index + 1)))
-            .ToArray();
-        var exception = new Exception("problem");
-        var enumerator = new ProblematicShapeRecordEnumerator(records, 1, exception);
+            .Select((record, index) => new PolyLineMShapeContent(
+                GeometryTranslator.FromGeometryMultiLineString(
+                    new MultiLineString(
+                        new[]
+                        {
+                            new LineString(new CoordinateArraySequence(new[]
+                            {
+                                new Coordinate(index * 2.0, index * 2.0),
+                                new Coordinate(index * 2.0 + 1.0, index * 2.0 + 1.0)
+                            }), GeometryConfiguration.GeometryFactory)
+                        }))).RecordAs(new RecordNumber(index + 1)))
+            .GetEnumerator();
 
-        var (result, context) = _sut.Validate(_entry, enumerator, _context);
+        var (result, context) = _sut.Validate(_entry, records, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(2)).HasShapeRecordFormatError(exception)),
-            result,
-            new FileProblemComparer());
+            ZipArchiveProblems.None,
+            result);
         Assert.Same(_context, context);
     }
 }

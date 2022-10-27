@@ -7,13 +7,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Uploads.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Uploads;
-using Xunit;
-using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
+using Uploads.Schema;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveTranslatorTests
@@ -575,42 +572,6 @@ public class ZipArchiveTranslatorTests
         }
     }
 
-    [Fact]
-    public void EncodingCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => new ZipArchiveTranslator(null));
-    }
-
-    [Fact]
-    public void IsZipArchiveTranslator()
-    {
-        var sut = new ZipArchiveTranslator(Encoding.UTF8);
-
-        Assert.IsAssignableFrom<IZipArchiveTranslator>(sut);
-    }
-
-    [Fact]
-    public void TranslateArchiveCanNotBeNull()
-    {
-        var sut = new ZipArchiveTranslator(Encoding.UTF8);
-
-        Assert.Throws<ArgumentNullException>(() => sut.Translate(null));
-    }
-
-    [Theory]
-    [MemberData(nameof(TranslateCases))]
-    public void TranslateReturnsExpectedResult(ZipArchive archive, TranslatedChanges expected)
-    {
-        using (archive)
-        {
-            var sut = new ZipArchiveTranslator(Encoding.UTF8);
-
-            var result = sut.Translate(archive);
-
-            Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
-        }
-    }
-
     private static Fixture CreateFixture()
     {
         var fixture = new Fixture();
@@ -824,5 +785,41 @@ public class ZipArchiveTranslatorTests
                 })
                 .OmitAutoProperties());
         return fixture;
+    }
+
+    [Fact]
+    public void EncodingCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new ZipArchiveTranslator(null));
+    }
+
+    [Fact]
+    public void IsZipArchiveTranslator()
+    {
+        var sut = new ZipArchiveTranslator(Encoding.UTF8);
+
+        Assert.IsAssignableFrom<IZipArchiveTranslator>(sut);
+    }
+
+    [Fact]
+    public void TranslateArchiveCanNotBeNull()
+    {
+        var sut = new ZipArchiveTranslator(Encoding.UTF8);
+
+        Assert.Throws<ArgumentNullException>(() => sut.Translate(null));
+    }
+
+    [Theory]
+    [MemberData(nameof(TranslateCases))]
+    public void TranslateReturnsExpectedResult(ZipArchive archive, TranslatedChanges expected)
+    {
+        using (archive)
+        {
+            var sut = new ZipArchiveTranslator(Encoding.UTF8);
+
+            var result = sut.Translate(archive);
+
+            Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
+        }
     }
 }

@@ -14,9 +14,9 @@ public class RoadNetworkExtractAssemblyRequest
         Contour = contour ?? throw new ArgumentNullException(nameof(contour));
     }
 
-    public ExternalExtractRequestId ExternalRequestId { get; }
-    public ExtractRequestId RequestId { get; }
-    public DownloadId DownloadId { get; }
-    public ExtractDescription ExtractDescription { get; }
     public IPolygonal Contour { get; }
+    public DownloadId DownloadId { get; }
+    public ExternalExtractRequestId ExternalRequestId { get; }
+    public ExtractDescription ExtractDescription { get; }
+    public ExtractRequestId RequestId { get; }
 }

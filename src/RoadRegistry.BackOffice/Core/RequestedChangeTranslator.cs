@@ -601,18 +601,6 @@ internal class RequestedChangeTranslator
         return new RemoveGradeSeparatedJunction(permanent);
     }
 
-    private sealed class SortableChange
-    {
-        public SortableChange(object change, int ordinal)
-        {
-            Ordinal = ordinal;
-            Change = change;
-        }
-
-        public int Ordinal { get; }
-        public object Change { get; }
-    }
-
     private sealed class RankChangeBeforeTranslation : IComparer<SortableChange>
     {
         private static readonly Type[] SequenceByTypeOfChange =
@@ -646,5 +634,17 @@ internal class RequestedChangeTranslator
                 ? comparison
                 : left.Ordinal.CompareTo(right.Ordinal);
         }
+    }
+
+    private sealed class SortableChange
+    {
+        public SortableChange(object change, int ordinal)
+        {
+            Ordinal = ordinal;
+            Change = change;
+        }
+
+        public object Change { get; }
+        public int Ordinal { get; }
     }
 }

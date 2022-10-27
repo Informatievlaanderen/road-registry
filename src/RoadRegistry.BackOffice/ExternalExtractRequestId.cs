@@ -5,7 +5,6 @@ using System;
 public readonly struct ExternalExtractRequestId : IEquatable<ExternalExtractRequestId>
 {
     public const int MaxLength = 256;
-
     private readonly string _value;
 
     public ExternalExtractRequestId(string value)

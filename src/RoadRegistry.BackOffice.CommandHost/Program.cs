@@ -25,11 +25,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
-using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
 using Uploads;
+using ZipArchiveWriters.Validation;
 
 public class Program
 {
@@ -210,7 +210,7 @@ public class Program
                         new CommandHandlerModule[]
                         {
                             new RoadNetworkChangesArchiveCommandModule(
-                                sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
+                                sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),

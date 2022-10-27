@@ -12,14 +12,11 @@ using NodaTime;
 public class Scheduler
 {
     private static readonly TimeSpan DefaultFrequency = TimeSpan.FromSeconds(1);
-
     private readonly IClock _clock;
     private readonly ILogger<Scheduler> _logger;
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
-
     private readonly CancellationTokenSource _messagePumpCancellation;
-
     private readonly Timer _timer;
 
     public Scheduler(IClock clock, ILogger<Scheduler> logger)
@@ -130,6 +127,12 @@ public class Scheduler
         _logger.LogInformation("Stopped scheduler.");
     }
 
+    private sealed class ScheduleAction
+    {
+        public Func<CancellationToken, Task> Action { get; init; }
+        public Instant Due { get; init; }
+    }
+
     private sealed class ScheduledAction
     {
         public ScheduledAction(Func<CancellationToken, Task> action, Instant due)
@@ -139,15 +142,7 @@ public class Scheduler
         }
 
         public Func<CancellationToken, Task> Action { get; }
-
         public Instant Due { get; }
-    }
-
-    private sealed class ScheduleAction
-    {
-        public Func<CancellationToken, Task> Action { get; init; }
-
-        public Instant Due { get; init; }
     }
 
     private sealed class TimerElapsed

@@ -25,12 +25,8 @@ public class EuropeanRoadChangeDbaseRecord : DbaseRecord
     }
 
     public DbaseInt32 EU_OIDN { get; }
-
-    public DbaseInt32 WS_OIDN { get; }
-
     public DbaseString EUNUMMER { get; }
-
-    public DbaseInt16 TRANSACTID { get; }
-
     public DbaseInt16 RECORDTYPE { get; }
+    public DbaseInt16 TRANSACTID { get; }
+    public DbaseInt32 WS_OIDN { get; }
 }

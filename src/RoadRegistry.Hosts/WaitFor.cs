@@ -18,9 +18,8 @@ internal class WriteTo
         Args = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
     }
 
-    public string Name { get; set; }
-
     public Dictionary<string, string> Args { get; set; }
+    public string Name { get; set; }
 }
 
 public static class WaitFor

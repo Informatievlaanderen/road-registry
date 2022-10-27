@@ -20,7 +20,7 @@ public class RoadSegmentCategoryDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseString WEGCAT { get; }
-    public DbaseString LBLWEGCAT { get; }
     public DbaseString DEFWEGCAT { get; }
+    public DbaseString LBLWEGCAT { get; }
+    public DbaseString WEGCAT { get; }
 }

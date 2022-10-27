@@ -7,7 +7,6 @@ using System.Globalization;
 public readonly struct RoadSegmentPosition : IEquatable<RoadSegmentPosition>, IComparable<RoadSegmentPosition>
 {
     public static readonly RoadSegmentPosition Zero = new(0.0m);
-
     private readonly decimal _value;
 
     public RoadSegmentPosition(decimal value)

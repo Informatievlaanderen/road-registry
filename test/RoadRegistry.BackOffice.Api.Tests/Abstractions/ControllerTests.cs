@@ -1,12 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Abstractions;
 
+using BackOffice.Extracts;
+using BackOffice.Uploads;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.Uploads;
 using SqlStreamStore;
-using System;
 
 public abstract class ControllerTests<TController> where TController : ControllerBase
 {
@@ -22,11 +21,10 @@ public abstract class ControllerTests<TController> where TController : Controlle
         FeatureCompareBlobClient = featureCompareBlobClient;
     }
 
+    protected TController Controller { get; init; }
+    protected RoadNetworkExtractUploadsBlobClient ExtractUploadBlobClient { get; }
+    protected RoadNetworkFeatureCompareBlobClient FeatureCompareBlobClient { get; }
     protected IMediator Mediator { get; }
     protected IStreamStore StreamStore { get; }
     protected RoadNetworkUploadsBlobClient UploadBlobClient { get; }
-    protected RoadNetworkExtractUploadsBlobClient ExtractUploadBlobClient { get; }
-    protected RoadNetworkFeatureCompareBlobClient FeatureCompareBlobClient { get; }
-
-    protected TController Controller { get; init; }
 }

@@ -14,7 +14,7 @@ public class Command<TBody>
         Body = (TBody)command.Body;
     }
 
+    public TBody Body { get; }
     public Guid MessageId { get; }
     public ClaimsPrincipal Principal { get; }
-    public TBody Body { get; }
 }

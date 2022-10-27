@@ -16,17 +16,6 @@ public abstract class EventHandlerModule
 
     public EventHandler[] Handlers => _handlers.ToArray();
 
-    protected void Handle<TEvent>(Func<Event<TEvent>, CancellationToken, Task> handler)
-    {
-        if (handler == null)
-            throw new ArgumentNullException(nameof(handler));
-        _handlers.Add(
-            new EventHandler(
-                typeof(TEvent),
-                (message, ct) => handler(new Event<TEvent>(message), ct)
-            ));
-    }
-
     protected IEventHandlerBuilder<TEvent> For<TEvent>()
     {
         return new EventHandlerBuilder<TEvent>(handler =>
@@ -37,5 +26,16 @@ public abstract class EventHandlerModule
                     (message, ct) => handler(new Event<TEvent>(message), ct)
                 ));
         });
+    }
+
+    protected void Handle<TEvent>(Func<Event<TEvent>, CancellationToken, Task> handler)
+    {
+        if (handler == null)
+            throw new ArgumentNullException(nameof(handler));
+        _handlers.Add(
+            new EventHandler(
+                typeof(TEvent),
+                (message, ct) => handler(new Event<TEvent>(message), ct)
+            ));
     }
 }

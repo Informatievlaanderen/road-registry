@@ -29,6 +29,40 @@ public class ScenarioRunner
 
     public ComparisonConfig ComparisonConfig { get; set; }
 
+    private async Task<RecordedEvent[]> ReadThens(long position)
+    {
+        var recorded = new List<RecordedEvent>();
+        var page = await _store.ReadAllForwards(position, 1024);
+        foreach (var then in page.Messages)
+            recorded.Add(
+                new RecordedEvent(
+                    new StreamName(then.StreamId),
+                    JsonConvert.DeserializeObject(
+                        await then.GetJsonData(),
+                        _mapping.GetEventType(then.Type),
+                        _settings
+                    )
+                )
+            );
+        while (!page.IsEnd)
+        {
+            page = await page.ReadNext();
+            foreach (var then in page.Messages)
+                recorded.Add(
+                    new RecordedEvent(
+                        new StreamName(then.StreamId),
+                        JsonConvert.DeserializeObject(
+                            await then.GetJsonData(),
+                            _mapping.GetEventType(then.Type),
+                            _settings
+                        )
+                    )
+                );
+        }
+
+        return recorded.ToArray();
+    }
+
     public async Task<object> RunAsync(ExpectEventsScenario scenario, CancellationToken ct = default)
     {
         var checkpoint = await WriteGivens(scenario.Givens);
@@ -139,40 +173,6 @@ public class ScenarioRunner
         }
 
         return checkpoint;
-    }
-
-    private async Task<RecordedEvent[]> ReadThens(long position)
-    {
-        var recorded = new List<RecordedEvent>();
-        var page = await _store.ReadAllForwards(position, 1024);
-        foreach (var then in page.Messages)
-            recorded.Add(
-                new RecordedEvent(
-                    new StreamName(then.StreamId),
-                    JsonConvert.DeserializeObject(
-                        await then.GetJsonData(),
-                        _mapping.GetEventType(then.Type),
-                        _settings
-                    )
-                )
-            );
-        while (!page.IsEnd)
-        {
-            page = await page.ReadNext();
-            foreach (var then in page.Messages)
-                recorded.Add(
-                    new RecordedEvent(
-                        new StreamName(then.StreamId),
-                        JsonConvert.DeserializeObject(
-                            await then.GetJsonData(),
-                            _mapping.GetEventType(then.Type),
-                            _settings
-                        )
-                    )
-                );
-        }
-
-        return recorded.ToArray();
     }
 
     private class ValidationFailureComparer : BaseTypeComparer

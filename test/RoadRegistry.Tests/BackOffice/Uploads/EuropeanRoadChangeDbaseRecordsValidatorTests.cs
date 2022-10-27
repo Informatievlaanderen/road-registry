@@ -88,6 +88,12 @@ public class EuropeanRoadChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
+    public void ValidateContextCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void ValidateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
@@ -97,12 +103,6 @@ public class EuropeanRoadChangeDbaseRecordsValidatorTests : IDisposable
     public void ValidateRecordsCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
-    }
-
-    [Fact]
-    public void ValidateContextCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
     }
 
     [Fact]
@@ -117,160 +117,22 @@ public class EuropeanRoadChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithValidRecordsReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<EuropeanRoadChangeDbaseRecord>(new Random().Next(1, 5))
-            .Select((record, index) =>
-            {
-                record.EU_OIDN.Value = index + 1;
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierReturnsExpectedResult()
+    public void ValidateWithProblematicRecordsReturnsExpectedResult()
     {
         var records = _fixture
             .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
-            .Select((record, index) =>
-            {
-                record.EU_OIDN.Value = 1;
-                if (index == 0)
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
+            .ToArray();
+        var exception = new Exception("problem");
+        var enumerator = new ProblematicDbaseRecordEnumerator<EuropeanRoadChangeDbaseRecord>(records, 1, exception);
 
-        var (result, context) = _sut.Validate(_entry, records, _context);
+        var (result, context) = _sut.Validate(_entry, enumerator, _context);
 
         Assert.Equal(
             ZipArchiveProblems.Single(
-                _entry
-                    .AtDbaseRecord(new RecordNumber(2))
-                    .IdentifierNotUnique(new AttributeId(1), new RecordNumber(1))
+                _entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)
             ),
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierButNotRecordTypeAddedReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
-            .Select((record, index) =>
-            {
-                record.EU_OIDN.Value = 1;
-                if (index == 0)
-                    record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(ZipArchiveProblems.None, result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierAndHaveAddedAndRemovedAsRecordTypeReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
-            .Select((record, index) =>
-            {
-                record.EU_OIDN.Value = 1;
-                if (index == 0)
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
-
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Theory]
-    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
-    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
-        Action<EuropeanRoadChangeDbaseRecord> modifier, DbaseField field)
-    {
-        var record = _fixture.Create<EuropeanRoadChangeDbaseRecord>();
-        modifier(record);
-        var records = new[] { record }.ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithRecordsThatHaveTheirRecordTypeMismatchReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
-            .Select((record, index) =>
-            {
-                record.EU_OIDN.Value = index + 1;
-                record.RECORDTYPE.Value = -1;
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Many(
-                _entry
-                    .AtDbaseRecord(new RecordNumber(1))
-                    .RecordTypeMismatch(-1),
-                _entry
-                    .AtDbaseRecord(new RecordNumber(2))
-                    .RecordTypeMismatch(-1)
-            ),
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithRecordsThatHaveZeroAsAttributeIdentifierReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
-            .Select(record =>
-            {
-                record.EU_OIDN.Value = 0;
-                return record;
-            })
-            .ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Many(
-                _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierZero(),
-                _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierZero()
-            ),
-            result);
+            result,
+            new FileProblemComparer());
         Assert.Same(_context, context);
     }
 
@@ -324,23 +186,141 @@ public class EuropeanRoadChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Same(_context, context);
     }
 
+    [Theory]
+    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+        Action<EuropeanRoadChangeDbaseRecord> modifier, DbaseField field)
+    {
+        var record = _fixture.Create<EuropeanRoadChangeDbaseRecord>();
+        modifier(record);
+        var records = new[] { record }.ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
+        Assert.Same(_context, context);
+    }
+
     [Fact]
-    public void ValidateWithProblematicRecordsReturnsExpectedResult()
+    public void ValidateWithRecordsThatHaveTheirRecordTypeMismatchReturnsExpectedResult()
     {
         var records = _fixture
             .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
-            .ToArray();
-        var exception = new Exception("problem");
-        var enumerator = new ProblematicDbaseRecordEnumerator<EuropeanRoadChangeDbaseRecord>(records, 1, exception);
+            .Select((record, index) =>
+            {
+                record.EU_OIDN.Value = index + 1;
+                record.RECORDTYPE.Value = -1;
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
 
-        var (result, context) = _sut.Validate(_entry, enumerator, _context);
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Many(
+                _entry
+                    .AtDbaseRecord(new RecordNumber(1))
+                    .RecordTypeMismatch(-1),
+                _entry
+                    .AtDbaseRecord(new RecordNumber(2))
+                    .RecordTypeMismatch(-1)
+            ),
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierAndHaveAddedAndRemovedAsRecordTypeReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
+            .Select((record, index) =>
+            {
+                record.EU_OIDN.Value = 1;
+                if (index == 0)
+                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.None,
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierButNotRecordTypeAddedReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
+            .Select((record, index) =>
+            {
+                record.EU_OIDN.Value = 1;
+                if (index == 0)
+                    record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
+                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(ZipArchiveProblems.None, result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
+            .Select((record, index) =>
+            {
+                record.EU_OIDN.Value = 1;
+                if (index == 0)
+                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
 
         Assert.Equal(
             ZipArchiveProblems.Single(
-                _entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)
+                _entry
+                    .AtDbaseRecord(new RecordNumber(2))
+                    .IdentifierNotUnique(new AttributeId(1), new RecordNumber(1))
             ),
-            result,
-            new FileProblemComparer());
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithRecordsThatHaveZeroAsAttributeIdentifierReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<EuropeanRoadChangeDbaseRecord>(2)
+            .Select(record =>
+            {
+                record.EU_OIDN.Value = 0;
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Many(
+                _entry.AtDbaseRecord(new RecordNumber(1)).IdentifierZero(),
+                _entry.AtDbaseRecord(new RecordNumber(2)).IdentifierZero()
+            ),
+            result);
         Assert.Same(_context, context);
     }
 
@@ -369,6 +349,26 @@ public class EuropeanRoadChangeDbaseRecordsValidatorTests : IDisposable
 
         Assert.Equal(
             ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentIdOutOfRange(-1)),
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithValidRecordsReturnsExpectedResult()
+    {
+        var records = _fixture
+            .CreateMany<EuropeanRoadChangeDbaseRecord>(new Random().Next(1, 5))
+            .Select((record, index) =>
+            {
+                record.EU_OIDN.Value = index + 1;
+                return record;
+            })
+            .ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.None,
             result);
         Assert.Same(_context, context);
     }

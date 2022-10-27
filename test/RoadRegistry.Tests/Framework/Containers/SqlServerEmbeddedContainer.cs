@@ -1,12 +1,10 @@
 namespace RoadRegistry.Tests.Framework.Containers;
 
-using System.Reflection;
 using Microsoft.Data.SqlClient;
 
 public class SqlServerEmbeddedContainer : DockerContainer, ISqlServerDatabase
 {
     private const string Password = "E@syP@ssw0rd";
-
     private readonly int _hostPort;
     private int _db;
 
@@ -37,11 +35,6 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
         return CreateConnectionStringBuilder(database, _hostPort);
     }
 
-    private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
-    {
-        return CreateConnectionStringBuilder("master", _hostPort);
-    }
-
     private static SqlConnectionStringBuilder CreateConnectionStringBuilder(string database, int hostPort)
     {
         return new SqlConnectionStringBuilder
@@ -54,6 +47,11 @@ ALTER DATABASE [{database}] SET READ_COMMITTED_SNAPSHOT ON";
             Enlist = false,
             IntegratedSecurity = false
         };
+    }
+
+    private SqlConnectionStringBuilder CreateMasterConnectionStringBuilder()
+    {
+        return CreateConnectionStringBuilder("master", _hostPort);
     }
 
     private class SqlServerContainerConfiguration : DockerContainerConfiguration

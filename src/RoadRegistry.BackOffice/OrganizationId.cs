@@ -5,10 +5,8 @@ using System;
 public readonly struct OrganizationId : IEquatable<OrganizationId>
 {
     public const int MaxLength = 18;
-
     public static readonly OrganizationId Unknown = new("-8");
     public static readonly OrganizationId Other = new("-7");
-
     private readonly string _value;
 
     public OrganizationId(string value)

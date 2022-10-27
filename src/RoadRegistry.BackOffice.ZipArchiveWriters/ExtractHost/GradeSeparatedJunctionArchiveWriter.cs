@@ -5,8 +5,8 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
 using Editor.Schema.GradeSeparatedJunctions;
+using Extensions;
 using Extracts;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 
 public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter<EditorContext>
@@ -28,10 +28,12 @@ public class GradeSeparatedJunctionArchiveWriter : IZipArchiveWriter<EditorConte
         if (request == null) throw new ArgumentNullException(nameof(request));
         if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var junctions =
-            await context.GradeSeparatedJunctions
-                .InsideContour(request.Contour)
-                .ToListAsync(cancellationToken);
+        var junctions = await context.GradeSeparatedJunctions
+            .ToListWithPolygonials(request.Contour,
+                (dbSet, polygon) => dbSet.InsideContour(polygon),
+                x => x.Id,
+                cancellationToken);
+
         var dbfEntry = archive.CreateEntry("eRltOgkruising.dbf");
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,

@@ -6,16 +6,16 @@ using Dbase;
 public class RoadNetworkInformationResponse
 {
     public bool CompletedImport { get; set; }
+    public int GradeSeparatedJunctionCount { get; set; }
     public int OrganizationCount { get; set; }
     public int RoadNodeCount { get; set; }
     public int RoadSegmentCount { get; set; }
     public int RoadSegmentEuropeanRoadAttributeCount { get; set; }
-    public int RoadSegmentNumberedRoadAttributeCount { get; set; }
-    public int RoadSegmentNationalRoadAttributeCount { get; set; }
     public int RoadSegmentLaneAttributeCount { get; set; }
-    public int RoadSegmentWidthAttributeCount { get; set; }
+    public int RoadSegmentNationalRoadAttributeCount { get; set; }
+    public int RoadSegmentNumberedRoadAttributeCount { get; set; }
     public int RoadSegmentSurfaceAttributeCount { get; set; }
-    public int GradeSeparatedJunctionCount { get; set; }
+    public int RoadSegmentWidthAttributeCount { get; set; }
 
     public static RoadNetworkInformationResponse From(RoadNetworkInfo info)
     {

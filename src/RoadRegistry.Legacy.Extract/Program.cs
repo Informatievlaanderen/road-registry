@@ -1,219 +1,218 @@
-namespace RoadRegistry.Legacy.Extract
+namespace RoadRegistry.Legacy.Extract;
+
+using System;
+using System.Data;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Amazon;
+using Amazon.Runtime;
+using Amazon.S3;
+using Be.Vlaanderen.Basisregisters.BlobStore;
+using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
+using Be.Vlaanderen.Basisregisters.BlobStore.IO;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Hosts;
+using Hosts.Configuration;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.IO;
+using NodaTime;
+using Readers;
+using Serilog;
+using Serilog.Debugging;
+
+public class Program
 {
-    using System;
-    using System.Data;
-    using System.IO;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Amazon;
-    using Amazon.Runtime;
-    using Amazon.S3;
-    using Be.Vlaanderen.Basisregisters.BlobStore;
-    using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
-    using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-    using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-    using Hosts;
-    using Hosts.Configuration;
-    using Microsoft.Data.SqlClient;
-    using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.IO;
-    using NodaTime;
-    using Readers;
-    using Serilog;
-    using Serilog.Debugging;
-
-    public class Program
+    protected Program()
     {
-        protected Program()
-        {
-        }
+    }
 
-        public static async Task Main(string[] args)
-        {
-            AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
-                Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
+    public static async Task Main(string[] args)
+    {
+        AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
+            Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
 
-            AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
-                Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
+        AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
+            Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
-            var host = new HostBuilder()
-                .ConfigureHostConfiguration(builder =>
-                {
+        var host = new HostBuilder()
+            .ConfigureHostConfiguration(builder =>
+            {
+                builder
+                    .AddEnvironmentVariables("DOTNET_")
+                    .AddEnvironmentVariables("ASPNETCORE_");
+            })
+            .ConfigureAppConfiguration((hostContext, builder) =>
+            {
+                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+                if (hostContext.HostingEnvironment.IsProduction())
                     builder
-                        .AddEnvironmentVariables("DOTNET_")
-                        .AddEnvironmentVariables("ASPNETCORE_");
-                })
-                .ConfigureAppConfiguration((hostContext, builder) =>
+                        .SetBasePath(Directory.GetCurrentDirectory());
+
+                builder
+                    .AddJsonFile("appsettings.json", true, false)
+                    .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName.ToLowerInvariant()}.json", true, false)
+                    .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
+                    .AddEnvironmentVariables()
+                    .AddCommandLine(args);
+            })
+            .ConfigureLogging((hostContext, builder) =>
+            {
+                SelfLog.Enable(Console.WriteLine);
+
+                var loggerConfiguration = new LoggerConfiguration()
+                    .ReadFrom.Configuration(hostContext.Configuration)
+                    .Enrich.FromLogContext()
+                    .Enrich.WithMachineName()
+                    .Enrich.WithThreadId()
+                    .Enrich.WithEnvironmentUserName();
+
+                Log.Logger = loggerConfiguration.CreateLogger();
+
+                builder.AddSerilog(Log.Logger);
+            })
+            .ConfigureServices((hostContext, builder) =>
+            {
+                var blobOptions = new BlobClientOptions();
+                hostContext.Configuration.Bind(blobOptions);
+
+                switch (blobOptions.BlobClientType)
                 {
-                    Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                    case nameof(S3BlobClient):
+                        var s3Options = new S3BlobClientOptions();
+                        hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
-                    if (hostContext.HostingEnvironment.IsProduction())
-                        builder
-                            .SetBasePath(Directory.GetCurrentDirectory());
+                        // Use MINIO
+                        if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
+                        {
+                            if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null) throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
 
-                    builder
-                        .AddJsonFile("appsettings.json", true, false)
-                        .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName.ToLowerInvariant()}.json", true, false)
-                        .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
-                        .AddEnvironmentVariables()
-                        .AddCommandLine(args);
-                })
-                .ConfigureLogging((hostContext, builder) =>
-                {
-                    SelfLog.Enable(Console.WriteLine);
+                            if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null) throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
 
-                    var loggerConfiguration = new LoggerConfiguration()
-                        .ReadFrom.Configuration(hostContext.Configuration)
-                        .Enrich.FromLogContext()
-                        .Enrich.WithMachineName()
-                        .Enrich.WithThreadId()
-                        .Enrich.WithEnvironmentUserName();
-
-                    Log.Logger = loggerConfiguration.CreateLogger();
-
-                    builder.AddSerilog(Log.Logger);
-                })
-                .ConfigureServices((hostContext, builder) =>
-                {
-                    var blobOptions = new BlobClientOptions();
-                    hostContext.Configuration.Bind(blobOptions);
-
-                    switch (blobOptions.BlobClientType)
-                    {
-                        case nameof(S3BlobClient):
-                            var s3Options = new S3BlobClientOptions();
-                            hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
-
-                            // Use MINIO
-                            if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
-                            {
-                                if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null) throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
-
-                                if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null) throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
-
-                                builder.AddSingleton(new AmazonS3Client(
-                                        new BasicAWSCredentials(
-                                            hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY"),
-                                            hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY")),
-                                        new AmazonS3Config
-                                        {
-                                            RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                            ServiceURL = hostContext.Configuration.GetValue<string>("MINIO_SERVER"),
-                                            ForcePathStyle = true
-                                        }
-                                    )
-                                );
-                            }
-                            else // Use AWS
-                            {
-                                if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null) throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
-
-                                if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null) throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
-
-                                builder.AddSingleton(new AmazonS3Client(
-                                        new BasicAWSCredentials(
-                                            hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID"),
-                                            hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY"))
-                                    )
-                                );
-                            }
-
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.ImportLegacyBucket]
+                            builder.AddSingleton(new AmazonS3Client(
+                                    new BasicAWSCredentials(
+                                        hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY"),
+                                        hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY")),
+                                    new AmazonS3Config
+                                    {
+                                        RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
+                                        ServiceURL = hostContext.Configuration.GetValue<string>("MINIO_SERVER"),
+                                        ForcePathStyle = true
+                                    }
                                 )
                             );
-                            break;
-                        case nameof(FileBlobClient):
-                            var fileOptions = new FileBlobClientOptions();
-                            hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
+                        }
+                        else // Use AWS
+                        {
+                            if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null) throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
 
-                            builder.AddSingleton<IBlobClient>(sp =>
-                                new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.Directory)
+                            if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null) throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
+
+                            builder.AddSingleton(new AmazonS3Client(
+                                    new BasicAWSCredentials(
+                                        hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID"),
+                                        hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY"))
                                 )
                             );
-                            break;
-                        default:
-                            throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");
-                    }
+                        }
 
-                    builder
-                        .AddSingleton<WellKnownBinaryReader>()
-                        .AddSingleton<RecyclableMemoryStreamManager>()
-                        .AddSingleton<IClock>(SystemClock.Instance)
-                        .AddSingleton<IEventReader, LegacyEventReader>()
-                        .AddSingleton<LegacyStreamArchiveWriter>()
-                        .AddSingleton(
-                            new SqlConnection(
-                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Legacy)
+                        builder.AddSingleton<IBlobClient>(sp =>
+                            new S3BlobClient(
+                                sp.GetRequiredService<AmazonS3Client>(),
+                                s3Options.Buckets[WellknownBuckets.ImportLegacyBucket]
                             )
                         );
-                })
-                .Build();
+                        break;
+                    case nameof(FileBlobClient):
+                        var fileOptions = new FileBlobClientOptions();
+                        hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 
-            var configuration = host.Services.GetRequiredService<IConfiguration>();
-            var logger = host.Services.GetRequiredService<ILogger<Program>>();
-            var reader = host.Services.GetRequiredService<IEventReader>();
-            var writer = host.Services.GetRequiredService<LegacyStreamArchiveWriter>();
-            var blobClient = host.Services.GetRequiredService<IBlobClient>();
-            var blobClientOptions = new BlobClientOptions();
-            configuration.Bind(blobClientOptions);
-
-            try
-            {
-                await WaitFor.SeqToBecomeAvailable(configuration);
-
-                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Legacy);
-                logger.LogBlobClientCredentials(blobClientOptions);
-
-                await WaitFor.SqlServerToBecomeAvailable(
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Legacy))
-                    , logger);
-
-                await OptimizeDatabasePerformance(
-                    new SqlConnectionStringBuilder(
-                        configuration.GetConnectionString(WellknownConnectionNames.Legacy)), logger);
-
-                await blobClient.ProvisionResources(host);
-
-                using (var connection = host.Services.GetRequiredService<SqlConnection>())
-                {
-                    await connection.OpenAsync();
-
-                    await writer.WriteAsync(reader.ReadEvents(connection));
+                        builder.AddSingleton<IBlobClient>(sp =>
+                            new FileBlobClient(
+                                new DirectoryInfo(fileOptions.Directory)
+                            )
+                        );
+                        break;
+                    default:
+                        throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");
                 }
-            }
-            catch (Exception exception)
+
+                builder
+                    .AddSingleton<WellKnownBinaryReader>()
+                    .AddSingleton<RecyclableMemoryStreamManager>()
+                    .AddSingleton<IClock>(SystemClock.Instance)
+                    .AddSingleton<IEventReader, LegacyEventReader>()
+                    .AddSingleton<LegacyStreamArchiveWriter>()
+                    .AddSingleton(
+                        new SqlConnection(
+                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Legacy)
+                        )
+                    );
+            })
+            .Build();
+
+        var configuration = host.Services.GetRequiredService<IConfiguration>();
+        var logger = host.Services.GetRequiredService<ILogger<Program>>();
+        var reader = host.Services.GetRequiredService<IEventReader>();
+        var writer = host.Services.GetRequiredService<LegacyStreamArchiveWriter>();
+        var blobClient = host.Services.GetRequiredService<IBlobClient>();
+        var blobClientOptions = new BlobClientOptions();
+        configuration.Bind(blobClientOptions);
+
+        try
+        {
+            await WaitFor.SeqToBecomeAvailable(configuration);
+
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Legacy);
+            logger.LogBlobClientCredentials(blobClientOptions);
+
+            await WaitFor.SqlServerToBecomeAvailable(
+                new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Legacy))
+                , logger);
+
+            await OptimizeDatabasePerformance(
+                new SqlConnectionStringBuilder(
+                    configuration.GetConnectionString(WellknownConnectionNames.Legacy)), logger);
+
+            await blobClient.ProvisionResources(host);
+
+            using (var connection = host.Services.GetRequiredService<SqlConnection>())
             {
-                logger.LogCritical(exception, "Encountered a fatal exception, exiting program.");
-            }
-            finally
-            {
-                Log.CloseAndFlush();
+                await connection.OpenAsync();
+
+                await writer.WriteAsync(reader.ReadEvents(connection));
             }
         }
-
-        private static async Task OptimizeDatabasePerformance(SqlConnectionStringBuilder builder,
-            ILogger<Program> logger, CancellationToken token = default)
+        catch (Exception exception)
         {
-            logger.LogInformation("Optimizing database for performance ...");
-            using (var connection = new SqlConnection(builder.ConnectionString))
-            {
-                await connection.OpenAsync(token).ConfigureAwait(false);
-                using (var command = new SqlCommand(@"
+            logger.LogCritical(exception, "Encountered a fatal exception, exiting program.");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
+
+    private static async Task OptimizeDatabasePerformance(SqlConnectionStringBuilder builder,
+        ILogger<Program> logger, CancellationToken token = default)
+    {
+        logger.LogInformation("Optimizing database for performance ...");
+        using (var connection = new SqlConnection(builder.ConnectionString))
+        {
+            await connection.OpenAsync(token).ConfigureAwait(false);
+            using (var command = new SqlCommand(@"
 IF NOT EXISTS(SELECT * FROM [sys].[indexes] WHERE name='IX_WB_WS' AND object_id = OBJECT_ID('dbo.wegbreedte')) BEGIN CREATE INDEX [IX_WB_WS] ON [dbo].[wegbreedte] ([wegsegmentID]) END
 IF NOT EXISTS(SELECT * FROM [sys].[indexes] WHERE name='IX_RS_WS' AND object_id = OBJECT_ID('dbo.rijstroken')) BEGIN CREATE INDEX [IX_RS_WS] ON [dbo].[rijstroken] ([wegsegmentID]) END
 IF NOT EXISTS(SELECT * FROM [sys].[indexes] WHERE name='IX_WV_WS' AND object_id = OBJECT_ID('dbo.wegverharding')) BEGIN CREATE INDEX [IX_WV_WS] ON [dbo].[wegverharding] ([wegsegmentID]) END", connection))
-                {
-                    command.CommandType = CommandType.Text;
-                    await command.ExecuteNonQueryAsync(token);
-                }
+            {
+                command.CommandType = CommandType.Text;
+                await command.ExecuteNonQueryAsync(token);
             }
         }
     }

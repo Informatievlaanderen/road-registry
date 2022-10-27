@@ -112,6 +112,12 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
+    public void ValidateContextCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void ValidateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
@@ -121,12 +127,6 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
     public void ValidateRecordsCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
-    }
-
-    [Fact]
-    public void ValidateContextCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
     }
 
     [Fact]
@@ -141,25 +141,43 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithValidRecordsReturnsExpectedResult()
+    public void ValidateWithProblematicRecordsReturnsExpectedResult()
     {
         var initialContext = ZipArchiveValidationContext.Empty;
         var records = _fixture
-            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(new Random().Next(1, 5))
-            .Select((record, index) =>
+            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
+            .Select(record =>
             {
-                record.WB_OIDN.Value = index + 1;
                 initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                 return record;
             })
-            .ToArray()
-            .ToDbaseRecordEnumerator();
+            .ToArray();
+        var exception = new Exception("problem");
+        var enumerator = new ProblematicDbaseRecordEnumerator<RoadSegmentWidthChangeDbaseRecord>(records, 1, exception);
+
+        var (result, context) = _sut.Validate(_entry, enumerator, initialContext);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)),
+            result,
+            new FileProblemComparer());
+        Assert.Same(initialContext, context);
+    }
+
+    [Theory]
+    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
+    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
+        Action<RoadSegmentWidthChangeDbaseRecord> modifier, DbaseField field)
+    {
+        var initialContext = ZipArchiveValidationContext.Empty;
+        var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
+        modifier(record);
+        if (record.WS_OIDN.HasValue) initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+        var records = new[] { record }.ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, initialContext);
 
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
+        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
         Assert.Same(initialContext, context);
     }
 
@@ -195,6 +213,32 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
+    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierAndHaveAddedAndRemovedAsRecordTypeReturnsExpectedResult()
+    {
+        var initialContext = ZipArchiveValidationContext.Empty;
+        var records = _fixture
+            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
+            .Select((record, index) =>
+            {
+                record.WB_OIDN.Value = 1;
+                if (index == 0)
+                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                return record;
+            })
+            .ToArray()
+            .ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, initialContext);
+
+        Assert.Equal(
+            ZipArchiveProblems.None,
+            result);
+        Assert.Same(initialContext, context);
+    }
+
+    [Fact]
     public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierReturnsExpectedResult()
     {
         var initialContext = ZipArchiveValidationContext.Empty;
@@ -225,33 +269,6 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithRecordsThatHaveTheSameAttributeIdentifierAndHaveAddedAndRemovedAsRecordTypeReturnsExpectedResult()
-    {
-        var initialContext = ZipArchiveValidationContext.Empty;
-        var records = _fixture
-            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
-            .Select((record, index) =>
-            {
-                record.WB_OIDN.Value = 1;
-                if (index == 0)
-                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
-                initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
-                return record;
-            })
-            .ToArray()
-            .ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, initialContext);
-
-        Assert.Equal(
-            ZipArchiveProblems.None,
-            result);
-        Assert.Same(initialContext, context);
-    }
-
-
-    [Fact]
     public void ValidateWithRecordsThatHaveZeroAsAttributeIdentifierReturnsExpectedResult()
     {
         var initialContext = ZipArchiveValidationContext.Empty;
@@ -277,60 +294,20 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Same(initialContext, context);
     }
 
-    [Theory]
-    [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
-    public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
-        Action<RoadSegmentWidthChangeDbaseRecord> modifier, DbaseField field)
+    [Fact]
+    public void ValidateWithRecordThatHasFromAfterToPositionExpectedResult()
     {
         var initialContext = ZipArchiveValidationContext.Empty;
         var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
-        modifier(record);
-        if (record.WS_OIDN.HasValue) initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
-        var records = new[] { record }.ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, initialContext);
-
-        Assert.Contains(_entry.AtDbaseRecord(new RecordNumber(1)).RequiredFieldIsNull(field), result);
-        Assert.Same(initialContext, context);
-    }
-
-    [Fact]
-    public void ValidateWithProblematicRecordsReturnsExpectedResult()
-    {
-        var initialContext = ZipArchiveValidationContext.Empty;
-        var records = _fixture
-            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
-            .Select(record =>
-            {
-                initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
-                return record;
-            })
-            .ToArray();
-        var exception = new Exception("problem");
-        var enumerator = new ProblematicDbaseRecordEnumerator<RoadSegmentWidthChangeDbaseRecord>(records, 1, exception);
-
-        var (result, context) = _sut.Validate(_entry, enumerator, initialContext);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)),
-            result,
-            new FileProblemComparer());
-        Assert.Same(initialContext, context);
-    }
-
-    [Fact]
-    public void ValidateWithRecordThatHasInvalidWidthReturnsExpectedResult()
-    {
-        var initialContext = ZipArchiveValidationContext.Empty;
-        var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
-        record.BREEDTE.Value = -1;
+        record.VANPOSITIE.Value = record.TOTPOSITIE.Value + 1;
         initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
         var records = new[] { record }.ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, initialContext);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).WidthOutOfRange(-1)),
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1))
+                .FromPositionEqualToOrGreaterThanToPosition(record.VANPOSITIE.Value, record.TOTPOSITIE.Value)),
             result);
         Assert.Same(initialContext, context);
     }
@@ -347,6 +324,23 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
 
         Assert.Equal(
             ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentIdOutOfRange(-1)),
+            result);
+        Assert.Same(initialContext, context);
+    }
+
+    [Fact]
+    public void ValidateWithRecordThatHasInvalidWidthReturnsExpectedResult()
+    {
+        var initialContext = ZipArchiveValidationContext.Empty;
+        var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
+        record.BREEDTE.Value = -1;
+        initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+        var records = new[] { record }.ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, initialContext);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).WidthOutOfRange(-1)),
             result);
         Assert.Same(initialContext, context);
     }
@@ -370,19 +364,24 @@ public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithRecordThatHasFromAfterToPositionExpectedResult()
+    public void ValidateWithValidRecordsReturnsExpectedResult()
     {
         var initialContext = ZipArchiveValidationContext.Empty;
-        var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
-        record.VANPOSITIE.Value = record.TOTPOSITIE.Value + 1;
-        initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
-        var records = new[] { record }.ToDbaseRecordEnumerator();
+        var records = _fixture
+            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(new Random().Next(1, 5))
+            .Select((record, index) =>
+            {
+                record.WB_OIDN.Value = index + 1;
+                initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                return record;
+            })
+            .ToArray()
+            .ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, initialContext);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1))
-                .FromPositionEqualToOrGreaterThanToPosition(record.VANPOSITIE.Value, record.TOTPOSITIE.Value)),
+            ZipArchiveProblems.None,
             result);
         Assert.Same(initialContext, context);
     }

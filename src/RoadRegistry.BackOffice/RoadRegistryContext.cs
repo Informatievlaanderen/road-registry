@@ -19,8 +19,8 @@ public class RoadRegistryContext : IRoadRegistryContext
         Organizations = new Organizations(map, store, settings, mapping);
     }
 
-    public IRoadNetworks RoadNetworks { get; }
-    public IRoadNetworkExtracts RoadNetworkExtracts { get; }
-    public IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
     public IOrganizations Organizations { get; }
+    public IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
+    public IRoadNetworkExtracts RoadNetworkExtracts { get; }
+    public IRoadNetworks RoadNetworks { get; }
 }

@@ -54,6 +54,12 @@ public class RoadNodeChangeDbaseRecordsTranslatorTests : IDisposable
     }
 
     [Fact]
+    public void TranslateChangesCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
+    }
+
+    [Fact]
     public void TranslateEntryCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(null, _enumerator, TranslatedChanges.Empty));
@@ -63,12 +69,6 @@ public class RoadNodeChangeDbaseRecordsTranslatorTests : IDisposable
     public void TranslateRecordsCanNotBeNull()
     {
         Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, null, TranslatedChanges.Empty));
-    }
-
-    [Fact]
-    public void TranslateChangesCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Translate(_entry, _enumerator, null));
     }
 
     [Fact]
@@ -108,7 +108,6 @@ public class RoadNodeChangeDbaseRecordsTranslatorTests : IDisposable
         var enumerator = records.ToDbaseRecordEnumerator();
 
         var result = _sut.Translate(_entry, enumerator, TranslatedChanges.Empty);
-
 
         var expected = records.Aggregate(
             TranslatedChanges.Empty,

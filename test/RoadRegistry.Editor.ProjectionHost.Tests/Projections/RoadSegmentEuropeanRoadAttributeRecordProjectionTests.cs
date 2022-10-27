@@ -2,11 +2,11 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 
 using System.Text;
 using AutoFixture;
+using BackOffice;
+using BackOffice.Messages;
 using Editor.Projections;
 using Editor.Schema.RoadSegments;
 using Microsoft.IO;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 
@@ -60,6 +60,51 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjectionTests : IClassFixtu
     }
 
     [Fact]
+    public Task When_adding_road_nodes()
+    {
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAddedToEuropeanRoad>());
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var europeanRoad = change.RoadSegmentAddedToEuropeanRoad;
+
+            return (object)new RoadSegmentEuropeanRoadAttributeRecord
+            {
+                Id = europeanRoad.AttributeId,
+                RoadSegmentId = europeanRoad.SegmentId,
+                DbaseRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
+                {
+                    EU_OIDN = { Value = europeanRoad.AttributeId },
+                    WS_OIDN = { Value = europeanRoad.SegmentId },
+                    EUNUMMER = { Value = europeanRoad.Number },
+                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
+                    BEGINORG = { Value = message.OrganizationId },
+                    LBLBGNORG = { Value = message.Organization }
+                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            };
+        });
+
+        return new RoadSegmentEuropeanRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(message)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_importing_a_road_node_without_european_road_links()
+    {
+        var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
+        importedRoadSegment.PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttribute>();
+
+        return new RoadSegmentEuropeanRoadAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            .Scenario()
+            .Given(importedRoadSegment)
+            .Expect();
+    }
+
+    [Fact]
     public Task When_importing_road_nodes()
     {
         var random = new Random();
@@ -106,71 +151,6 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjectionTests : IClassFixtu
     }
 
     [Fact]
-    public Task When_importing_a_road_node_without_european_road_links()
-    {
-        var importedRoadSegment = _fixture.Create<ImportedRoadSegment>();
-        importedRoadSegment.PartOfEuropeanRoads = Array.Empty<ImportedRoadSegmentEuropeanRoadAttribute>();
-
-        return new RoadSegmentEuropeanRoadAttributeRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
-            .Scenario()
-            .Given(importedRoadSegment)
-            .Expect();
-    }
-
-
-    [Fact]
-    public Task When_adding_road_nodes()
-    {
-        var message = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAddedToEuropeanRoad>());
-
-        var expectedRecords = Array.ConvertAll(message.Changes, change =>
-        {
-            var europeanRoad = change.RoadSegmentAddedToEuropeanRoad;
-
-            return (object)new RoadSegmentEuropeanRoadAttributeRecord
-            {
-                Id = europeanRoad.AttributeId,
-                RoadSegmentId = europeanRoad.SegmentId,
-                DbaseRecord = new RoadSegmentEuropeanRoadAttributeDbaseRecord
-                {
-                    EU_OIDN = { Value = europeanRoad.AttributeId },
-                    WS_OIDN = { Value = europeanRoad.SegmentId },
-                    EUNUMMER = { Value = europeanRoad.Number },
-                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(message.When) },
-                    BEGINORG = { Value = message.OrganizationId },
-                    LBLBGNORG = { Value = message.Organization }
-                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-            };
-        });
-
-        return new RoadSegmentEuropeanRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
-            .Scenario()
-            .Given(message)
-            .Expect(expectedRecords);
-    }
-
-    [Fact]
-    public Task When_removing_road_segments_from_european_roads()
-    {
-        _fixture.Freeze<AttributeId>();
-
-        var acceptedRoadSegmentAdded = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToEuropeanRoad>());
-
-        var acceptedRoadSegmentRemoved = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromEuropeanRoad>());
-
-        return new RoadSegmentEuropeanRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
-            .Scenario()
-            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved)
-            .ExpectNone();
-    }
-
-    [Fact]
     public Task When_removing_road_segments()
     {
         var roadSegmentAddedToEuropeanRoad = _fixture.Create<RoadSegmentAddedToEuropeanRoad>();
@@ -206,5 +186,24 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjectionTests : IClassFixtu
                     LBLBGNORG = { Value = acceptedRoadSegmentsAdded.Organization }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
             });
+    }
+
+    [Fact]
+    public Task When_removing_road_segments_from_european_roads()
+    {
+        _fixture.Freeze<AttributeId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToEuropeanRoad>());
+
+        var acceptedRoadSegmentRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemovedFromEuropeanRoad>());
+
+        return new RoadSegmentEuropeanRoadAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved)
+            .ExpectNone();
     }
 }

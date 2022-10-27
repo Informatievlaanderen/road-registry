@@ -18,16 +18,16 @@ public class SqlEventProcessorPositionStoreTests : IAsyncLifetime
         _fixture = new Fixture();
     }
 
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
+
     public async Task InitializeAsync()
     {
         _builder = await _server.CreateDatabaseAsync();
 
         await new SqlEventProcessorPositionStoreSchema(_builder).CreateSchemaIfNotExists("schema");
-    }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
     }
 
     [Fact]

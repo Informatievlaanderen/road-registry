@@ -6,7 +6,6 @@ using System.Collections.Generic;
 public class EventRecorder
 {
     private readonly List<object> _recorded = new();
-
     public bool HasRecordedEvents => _recorded.Count != 0;
     public object[] RecordedEvents => _recorded.ToArray();
 

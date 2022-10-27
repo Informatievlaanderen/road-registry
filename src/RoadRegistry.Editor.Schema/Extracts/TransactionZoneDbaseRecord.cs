@@ -22,11 +22,11 @@ public class TransactionZoneDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 SOURCEID { get; }
-    public DbaseInt32 TYPE { get; }
+    public DbaseString APPLICATIE { get; }
     public DbaseString BESCHRIJV { get; }
+    public DbaseString DOWNLOADID { get; }
     public DbaseString OPERATOR { get; }
     public DbaseString ORG { get; }
-    public DbaseString APPLICATIE { get; }
-    public DbaseString DOWNLOADID { get; }
+    public DbaseInt32 SOURCEID { get; }
+    public DbaseInt32 TYPE { get; }
 }

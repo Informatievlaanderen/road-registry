@@ -37,15 +37,15 @@ public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 RS_OIDN { get; set; }
-    public DbaseInt32 WS_OIDN { get; set; }
-    public DbaseString WS_GIDN { get; set; }
     public DbaseInt32 AANTAL { get; set; }
-    public DbaseInt32 RICHTING { get; set; }
-    public DbaseString LBLRICHT { get; set; }
-    public DbaseDouble VANPOS { get; set; }
-    public DbaseDouble TOTPOS { get; set; }
-    public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseString BEGINORG { get; set; }
+    public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseString LBLBGNORG { get; set; }
+    public DbaseString LBLRICHT { get; set; }
+    public DbaseInt32 RICHTING { get; set; }
+    public DbaseInt32 RS_OIDN { get; set; }
+    public DbaseDouble TOTPOS { get; set; }
+    public DbaseDouble VANPOS { get; set; }
+    public DbaseString WS_GIDN { get; set; }
+    public DbaseInt32 WS_OIDN { get; set; }
 }

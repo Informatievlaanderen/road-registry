@@ -9,6 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ZipArchiveWriters\Fixtures\RoadNodesToZipArchiveWriterFixture.wkt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ExtractHost\RoadRegistry.BackOffice.ExtractHost.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>

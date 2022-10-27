@@ -35,14 +35,10 @@ public class RoadSegment
         PartOfNumberedRoads = partOfNumberedRoads;
     }
 
-    public RoadSegmentId Id { get; }
-    public MultiLineString Geometry { get; }
-    public RoadNodeId Start { get; }
-    public RoadNodeId End { get; }
     public AttributeHash AttributeHash { get; }
-    public ImmutableHashSet<EuropeanRoadNumber> PartOfEuropeanRoads { get; }
-    public ImmutableHashSet<NationalRoadNumber> PartOfNationalRoads { get; }
-    public ImmutableHashSet<NumberedRoadNumber> PartOfNumberedRoads { get; }
+    public RoadNodeId End { get; }
+    public MultiLineString Geometry { get; }
+    public RoadSegmentId Id { get; }
 
     public IEnumerable<RoadNodeId> Nodes
     {
@@ -53,32 +49,24 @@ public class RoadSegment
         }
     }
 
-    public IEnumerable<RoadNodeId> SelectOppositeNode(RoadNodeId id)
+    public ImmutableHashSet<EuropeanRoadNumber> PartOfEuropeanRoads { get; }
+    public ImmutableHashSet<NationalRoadNumber> PartOfNationalRoads { get; }
+    public ImmutableHashSet<NumberedRoadNumber> PartOfNumberedRoads { get; }
+    public RoadNodeId Start { get; }
+
+    public RoadSegment NotPartOfEuropeanRoad(EuropeanRoadNumber number)
     {
-        if (Start == id)
-            yield return End;
-        else if (End == id) yield return Start;
+        return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads.Remove(number), PartOfNationalRoads, PartOfNumberedRoads);
     }
 
-    public RoadSegment WithGeometry(MultiLineString geometry)
+    public RoadSegment NotPartOfNationalRoad(NationalRoadNumber number)
     {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
-        return new RoadSegment(Id, geometry, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads);
+        return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads.Remove(number), PartOfNumberedRoads);
     }
 
-    public RoadSegment WithStart(RoadNodeId start)
+    public RoadSegment NotPartOfNumberedRoad(NumberedRoadNumber number)
     {
-        return new RoadSegment(Id, Geometry, start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads);
-    }
-
-    public RoadSegment WithEnd(RoadNodeId end)
-    {
-        return new RoadSegment(Id, Geometry, Start, end, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads);
-    }
-
-    public RoadSegment WithAttributeHash(AttributeHash hash)
-    {
-        return new RoadSegment(Id, Geometry, Start, End, hash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads);
+        return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads.Remove(number));
     }
 
     public RoadSegment PartOfEuropeanRoad(EuropeanRoadNumber number)
@@ -96,18 +84,31 @@ public class RoadSegment
         return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads.Add(number));
     }
 
-    public RoadSegment NotPartOfEuropeanRoad(EuropeanRoadNumber number)
+    public IEnumerable<RoadNodeId> SelectOppositeNode(RoadNodeId id)
     {
-        return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads.Remove(number), PartOfNationalRoads, PartOfNumberedRoads);
+        if (Start == id)
+            yield return End;
+        else if (End == id) yield return Start;
     }
 
-    public RoadSegment NotPartOfNationalRoad(NationalRoadNumber number)
+    public RoadSegment WithAttributeHash(AttributeHash hash)
     {
-        return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads.Remove(number), PartOfNumberedRoads);
+        return new RoadSegment(Id, Geometry, Start, End, hash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads);
     }
 
-    public RoadSegment NotPartOfNumberedRoad(NumberedRoadNumber number)
+    public RoadSegment WithEnd(RoadNodeId end)
     {
-        return new RoadSegment(Id, Geometry, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads.Remove(number));
+        return new RoadSegment(Id, Geometry, Start, end, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads);
+    }
+
+    public RoadSegment WithGeometry(MultiLineString geometry)
+    {
+        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+        return new RoadSegment(Id, geometry, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads);
+    }
+
+    public RoadSegment WithStart(RoadNodeId start)
+    {
+        return new RoadSegment(Id, Geometry, start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads);
     }
 }

@@ -20,9 +20,9 @@ public class ImmutableScopedRoadNetworkView : IScopedRoadNetworkView
         View = view ?? throw new ArgumentNullException(nameof(view));
     }
 
-    public Envelope Scope { get; }
-    public IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes { get; }
-    public IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments { get; }
     public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions { get; }
+    public IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes { get; }
+    public Envelope Scope { get; }
+    public IReadOnlyDictionary<RoadSegmentId, RoadSegment> Segments { get; }
     public IRoadNetworkView View { get; }
 }

@@ -12,7 +12,6 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
     }
 
     public string Name { get; }
-
     public string Value { get; }
 
     public bool Equals(ProblemParameter x, ProblemParameter y)
@@ -29,16 +28,16 @@ public class ProblemParameter : IEquatable<ProblemParameter>, IEqualityComparer<
                && x.Value == y.Value;
     }
 
-    public int GetHashCode(ProblemParameter obj)
-    {
-        return HashCode.Combine(obj.Name, obj.Value);
-    }
-
     public virtual bool Equals(ProblemParameter other)
     {
         return other != null
                && string.Equals(Name, other.Name)
                && string.Equals(Value, other.Value);
+    }
+
+    public int GetHashCode(ProblemParameter obj)
+    {
+        return HashCode.Combine(obj.Name, obj.Value);
     }
 
     public override bool Equals(object obj)

@@ -48,35 +48,6 @@ public class Program
     {
     }
 
-    public static async Task Main(string[] args)
-    {
-        var host = CreateWebHostBuilder(args).Build();
-        var configuration = host.Services.GetRequiredService<IConfiguration>();
-
-        var streamStore = host.Services.GetRequiredService<IStreamStore>();
-        var logger = host.Services.GetRequiredService<ILogger<Program>>();
-        try
-        {
-            await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
-            await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProductProjections);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
-
-            await host.RunAsync().ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
-        }
-        finally
-        {
-            Log.CloseAndFlush();
-        }
-    }
-
     public static IWebHostBuilder CreateWebHostBuilder(string[] args)
     {
         var webHostBuilder = new WebHostBuilder()
@@ -97,6 +68,13 @@ public class Program
                         CommandLineArgs = args
                     }
                 })
+            .UseKestrel((context, builder) =>
+            {
+                if (context.HostingEnvironment.EnvironmentName == "Development")
+                {
+                    builder.ListenLocalhost(HostingPort);
+                }
+            })
             .ConfigureServices((hostContext, builder) =>
             {
                 var blobOptions = new BlobClientOptions();
@@ -191,8 +169,6 @@ public class Program
                 hostContext.Configuration.GetSection(nameof(ExtractDownloadsOptions)).Bind(extractDownloadsOptions);
                 var extractUploadsOptions = new ExtractUploadsOptions();
                 hostContext.Configuration.GetSection(nameof(ExtractUploadsOptions)).Bind(extractDownloadsOptions);
-                var featureToggles = new FeatureToggleOptions();
-                hostContext.Configuration.GetSection(FeatureToggleOptions.ConfigurationKey).Bind(featureToggles);
 
                 var sqsOptions = new SqsOptions();
                 hostContext.Configuration.GetSection(nameof(SqsOptions)).Bind(sqsOptions);
@@ -205,7 +181,6 @@ public class Program
                     .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8));
 
                 builder
-                    .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(featureToggles.UseSnapshotRebuildFeature))
                     .AddSingleton<ProblemDetailsHelper>()
                     .AddSingleton(zipArchiveWriterOptions)
                     .AddSingleton(extractDownloadsOptions)
@@ -238,7 +213,7 @@ public class Program
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                         new CommandHandlerModule[]
                         {
-                            new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkFeatureCompareBlobClient>(),
+                            new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
@@ -296,5 +271,34 @@ public class Program
                             sp.GetRequiredService<TraceDbConnection<ProductContext>>()));
             });
         return webHostBuilder;
+    }
+
+    public static async Task Main(string[] args)
+    {
+        var host = CreateWebHostBuilder(args).Build();
+        var configuration = host.Services.GetRequiredService<IConfiguration>();
+
+        var streamStore = host.Services.GetRequiredService<IStreamStore>();
+        var logger = host.Services.GetRequiredService<ILogger<Program>>();
+        try
+        {
+            await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
+            await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProductProjections);
+            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
+
+            await host.RunAsync().ConfigureAwait(false);
+        }
+        catch (Exception e)
+        {
+            logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
     }
 }
