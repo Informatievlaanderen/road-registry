@@ -1,6 +1,8 @@
-﻿namespace RoadRegistry.BackOffice.Messages;
+namespace RoadRegistry.BackOffice.Messages;
 
-public class AddRoadSegmentToEuropeanRoad
+using Be.Vlaanderen.Basisregisters.EventHandling;
+
+public class AddRoadSegmentToEuropeanRoad : IMessage
 {
     public string Number { get; set; }
     public int SegmentId { get; set; }

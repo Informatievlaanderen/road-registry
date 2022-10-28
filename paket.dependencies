@@ -61,6 +61,8 @@ nuget System.Text.Encoding.CodePages 6.0.0
 nuget System.IdentityModel.Tokens.Jwt 6.24.0
 nuget System.Threading.Channels 6.0.0
 nuget System.Threading.Tasks.Dataflow 6.0.0
+nuget SourceLink.Copy.PdbFiles 2.8.3
+nuget SourceLink.Embed.AllSourceFiles 2.8.3
 nuget xunit 2.4.2
 nuget xunit.categories 2.0.6
 nuget xunit.DependencyInjection 8.6.0
@@ -88,7 +90,10 @@ nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac 5.0.0
 nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 5.0.0
 nuget Be.Vlaanderen.Basisregisters.EventHandling 4.2.0
 nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.2.0
+nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 17.33.2
 nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 17.33.2
+nuget Be.Vlaanderen.Basisregisters.GrAr.Provenance 17.33.2
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.5.0
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.5.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing 11.0.2
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 11.0.2
@@ -115,6 +120,7 @@ nuget Microsoft.EntityFrameworkCore.Relational 6.0.10
 nuget Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite 6.0.10
 nuget Microsoft.Extensions.ApiDescription.Server 6.0.10
 nuget Microsoft.Extensions.Configuration 6.0.1
+nuget Microsoft.Extensions.Configuration.Abstractions 6.0.0
 nuget Microsoft.Extensions.Configuration.Binder 6.0.0
 nuget Microsoft.Extensions.Configuration.CommandLine 6.0.0
 nuget Microsoft.Extensions.Configuration.EnvironmentVariables 6.0.1

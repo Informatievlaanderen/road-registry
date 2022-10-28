@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Messages;
 
-public class AddRoadNode
+using Be.Vlaanderen.Basisregisters.EventHandling;
+
+public class AddRoadNode : IMessage
 {
     public RoadNodeGeometry Geometry { get; set; }
     public int TemporaryId { get; set; }

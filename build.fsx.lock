@@ -123,7 +123,7 @@ NUGET
     FSharp.Control.Reactive (5.0.5)
       FSharp.Core (>= 4.7.2)
       System.Reactive (>= 5.0 < 6.0)
-    FSharp.Core (6.0.5)
+    FSharp.Core (6.0.6)
     Microsoft.Build (17.3.1)
       Microsoft.Build.Framework (>= 17.3.1)
       Microsoft.NET.StringTools (>= 17.3.1)

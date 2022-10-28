@@ -35,17 +35,17 @@ containerIds=$(docker ps -q -a -f name=$DOCKER_NAME_FILTER)
 if [[ ! -z "$containerIds" ]]; then
     docker rm -f $containerIds
     printf '%s\n' "  Done"
-
-    printf '%s\n' "Clearing docker volumes..."
-    volumeIds=$(docker volume ls -q -f name=$DOCKER_NAME_FILTER)
-    if [[ ! -z "$volumeIds" ]]; then
-        docker volume rm $volumeIds
-        printf '%s\n' "  Done"
-    else
-        printf '%s\n' "  No volumes found"
-    fi
 else
     printf '%s\n' "  No containers found"
+fi
+
+printf '%s\n' "Clearing docker volumes..."
+volumeIds=$(docker volume ls -q -f name=$DOCKER_NAME_FILTER)
+if [[ ! -z "$volumeIds" ]]; then
+    docker volume rm $volumeIds
+    printf '%s\n' "  Done"
+else
+    printf '%s\n' "  No volumes found"
 fi
 
 printf '%s\n' "Extracting database_backup.zip..."

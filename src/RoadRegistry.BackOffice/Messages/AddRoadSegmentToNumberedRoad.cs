@@ -1,6 +1,8 @@
-﻿namespace RoadRegistry.BackOffice.Messages;
+namespace RoadRegistry.BackOffice.Messages;
 
-public class AddRoadSegmentToNumberedRoad
+using Be.Vlaanderen.Basisregisters.EventHandling;
+
+public class AddRoadSegmentToNumberedRoad : IMessage
 {
     public string Direction { get; set; }
     public string Number { get; set; }

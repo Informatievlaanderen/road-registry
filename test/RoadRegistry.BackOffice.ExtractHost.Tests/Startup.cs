@@ -15,11 +15,11 @@ using NetTopologySuite.IO;
 
 public class Startup : TestStartup
 {
-    public override void ConfigureContainer(ContainerBuilder builder)
+    protected override void ConfigureContainer(ContainerBuilder builder)
     {
     }
 
-    public override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
+    protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
         services
             .AddSingleton(new WKTReader(

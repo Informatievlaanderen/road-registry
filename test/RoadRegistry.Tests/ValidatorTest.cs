@@ -1,13 +1,10 @@
 namespace RoadRegistry.Tests;
 
+using System.Linq.Expressions;
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentValidation;
 using FluentValidation.Internal;
 using FluentValidation.TestHelper;
-using RoadRegistry.Tests.BackOffice;
-using System.Linq.Expressions;
-using System.Reflection;
 using Xunit;
 
 public abstract class ValidatorTest<TModel, TValidator>
@@ -21,10 +18,16 @@ public abstract class ValidatorTest<TModel, TValidator>
     }
 
     public Fixture Fixture { get; }
-
     public TModel Model { get; init; }
-
     public TValidator Validator { get; }
+
+    private void AssignPropertyValue<TProperty>(Expression<Func<TModel, TProperty>> memberAccessor, object value)
+    {
+        var modelType = typeof(TModel);
+        var propertyName = ValidatorOptions.Global.PropertyNameResolver(modelType, memberAccessor.GetMember(), memberAccessor);
+        var property = modelType.GetProperty(propertyName);
+        property.SetValue(Model, value);
+    }
 
     public ITestValidationWith ShouldHaveValidationErrorFor<TProperty>(Expression<Func<TModel, TProperty>> memberAccessor, object value)
     {
@@ -36,14 +39,6 @@ public abstract class ValidatorTest<TModel, TValidator>
     {
         AssignPropertyValue(memberAccessor, value);
         Validator.TestValidate(Model).ShouldNotHaveValidationErrorFor(memberAccessor);
-    }
-
-    private void AssignPropertyValue<TProperty>(Expression<Func<TModel, TProperty>> memberAccessor, object value)
-    {
-        var modelType = typeof(TModel);
-        var propertyName = ValidatorOptions.Global.PropertyNameResolver(modelType, memberAccessor.GetMember(), memberAccessor);
-        var property = modelType.GetProperty(propertyName);
-        property.SetValue(Model, value);
     }
 
     [Fact]

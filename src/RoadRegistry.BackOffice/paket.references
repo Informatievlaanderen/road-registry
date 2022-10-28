@@ -10,6 +10,9 @@ FeatureToggle.Common
 FluentValidation
 MediatR.Extensions.Autofac.DependencyInjection
 MessagePack
+Microsoft.Extensions.Configuration
+Microsoft.Extensions.Configuration.Abstractions
+Microsoft.Extensions.Configuration.Binder
 Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens
 Microsoft.IdentityModel.Logging

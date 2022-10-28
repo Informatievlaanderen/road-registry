@@ -141,6 +141,7 @@ jobs:
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER -o ~/rr-backoffice-extracthost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER -o ~/rr-backoffice-commandhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER -o ~/rr--image.tar
+        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER -o ~/rr--image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER -o ~/rr-import-legacy-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER -o ~/rr-extract-legacy-image.tar
       env:
@@ -265,6 +266,13 @@ jobs:
       with:
         name: backoffice-messaginghost-sqs
         path: ~/rr-backoffice-messaginghost-sqs-image.tar
+
+    - name: Upload backoffice-messaginghost-kafka artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: backoffice-messaginghost-kafka
+        path: ~/rr-backoffice-messaginghost-kafka-image.tar
 
     - name: Upload import-legacy artifact
       if: env.RELEASE_VERSION != 'none'
@@ -604,6 +612,12 @@ jobs:
           name: backoffice-messaginghost-sqs
           path: ~/
       
+      - name: Download backoffice-messaginghost-kafka
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-messaginghost-kafka
+          path: ~/
+      
       - name: Download import-legacy
         uses: actions/download-artifact@v3
         with:
@@ -635,6 +649,7 @@ jobs:
           docker image load -i ~/wr-backoffice-extracthost-image.tar
           docker image load -i ~/wr-backoffice-commandhost-image.tar
           docker image load -i ~/wr-backoffice-messaginghost-sqs-image.tar
+          docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
           docker image load -i ~/wr-import-legacy-image.tar
           docker image load -i ~/wr-extract-legacy-image.tar
 
@@ -655,6 +670,7 @@ jobs:
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
         env:
@@ -757,6 +773,12 @@ jobs:
           name: backoffice-messaginghost-sqs
           path: ~/
       
+      - name: Download backoffice-messaginghost-kafka
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-messaginghost-kafka
+          path: ~/
+      
       - name: Download import-legacy
         uses: actions/download-artifact@v3
         with:
@@ -788,6 +810,7 @@ jobs:
           docker image load -i ~/wr-backoffice-extracthost-image.tar
           docker image load -i ~/wr-backoffice-commandhost-image.tar
           docker image load -i ~/wr-backoffice-messaginghost-sqs-image.tar
+          docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
           docker image load -i ~/wr-import-legacy-image.tar
           docker image load -i ~/wr-extract-legacy-image.tar
 
@@ -830,6 +853,9 @@ jobs:
 
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
 
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
