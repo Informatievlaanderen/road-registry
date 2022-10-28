@@ -3,14 +3,23 @@ name: Build
 on:
   push:
     branches: [ main ]
-  pull_request:
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   build:
     if: github.repository_owner == 'Informatievlaanderen'
     name: Build
     runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: E@syP@ssw0rd
+          MSSQL_TCP_PORT: 1433
+        ports:
+          - 1433:1433
 
     steps:
     - name: Checkout Code
@@ -60,11 +69,6 @@ jobs:
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
         
-    - name: Install DotCover
-      shell: bash
-      run: |
-        dotnet tool install --global JetBrains.dotCover.GlobalTool
-        
     - name: Install SonarCloud scanner
       if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
       shell: bash
@@ -89,7 +93,9 @@ jobs:
     - name: Test
       shell: bash
       run: dotnet dotcover test --dcReportType=HTML --nologo --no-build RoadRegistry.sln
-
+      env:
+        SA_PASSWORD: E@syP@ssw0rd
+        
     - name: Sonar end build & analyze
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
