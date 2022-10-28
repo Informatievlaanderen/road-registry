@@ -1,28 +1,47 @@
-import router from "@/router"
-import Vue from "vue"
+import router from "@/router";
+import Vue from "vue";
+import PublicApi from "./public-api";
 
-const WR_AUTH_APIKEY = "RoadRegistry.BackOffice.UI.Authentication.ApiKey"
+const WR_AUTH_APIKEY = "RoadRegistry.BackOffice.UI.Authentication.ApiKey";
 export const isAuthenticated = Vue.observable({
-    state: false
-})
+  state: false,
+});
 
 export const AuthService = {
-    getApiKey() : string | null {
-        return sessionStorage.getItem(WR_AUTH_APIKEY)
-    },
-    login(key : string, url : string) : void {
-        sessionStorage.setItem(WR_AUTH_APIKEY, key)
-        this.checkAuthentication()
-        router.push(url)
-    },
-    logout() : void {
-        sessionStorage.removeItem(WR_AUTH_APIKEY)
-        router.push("/login?redirect=%2Factiviteit")
-        this.checkAuthentication()
-    },
-    checkAuthentication(): void {
-        console.trace(isAuthenticated)
-        isAuthenticated.state = this.getApiKey() !== null
-        console.trace(isAuthenticated)
+  getApiKey(): string | null {
+    return sessionStorage.getItem(WR_AUTH_APIKEY);
+  },
+  async login(key: string, url: string): Promise<boolean> {
+    sessionStorage.setItem(WR_AUTH_APIKEY, key);
+    await this.checkAuthentication();
+
+    if (isAuthenticated.state) {
+      router.push(url);
+      return true;
     }
-}
+
+    sessionStorage.removeItem(WR_AUTH_APIKEY);
+    return false;
+  },
+  async logout(): Promise<void> {
+    sessionStorage.removeItem(WR_AUTH_APIKEY);
+    router.push({
+      name: "login",
+      query: { redirect: "/activiteit" },
+    });
+    await this.checkAuthentication();
+  },
+  async checkAuthentication(): Promise<void> {
+    console.trace(isAuthenticated);
+
+    try {
+      await PublicApi.Information.getInformation();
+      isAuthenticated.state = true;
+    } catch (err) {
+      console.error("Authentication failed", err);
+      isAuthenticated.state = false;
+    }
+
+    console.trace(isAuthenticated);
+  },
+};
