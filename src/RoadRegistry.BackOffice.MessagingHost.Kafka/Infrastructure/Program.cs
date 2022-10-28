@@ -65,8 +65,8 @@ public class Program
 
                 services
                     .AddSingleton(kafkaOptions)
-                    .AddSingleton(consumerOptions)
-                    .AddHostedService<StreetNameConsumer>();
+                    .AddSingleton(consumerOptions);
+                    //.AddHostedService<StreetNameConsumer>();
             })
             .ConfigureCommandDispatcher(ConfigureCommandDispatcher)
             .ConfigureContainer((hostContext, builder) =>
