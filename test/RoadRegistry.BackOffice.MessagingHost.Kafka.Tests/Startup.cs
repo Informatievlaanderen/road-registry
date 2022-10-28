@@ -8,9 +8,8 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Projector.Modules;
 using Editor.Schema;
 using Framework;
-using Infrastructure.Modules;
+using Handlers.Kafka;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -41,8 +40,10 @@ public class Startup : TestStartup
     protected override void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder)
     {
         builder
-            .RegisterModule<Kafka.MediatorModule>()
-            .RegisterModule(new ApiModule(hostContext.Configuration))
+            //.RegisterModule<BackOffice.MediatorModule>()
+            .RegisterModule<Handlers.MediatorModule>()
+            .RegisterModule<Handlers.Kafka.MediatorModule>()
+            //.RegisterModule(new ApiModule(hostContext.Configuration))
             .RegisterModule<ConsumerModule>()
             .RegisterModule(new ProjectorModule(hostContext.Configuration));
     }

@@ -1,11 +1,10 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RoadRegistry.Hosts;
-using RoadRegistry.Syndication.Schema;
-using System;
-
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka.StreetName
+namespace RoadRegistry.BackOffice.Handlers.Kafka.StreetName
 {
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Metadata.Builders;
+    using RoadRegistry.Hosts;
+    using RoadRegistry.Syndication.Schema;
+
     public class StreetNameConsumerItem
     {
         public string StreetNameId { get; set; }

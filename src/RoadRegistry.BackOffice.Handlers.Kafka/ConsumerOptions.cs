@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka
+namespace RoadRegistry.BackOffice.Handlers.Kafka
 {
     public class ConsumerOptions
     {

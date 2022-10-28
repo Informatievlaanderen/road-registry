@@ -1,6 +1,7 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka
+namespace RoadRegistry.BackOffice.Handlers.Kafka
 {
     using Autofac;
+    using Extensions;
     using RoadRegistry.Hosts;
 
     public class ConsumerModule : Module

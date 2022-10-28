@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Projections
+namespace RoadRegistry.BackOffice.Handlers.Kafka.Projections
 {
     using System;
     using System.Threading;
@@ -6,9 +6,6 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Projections
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-    using Be.Vlaanderen.Basisregisters.Utilities;
-    using RoadRegistry.BackOffice.MessagingHost.Kafka;
-    using RoadRegistry.Syndication.Schema;
     using StreetName;
 
     public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsumerContext>

@@ -18,6 +18,7 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure
     using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.Projector.Modules;
+    using Handlers.Kafka;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
     using Modules;

@@ -1,11 +1,12 @@
 namespace RoadRegistry.BackOffice.Handlers.Kafka;
 
-using System.Reflection;
 using Abstractions;
 using Autofac;
+using Be.Vlaanderen.Basisregisters.Projector;
+using Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections;
+using Extensions;
 using MediatR.Pipeline;
-using MessagingHost.Kafka;
-using MessagingHost.Kafka.Projections;
+using Projections;
 
 public class MediatorModule : Module
 {

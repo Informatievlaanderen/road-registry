@@ -1,19 +1,14 @@
-using Autofac;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-
-namespace Autofac
+namespace RoadRegistry.BackOffice.Handlers.Kafka.Extensions
 {
+    using System;
+    using Autofac;
+    using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Microsoft.Data.SqlClient;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Infrastructure;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
 
     public static class AutofacExtensions
     {

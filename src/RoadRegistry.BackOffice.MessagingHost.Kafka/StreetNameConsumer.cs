@@ -9,8 +9,9 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka
     using Autofac;
     using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+    using Handlers.Kafka;
+    using Handlers.Kafka.Projections;
     using Microsoft.Extensions.DependencyInjection;
-    using Projections;
     using Resolve = Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Resolve;
 
     public class StreetNameConsumer : BackgroundService

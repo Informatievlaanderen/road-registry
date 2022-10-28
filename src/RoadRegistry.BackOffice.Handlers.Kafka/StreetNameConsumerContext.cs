@@ -1,9 +1,9 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka;
+namespace RoadRegistry.BackOffice.Handlers.Kafka;
 
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.MessagingHost.Kafka.StreetName;
 using RoadRegistry.Hosts;
+using StreetName;
 
 public class StreetNameConsumerContext : RunnerDbContext<StreetNameConsumerContext>
 {
