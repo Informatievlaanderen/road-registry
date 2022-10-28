@@ -1,9 +1,9 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Kafka;
 
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
+using Hosts;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.MessagingHost.Kafka.StreetName;
-using RoadRegistry.Hosts;
+using StreetName;
 
 public class StreetNameConsumerContext : RunnerDbContext<StreetNameConsumerContext>
 {
@@ -18,7 +18,6 @@ public class StreetNameConsumerContext : RunnerDbContext<StreetNameConsumerConte
     }
 
     public override string ProjectionStateSchema => WellknownSchemas.StreetNameConsumerSchema;
-
     public DbSet<StreetNameConsumerItem> StreetNames { get; set; }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
@@ -31,7 +30,8 @@ public class StreetNameConsumerContextFactory : RunnerDbContextMigrationFactory<
 {
     public StreetNameConsumerContextFactory()
         : this(WellknownConnectionNames.StreetNameConsumerAdmin)
-    { }
+    {
+    }
 
     public StreetNameConsumerContextFactory(string connectionStringName)
         : base(connectionStringName, new MigrationHistoryConfiguration
@@ -39,9 +39,16 @@ public class StreetNameConsumerContextFactory : RunnerDbContextMigrationFactory<
             Schema = WellknownSchemas.StreetNameConsumerSchema,
             Table = MigrationTables.StreetNameConsumer
         })
-    { }
+    {
+    }
 
-    protected override StreetNameConsumerContext CreateContext(DbContextOptions<StreetNameConsumerContext> migrationContextOptions) => new(migrationContextOptions);
+    public StreetNameConsumerContext Create(DbContextOptions<StreetNameConsumerContext> options)
+    {
+        return CreateContext(options);
+    }
 
-    public StreetNameConsumerContext Create(DbContextOptions<StreetNameConsumerContext> options) => CreateContext(options);
+    protected override StreetNameConsumerContext CreateContext(DbContextOptions<StreetNameConsumerContext> migrationContextOptions)
+    {
+        return new(migrationContextOptions);
+    }
 }

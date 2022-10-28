@@ -1,7 +1,6 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
-using FluentValidation;
 using FluentValidation.TestHelper;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
@@ -156,7 +155,7 @@ public class ChangeRoadNetworkValidatorTests : ValidatorTest<ChangeRoadNetwork, 
                         FromPosition = 0.00m,
                         ToPosition = 0.01m,
                         Count = 1,
-                        Direction = RoadSegmentLaneDirection.Independent,
+                        Direction = RoadSegmentLaneDirection.Independent
                     }
                 ).OmitAutoProperties()
         );

@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
 using System.IO.Compression;
-using System.Threading;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
@@ -26,8 +25,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     };
 
     private readonly RoadNetworkUploadsBlobClient _client;
-    private readonly IZipArchiveAfterFeatureCompareValidator _validator;
     private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
+    private readonly IZipArchiveAfterFeatureCompareValidator _validator;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
@@ -55,37 +54,12 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                     : request.Archive.FileName)
         );
 
-
         if (_uploadZipArchiveValidationFeatureToggle.FeatureEnabled)
-        {
             await ValidateAndUploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
-        }
         else
-        {
             await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
-        }
 
         return new UploadExtractResponse(archiveId);
-    }
-
-    private async Task ValidateAndUploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
-    {
-        var entity = RoadNetworkChangesArchive.Upload(archiveId);
-
-        using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
-        {
-            var problems = entity.ValidateArchiveUsing(archive, _validator);
-
-            var fileProblems = problems.OfType<FileError>().ToArray();
-            if (fileProblems.Any())
-            {
-                throw new ValidationException(fileProblems
-                    .Select(problem => problem.Translate())
-                    .Select(fileProblem => new ValidationFailure(fileProblem.File, ProblemWithZipArchive.Translator(fileProblem))));
-            }
-
-            await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
-        }
     }
 
     private async Task UploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
@@ -104,5 +78,23 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             ArchiveId = archiveId.ToString()
         });
         await Dispatcher(message, cancellationToken);
+    }
+
+    private async Task ValidateAndUploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    {
+        var entity = RoadNetworkChangesArchive.Upload(archiveId);
+
+        using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
+        {
+            var problems = entity.ValidateArchiveUsing(archive, _validator);
+
+            var fileProblems = problems.OfType<FileError>().ToArray();
+            if (fileProblems.Any())
+                throw new ValidationException(fileProblems
+                    .Select(problem => problem.Translate())
+                    .Select(fileProblem => new ValidationFailure(fileProblem.File, ProblemWithZipArchive.Translator(fileProblem))));
+
+            await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
+        }
     }
 }

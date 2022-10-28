@@ -1,7 +1,6 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
-using FluentValidation;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using Xunit;

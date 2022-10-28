@@ -1,18 +1,17 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka
-{
-    using Autofac;
-    using RoadRegistry.Hosts;
+namespace RoadRegistry.BackOffice.MessagingHost.Kafka;
 
-    public class ConsumerModule : Module
+using Autofac;
+using Hosts;
+
+public class ConsumerModule : Module
+{
+    protected override void Load(ContainerBuilder builder)
     {
-        protected override void Load(ContainerBuilder builder)
-        {
-            builder.RegisterDbContext<StreetNameConsumerContext>(WellknownConnectionNames.StreetNameConsumer,
-                sqlServerOptions => sqlServerOptions
-                        .EnableRetryOnFailure()
-                        .MigrationsHistoryTable(MigrationTables.StreetNameConsumer, WellknownSchemas.StreetNameConsumerSchema)
-                , dbContextOptionsBuilder =>
-                    new StreetNameConsumerContext(dbContextOptionsBuilder.Options));
-        }
+        builder.RegisterDbContext<StreetNameConsumerContext>(WellknownConnectionNames.StreetNameConsumer,
+            sqlServerOptions => sqlServerOptions
+                .EnableRetryOnFailure()
+                .MigrationsHistoryTable(MigrationTables.StreetNameConsumer, WellknownSchemas.StreetNameConsumerSchema)
+            , dbContextOptionsBuilder =>
+                new StreetNameConsumerContext(dbContextOptionsBuilder.Options));
     }
 }

@@ -2,7 +2,6 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using FluentValidation;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;

@@ -1,26 +1,25 @@
 namespace RoadRegistry.Hosts;
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using BackOffice.Abstractions;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.Abstractions;
 using Serilog;
 using SqlStreamStore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 public class RoadRegistryHost<T>
 {
     private readonly IConfiguration _configuration;
     private readonly IHost _host;
-    private readonly IStreamStore _streamStore;
     private readonly ILogger<T> _logger;
-
-    private List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
+    private readonly IStreamStore _streamStore;
+    private readonly List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
 
     public RoadRegistryHost(IHost host)
     {

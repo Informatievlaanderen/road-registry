@@ -2,8 +2,6 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka;
 
 using Autofac;
 using MediatR;
-using System;
-using System.Collections.Generic;
 
 public class MediatorModule : Module
 {
