@@ -29,12 +29,6 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure.Modules
                 .RegisterModule(new DataDogModule(_configuration))
                 .RegisterModule<EnvelopeModule>()
                 .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
-            
-            builder
-                .RegisterProjectionMigrator<StreetNameConsumerContextFactory>()
-                .RegisterProjections<StreetNameConsumerProjection, StreetNameConsumerContext>(
-                    context => new StreetNameConsumerProjection(),
-                    ConnectedProjectionSettings.Default);
         }
     }
 }

@@ -5,8 +5,10 @@ using Amazon;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Be.Vlaanderen.Basisregisters.Projector.Modules;
 using Editor.Schema;
 using Framework;
+using Infrastructure.Modules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,14 +38,13 @@ public class Startup : TestStartup
                 .UseInMemoryDatabase(Guid.NewGuid().ToString("N")));
     }
 
-    protected override void ConfigureContainer(ContainerBuilder builder)
+    protected override void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder)
     {
-        //builder.Register(ctx =>
-        //{
-        //    var loggerFactory = ctx.Resolve<ILoggerFactory>();
-        //    var services = ctx.Resolve<IServiceCollection>();
-        //    builder.RegisterModule(new Kafka.ConsumerModule(ctx.Resolve<IConfiguration>(), ctx.Resolve<IServiceCollection>(), loggerFactory));
-        //}).As<IConfiguration>();
+        builder
+            .RegisterModule<Kafka.MediatorModule>()
+            .RegisterModule(new ApiModule(hostContext.Configuration))
+            .RegisterModule<ConsumerModule>()
+            .RegisterModule(new ProjectorModule(hostContext.Configuration));
     }
 
     protected override CommandHandlerDispatcher ConfigureCommandHandlerDispatcher(IServiceProvider sp) =>

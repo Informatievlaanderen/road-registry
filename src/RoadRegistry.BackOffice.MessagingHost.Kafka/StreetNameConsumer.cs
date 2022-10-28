@@ -69,7 +69,9 @@ namespace RoadRegistry.BackOffice.MessagingHost.Kafka
                 }
                 catch (Exception ex)
                 {
-
+                    var waitSeconds = 30;
+                    _logger.LogCritical(ex, "Error consuming kafka events, trying again in {seconds} seconds", waitSeconds);
+                    await Task.Delay(waitSeconds * 1000, cancellationToken);
                 }
             }
         }

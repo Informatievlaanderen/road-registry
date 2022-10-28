@@ -1,8 +1,11 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs;
+namespace RoadRegistry.BackOffice.Handlers.Kafka;
 
+using System.Reflection;
 using Abstractions;
 using Autofac;
 using MediatR.Pipeline;
+using MessagingHost.Kafka;
+using MessagingHost.Kafka.Projections;
 
 public class MediatorModule : Module
 {
@@ -20,5 +23,11 @@ public class MediatorModule : Module
                 .RegisterAssemblyTypes(GetType().Assembly)
                 .AsClosedTypesOf(mediatrOpenType)
                 .AsImplementedInterfaces();
+
+        builder
+            .RegisterProjectionMigrator<StreetNameConsumerContextFactory>()
+            .RegisterProjections<StreetNameConsumerProjection, StreetNameConsumerContext>(
+                context => new StreetNameConsumerProjection(),
+                ConnectedProjectionSettings.Default);
     }
 }

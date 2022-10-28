@@ -43,6 +43,9 @@ public abstract class TestStartup
     protected virtual void ConfigureContainer(ContainerBuilder builder)
     {
     }
+    protected virtual void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder)
+    {
+    }
 
     public void ConfigureHost(IHostBuilder hostBuilder)
     {
@@ -94,9 +97,11 @@ public abstract class TestStartup
 
                 ConfigureServices(context, services);
             })
-            .ConfigureContainer<ContainerBuilder>(builder =>
+            .ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
+                ConfigureContainer(hostContext, builder);
                 ConfigureContainer(builder);
+
                 builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
             });
     }
