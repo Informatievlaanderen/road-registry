@@ -72,9 +72,10 @@ public class Program
             .ConfigureContainer((hostContext, builder) =>
                 {
                     builder
+                        .RegisterModule<Handlers.Kafka.MediatorModule>()
+                        .RegisterModule<Handlers.Kafka.ConsumerModule>()
                         .RegisterModule<MediatorModule>()
                         .RegisterModule(new ApiModule(hostContext.Configuration))
-                        .RegisterModule<ConsumerModule>()
                         .RegisterModule(new ProjectorModule(hostContext.Configuration));
                 }
             )

@@ -40,11 +40,6 @@ public class Startup : TestStartup
     protected override void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder)
     {
         builder
-            //.RegisterModule<BackOffice.MediatorModule>()
-            .RegisterModule<Handlers.MediatorModule>()
-            .RegisterModule<Handlers.Kafka.MediatorModule>()
-            //.RegisterModule(new ApiModule(hostContext.Configuration))
-            .RegisterModule<ConsumerModule>()
             .RegisterModule(new ProjectorModule(hostContext.Configuration));
     }
 
