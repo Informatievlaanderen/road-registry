@@ -1,30 +1,28 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure.Modules
+namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure.Modules;
+
+using Autofac;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
+using Microsoft.Extensions.Configuration;
+
+public class ApiModule : Module
 {
-    using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
-    using Be.Vlaanderen.Basisregisters.EventHandling;
-    using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
-    using Autofac;
-    using Microsoft.Extensions.Configuration;
-    using RoadRegistry.BackOffice;
+    private readonly IConfiguration _configuration;
 
-    public class ApiModule : Module
+    public ApiModule(IConfiguration configuration)
     {
-        private readonly IConfiguration _configuration;
+        _configuration = configuration;
+    }
 
-        public ApiModule(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
+    protected override void Load(ContainerBuilder builder)
+    {
+        var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-        protected override void Load(ContainerBuilder builder)
-        {
-            var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            
-            builder
-                .RegisterModule(new DataDogModule(_configuration))
-                .RegisterModule<EnvelopeModule>()
-                .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
-        }
+        builder
+            .RegisterModule(new DataDogModule(_configuration))
+            .RegisterModule<EnvelopeModule>()
+            .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
     }
 }

@@ -1,4 +1,5 @@
 namespace RoadRegistry.BackOffice.Messages;
+
 using System;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 

@@ -13,6 +13,7 @@ on:
         - road-registry-backoffice-extracthost
         - road-registry-backoffice-commandhost
         - road-registry-backoffice-messaginghost-sqs
+        - road-registry-backoffice-messaginghost-kafka
         - road-registry-backoffice-eventhost
         - road-registry-editor-projectionhost
         - road-registry-syndication-projectionhost

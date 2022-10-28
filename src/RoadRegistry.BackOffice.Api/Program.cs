@@ -70,10 +70,7 @@ public class Program
                 })
             .UseKestrel((context, builder) =>
             {
-                if (context.HostingEnvironment.EnvironmentName == "Development")
-                {
-                    builder.ListenLocalhost(HostingPort);
-                }
+                if (context.HostingEnvironment.EnvironmentName == "Development") builder.ListenLocalhost(HostingPort);
             })
             .ConfigureServices((hostContext, builder) =>
             {

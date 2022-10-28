@@ -195,6 +195,7 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER
 
@@ -238,6 +239,7 @@ jobs:
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
         docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
 
@@ -253,6 +255,7 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+        docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
 

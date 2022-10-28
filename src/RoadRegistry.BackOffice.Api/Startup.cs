@@ -156,10 +156,7 @@ public class Startup
                     }
                 }
             })
-            .Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey), options =>
-            {
-                options.BindNonPublicProperties = true;
-            })
+            .Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey), options => { options.BindNonPublicProperties = true; })
             .AddValidatorsFromAssemblyContaining<Startup>()
             .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
             .AddSingleton(c => new UseFeatureCompareFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare))
