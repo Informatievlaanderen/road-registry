@@ -1,3 +1,12 @@
+## [3.16.1](https://github.com/informatievlaanderen/road-registry/compare/v3.16.0...v3.16.1) (2022-10-28)
+
+
+### Bug Fixes
+
+* error message with failed login attempt ([43b8a35](https://github.com/informatievlaanderen/road-registry/commit/43b8a35ea21f5b5fe95b57e2bf73c723cacfd592))
+* remove temporary request logging ([8b8974c](https://github.com/informatievlaanderen/road-registry/commit/8b8974cd5431a7840dd2f239e6ee096d75dfa63a))
+* remove x-api-key header requirement when x-api-token is being used ([e4e39c2](https://github.com/informatievlaanderen/road-registry/commit/e4e39c21a25a298164c23e15f3187d8abba32bf1))
+
 # [3.16.0](https://github.com/informatievlaanderen/road-registry/compare/v3.15.1...v3.16.0) (2022-10-27)
 
 
