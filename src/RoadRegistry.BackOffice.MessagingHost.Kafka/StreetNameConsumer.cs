@@ -55,11 +55,11 @@ public class StreetNameConsumer : BackgroundService
                         _consumerOptions.Topic,
                         async message =>
                         {
-                            using (var scope = _serviceProvider.CreateScope())
-                            using (var context = scope.ServiceProvider.GetRequiredService<StreetNameConsumerContext>())
-                            {
-                                await projector.ProjectAsync(context, message, cancellationToken);
-                            }
+                            //using (var scope = _serviceProvider.CreateScope())
+                            //using (var context = scope.ServiceProvider.GetRequiredService<StreetNameConsumerContext>())
+                            //{
+                            //    await projector.ProjectAsync(context, message, cancellationToken);
+                            //}
                         },
                         300,
                         null,
