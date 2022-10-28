@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Messages;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using NetTopologySuite.IO;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
@@ -166,6 +167,11 @@ public static class GeometryTranslator
     {
         if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
+        if (geometry.WKT != null)
+        {
+            return (IPolygonal)new WKTReader().Read(geometry.WKT);
+        }
+        
         switch (geometry.Flatten())
         {
             case Messages.Polygon[] multiPolygon:
@@ -255,6 +261,7 @@ public static class GeometryTranslator
                 return new RoadNetworkExtractGeometry
                 {
                     SpatialReferenceSystemIdentifier = multiPolygon.SRID,
+                    WKT = multiPolygon.ToText(),
                     MultiPolygon = polygons,
                     Polygon = null
                 };
@@ -292,6 +299,7 @@ public static class GeometryTranslator
                 return new RoadNetworkExtractGeometry
                 {
                     SpatialReferenceSystemIdentifier = polygon.SRID,
+                    WKT = polygon.ToText(),
                     MultiPolygon = null,
                     Polygon = new Messages.Polygon
                     {
