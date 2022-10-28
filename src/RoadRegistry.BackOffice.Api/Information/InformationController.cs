@@ -29,15 +29,8 @@ public class InformationController : ControllerBase
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> Get([FromServices] EditorContext context, [FromServices] ILogger<InformationController> logger)
+    public async Task<IActionResult> Get([FromServices] EditorContext context)
     {
-        var logMsg = JsonConvert.SerializeObject(new
-        {
-            HttpContext.Request.Headers,
-            HttpContext.Request.QueryString
-        }, Formatting.Indented);
-        logger.LogWarning("Current request: {request}", logMsg);
-
         var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);
         if (info == null || !info.CompletedImport) return StatusCode(StatusCodes.Status503ServiceUnavailable);
         return new JsonResult(RoadNetworkInformationResponse.From(info));
