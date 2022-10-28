@@ -3,23 +3,14 @@ name: Build
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  pull_request:
+  workflow_dispatch: 
 
 jobs:
   build:
     if: github.repository_owner == 'Informatievlaanderen'
     name: Build
     runs-on: ubuntu-latest
-
-    services:
-      sqlserver:
-        image: mcr.microsoft.com/mssql/server:2019-latest
-        env:
-          ACCEPT_EULA: Y
-          SA_PASSWORD: E@syP@ssw0rd
-          MSSQL_TCP_PORT: 1433
-        ports:
-          - 1433:1433
 
     steps:
     - name: Checkout Code
@@ -69,6 +60,11 @@ jobs:
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
         
+    - name: Install DotCover
+      shell: bash
+      run: |
+        dotnet tool install --global JetBrains.dotCover.GlobalTool
+        
     - name: Install SonarCloud scanner
       if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
       shell: bash
@@ -83,13 +79,17 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       shell: bash
       run: |
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" > /dev/null 2>&1
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html > /dev/null 2>&1
 
     - name: Build
       shell: bash
       run: |
-        dotnet build --nologo --no-restore --configuration Debug RoadRegistry.sln
-        
+        dotnet build --nologo --no-restore --no-incremental --configuration Debug RoadRegistry.sln
+
+    - name: Test
+      shell: bash
+      run: dotnet dotcover test --dcReportType=HTML --nologo --no-build RoadRegistry.sln
+
     - name: Sonar end build & analyze
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -97,9 +97,3 @@ jobs:
       shell: bash
       run: |
         ./.sonar/scanner/dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}" > /dev/null 2>&1
-
-    - name: Test
-      shell: bash
-      run: dotnet test --nologo --no-build RoadRegistry.sln
-      env:
-        SA_PASSWORD: E@syP@ssw0rd
