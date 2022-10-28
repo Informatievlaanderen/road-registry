@@ -122,7 +122,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Mes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.MessagingHost.Kafka.Tests", "test\RoadRegistry.BackOffice.MessagingHost.Kafka.Tests\RoadRegistry.BackOffice.MessagingHost.Kafka.Tests.csproj", "{85D59401-2376-4D7A-B5AA-9940DEF47115}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.BackOffice.Handlers.Kafka", "src\RoadRegistry.BackOffice.Handlers.Kafka\RoadRegistry.BackOffice.Handlers.Kafka.csproj", "{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Handlers.Kafka", "src\RoadRegistry.BackOffice.Handlers.Kafka\RoadRegistry.BackOffice.Handlers.Kafka.csproj", "{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -720,20 +720,20 @@ Global
 		{85D59401-2376-4D7A-B5AA-9940DEF47115}.Release|Any CPU.Build.0 = Release|Any CPU
 		{85D59401-2376-4D7A-B5AA-9940DEF47115}.Release|x64.ActiveCfg = Release|x64
 		{85D59401-2376-4D7A-B5AA-9940DEF47115}.Release|x64.Build.0 = Release|x64
-		{85D59401-2376-4D7A-B5AA-9940DEF47115}.Release|x86.ActiveCfg = Release|x64
-		{85D59401-2376-4D7A-B5AA-9940DEF47115}.Release|x86.Build.0 = Release|x64
+		{85D59401-2376-4D7A-B5AA-9940DEF47115}.Release|x86.ActiveCfg = Release|x86
+		{85D59401-2376-4D7A-B5AA-9940DEF47115}.Release|x86.Build.0 = Release|x86
 		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|x64.Build.0 = Debug|Any CPU
-		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|x86.Build.0 = Debug|Any CPU
+		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|x64.ActiveCfg = Debug|x64
+		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|x64.Build.0 = Debug|x64
+		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|x86.ActiveCfg = Debug|x86
+		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Debug|x86.Build.0 = Debug|x86
 		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|x64.ActiveCfg = Release|Any CPU
-		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|x64.Build.0 = Release|Any CPU
-		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|x86.ActiveCfg = Release|Any CPU
-		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|x86.Build.0 = Release|Any CPU
+		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|x64.ActiveCfg = Release|x64
+		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|x64.Build.0 = Release|x64
+		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|x86.ActiveCfg = Release|x86
+		{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
