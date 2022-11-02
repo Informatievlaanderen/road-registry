@@ -86,7 +86,6 @@ export const BackOfficeApi = {
         const path = `/roads/v1/extracts/downloadrequests/byfile`;
 
         const data = new FormData();
-        data.append("buffer", downloadRequest.buffer.toString());
         data.append("description", downloadRequest.description);
         downloadRequest.files.forEach(file => {
             data.append("files", file, file.name);

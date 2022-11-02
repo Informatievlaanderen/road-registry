@@ -47,13 +47,11 @@ export namespace RoadRegistry {
     }
 
     export interface DownloadExtractByContourRequest {
-        buffer: number;
         contour: string;
         description: string;
     }
 
     export interface DownloadExtractByFileRequest {
-        buffer: number;
         files: File[];
         description: string;
     }
