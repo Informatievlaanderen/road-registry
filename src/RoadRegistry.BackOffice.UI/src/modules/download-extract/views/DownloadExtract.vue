@@ -126,7 +126,7 @@
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="contourFlow.contourType" type="radio" value="zip" />
+              <input v-model="contourFlow.contourType" type="radio" value="shp" />
               Laad een contour op in shapefile formaat
             </label>
           </div>
@@ -136,7 +136,7 @@
               Geef een contour op in WKT formaat
             </label>
           </div>
-          <template v-if="contourFlow.contourType === 'zip'">
+          <template v-if="contourFlow.contourType === 'shp'">
             <div class="vl-form-col--12-12">
               <p>
                 <br />
@@ -180,22 +180,7 @@
               ></textarea>
             </div>
           </template>
-          <div class="vl-form-col--9-12"></div>
-          <div class="vl-form-col--12-12">
-            <p>Wenst u een bufferzone van 100m toe te voegen aan de contour?</p>
-          </div>
-          <div class="vl-form-col--12-12">
-            <label class="vl-checkbox" for="contour-buffer">
-              <input class="vl-checkbox__toggle" type="checkbox" id="contour-buffer" v-model="contourFlow.buffer" />
-              <span class="vl-checkbox__label">
-                <i class="vl-checkbox__box" aria-hidden="true"></i>
-                Voeg buffer toe
-              </span>
-            </label>
-          </div>
 
-          <div class="vl-form-col--2-12"></div>
-          <div class="vl-form-col--2-12"></div>
           <div class="vl-form-col--12-12">
             <vl-action-group>
               <vl-button @click="currentStep = steps.Step1">Vorige</vl-button>
@@ -283,7 +268,7 @@ enum WizardSteps {
 
 export default Vue.extend({
   data() {
-    const contourTypes = ["zip", "wkt"];
+    const contourTypes = ["shp", "wkt"];
 
     return {
       steps: WizardSteps,
@@ -300,7 +285,6 @@ export default Vue.extend({
         wkt: "",
         wktIsValid: false,
         files: [] as Array<File>,
-        buffer: false,
         description: "",
         hasValidationErrors: false,
         validationErrors: {} as RoadRegistry.PerContourValidationErrors,
@@ -362,7 +346,7 @@ export default Vue.extend({
       switch (this.contourFlow.contourType) {
         case "wkt":
           return !!this.contourFlow.wkt && this.contourFlow.wktIsValid;
-        case "zip":
+        case "shp":
           return this.hasAllRequiredUploadFiles;
       }
 
@@ -390,7 +374,7 @@ export default Vue.extend({
       }
 
       if (
-        this.contourFlow.contourType === "zip" &&
+        this.contourFlow.contourType === "shp" &&
         this.contourFlow.files.length > 0 &&
         !this.contourFlowHasValidInput
       ) {
@@ -447,13 +431,10 @@ export default Vue.extend({
 
         let response: RoadRegistry.DownloadExtractResponse;
 
-        const buffer = this.contourFlow.buffer ? 100 : 0;
-
         switch (this.contourFlow.contourType) {
-          case "zip":
+          case "shp":
             {
               const requestData: RoadRegistry.DownloadExtractByFileRequest = {
-                buffer,
                 files: this.contourFlow.files,
                 description: this.contourFlow.description,
               };
@@ -463,7 +444,6 @@ export default Vue.extend({
           case "wkt":
             {
               const requestData: RoadRegistry.DownloadExtractByContourRequest = {
-                buffer,
                 contour: this.contourFlow.wkt,
                 description: this.contourFlow.description,
               };
