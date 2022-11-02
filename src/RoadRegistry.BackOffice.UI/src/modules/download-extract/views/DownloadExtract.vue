@@ -379,7 +379,7 @@ export default Vue.extend({
         !this.contourFlowHasValidInput
       ) {
         status.title = "Ongeldige contour";
-        status.text = "Gelieve precies één .shp en .prj bestand op te laden.";
+        status.text = "Gelieve precies één .shp bestand en één .prj bestand op te laden. Beide bestanden moeten dezelfde bestandsnaam hebben.";
         status.error = true;
       }
 
