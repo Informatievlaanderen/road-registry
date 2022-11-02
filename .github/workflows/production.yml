@@ -17,7 +17,7 @@ jobs:
         services: [
           'road-registry-backoffice-commandhost',
           'road-registry-backoffice-messaginghost-sqs',
-          'road-registry-backoffice-messaginghost-kafka',
+          #'road-registry-backoffice-messaginghost-kafka',
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
           'road-registry-backoffice-api',
