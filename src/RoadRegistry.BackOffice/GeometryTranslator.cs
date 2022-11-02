@@ -213,7 +213,9 @@ public static class GeometryTranslator
     {
         if (geometry == null) throw new ArgumentNullException(nameof(geometry));
 
-        var geometryWithBuffer = ApplyBuffer(geometry, buffer);
+        var geometryWithBuffer = buffer != 0
+            ? ApplyBuffer(geometry, buffer) as IPolygonal
+            : geometry;
 
         switch (geometryWithBuffer)
         {
