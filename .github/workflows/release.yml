@@ -155,7 +155,7 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER
-        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER
+#        docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER
 
