@@ -1,3 +1,30 @@
+# [3.17.0](https://github.com/informatievlaanderen/road-registry/compare/v3.16.1...v3.17.0) (2022-11-02)
+
+
+### Bug Fixes
+
+* missing solution configurations ([0bc6159](https://github.com/informatievlaanderen/road-registry/commit/0bc6159bac9c225cbe14bed77d1f963cd61cf807))
+* move extensions to main type namespace ([6a75052](https://github.com/informatievlaanderen/road-registry/commit/6a75052bde47335c7d63560ad63b83ea1b97b8f6))
+* move kafka logic to separate Handlers library ([40e50d7](https://github.com/informatievlaanderen/road-registry/commit/40e50d755c61efd7c2e450318fb729d812cde139))
+* refactor so that IServiceCollection is not needed during ConfigureContainer ([9179528](https://github.com/informatievlaanderen/road-registry/commit/91795284d90ed08829ff636469a532379ed0844f))
+* remove kafka application from pipelines ([742c843](https://github.com/informatievlaanderen/road-registry/commit/742c8439149b3cc6c4512d4ed3db334dcd15ba04))
+* temporarily disable logic of kafka message processing ([8142a1a](https://github.com/informatievlaanderen/road-registry/commit/8142a1a93386a3ffc284d9ba32347bd9d16e72cc))
+
+
+### Features
+
+* Add Kafka and Kafka test projects ([d18014d](https://github.com/informatievlaanderen/road-registry/commit/d18014ded6b919cf88da0797cb08bb5645c2d788))
+* Add Kafka consumer and pipeline update ([397e8b0](https://github.com/informatievlaanderen/road-registry/commit/397e8b0b8652da8d984943abe465e454138ea32e))
+* Add Kafka consumer project shell ([d45c79d](https://github.com/informatievlaanderen/road-registry/commit/d45c79d0be171fd7284659d0424c5eb7783cd36d))
+* add MessagingHost.Kafka ([eaebd1b](https://github.com/informatievlaanderen/road-registry/commit/eaebd1bea468329780a8fbfb129057fdc0ddbcf5))
+* disable StreetNameConsumer ([fe2794d](https://github.com/informatievlaanderen/road-registry/commit/fe2794dfb69dc0ba61b3afe133a3324f376a5bda))
+* Kafka consumer adoption ([777db74](https://github.com/informatievlaanderen/road-registry/commit/777db744a608efb4976ea1fef7034f1085df1bd5))
+* move non-host logic to Handlers.Kafka ([1611887](https://github.com/informatievlaanderen/road-registry/commit/1611887079b3ecf86cad129725bfcc293033b98d))
+* Program and host builder optimization ([f5ecf96](https://github.com/informatievlaanderen/road-registry/commit/f5ecf96244cc2ed34adb66e0e16b1354bd2c3a90))
+* set up kafka streetname consumer ([a4c735e](https://github.com/informatievlaanderen/road-registry/commit/a4c735e11fc42e0124557d7ba23f9037272ba344))
+* update paket dependencies to latest ([68de80d](https://github.com/informatievlaanderen/road-registry/commit/68de80d031a7362ce7852ffc8feba237150803fa))
+* Updated paket references ([1c2dfdd](https://github.com/informatievlaanderen/road-registry/commit/1c2dfdda86ba82ab0dcc89c7c2dc84b2c10a42e9))
+
 ## [3.16.1](https://github.com/informatievlaanderen/road-registry/compare/v3.16.0...v3.16.1) (2022-10-28)
 
 
