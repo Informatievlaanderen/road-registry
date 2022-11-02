@@ -1,3 +1,11 @@
+## [3.17.1](https://github.com/informatievlaanderen/road-registry/compare/v3.17.0...v3.17.1) (2022-11-02)
+
+
+### Bug Fixes
+
+* remove kafka from all pipelines ([35a30c0](https://github.com/informatievlaanderen/road-registry/commit/35a30c09f67015fb88eed893491cda2a810fcba8))
+* remove kafka from release pipeline ([5dd5add](https://github.com/informatievlaanderen/road-registry/commit/5dd5add8d771634ef3313bfc3c51b0e7f0105c52))
+
 # [3.17.0](https://github.com/informatievlaanderen/road-registry/compare/v3.16.1...v3.17.0) (2022-11-02)
 
 
