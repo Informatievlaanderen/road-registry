@@ -1,3 +1,22 @@
+# [3.18.0](https://github.com/informatievlaanderen/road-registry/compare/v3.17.1...v3.18.0) (2022-11-02)
+
+
+### Bug Fixes
+
+* Change errormessage on upload control ([f6a66d0](https://github.com/informatievlaanderen/road-registry/commit/f6a66d0e8540c768867441bfac62748ce36a8b45))
+* register validators in backoffice API ([0938dc6](https://github.com/informatievlaanderen/road-registry/commit/0938dc605f6103593603a960dce0d52950c0e8f2))
+* SQS removed from production workflow ([1a76dd7](https://github.com/informatievlaanderen/road-registry/commit/1a76dd78134e22a2102966ac18db203b32e47ddc))
+* SQS removed from production workflow ([a43b98d](https://github.com/informatievlaanderen/road-registry/commit/a43b98d61e62041143dcbac7dc127afec8faa5f9))
+* use WKT to transfer geometry data to avoid extra internal translations ([c314d79](https://github.com/informatievlaanderen/road-registry/commit/c314d7951857059848d616743fe760fb4cfacf7f))
+
+
+### Features
+
+* Initialize Vue after authentication check ([8eb9fd5](https://github.com/informatievlaanderen/road-registry/commit/8eb9fd53d90dc7400de087b419f091101f2173bf))
+* Initialize Vue after authentication check ([f7495fc](https://github.com/informatievlaanderen/road-registry/commit/f7495fc985e3913287f712a8d8e16affd000e55d))
+* Remove buffer from contour workflow ([9f5659c](https://github.com/informatievlaanderen/road-registry/commit/9f5659c2acb58687d57f4a0d0247ec870bde9d5a))
+* Skip buffering when buffer size equals zero ([d9ffa6c](https://github.com/informatievlaanderen/road-registry/commit/d9ffa6cffb3a213593003d4795e816006f446669))
+
 ## [3.17.1](https://github.com/informatievlaanderen/road-registry/compare/v3.17.0...v3.17.1) (2022-11-02)
 
 
