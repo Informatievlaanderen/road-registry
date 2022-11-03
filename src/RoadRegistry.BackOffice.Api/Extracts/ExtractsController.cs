@@ -51,6 +51,10 @@ public class ExtractsController : ControllerBase
         {
             return StatusCode((int)HttpStatusCode.Gone);
         }
+        catch (DownloadExtractNotFoundException)
+        {
+            return NotFound();
+        }
         catch (ExtractDownloadNotFoundException)
         {
             return NotFound();
