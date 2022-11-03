@@ -198,7 +198,7 @@ public class Program
                      * Add hosted services here
                      */
                     .AddHostedService<CheckFeatureCompareDockerContainerBackgroundService>()
-                    //.AddHostedService<FeatureCompareMessageConsumer>()
+                    .AddHostedService<FeatureCompareMessageConsumer>()
                     /*
                      *
                      */
