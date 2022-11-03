@@ -15,6 +15,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Version = Infrastructure.Version;
@@ -33,6 +34,7 @@ public class ExtractsController : ControllerBase
         _mediator = mediator;
     }
 
+    [AllowAnonymous]
     [HttpGet("download/{downloadId}")]
     public async Task<ActionResult> GetDownload(
         [FromRoute] string downloadId,

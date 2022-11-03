@@ -1,20 +1,19 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Extensions;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
+public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
 {
     private const string ApiKeyHeaderName = "x-api-key";
     private const string ApiKeyQueryName = "apikey";
@@ -26,30 +25,27 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
         _requiredAccess = requiredAccess;
     }
 
-    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var sp = context.HttpContext.RequestServices;
         var authenticationFeatureToggle = sp.GetRequiredService<UseApiKeyAuthenticationFeatureToggle>();
 
         if (!authenticationFeatureToggle.FeatureEnabled)
         {
-            await next();
             return;
         }
 
         if (context.HttpContext.Request.Headers.ContainsKey(ApiTokenHeaderName))
         {
-            await OnActionExecutionApiTokenAsync(context, next);
+            await OnAuthorizationApiTokenAsync(context);
             return;
         }
 
-        await OnActionExecutionApiKeyAsync(context, next);
+        await OnAuthorizationApiKeyAsync(context);
     }
 
-    private void CheckIfApiKeyHasAccess(ActionExecutingContext context, string apiKey)
+    private async Task<bool> CheckIfApiKeyHasAccess(AuthorizationFilterContext context, string apiKey)
     {
-        if (string.IsNullOrWhiteSpace(apiKey)) RefuseAccess(context, "API key verplicht.");
-
         var validApiKeys = context
             .HttpContext
             .RequestServices
@@ -59,68 +55,86 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
             .Select(c => c.Value)
             .ToArray();
 
-        if (!validApiKeys.Contains(apiKey)) RefuseAccess(context, "Ongeldige API key.");
+        if (string.IsNullOrWhiteSpace(apiKey))
+        {
+            await RefuseAccess(context, "API key verplicht.");
+            return false;
+        }
+        else if (!validApiKeys.Contains(apiKey))
+        {
+            await RefuseAccess(context, "Ongeldige API key.");
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
-    public Task OnActionExecutionApiKeyAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    public async Task OnAuthorizationApiKeyAsync(AuthorizationFilterContext context)
     {
         var potentialQueryApiKey = StringValues.Empty;
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var potentialHeaderApiKey)
             && !context.HttpContext.Request.Query.TryGetValue(ApiKeyQueryName, out potentialQueryApiKey))
-            RefuseAccess(context, "API key verplicht.");
+        {
+            await RefuseAccess(context, "API key verplicht.");
+        }
+        else
+        {
 
-        var potentialApiKey = string.Empty;
-        if (!string.IsNullOrWhiteSpace(potentialQueryApiKey)) potentialApiKey = potentialQueryApiKey;
+            var potentialApiKey = string.Empty;
+            if (!string.IsNullOrWhiteSpace(potentialQueryApiKey)) potentialApiKey = potentialQueryApiKey;
+            if (!string.IsNullOrWhiteSpace(potentialHeaderApiKey)) potentialApiKey = potentialHeaderApiKey;
 
-        if (!string.IsNullOrWhiteSpace(potentialHeaderApiKey)) potentialApiKey = potentialHeaderApiKey;
-
-        CheckIfApiKeyHasAccess(context, potentialApiKey);
-
-        return next();
+            await CheckIfApiKeyHasAccess(context, potentialApiKey);
+        }
     }
 
-    public Task OnActionExecutionApiTokenAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    public async Task OnAuthorizationApiTokenAsync(AuthorizationFilterContext context)
     {
         // We get the x-api-key header or query param string
         // Check if the user used this and thus is not anonymous GAWR-2968
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiTokenHeaderName, out var potentialHeaderApiTokens))
         {
-            RefuseAccess(context, "Gelieve een geldige API key op te geven");
-            return next();
+            await RefuseAccess(context, "Gelieve een geldige API key op te geven");
+            return;
         }
 
         var potentialHeaderApiToken = potentialHeaderApiTokens.FirstOrDefault();
         if (potentialHeaderApiToken is null)
         {
-            RefuseAccess(context, "Ongeldige API key");
-            return next();
+            await RefuseAccess(context, "Ongeldige API key");
+            return;
         }
 
         var bytes = Convert.FromBase64String(potentialHeaderApiToken);
         var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         var apiToken = JsonConvert.DeserializeObject<ApiToken>(json);
-        
-        CheckIfApiKeyHasAccess(context, apiToken?.ApiKey);
 
-        var wrAccess = apiToken?.Metadata.WrAccess;
-        var syncAccess = apiToken?.Metadata.SyncAccess;
-        var ticketsAccess = apiToken?.Metadata.TicketsAccess;
+        var hasAccess = await CheckIfApiKeyHasAccess(context, apiToken?.ApiKey);
 
-        if ((_requiredAccess.Equals("road", StringComparison.InvariantCultureIgnoreCase) && !(wrAccess ?? false))
-            || (_requiredAccess.Equals("sync", StringComparison.InvariantCultureIgnoreCase) && !(syncAccess ?? false))
-            || (_requiredAccess.Equals("tickets", StringComparison.InvariantCultureIgnoreCase) && !(ticketsAccess ?? false)))
+        if (hasAccess)
         {
-            RefuseAccess(context, "Geen toegang");
-            return next();
-        }
+            var wrAccess = apiToken?.Metadata.WrAccess;
+            var syncAccess = apiToken?.Metadata.SyncAccess;
+            var ticketsAccess = apiToken?.Metadata.TicketsAccess;
 
-        return next();
+            if ((_requiredAccess.Equals("road", StringComparison.InvariantCultureIgnoreCase) && !(wrAccess ?? false))
+                || (_requiredAccess.Equals("sync", StringComparison.InvariantCultureIgnoreCase) && !(syncAccess ?? false))
+                || (_requiredAccess.Equals("tickets", StringComparison.InvariantCultureIgnoreCase) && !(ticketsAccess ?? false)))
+            {
+                await RefuseAccess(context, "Geen toegang");
+                return;
+            }
+        }
     }
 
-    private static void RefuseAccess(ActionExecutingContext context, string message)
+    private static Task RefuseAccess(AuthorizationFilterContext context, string message)
     {
         context.SetContentFormatAcceptType();
-        throw new ApiException(message, StatusCodes.Status401Unauthorized);
+        context.Result = new UnauthorizedObjectResult(message);
+
+        return Task.CompletedTask;
     }
 
     internal record ApiToken([JsonProperty("clientname")] string ClientName, [JsonProperty("apikey")] string ApiKey, [JsonProperty("metadata")] ApiTokenMetadata Metadata);
