@@ -1,3 +1,11 @@
+## [3.18.1](https://github.com/informatievlaanderen/road-registry/compare/v3.18.0...v3.18.1) (2022-11-03)
+
+
+### Bug Fixes
+
+* version bump ([906f39d](https://github.com/informatievlaanderen/road-registry/commit/906f39d79225c77f56a7cfcb0f0b06e1261a1523))
+* version bump ([d1a2f97](https://github.com/informatievlaanderen/road-registry/commit/d1a2f971923bf4e3e3acf6a5364fa12dce9efa44))
+
 # [3.18.0](https://github.com/informatievlaanderen/road-registry/compare/v3.17.1...v3.18.0) (2022-11-02)
 
 
