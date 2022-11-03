@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Configuration;
@@ -31,7 +32,7 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
         var sp = context.HttpContext.RequestServices;
         var authenticationFeatureToggle = sp.GetRequiredService<UseApiKeyAuthenticationFeatureToggle>();
 
-        if (!authenticationFeatureToggle.FeatureEnabled)
+        if (context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any() || !authenticationFeatureToggle.FeatureEnabled)
         {
             await next();
             return;
@@ -99,7 +100,7 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
         var bytes = Convert.FromBase64String(potentialHeaderApiToken);
         var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         var apiToken = JsonConvert.DeserializeObject<ApiToken>(json);
-        
+
         CheckIfApiKeyHasAccess(context, apiToken?.ApiKey);
 
         var wrAccess = apiToken?.Metadata.WrAccess;

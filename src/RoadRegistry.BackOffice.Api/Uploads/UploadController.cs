@@ -13,6 +13,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Version = Infrastructure.Version;
@@ -31,6 +32,7 @@ public class UploadController : ControllerBase
         _mediator = mediator;
     }
 
+    [AllowAnonymous]
     [HttpGet("{identifier}")]
     public async Task<IActionResult> Get(string identifier, CancellationToken cancellationToken)
     {
