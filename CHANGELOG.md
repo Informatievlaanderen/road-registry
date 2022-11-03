@@ -1,3 +1,10 @@
+## [3.19.1](https://github.com/informatievlaanderen/road-registry/compare/v3.19.0...v3.19.1) (2022-11-03)
+
+
+### Bug Fixes
+
+* Allow anonymous edge case ([005a5ec](https://github.com/informatievlaanderen/road-registry/commit/005a5ec3e1bf8c9fbec70528a8093b4aa777fe0c))
+
 # [3.19.0](https://github.com/informatievlaanderen/road-registry/compare/v3.18.1...v3.19.0) (2022-11-03)
 
 
