@@ -1,3 +1,10 @@
+# [3.19.0](https://github.com/informatievlaanderen/road-registry/compare/v3.18.1...v3.19.0) (2022-11-03)
+
+
+### Features
+
+* API key through AuthorizationFilterContext instead of ActionExecutingContext ([604f01c](https://github.com/informatievlaanderen/road-registry/commit/604f01c8b9a5c0fb2c480b6b259abb0367e980d2))
+
 ## [3.18.1](https://github.com/informatievlaanderen/road-registry/compare/v3.18.0...v3.18.1) (2022-11-03)
 
 
