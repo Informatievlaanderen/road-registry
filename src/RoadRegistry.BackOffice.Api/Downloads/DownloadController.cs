@@ -9,6 +9,7 @@ using Framework;
 using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiVersion(Version.Current)]
@@ -25,6 +26,7 @@ public class DownloadController : ControllerBase
         _mediator = mediator;
     }
 
+    [AllowAnonymous]
     [HttpGet("for-editor")]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
@@ -40,6 +42,7 @@ public class DownloadController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
     [HttpGet("for-product/{date}")]
     public async Task<IActionResult> Get(string date, CancellationToken cancellationToken)
     {
