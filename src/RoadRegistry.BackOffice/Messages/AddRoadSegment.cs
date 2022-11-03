@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Messages;
 
-public class AddRoadSegment
+using Be.Vlaanderen.Basisregisters.EventHandling;
+
+public class AddRoadSegment : IMessage
 {
     public string AccessRestriction { get; set; }
     public string Category { get; set; }

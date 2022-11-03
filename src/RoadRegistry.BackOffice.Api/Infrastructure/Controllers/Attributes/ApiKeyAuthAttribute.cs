@@ -28,6 +28,15 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
+        var sp = context.HttpContext.RequestServices;
+        var authenticationFeatureToggle = sp.GetRequiredService<UseApiKeyAuthenticationFeatureToggle>();
+
+        if (!authenticationFeatureToggle.FeatureEnabled)
+        {
+            await next();
+            return;
+        }
+
         if (context.HttpContext.Request.Headers.ContainsKey(ApiTokenHeaderName))
         {
             await OnActionExecutionApiTokenAsync(context, next);
@@ -37,24 +46,9 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
         await OnActionExecutionApiKeyAsync(context, next);
     }
 
-    public Task OnActionExecutionApiKeyAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    private void CheckIfApiKeyHasAccess(ActionExecutingContext context, string apiKey)
     {
-        var sp = context.HttpContext.RequestServices;
-        var authenticationFeatureToggle = sp.GetRequiredService<UseApiKeyAuthenticationFeatureToggle>();
-
-        if (!authenticationFeatureToggle.FeatureEnabled) return next();
-
-        var potentialQueryApiKey = StringValues.Empty;
-        if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var potentialHeaderApiKey)
-            && !context.HttpContext.Request.Query.TryGetValue(ApiKeyQueryName, out potentialQueryApiKey))
-            RefuseAccess(context, "API key verplicht.");
-
-        var potentialApiKey = string.Empty;
-        if (!string.IsNullOrWhiteSpace(potentialQueryApiKey)) potentialApiKey = potentialQueryApiKey;
-
-        if (!string.IsNullOrWhiteSpace(potentialHeaderApiKey)) potentialApiKey = potentialHeaderApiKey;
-
-        if (string.IsNullOrWhiteSpace(potentialApiKey)) RefuseAccess(context, "API key verplicht.");
+        if (string.IsNullOrWhiteSpace(apiKey)) RefuseAccess(context, "API key verplicht.");
 
         var validApiKeys = context
             .HttpContext
@@ -65,15 +59,11 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
             .Select(c => c.Value)
             .ToArray();
 
-        if (!validApiKeys.Contains(potentialApiKey)) RefuseAccess(context, "Ongeldige API key.");
-
-        return next();
+        if (!validApiKeys.Contains(apiKey)) RefuseAccess(context, "Ongeldige API key.");
     }
 
-    public Task OnActionExecutionApiTokenAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    public Task OnActionExecutionApiKeyAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        // We get the x-api-key header or query param string
-        // Check if the user used this and thus is not anonymous GAWR-2968
         var potentialQueryApiKey = StringValues.Empty;
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var potentialHeaderApiKey)
             && !context.HttpContext.Request.Query.TryGetValue(ApiKeyQueryName, out potentialQueryApiKey))
@@ -84,8 +74,15 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
 
         if (!string.IsNullOrWhiteSpace(potentialHeaderApiKey)) potentialApiKey = potentialHeaderApiKey;
 
-        if (string.IsNullOrWhiteSpace(potentialApiKey)) RefuseAccess(context, "API key verplicht.");
+        CheckIfApiKeyHasAccess(context, potentialApiKey);
 
+        return next();
+    }
+
+    public Task OnActionExecutionApiTokenAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    {
+        // We get the x-api-key header or query param string
+        // Check if the user used this and thus is not anonymous GAWR-2968
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiTokenHeaderName, out var potentialHeaderApiTokens))
         {
             RefuseAccess(context, "Gelieve een geldige API key op te geven");
@@ -102,6 +99,8 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
         var bytes = Convert.FromBase64String(potentialHeaderApiToken);
         var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
         var apiToken = JsonConvert.DeserializeObject<ApiToken>(json);
+        
+        CheckIfApiKeyHasAccess(context, apiToken?.ApiKey);
 
         var wrAccess = apiToken?.Metadata.WrAccess;
         var syncAccess = apiToken?.Metadata.SyncAccess;

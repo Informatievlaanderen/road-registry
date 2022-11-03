@@ -1,8 +1,9 @@
 namespace RoadRegistry.BackOffice.Messages;
 
 using System;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 
-public class AnnounceRoadNetworkExtractDownloadBecameAvailable
+public class AnnounceRoadNetworkExtractDownloadBecameAvailable : IMessage
 {
     public string ArchiveId { get; set; }
     public Guid DownloadId { get; set; }

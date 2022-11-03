@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Messages;
 
-public class ChangeRoadNetwork
+using Be.Vlaanderen.Basisregisters.EventHandling;
+
+public class ChangeRoadNetwork : IMessage
 {
     public RequestedChange[] Changes { get; set; }
     public string Operator { get; set; }

@@ -10,8 +10,6 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using FluentValidation;
-using FluentValidation.Results;
 using Framework;
 using Infrastructure.Controllers.Attributes;
 using MediatR;

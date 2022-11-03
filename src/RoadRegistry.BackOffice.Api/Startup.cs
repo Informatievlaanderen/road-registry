@@ -156,11 +156,10 @@ public class Startup
                     }
                 }
             })
-            .Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey), options =>
-            {
-                options.BindNonPublicProperties = true;
-            })
+            .Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey), options => { options.BindNonPublicProperties = true; })
             .AddValidatorsFromAssemblyContaining<Startup>()
+            .AddValidatorsFromAssemblyContaining<Handlers.MediatorModule>()
+            .AddValidatorsFromAssemblyContaining<Handlers.Sqs.MediatorModule>()
             .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
             .AddSingleton(c => new UseApiKeyAuthenticationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))
             .AddSingleton(c => new UseUploadZipArchiveValidationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseUploadZipArchiveValidation))

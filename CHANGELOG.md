@@ -1,3 +1,83 @@
+# [3.18.0](https://github.com/informatievlaanderen/road-registry/compare/v3.17.1...v3.18.0) (2022-11-02)
+
+
+### Bug Fixes
+
+* Change errormessage on upload control ([f6a66d0](https://github.com/informatievlaanderen/road-registry/commit/f6a66d0e8540c768867441bfac62748ce36a8b45))
+* register validators in backoffice API ([0938dc6](https://github.com/informatievlaanderen/road-registry/commit/0938dc605f6103593603a960dce0d52950c0e8f2))
+* SQS removed from production workflow ([1a76dd7](https://github.com/informatievlaanderen/road-registry/commit/1a76dd78134e22a2102966ac18db203b32e47ddc))
+* SQS removed from production workflow ([a43b98d](https://github.com/informatievlaanderen/road-registry/commit/a43b98d61e62041143dcbac7dc127afec8faa5f9))
+* use WKT to transfer geometry data to avoid extra internal translations ([c314d79](https://github.com/informatievlaanderen/road-registry/commit/c314d7951857059848d616743fe760fb4cfacf7f))
+
+
+### Features
+
+* Initialize Vue after authentication check ([8eb9fd5](https://github.com/informatievlaanderen/road-registry/commit/8eb9fd53d90dc7400de087b419f091101f2173bf))
+* Initialize Vue after authentication check ([f7495fc](https://github.com/informatievlaanderen/road-registry/commit/f7495fc985e3913287f712a8d8e16affd000e55d))
+* Remove buffer from contour workflow ([9f5659c](https://github.com/informatievlaanderen/road-registry/commit/9f5659c2acb58687d57f4a0d0247ec870bde9d5a))
+* Skip buffering when buffer size equals zero ([d9ffa6c](https://github.com/informatievlaanderen/road-registry/commit/d9ffa6cffb3a213593003d4795e816006f446669))
+
+## [3.17.1](https://github.com/informatievlaanderen/road-registry/compare/v3.17.0...v3.17.1) (2022-11-02)
+
+
+### Bug Fixes
+
+* remove kafka from all pipelines ([35a30c0](https://github.com/informatievlaanderen/road-registry/commit/35a30c09f67015fb88eed893491cda2a810fcba8))
+* remove kafka from release pipeline ([5dd5add](https://github.com/informatievlaanderen/road-registry/commit/5dd5add8d771634ef3313bfc3c51b0e7f0105c52))
+
+# [3.17.0](https://github.com/informatievlaanderen/road-registry/compare/v3.16.1...v3.17.0) (2022-11-02)
+
+
+### Bug Fixes
+
+* missing solution configurations ([0bc6159](https://github.com/informatievlaanderen/road-registry/commit/0bc6159bac9c225cbe14bed77d1f963cd61cf807))
+* move extensions to main type namespace ([6a75052](https://github.com/informatievlaanderen/road-registry/commit/6a75052bde47335c7d63560ad63b83ea1b97b8f6))
+* move kafka logic to separate Handlers library ([40e50d7](https://github.com/informatievlaanderen/road-registry/commit/40e50d755c61efd7c2e450318fb729d812cde139))
+* refactor so that IServiceCollection is not needed during ConfigureContainer ([9179528](https://github.com/informatievlaanderen/road-registry/commit/91795284d90ed08829ff636469a532379ed0844f))
+* remove kafka application from pipelines ([742c843](https://github.com/informatievlaanderen/road-registry/commit/742c8439149b3cc6c4512d4ed3db334dcd15ba04))
+* temporarily disable logic of kafka message processing ([8142a1a](https://github.com/informatievlaanderen/road-registry/commit/8142a1a93386a3ffc284d9ba32347bd9d16e72cc))
+
+
+### Features
+
+* Add Kafka and Kafka test projects ([d18014d](https://github.com/informatievlaanderen/road-registry/commit/d18014ded6b919cf88da0797cb08bb5645c2d788))
+* Add Kafka consumer and pipeline update ([397e8b0](https://github.com/informatievlaanderen/road-registry/commit/397e8b0b8652da8d984943abe465e454138ea32e))
+* Add Kafka consumer project shell ([d45c79d](https://github.com/informatievlaanderen/road-registry/commit/d45c79d0be171fd7284659d0424c5eb7783cd36d))
+* add MessagingHost.Kafka ([eaebd1b](https://github.com/informatievlaanderen/road-registry/commit/eaebd1bea468329780a8fbfb129057fdc0ddbcf5))
+* disable StreetNameConsumer ([fe2794d](https://github.com/informatievlaanderen/road-registry/commit/fe2794dfb69dc0ba61b3afe133a3324f376a5bda))
+* Kafka consumer adoption ([777db74](https://github.com/informatievlaanderen/road-registry/commit/777db744a608efb4976ea1fef7034f1085df1bd5))
+* move non-host logic to Handlers.Kafka ([1611887](https://github.com/informatievlaanderen/road-registry/commit/1611887079b3ecf86cad129725bfcc293033b98d))
+* Program and host builder optimization ([f5ecf96](https://github.com/informatievlaanderen/road-registry/commit/f5ecf96244cc2ed34adb66e0e16b1354bd2c3a90))
+* set up kafka streetname consumer ([a4c735e](https://github.com/informatievlaanderen/road-registry/commit/a4c735e11fc42e0124557d7ba23f9037272ba344))
+* update paket dependencies to latest ([68de80d](https://github.com/informatievlaanderen/road-registry/commit/68de80d031a7362ce7852ffc8feba237150803fa))
+* Updated paket references ([1c2dfdd](https://github.com/informatievlaanderen/road-registry/commit/1c2dfdda86ba82ab0dcc89c7c2dc84b2c10a42e9))
+
+## [3.16.1](https://github.com/informatievlaanderen/road-registry/compare/v3.16.0...v3.16.1) (2022-10-28)
+
+
+### Bug Fixes
+
+* error message with failed login attempt ([43b8a35](https://github.com/informatievlaanderen/road-registry/commit/43b8a35ea21f5b5fe95b57e2bf73c723cacfd592))
+* remove temporary request logging ([8b8974c](https://github.com/informatievlaanderen/road-registry/commit/8b8974cd5431a7840dd2f239e6ee096d75dfa63a))
+* remove x-api-key header requirement when x-api-token is being used ([e4e39c2](https://github.com/informatievlaanderen/road-registry/commit/e4e39c21a25a298164c23e15f3187d8abba32bf1))
+
+# [3.16.0](https://github.com/informatievlaanderen/road-registry/compare/v3.15.1...v3.16.0) (2022-10-27)
+
+
+### Bug Fixes
+
+* Add missing registrations in test startup class ([038c852](https://github.com/informatievlaanderen/road-registry/commit/038c8525e8f20b2e13e614b005ceb2c041498a3d))
+* add support for public-api debugging ([df09172](https://github.com/informatievlaanderen/road-registry/commit/df091722461f3c907e68208660279d86750b036c))
+* UI router auth check; display validation errors on upload immediately ([32bf448](https://github.com/informatievlaanderen/road-registry/commit/32bf4489279e8eb311f45de387012fee869ac355))
+
+
+### Features
+
+* Merge from main ([0728dda](https://github.com/informatievlaanderen/road-registry/commit/0728ddac4e95c262486d2fc6d6e1cfd02779d0fb))
+* Paket version update ([158c878](https://github.com/informatievlaanderen/road-registry/commit/158c878cdf3f5e5dee73fde4aedf94aa634937dd))
+* Safeguard input zip archive validation through feature toggle ([e844f2c](https://github.com/informatievlaanderen/road-registry/commit/e844f2ccec7b96d5cc7e0de9f889d7c53a9869c9))
+* Updated FluentValidation and removed deprecated test method ([32c2d8a](https://github.com/informatievlaanderen/road-registry/commit/32c2d8ab3bc298cef7f2d35ae817da3a72f88d9a))
+
 ## [3.15.1](https://github.com/informatievlaanderen/road-registry/compare/v3.15.0...v3.15.1) (2022-10-26)
 
 

@@ -40,7 +40,10 @@ public abstract class TestStartup
         return default;
     }
 
-    public virtual void ConfigureContainer(ContainerBuilder builder)
+    protected virtual void ConfigureContainer(ContainerBuilder builder)
+    {
+    }
+    protected virtual void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder)
     {
     }
 
@@ -84,23 +87,23 @@ public abstract class TestStartup
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
                     .AddTransient<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
-
                     .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
                     .AddSingleton(c => new UseApiKeyAuthenticationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))
                     .AddSingleton(c => new UseUploadZipArchiveValidationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseUploadZipArchiveValidation))
-
                     .AddLogging();
 
                 ConfigureServices(context, services);
             })
-            .ConfigureContainer<ContainerBuilder>(builder =>
+            .ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
+                ConfigureContainer(hostContext, builder);
                 ConfigureContainer(builder);
+
                 builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
             });
     }
 
-    public virtual void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
+    protected virtual void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
     }
 

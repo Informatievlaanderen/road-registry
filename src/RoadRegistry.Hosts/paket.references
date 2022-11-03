@@ -1,3 +1,4 @@
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.Shaperon
 
@@ -9,4 +10,9 @@ Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens
 Microsoft.IdentityModel.Logging
 Microsoft.IdentityModel.Tokens
+Serilog
+Serilog.Enrichers.Environment
+Serilog.Enrichers.Thread
+Serilog.Extensions.Logging
+Serilog.Settings.Configuration
 SqlStreamStore.MsSql

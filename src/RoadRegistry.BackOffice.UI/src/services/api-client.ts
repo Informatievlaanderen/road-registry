@@ -4,24 +4,13 @@ import { AuthService } from "@/auth";
 import router from "@/router";
 
 export interface IApiClient {
-  get<T = any>(
-    url: string,
-    query?: any,
-    headers?: any,
-    config?: any
-  ): Promise<IApiResponse<T>>;
+  get<T = any>(url: string, query?: any, headers?: any, config?: any): Promise<IApiResponse<T>>;
   delete(url: string, headers?: any): Promise<IApiResponse>;
   head(url: string, query?: any, headers?: any): Promise<IApiResponse>;
-  post<T = any>(
-    url: string,
-    data?: any,
-    headers?: any,
-    config?: any,
-    query?: any
-  ): Promise<IApiResponse<T>>;
+  post<T = any>(url: string, data?: any, headers?: any, config?: any, query?: any): Promise<IApiResponse<T>>;
   put<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>>;
   patch<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>>;
-  download(mimetype: string, filename: string, url: string, method: Method, query?: any, headers?:any): Promise<void>;
+  download(mimetype: string, filename: string, url: string, method: Method, query?: any, headers?: any): Promise<void>;
 }
 
 export interface IApiResponse<T = any> {
@@ -65,9 +54,14 @@ class AxiosHttpApiClient implements IApiClient {
         return response;
       },
       (error) => {
-        console.info(error)
-        if(error.response.status == 403 || error.response.status == 401) {
-          router.push("/login?redirect=" + router.currentRoute.fullPath)
+        console.info(error);
+        if (error.response.status == 403 || error.response.status == 401) {
+          let redirect =
+            router.currentRoute?.name === "login" ? router.currentRoute.query.redirect : router.currentRoute.fullPath;
+          router.push({
+            name: "login",
+            query: { redirect },
+          });
         }
         apiStats.pendingRequests--;
         return Promise.reject(error);
@@ -75,16 +69,8 @@ class AxiosHttpApiClient implements IApiClient {
     );
   }
 
-  public async get<T = any>(
-    url: string,
-    query?: any,
-    headers?: any,
-    config?: any
-  ): Promise<IApiResponse<T>> {
-    return await this.axios.get<T>(
-      url,
-      Object.assign({}, { params: query, headers }, config)
-    );
+  public async get<T = any>(url: string, query?: any, headers?: any, config?: any): Promise<IApiResponse<T>> {
+    return await this.axios.get<T>(url, Object.assign({}, { params: query, headers }, config));
   }
   public async download(
     mimetype: string,
@@ -92,26 +78,24 @@ class AxiosHttpApiClient implements IApiClient {
     url: string,
     method: Method = "GET",
     query?: any,
-    headers?:any)
-  {
-      const response = await this.axios({
-        url,
-        headers,
-        method,
-        params: query,
-        responseType: 'blob'
-      });
-      const blob = new Blob([response.data], {type:mimetype});
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      link.click();
+    headers?: any
+  ) {
+    const response = await this.axios({
+      url,
+      headers,
+      method,
+      params: query,
+      responseType: "blob",
+    });
+    const blob = new Blob([response.data], { type: mimetype });
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = filename;
+    link.click();
   }
-  public async postUpload<T = any>(
-    formData: FormData, url: string, config?: any, query?: any, headers?:any)
-  {
-      return await await this.axios.post<T>(url,formData, Object.assign({}, { params: query, headers }, config))
+  public async postUpload<T = any>(formData: FormData, url: string, config?: any, query?: any, headers?: any) {
+    return await await this.axios.post<T>(url, formData, Object.assign({}, { params: query, headers }, config));
   }
   public async delete(url: string, headers?: any): Promise<IApiResponse> {
     return await this.axios.delete(url, { headers });
@@ -126,24 +110,12 @@ class AxiosHttpApiClient implements IApiClient {
     config?: any,
     query?: any
   ): Promise<IApiResponse<T>> {
-    return await this.axios.post<T>(
-      url,
-      data,
-      Object.assign({}, { params: query, headers }, config)
-    );
+    return await this.axios.post<T>(url, data, Object.assign({}, { params: query, headers }, config));
   }
-  public async put<T = any>(
-    url: string,
-    data?: any,
-    headers?: any
-  ): Promise<IApiResponse<T>> {
+  public async put<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>> {
     return await this.axios.put<T>(url, data, { headers });
   }
-  public async patch<T = any>(
-    url: string,
-    data?: any,
-    headers?: any
-  ): Promise<IApiResponse<T>> {
+  public async patch<T = any>(url: string, data?: any, headers?: any): Promise<IApiResponse<T>> {
     return await this.axios.patch<T>(url, data, { headers });
   }
 }

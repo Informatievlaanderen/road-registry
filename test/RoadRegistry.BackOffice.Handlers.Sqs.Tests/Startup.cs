@@ -8,11 +8,11 @@ using Microsoft.Extensions.Hosting;
 
 public class Startup : TestStartup
 {
-    public override void ConfigureContainer(ContainerBuilder builder)
+    protected override void ConfigureContainer(ContainerBuilder builder)
     {
     }
 
-    public override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
+    protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
         services.AddSingleton(sp => new SqsOptions("test", "test", RegionEndpoint.EUWest1));
     }

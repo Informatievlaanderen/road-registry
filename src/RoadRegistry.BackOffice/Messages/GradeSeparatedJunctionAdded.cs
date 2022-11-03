@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Messages;
 
-public class GradeSeparatedJunctionAdded
+using Be.Vlaanderen.Basisregisters.EventHandling;
+
+public class GradeSeparatedJunctionAdded : IMessage
 {
     public int Id { get; set; }
     public int LowerRoadSegmentId { get; set; }
