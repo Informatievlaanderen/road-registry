@@ -9,7 +9,6 @@ using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using Messages;
-using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Polygon = NetTopologySuite.Geometries.Polygon;
 using Problem = Core.Problem;
@@ -17,12 +16,10 @@ using Problem = Core.Problem;
 public class DownloadExtractByFileRequestItemTranslator
 {
     private readonly Encoding _encoding;
-    private readonly ILogger<DownloadExtractByFileRequestItemTranslator> _logger;
 
-    public DownloadExtractByFileRequestItemTranslator(Encoding encoding, ILogger<DownloadExtractByFileRequestItemTranslator> logger)
+    public DownloadExtractByFileRequestItemTranslator(Encoding encoding)
     {
         _encoding = encoding;
-        _logger = logger;
     }
 
     public RoadNetworkExtractGeometry Translate(DownloadExtractByFileRequestItem shapeFile, int buffer)
