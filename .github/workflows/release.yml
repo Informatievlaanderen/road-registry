@@ -277,13 +277,13 @@ jobs:
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
         docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
 
-        #echo Push Lambda functions to S3 Production
-        #pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-        #echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
-        #aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
-        #echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
-        #aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
-        #popd
+        echo Push Lambda functions to S3 Production
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+        echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+        popd
       env:
         BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
