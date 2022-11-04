@@ -15,9 +15,7 @@ using Microsoft.Extensions.Logging;
 public class StreetNameConsumer : BackgroundService
 {
     private readonly ConsumerOptions _consumerOptions;
-    private readonly ILifetimeScope _container;
     private readonly ILogger<StreetNameConsumer> _logger;
-    private readonly ILoggerFactory _loggerFactory;
     private readonly KafkaOptions _options;
     private readonly IServiceProvider _serviceProvider;
 
@@ -29,8 +27,6 @@ public class StreetNameConsumer : BackgroundService
         ILogger<StreetNameConsumer> logger,
         IServiceProvider serviceProvider)
     {
-        _container = container;
-        _loggerFactory = loggerFactory;
         _options = options;
         _consumerOptions = consumerOptions;
         _logger = logger;
@@ -66,7 +62,7 @@ public class StreetNameConsumer : BackgroundService
             }
             catch (Exception ex)
             {
-                var waitSeconds = 30;
+                const int waitSeconds = 30;
                 _logger.LogCritical(ex, "Error consuming kafka events, trying again in {seconds} seconds", waitSeconds);
                 await Task.Delay(waitSeconds * 1000, stoppingToken);
             }
