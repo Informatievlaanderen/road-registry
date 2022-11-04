@@ -30,9 +30,9 @@ public class FeatureCompareMessageResponseConsumer : BackgroundService
         _logger = logger;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
@@ -43,21 +43,21 @@ public class FeatureCompareMessageResponseConsumer : BackgroundService
                     case UploadRoadNetworkChangesArchive uploadRoadNetworkChangesArchive:
                     {
                         var request = new FeatureCompareMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
-                        await _mediator.Send(request, cancellationToken);
+                        await _mediator.Send(request, stoppingToken);
                     }
                         break;
                     case UploadRoadNetworkExtractChangesArchive uploadRoadNetworkExtractChangesArchive:
                     {
                         var request = new FeatureCompareMessageRequest(uploadRoadNetworkExtractChangesArchive.ArchiveId);
-                        await _mediator.Send(request, cancellationToken);
+                        await _mediator.Send(request, stoppingToken);
                     }
                         break;
                     default:
                         throw new UnknownSqsMessageTypeException($"Unhandled message type '{message.GetType()}' found on queue '{_messagingOptions.ResponseQueueName}'", message.GetType().FullName);
                 }
-            }, cancellationToken);
+            }, stoppingToken);
 
-            await Task.Delay(_messagingOptions.ConsumerDelaySeconds * 1000, cancellationToken);
+            await Task.Delay(_messagingOptions.ConsumerDelaySeconds * 1000, stoppingToken);
         }
     }
 }
