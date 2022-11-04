@@ -32,18 +32,16 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
         TConfiguration feedConfiguration,
         ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> logger)
     {
-        if (reader == null) throw new ArgumentNullException(nameof(reader));
+        ArgumentNullException.ThrowIfNull(nameof(reader));
+        ArgumentNullException.ThrowIfNull(nameof(envelopeFactory));
+        ArgumentNullException.ThrowIfNull(nameof(resolver));
+        ArgumentNullException.ThrowIfNull(nameof(dbContextFactory));
+        ArgumentNullException.ThrowIfNull(nameof(feedConfiguration));
+        ArgumentNullException.ThrowIfNull(nameof(scheduler));
+        ArgumentNullException.ThrowIfNull(nameof(logger));
 
-        if (envelopeFactory == null) throw new ArgumentNullException(nameof(envelopeFactory));
-
-        if (resolver == null) throw new ArgumentNullException(nameof(resolver));
-
-        if (dbContextFactory == null) throw new ArgumentNullException(nameof(dbContextFactory));
-
-        if (feedConfiguration == null) throw new ArgumentNullException(nameof(feedConfiguration));
-
-        _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scheduler = scheduler;
+        _logger = logger;
 
         _messagePumpCancellation = new CancellationTokenSource();
         _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
@@ -61,136 +59,146 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
             {
                 logger.LogInformation("[{Context}] EventProcessor message pump entered ...", typeof(TSyndicationContent).Name);
                 while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
-                while (_messageChannel.Reader.TryRead(out var message))
-                    switch (message)
+                {
+                    while (_messageChannel.Reader.TryRead(out var message))
                     {
-                        case Resume:
-                            logger.LogInformation("[{Context}] Resuming ...", typeof(TSyndicationContent).Name);
-                            await using (var resumeContext = dbContextFactory())
-                            {
-                                var projection =
-                                    await resumeContext.ProjectionStates
-                                        .SingleOrDefaultAsync(
-                                            item => item.Name == roadRegistrySyndicationProjectionHost,
-                                            _messagePumpCancellation.Token)
-                                        .ConfigureAwait(false);
-
-                                await _messageChannel.Writer
-                                    .WriteAsync(new CatchUp(projection?.Position, CatchUpBatchSize), _messagePumpCancellation.Token)
-                                    .ConfigureAwait(false);
-                            }
-
-                            break;
-                        case CatchUp catchUp:
-                            try
-                            {
-                                logger.LogInformation("[{Context}] Catching up as of {Position}", typeof(TSyndicationContent).Name, catchUp.AfterPosition ?? -1L);
-                                var observedMessageCount = 0;
-                                var catchUpPosition = catchUp.AfterPosition ?? -1;
-                                var context = dbContextFactory();
-                                context.ChangeTracker.AutoDetectChangesEnabled = false;
-
-                                var entries = (await reader.ReadEntriesAsync(
-                                        feedConfiguration.Uri,
-                                        catchUpPosition,
-                                        true,
-                                        false))
-                                    .ToList();
-
-                                while (entries.Any())
+                        switch (message)
+                        {
+                            case Resume:
+                                logger.LogInformation("[{Context}] Resuming ...", typeof(TSyndicationContent).Name);
+                                await using (var resumeContext = dbContextFactory())
                                 {
-                                    foreach (var atomEntry in entries)
-                                    {
-                                        logger.LogInformation("[{Context}] Catching up on {MessageTitle}({MessageType}) at {Position}",
-                                            typeof(TSyndicationContent).Name, atomEntry.Title, atomEntry.ContentType, atomEntry.Id);
+                                    var projection =
+                                        await resumeContext.ProjectionStates
+                                            .SingleOrDefaultAsync(
+                                                item => item.Name == roadRegistrySyndicationProjectionHost,
+                                                _messagePumpCancellation.Token)
+                                            .ConfigureAwait(false);
 
-                                        observedMessageCount++;
-                                        catchUpPosition = Convert.ToInt64(atomEntry.Id);
+                                    await _messageChannel.Writer
+                                        .WriteAsync(new CatchUp(projection?.Position, CatchUpBatchSize), _messagePumpCancellation.Token)
+                                        .ConfigureAwait(false);
+                                }
 
-                                        var envelope = envelopeFactory.CreateEnvelope<TSyndicationContent>(atomEntry);
-                                        if (envelope != null)
-                                        {
-                                            var handlers = resolver(envelope);
-                                            foreach (var handler in handlers)
-                                                await handler
-                                                    .Handler(context, envelope, _messagePumpCancellation.Token)
-                                                    .ConfigureAwait(false);
-                                        }
-                                        else
-                                        {
-                                            _logger.LogWarning("[{Context}] Could not create envelope for {MessageTitle}({MessageType}) at {Position}",
-                                                typeof(TSyndicationContent).Name, atomEntry.Title, atomEntry.ContentType, atomEntry.Id);
-                                        }
+                                break;
+                            case CatchUp catchUp:
+                                try
+                                {
+                                    logger.LogInformation("[{Context}] Catching up as of {Position}", typeof(TSyndicationContent).Name, catchUp.AfterPosition ?? -1L);
+                                    var observedMessageCount = 0;
+                                    var catchUpPosition = catchUp.AfterPosition ?? -1;
+                                    var context = dbContextFactory();
+                                    context.ChangeTracker.AutoDetectChangesEnabled = false;
 
-                                        if (observedMessageCount % CatchUpBatchSize == 0)
-                                        {
-                                            logger.LogInformation(
-                                                "[{Context}] Flushing catch up position of {Position} and persisting changes ...",
-                                                typeof(TSyndicationContent).Name, catchUpPosition);
-                                            await context
-                                                .UpdateProjectionState(
-                                                    roadRegistrySyndicationProjectionHost,
-                                                    catchUpPosition,
-                                                    _messagePumpCancellation.Token)
-                                                .ConfigureAwait(false);
-                                            context.ChangeTracker.DetectChanges();
-                                            await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
-                                            await context.DisposeAsync().ConfigureAwait(false);
-
-                                            context = dbContextFactory();
-                                            context.ChangeTracker.AutoDetectChangesEnabled = false;
-                                            observedMessageCount = 0;
-                                        }
-                                    }
-
-                                    entries = (await reader.ReadEntriesAsync(
+                                    var entries = (await reader.ReadEntriesAsync(
                                             feedConfiguration.Uri,
                                             catchUpPosition,
                                             true,
                                             false))
                                         .ToList();
+
+                                    while (entries.Any())
+                                    {
+                                        foreach (var atomEntry in entries)
+                                        {
+                                            logger.LogInformation("[{Context}] Catching up on {MessageTitle}({MessageType}) at {Position}",
+                                                typeof(TSyndicationContent).Name, atomEntry.Title, atomEntry.ContentType, atomEntry.Id);
+
+                                            observedMessageCount++;
+                                            catchUpPosition = Convert.ToInt64(atomEntry.Id);
+
+                                            var envelope = envelopeFactory.CreateEnvelope<TSyndicationContent>(atomEntry);
+                                            if (envelope != null)
+                                            {
+                                                var handlers = resolver(envelope);
+                                                foreach (var handler in handlers)
+                                                {
+                                                    await handler
+                                                        .Handler(context, envelope, _messagePumpCancellation.Token)
+                                                        .ConfigureAwait(false);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                _logger.LogWarning("[{Context}] Could not create envelope for {MessageTitle}({MessageType}) at {Position}",
+                                                    typeof(TSyndicationContent).Name, atomEntry.Title, atomEntry.ContentType, atomEntry.Id);
+                                            }
+
+                                            if (observedMessageCount % CatchUpBatchSize == 0)
+                                            {
+                                                logger.LogInformation(
+                                                    "[{Context}] Flushing catch up position of {Position} and persisting changes ...",
+                                                    typeof(TSyndicationContent).Name, catchUpPosition);
+                                                await context
+                                                    .UpdateProjectionState(
+                                                        roadRegistrySyndicationProjectionHost,
+                                                        catchUpPosition,
+                                                        _messagePumpCancellation.Token)
+                                                    .ConfigureAwait(false);
+                                                context.ChangeTracker.DetectChanges();
+                                                await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
+                                                await context.DisposeAsync().ConfigureAwait(false);
+
+                                                context = dbContextFactory();
+                                                context.ChangeTracker.AutoDetectChangesEnabled = false;
+                                                observedMessageCount = 0;
+                                            }
+                                        }
+
+                                        entries = (await reader.ReadEntriesAsync(
+                                                feedConfiguration.Uri,
+                                                catchUpPosition,
+                                                true,
+                                                false))
+                                            .ToList();
+                                    }
+
+                                    if (observedMessageCount > 0) // case where we just read the last page and pending work in memory needs to be flushed
+                                    {
+                                        logger.LogInformation(
+                                            "[{Context}] Flushing catch up position of {Position} and persisting changes ...",
+                                            typeof(TSyndicationContent).Name, catchUpPosition);
+                                        await context
+                                            .UpdateProjectionState(
+                                                roadRegistrySyndicationProjectionHost,
+                                                catchUpPosition,
+                                                _messagePumpCancellation.Token)
+                                            .ConfigureAwait(false);
+                                        context.ChangeTracker.DetectChanges();
+                                        await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
+                                    }
+
+                                    await context.DisposeAsync().ConfigureAwait(false);
+
+                                    await scheduler.Schedule(async token =>
+                                    {
+                                        if (!_messagePumpCancellation.IsCancellationRequested)
+                                        {
+                                            await _messageChannel.Writer
+                                                .WriteAsync(new CatchUp(catchUpPosition, CatchUpBatchSize), _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
+                                        }
+                                    }, CatchUpAfter).ConfigureAwait(false);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, "Encountered an unexpected error, scheduled Resume");
+
+                                    await scheduler.Schedule(async token =>
+                                    {
+                                        if (!_messagePumpCancellation.IsCancellationRequested)
+                                        {
+                                            await _messageChannel.Writer
+                                                .WriteAsync(new Resume(), _messagePumpCancellation.Token)
+                                                .ConfigureAwait(false);
+                                        }
+                                    }, ResumeAfter).ConfigureAwait(false);
                                 }
 
-                                if (observedMessageCount > 0) // case where we just read the last page and pending work in memory needs to be flushed
-                                {
-                                    logger.LogInformation(
-                                        "[{Context}] Flushing catch up position of {Position} and persisting changes ...",
-                                        typeof(TSyndicationContent).Name, catchUpPosition);
-                                    await context
-                                        .UpdateProjectionState(
-                                            roadRegistrySyndicationProjectionHost,
-                                            catchUpPosition,
-                                            _messagePumpCancellation.Token)
-                                        .ConfigureAwait(false);
-                                    context.ChangeTracker.DetectChanges();
-                                    await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
-                                }
-
-                                await context.DisposeAsync().ConfigureAwait(false);
-
-                                await scheduler.Schedule(async token =>
-                                {
-                                    if (!_messagePumpCancellation.IsCancellationRequested)
-                                        await _messageChannel.Writer
-                                            .WriteAsync(new CatchUp(catchUpPosition, CatchUpBatchSize), _messagePumpCancellation.Token)
-                                            .ConfigureAwait(false);
-                                }, CatchUpAfter).ConfigureAwait(false);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(ex, "Encountered an unexpected error, scheduled Resume");
-
-                                await scheduler.Schedule(async token =>
-                                {
-                                    if (!_messagePumpCancellation.IsCancellationRequested)
-                                        await _messageChannel.Writer
-                                            .WriteAsync(new Resume(), _messagePumpCancellation.Token)
-                                            .ConfigureAwait(false);
-                                }, ResumeAfter).ConfigureAwait(false);
-                            }
-
-                            break;
+                                break;
+                        }
                     }
+                }
             }
             catch (TaskCanceledException)
             {
