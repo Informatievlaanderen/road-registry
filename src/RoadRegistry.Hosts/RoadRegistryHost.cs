@@ -2,9 +2,11 @@ namespace RoadRegistry.Hosts;
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Abstractions;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +20,7 @@ public class RoadRegistryHost<T>
     private readonly IConfiguration _configuration;
     private readonly IHost _host;
     private readonly ILogger<T> _logger;
+    private readonly ILoggerFactory _loggerFactory;
     private readonly IStreamStore _streamStore;
     private readonly List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
 
@@ -27,6 +30,7 @@ public class RoadRegistryHost<T>
         _host = host;
         _streamStore = host.Services.GetRequiredService<IStreamStore>();
         _logger = host.Services.GetRequiredService<ILogger<T>>();
+        _loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
     }
 
     public RoadRegistryHost<T> ConfigureLogging(Action<IServiceProvider, ILogger<T>> configureDelegate)
@@ -56,7 +60,17 @@ public class RoadRegistryHost<T>
                         new SqlCommandProcessorPositionStoreSchema(
                             new SqlConnectionStringBuilder(_configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
                         ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema);
-                    await _host.RunAsync();
+
+                    var migratorFactory = _host.Services.GetService<IRunnerDbContextMigratorFactory>();
+
+                    if (migratorFactory != null)
+                    {
+                        await migratorFactory
+                            .CreateMigrator(_configuration, _loggerFactory)
+                            .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+                    }
+
+                    await _host.RunAsync().ConfigureAwait(false);
                 },
                 DistributedLockOptions.LoadFromConfiguration(_configuration), _logger);
         }

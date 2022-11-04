@@ -3,12 +3,15 @@ namespace RoadRegistry.StreetNameConsumer.ProjectionHost.Infrastructure;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.Projector.Modules;
 using Hosts;
 using Microsoft.Extensions.DependencyInjection;
 using Modules;
+using RoadRegistry.Syndication.Schema;
 using System;
 using System.Threading.Tasks;
+using Schema;
 
 public class Program
 {
@@ -26,6 +29,7 @@ public class Program
                 var consumerOptions = new ConsumerOptions(topic, consumerGroupSuffix);
 
                 services
+                    .AddSingleton<IRunnerDbContextMigratorFactory>(new StreetNameConsumerContextMigrationFactory())
                     .AddSingleton(kafkaOptions)
                     .AddSingleton(consumerOptions)
                     .AddHostedService<StreetNameConsumer>();
@@ -38,7 +42,10 @@ public class Program
                         .RegisterModule(new ProjectorModule(hostContext.Configuration));
                 }
             )
+
             .Build();
+
+
 
         await roadRegistryHost.RunAsync();
     }
