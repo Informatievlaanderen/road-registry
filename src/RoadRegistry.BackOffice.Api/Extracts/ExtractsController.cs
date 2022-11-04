@@ -43,7 +43,7 @@ public class ExtractsController : ControllerBase
     {
         try
         {
-            DownloadFileContentRequest request = new(downloadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
+            var request = new DownloadFileContentRequest(downloadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
             var response = await _mediator.Send(request, cancellationToken);
             return new FileCallbackResult(response);
         }
@@ -69,12 +69,15 @@ public class ExtractsController : ControllerBase
     {
         void AddHeaderRetryAfter(int retryAfter)
         {
-            if (retryAfter > 0) Response.Headers.Add("Retry-After", retryAfter.ToString(CultureInfo.InvariantCulture));
+            if (retryAfter > 0)
+            {
+                Response.Headers.Add("Retry-After", retryAfter.ToString(CultureInfo.InvariantCulture));
+            }
         }
 
         try
         {
-            UploadStatusRequest request = new(uploadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
+            var request = new UploadStatusRequest(uploadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
             var response = await _mediator.Send(request, cancellationToken);
             AddHeaderRetryAfter(response.RetryAfter);
             return Ok(new GetUploadStatusResponseBody { Status = response.Status });
@@ -89,7 +92,7 @@ public class ExtractsController : ControllerBase
     [HttpPost("downloadrequests")]
     public async Task<IActionResult> PostDownloadRequest([FromBody] DownloadExtractRequestBody body, CancellationToken cancellationToken)
     {
-        DownloadExtractRequest request = new(body.RequestId, body.Contour);
+        var request = new DownloadExtractRequest(body.RequestId, body.Contour);
         var response = await _mediator.Send(request, cancellationToken);
         return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
     }
@@ -99,7 +102,7 @@ public class ExtractsController : ControllerBase
     {
         try
         {
-            DownloadExtractByContourRequest request = new(body.Contour, body.Buffer, body.Description);
+            var request = new DownloadExtractByContourRequest(body.Contour, body.Buffer, body.Description);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
         }
@@ -115,18 +118,13 @@ public class ExtractsController : ControllerBase
     {
         try
         {
-            DownloadExtractByFileRequest request = new(
-                BuildRequestItem(".shp"),
-                BuildRequestItem(".prj"),
-                body.Buffer,
-                body.Description);
+            var request = new DownloadExtractByFileRequest(BuildRequestItem(".shp"), BuildRequestItem(".prj"), body.Buffer, body.Description);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
 
             DownloadExtractByFileRequestItem BuildRequestItem(string extension)
             {
-                var file = body.Files.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase))
-                           ?? throw new ArgumentNullException();
+                var file = body.Files.SingleOrDefault(formFile => formFile.FileName.EndsWith(extension, StringComparison.InvariantCultureIgnoreCase)) ?? throw new InvalidOperationException($"No file ends with extension {extension}");
                 var fileStream = new MemoryStream();
                 file.CopyTo(fileStream);
                 fileStream.Position = 0;
@@ -144,7 +142,7 @@ public class ExtractsController : ControllerBase
     {
         try
         {
-            DownloadExtractByNisCodeRequest request = new(body.NisCode, body.Buffer, body.Description);
+            var request = new DownloadExtractByNisCodeRequest(body.NisCode, body.Buffer, body.Description);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
         }
@@ -162,7 +160,7 @@ public class ExtractsController : ControllerBase
     {
         try
         {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractFeatureCompareRequest(downloadId, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(response);
@@ -181,7 +179,7 @@ public class ExtractsController : ControllerBase
     {
         try
         {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+            var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractRequest(downloadId, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new UploadExtractResponseBody { UploadId = response.UploadId.ToString() });
