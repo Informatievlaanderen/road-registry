@@ -3,27 +3,28 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 using System.Text;
 using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Core;
+using Editor.Projections.DutchTranslations;
+using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using Messages;
-using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using Polygon = NetTopologySuite.Geometries.Polygon;
+using Problem = Core.Problem;
 
 public class DownloadExtractByFileRequestItemTranslator
 {
     private readonly Encoding _encoding;
-    private readonly ILogger<DownloadExtractByFileRequestItemTranslator> _logger;
 
-    public DownloadExtractByFileRequestItemTranslator(Encoding encoding, ILogger<DownloadExtractByFileRequestItemTranslator> logger)
+    public DownloadExtractByFileRequestItemTranslator(Encoding encoding)
     {
         _encoding = encoding;
-        _logger = logger;
     }
 
     public RoadNetworkExtractGeometry Translate(DownloadExtractByFileRequestItem shapeFile, int buffer)
     {
-        var validationFailures = Enumerable.Empty<ValidationFailure>().ToList();
+        var problems = new List<Problem>();
 
         using (var reader = new BinaryReader(shapeFile.ReadStream, _encoding))
         {
@@ -37,7 +38,7 @@ public class DownloadExtractByFileRequestItemTranslator
             }
             catch (Exception exception)
             {
-                AddValidationFailure($"Could not read header from shape file: '{exception.Message}'");
+                problems.Add(new ShapeFileInvalidHeader(exception));
             }
 
             if (header is not null)
@@ -50,13 +51,19 @@ public class DownloadExtractByFileRequestItemTranslator
                             switch (records.Current.Content)
                             {
                                 case PolygonShapeContent polygonShapeContent:
-                                    polygons.AddRange(GeometryTranslator.ToGeometryMultiPolygon(polygonShapeContent.Shape).Geometries.Cast<Polygon>());
+                                    try
+                                    {
+                                        polygons.AddRange(GeometryTranslator.ToGeometryMultiPolygon(polygonShapeContent.Shape).Geometries.Cast<Polygon>());
+                                    }
+                                    catch (InvalidPolygonShellOrientationException)
+                                    {
+                                        problems.Add(new ShapeFileInvalidPolygonShellOrientation());
+                                    }
 
                                     break;
 
                                 default:
-                                    AddValidationFailure("Geometry type must be polygon or multipolygon");
-
+                                    problems.Add(new ShapeFileGeometryTypeMustBePolygon());
                                     break;
                             }
                     }
@@ -64,30 +71,27 @@ public class DownloadExtractByFileRequestItemTranslator
                     if (polygons.Any())
                     {
                         var srids = polygons.Select(x => x.SRID).Distinct().ToArray();
-                        if (srids.Length > 1) AddValidationFailure("All geometries must have the same SRID.");
+                        if (srids.Length > 1) problems.Add(new ShapeFileGeometrySridMustBeEqual());
                     }
                     else
                     {
-                        AddValidationFailure("Invalid shape file. Does not contain any valid polygon geometries.");
+                        problems.Add(new ShapeFileHasNoValidPolygons());
                     }
                 }
                 else
                 {
-                    AddValidationFailure("Geometry type must be polygon or multipolygon");
+                    problems.Add(new ShapeFileGeometryTypeMustBePolygon());
                 }
             }
 
-            if (validationFailures.Any()) throw new ValidationException("Shape file content contains some errors", validationFailures);
+            if (problems.Any())
+                throw new ValidationException("Shape file content contains some errors",
+                    problems.Select(problem =>
+                        new ValidationFailure(nameof(DownloadExtractByFileRequest.ShpFile),
+                            ProblemWithDownload.Translator(problem))));
 
             var srid = polygons.First().SRID;
             return GeometryTranslator.TranslateToRoadNetworkExtractGeometry(new MultiPolygon(polygons.ToArray()) { SRID = srid }, buffer);
-        }
-
-        void AddValidationFailure(string errorMessage)
-        {
-            var vf = new ValidationFailure(nameof(DownloadExtractByFileRequest.ShpFile), errorMessage);
-            validationFailures.Add(vf);
-            _logger.LogWarning("Added validation failure while processing current shape file record: '{ValidationFailureMessage}'", vf.ErrorMessage);
         }
     }
 }

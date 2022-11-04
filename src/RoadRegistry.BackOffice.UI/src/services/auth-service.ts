@@ -1,6 +1,7 @@
 import router from "@/router";
 import Vue from "vue";
 import PublicApi from "./public-api";
+import BackOfficeApi from "./backoffice-api";
 
 const WR_AUTH_APIKEY = "RoadRegistry.BackOffice.UI.Authentication.ApiKey";
 export const isAuthenticated = Vue.observable({
@@ -35,7 +36,11 @@ export const AuthService = {
     console.trace(isAuthenticated);
 
     try {
-      await PublicApi.Information.getInformation();
+      if (process.env.NODE_ENV === "production") {
+        await PublicApi.Information.getInformation();
+      } else {
+        await BackOfficeApi.Information.getInformation();
+      }
       isAuthenticated.state = true;
     } catch (err) {
       console.error("Authentication failed", err);

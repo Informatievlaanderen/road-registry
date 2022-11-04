@@ -4,7 +4,6 @@ using Autofac;
 using Extracts;
 using MediatR;
 using MediatR.Pipeline;
-using Microsoft.Extensions.Logging;
 
 public class MediatorModule : Module
 {
@@ -17,9 +16,8 @@ public class MediatorModule : Module
 
     protected override void Load(ContainerBuilder builder)
     {
-        builder.Register(context => new DownloadExtractByFileRequestItemTranslator(
-            WellKnownEncodings.WindowsAnsi,
-            context.Resolve<ILogger<DownloadExtractByFileRequestItemTranslator>>())
+        builder.Register(_ => new DownloadExtractByFileRequestItemTranslator(
+            WellKnownEncodings.WindowsAnsi)
         );
 
         foreach (var mediatrOpenType in _typeRegistrations)
