@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Exceptions;
 using Messages;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
@@ -47,7 +48,18 @@ public static class GeometryTranslator
 
     public static MultiPolygon ToGeometryMultiPolygon(Polygon polygon)
     {
-        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiPolygon(polygon);
+        try
+        {
+            return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiPolygon(polygon);
+        }
+        catch (InvalidOperationException ex)
+        {
+            if (ex.Message == "The shell of a polygon must have a clockwise orientation.")
+            {
+                throw new InvalidPolygonShellOrientationException();
+            }
+            throw;
+        }
     }
 
     public static Point ToGeometryPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)

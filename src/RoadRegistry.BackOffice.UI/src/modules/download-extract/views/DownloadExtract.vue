@@ -1,16 +1,5 @@
 <template>
   <div>
-    <vl-column v-if="alertInfo.title">
-      <vl-alert
-        :title="alertInfo.title"
-        :mod-success="alertInfo.success"
-        :mod-warning="alertInfo.warning"
-        :mod-error="alertInfo.error"
-      >
-        <p>{{ alertInfo.text }}</p>
-      </vl-alert>
-    </vl-column>
-
     <div class="vl-typography">
       <h2>Wizard extract downloaden</h2>
       <p>Volg de stappen hieronder om een extract van het Wegenregister te downloaden.</p>
@@ -114,6 +103,9 @@
             >
               <p>Gelieve een beschrijving mee te geven van maximaal 250 karakters.</p>
             </vl-alert>
+            <vl-alert v-if="municipalityFlow.hasGenericError" mod-error mod-small>
+              <p>Er is een onverwachte fout opgetreden.</p>
+            </vl-alert>
           </div>
         </div>
       </div>
@@ -172,7 +164,6 @@
               <textarea
                 class="vl-textarea"
                 id="contour-wkt"
-                value=""
                 cols="200"
                 rows="4"
                 v-model="contourFlow.wkt"
@@ -193,6 +184,17 @@
               </vl-button>
             </vl-action-group>
           </div>
+
+          <vl-column v-if="alertInfo.title">
+            <vl-alert
+              :title="alertInfo.title"
+              :mod-success="alertInfo.success"
+              :mod-warning="alertInfo.warning"
+              :mod-error="alertInfo.error"
+            >
+              <p>{{ alertInfo.text }}</p>
+            </vl-alert>
+          </vl-column>
         </div>
       </div>
 
@@ -208,7 +210,6 @@
             <textarea
               class="vl-textarea"
               id="municipality-description"
-              value=""
               cols="200"
               rows="4"
               v-model="contourFlow.description"
@@ -231,6 +232,9 @@
             <span v-if="!isDescriptionValid(contourFlow.description)">
               Gelieve een beschrijving mee te geven van maximaal 250 karakters.
             </span>
+            <vl-alert v-if="contourFlow.hasGenericError" mod-error mod-small>
+              <p>Er is een onverwachte fout opgetreden.</p>
+            </vl-alert>
             <vl-alert v-if="contourFlow.hasValidationErrors" mod-error title="Validatie fouten" mod-small>
               <ul>
                 <li
@@ -278,6 +282,7 @@ export default Vue.extend({
         nisCode: "",
         buffer: false,
         description: "",
+        hasGenericError: false,
       },
       contourFlow: {
         contourTypes,
@@ -288,6 +293,7 @@ export default Vue.extend({
         description: "",
         hasValidationErrors: false,
         validationErrors: {} as RoadRegistry.PerContourValidationErrors,
+        hasGenericError: false,
       },
       validation: {
         description: {
@@ -379,11 +385,25 @@ export default Vue.extend({
         !this.contourFlowHasValidInput
       ) {
         status.title = "Ongeldige contour";
-        status.text = "Gelieve precies één .shp bestand en één .prj bestand op te laden. Beide bestanden moeten dezelfde bestandsnaam hebben.";
+        status.text =
+          "Gelieve precies één .shp bestand en één .prj bestand op te laden. Beide bestanden moeten dezelfde bestandsnaam hebben.";
         status.error = true;
       }
 
       return status;
+    },
+  },
+  watch: {
+    currentStep() {
+      switch (this.currentStep) {
+        case this.steps.Step3_Municipality:
+          this.municipalityFlow.hasGenericError = false;
+          break;
+        case this.steps.Step3_Contour:
+          this.contourFlow.hasValidationErrors = false;
+          this.contourFlow.hasGenericError = false;
+          break;
+      }
     },
   },
   created() {
@@ -411,6 +431,8 @@ export default Vue.extend({
     async submitMunicipalityRequest() {
       this.isSubmitting = true;
       try {
+        this.municipalityFlow.hasGenericError = false;
+
         const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
           buffer: this.municipalityFlow.buffer ? 100 : 0,
           nisCode: this.municipalityFlow.nisCode,
@@ -419,6 +441,9 @@ export default Vue.extend({
 
         const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
         this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
+      } catch (error) {
+        console.error("Submit municipality failed", error);
+        this.municipalityFlow.hasGenericError = true;
       } finally {
         this.isSubmitting = false;
       }
@@ -428,6 +453,7 @@ export default Vue.extend({
       this.isSubmitting = true;
       try {
         this.contourFlow.hasValidationErrors = false;
+        this.contourFlow.hasGenericError = false;
 
         let response: RoadRegistry.DownloadExtractResponse;
 
@@ -463,7 +489,8 @@ export default Vue.extend({
             contour: ValidationUtils.convertValidationErrorsToContourValidationErrors(exception.error.validationErrors),
           };
         } else {
-          throw exception;
+          console.error("Submit contour failed", exception);
+          this.contourFlow.hasGenericError = true;
         }
       } finally {
         this.isSubmitting = false;
