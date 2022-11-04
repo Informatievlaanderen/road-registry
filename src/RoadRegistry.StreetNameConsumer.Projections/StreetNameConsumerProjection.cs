@@ -1,6 +1,5 @@
 namespace RoadRegistry.StreetNameConsumer.Projections;
 
-using Be.Vlaanderen.Basisregisters.GrAr.Contracts;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Schema;
@@ -31,7 +30,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 record => { record.StreetNameStatus = StreetNameStatus.Current; },
                 token);
@@ -41,7 +39,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem =>
                 {
@@ -71,7 +68,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem =>
                 {
@@ -101,7 +97,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem =>
                 {
@@ -131,7 +126,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem =>
                 {
@@ -161,7 +155,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem =>
                 {
@@ -191,7 +184,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem =>
                 {
@@ -221,7 +213,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem =>
                 {
@@ -251,7 +242,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem => { streetNameConsumerItem.StreetNameStatus = null; },
                 token);
@@ -261,7 +251,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem => { streetNameConsumerItem.StreetNameStatus = null; },
                 token);
@@ -271,7 +260,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem => { streetNameConsumerItem.StreetNameStatus = StreetNameStatus.Current; },
                 token);
@@ -281,7 +269,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem => { streetNameConsumerItem.StreetNameStatus = StreetNameStatus.Proposed; },
                 token);
@@ -291,7 +278,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem => { streetNameConsumerItem.StreetNameStatus = StreetNameStatus.Retired; },
                 token);
@@ -301,7 +287,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem => { streetNameConsumerItem.StreetNameStatus = StreetNameStatus.Proposed; },
                 token);
@@ -311,7 +296,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem => { streetNameConsumerItem.StreetNameStatus = StreetNameStatus.Retired; },
                 token);
@@ -321,7 +305,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         {
             await UpdateStreetNameConsumerItem(
                 context,
-                message,
                 message.StreetNameId,
                 streetNameConsumerItem =>
                 {
@@ -363,8 +346,7 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         return null;
     }
 
-    private static async Task UpdateStreetNameConsumerItem<T>(StreetNameConsumerContext context, T message, string streetNameId, Action<StreetNameConsumerItem> update, CancellationToken token)
-        where T : IQueueMessage
+    private static async Task UpdateStreetNameConsumerItem(StreetNameConsumerContext context, string streetNameId, Action<StreetNameConsumerItem> update, CancellationToken token)
     {
         var streetNameConsumerItem = await FindOrThrow(context, streetNameId, token);
 

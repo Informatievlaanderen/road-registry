@@ -50,6 +50,7 @@ public class SqsBackOfficeHandlerFunctions
         }
         catch (TaskCanceledException)
         {
+            // intentionally left blank
         }
     }
 

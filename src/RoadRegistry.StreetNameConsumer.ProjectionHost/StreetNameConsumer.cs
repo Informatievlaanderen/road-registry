@@ -15,9 +15,7 @@ using Schema;
 public class StreetNameConsumer : BackgroundService
 {
     private readonly ConsumerOptions _consumerOptions;
-    private readonly ILifetimeScope _container;
     private readonly ILogger<StreetNameConsumer> _logger;
-    private readonly ILoggerFactory _loggerFactory;
     private readonly KafkaOptions _options;
     private readonly IServiceProvider _serviceProvider;
 
@@ -29,17 +27,15 @@ public class StreetNameConsumer : BackgroundService
         ILogger<StreetNameConsumer> logger,
         IServiceProvider serviceProvider)
     {
-        _container = container;
-        _loggerFactory = loggerFactory;
         _options = options;
         _consumerOptions = consumerOptions;
         _logger = logger;
         _serviceProvider = serviceProvider;
     }
 
-    protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!cancellationToken.IsCancellationRequested)
+        if (!stoppingToken.IsCancellationRequested)
         {
             var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
 
@@ -55,22 +51,20 @@ public class StreetNameConsumer : BackgroundService
                         _consumerOptions.Topic,
                         async message =>
                         {
-                            using (var scope = _serviceProvider.CreateScope())
-                            using (var context = scope.ServiceProvider.GetRequiredService<StreetNameConsumerContext>())
-                            {
-                                await projector.ProjectAsync(context, message, cancellationToken);
-                            }
+                            using var scope = _serviceProvider.CreateScope();
+                            await using var context = scope.ServiceProvider.GetRequiredService<StreetNameConsumerContext>();
+                            await projector.ProjectAsync(context, message, stoppingToken);
                         },
                         300,
                         null,
                         _options.JsonSerializerSettings),
-                    cancellationToken);
+                    stoppingToken);
             }
             catch (Exception ex)
             {
-                var waitSeconds = 30;
+                const int waitSeconds = 30;
                 _logger.LogCritical(ex, "Error consuming kafka events, trying again in {seconds} seconds", waitSeconds);
-                await Task.Delay(waitSeconds * 1000, cancellationToken);
+                await Task.Delay(waitSeconds * 1000, stoppingToken);
             }
         }
     }

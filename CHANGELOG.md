@@ -1,3 +1,21 @@
+## [3.19.2](https://github.com/informatievlaanderen/road-registry/compare/v3.19.1...v3.19.2) (2022-11-04)
+
+
+### Bug Fixes
+
+* Add Dutch validation messages for download extract ([7cc292f](https://github.com/informatievlaanderen/road-registry/commit/7cc292fb7580191e587af7b1fa7b00891647e5eb))
+* add nuget to dependabot ([5e86cc8](https://github.com/informatievlaanderen/road-registry/commit/5e86cc836b0034af88ab795aad266d1131fc58dd))
+* build on pull requests ([ee00146](https://github.com/informatievlaanderen/road-registry/commit/ee00146b7eb4c4c4ef4ee9c5e1a4e729e64bd9c2))
+* remove main.yml ([1b47af6](https://github.com/informatievlaanderen/road-registry/commit/1b47af6e8d4b0c1b53dff94cf1f6d41480806a57))
+* use VBR_SONAR_TOKEN ([a946282](https://github.com/informatievlaanderen/road-registry/commit/a946282e4bd153e61073bf841973497a37aa785a))
+
+## [3.19.1](https://github.com/informatievlaanderen/road-registry/compare/v3.19.0...v3.19.1) (2022-11-03)
+
+
+### Bug Fixes
+
+* Allow anonymous edge case ([005a5ec](https://github.com/informatievlaanderen/road-registry/commit/005a5ec3e1bf8c9fbec70528a8093b4aa777fe0c))
+
 # [3.19.0](https://github.com/informatievlaanderen/road-registry/compare/v3.18.1...v3.19.0) (2022-11-03)
 
 

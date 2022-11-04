@@ -9,16 +9,16 @@ public class GradeSeparatedJunctionDbaseRecordsValidator : IZipArchiveDbaseRecor
 {
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<GradeSeparatedJunctionDbaseRecord> records, ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-        if (records == null) throw new ArgumentNullException(nameof(records));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(nameof(entry));
+        ArgumentNullException.ThrowIfNull(nameof(records));
+        ArgumentNullException.ThrowIfNull(nameof(context));
 
         var problems = ZipArchiveProblems.None;
         try
         {
-            var identifiers = new Dictionary<GradeSeparatedJunctionId, RecordNumber>();
             var moved = records.MoveNext();
             if (moved)
+            {
                 while (moved)
                 {
                     var recordContext = entry.AtDbaseRecord(records.CurrentRecordNumber);
@@ -27,7 +27,10 @@ public class GradeSeparatedJunctionDbaseRecordsValidator : IZipArchiveDbaseRecor
                     {
                         if (record.OK_OIDN.HasValue)
                         {
-                            if (record.OK_OIDN.Value == 0) problems += recordContext.IdentifierZero();
+                            if (record.OK_OIDN.Value == 0)
+                            {
+                                problems += recordContext.IdentifierZero();
+                            }
                         }
                         else
                         {
@@ -36,7 +39,10 @@ public class GradeSeparatedJunctionDbaseRecordsValidator : IZipArchiveDbaseRecor
 
                         if (record.TYPE.HasValue)
                         {
-                            if (!GradeSeparatedJunctionType.ByIdentifier.ContainsKey(record.TYPE.Value)) problems += recordContext.GradeSeparatedJunctionTypeMismatch(record.TYPE.Value);
+                            if (!GradeSeparatedJunctionType.ByIdentifier.ContainsKey(record.TYPE.Value))
+                            {
+                                problems += recordContext.GradeSeparatedJunctionTypeMismatch(record.TYPE.Value);
+                            }
                         }
                         else
                         {
@@ -44,18 +50,31 @@ public class GradeSeparatedJunctionDbaseRecordsValidator : IZipArchiveDbaseRecor
                         }
 
                         if (!record.BO_WS_OIDN.HasValue)
+                        {
                             problems += recordContext.RequiredFieldIsNull(record.BO_WS_OIDN.Field);
-                        else if (!RoadSegmentId.Accepts(record.BO_WS_OIDN.Value)) problems += recordContext.UpperRoadSegmentIdOutOfRange(record.BO_WS_OIDN.Value);
+                        }
+                        else if (!RoadSegmentId.Accepts(record.BO_WS_OIDN.Value))
+                        {
+                            problems += recordContext.UpperRoadSegmentIdOutOfRange(record.BO_WS_OIDN.Value);
+                        }
 
                         if (!record.ON_WS_OIDN.HasValue)
+                        {
                             problems += recordContext.RequiredFieldIsNull(record.ON_WS_OIDN.Field);
-                        else if (!RoadSegmentId.Accepts(record.ON_WS_OIDN.Value)) problems += recordContext.LowerRoadSegmentIdOutOfRange(record.ON_WS_OIDN.Value);
+                        }
+                        else if (!RoadSegmentId.Accepts(record.ON_WS_OIDN.Value))
+                        {
+                            problems += recordContext.LowerRoadSegmentIdOutOfRange(record.ON_WS_OIDN.Value);
+                        }
 
                         moved = records.MoveNext();
                     }
                 }
+            }
             else
+            {
                 problems += entry.HasNoDbaseRecords(true);
+            }
         }
         catch (Exception exception)
         {

@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 
 public class Program
 {
+    protected Program()
+    { }
+
     public static void Main(string[] args)
     {
         Run(new ProgramOptions
@@ -25,8 +28,7 @@ public class Program
             },
             MiddlewareHooks =
             {
-                ConfigureDistributedLock =
-                    configuration => DistributedLockOptions.LoadFromConfiguration(configuration)
+                ConfigureDistributedLock = DistributedLockOptions.LoadFromConfiguration
             }
         });
     }

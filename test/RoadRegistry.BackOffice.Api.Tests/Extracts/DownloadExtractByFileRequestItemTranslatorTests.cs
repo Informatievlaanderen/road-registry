@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentAssertions;
 using FluentValidation;
 using Handlers.Extracts;
-using Microsoft.Extensions.Logging;
 
 public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
 {
@@ -18,9 +17,9 @@ public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
     private DownloadExtractByFileRequestItem _shpFilePoint;
     private DownloadExtractByFileRequestItem _shpFilePolygon;
 
-    public DownloadExtractByFileRequestItemTranslatorTests(ILogger<DownloadExtractByFileRequestItemTranslator> logger)
+    public DownloadExtractByFileRequestItemTranslatorTests()
     {
-        _translator = new DownloadExtractByFileRequestItemTranslator(_encoding, logger);
+        _translator = new DownloadExtractByFileRequestItemTranslator(_encoding);
     }
 
     public async Task DisposeAsync()

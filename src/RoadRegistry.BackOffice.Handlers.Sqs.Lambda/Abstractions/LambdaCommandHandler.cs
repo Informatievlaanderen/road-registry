@@ -6,9 +6,9 @@ using MediatR;
 public abstract class LambdaCommandHandler<TCommand> : IRequestHandler<TCommand>
     where TCommand : LambdaCommand
 {
-    public async Task<Unit> Handle(TCommand command, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(TCommand request, CancellationToken cancellationToken)
     {
-        await HandleAsync(command, command.GetContext(), cancellationToken);
+        await HandleAsync(request, request.GetContext(), cancellationToken);
         return Unit.Value;
     }
 
@@ -19,9 +19,9 @@ public abstract class LambdaCommandHandler<TCommand, TResponse> : IRequestHandle
     where TCommand : LambdaCommand<TResponse>
     where TResponse : LambdaCommandResponse
 {
-    public async Task<TResponse> Handle(TCommand command, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TCommand request, CancellationToken cancellationToken)
     {
-        var response = await HandleAsync(command, command.GetContext(), cancellationToken);
+        var response = await HandleAsync(request, request.GetContext(), cancellationToken);
         return response;
     }
 
