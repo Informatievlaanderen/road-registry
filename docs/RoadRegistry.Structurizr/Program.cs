@@ -36,7 +36,7 @@ public static class CustomTags
     public const string Store = "Store";
 }
 
-public class Program
+public static class Program
 {
     private const string PersonUserName = "Gebruiker";
     private const string WorkspaceUrlFormat = "https://structurizr.com/workspace/{0}";
