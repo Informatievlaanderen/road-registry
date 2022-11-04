@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Tests;
+namespace RoadRegistry.StreetNameConsumer.ProjectionHost.Tests;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.Common;

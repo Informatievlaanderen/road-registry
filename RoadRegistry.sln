@@ -118,9 +118,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Wfs.Schema", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Wfs.Projections", "src\RoadRegistry.Wfs.Projections\RoadRegistry.Wfs.Projections.csproj", "{A3A52608-2C43-46E7-8805-673E2E3BC5E0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.MessagingHost.Kafka", "src\RoadRegistry.BackOffice.MessagingHost.Kafka\RoadRegistry.BackOffice.MessagingHost.Kafka.csproj", "{AD6CB9F7-B751-4383-8F82-647DE7044274}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.StreetNameConsumer.ProjectionHost", "src\RoadRegistry.StreetNameConsumer.ProjectionHost\RoadRegistry.StreetNameConsumer.ProjectionHost.csproj", "{AD6CB9F7-B751-4383-8F82-647DE7044274}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.MessagingHost.Kafka.Tests", "test\RoadRegistry.BackOffice.MessagingHost.Kafka.Tests\RoadRegistry.BackOffice.MessagingHost.Kafka.Tests.csproj", "{85D59401-2376-4D7A-B5AA-9940DEF47115}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.StreetNameConsumer.ProjectionHost.Tests", "test\RoadRegistry.StreetNameConsumer.ProjectionHost.Tests\RoadRegistry.StreetNameConsumer.ProjectionHost.Tests.csproj", "{85D59401-2376-4D7A-B5AA-9940DEF47115}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Handlers.Kafka", "src\RoadRegistry.BackOffice.Handlers.Kafka\RoadRegistry.BackOffice.Handlers.Kafka.csproj", "{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}"
 EndProject

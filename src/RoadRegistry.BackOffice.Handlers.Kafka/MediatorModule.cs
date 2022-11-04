@@ -25,11 +25,5 @@ public class MediatorModule : Module
                 .RegisterAssemblyTypes(GetType().Assembly)
                 .AsClosedTypesOf(mediatrOpenType)
                 .AsImplementedInterfaces();
-
-        builder
-            .RegisterProjectionMigrator<StreetNameConsumerContextFactory>()
-            .RegisterProjections<StreetNameConsumerProjection, StreetNameConsumerContext>(
-                context => new StreetNameConsumerProjection(),
-                ConnectedProjectionSettings.Default);
     }
 }

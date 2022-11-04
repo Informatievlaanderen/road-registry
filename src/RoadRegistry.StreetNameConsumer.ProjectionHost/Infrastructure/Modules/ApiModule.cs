@@ -1,6 +1,7 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka.Infrastructure.Modules;
+namespace RoadRegistry.StreetNameConsumer.ProjectionHost.Infrastructure.Modules;
 
 using Autofac;
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;

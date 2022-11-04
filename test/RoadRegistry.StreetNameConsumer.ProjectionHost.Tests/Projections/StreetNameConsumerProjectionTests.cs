@@ -1,10 +1,10 @@
 #nullable enable
 
-namespace RoadRegistry.BackOffice.Handlers.Kafka.Tests.Projections;
+namespace RoadRegistry.StreetNameConsumer.ProjectionHost.Tests.Projections;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using Fixtures;
-using StreetNameConsumer.Schema;
+using Schema;
 
 public class StreetNameConsumerProjectionTests : IClassFixture<StreetNameConsumerProjectionFixture>
 {

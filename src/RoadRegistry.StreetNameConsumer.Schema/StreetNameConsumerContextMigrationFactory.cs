@@ -1,23 +1,29 @@
-namespace RoadRegistry.Syndication.Schema;
+namespace RoadRegistry.StreetNameConsumer.Schema;
 
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Hosts;
 using Microsoft.EntityFrameworkCore;
-using StreetNameConsumer.Schema;
 
 public class StreetNameConsumerContextMigrationFactory : RunnerDbContextMigrationFactory<StreetNameConsumerContext>
 {
-    public StreetNameConsumerContextMigrationFactory() :
-        base(WellknownConnectionNames.StreetNameConsumerAdmin, HistoryConfiguration)
+    public StreetNameConsumerContextMigrationFactory()
+        : this(WellknownConnectionNames.StreetNameConsumerAdmin)
     {
     }
 
-    private static MigrationHistoryConfiguration HistoryConfiguration =>
-        new()
+    public StreetNameConsumerContextMigrationFactory(string connectionStringName)
+        : base(connectionStringName, new MigrationHistoryConfiguration
         {
             Schema = WellknownSchemas.StreetNameConsumerSchema,
             Table = MigrationTables.StreetNameConsumer
-        };
+        })
+    {
+    }
+
+    public StreetNameConsumerContext Create(DbContextOptions<StreetNameConsumerContext> options)
+    {
+        return CreateContext(options);
+    }
 
     protected override StreetNameConsumerContext CreateContext(DbContextOptions<StreetNameConsumerContext> migrationContextOptions)
     {

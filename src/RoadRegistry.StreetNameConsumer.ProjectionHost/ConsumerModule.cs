@@ -1,9 +1,12 @@
-namespace RoadRegistry.BackOffice.Handlers.Kafka;
+namespace RoadRegistry.StreetNameConsumer.ProjectionHost;
 
 using Autofac;
+using Be.Vlaanderen.Basisregisters.Projector;
+using Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections;
 using Extensions;
 using Hosts;
-using RoadRegistry.StreetNameConsumer.Schema;
+using Projections;
+using Schema;
 
 public class ConsumerModule : Module
 {
@@ -15,5 +18,12 @@ public class ConsumerModule : Module
                 .MigrationsHistoryTable(MigrationTables.StreetNameConsumer, WellknownSchemas.StreetNameConsumerSchema)
             , dbContextOptionsBuilder =>
                 new StreetNameConsumerContext(dbContextOptionsBuilder.Options));
+
+        builder
+            .RegisterProjectionMigrator<StreetNameConsumerContextMigrationFactory>()
+            .RegisterProjections<StreetNameConsumerProjection, StreetNameConsumerContext>(
+                context => new StreetNameConsumerProjection(),
+                ConnectedProjectionSettings.Default);
+
     }
 }

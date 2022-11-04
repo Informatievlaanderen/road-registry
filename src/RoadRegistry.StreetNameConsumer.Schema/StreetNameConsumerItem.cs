@@ -35,7 +35,7 @@ public class StreetNameConsumerItemConfiguration : IEntityTypeConfiguration<Stre
 
     public void Configure(EntityTypeBuilder<StreetNameConsumerItem> b)
     {
-        b.ToTable(TableName, WellknownSchemas.SyndicationSchema)
+        b.ToTable(TableName, WellknownSchemas.StreetNameConsumerSchema)
             .HasIndex(p => p.StreetNameId)
             .IsClustered(false);
 

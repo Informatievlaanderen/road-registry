@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Kafka;
+namespace RoadRegistry.StreetNameConsumer.ProjectionHost;
 
 public class ConsumerOptions
 {

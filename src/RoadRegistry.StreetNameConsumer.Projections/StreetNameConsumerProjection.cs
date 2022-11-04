@@ -1,10 +1,9 @@
-using RoadRegistry.StreetNameConsumer.Schema;
-
 namespace RoadRegistry.StreetNameConsumer.Projections;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Schema;
 
 public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsumerContext>
 {

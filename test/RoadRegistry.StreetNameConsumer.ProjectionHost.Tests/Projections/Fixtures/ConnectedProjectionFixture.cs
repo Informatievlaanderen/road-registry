@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Kafka.Tests.Projections.Fixtures;
+namespace RoadRegistry.StreetNameConsumer.ProjectionHost.Tests.Projections.Fixtures;
 
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 

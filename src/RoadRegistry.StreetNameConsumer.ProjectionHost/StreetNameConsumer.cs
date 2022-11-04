@@ -1,18 +1,16 @@
-namespace RoadRegistry.BackOffice.MessagingHost.Kafka;
+namespace RoadRegistry.StreetNameConsumer.ProjectionHost;
 
-using Autofac;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using Handlers.Kafka;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using RoadRegistry.StreetNameConsumer.Projections;
-using Syndication.Schema;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using RoadRegistry.StreetNameConsumer.Schema;
+using Autofac;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Projections;
+using Schema;
 
 public class StreetNameConsumer : BackgroundService
 {

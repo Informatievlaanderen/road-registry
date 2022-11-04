@@ -1,5 +1,6 @@
-namespace RoadRegistry.BackOffice.Handlers.Kafka.Extensions;
+namespace RoadRegistry.StreetNameConsumer.ProjectionHost.Extensions;
 
+using System;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;

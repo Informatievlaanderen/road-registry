@@ -1,13 +1,13 @@
 #nullable enable
 
-namespace RoadRegistry.BackOffice.Handlers.Kafka.Tests.Projections.Fixtures;
+namespace RoadRegistry.StreetNameConsumer.ProjectionHost.Tests.Projections.Fixtures;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using NodaTime;
+using Schema;
 using StreetNameConsumer.Projections;
-using StreetNameConsumer.Schema;
 using Provenance = Be.Vlaanderen.Basisregisters.GrAr.Contracts.Common.Provenance;
 using Reason = BackOffice.Reason;
 

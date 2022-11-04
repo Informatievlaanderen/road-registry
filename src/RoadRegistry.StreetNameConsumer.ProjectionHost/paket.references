@@ -21,13 +21,7 @@ Serilog.Enrichers.Thread
 Serilog.Enrichers.Environment
 Serilog.Formatting.Compact
 
-SourceLink.Embed.AllSourceFiles
-SourceLink.Copy.PdbFiles
-
 Autofac.Extensions.DependencyInjection
-
-MediatR
-AWSSDK.Core
 
 Microsoft.Data.SqlClient
 Microsoft.EntityFrameworkCore.SqlServer
@@ -39,7 +33,3 @@ Microsoft.Extensions.Configuration.EnvironmentVariables
 Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
-
-SqlStreamStore.MsSql
-
-System.Threading.Channels
