@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Kafka.StreetName;
+namespace RoadRegistry.StreetNameConsumer.Schema;
 
 public enum StreetNameLanguage
 {

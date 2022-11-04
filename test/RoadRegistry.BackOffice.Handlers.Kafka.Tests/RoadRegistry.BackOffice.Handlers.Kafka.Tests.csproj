@@ -9,7 +9,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers.Kafka\RoadRegistry.BackOffice.Handlers.Kafka.csproj" />
+		<ProjectReference
+			Include="..\..\src\RoadRegistry.BackOffice.Handlers.Kafka\RoadRegistry.BackOffice.Handlers.Kafka.csproj" />
 		<ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
 	</ItemGroup>
 

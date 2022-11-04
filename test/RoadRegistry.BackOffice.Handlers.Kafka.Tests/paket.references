@@ -1,3 +1,4 @@
+Microsoft.Data.SqlClient
 Microsoft.NET.Test.Sdk
 xunit.runner.visualstudio
 xunit.categories

@@ -1,9 +1,10 @@
-namespace RoadRegistry.BackOffice.Handlers.Kafka.Projections;
+using RoadRegistry.StreetNameConsumer.Schema;
+
+namespace RoadRegistry.StreetNameConsumer.Projections;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using StreetName;
 
 public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsumerContext>
 {
@@ -24,7 +25,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
                     GermanName = null,
                     EnglishName = null,
                     StreetNameStatus = null
-                    //Position = message.Position
                 }, token);
         });
 
@@ -248,16 +248,6 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
                 token);
         });
 
-        //When<StreetNamePersistentLocalIdentifierWasAssigned>(async (context, message, token) =>
-        //{
-        //    await UpdateStreetNameConsumerItem(
-        //        context,
-        //        message,
-        //        message.StreetNameId,
-        //        StreetNameConsumerItem => { StreetNameConsumerItem.PersistentLocalId = message.PersistentLocalId; },
-        //        token);
-        //});
-
         When<StreetNameStatusWasRemoved>(async (context, message, token) =>
         {
             await UpdateStreetNameConsumerItem(
@@ -380,7 +370,5 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
         var streetNameConsumerItem = await FindOrThrow(context, streetNameId, token);
 
         update(streetNameConsumerItem);
-
-        //streetNameConsumerItem.Position = message.Position;
     }
 }

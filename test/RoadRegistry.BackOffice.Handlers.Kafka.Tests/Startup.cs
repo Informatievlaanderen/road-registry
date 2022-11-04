@@ -1,10 +1,11 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Tests;
+namespace RoadRegistry.BackOffice.Handlers.Kafka.Tests;
 
-using Amazon;
 using Autofac;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using StreetNameConsumer.Schema;
 
 public class Startup : TestStartup
 {
@@ -14,6 +15,10 @@ public class Startup : TestStartup
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
-        services.AddSingleton(sp => new SqsOptions("test", "test", RegionEndpoint.EUWest1));
+        services
+            .AddDbContext<StreetNameConsumerContext>((sp, options) => options
+                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")));
     }
 }

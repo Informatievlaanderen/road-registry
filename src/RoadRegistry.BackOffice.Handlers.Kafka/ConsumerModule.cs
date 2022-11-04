@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Kafka;
 using Autofac;
 using Extensions;
 using Hosts;
+using RoadRegistry.StreetNameConsumer.Schema;
 
 public class ConsumerModule : Module
 {

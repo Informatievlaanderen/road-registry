@@ -1,9 +1,8 @@
-namespace RoadRegistry.BackOffice.Handlers.Kafka;
+namespace RoadRegistry.StreetNameConsumer.Schema;
 
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-using Hosts;
 using Microsoft.EntityFrameworkCore;
-using StreetName;
+using RoadRegistry.Hosts;
 
 public class StreetNameConsumerContext : RunnerDbContext<StreetNameConsumerContext>
 {
@@ -49,6 +48,6 @@ public class StreetNameConsumerContextFactory : RunnerDbContextMigrationFactory<
 
     protected override StreetNameConsumerContext CreateContext(DbContextOptions<StreetNameConsumerContext> migrationContextOptions)
     {
-        return new(migrationContextOptions);
+        return new StreetNameConsumerContext(migrationContextOptions);
     }
 }
