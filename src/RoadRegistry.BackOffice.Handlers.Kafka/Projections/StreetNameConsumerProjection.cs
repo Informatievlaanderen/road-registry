@@ -381,6 +381,7 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
 
         update(streetNameConsumerItem);
 
+        _ = message;
         //streetNameConsumerItem.Position = message.Position;
     }
 }
