@@ -50,7 +50,7 @@ public class UploadController : ControllerBase
 
     private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
+        ArgumentNullException.ThrowIfNull(archive, nameof(archive));
 
         try
         {
@@ -91,8 +91,13 @@ public class UploadController : ControllerBase
 
     [HttpPost("fc")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadBeforeFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
     {
+        if (!useFeatureCompareToggle.FeatureEnabled)
+        {
+            return NotFound();
+        }
+
         return await Post(archive, async () =>
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
