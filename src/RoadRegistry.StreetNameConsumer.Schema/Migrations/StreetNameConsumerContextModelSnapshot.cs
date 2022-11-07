@@ -52,63 +52,50 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("DutchHomonymAddition")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DutchName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DutchNameWithHomonymAddition")
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
                         .HasComputedColumnSql("COALESCE(DutchName + COALESCE('_' + DutchHomonymAddition,''), DutchHomonymAddition) PERSISTED");
 
                     b.Property<string>("EnglishHomonymAddition")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EnglishName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("EnglishNameWithHomonymAddition")
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
                         .HasComputedColumnSql("COALESCE(EnglishName + COALESCE('_' + EnglishHomonymAddition,''), EnglishHomonymAddition) PERSISTED");
 
                     b.Property<string>("FrenchHomonymAddition")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FrenchName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FrenchNameWithHomonymAddition")
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
                         .HasComputedColumnSql("COALESCE(FrenchName + COALESCE('_' + FrenchHomonymAddition,''), FrenchHomonymAddition) PERSISTED");
 
                     b.Property<string>("GermanHomonymAddition")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GermanName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GermanNameWithHomonymAddition")
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
                         .HasComputedColumnSql("COALESCE(GermanName + COALESCE('_' + GermanHomonymAddition,''), GermanHomonymAddition) PERSISTED");
 
                     b.Property<string>("HomonymAddition")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MunicipalityId")
@@ -116,11 +103,9 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NameWithHomonymAddition")
-                        .IsRequired()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("nvarchar(max)")
                         .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");
@@ -132,17 +117,12 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                     b.Property<int?>("PersistentLocalId")
                         .HasColumnType("int");
 
-                    b.Property<long>("Position")
-                        .HasColumnType("bigint");
-
                     b.Property<int?>("StreetNameStatus")
                         .HasColumnType("int");
 
                     b.HasKey("StreetNameId");
 
                     b.HasIndex("PersistentLocalId");
-
-                    b.HasIndex("Position");
 
                     b.HasIndex("StreetNameId");
 

@@ -38,23 +38,22 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                     PersistentLocalId = table.Column<int>(type: "int", nullable: true),
                     MunicipalityId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NisCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DutchName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FrenchName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GermanName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EnglishName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    HomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DutchHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FrenchHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    GermanHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EnglishHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false, computedColumnSql: "COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED"),
-                    DutchNameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false, computedColumnSql: "COALESCE(DutchName + COALESCE('_' + DutchHomonymAddition,''), DutchHomonymAddition) PERSISTED"),
-                    FrenchNameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false, computedColumnSql: "COALESCE(FrenchName + COALESCE('_' + FrenchHomonymAddition,''), FrenchHomonymAddition) PERSISTED"),
-                    GermanNameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false, computedColumnSql: "COALESCE(GermanName + COALESCE('_' + GermanHomonymAddition,''), GermanHomonymAddition) PERSISTED"),
-                    EnglishNameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: false, computedColumnSql: "COALESCE(EnglishName + COALESCE('_' + EnglishHomonymAddition,''), EnglishHomonymAddition) PERSISTED"),
-                    StreetNameStatus = table.Column<int>(type: "int", nullable: true),
-                    Position = table.Column<long>(type: "bigint", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DutchName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FrenchName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GermanName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EnglishName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DutchHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FrenchHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GermanHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EnglishHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true, computedColumnSql: "COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED"),
+                    DutchNameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true, computedColumnSql: "COALESCE(DutchName + COALESCE('_' + DutchHomonymAddition,''), DutchHomonymAddition) PERSISTED"),
+                    FrenchNameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true, computedColumnSql: "COALESCE(FrenchName + COALESCE('_' + FrenchHomonymAddition,''), FrenchHomonymAddition) PERSISTED"),
+                    GermanNameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true, computedColumnSql: "COALESCE(GermanName + COALESCE('_' + GermanHomonymAddition,''), GermanHomonymAddition) PERSISTED"),
+                    EnglishNameWithHomonymAddition = table.Column<string>(type: "nvarchar(max)", nullable: true, computedColumnSql: "COALESCE(EnglishName + COALESCE('_' + EnglishHomonymAddition,''), EnglishHomonymAddition) PERSISTED"),
+                    StreetNameStatus = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -66,12 +65,6 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                 schema: "RoadRegistryStreetNameConsumer",
                 table: "StreetName",
                 column: "PersistentLocalId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StreetName_Position",
-                schema: "RoadRegistryStreetNameConsumer",
-                table: "StreetName",
-                column: "Position");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StreetName_StreetNameId",

@@ -26,7 +26,6 @@ public class StreetNameConsumerItem
     public string GermanNameWithHomonymAddition { get; set; }
     public string EnglishNameWithHomonymAddition { get; set; }
     public StreetNameStatus? StreetNameStatus { get; set; }
-    public long Position { get; set; }
 }
 
 public class StreetNameConsumerItemConfiguration : IEntityTypeConfiguration<StreetNameConsumerItem>
@@ -47,22 +46,20 @@ public class StreetNameConsumerItemConfiguration : IEntityTypeConfiguration<Stre
 
         b.Property(p => p.MunicipalityId);
         b.Property(p => p.NisCode);
-        b.Property(p => p.Name);
+        b.Property(p => p.Name).IsRequired(false);
         b.Property(p => p.PersistentLocalId);
-        b.Property(p => p.DutchName);
-        b.Property(p => p.FrenchName);
-        b.Property(p => p.GermanName);
-        b.Property(p => p.EnglishName);
-        b.Property(p => p.StreetNameStatus);
-        b.Property(p => p.HomonymAddition);
-        b.Property(p => p.DutchHomonymAddition);
-        b.Property(p => p.FrenchHomonymAddition);
-        b.Property(p => p.GermanHomonymAddition);
-        b.Property(p => p.EnglishHomonymAddition);
+        b.Property(p => p.DutchName).IsRequired(false);
+        b.Property(p => p.FrenchName).IsRequired(false);
+        b.Property(p => p.GermanName).IsRequired(false);
+        b.Property(p => p.EnglishName).IsRequired(false);
+        b.Property(p => p.StreetNameStatus).IsRequired(false);
+        b.Property(p => p.HomonymAddition).IsRequired(false);
+        b.Property(p => p.DutchHomonymAddition).IsRequired(false);
+        b.Property(p => p.FrenchHomonymAddition).IsRequired(false);
+        b.Property(p => p.GermanHomonymAddition).IsRequired(false);
+        b.Property(p => p.EnglishHomonymAddition).IsRequired(false);
 
         b.HasIndex(p => p.PersistentLocalId);
-
-        b.HasIndex(p => p.Position);
 
         b.Property(p => p.NameWithHomonymAddition)
             .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");

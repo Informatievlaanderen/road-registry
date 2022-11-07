@@ -35,7 +35,7 @@ public class StreetNameConsumer : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!stoppingToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
 
@@ -54,6 +54,8 @@ public class StreetNameConsumer : BackgroundService
                             using var scope = _serviceProvider.CreateScope();
                             await using var context = scope.ServiceProvider.GetRequiredService<StreetNameConsumerContext>();
                             await projector.ProjectAsync(context, message, stoppingToken);
+
+                            await context.SaveChangesAsync(stoppingToken);
                         },
                         300,
                         null,

@@ -23,4 +23,11 @@ public class StreetNameConsumerContext : RunnerDbContext<StreetNameConsumerConte
     {
         optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=EFProviders.InMemory.RoadRegistry.RoadRegistryContext;Trusted_Connection=True;");
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+    }
 }
