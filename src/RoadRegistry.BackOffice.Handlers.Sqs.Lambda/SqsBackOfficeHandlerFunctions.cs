@@ -33,28 +33,6 @@ public class SqsBackOfficeHandlerFunctions
     }
 
     /// <summary>
-    ///     Checks the feature compare docker container.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="cancellationToken">
-    ///     The cancellation token that can be used by other objects or threads to receive notice
-    ///     of cancellation.
-    /// </param>
-    public async Task CheckFeatureCompareDockerContainer(ILambdaContext context, CancellationToken cancellationToken)
-    {
-        try
-        {
-            await _serviceProvider
-                .GetRequiredService<IMediator>()
-                .Send(new CheckFeatureCompareDockerContainerCommand(context), cancellationToken);
-        }
-        catch (TaskCanceledException)
-        {
-            // intentionally left blank
-        }
-    }
-
-    /// <summary>
     ///     Initiates the feature compare docker container.
     /// </summary>
     /// <param name="event">The event.</param>

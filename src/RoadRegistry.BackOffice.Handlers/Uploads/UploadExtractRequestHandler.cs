@@ -14,7 +14,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 
 /// <summary>Upload controller, post upload</summary>
-/// <exception cref="UploadExtractBlobClientNotFoundException"></exception>
+/// <exception cref="BlobClientNotFoundException"></exception>
 /// <exception cref="UnsupportedMediaTypeException"></exception>
 public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractRequest, UploadExtractResponse>
 {
@@ -35,7 +35,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         UseUploadZipArchiveValidationFeatureToggle uploadZipArchiveValidationFeatureToggle,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
-        _client = client ?? throw new UploadExtractBlobClientNotFoundException(nameof(client));
+        _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
         _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle ?? throw new ArgumentNullException(nameof(uploadZipArchiveValidationFeatureToggle));
     }

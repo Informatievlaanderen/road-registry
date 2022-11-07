@@ -11,6 +11,7 @@ public class FeatureToggleOptions
     public bool UseUploadZipArchiveValidation { get; private set; }
 }
 
+
 public sealed record UseSnapshotRebuildFeatureToggle(bool FeatureEnabled) : ApplicationFeatureToggle(FeatureEnabled);
 
 public sealed record UseFeatureCompareFeatureToggle(bool FeatureEnabled) : ApplicationFeatureToggle(FeatureEnabled);

@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.MessagingHost.Sqs.Infrastructure;
 using SqlStreamStore;
 using Uploads;
 

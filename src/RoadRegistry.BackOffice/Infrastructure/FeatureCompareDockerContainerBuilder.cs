@@ -1,8 +1,8 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
+namespace RoadRegistry.BackOffice.Infrastructure;
 
 using Ductus.FluentDocker.Builders;
 
-internal static class FeatureCompareDockerContainerBuilder
+public static class FeatureCompareDockerContainerBuilder
 {
     public static ContainerBuilder Default => new Builder()
         .UseContainer()
