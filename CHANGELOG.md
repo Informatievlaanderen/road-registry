@@ -1,3 +1,32 @@
+## [3.19.3](https://github.com/informatievlaanderen/road-registry/compare/v3.19.2...v3.19.3) (2022-11-07)
+
+
+### Bug Fixes
+
+* add braces ([f819fa4](https://github.com/informatievlaanderen/road-registry/commit/f819fa4f1ea945ba72b1c910feba1328a21af38a))
+* add protected ctor ([50f1dfc](https://github.com/informatievlaanderen/road-registry/commit/50f1dfc7b2e1291a0935a89ae9082210d9cd1655))
+* conform to serializable pattern ([6555e5b](https://github.com/informatievlaanderen/road-registry/commit/6555e5bf57ee9b944e7421092fba474ff3087505))
+* don't throw general exceptions ([9e34485](https://github.com/informatievlaanderen/road-registry/commit/9e344850544281071956770d81beec38c164d8dc))
+* fill empty blocks of code ([99f62df](https://github.com/informatievlaanderen/road-registry/commit/99f62df94f1f33af3538a492e65524ca9d3bd57b))
+* Remove FeatureCompare lambda's from Push to Production ([#666](https://github.com/informatievlaanderen/road-registry/issues/666)) ([1be23dc](https://github.com/informatievlaanderen/road-registry/commit/1be23dc4a2110e23eeebc4335361e27c8b746f58))
+* remove unneeded parameters ([bcbb1b1](https://github.com/informatievlaanderen/road-registry/commit/bcbb1b1ed1920d6b804c915a0c7dea90fce861f1))
+* remove unused fields ([9f30970](https://github.com/informatievlaanderen/road-registry/commit/9f30970571e1c62eb60f1b436af56221d9f8d304))
+* remove unused variables ([6b32b5a](https://github.com/informatievlaanderen/road-registry/commit/6b32b5a4be8221127c6c455c1b8530b381b8f0de))
+* rename parameters ([89998eb](https://github.com/informatievlaanderen/road-registry/commit/89998ebcd58706f20c506bb77315def3b6f6f95a))
+* throw exception with correct message ([30c5ec3](https://github.com/informatievlaanderen/road-registry/commit/30c5ec3ffe2408bdea4012469d4fc573cc192347))
+* utility classes static or protected ctor ([817ab25](https://github.com/informatievlaanderen/road-registry/commit/817ab25dc62672a2dd05fbaaa3a5ac739f8b7cbe))
+
+## [3.19.2](https://github.com/informatievlaanderen/road-registry/compare/v3.19.1...v3.19.2) (2022-11-04)
+
+
+### Bug Fixes
+
+* Add Dutch validation messages for download extract ([7cc292f](https://github.com/informatievlaanderen/road-registry/commit/7cc292fb7580191e587af7b1fa7b00891647e5eb))
+* add nuget to dependabot ([5e86cc8](https://github.com/informatievlaanderen/road-registry/commit/5e86cc836b0034af88ab795aad266d1131fc58dd))
+* build on pull requests ([ee00146](https://github.com/informatievlaanderen/road-registry/commit/ee00146b7eb4c4c4ef4ee9c5e1a4e729e64bd9c2))
+* remove main.yml ([1b47af6](https://github.com/informatievlaanderen/road-registry/commit/1b47af6e8d4b0c1b53dff94cf1f6d41480806a57))
+* use VBR_SONAR_TOKEN ([a946282](https://github.com/informatievlaanderen/road-registry/commit/a946282e4bd153e61073bf841973497a37aa785a))
+
 ## [3.19.1](https://github.com/informatievlaanderen/road-registry/compare/v3.19.0...v3.19.1) (2022-11-03)
 
 

@@ -36,7 +36,7 @@ public static class CustomTags
     public const string Store = "Store";
 }
 
-public class Program
+public static class Program
 {
     private const string PersonUserName = "Gebruiker";
     private const string WorkspaceUrlFormat = "https://structurizr.com/workspace/{0}";
@@ -441,7 +441,7 @@ public class Program
         });
     }
 
-    private static string FormatDescription(string description, IEnumerable<string> properties) //=> $"{description}{Environment.NewLine}{string.Join(", ", properties)}";
+    private static string FormatDescription(string description) //=> $"{description}{Environment.NewLine}{string.Join(", ", properties)}";
     {
         return $"{description}";
     }
@@ -487,14 +487,14 @@ public class Program
 
         foreach (var e in FindAllEvents())
         {
-            var @event = eventStore.AddComponent(e.Name, e.Type, FormatDescription(e.Description, e.Properties), "Event");
+            var @event = eventStore.AddComponent(e.Name, e.Type, FormatDescription(e.Description), "Event");
             @event.AddTags(CustomTags.Event);
             api.Uses(@event, "produceert").AddTags(CustomTags.Event);
         }
 
         foreach (var c in FindAllCommands())
         {
-            var command = aggregateRoot.AddComponent(c.Name, c.Type, FormatDescription(c.Description, c.Properties), "Command");
+            var command = aggregateRoot.AddComponent(c.Name, c.Type, FormatDescription(c.Description), "Command");
             command.AddTags(CustomTags.Command);
             api.Uses(command, "aanvaardt").AddTags(CustomTags.Command);
         }

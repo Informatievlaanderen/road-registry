@@ -23,6 +23,9 @@ using MediatorModule = Kafka.MediatorModule;
 
 public class Program
 {
+    protected Program()
+    { }
+
     private static CommandHandlerResolver ConfigureCommandDispatcher(IServiceProvider sp)
     {
         return Resolve.WhenEqualToMessage(new CommandHandlerModule[]
@@ -73,7 +76,7 @@ public class Program
                 {
                     builder
                         .RegisterModule<Handlers.Kafka.MediatorModule>()
-                        .RegisterModule<Handlers.Kafka.ConsumerModule>()
+                        .RegisterModule<ConsumerModule>()
                         .RegisterModule<MediatorModule>()
                         .RegisterModule(new ApiModule(hostContext.Configuration))
                         .RegisterModule(new ProjectorModule(hostContext.Configuration));
