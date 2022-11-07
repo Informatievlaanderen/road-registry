@@ -102,7 +102,7 @@ public class Scheduler
 
     public async Task Schedule(Func<CancellationToken, Task> action, TimeSpan due)
     {
-        ArgumentNullException.ThrowIfNull(nameof(action));
+        ArgumentNullException.ThrowIfNull(action);
 
         await _messageChannel.Writer.WriteAsync(new ScheduleAction
         {

@@ -9,9 +9,9 @@ public class RoadSegmentEuropeanRoadAttributeDbaseRecordsValidator : IZipArchive
 {
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentEuropeanRoadAttributeDbaseRecord> records, ZipArchiveValidationContext context)
     {
-        ArgumentNullException.ThrowIfNull(nameof(entry));
-        ArgumentNullException.ThrowIfNull(nameof(records));
-        ArgumentNullException.ThrowIfNull(nameof(context));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(records);
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
         try

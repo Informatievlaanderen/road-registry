@@ -32,13 +32,13 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
         TConfiguration feedConfiguration,
         ILogger<AtomFeedProcessor<TConfiguration, TSyndicationContent>> logger)
     {
-        ArgumentNullException.ThrowIfNull(nameof(reader));
-        ArgumentNullException.ThrowIfNull(nameof(envelopeFactory));
-        ArgumentNullException.ThrowIfNull(nameof(resolver));
-        ArgumentNullException.ThrowIfNull(nameof(dbContextFactory));
-        ArgumentNullException.ThrowIfNull(nameof(feedConfiguration));
-        ArgumentNullException.ThrowIfNull(nameof(scheduler));
-        ArgumentNullException.ThrowIfNull(nameof(logger));
+        ArgumentNullException.ThrowIfNull(reader);
+        ArgumentNullException.ThrowIfNull(envelopeFactory);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(dbContextFactory);
+        ArgumentNullException.ThrowIfNull(feedConfiguration);
+        ArgumentNullException.ThrowIfNull(scheduler);
+        ArgumentNullException.ThrowIfNull(logger);
 
         _scheduler = scheduler;
         _logger = logger;

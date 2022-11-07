@@ -42,9 +42,9 @@ public class CommandProcessor : IHostedService
         Scheduler scheduler,
         ILogger<CommandProcessor> logger)
     {
-        ArgumentNullException.ThrowIfNull(nameof(streamStore));
-        ArgumentNullException.ThrowIfNull(nameof(positionStore));
-        ArgumentNullException.ThrowIfNull(nameof(dispatcher));
+        ArgumentNullException.ThrowIfNull(streamStore);
+        ArgumentNullException.ThrowIfNull(positionStore);
+        ArgumentNullException.ThrowIfNull(dispatcher);
 
         _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

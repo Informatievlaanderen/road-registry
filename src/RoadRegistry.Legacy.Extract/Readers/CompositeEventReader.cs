@@ -15,7 +15,7 @@ public class CompositeEventReader : IEventReader
 
     public IEnumerable<StreamEvent> ReadEvents(SqlConnection connection)
     {
-        ArgumentNullException.ThrowIfNull(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
 
         foreach (var reader in _readers)
         {
