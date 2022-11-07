@@ -50,7 +50,7 @@ public class UploadController : ControllerBase
 
     private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback)
     {
-        ArgumentNullException.ThrowIfNull(archive, nameof(archive));
+        ArgumentNullException.ThrowIfNull(archive);
 
         try
         {

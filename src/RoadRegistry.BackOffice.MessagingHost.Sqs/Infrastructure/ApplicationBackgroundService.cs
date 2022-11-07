@@ -20,15 +20,15 @@ public abstract class ApplicationBackgroundService : BackgroundService
         DelaySeconds = delaySeconds;
     }
 
-    protected sealed override async Task ExecuteAsync(CancellationToken cancellationToken)
+    protected sealed override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        while (!stoppingToken.IsCancellationRequested)
         {
             Logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
 
             try
             {
-                await ExecuteCallbackAsync(cancellationToken);
+                await ExecuteCallbackAsync(stoppingToken);
             }
             catch (TaskCanceledException ex)
             {
@@ -40,7 +40,7 @@ public abstract class ApplicationBackgroundService : BackgroundService
             }
             finally
             {
-                await Task.Delay(DelaySeconds * 1000, cancellationToken);
+                await Task.Delay(DelaySeconds * 1000, stoppingToken);
             }
         }
     }

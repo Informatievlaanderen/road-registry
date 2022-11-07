@@ -83,7 +83,7 @@ public class Program
                     .AddEnvironmentVariables()
                     .AddCommandLine(args);
             })
-            .ConfigureLogging((hostContext, services) =>
+            .ConfigureLogging((hostContext, builder) =>
             {
                 SelfLog.Enable(Console.WriteLine);
 
@@ -96,7 +96,7 @@ public class Program
 
                 Log.Logger = loggerConfiguration.CreateLogger();
 
-                services.AddSerilog(Log.Logger);
+                builder.AddSerilog(Log.Logger);
             })
             .ConfigureServices((hostContext, services) =>
             {

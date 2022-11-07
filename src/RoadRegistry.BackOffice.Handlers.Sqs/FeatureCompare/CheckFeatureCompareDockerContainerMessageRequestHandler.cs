@@ -1,84 +1,83 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.FeatureCompare
+namespace RoadRegistry.BackOffice.Handlers.Sqs.FeatureCompare;
+
+using Abstractions;
+using Abstractions.Configuration;
+using Abstractions.FeatureCompare;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Ductus.FluentDocker.Extensions;
+using Infrastructure;
+using Microsoft.Extensions.Logging;
+
+public class CheckFeatureCompareDockerContainerMessageRequestHandler : SqsMessageRequestHandler<CheckFeatureCompareDockerContainerMessageRequest, CheckFeatureCompareDockerContainerMessageResponse>
 {
-    using Abstractions;
-    using Abstractions.Configuration;
-    using Abstractions.FeatureCompare;
-    using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-    using Ductus.FluentDocker.Extensions;
-    using Microsoft.Extensions.Logging;
-    using Polly;
-    using RoadRegistry.BackOffice.Infrastructure;
+    private readonly FeatureCompareMessagingOptions _messagingOptions;
+    private readonly ISqsQueueConsumer _sqsQueueConsumer;
+    private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
-    public class CheckFeatureCompareDockerContainerMessageRequestHandler : SqsMessageRequestHandler<CheckFeatureCompareDockerContainerMessageRequest, CheckFeatureCompareDockerContainerMessageResponse>
+    public CheckFeatureCompareDockerContainerMessageRequestHandler(
+        FeatureCompareMessagingOptions messagingOptions,
+        ISqsQueuePublisher sqsQueuePublisher,
+        ISqsQueueConsumer sqsQueueConsumer,
+        ILogger<CheckFeatureCompareDockerContainerMessageRequestHandler> logger)
+        : base(null, logger)
     {
-        private readonly FeatureCompareMessagingOptions _messagingOptions;
-        private readonly ISqsQueueConsumer _sqsQueueConsumer;
-        private readonly ISqsQueuePublisher _sqsQueuePublisher;
+        _messagingOptions = messagingOptions;
+        _sqsQueuePublisher = sqsQueuePublisher;
+        _sqsQueueConsumer = sqsQueueConsumer;
+    }
 
-        public CheckFeatureCompareDockerContainerMessageRequestHandler(
-            FeatureCompareMessagingOptions messagingOptions,
-            ISqsQueuePublisher sqsQueuePublisher,
-            ISqsQueueConsumer sqsQueueConsumer,
-            ILogger<CheckFeatureCompareDockerContainerMessageRequestHandler> logger)
-            : base(null, logger)
+    public override async Task<CheckFeatureCompareDockerContainerMessageResponse> HandleAsync(CheckFeatureCompareDockerContainerMessageRequest request, CancellationToken cancellationToken)
+    {
+        var container = FeatureCompareDockerContainerBuilder.Default.Build();
+
+        CheckFeatureCompareDockerContainerMessageResponse response;
+        using (container)
         {
-            _messagingOptions = messagingOptions;
-            _sqsQueuePublisher = sqsQueuePublisher;
-            _sqsQueueConsumer = sqsQueueConsumer;
+            var serviceState = container.GetConfiguration(true).State.ToServiceState();
+            response = new CheckFeatureCompareDockerContainerMessageResponse(serviceState);
         }
 
-        public override async Task<CheckFeatureCompareDockerContainerMessageResponse> HandleAsync(CheckFeatureCompareDockerContainerMessageRequest request, CancellationToken cancellationToken)
+        if (cancellationToken.IsCancellationRequested)
         {
-            var container = FeatureCompareDockerContainerBuilder.Default.Build();
+            _logger.LogInformation("Received cancellation request. Exit without failure. See you on the next timer run!");
+            await Task.FromCanceled<CheckFeatureCompareDockerContainerMessageResponse>(cancellationToken);
+        }
 
-            CheckFeatureCompareDockerContainerMessageResponse response;
-            using (container)
+        if (response.IsRunning)
+        {
+            _logger.LogInformation("Container {container} state: {containerState}", container.Name, response.State);
+            _logger.LogInformation("Exit without failure. See you on the next timer run!");
+
+            await Task.FromCanceled<CheckFeatureCompareDockerContainerMessageResponse>(cancellationToken);
+        }
+        else
+        {
+            _logger.LogInformation("Container {container} state: {containerState}", container.Name, response.State);
+
+            var cancellationTokenSource = new CancellationTokenSource();
+            var consumerCounter = 0;
+
+            await _sqsQueueConsumer.Consume(_messagingOptions.RequestQueueUrl, async message =>
             {
-                var serviceState = container.GetConfiguration(true).State.ToServiceState();
-                response = new CheckFeatureCompareDockerContainerMessageResponse(serviceState);
-            }
+                _logger.LogInformation("Attempting to dequeue message from queue: {requestQueueUrl}", _messagingOptions.RequestQueueUrl);
 
-            if (cancellationToken.IsCancellationRequested)
-            {
-                _logger.LogInformation("Received cancellation request. Exit without failure. See you on the next timer run!");
-                await Task.FromCanceled<CheckFeatureCompareDockerContainerMessageResponse>(cancellationToken);
-            }
-
-            if (response.IsRunning)
-            {
-                _logger.LogInformation("Container {container} state: {containerState}", container.Name, response.State);
-                _logger.LogInformation("Exit without failure. See you on the next timer run!");
-
-                await Task.FromCanceled<CheckFeatureCompareDockerContainerMessageResponse>(cancellationToken);
-            }
-            else
-            {
-                _logger.LogInformation("Container {container} state: {containerState}", container.Name, response.State);
-
-                var cancellationTokenSource = new CancellationTokenSource();
-                var consumerCounter = 0;
-
-                await _sqsQueueConsumer.Consume(_messagingOptions.RequestQueueUrl, async message =>
+                if (consumerCounter >= 1)
                 {
-                    _logger.LogInformation("Attempting to dequeue message from queue: {requestQueueUrl}", _messagingOptions.RequestQueueUrl);
+                    throw new InvalidOperationException("Consumer within Lambda MUST only process one single message per invocation!");
+                }
 
-                    if (consumerCounter >= 1)
-                        throw new IndexOutOfRangeException("Consumer within Lambda MUST only process one single message per invocation!");
+                // Publish message from one queue to another
+                var sqsQueueName = SqsQueue.ParseQueueNameFromQueueUrl(_messagingOptions.DockerQueueUrl);
 
-                    // Publish message from one queue to another
-                    var sqsQueueName = SqsQueue.ParseQueueNameFromQueueUrl(_messagingOptions.DockerQueueUrl);
+                _logger.LogInformation("Attempting to publish message onto queue: {sqsQueueName}", sqsQueueName);
+                await _sqsQueuePublisher.CopyToQueue(sqsQueueName, message, new SqsQueueOptions(), cancellationToken);
 
-                    _logger.LogInformation("Attempting to publish message onto queue: {sqsQueueName}", sqsQueueName);
-                    await _sqsQueuePublisher.CopyToQueue(sqsQueueName, message, new SqsQueueOptions(), cancellationToken);
-
-                    // Cancel the cancellation token so we don't get stuck inside the consumer loop
-                    cancellationTokenSource.Cancel();
-                    consumerCounter++;
-                }, cancellationTokenSource.Token);
-            }
-
-            return response;
-
+                // Cancel the cancellation token so we don't get stuck inside the consumer loop
+                cancellationTokenSource.Cancel();
+                consumerCounter++;
+            }, cancellationTokenSource.Token);
         }
+
+        return response;
     }
 }
