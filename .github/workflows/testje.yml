@@ -101,7 +101,7 @@ jobs:
       run: npx semantic-release
       env:
         BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.VBR_GIT_RELEASE_TOKEN }}
         GIT_COMMIT: ${{ github.sha }}
         GIT_USERNAME: ${{ secrets.VBR_GIT_USER }}
         GIT_AUTHOR_NAME: ${{ secrets.VBR_GIT_USER }}
@@ -141,7 +141,7 @@ jobs:
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER -o ~/rr-backoffice-extracthost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER -o ~/rr-backoffice-commandhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER -o ~/rr--image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER -o ~/rr--image.tar
+        #docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER -o ~/rr--image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER -o ~/rr-import-legacy-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER -o ~/rr-extract-legacy-image.tar
       env:
@@ -267,12 +267,12 @@ jobs:
         name: backoffice-messaginghost-sqs
         path: ~/rr-backoffice-messaginghost-sqs-image.tar
 
-    - name: Upload backoffice-messaginghost-kafka artifact
-      if: env.RELEASE_VERSION != 'none'
-      uses: actions/upload-artifact@v3
-      with:
-        name: backoffice-messaginghost-kafka
-        path: ~/rr-backoffice-messaginghost-kafka-image.tar
+#    - name: Upload backoffice-messaginghost-kafka artifact
+#      if: env.RELEASE_VERSION != 'none'
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: backoffice-messaginghost-kafka
+#        path: ~/rr-backoffice-messaginghost-kafka-image.tar
 
     - name: Upload import-legacy artifact
       if: env.RELEASE_VERSION != 'none'
@@ -612,11 +612,11 @@ jobs:
           name: backoffice-messaginghost-sqs
           path: ~/
       
-      - name: Download backoffice-messaginghost-kafka
-        uses: actions/download-artifact@v3
-        with:
-          name: backoffice-messaginghost-kafka
-          path: ~/
+#      - name: Download backoffice-messaginghost-kafka
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: backoffice-messaginghost-kafka
+#          path: ~/
       
       - name: Download import-legacy
         uses: actions/download-artifact@v3
@@ -649,7 +649,7 @@ jobs:
           docker image load -i ~/wr-backoffice-extracthost-image.tar
           docker image load -i ~/wr-backoffice-commandhost-image.tar
           docker image load -i ~/wr-backoffice-messaginghost-sqs-image.tar
-          docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
+          #docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
           docker image load -i ~/wr-import-legacy-image.tar
           docker image load -i ~/wr-extract-legacy-image.tar
 
@@ -670,7 +670,7 @@ jobs:
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
+          #docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
         env:
@@ -773,11 +773,11 @@ jobs:
           name: backoffice-messaginghost-sqs
           path: ~/
       
-      - name: Download backoffice-messaginghost-kafka
-        uses: actions/download-artifact@v3
-        with:
-          name: backoffice-messaginghost-kafka
-          path: ~/
+#      - name: Download backoffice-messaginghost-kafka
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: backoffice-messaginghost-kafka
+#          path: ~/
       
       - name: Download import-legacy
         uses: actions/download-artifact@v3
@@ -810,7 +810,7 @@ jobs:
           docker image load -i ~/wr-backoffice-extracthost-image.tar
           docker image load -i ~/wr-backoffice-commandhost-image.tar
           docker image load -i ~/wr-backoffice-messaginghost-sqs-image.tar
-          docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
+          #docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
           docker image load -i ~/wr-import-legacy-image.tar
           docker image load -i ~/wr-extract-legacy-image.tar
 
@@ -854,8 +854,8 @@ jobs:
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
 
-          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
+          #docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
+          #docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
 
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
@@ -963,6 +963,12 @@ jobs:
 #          name: backoffice-messaginghost-sqs
 #          path: ~/
 #      
+#      - name: Download backoffice-messaginghost-kafka
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: backoffice-messaginghost-kafka
+#          path: ~/
+#      
 #      - name: Download import-legacy
 #        uses: actions/download-artifact@v3
 #        with:
@@ -994,6 +1000,7 @@ jobs:
 #          docker image load -i ~/wr-backoffice-extracthost-image.tar
 #          docker image load -i ~/wr-backoffice-commandhost-image.tar
 #          docker image load -i ~/wr-backoffice-messaginghost-sqs-image.tar
+#          #docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
 #          docker image load -i ~/wr-import-legacy-image.tar
 #          docker image load -i ~/wr-extract-legacy-image.tar
 
@@ -1038,6 +1045,9 @@ jobs:
 #        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
 #        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
 
+#        #docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
+#        #docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
+
 #        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
 #        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
 
@@ -1050,11 +1060,33 @@ jobs:
 #        SEMVER: ${{ needs.build.outputs.version }}
 #        WORKSPACE: ${{ github.workspace }}
 
-  deploy_to_test:
+  deploy_to_test_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [push_images_to_test, build]
-    name: Deploy to test
+    name: Deploy to test started
     environment: test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment started
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: Deployment of road-registry to test has started
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+
+
+  deploy_to_test:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [deploy_to_test_start_slack, build]
+    name: Deploy to test
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -1122,11 +1154,53 @@ jobs:
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
 
+  deploy_to_test_finish_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [deploy_lambda_to_test]
+    name: Deploy to test finished
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment finished
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: Deployment of road-registry to test finished
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+
+  deploy_to_staging_start_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [push_images_to_staging, deploy_to_test_finish_slack, build]
+    name: Deploy to staging started
+    environment: stg
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment started
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: Deployment of road-registry to staging has started
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+        
   deploy_to_staging:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [push_images_to_staging, deploy_to_test, build]
+    needs: [deploy_to_staging_start_slack, build]
     name: Deploy to staging
-    environment: stg
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -1194,11 +1268,53 @@ jobs:
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
 
+  deploy_to_staging_finish_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [deploy_lambda_to_staging]
+    name: Deploy to staging finished
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment finished
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: Deployment of road-registry to staging finished
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+
+#  deploy_to_production_start_slack:
+#    if: github.repository_owner == 'Informatievlaanderen'
+#    needs: [push_images_to_production, deploy_to_staging_finish_slack, build]
+#    name: Deploy to production started
+#    environment: prd
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Parse repository name
+#      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+#      shell: bash
+#
+#    - name: Notify deployment started
+#      uses: slackapi/slack-github-action@v1.23.0
+#      with:
+#        channel-id: '#team-wegenregister-dev'
+#        slack-message: Deployment of road-registry to production has started
+#      env:
+#        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+#        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+#        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+#
 #  deploy_to_production:
 #    if: github.repository_owner == 'Informatievlaanderen'
-#    needs: [deploy_to_staging, build]
+#    needs: [deploy_to_staging_finish_slack, build]
 #    name: Deploy to Production
-#    environment: prd
 #    runs-on: ubuntu-latest
 #    strategy:
 #      matrix: 
@@ -1265,4 +1381,25 @@ jobs:
 #        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
 #        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
 #        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
-#  
+#
+#  deploy_to_production_finish_slack:
+#    if: github.repository_owner == 'Informatievlaanderen'
+#    needs: [deploy_lambda_to_production]
+#    name: Deploy to production finished
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: Parse repository name
+#      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+#      shell: bash
+#
+#    - name: Notify deployment finished
+#      uses: slackapi/slack-github-action@v1.23.0
+#      with:
+#        channel-id: '#team-wegenregister-dev'
+#        slack-message: Deployment of road-registry to production finished
+#      env:
+#        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+#        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+#        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+#

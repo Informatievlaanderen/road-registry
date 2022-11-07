@@ -44,13 +44,13 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         Scheduler scheduler,
         ILogger<DbContextEventProcessor<TDbContext>> logger)
     {
-        ArgumentNullException.ThrowIfNull(nameof(streamStore));
-        ArgumentNullException.ThrowIfNull(nameof(filter));
-        ArgumentNullException.ThrowIfNull(nameof(envelopeFactory));
-        ArgumentNullException.ThrowIfNull(nameof(resolver));
-        ArgumentNullException.ThrowIfNull(nameof(dbContextFactory));
-        ArgumentNullException.ThrowIfNull(nameof(scheduler));
-        ArgumentNullException.ThrowIfNull(nameof(logger));
+        ArgumentNullException.ThrowIfNull(streamStore);
+        ArgumentNullException.ThrowIfNull(filter);
+        ArgumentNullException.ThrowIfNull(envelopeFactory);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(dbContextFactory);
+        ArgumentNullException.ThrowIfNull(scheduler);
+        ArgumentNullException.ThrowIfNull(logger);
 
         _scheduler = scheduler;
         _logger = logger;

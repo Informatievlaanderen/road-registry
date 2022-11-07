@@ -30,7 +30,7 @@ internal class LegacyStreamEventsWriter
 
     public async Task WriteAsync(IEnumerable<StreamEvent> events)
     {
-        ArgumentNullException.ThrowIfNull(nameof(events));
+        ArgumentNullException.ThrowIfNull(events);
 
         var expectedVersions = new ConcurrentDictionary<StreamId, int>();
 

@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 public abstract class SqsMessageRequestHandler<TRequest> : IRequestHandler<TRequest>
-    where TRequest : IRequest
+    where TRequest : SqsMessageRequest
 {
     public async Task<Unit> Handle(TRequest request, CancellationToken cancellationToken)
     {

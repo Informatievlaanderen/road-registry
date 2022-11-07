@@ -38,12 +38,12 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         Scheduler scheduler,
         ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> logger)
     {
-        ArgumentNullException.ThrowIfNull(nameof(streamStore));
-        ArgumentNullException.ThrowIfNull(nameof(positionStore));
-        ArgumentNullException.ThrowIfNull(nameof(filter));
-        ArgumentNullException.ThrowIfNull(nameof(dispatcher));
-        ArgumentNullException.ThrowIfNull(nameof(scheduler));
-        ArgumentNullException.ThrowIfNull(nameof(logger));
+        ArgumentNullException.ThrowIfNull(streamStore);
+        ArgumentNullException.ThrowIfNull(positionStore);
+        ArgumentNullException.ThrowIfNull(filter);
+        ArgumentNullException.ThrowIfNull(dispatcher);
+        ArgumentNullException.ThrowIfNull(scheduler);
+        ArgumentNullException.ThrowIfNull(logger);
 
         _scheduler = scheduler;
         _logger = logger;
