@@ -1,3 +1,10 @@
+## [3.20.1](https://github.com/informatievlaanderen/road-registry/compare/v3.20.0...v3.20.1) (2022-11-08)
+
+
+### Bug Fixes
+
+* Use FluentValidation ValidateAsync ([19192e0](https://github.com/informatievlaanderen/road-registry/commit/19192e0e56c6f4ffb8f3523b34814d3d3ab15746))
+
 # [3.20.0](https://github.com/informatievlaanderen/road-registry/compare/v3.19.3...v3.20.0) (2022-11-08)
 
 
