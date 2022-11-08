@@ -20,10 +20,10 @@ public class SqsQueuePublisher : ISqsQueuePublisher
         _logger = logger ?? throw new LoggerNotFoundException<SqsQueuePublisher>();
     }
 
-    public virtual async Task<bool> CopyToQueue<T>(string queueName, T message, SqsQueueOptions queueOptions, CancellationToken cancellationToken) where T : class
+    public virtual async Task<bool> CopyToQueue<T>(string queueUrl, T message, SqsQueueOptions queueOptions, CancellationToken cancellationToken) where T : class
     {
-        var result = await Sqs.CopyToQueue(_sqsOptions, queueName, message, queueOptions, cancellationToken);
-        _logger.LogTrace("Placed message onto queue {QueueName}: {Message}", queueName, JsonSerializer.Serialize(message));
+        var result = await Sqs.CopyToQueue(_sqsOptions, queueUrl, message, queueOptions, cancellationToken);
+        _logger.LogTrace("Placed message onto queue {QueueName}: {Message}", queueUrl, JsonSerializer.Serialize(message));
         return result;
     }
 }

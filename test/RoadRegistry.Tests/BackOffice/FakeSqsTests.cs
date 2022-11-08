@@ -20,12 +20,11 @@ public class FakeSqsTests
     public async Task Fake_sqs_should_publish_and_consume()
     {
         var queueUrl = "road-registry/test-queue";
-        var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
 
         var originalMessage = new UploadRoadNetworkChangesArchive { ArchiveId = new ArchiveId(Guid.NewGuid().ToString("N")).ToString() };
 
         var sqsPublisher = new FakeSqsQueuePublisher();
-        await sqsPublisher.CopyToQueue(queueName, originalMessage, _sqsQueueOptions, _cancellationToken);
+        await sqsPublisher.CopyToQueue(queueUrl, originalMessage, _sqsQueueOptions, _cancellationToken);
 
         var sqsConsumer = new FakeSqsQueueConsumer();
         await sqsConsumer.Consume(queueUrl, message =>

@@ -46,8 +46,7 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
     {
         foreach (var message in MessageRequestCollection)
         {
-            var sqsQueueName = SqsQueue.ParseQueueNameFromQueueUrl(_messagingOptions.ResponseQueueUrl);
-            await _sqsQueuePublisher.CopyToQueue(sqsQueueName, message, _sqsQueueOptions, _cancellationTokenSource.Token);
+            await _sqsQueuePublisher.CopyToQueue(_messagingOptions.ResponseQueueUrl, message, _sqsQueueOptions, _cancellationTokenSource.Token);
         }
 
         await _backgroundService.StartAsync(_cancellationTokenSource.Token);
