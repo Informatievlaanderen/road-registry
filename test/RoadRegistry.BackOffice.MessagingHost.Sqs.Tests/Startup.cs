@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Tests;
 
+using Abstractions.Configuration;
 using Amazon;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
@@ -7,13 +8,13 @@ using Core;
 using Editor.Schema;
 using Extracts;
 using Framework;
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Product.Schema;
-using RoadRegistry.BackOffice.MessagingHost.Sqs.Infrastructure;
 using SqlStreamStore;
 using Uploads;
 

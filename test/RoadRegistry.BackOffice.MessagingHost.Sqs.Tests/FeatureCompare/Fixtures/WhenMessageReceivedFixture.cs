@@ -14,16 +14,11 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
     private readonly SqsQueueOptions _sqsQueueOptions;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
-    protected WhenMessageReceivedFixture(IMediator mediator, ISqsQueuePublisher sqsQueuePublisher, ISqsQueueConsumer sqsQueueConsumer, SqsQueueOptions sqsQueueOptions, ILoggerFactory loggerFactory)
+    protected WhenMessageReceivedFixture(IMediator mediator, ISqsQueuePublisher sqsQueuePublisher, ISqsQueueConsumer sqsQueueConsumer, SqsQueueOptions sqsQueueOptions, FeatureCompareMessagingOptions messagingOptions, ILoggerFactory loggerFactory)
     {
         _sqsQueuePublisher = sqsQueuePublisher;
         _sqsQueueOptions = sqsQueueOptions;
-
-        _messagingOptions = new FeatureCompareMessagingOptions
-        {
-            RequestQueueUrl = "request.fifo",
-            ResponseQueueUrl = "response.fifo"
-        };
+        _messagingOptions = messagingOptions;
 
         _backgroundService = new FeatureCompareMessageConsumer(
             mediator,
@@ -46,8 +41,7 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
     {
         foreach (var message in MessageRequestCollection)
         {
-            var sqsQueueName = SqsQueue.ParseQueueNameFromQueueUrl(_messagingOptions.ResponseQueueUrl);
-            await _sqsQueuePublisher.CopyToQueue(sqsQueueName, message, _sqsQueueOptions, _cancellationTokenSource.Token);
+            await _sqsQueuePublisher.CopyToQueue(_messagingOptions.ResponseQueueUrl, message, _sqsQueueOptions, _cancellationTokenSource.Token);
         }
 
         await _backgroundService.StartAsync(_cancellationTokenSource.Token);

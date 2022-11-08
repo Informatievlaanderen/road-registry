@@ -181,7 +181,7 @@ public class Program
         configuration.Bind(blobClientOptions);
 
         var messagingOptions = new FeatureCompareMessagingOptions();
-        configuration.GetSection(nameof(FeatureCompareMessagingOptions)).Bind(messagingOptions);
+        configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(messagingOptions);
 
         try
         {
