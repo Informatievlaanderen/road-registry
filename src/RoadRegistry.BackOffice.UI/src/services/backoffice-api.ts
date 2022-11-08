@@ -44,6 +44,13 @@ export const BackOfficeApi = {
       const response = await apiClient.post(path, data);
       return response.status;
     },
+    uploadFeatureCompare: async (file: string | Blob, filename: string): Promise<number> => {
+      const path = `/roads/v1/upload/fc`;
+      const data = new FormData();
+      data.append("archive", file, filename);
+      const response = await apiClient.post(path, data);
+      return response.status;
+    },
     download: async (identifier: string): Promise<void> => {
       const path = `/roads/v1/upload/${identifier}`;
       await apiClient.download("application/zip", `${identifier}.zip`, path, "GET");

@@ -54,7 +54,7 @@
                   <strong>{{ fileProblem.file.toUpperCase() }}</strong>
                 </h3>
 
-                <ActivityProblems :problems="fileProblem.problems" />                
+                <ActivityProblems :problems="fileProblem.problems" />
               </div>
             </div>
             <!-- -->
@@ -69,6 +69,7 @@
 import Vue from "vue";
 import { BackOfficeApi } from "../../../services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
+import { featureToggles } from "@/environment";
 
 export default Vue.extend({
   components: {
@@ -117,7 +118,7 @@ export default Vue.extend({
         fileProblems: [] as Array<any> | undefined,
       };
 
-      if(this.uploadResult.fileProblems && this.uploadResult.fileProblems.length > 0) {
+      if (this.uploadResult.fileProblems && this.uploadResult.fileProblems.length > 0) {
         status.fileProblems = this.uploadResult.fileProblems;
         return status;
       }
@@ -189,7 +190,14 @@ export default Vue.extend({
 
         try {
           this.uploadResult = { uploadResponseCode: undefined, fileProblems: undefined };
-          const uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
+
+          let uploadResponseCode: number;
+          if (featureToggles.useFeatureCompare) {
+            uploadResponseCode = await BackOfficeApi.Uploads.uploadFeatureCompare(file, file.name);
+          } else {
+            uploadResponseCode = await BackOfficeApi.Uploads.upload(file, file.name);
+          }
+
           this.uploadResult = { uploadResponseCode, fileProblems: undefined };
         } catch (err: any) {
           if (err?.response?.status === 400) {
