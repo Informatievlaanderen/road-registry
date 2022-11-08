@@ -1,3 +1,17 @@
+# [3.20.0](https://github.com/informatievlaanderen/road-registry/compare/v3.19.3...v3.20.0) (2022-11-08)
+
+
+### Bug Fixes
+
+* Pass correct value to ArgumentNullException.ThrowIfNull ([#669](https://github.com/informatievlaanderen/road-registry/issues/669)) ([17868d7](https://github.com/informatievlaanderen/road-registry/commit/17868d7f6d2ab7a18455e3e69adaeac4ad91011e))
+* update testje.yml ([a0d1c43](https://github.com/informatievlaanderen/road-registry/commit/a0d1c437420018aa1fe1d919502e6c03ac0864cc))
+* update testje.yml ([07f6f93](https://github.com/informatievlaanderen/road-registry/commit/07f6f93b29742e686501240a8bde0e85ec034af5))
+
+
+### Features
+
+* Feature compare ([#659](https://github.com/informatievlaanderen/road-registry/issues/659)) ([4f506b5](https://github.com/informatievlaanderen/road-registry/commit/4f506b5ff9aa5285e8bbac7f780869feb2e6a304))
+
 ## [3.19.3](https://github.com/informatievlaanderen/road-registry/compare/v3.19.2...v3.19.3) (2022-11-07)
 
 
