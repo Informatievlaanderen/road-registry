@@ -35,6 +35,7 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Abstractions.Configuration;
 using Serilog;
 using SqlStreamStore;
 using Syndication.Schema;
@@ -169,6 +170,8 @@ public class Program
 
                 var sqsOptions = new SqsOptions();
                 hostContext.Configuration.GetSection(nameof(SqsOptions)).Bind(sqsOptions);
+                var featureCompareMessagingOptions = new FeatureCompareMessagingOptions();
+                hostContext.Configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
 
                 builder
                     .AddSingleton<ISqsQueuePublisher>(sp =>
@@ -183,6 +186,7 @@ public class Program
                     .AddSingleton(extractDownloadsOptions)
                     .AddSingleton(extractUploadsOptions)
                     .AddSingleton(sqsOptions)
+                    .AddSingleton(featureCompareMessagingOptions)
                     .AddSingleton<IStreamStore>(sp =>
                         new MsSqlStreamStoreV3(
                             new MsSqlStreamStoreV3Settings(
