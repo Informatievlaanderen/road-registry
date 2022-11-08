@@ -21,7 +21,8 @@ public class WhenKafkaJsonMessage
     [Fact]
     public void ItShouldSerialize()
     {
-        var message = new StreetNameWasRegistered("TEST_STREETNAME", "TEST_MUNICIPALITY", "DUMMY_NISCODE", new Provenance(DateTime.UtcNow.ToString(), "KAFKA TEST", "", "Digitaal Vlaanderen", "Testing serialization"));
+        var timestamp = DateTime.UtcNow.ToString("yyyy-mm-dd HH:mm:ss");
+        var message = new StreetNameWasRegistered("TEST_STREETNAME", "TEST_MUNICIPALITY", "DUMMY_NISCODE", new Provenance(timestamp, "KAFKA TEST", "", "Digitaal Vlaanderen", "Testing serialization"));
         var serializedMessage = JsonConvert.SerializeObject(message, _serializerSettings);
 
         _outputHelper.WriteLine(serializedMessage);
@@ -30,5 +31,8 @@ public class WhenKafkaJsonMessage
         var serializedKafkaMessage = JsonConvert.SerializeObject(kafkaJsonMessage, _serializerSettings);
 
         _outputHelper.WriteLine(serializedKafkaMessage);
+
+        var expected = "{\"type\":\"Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry.StreetNameWasRegistered\",\"data\":\"{\\\"streetNameId\\\":\\\"TEST_STREETNAME\\\",\\\"municipalityId\\\":\\\"TEST_MUNICIPALITY\\\",\\\"nisCode\\\":\\\"DUMMY_NISCODE\\\",\\\"provenance\\\":{\\\"timestamp\\\":\\\"" + timestamp + "\\\",\\\"application\\\":\\\"KAFKA TEST\\\",\\\"modification\\\":\\\"\\\",\\\"organisation\\\":\\\"Digitaal Vlaanderen\\\",\\\"reason\\\":\\\"Testing serialization\\\"}}\"}";
+        Assert.Equal(expected, serializedKafkaMessage);
     }
 }
