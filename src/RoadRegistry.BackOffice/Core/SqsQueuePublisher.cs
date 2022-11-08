@@ -23,7 +23,7 @@ public class SqsQueuePublisher : ISqsQueuePublisher
     public virtual async Task<bool> CopyToQueue<T>(string queueUrl, T message, SqsQueueOptions queueOptions, CancellationToken cancellationToken) where T : class
     {
         var result = await Sqs.CopyToQueue(_sqsOptions, queueUrl, message, queueOptions, cancellationToken);
-        _logger.LogTrace("Placed message onto queue {QueueName}: {Message}", queueUrl, JsonSerializer.Serialize(message));
+        _logger.LogTrace("Placed message onto queue {QueueUrl}: {Message}", queueUrl, JsonSerializer.Serialize(message));
         return result;
     }
 }

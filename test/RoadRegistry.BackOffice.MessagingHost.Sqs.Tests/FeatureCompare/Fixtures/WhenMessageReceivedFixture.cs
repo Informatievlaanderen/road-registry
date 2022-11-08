@@ -14,16 +14,11 @@ public abstract class WhenMessageReceivedFixture : IAsyncLifetime
     private readonly SqsQueueOptions _sqsQueueOptions;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
-    protected WhenMessageReceivedFixture(IMediator mediator, ISqsQueuePublisher sqsQueuePublisher, ISqsQueueConsumer sqsQueueConsumer, SqsQueueOptions sqsQueueOptions, ILoggerFactory loggerFactory)
+    protected WhenMessageReceivedFixture(IMediator mediator, ISqsQueuePublisher sqsQueuePublisher, ISqsQueueConsumer sqsQueueConsumer, SqsQueueOptions sqsQueueOptions, FeatureCompareMessagingOptions messagingOptions, ILoggerFactory loggerFactory)
     {
         _sqsQueuePublisher = sqsQueuePublisher;
         _sqsQueueOptions = sqsQueueOptions;
-
-        _messagingOptions = new FeatureCompareMessagingOptions
-        {
-            RequestQueueUrl = "request.fifo",
-            ResponseQueueUrl = "response.fifo"
-        };
+        _messagingOptions = messagingOptions;
 
         _backgroundService = new FeatureCompareMessageConsumer(
             mediator,
