@@ -25,8 +25,7 @@ public class DownloadController : ControllerBase
     {
         _mediator = mediator;
     }
-
-    [AllowAnonymous]
+    
     [HttpGet("for-editor")]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
@@ -41,8 +40,7 @@ public class DownloadController : ControllerBase
             return new StatusCodeResult((int)ex.HttpStatusCode);
         }
     }
-
-    [AllowAnonymous]
+    
     [HttpGet("for-product/{date}")]
     public async Task<IActionResult> Get(string date, CancellationToken cancellationToken)
     {
