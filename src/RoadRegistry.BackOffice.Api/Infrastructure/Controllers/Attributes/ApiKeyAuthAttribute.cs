@@ -30,29 +30,26 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
         var sp = context.HttpContext.RequestServices;
         var authenticationFeatureToggle = sp.GetRequiredService<UseApiKeyAuthenticationFeatureToggle>();
 
-        if (authenticationFeatureToggle.FeatureEnabled)
+        if (authenticationFeatureToggle.FeatureEnabled && !context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any())
         {
-            if (!context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any())
+            var apiToken = context.GetValueFromHeader(ApiTokenHeaderName);
+            if (apiToken is not null)
             {
-                var apiToken = context.GetValueFromHeader(ApiTokenHeaderName);
-                if (apiToken is not null)
-                {
-                    var bytes = Convert.FromBase64String(apiToken);
-                    var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+                var bytes = Convert.FromBase64String(apiToken);
+                var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
 
-                    await OnAuthorizationTokenAsync(context, JsonConvert.DeserializeObject<ApiToken>(json));
-                    return;
-                }
-
-                var apiKey = context.GetValueFromHeader(ApiKeyHeaderName) ?? context.GetValueFromQueryString(ApiKeyQueryName);
-                if (apiKey is not null)
-                {
-                    await OnAuthorizationKeyAsync(context, apiKey);
-                    return;
-                }
-
-                throw RefuseAccess(context);
+                await OnAuthorizationTokenAsync(context, JsonConvert.DeserializeObject<ApiToken>(json));
+                return;
             }
+
+            var apiKey = context.GetValueFromHeader(ApiKeyHeaderName) ?? context.GetValueFromQueryString(ApiKeyQueryName);
+            if (apiKey is not null)
+            {
+                await OnAuthorizationKeyAsync(context, apiKey);
+                return;
+            }
+
+            throw RefuseAccess(context);
         }
     }
 
