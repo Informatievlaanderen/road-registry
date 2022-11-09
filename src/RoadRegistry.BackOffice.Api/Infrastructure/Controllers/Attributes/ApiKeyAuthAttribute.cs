@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
@@ -24,6 +25,12 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
     private const string ApiKeyHeaderName = "x-api-key";
     private const string ApiKeyQueryName = "apikey";
     private const string ApiTokenHeaderName = "x-api-token";
+    private readonly WellKnownAuthRoles _requiredAccess;
+
+    public ApiKeyAuthAttribute(WellKnownAuthRoles requiredAccess)
+    {
+        _requiredAccess = requiredAccess;
+    }
 
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
@@ -63,7 +70,15 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
     {
         var apiToken = await callback();
 
-        if (!apiToken.Metadata.WrAccess)
+        var hasAccess = _requiredAccess switch
+        {
+            WellKnownAuthRoles.Road => apiToken.Metadata.WrAccess,
+            WellKnownAuthRoles.Sync => apiToken.Metadata.SyncAccess,
+            WellKnownAuthRoles.Tickets => apiToken.Metadata.TicketsAccess,
+            _ => false
+        };
+
+        if (apiToken.Revoked || !hasAccess)
         {
             throw RefuseAccess(context);
         }
@@ -81,7 +96,10 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
             {
                 nameof(ApiToken.ApiKey),
                 nameof(ApiToken.ClientName),
-                nameof(ApiTokenMetadata.WrAccess)
+                nameof(ApiToken.Revoked),
+                nameof(ApiTokenMetadata.WrAccess),
+                nameof(ApiTokenMetadata.SyncAccess),
+                "Tickets"
             },
             ConsistentRead = true
         };
@@ -93,12 +111,23 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
             throw RefuseAccess(context);
         }
 
+        response.Item.TryGetValue(nameof(ApiToken.ClientName), out var clientName);
+        response.Item.TryGetValue(nameof(ApiToken.Revoked), out var revoked);
+        response.Item.TryGetValue(nameof(ApiTokenMetadata.WrAccess), out var wrAccess);
+        response.Item.TryGetValue(nameof(ApiTokenMetadata.SyncAccess), out var syncAccess);
+        response.Item.TryGetValue("Tickets", out var ticketAccess);
+
         return new ApiToken(
-            response.Item.Keys.First(),
-            response.Item.Values.ElementAt(2).S,
+            apiKey,
+            clientName?.S ?? "",
             new ApiTokenMetadata(
-                response.Item.Values.ElementAt(1).BOOL)
-        );
+                wrAccess?.BOOL ?? false,
+                syncAccess?.BOOL ?? false,
+                ticketAccess?.BOOL ?? false)
+        )
+        {
+            Revoked = revoked?.BOOL ?? false
+        };
     }
 
     private static ApiException RefuseAccess(AuthorizationFilterContext context)
@@ -107,7 +136,11 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
         return new ApiException("Geen geldige API key.", StatusCodes.Status401Unauthorized);
     }
 
-    internal record ApiToken([JsonProperty("apikey")] string ApiKey, [JsonProperty("clientname")] string ClientName, [JsonProperty("metadata")] ApiTokenMetadata Metadata);
+    internal record ApiToken([JsonProperty("apikey")] string ApiKey, [JsonProperty("clientname")] string ClientName, [JsonProperty("metadata")] ApiTokenMetadata Metadata)
+    {
+        [JsonIgnore]
+        public bool Revoked { get; set; }
+    };
 
     internal record ApiTokenMetadata([JsonProperty("wraccess")] bool WrAccess, [JsonProperty("syncaccess")] bool SyncAccess = false, [JsonProperty("ticketsaccess")] bool TicketsAccess = false);
 }
