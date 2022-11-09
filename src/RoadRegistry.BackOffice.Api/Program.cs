@@ -128,8 +128,8 @@ public class Program
                             builder
                                 .AddSingleton(new AmazonDynamoDBClient(
                                     new BasicAWSCredentials(
-                                        dynamoDbClientOptions.AwsAccessKeyId,
-                                        dynamoDbClientOptions.AwsSecretAccessKey),
+                                        dynamoDbClientOptions.AccessKeyId,
+                                        dynamoDbClientOptions.AccessKeySecret),
                                     RegionEndpoint.EUWest1
                                 ));
                         }

@@ -1,10 +1,11 @@
 namespace RoadRegistry.BackOffice.Abstractions.Configuration;
 
+using Amazon;
+
 public class DynamoDbClientOptions
 {
     public const string ConfigurationKey = "DynamoDbClientOptions";
-    public string AwsAccessKeyId { get; set; }
-    public string AwsSecretAccessKey { get; set; }
-    public string Region { get; set; }
+    public string AccessKeyId { get; set; }
+    public string AccessKeySecret { get; set; }
     public string ServerUrl { get; set; }
 }
