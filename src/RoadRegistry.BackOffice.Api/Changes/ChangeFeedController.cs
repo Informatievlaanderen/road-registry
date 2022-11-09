@@ -23,7 +23,7 @@ using NodaTime.Text;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("changefeed")]
 [ApiExplorerSettings(GroupName = "ChangeFeed")]
-[ApiKeyAuth("Road")]
+[ApiKeyAuth]
 public class ChangeFeedController : ControllerBase
 {
     private readonly LocalDatePattern _localMonthPattern;

@@ -5,7 +5,9 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Abstractions;
+using Abstractions.Configuration;
 using Amazon;
+using Amazon.DynamoDBv2;
 using Amazon.Runtime;
 using Amazon.S3;
 using BackOffice.Extracts;
@@ -116,6 +118,30 @@ public class Program
                             );
                         }
 
+                        var dynamoDbClientOptions = new DynamoDbClientOptions();
+                        hostContext.Configuration.GetSection(DynamoDbClientOptions.ConfigurationKey).Bind(dynamoDbClientOptions);
+
+                        if (dynamoDbClientOptions.ServerUrl is null)
+                        {
+                            builder
+                                .AddSingleton(new AmazonDynamoDBClient(
+                                    new BasicAWSCredentials(
+                                        dynamoDbClientOptions.AwsAccessKeyId,
+                                        dynamoDbClientOptions.AwsSecretAccessKey),
+                                    RegionEndpoint.EUWest1
+                                ));
+                        }
+                        else
+                        {
+                            builder
+                                .AddSingleton(new AmazonDynamoDBClient(
+                                    new AmazonDynamoDBConfig()
+                                    {
+                                        ServiceURL = dynamoDbClientOptions.ServerUrl,
+                                    }
+                                ));
+                        }
+
                         builder
                             .AddSingleton(sp =>
                                 new RoadNetworkUploadsBlobClient(new S3BlobClient(
@@ -187,7 +213,7 @@ public class Program
                         new MsSqlStreamStoreV3(
                             new MsSqlStreamStoreV3Settings(
                                     hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events))
-                                { Schema = WellknownSchemas.EventSchema }))
+                            { Schema = WellknownSchemas.EventSchema }))
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new WKTReader(
                         new NtsGeometryServices(

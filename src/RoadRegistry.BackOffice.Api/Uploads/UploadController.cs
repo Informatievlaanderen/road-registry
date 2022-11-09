@@ -22,7 +22,7 @@ using Version = Infrastructure.Version;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("upload")]
 [ApiExplorerSettings(GroupName = "Uploads")]
-[ApiKeyAuth("Road")]
+[ApiKeyAuth]
 public class UploadController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Information;
 
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Information;
 using Be.Vlaanderen.Basisregisters.Api;
 using Editor.Schema;
@@ -11,14 +9,14 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("information")]
 [ApiExplorerSettings(GroupName = "Information")]
-[ApiKeyAuth("Road")]
+[ApiKeyAuth]
 public class InformationController : ControllerBase
 {
     private readonly IMediator _mediator;

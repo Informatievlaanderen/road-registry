@@ -5,6 +5,7 @@ Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 
+AWSSDK.DynamoDBv2
 Ductus.FluentDocker
 DotSpatial.Projections
 FeatureToggle.Common
@@ -14,6 +15,7 @@ MessagePack
 Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.Abstractions
 Microsoft.Extensions.Configuration.Binder
+Microsoft.Extensions.Logging.Abstractions
 Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens
 Microsoft.IdentityModel.Logging

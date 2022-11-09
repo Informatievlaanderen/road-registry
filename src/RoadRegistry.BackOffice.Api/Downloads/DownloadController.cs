@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("download")]
 [ApiExplorerSettings(GroupName = "Downloads")]
-[ApiKeyAuth("Road")]
+[ApiKeyAuth]
 public class DownloadController : ControllerBase
 {
     private readonly IMediator _mediator;
