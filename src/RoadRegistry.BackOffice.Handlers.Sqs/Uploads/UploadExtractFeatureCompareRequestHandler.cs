@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Uploads;
 
 using System.IO.Compression;
 using Abstractions;
+using Abstractions.Configuration;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Extracts;
@@ -26,17 +27,20 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         ContentType.Parse("application/x-zip-compressed")
     };
 
+    private readonly FeatureCompareMessagingOptions _messagingOptions;
     private readonly RoadNetworkFeatureCompareBlobClient _client;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
     private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
 
     public UploadExtractFeatureCompareRequestHandler(
+        FeatureCompareMessagingOptions messagingOptions,
         CommandHandlerDispatcher dispatcher,
         RoadNetworkFeatureCompareBlobClient client,
         ISqsQueuePublisher sqsQueuePublisher,
         IZipArchiveBeforeFeatureCompareValidator validator,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
+        _messagingOptions = messagingOptions;
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
         _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
@@ -83,7 +87,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 ArchiveId = archiveId.ToString()
             };
 
-            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.FeatureCompare.RequestQueue, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
+            await _sqsQueuePublisher.CopyToQueue(_messagingOptions.RequestQueueUrl, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
         }
 
         return new UploadExtractFeatureCompareResponse(archiveId);

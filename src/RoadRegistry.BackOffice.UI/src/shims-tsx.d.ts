@@ -9,13 +9,19 @@ declare global {
     }
   }
 
+  class FeatureToggles {
+    useFeatureCompare: boolean
+  }
+
   interface Window { 
     API_VERSION: string;
     API_ENDPOINT: string;
-    API_OLDENDPOINT:string;
+    API_OLDENDPOINT: string;
+    featureToggles: FeatureToggles;
   }
 }
 
 window.API_VERSION = window.API_VERSION || "";
 window.API_ENDPOINT = window.API_ENDPOINT || "";
 window.API_OLDENDPOINT = window.API_OLDENDPOINT || "";
+window.featureToggles = window.featureToggles || {};

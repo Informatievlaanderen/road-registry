@@ -19,6 +19,7 @@ using NetTopologySuite.IO;
 using NodaTime;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.BackOffice.Abstractions.Configuration;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
@@ -83,6 +84,12 @@ public abstract class TestStartup
                     .AddSingleton(new ZipArchiveWriterOptions())
                     .AddSingleton(new ExtractDownloadsOptions())
                     .AddSingleton(new ExtractUploadsOptions())
+                    .AddSingleton(new FeatureCompareMessagingOptions
+                    {
+                        DockerQueueUrl = "docker.fifo",
+                        RequestQueueUrl = "request.fifo",
+                        ResponseQueueUrl = "response.fifo"
+                    })
                     //.AddSingleton<SqsOptions>(_ => new SqsOptions("", "", RegionEndpoint.EUWest1))
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
                     .AddTransient<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))

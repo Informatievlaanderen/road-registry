@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
 using Abstractions;
+using Abstractions.Configuration;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using BackOffice.Extracts;
@@ -29,17 +30,20 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         ContentType.Parse("application/x-zip-compressed")
     };
 
+    private readonly FeatureCompareMessagingOptions _messagingOptions;
     private readonly RoadNetworkExtractUploadsBlobClient _client;
     private readonly EditorContext _context;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
     public UploadExtractFeatureCompareRequestHandler(
+        FeatureCompareMessagingOptions messagingOptions,
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
         EditorContext context,
         ISqsQueuePublisher sqsQueuePublisher,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
+        _messagingOptions = messagingOptions;
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
         _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
@@ -79,7 +83,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 ArchiveId = archiveId.ToString()
             };
 
-            await _sqsQueuePublisher.CopyToQueue(SqsQueueName.FeatureCompare.RequestQueue, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
+            await _sqsQueuePublisher.CopyToQueue(_messagingOptions.RequestQueueUrl, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
 
             return new UploadExtractResponse(uploadId);
         }

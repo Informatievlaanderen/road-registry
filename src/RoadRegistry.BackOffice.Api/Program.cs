@@ -20,6 +20,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Core;
@@ -37,6 +38,7 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Abstractions.Configuration;
 using Serilog;
 using SqlStreamStore;
 using Syndication.Schema;
@@ -192,23 +194,22 @@ public class Program
                 hostContext.Configuration.GetSection(nameof(ExtractDownloadsOptions)).Bind(extractDownloadsOptions);
                 var extractUploadsOptions = new ExtractUploadsOptions();
                 hostContext.Configuration.GetSection(nameof(ExtractUploadsOptions)).Bind(extractDownloadsOptions);
-
-                var sqsOptions = new SqsOptions();
-                hostContext.Configuration.GetSection(nameof(SqsOptions)).Bind(sqsOptions);
+                
+                var featureCompareMessagingOptions = new FeatureCompareMessagingOptions();
+                hostContext.Configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
 
                 builder
-                    .AddSingleton<ISqsQueuePublisher>(sp =>
-                        new SqsQueuePublisher(sqsOptions, sp.GetService<ILogger<SqsQueuePublisher>>())
-                    )
-                    .AddSingleton<IZipArchiveBeforeFeatureCompareValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
-                    .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8));
+                    .AddSingleton(new SqsOptions(RegionEndpoint.EUWest1, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
+                    .AddSingleton<ISqsQueuePublisher, SqsQueuePublisher>()
+                    .AddSingleton<IZipArchiveBeforeFeatureCompareValidator>(new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
+                    .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8));
 
                 builder
                     .AddSingleton<ProblemDetailsHelper>()
                     .AddSingleton(zipArchiveWriterOptions)
                     .AddSingleton(extractDownloadsOptions)
                     .AddSingleton(extractUploadsOptions)
-                    .AddSingleton(sqsOptions)
+                    .AddSingleton(featureCompareMessagingOptions)
                     .AddSingleton<IStreamStore>(sp =>
                         new MsSqlStreamStoreV3(
                             new MsSqlStreamStoreV3Settings(

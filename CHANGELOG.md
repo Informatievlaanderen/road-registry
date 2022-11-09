@@ -1,3 +1,10 @@
+## [3.20.2](https://github.com/informatievlaanderen/road-registry/compare/v3.20.1...v3.20.2) (2022-11-08)
+
+
+### Bug Fixes
+
+* Use SQS queue url instead of name when publishing ([09b08da](https://github.com/informatievlaanderen/road-registry/commit/09b08da9d03f970030d6cdb3efa89f81a0ae7a1b))
+
 ## [3.20.1](https://github.com/informatievlaanderen/road-registry/compare/v3.20.0...v3.20.1) (2022-11-08)
 
 

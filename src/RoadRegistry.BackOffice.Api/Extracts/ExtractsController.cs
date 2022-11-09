@@ -34,7 +34,6 @@ public class ExtractsController : ControllerBase
         _mediator = mediator;
     }
 
-    [AllowAnonymous]
     [HttpGet("download/{downloadId}")]
     public async Task<ActionResult> GetDownload(
         [FromRoute] string downloadId,
