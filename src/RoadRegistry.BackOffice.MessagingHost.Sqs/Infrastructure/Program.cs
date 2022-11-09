@@ -16,6 +16,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Consumers;
 using Core;
@@ -102,8 +103,6 @@ public class Program
             {
                 AddBlobClients(services, hostContext.Configuration);
                 
-                var sqsOptions = new SqsOptions();
-                hostContext.Configuration.GetSection(nameof(SqsOptions)).Bind(sqsOptions);
                 var featureCompareMessagingOptions = new FeatureCompareMessagingOptions();
                 hostContext.Configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
                 
@@ -117,8 +116,9 @@ public class Program
                      *
                      */
                     .AddSingleton<Scheduler>()
-                    .AddTransient<ISqsQueueConsumer>(sp => new SqsQueueConsumer(sqsOptions, sp.GetRequiredService<ILogger<SqsQueueConsumer>>()))
-                    .AddTransient<ISqsQueuePublisher>(sp => new SqsQueuePublisher(sqsOptions, sp.GetRequiredService<ILogger<SqsQueuePublisher>>()))
+                    .AddSingleton(new SqsOptions(RegionEndpoint.EUWest1, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
+                    .AddSingleton<ISqsQueueConsumer, SqsQueueConsumer>()
+                    .AddSingleton<ISqsQueuePublisher, SqsQueuePublisher>()
                     .AddSingleton<IStreamStore>(sp =>
                         new MsSqlStreamStoreV3(
                             new MsSqlStreamStoreV3Settings(
@@ -165,8 +165,7 @@ public class Program
                                 sp.GetService<IClock>()
                             )
                         })))
-                    .AddSingleton(featureCompareMessagingOptions)
-                    .AddSingleton(sqsOptions);
+                    .AddSingleton(featureCompareMessagingOptions);
                 _serviceCollection = services;
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
