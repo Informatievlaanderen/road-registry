@@ -55,8 +55,11 @@
                           ].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        <vl-button @click="downloadUpload(activity)">
-                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        <vl-button v-if="isDownloading" mod-loading>
+                          Download...
+                        </vl-button>
+                        <vl-button v-else @click="downloadUpload(activity)">
+                          Download
                         </vl-button>
                       </div>
                       <div
@@ -64,8 +67,11 @@
                           ['RoadNetworkExtractDownloadBecameAvailable'].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        <vl-button @click="downloadExtract(activity)">
-                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        <vl-button v-if="isDownloading" mod-loading>
+                          Download...
+                        </vl-button>
+                        <vl-button v-else @click="downloadExtract(activity)">
+                          Download
                         </vl-button>
                       </div>
 
@@ -89,8 +95,11 @@
                           <ActivityProblems :problems="file.problems" />
                           <br />
                         </div>
-                        <vl-button @click="downloadUpload(activity)">
-                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        <vl-button v-if="isDownloading" mod-loading>
+                          Download...
+                        </vl-button>
+                        <vl-button v-else @click="downloadUpload(activity)">
+                          Download
                         </vl-button>
                       </div>
                       <div
@@ -195,8 +204,11 @@
                           <ActivityProblems :problems="change.problems" />
                           <br />
                         </div>
-                        <vl-button @click="downloadUpload(activity)">
-                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        <vl-button v-if="isDownloading" mod-loading>
+                          Download...
+                        </vl-button>
+                        <vl-button v-else @click="downloadUpload(activity)">
+                          Download
                         </vl-button>
                       </div>
                       <div v-else-if="['RoadNetworkChangesRejected'].some((x) => x === activity.changeFeedEntry.type)">
@@ -207,8 +219,11 @@
                           <ActivityProblems :problems="change.problems" />
                           <br />
                         </div>
-                        <vl-button @click="downloadUpload(activity)">
-                          Download {{ activity.changeFeedContent.content.archive.filename }}
+                        <vl-button v-if="isDownloading" mod-loading>
+                          Download...
+                        </vl-button>
+                        <vl-button v-else @click="downloadUpload(activity)">
+                          Download
                         </vl-button>
                       </div>
                       <div v-else>
@@ -265,6 +280,7 @@ export default Vue.extend({
         pageSize: 25,
         isLoading: false,
       },
+      isDownloading: false,
     };
   },
   async mounted() {
@@ -280,11 +296,21 @@ export default Vue.extend({
       this.activities = this.activities.concat(response.entries.map((entry) => new Activity(entry)));
       this.pagination.isLoading = false;
     },
-    async downloadUpload(activity: any) {
-      await BackOfficeApi.Uploads.download(activity.changeFeedContent.content.archive.id);
+    async downloadUpload(activity: any): Promise<void> {
+      this.isDownloading = true;
+      try {
+        await BackOfficeApi.Uploads.download(activity.changeFeedContent.content.archive.id);
+      } finally {
+        this.isDownloading = false;
+      }
     },
-    async downloadExtract(activity: any) {
-      await BackOfficeApi.Extracts.download(activity.changeFeedContent.content.archive.id);
+    async downloadExtract(activity: any): Promise<void> {
+      this.isDownloading = true;
+      try {
+        await BackOfficeApi.Extracts.download(activity.changeFeedContent.content.archive.id);
+      } finally {
+        this.isDownloading = false;
+      }
     },
   },
 });
