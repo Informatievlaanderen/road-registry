@@ -67,10 +67,10 @@ public class CheckFeatureCompareDockerContainerMessageRequestHandler : SqsMessag
                 }
 
                 // Publish message from one queue to another
-                var sqsQueueName = SqsQueue.ParseQueueNameFromQueueUrl(_messagingOptions.DockerQueueUrl);
+                var sqsQueueUrl = _messagingOptions.DockerQueueUrl;
 
-                _logger.LogInformation("Attempting to publish message onto queue: {sqsQueueName}", sqsQueueName);
-                await _sqsQueuePublisher.CopyToQueue(sqsQueueName, message, new SqsQueueOptions(), cancellationToken);
+                _logger.LogInformation("Attempting to publish message onto queue: {sqsQueueUrl}", sqsQueueUrl);
+                await _sqsQueuePublisher.CopyToQueue(sqsQueueUrl, message, new SqsQueueOptions(), cancellationToken);
 
                 // Cancel the cancellation token so we don't get stuck inside the consumer loop
                 cancellationTokenSource.Cancel();
