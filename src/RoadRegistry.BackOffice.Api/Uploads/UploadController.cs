@@ -32,7 +32,6 @@ public class UploadController : ControllerBase
         _mediator = mediator;
     }
 
-    [AllowAnonymous]
     [HttpGet("{identifier}")]
     public async Task<IActionResult> Get(string identifier, CancellationToken cancellationToken)
     {

@@ -45,6 +45,7 @@
                 <div class="vl-step__content-wrapper" v-if="activity.isContentVisible">
                   <div class="vl-step__content">
                     <div v-if="activity.changeFeedContent">
+                      <br />
                       <div
                         v-if="
                           [
@@ -54,20 +55,18 @@
                           ].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        Archief:
-                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">
+                        <vl-button @click="downloadUpload(activity)">
                           Download {{ activity.changeFeedContent.content.archive.filename }}
-                        </vl-link>
+                        </vl-button>
                       </div>
                       <div
                         v-else-if="
                           ['RoadNetworkExtractDownloadBecameAvailable'].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
-                        Archief:
-                        <vl-link :href="'/roads/v1/extracts/download/' + activity.changeFeedContent.content.archive.id">
+                        <vl-button @click="downloadExtract(activity)">
                           Download {{ activity.changeFeedContent.content.archive.filename }}
-                        </vl-link>
+                        </vl-button>
                       </div>
 
                       <div
@@ -90,9 +89,9 @@
                           <ActivityProblems :problems="file.problems" />
                           <br />
                         </div>
-                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">
+                        <vl-button @click="downloadUpload(activity)">
                           Download {{ activity.changeFeedContent.content.archive.filename }}
-                        </vl-link>
+                        </vl-button>
                       </div>
                       <div
                         v-else-if="['RoadNetworkChangesAccepted:v2'].some((x) => x === activity.changeFeedEntry.type)"
@@ -196,9 +195,9 @@
                           <ActivityProblems :problems="change.problems" />
                           <br />
                         </div>
-                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">
+                        <vl-button @click="downloadUpload(activity)">
                           Download {{ activity.changeFeedContent.content.archive.filename }}
-                        </vl-link>
+                        </vl-button>
                       </div>
                       <div v-else-if="['RoadNetworkChangesRejected'].some((x) => x === activity.changeFeedEntry.type)">
                         <div v-for="change in activity.changeFeedContent.content.changes" :key="change.change">
@@ -208,9 +207,9 @@
                           <ActivityProblems :problems="change.problems" />
                           <br />
                         </div>
-                        <vl-link :href="'/roads/v1/upload/' + activity.changeFeedContent.content.archive.id">
+                        <vl-button @click="downloadUpload(activity)">
                           Download {{ activity.changeFeedContent.content.archive.filename }}
-                        </vl-link>
+                        </vl-button>
                       </div>
                       <div v-else>
                         {{ activity.changeFeedContent }}
@@ -251,7 +250,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { PublicApi } from "../../../services";
+import { BackOfficeApi, PublicApi } from "../../../services";
 import RoadRegistry from "../../../types/road-registry";
 import ActivityProblems from "../components/ActivityProblems.vue";
 
@@ -280,6 +279,12 @@ export default Vue.extend({
       var response = await PublicApi.ChangeFeed.getPrevious(currentEntry, this.pagination.pageSize);
       this.activities = this.activities.concat(response.entries.map((entry) => new Activity(entry)));
       this.pagination.isLoading = false;
+    },
+    async downloadUpload(activity: any) {
+      await BackOfficeApi.Uploads.download(activity.changeFeedContent.content.archive.id);
+    },
+    async downloadExtract(activity: any) {
+      await BackOfficeApi.Extracts.download(activity.changeFeedContent.content.archive.id);
     },
   },
 });
