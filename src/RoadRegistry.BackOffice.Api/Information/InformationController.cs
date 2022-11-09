@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("information")]
 [ApiExplorerSettings(GroupName = "Information")]
-[ApiKeyAuth]
+[ApiKeyAuth(WellKnownAuthRoles.Road)]
 public class InformationController : ControllerBase
 {
     private readonly IMediator _mediator;
