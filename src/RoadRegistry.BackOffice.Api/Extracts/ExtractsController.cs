@@ -24,7 +24,7 @@ using Version = Infrastructure.Version;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("extracts")]
 [ApiExplorerSettings(GroupName = "Extracts")]
-[ApiKeyAuth("Road")]
+[ApiKeyAuth]
 public class ExtractsController : ControllerBase
 {
     private readonly IMediator _mediator;
