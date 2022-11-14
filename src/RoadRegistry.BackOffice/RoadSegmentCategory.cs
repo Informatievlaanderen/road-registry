@@ -223,6 +223,11 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 
     public DutchTranslation Translation { get; }
 
+    public override bool Equals(object obj)
+    {
+        return obj is RoadSegmentCategory type && Equals(type);
+    }
+
     public bool Equals(RoadSegmentCategory other)
     {
         return other != null && other._value == _value;
@@ -233,11 +238,6 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
         if (value == null) throw new ArgumentNullException(nameof(value));
 
         return Array.Find(All, candidate => candidate._value == value) != null;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is RoadSegmentCategory type && Equals(type);
     }
 
     public override int GetHashCode()

@@ -15,6 +15,11 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
     public IReadOnlyCollection<ProblemParameter> Parameters { get; }
     public string Reason { get; }
 
+    public override bool Equals(object obj)
+    {
+        return obj is Problem other && Equals(other);
+    }
+
     public bool Equals(Problem x, Problem y)
     {
         if (ReferenceEquals(x, y)) return true;
@@ -36,21 +41,16 @@ public abstract class Problem : IEquatable<Problem>, IEqualityComparer<Problem>
                && Parameters.SequenceEqual(other.Parameters);
     }
 
-    public int GetHashCode(Problem obj)
-    {
-        return HashCode.Combine(obj.Reason, obj.Parameters);
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is Problem other && Equals(other);
-    }
-
     public override int GetHashCode()
     {
         return Parameters.Aggregate(
             Reason.GetHashCode(),
             (current, parameter) => current ^ parameter.GetHashCode());
+    }
+
+    public int GetHashCode(Problem obj)
+    {
+        return HashCode.Combine(obj.Reason, obj.Parameters);
     }
 
     public abstract Messages.Problem Translate();

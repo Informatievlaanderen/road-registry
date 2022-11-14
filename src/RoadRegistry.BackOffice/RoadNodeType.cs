@@ -71,14 +71,12 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
 
     public DutchTranslation Translation { get; }
 
-    public bool Equals(RoadNodeType other)
-    {
-        return other != null && other._value == _value;
-    }
-
     public static bool CanParse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
 
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
@@ -88,6 +86,11 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
         return obj is RoadNodeType type && Equals(type);
     }
 
+    public bool Equals(RoadNodeType other)
+    {
+        return other != null && other._value == _value;
+    }
+
     public override int GetHashCode()
     {
         return _value.GetHashCode();
@@ -95,7 +98,10 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
 
     public bool IsAnyOf(params RoadNodeType[] types)
     {
-        if (types == null) throw new ArgumentNullException(nameof(types));
+        if (types == null)
+        {
+            throw new ArgumentNullException(nameof(types));
+        }
 
         return types.Contains(this);
     }
@@ -117,9 +123,16 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
 
     public static RoadNodeType Parse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
 
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road node type.");
+        if (!TryParse(value, out var parsed))
+        {
+            throw new FormatException($"The value {value} is not a well known road node type.");
+        }
+
         return parsed;
     }
 
@@ -130,7 +143,10 @@ public sealed class RoadNodeType : IEquatable<RoadNodeType>
 
     public static bool TryParse(string value, out RoadNodeType parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (value == null)
+        {
+            throw new ArgumentNullException(nameof(value));
+        }
 
         parsed = Array.Find(All, candidate => candidate._value == value);
         return parsed != null;

@@ -56,6 +56,11 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
 
     public DutchTranslation Translation { get; }
 
+    public override bool Equals(object obj)
+    {
+        return obj is RoadSegmentGeometryDrawMethod type && Equals(type);
+    }
+
     public bool Equals(RoadSegmentGeometryDrawMethod other)
     {
         return other != null && other._value == _value;
@@ -66,11 +71,6 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         if (value == null) throw new ArgumentNullException(nameof(value));
 
         return Array.Find(All, candidate => candidate._value == value) != null;
-    }
-
-    public override bool Equals(object obj)
-    {
-        return obj is RoadSegmentGeometryDrawMethod type && Equals(type);
     }
 
     public override int GetHashCode()
