@@ -1,3 +1,12 @@
+## [3.21.1](https://github.com/informatievlaanderen/road-registry/compare/v3.21.0...v3.21.1) (2022-11-14)
+
+
+### Bug Fixes
+
+* ApiKeyAuth visibility with incorrect incoming api token ([b84575c](https://github.com/informatievlaanderen/road-registry/commit/b84575c38b1e08d296af0d9bf8ecf31377a2bfb6))
+* Development settings ([9fa7f08](https://github.com/informatievlaanderen/road-registry/commit/9fa7f089f7b0e17b408085534a496dd8398ede46))
+* Incorrect header translation ([ee54c34](https://github.com/informatievlaanderen/road-registry/commit/ee54c34d8ec913a7e7249f0fae6a25af64406b86))
+
 # [3.21.0](https://github.com/informatievlaanderen/road-registry/compare/v3.20.2...v3.21.0) (2022-11-14)
 
 
