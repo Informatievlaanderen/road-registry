@@ -1,23 +1,21 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Extensions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
-using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using Extensions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Polly;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
@@ -36,12 +34,15 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
     {
         var sp = context.HttpContext.RequestServices;
         var authenticationFeatureToggle = sp.GetRequiredService<UseApiKeyAuthenticationFeatureToggle>();
+        var logger = sp.GetRequiredService<ILogger<ApiKeyAuthAttribute>>();
 
         if (authenticationFeatureToggle.FeatureEnabled && !context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any())
         {
             var apiToken = context.GetValueFromHeader(ApiTokenHeaderName);
-            if (apiToken is not null)
+            if (!string.IsNullOrEmpty(apiToken))
             {
+                logger.LogInformation("Detected passed API token: {ApiToken}", apiToken);
+
                 var bytes = Convert.FromBase64String(apiToken);
                 var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
 
@@ -50,12 +51,15 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
             }
 
             var apiKey = context.GetValueFromHeader(ApiKeyHeaderName) ?? context.GetValueFromQueryString(ApiKeyQueryName);
-            if (apiKey is not null)
+            if (!string.IsNullOrEmpty(apiKey))
             {
+                logger.LogInformation("Detected passed API key: {ApiKey}", apiKey);
+
                 await OnAuthorizationKeyAsync(context, apiKey);
                 return;
             }
 
+            logger.LogWarning("Could not detect any token or key header for authorization");
             throw RefuseAccess(context);
         }
     }
@@ -136,11 +140,26 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
         return new ApiException("Geen geldige API key.", StatusCodes.Status401Unauthorized);
     }
 
-    internal record ApiToken([JsonProperty("apikey")] string ApiKey, [JsonProperty("clientname")] string ClientName, [JsonProperty("metadata")] ApiTokenMetadata Metadata)
+    public record ApiToken([JsonProperty("apikey")] string ApiKey, [JsonProperty("clientname")] string ClientName, [JsonProperty("metadata")] ApiTokenMetadata Metadata)
     {
         [JsonIgnore]
         public bool Revoked { get; set; }
+
+        public static ApiToken FromBase64String(string s)
+        {
+            var bytes = Convert.FromBase64String(s);
+            var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+            return JsonConvert.DeserializeObject<ApiToken>(json, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+        }
+
+        public string ToBase64String() => ApiToken.ToBase64String(this);
+
+        public static string ToBase64String(ApiToken apiToken)
+        {
+            var serializedApiToken = JsonConvert.SerializeObject(apiToken, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(serializedApiToken));
+        }
     };
 
-    internal record ApiTokenMetadata([JsonProperty("wraccess")] bool WrAccess, [JsonProperty("syncaccess")] bool SyncAccess = false, [JsonProperty("ticketsaccess")] bool TicketsAccess = false);
+    public record ApiTokenMetadata([JsonProperty("wraccess")] bool WrAccess, [JsonProperty("syncaccess")] bool SyncAccess = false, [JsonProperty("ticketsaccess")] bool TicketsAccess = false);
 }
