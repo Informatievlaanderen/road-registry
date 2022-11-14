@@ -1,21 +1,27 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
+using Amazon.Runtime.Internal.Util;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Polly;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
@@ -38,17 +44,14 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
 
         if (authenticationFeatureToggle.FeatureEnabled && !context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any())
         {
-            var apiToken = context.GetValueFromHeader(ApiTokenHeaderName);
-            if (!string.IsNullOrEmpty(apiToken))
+            if (context.HttpContext.Request.Headers.TryGetValue(ApiTokenHeaderName, out var apiTokens))
             {
-                logger.LogInformation("Detected passed API token: {ApiToken}", apiToken);
+                var apiToken = apiTokens.FirstOrDefault()
+                    ?? throw RefuseAccess(context);
 
-                var bytes = Convert.FromBase64String(apiToken);
-                var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-
-                await OnAuthorizationTokenAsync(context, JsonConvert.DeserializeObject<ApiToken>(json));
+                await OnAuthorizationTokenAsync(context, ApiToken.FromBase64String(apiToken));
                 return;
-            }
+            }     
 
             var apiKey = context.GetValueFromHeader(ApiKeyHeaderName) ?? context.GetValueFromQueryString(ApiKeyQueryName);
             if (!string.IsNullOrEmpty(apiKey))
@@ -148,15 +151,15 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
         public static ApiToken FromBase64String(string s)
         {
             var bytes = Convert.FromBase64String(s);
-            var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-            return JsonConvert.DeserializeObject<ApiToken>(json, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+            var json = Encoding.UTF8.GetString(bytes);
+            return JsonConvert.DeserializeObject<ApiToken>(json);
         }
 
         public string ToBase64String() => ApiToken.ToBase64String(this);
 
         public static string ToBase64String(ApiToken apiToken)
         {
-            var serializedApiToken = JsonConvert.SerializeObject(apiToken, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+            var serializedApiToken = JsonConvert.SerializeObject(apiToken);
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(serializedApiToken));
         }
     };
