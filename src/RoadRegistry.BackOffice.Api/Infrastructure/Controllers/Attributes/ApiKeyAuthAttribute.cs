@@ -1,130 +1,168 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
+using Amazon.Runtime.Internal.Util;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Polly;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class ApiKeyAuthAttribute : Attribute, IAsyncActionFilter
+public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
 {
     private const string ApiKeyHeaderName = "x-api-key";
     private const string ApiKeyQueryName = "apikey";
     private const string ApiTokenHeaderName = "x-api-token";
-    private readonly string _requiredAccess;
+    private readonly WellKnownAuthRoles _requiredAccess;
 
-    public ApiKeyAuthAttribute(string requiredAccess)
+    public ApiKeyAuthAttribute(WellKnownAuthRoles requiredAccess)
     {
         _requiredAccess = requiredAccess;
     }
 
-    public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var sp = context.HttpContext.RequestServices;
         var authenticationFeatureToggle = sp.GetRequiredService<UseApiKeyAuthenticationFeatureToggle>();
+        var logger = sp.GetRequiredService<ILogger<ApiKeyAuthAttribute>>();
 
-        if (context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any() || !authenticationFeatureToggle.FeatureEnabled)
+        if (authenticationFeatureToggle.FeatureEnabled && !context.ActionDescriptor.EndpointMetadata.OfType<AllowAnonymousAttribute>().Any())
         {
-            await next();
-            return;
-        }
+            if (context.HttpContext.Request.Headers.TryGetValue(ApiTokenHeaderName, out var apiTokens))
+            {
+                var apiToken = apiTokens.FirstOrDefault()
+                    ?? throw RefuseAccess(context);
 
-        if (context.HttpContext.Request.Headers.ContainsKey(ApiTokenHeaderName))
-        {
-            await OnActionExecutionApiTokenAsync(context, next);
-            return;
-        }
+                await OnAuthorizationTokenAsync(context, ApiToken.FromBase64String(apiToken));
+                return;
+            }     
 
-        await OnActionExecutionApiKeyAsync(context, next);
+            var apiKey = context.GetValueFromHeader(ApiKeyHeaderName) ?? context.GetValueFromQueryString(ApiKeyQueryName);
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                logger.LogInformation("Detected passed API key: {ApiKey}", apiKey);
+
+                await OnAuthorizationKeyAsync(context, apiKey);
+                return;
+            }
+
+            logger.LogWarning("Could not detect any token or key header for authorization");
+            throw RefuseAccess(context);
+        }
     }
 
-    private void CheckIfApiKeyHasAccess(ActionExecutingContext context, string apiKey)
+    private async Task OnAuthorizationKeyAsync(AuthorizationFilterContext context, string apiKey)
+        => await OnAuthorizationTokenAsync(context, async () => await ReadFromDynamoDbAsync(context, apiKey));
+
+    private async Task OnAuthorizationTokenAsync(AuthorizationFilterContext context, ApiToken apiToken)
+        => await OnAuthorizationTokenAsync(context, async () => await ReadFromDynamoDbAsync(context, apiToken.ApiKey));
+
+    private async Task OnAuthorizationTokenAsync(AuthorizationFilterContext context, Func<Task<ApiToken>> callback)
     {
-        if (string.IsNullOrWhiteSpace(apiKey)) RefuseAccess(context, "API key verplicht.");
+        var apiToken = await callback();
 
-        var validApiKeys = context
-            .HttpContext
-            .RequestServices
-            .GetRequiredService<IConfiguration>()
-            .GetSection($"ApiKeys:{_requiredAccess}")
-            .GetChildren()
-            .Select(c => c.Value)
-            .ToArray();
+        var hasAccess = _requiredAccess switch
+        {
+            WellKnownAuthRoles.Road => apiToken.Metadata.WrAccess,
+            WellKnownAuthRoles.Sync => apiToken.Metadata.SyncAccess,
+            WellKnownAuthRoles.Tickets => apiToken.Metadata.TicketsAccess,
+            _ => false
+        };
 
-        if (!validApiKeys.Contains(apiKey)) RefuseAccess(context, "Ongeldige API key.");
+        if (apiToken.Revoked || !hasAccess)
+        {
+            throw RefuseAccess(context);
+        }
     }
 
-    public Task OnActionExecutionApiKeyAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    private async Task<ApiToken> ReadFromDynamoDbAsync(AuthorizationFilterContext context, string apiKey)
     {
-        var potentialQueryApiKey = StringValues.Empty;
-        if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var potentialHeaderApiKey)
-            && !context.HttpContext.Request.Query.TryGetValue(ApiKeyQueryName, out potentialQueryApiKey))
-            RefuseAccess(context, "API key verplicht.");
+        var dbClient = context.HttpContext.RequestServices.GetRequiredService<AmazonDynamoDBClient>();
 
-        var potentialApiKey = string.Empty;
-        if (!string.IsNullOrWhiteSpace(potentialQueryApiKey)) potentialApiKey = potentialQueryApiKey;
+        var request = new GetItemRequest
+        {
+            TableName = "basisregisters-api-gate-keys",
+            Key = new Dictionary<string, AttributeValue> { { nameof(ApiToken.ApiKey), new AttributeValue(apiKey) } },
+            AttributesToGet = new List<string>
+            {
+                nameof(ApiToken.ApiKey),
+                nameof(ApiToken.ClientName),
+                nameof(ApiToken.Revoked),
+                nameof(ApiTokenMetadata.WrAccess),
+                nameof(ApiTokenMetadata.SyncAccess),
+                "Tickets"
+            },
+            ConsistentRead = true
+        };
 
-        if (!string.IsNullOrWhiteSpace(potentialHeaderApiKey)) potentialApiKey = potentialHeaderApiKey;
+        var response = await dbClient.GetItemAsync(request);
 
-        CheckIfApiKeyHasAccess(context, potentialApiKey);
+        if (!response.IsItemSet)
+        {
+            throw RefuseAccess(context);
+        }
 
-        return next();
+        response.Item.TryGetValue(nameof(ApiToken.ClientName), out var clientName);
+        response.Item.TryGetValue(nameof(ApiToken.Revoked), out var revoked);
+        response.Item.TryGetValue(nameof(ApiTokenMetadata.WrAccess), out var wrAccess);
+        response.Item.TryGetValue(nameof(ApiTokenMetadata.SyncAccess), out var syncAccess);
+        response.Item.TryGetValue("Tickets", out var ticketAccess);
+
+        return new ApiToken(
+            apiKey,
+            clientName?.S ?? "",
+            new ApiTokenMetadata(
+                wrAccess?.BOOL ?? false,
+                syncAccess?.BOOL ?? false,
+                ticketAccess?.BOOL ?? false)
+        )
+        {
+            Revoked = revoked?.BOOL ?? false
+        };
     }
 
-    public Task OnActionExecutionApiTokenAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-    {
-        // We get the x-api-key header or query param string
-        // Check if the user used this and thus is not anonymous GAWR-2968
-        if (!context.HttpContext.Request.Headers.TryGetValue(ApiTokenHeaderName, out var potentialHeaderApiTokens))
-        {
-            RefuseAccess(context, "Gelieve een geldige API key op te geven");
-            return next();
-        }
-
-        var potentialHeaderApiToken = potentialHeaderApiTokens.FirstOrDefault();
-        if (potentialHeaderApiToken is null)
-        {
-            RefuseAccess(context, "Ongeldige API key");
-            return next();
-        }
-
-        var bytes = Convert.FromBase64String(potentialHeaderApiToken);
-        var json = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-        var apiToken = JsonConvert.DeserializeObject<ApiToken>(json);
-
-        CheckIfApiKeyHasAccess(context, apiToken?.ApiKey);
-
-        var wrAccess = apiToken?.Metadata.WrAccess;
-        var syncAccess = apiToken?.Metadata.SyncAccess;
-        var ticketsAccess = apiToken?.Metadata.TicketsAccess;
-
-        if ((_requiredAccess.Equals("road", StringComparison.InvariantCultureIgnoreCase) && !(wrAccess ?? false))
-            || (_requiredAccess.Equals("sync", StringComparison.InvariantCultureIgnoreCase) && !(syncAccess ?? false))
-            || (_requiredAccess.Equals("tickets", StringComparison.InvariantCultureIgnoreCase) && !(ticketsAccess ?? false)))
-        {
-            RefuseAccess(context, "Geen toegang");
-            return next();
-        }
-
-        return next();
-    }
-
-    private static void RefuseAccess(ActionExecutingContext context, string message)
+    private static ApiException RefuseAccess(AuthorizationFilterContext context)
     {
         context.SetContentFormatAcceptType();
-        throw new ApiException(message, StatusCodes.Status401Unauthorized);
+        return new ApiException("Geen geldige API key.", StatusCodes.Status401Unauthorized);
     }
 
-    internal record ApiToken([JsonProperty("clientname")] string ClientName, [JsonProperty("apikey")] string ApiKey, [JsonProperty("metadata")] ApiTokenMetadata Metadata);
+    public record ApiToken([JsonProperty("apikey")] string ApiKey, [JsonProperty("clientname")] string ClientName, [JsonProperty("metadata")] ApiTokenMetadata Metadata)
+    {
+        [JsonIgnore]
+        public bool Revoked { get; set; }
 
-    internal record ApiTokenMetadata([JsonProperty("wraccess")] bool WrAccess, [JsonProperty("syncaccess")] bool SyncAccess, [JsonProperty("ticketsaccess")] bool TicketsAccess = false);
+        public static ApiToken FromBase64String(string s)
+        {
+            var bytes = Convert.FromBase64String(s);
+            var json = Encoding.UTF8.GetString(bytes);
+            return JsonConvert.DeserializeObject<ApiToken>(json);
+        }
+
+        public string ToBase64String() => ApiToken.ToBase64String(this);
+
+        public static string ToBase64String(ApiToken apiToken)
+        {
+            var serializedApiToken = JsonConvert.SerializeObject(apiToken);
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(serializedApiToken));
+        }
+    };
+
+    public record ApiTokenMetadata([JsonProperty("wraccess")] bool WrAccess, [JsonProperty("syncaccess")] bool SyncAccess = false, [JsonProperty("ticketsaccess")] bool TicketsAccess = false);
 }

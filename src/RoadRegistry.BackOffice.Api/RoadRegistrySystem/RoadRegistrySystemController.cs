@@ -13,7 +13,7 @@ using SqlStreamStore;
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("system")]
-[ApiKeyAuth("Road")]
+[ApiKeyAuth(WellKnownAuthRoles.Road)]
 public class RoadRegistrySystemController : ControllerBase
 {
     private readonly IValidator<RebuildSnapshotParameters> _rebuildSnapshotParametersValidator;

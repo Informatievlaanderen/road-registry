@@ -1,3 +1,31 @@
+## [3.21.1](https://github.com/informatievlaanderen/road-registry/compare/v3.21.0...v3.21.1) (2022-11-14)
+
+
+### Bug Fixes
+
+* ApiKeyAuth visibility with incorrect incoming api token ([b84575c](https://github.com/informatievlaanderen/road-registry/commit/b84575c38b1e08d296af0d9bf8ecf31377a2bfb6))
+* Development settings ([9fa7f08](https://github.com/informatievlaanderen/road-registry/commit/9fa7f089f7b0e17b408085534a496dd8398ede46))
+* Incorrect header translation ([ee54c34](https://github.com/informatievlaanderen/road-registry/commit/ee54c34d8ec913a7e7249f0fae6a25af64406b86))
+
+# [3.21.0](https://github.com/informatievlaanderen/road-registry/compare/v3.20.2...v3.21.0) (2022-11-14)
+
+
+### Bug Fixes
+
+* Add apikey check to downloads ([094f0d6](https://github.com/informatievlaanderen/road-registry/commit/094f0d6dc2b7c7aef98e931af2975794d6c1f8f1))
+* Add feature compare feature toggle for the UI ([5c0e31e](https://github.com/informatievlaanderen/road-registry/commit/5c0e31e44b0964fdd0b0aaaabb128527a315ccdb))
+* Misspelled DynamoDbClientOptions ([20dec5d](https://github.com/informatievlaanderen/road-registry/commit/20dec5d627bb7aad6424bd2e3f48cb6d5b058fd5))
+* Show loader when downloading ([b296668](https://github.com/informatievlaanderen/road-registry/commit/b296668de3f39e090b2d984b9213fa805aaeed3c))
+* SonarCloud fix on seperated if statement ([dda2e59](https://github.com/informatievlaanderen/road-registry/commit/dda2e59b096801c2b221afc217d7f36c451c8846))
+
+
+### Features
+
+* Add streetname kafka consumer ([#672](https://github.com/informatievlaanderen/road-registry/issues/672)) ([59392bc](https://github.com/informatievlaanderen/road-registry/commit/59392bc723115d8ff6f31f2d7f9b7796eafdc016))
+* Converted into multi role dynamo db support ([8a1f1f2](https://github.com/informatievlaanderen/road-registry/commit/8a1f1f21e89eaafdcbbacaf85f37121be52db50c))
+* DynamoDB support for API key authentication ([041cf9c](https://github.com/informatievlaanderen/road-registry/commit/041cf9c91a5025a8d4c59de6bbdb946d83ebc2be))
+* SonarCube warning cleanup ([5ab760f](https://github.com/informatievlaanderen/road-registry/commit/5ab760f8ab3855f3e3d6e8f8e733a99eebb33eff))
+
 ## [3.20.2](https://github.com/informatievlaanderen/road-registry/compare/v3.20.1...v3.20.2) (2022-11-08)
 
 
