@@ -17,6 +17,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ForProduct\StaticData\Leesmij_WR.pdf" />
+    <None Remove="ForProduct\StaticData\Objectcataloog_WR.pdf" />
     <None Remove="ForProduct\StaticData\Refpunt.lyr" />
     <None Remove="ForProduct\StaticData\Refpunt.sld" />
     <None Remove="ForProduct\StaticData\Refpunt.WOR" />
@@ -34,6 +36,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="ForProduct\StaticData\Leesmij_WR.pdf" />
+    <EmbeddedResource Include="ForProduct\StaticData\Objectcataloog_WR.pdf" />
     <EmbeddedResource Include="ForProduct\StaticData\Refpunt.lyr" />
     <EmbeddedResource Include="ForProduct\StaticData\Refpunt.sld" />
     <EmbeddedResource Include="ForProduct\StaticData\Refpunt.WOR" />
