@@ -1,3 +1,11 @@
+## [3.21.3](https://github.com/informatievlaanderen/road-registry/compare/v3.21.2...v3.21.3) (2022-11-15)
+
+
+### Bug Fixes
+
+* Include documentation files into product download ([#693](https://github.com/informatievlaanderen/road-registry/issues/693)) ([c54844f](https://github.com/informatievlaanderen/road-registry/commit/c54844f4598782f25d9421b769fcc5910e4eea25))
+* Resources to use in product download should give error when missing ([b4e2bb6](https://github.com/informatievlaanderen/road-registry/commit/b4e2bb60a2c3ec68175509909c3757071d66d945))
+
 ## [3.21.2](https://github.com/informatievlaanderen/road-registry/compare/v3.21.1...v3.21.2) (2022-11-15)
 
 
