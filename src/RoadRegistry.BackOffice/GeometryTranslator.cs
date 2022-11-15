@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Exceptions;
 using Messages;
+using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NetTopologySuite.IO;
@@ -181,7 +182,8 @@ public static class GeometryTranslator
 
         if (geometry.WKT != null)
         {
-            return (IPolygonal)new WKTReader().Read(geometry.WKT);
+            var geometryServices = new NtsGeometryServices(GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory, GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID);
+            return (IPolygonal)new WKTReader(geometryServices).Read(geometry.WKT);
         }
         
         switch (geometry.Flatten())
