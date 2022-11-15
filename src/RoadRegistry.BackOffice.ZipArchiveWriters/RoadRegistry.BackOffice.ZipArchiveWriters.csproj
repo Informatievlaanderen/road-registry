@@ -19,9 +19,6 @@
   <ItemGroup>
     <None Remove="ForProduct\StaticData\Leesmij_WR.pdf" />
     <None Remove="ForProduct\StaticData\Objectcataloog_WR.pdf" />
-    <None Remove="ForProduct\StaticData\Refpunt.lyr" />
-    <None Remove="ForProduct\StaticData\Refpunt.sld" />
-    <None Remove="ForProduct\StaticData\Refpunt.WOR" />
     <None Remove="ForProduct\StaticData\Wegknoop.lyr" />
     <None Remove="ForProduct\StaticData\Wegknoop.sld" />
     <None Remove="ForProduct\StaticData\Wegknoop.WOR" />
@@ -38,9 +35,6 @@
   <ItemGroup>
     <EmbeddedResource Include="ForProduct\StaticData\Leesmij_WR.pdf" />
     <EmbeddedResource Include="ForProduct\StaticData\Objectcataloog_WR.pdf" />
-    <EmbeddedResource Include="ForProduct\StaticData\Refpunt.lyr" />
-    <EmbeddedResource Include="ForProduct\StaticData\Refpunt.sld" />
-    <EmbeddedResource Include="ForProduct\StaticData\Refpunt.WOR" />
     <EmbeddedResource Include="ForProduct\StaticData\Wegknoop.lyr" />
     <EmbeddedResource Include="ForProduct\StaticData\Wegknoop.sld" />
     <EmbeddedResource Include="ForProduct\StaticData\Wegknoop.WOR" />
