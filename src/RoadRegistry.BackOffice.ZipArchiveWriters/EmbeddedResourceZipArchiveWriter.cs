@@ -19,18 +19,20 @@ public class EmbeddedResourceZipArchiveWriter<TContext> : IZipArchiveWriter<TCon
 
     public async Task WriteAsync(ZipArchive archive, TContext context, CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(context);
 
         await using (var embeddedResourceStream = _assembly.GetManifestResourceStream(_resourceName))
         {
-            if (embeddedResourceStream != null)
+            if (embeddedResourceStream == null)
             {
-                var entry = archive.CreateEntry(_filename);
-                await using (var entryStream = entry.Open())
-                {
-                    await embeddedResourceStream.CopyToAsync(entryStream, cancellationToken);
-                }
+                throw new FileNotFoundException($"Resource '{_resourceName}' does not exist.");
+            }
+
+            var entry = archive.CreateEntry(_filename);
+            await using (var entryStream = entry.Open())
+            {
+                await embeddedResourceStream.CopyToAsync(entryStream, cancellationToken);
             }
         }
     }
