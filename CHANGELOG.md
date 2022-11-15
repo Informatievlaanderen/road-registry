@@ -1,3 +1,10 @@
+## [3.21.2](https://github.com/informatievlaanderen/road-registry/compare/v3.21.1...v3.21.2) (2022-11-15)
+
+
+### Bug Fixes
+
+* Use Lambert SRID when parsing WKT ([70f08b1](https://github.com/informatievlaanderen/road-registry/commit/70f08b10af93a74e4fb4a6699b28630f1b528482))
+
 ## [3.21.1](https://github.com/informatievlaanderen/road-registry/compare/v3.21.0...v3.21.1) (2022-11-14)
 
 
