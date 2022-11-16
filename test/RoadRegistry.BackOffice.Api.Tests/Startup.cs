@@ -5,6 +5,7 @@ using Autofac;
 using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Core;
 using Editor.Schema;
@@ -51,30 +52,11 @@ public class Startup : TestStartup
         builder.RegisterModule<MediatorModule>();
         builder.RegisterModule<Handlers.MediatorModule>();
         builder.RegisterModule<Handlers.Sqs.MediatorModule>();
-
-        //builder.Register<SqlServer>(sp => new SqlServer());
-        //builder.Register(ctx =>
-        //{
-        //    var sqlServer = ctx.Resolve<SqlServer>();
-        //    var database = sqlServer.CreateDatabaseAsync().GetAwaiter().GetResult();
-        //    var context = sqlServer.CreateEmptyEditorContextAsync(database).GetAwaiter().GetResult();
-        //    return context;
-        //}).As<EditorContext>().;
-        //builder.Register(ctx =>
-        //{
-        //    var sqlServer = ctx.Resolve<SqlServer>();
-        //    var database = sqlServer.CreateDatabaseAsync().GetAwaiter().GetResult();
-        //    var context = sqlServer.CreateEmptyProductContextAsync(database).GetAwaiter().GetResult();
-        //    return context;
-        //}).As<ProductContext>();
     }
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
         services
-            .AddSingleton(_ => new SqsOptions("", "", RegionEndpoint.EUWest1))
-            .AddSingleton<ISqsQueuePublisher>(sp => new FakeSqsQueuePublisher())
-            .AddSingleton<ISqsQueueConsumer>(sp => new FakeSqsQueueConsumer())
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

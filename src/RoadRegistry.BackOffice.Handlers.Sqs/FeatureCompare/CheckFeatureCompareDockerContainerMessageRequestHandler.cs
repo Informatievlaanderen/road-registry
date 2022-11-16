@@ -70,6 +70,7 @@ public class CheckFeatureCompareDockerContainerMessageRequestHandler : SqsMessag
                 var sqsQueueUrl = _messagingOptions.DockerQueueUrl;
 
                 _logger.LogInformation("Attempting to publish message onto queue: {sqsQueueUrl}", sqsQueueUrl);
+
                 await _sqsQueuePublisher.CopyToQueue(sqsQueueUrl, message, new SqsQueueOptions(), cancellationToken);
 
                 // Cancel the cancellation token so we don't get stuck inside the consumer loop

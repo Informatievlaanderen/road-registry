@@ -20,8 +20,6 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Core;
 using Editor.Schema;
@@ -38,7 +36,6 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using Product.Schema;
-using RoadRegistry.BackOffice.Abstractions.Configuration;
 using Serilog;
 using SqlStreamStore;
 using Syndication.Schema;
@@ -74,111 +71,37 @@ public class Program
                 })
             .UseKestrel((context, builder) =>
             {
-                if (context.HostingEnvironment.EnvironmentName == "Development") builder.ListenLocalhost(HostingPort);
+                if (context.HostingEnvironment.EnvironmentName == "Development")
+                {
+                    builder.ListenLocalhost(HostingPort);
+                }
             })
             .ConfigureServices((hostContext, builder) =>
             {
                 var blobOptions = new BlobClientOptions();
                 hostContext.Configuration.Bind(blobOptions);
+
                 switch (blobOptions.BlobClientType)
                 {
                     case nameof(S3BlobClient):
                         var s3Options = new S3BlobClientOptions();
                         hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
-                        // Use MINIO
-                        if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
-                        {
-                            if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null) throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
-
-                            if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null) throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
-
-                            builder.AddSingleton(new AmazonS3Client(
-                                    new BasicAWSCredentials(
-                                        hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY"),
-                                        hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY")),
-                                    new AmazonS3Config
-                                    {
-                                        RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                        ServiceURL = hostContext.Configuration.GetValue<string>("MINIO_SERVER"),
-                                        ForcePathStyle = true
-                                    }
-                                )
-                            );
-                        }
-                        else // Use AWS
-                        {
-                            if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null) throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
-
-                            if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null) throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
-
-                            builder.AddSingleton(new AmazonS3Client(
-                                    new BasicAWSCredentials(
-                                        hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID"),
-                                        hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY"))
-                                )
-                            );
-                        }
-
-                        var dynamoDbClientOptions = new DynamoDbClientOptions();
-                        hostContext.Configuration.GetSection(DynamoDbClientOptions.ConfigurationKey).Bind(dynamoDbClientOptions);
-
-                        if (dynamoDbClientOptions.ServerUrl is null)
-                        {
-                            builder
-                                .AddSingleton(new AmazonDynamoDBClient(
-                                    new BasicAWSCredentials(
-                                        dynamoDbClientOptions.AccessKeyId,
-                                        dynamoDbClientOptions.AccessKeySecret),
-                                    RegionEndpoint.EUWest1
-                                ));
-                        }
-                        else
-                        {
-                            builder
-                                .AddSingleton(new AmazonDynamoDBClient(
-                                    new AmazonDynamoDBConfig()
-                                    {
-                                        ServiceURL = dynamoDbClientOptions.ServerUrl,
-                                    }
-                                ));
-                        }
+                        var s3BlobClient = GetAmazonS3Client();
 
                         builder
-                            .AddSingleton(sp =>
-                                new RoadNetworkUploadsBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )))
-                            .AddSingleton(sp =>
-                                new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )))
-                            .AddSingleton(sp =>
-                                new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
-                                )))
-                            .AddSingleton(sp =>
-                                new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.FeatureCompareBucket]
-                                )))
-                            ;
-
+                            .AddSingleton(s3BlobClient)
+                            .AddSingleton(sp => new RoadNetworkUploadsBlobClient(new S3BlobClient(sp.GetRequiredService<AmazonS3Client>(), s3Options.Buckets[WellknownBuckets.UploadsBucket])))
+                            .AddSingleton(sp => new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(sp.GetRequiredService<AmazonS3Client>(), s3Options.Buckets[WellknownBuckets.UploadsBucket])))
+                            .AddSingleton(sp => new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(sp.GetRequiredService<AmazonS3Client>(), s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket])))
+                            .AddSingleton(sp => new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(sp.GetRequiredService<AmazonS3Client>(), s3Options.Buckets[WellknownBuckets.FeatureCompareBucket])));
                         break;
 
                     case nameof(FileBlobClient):
-                        var fileOptions = new FileBlobClientOptions();
-                        hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
+                        var fileBlobClient = GetFileBlobClient();
 
                         builder
-                            .AddSingleton<IBlobClient>(sp =>
-                                new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.Directory)
-                                )
-                            )
+                            .AddSingleton(fileBlobClient)
                             .AddSingleton<RoadNetworkUploadsBlobClient>()
                             .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
                             .AddSingleton<RoadNetworkExtractDownloadsBlobClient>()
@@ -188,23 +111,62 @@ public class Program
                     default: throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");
                 }
 
+                AmazonS3Client GetAmazonS3Client()
+                {
+                    if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
+                    {
+                        var (accessKey, secretKey) = GetAccessKey("MINIO_ACCESS_KEY", "MINIO_SECRET_KEY");
+
+                        return new AmazonS3Client(
+                            new BasicAWSCredentials(accessKey, secretKey),
+                            new AmazonS3Config
+                            {
+                                RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
+                                ServiceURL = hostContext.Configuration.GetValue<string>("MINIO_SERVER"),
+                                ForcePathStyle = true
+                            }
+                        );
+                    }
+                    else
+                    {
+                        var (accessKey, secretKey) = GetAccessKey("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY");
+
+                        return new AmazonS3Client(accessKey, secretKey);
+                    }
+                }
+
+                IBlobClient GetFileBlobClient()
+                {
+                    var fileOptions = new FileBlobClientOptions();
+                    hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
+                    return new FileBlobClient(new DirectoryInfo(fileOptions.Directory));
+                }
+
+                (string, string) GetAccessKey(string keyId, string keySecret)
+                {
+                    var accessKey = hostContext.Configuration.GetValue<string>(keyId);
+                    var secretKey = hostContext.Configuration.GetValue<string>(keySecret);
+
+                    ArgumentNullException.ThrowIfNull(accessKey);
+                    ArgumentNullException.ThrowIfNull(secretKey);
+
+                    return (accessKey, secretKey);
+                }
+
                 var zipArchiveWriterOptions = new ZipArchiveWriterOptions();
                 hostContext.Configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
                 var extractDownloadsOptions = new ExtractDownloadsOptions();
                 hostContext.Configuration.GetSection(nameof(ExtractDownloadsOptions)).Bind(extractDownloadsOptions);
                 var extractUploadsOptions = new ExtractUploadsOptions();
                 hostContext.Configuration.GetSection(nameof(ExtractUploadsOptions)).Bind(extractDownloadsOptions);
-                
+
                 var featureCompareMessagingOptions = new FeatureCompareMessagingOptions();
                 hostContext.Configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
 
                 builder
-                    .AddSingleton(new SqsOptions(RegionEndpoint.EUWest1, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
-                    .AddSingleton<ISqsQueuePublisher, SqsQueuePublisher>()
+                    .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
                     .AddSingleton<IZipArchiveBeforeFeatureCompareValidator>(new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
-                    .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8));
-
-                builder
+                    .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
                     .AddSingleton<ProblemDetailsHelper>()
                     .AddSingleton(zipArchiveWriterOptions)
                     .AddSingleton(extractDownloadsOptions)
@@ -214,7 +176,7 @@ public class Program
                         new MsSqlStreamStoreV3(
                             new MsSqlStreamStoreV3Settings(
                                     hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events))
-                            { Schema = WellknownSchemas.EventSchema }))
+                                { Schema = WellknownSchemas.EventSchema }))
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new WKTReader(
                         new NtsGeometryServices(

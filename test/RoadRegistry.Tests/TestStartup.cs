@@ -2,10 +2,13 @@ namespace RoadRegistry.Tests;
 
 using System.Reflection;
 using System.Text;
+using Amazon;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -90,7 +93,6 @@ public abstract class TestStartup
                         RequestQueueUrl = "request.fifo",
                         ResponseQueueUrl = "response.fifo"
                     })
-                    //.AddSingleton<SqsOptions>(_ => new SqsOptions("", "", RegionEndpoint.EUWest1))
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
                     .AddTransient<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
@@ -108,6 +110,20 @@ public abstract class TestStartup
                 ConfigureContainer(builder);
 
                 builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
+
+                builder
+                    .Register(c => new SqsOptions(RegionEndpoint.EUWest1, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
+                    .SingleInstance();
+
+                builder
+                    .Register(c => new FakeSqsQueuePublisher())
+                    .As<ISqsQueuePublisher>()
+                    .SingleInstance();
+
+                builder
+                    .Register(c => new FakeSqsQueueConsumer())
+                    .As<ISqsQueueConsumer>()
+                    .SingleInstance();
             });
     }
 

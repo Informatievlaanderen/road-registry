@@ -93,9 +93,8 @@ nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.2.0
 nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 17.33.2
 nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 17.33.2
 nuget Be.Vlaanderen.Basisregisters.GrAr.Provenance 17.33.2
-nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.5.0
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.5.0
-nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing 11.0.2
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.5.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 11.0.2
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 11.0.2
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 11.0.2
@@ -105,6 +104,9 @@ nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Testing.Xunit 11.0.2
 nuget Be.Vlaanderen.Basisregisters.Projector 12.0.0
 nuget Be.Vlaanderen.Basisregisters.Shaperon 9.0.1
 nuget Be.Vlaanderen.Basisregisters.Shaperon.Geometries 9.0.1
+nuget Be.Vlaanderen.Basisregisters.Sqs 1.3.0
+nuget Be.Vlaanderen.Basisregisters.Sqs.Lambda 1.3.0
+nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing 11.0.2
 nuget Be.Vlaanderen.Basisregisters.Testing.Infrastructure.Events 3.0.0 content: true, copy_content_to_output_dir: always, copy_local: true
 
 // MICROSOFT STUFF

@@ -102,7 +102,9 @@ public class UploadController : ControllerBase
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
-            return Ok(response);
+            return Ok(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
         });
     }
 }
+
+public sealed record UploadExtractFeatureCompareResponseBody(string ArchiveId){ }
