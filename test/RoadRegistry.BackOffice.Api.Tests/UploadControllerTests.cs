@@ -191,7 +191,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(true), formFile, CancellationToken.None);
 
             var typedResult = Assert.IsType<OkObjectResult>(result);
-            var response = Assert.IsType<UploadExtractFeatureCompareResponse>(typedResult.Value);
+            var response = Assert.IsType<UploadExtractFeatureCompareResponseBody>(typedResult.Value);
 
             Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(response.ArchiveId)));
             var blob = await UploadBlobClient.GetBlobAsync(new BlobName(response.ArchiveId));

@@ -8,6 +8,7 @@ WORKDIR /app
 
 RUN apt-get update && \
     apt-get install curl jq -y && \
+    apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin && \
     chmod +x ./init.sh
 
 ENTRYPOINT ["./init.sh"]

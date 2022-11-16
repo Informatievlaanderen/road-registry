@@ -172,6 +172,7 @@ public class Startup
         builder.RegisterModule(new MediatorModule());
         builder.RegisterModule(new Handlers.MediatorModule());
         builder.RegisterModule(new Handlers.Sqs.MediatorModule());
+        builder.RegisterModule(new Handlers.Sqs.SqsHandlersModule());
         _applicationContainer = builder.Build();
 
         return new AutofacServiceProvider(_applicationContainer);
