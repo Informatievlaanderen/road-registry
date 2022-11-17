@@ -6,9 +6,11 @@ LABEL registry="road-registry"
 COPY / /app
 WORKDIR /app
 
+
 RUN apt-get update && \
     apt-get install curl jq -y && \
-    apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin && \
+    curl -fsSL https://get.docker.com -o get-docker.sh && \
+    sh ./get-docker.sh && \
     chmod +x ./init.sh
 
 ENTRYPOINT ["./init.sh"]
