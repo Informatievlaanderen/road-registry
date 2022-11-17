@@ -6,7 +6,6 @@ LABEL registry="road-registry"
 COPY / /app
 WORKDIR /app
 
-
 RUN apt-get update && \
     apt-get install curl jq -y && \
     curl -fsSL https://get.docker.com -o get-docker.sh && \
