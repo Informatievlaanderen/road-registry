@@ -1,3 +1,16 @@
+## [3.21.4](https://github.com/informatievlaanderen/road-registry/compare/v3.21.3...v3.21.4) (2022-11-17)
+
+
+### Bug Fixes
+
+* Docker file ([6c6a59a](https://github.com/informatievlaanderen/road-registry/commit/6c6a59a72c08de1165422035ed06717cf610e920))
+* Docker installer issue ([118869a](https://github.com/informatievlaanderen/road-registry/commit/118869ac55b638cd77ebbb1fc14842ec3390e870))
+
+
+### Reverts
+
+* Revert "Revert "feat: Add docker into messaginghost after SQS tweaks"" ([9b7f1eb](https://github.com/informatievlaanderen/road-registry/commit/9b7f1ebf88428d9ab9b5e24524724be55d05f31d))
+
 ## [3.21.3](https://github.com/informatievlaanderen/road-registry/compare/v3.21.2...v3.21.3) (2022-11-15)
 
 
