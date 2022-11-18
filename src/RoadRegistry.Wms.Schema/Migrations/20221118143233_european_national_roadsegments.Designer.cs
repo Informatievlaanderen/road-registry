@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Wms.Schema;
@@ -12,9 +13,10 @@ using RoadRegistry.Wms.Schema;
 namespace RoadRegistry.Wms.Schema.Migrations
 {
     [DbContext(typeof(WmsContext))]
-    partial class WmsContextModelSnapshot : ModelSnapshot
+    [Migration("20221118143233_european_national_roadsegments")]
+    partial class european_national_roadsegments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
