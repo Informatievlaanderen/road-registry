@@ -70,3 +70,4 @@ appsettings.shelby.json
 src/RoadRegistry.BackOffice.UI/.env.staging
 src/RoadRegistry.BackOffice.UI/.env.development
 src/RoadRegistry.BackOffice.UI/.env.test
+*.sln.startup.json

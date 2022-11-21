@@ -11,23 +11,23 @@ public class RoadSegmentNationalRoadAttributeConfiguration : IEntityTypeConfigur
     public void Configure(EntityTypeBuilder<RoadSegmentNationalRoadAttributeRecord> b)
     {
         b.ToTable(TableName, WellknownSchemas.WmsSchema)
-            .HasKey(p => p.WS_OIDN)
+            .HasKey(p => p.NW_OIDN)
             .IsClustered(false);
 
-        b.Property(p => p.WS_OIDN)
+        b.Property(p => p.NW_OIDN)
             .ValueGeneratedNever()
             .IsRequired()
-            .HasColumnName("WS_OIDN");
+            .HasColumnName("NW_OIDN");
 
+        b.Property(p => p.WS_OIDN)
+            .HasColumnName("WS_OIDN");
+        b.Property(p => p.IDENT2)
+            .HasColumnName("IDENT2");
         b.Property(p => p.BEGINORG)
             .HasColumnName("BEGINORG");
         b.Property(p => p.BEGINTIJD)
             .HasColumnName("BEGINTIJD");
-        b.Property(p => p.IDENT2)
-            .HasColumnName("IDENT2");
         b.Property(p => p.LBLBGNORG)
             .HasColumnName("LBLBGNORG");
-        b.Property(p => p.NW_OIDN)
-            .HasColumnName("NW_OIDN");
     }
 }

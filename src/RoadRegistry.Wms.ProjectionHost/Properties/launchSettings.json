@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RoadRegistry.Wms.ProjectionHost": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

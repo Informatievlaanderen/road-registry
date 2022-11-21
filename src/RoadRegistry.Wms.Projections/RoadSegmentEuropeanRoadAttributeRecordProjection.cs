@@ -1,6 +1,7 @@
 namespace RoadRegistry.Wms.Projections;
 
 using System.Linq;
+using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -10,24 +11,26 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProject
 {
     public RoadSegmentEuropeanRoadAttributeRecordProjection()
     {
-        When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
+        When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
         {
-            if (envelope.Message.PartOfEuropeanRoads.Length > 0)
+            if (envelope.Message.PartOfEuropeanRoads.Length == 0)
             {
-                var europeanRoadAttributes = envelope.Message
-                    .PartOfEuropeanRoads
-                    .Select(europeanRoad => new RoadSegmentEuropeanRoadAttributeRecord
-                    {
-                        WS_OIDN = envelope.Message.Id,
-                        EU_OIDN = europeanRoad.AttributeId,
-                        EUNUMMER = europeanRoad.Number,
-                        BEGINTIJD = europeanRoad.Origin.Since,
-                        BEGINORG = europeanRoad.Origin.OrganizationId,
-                        LBLBGNORG = europeanRoad.Origin.Organization
-                    });
-
-                await context.RoadSegmentEuropeanRoadAttributes.AddRangeAsync(europeanRoadAttributes, token);
+                return Task.CompletedTask;
             }
+
+            var europeanRoadAttributes = envelope.Message
+                .PartOfEuropeanRoads
+                .Select(europeanRoad => new RoadSegmentEuropeanRoadAttributeRecord
+                {
+                    EU_OIDN = europeanRoad.AttributeId,
+                    WS_OIDN = envelope.Message.Id,
+                    EUNUMMER = europeanRoad.Number,
+                    BEGINTIJD = europeanRoad.Origin.Since,
+                    BEGINORG = europeanRoad.Origin.OrganizationId,
+                    LBLBGNORG = europeanRoad.Origin.Organization
+                });
+
+            return context.RoadSegmentEuropeanRoadAttributes.AddRangeAsync(europeanRoadAttributes, token);
         });
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
@@ -39,8 +42,8 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProject
                     case RoadSegmentAddedToEuropeanRoad europeanRoad:
                         await context.RoadSegmentEuropeanRoadAttributes.AddAsync(new RoadSegmentEuropeanRoadAttributeRecord
                         {
-                            WS_OIDN = europeanRoad.SegmentId,
                             EU_OIDN = europeanRoad.AttributeId,
+                            WS_OIDN = europeanRoad.SegmentId,
                             EUNUMMER = europeanRoad.Number,
                             BEGINTIJD = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                             BEGINORG = envelope.Message.OrganizationId,

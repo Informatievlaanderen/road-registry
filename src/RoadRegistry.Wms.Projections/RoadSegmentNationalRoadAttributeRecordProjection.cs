@@ -22,8 +22,8 @@ public class RoadSegmentNationalRoadAttributeRecordProjection : ConnectedProject
                 .PartOfNationalRoads
                 .Select(nationalRoad => new RoadSegmentNationalRoadAttributeRecord
                 {
-                    WS_OIDN = envelope.Message.Id,
                     NW_OIDN = nationalRoad.AttributeId,
+                    WS_OIDN = envelope.Message.Id,
                     IDENT2 = nationalRoad.Number,
                     BEGINTIJD = nationalRoad.Origin.Since,
                     BEGINORG = nationalRoad.Origin.OrganizationId,
@@ -42,8 +42,8 @@ public class RoadSegmentNationalRoadAttributeRecordProjection : ConnectedProject
                     case RoadSegmentAddedToNationalRoad nationalRoad:
                         await context.RoadSegmentNationalRoadAttributes.AddAsync(new RoadSegmentNationalRoadAttributeRecord
                         {
-                            WS_OIDN = nationalRoad.SegmentId,
                             NW_OIDN = nationalRoad.AttributeId,
+                            WS_OIDN = nationalRoad.SegmentId,
                             IDENT2 = nationalRoad.Number,
                             BEGINTIJD = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                             BEGINORG = envelope.Message.OrganizationId,
