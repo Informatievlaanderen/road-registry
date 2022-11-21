@@ -16,6 +16,8 @@ public static class WmsContextScenarioExtensions
     {
         var records = new List<object>();
         records.AddRange(await context.RoadSegments.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentEuropeanRoadAttributes.ToArrayAsync());
+        records.AddRange(await context.RoadSegmentNationalRoadAttributes.ToArrayAsync());
         return records.ToArray();
     }
 

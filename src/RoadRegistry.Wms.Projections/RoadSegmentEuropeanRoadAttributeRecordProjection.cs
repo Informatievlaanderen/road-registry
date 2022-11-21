@@ -29,7 +29,7 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProject
                     BEGINORG = europeanRoad.Origin.OrganizationId,
                     LBLBGNORG = europeanRoad.Origin.Organization
                 });
-
+            
             return context.RoadSegmentEuropeanRoadAttributes.AddRangeAsync(europeanRoadAttributes, token);
         });
 
@@ -61,14 +61,14 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProject
 
                         break;
                     case RoadSegmentRemoved roadSegmentRemoved:
-                        var roadSegmentNationalRoadAttributeRecords =
-                            context.RoadSegmentNationalRoadAttributes
+                        var roadSegmentEuropeanRoadAttributeRecords =
+                            context.RoadSegmentEuropeanRoadAttributes
                                 .Local
                                 .Where(x => x.WS_OIDN == roadSegmentRemoved.Id)
-                                .Concat(context.RoadSegmentNationalRoadAttributes
+                                .Concat(context.RoadSegmentEuropeanRoadAttributes
                                     .Where(x => x.WS_OIDN == roadSegmentRemoved.Id));
 
-                        context.RoadSegmentNationalRoadAttributes.RemoveRange(roadSegmentNationalRoadAttributeRecords);
+                        context.RoadSegmentEuropeanRoadAttributes.RemoveRange(roadSegmentEuropeanRoadAttributeRecords);
                         break;
                 }
             }
