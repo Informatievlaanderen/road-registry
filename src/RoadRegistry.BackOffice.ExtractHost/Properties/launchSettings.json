@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RoadRegistry.BackOffice.ExtractHost": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

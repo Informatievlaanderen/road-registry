@@ -20,7 +20,7 @@ DB_DIR=../road-registry-db
 # exit 0
 
 
-archiveFiles=("database_backup.zip" "legacy_db_filled.tar.gz" "municipality_syndication.tar.gz" "streetname_syndication.tar.gz")
+archiveFiles=("road-registry-db.zip" "legacy_db_filled.tar.gz" "municipality_syndication.tar.gz" "streetname_syndication.tar.gz")
 for filename in "${archiveFiles[@]}"
 do
     archivePath="$DB_DIR/${filename}"
@@ -48,8 +48,8 @@ else
     printf '%s\n' "  No volumes found"
 fi
 
-printf '%s\n' "Extracting database_backup.zip..."
-unzip -o -qq "$DB_DIR/database_backup.zip" -d src/RoadRegistry.BackupDatabase/filled
+printf '%s\n' "Extracting road-registry-db.zip..."
+unzip -o -qq "$DB_DIR/road-registry-db.zip" -d src/RoadRegistry.BackupDatabase/filled
 printf '%s\n' "  Done"
 
 printf '%s\n' "Extracting legacy_db_filled.tar.gz..."

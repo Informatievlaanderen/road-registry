@@ -199,7 +199,7 @@ services:
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETS__IMPORTLEGACY: road-registry-import-legacy
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
     volumes:
       - ./src/RoadRegistry.Legacy.Extract:/var/lib/RoadRegistry.Legacy.Extract
 
@@ -257,9 +257,9 @@ services:
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
       MUNICIPALITYFEED__URI: "http://municipality-api:2002/v1/gemeenten/sync"
       STREETNAMEFEED__URI: "http://streetname-api:4002/v1/straatnamen/sync"
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
 
   editor-projection-host:
     build: dist/RoadRegistry.Editor.ProjectionHost/linux
@@ -278,9 +278,9 @@ services:
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EDITORPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EDITORPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
 
   product-projection-host:
     build: dist/RoadRegistry.Product.ProjectionHost/linux
@@ -293,9 +293,9 @@ services:
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__PRODUCTPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__PRODUCTPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__PRODUCTPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__PRODUCTPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
 
   wms-projection-host:
     build: dist/RoadRegistry.Wms.ProjectionHost/linux
@@ -309,10 +309,10 @@ services:
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__WMSPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__WMSPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__WMSPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__WMSPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       METADATA__URI: http://wiremock:8080/metadatacenter/srv/dut/csw-publication
       METADATA__LOGINURI: http://wiremock:8080/metadatacenter/srv/dut/info?info=me
 
@@ -328,10 +328,10 @@ services:
       SERILOG__WRITETO__0__ARGS__SERVERURL: "http://seq:80"
       SERILOG__WRITETO__1__NAME: "Console"
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: "Debug"
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__WFSPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__WFSPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__WFSPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__WFSPROJECTIONSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       METADATA__URI: http://wiremock:8080/metadatacenter/srv/dut/csw-publication
       METADATA__LOGINURI: http://wiremock:8080/metadatacenter/srv/dut/info?info=me
 
@@ -352,11 +352,11 @@ services:
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SNAPSHOTSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SNAPSHOTSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTHOST: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
 
   backoffice-extract-host:
     build: dist/RoadRegistry.BackOffice.ExtractHost/linux
@@ -376,13 +376,13 @@ services:
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
       S3BLOBCLIENTOPTIONS__BUCKETS__EXTRACTDOWNLOADS: road-registry-extract-downloads
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SNAPSHOTSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EXTRACTHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EXTRACTHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SNAPSHOTSADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EXTRACTHOST: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EXTRACTHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
 
   backoffice-command-host:
     build: dist/RoadRegistry.BackOffice.CommandHost/linux
@@ -401,10 +401,10 @@ services:
       MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
 
   backoffice-messaging-host-sqs:
     build: dist/RoadRegistry.BackOffice.MessagingHost.Sqs/linux
@@ -424,10 +424,10 @@ services:
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
       S3BLOBCLIENTOPTIONS__BUCKETS__FEATURECOMPARE: road-registry-feature-compare
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__COMMANDHOST: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       FEATURECOMPAREMESSAGINGOPTIONS__REQUESTQUEUEURL: "https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-request.fifo"
       FEATURECOMPAREMESSAGINGOPTIONS__DOCKERQUEUEURL: "https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-docker.fifo"
       FEATURECOMPAREMESSAGINGOPTIONS__RESPONSEQUEUEURL: "https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-response.fifo"
@@ -453,12 +453,12 @@ services:
       BLOBCLIENTTYPE: S3BlobClient
       S3BLOBCLIENTOPTIONS__BUCKETS__UPLOADS: road-registry-uploads
       S3BLOBCLIENTOPTIONS__BUCKETS__EXTRACTDOWNLOADS: road-registry-extract-downloads
-      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__PRODUCTPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
-      IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Initial Catalog=RoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SNAPSHOTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__EDITORPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__PRODUCTPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      CONNECTIONSTRINGS__SYNDICATIONPROJECTIONS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
+      IDEMPOTENCY__CONNECTIONSTRING: Data Source=tcp:mssql,1433;Initial Catalog=road-registry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       CORS__0: "http://localhost:5010"
       CORS__1: "http://localhost:1234"
 
