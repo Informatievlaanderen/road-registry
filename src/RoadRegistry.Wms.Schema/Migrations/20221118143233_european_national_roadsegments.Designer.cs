@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Wms.Schema;
@@ -12,9 +13,10 @@ using RoadRegistry.Wms.Schema;
 namespace RoadRegistry.Wms.Schema.Migrations
 {
     [DbContext(typeof(WmsContext))]
-    partial class WmsContextModelSnapshot : ModelSnapshot
+    [Migration("20221118143233_european_national_roadsegments")]
+    partial class european_national_roadsegments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,9 +51,9 @@ namespace RoadRegistry.Wms.Schema.Migrations
 
             modelBuilder.Entity("RoadRegistry.Wms.Schema.RoadSegmentEuropeanRoadAttributeRecord", b =>
                 {
-                    b.Property<int>("EU_OIDN")
+                    b.Property<int>("WS_OIDN")
                         .HasColumnType("int")
-                        .HasColumnName("EU_OIDN");
+                        .HasColumnName("WS_OIDN");
 
                     b.Property<string>("BEGINORG")
                         .HasColumnType("nvarchar(max)")
@@ -65,26 +67,26 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("EUNUMMER");
 
+                    b.Property<int>("EU_OIDN")
+                        .HasColumnType("int")
+                        .HasColumnName("EU_OIDN");
+
                     b.Property<string>("LBLBGNORG")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("LBLBGNORG");
 
-                    b.Property<int>("WS_OIDN")
-                        .HasColumnType("int")
-                        .HasColumnName("WS_OIDN");
+                    b.HasKey("WS_OIDN");
 
-                    b.HasKey("EU_OIDN");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("EU_OIDN"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("WS_OIDN"), false);
 
                     b.ToTable("EuropeseWeg", "RoadRegistryWms");
                 });
 
             modelBuilder.Entity("RoadRegistry.Wms.Schema.RoadSegmentNationalRoadAttributeRecord", b =>
                 {
-                    b.Property<int>("NW_OIDN")
+                    b.Property<int>("WS_OIDN")
                         .HasColumnType("int")
-                        .HasColumnName("NW_OIDN");
+                        .HasColumnName("WS_OIDN");
 
                     b.Property<string>("BEGINORG")
                         .HasColumnType("nvarchar(max)")
@@ -102,13 +104,13 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("LBLBGNORG");
 
-                    b.Property<int>("WS_OIDN")
+                    b.Property<int>("NW_OIDN")
                         .HasColumnType("int")
-                        .HasColumnName("WS_OIDN");
+                        .HasColumnName("NW_OIDN");
 
-                    b.HasKey("NW_OIDN");
+                    b.HasKey("WS_OIDN");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("NW_OIDN"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("WS_OIDN"), false);
 
                     b.ToTable("NationaleWeg", "RoadRegistryWms");
                 });

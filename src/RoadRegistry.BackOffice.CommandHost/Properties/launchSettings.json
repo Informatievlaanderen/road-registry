@@ -1,14 +1,10 @@
 {
   "profiles": {
-    "RoadRegistry.Syndication.ProjectionHost": {
+    "RoadRegistry.BackOffice.CommandHost": {
       "commandName": "Project",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }
-    },
-    "WSL": {
-      "commandName": "WSL2",
-      "distributionName": ""
     }
   }
 }

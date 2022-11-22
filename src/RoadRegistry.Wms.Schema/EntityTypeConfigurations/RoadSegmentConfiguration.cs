@@ -1,4 +1,4 @@
-namespace RoadRegistry.Wms.Schema;
+namespace RoadRegistry.Wms.Schema.EntityTypeConfigurations;
 
 using Hosts;
 using Microsoft.EntityFrameworkCore;

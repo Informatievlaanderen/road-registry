@@ -119,8 +119,9 @@ public class Program
                     )
                     .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
                     {
-                        new RoadSegmentRecordProjection(
-                            sp.GetRequiredService<IStreetNameCache>())
+                        new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>()),
+                        new RoadSegmentEuropeanRoadAttributeRecordProjection(),
+                        new RoadSegmentNationalRoadAttributeRecordProjection()
                     })
                     .AddSingleton(sp =>
                         Resolve
