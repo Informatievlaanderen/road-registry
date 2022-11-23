@@ -60,7 +60,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             });
 
         For<RenameOrganization>()
-            .UseValidator(new RenameOrganizationCommandValidator())
+            .UseValidator(new RenameOrganizationValidator())
             .UseRoadRegistryContext(store, snapshotReader, enricher)
             .Handle(async (context, command, ct) =>
             {

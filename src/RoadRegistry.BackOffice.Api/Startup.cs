@@ -158,6 +158,7 @@ public class Startup
             })
             .Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey), options => { options.BindNonPublicProperties = true; })
             .AddValidatorsFromAssemblyContaining<Startup>()
+            .AddValidatorsFromAssemblyContaining<MediatorModule>()
             .AddValidatorsFromAssemblyContaining<Handlers.MediatorModule>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.MediatorModule>()
             .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
