@@ -45,13 +45,11 @@ public class RoadRegistrySystemController : ControllerBase
         {
             return StatusCode((int)HttpStatusCode.NotImplemented);
         }
-
-        ArgumentNullException.ThrowIfNull(parameters);
-
+        
         var command = new RenameOrganization
         {
-            Code = parameters.Code,
-            Name = parameters.Name
+            Code = parameters?.Code,
+            Name = parameters?.Name
         };
         await validator.ValidateAndThrowAsync(command, cancellationToken);
 
