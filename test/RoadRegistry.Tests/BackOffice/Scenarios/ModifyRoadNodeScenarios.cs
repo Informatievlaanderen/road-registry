@@ -788,7 +788,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                     Name = ChangedByOrganizationName + "DUMMY_AFFIX",
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 },
-                new RenameOrganization
+                new RenameOrganizationAccepted
                 {
                     Code = ChangedByOrganization,
                     Name = ChangedByOrganizationName,

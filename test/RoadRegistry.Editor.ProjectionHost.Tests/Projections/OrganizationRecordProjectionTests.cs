@@ -71,7 +71,7 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
         var messages = new List<object>
         {
             new ImportedOrganization { Code = "ABC", Name = "Organization Inc." },
-            new RenameOrganization
+            new RenameOrganizationAccepted
             {
                 Code = "ABC",
                 Name = "Alphabet"

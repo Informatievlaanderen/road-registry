@@ -164,6 +164,7 @@ public class Startup
             .AddSingleton(c => new UseFeatureCompareFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare))
             .AddSingleton(c => new UseApiKeyAuthenticationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))
             .AddSingleton(c => new UseUploadZipArchiveValidationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseUploadZipArchiveValidation))
+            .AddSingleton(c => new UseOrganizationRenameFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseOrganizationRename))
             ;
 
         var builder = new ContainerBuilder();

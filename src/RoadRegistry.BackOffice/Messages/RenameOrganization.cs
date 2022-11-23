@@ -3,10 +3,9 @@ namespace RoadRegistry.BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RenameOrganization")]
-[EventDescription("Change the name of an existing organization.")]
+[EventDescription("Indicates that a rename of an organization got requested")]
 public class RenameOrganization : IMessage
 {
     public string Code { get; set; }
     public string Name { get; set; }
-    public string When { get; set; }
 }
