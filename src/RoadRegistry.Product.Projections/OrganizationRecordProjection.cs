@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
 using Schema.Organizations;
@@ -42,19 +43,14 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
             await context.Organizations.AddAsync(organization, token);
         });
 
-        When<Envelope<RenameOrganizationAccepted>>((context, envelope, token) =>
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            var organization = context.Organizations.SingleOrDefault(o => o.Code == envelope.Message.Code);
-            if (organization != null)
+            var organization = await context.Organizations.SingleAsync(o => o.Code == envelope.Message.Code, token);
+            organization.DbaseRecord = new OrganizationDbaseRecord
             {
-                organization.DbaseRecord = new OrganizationDbaseRecord
-                {
-                    ORG = { Value = envelope.Message.Code },
-                    LBLORG = { Value = envelope.Message.Name }
-                }.ToBytes(manager, encoding);
-            }
-
-            return Task.CompletedTask;
+                ORG = { Value = envelope.Message.Code },
+                LBLORG = { Value = envelope.Message.Name }
+            }.ToBytes(manager, encoding);
         });
     }
 

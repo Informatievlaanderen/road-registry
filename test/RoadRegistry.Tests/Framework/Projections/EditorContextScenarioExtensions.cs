@@ -148,16 +148,20 @@ public static class EditorContextScenarioExtensions
             {
                 var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
-                await context.SaveChangesAsync();
                 position++;
             }
+
+            await context.SaveChangesAsync();
         }
 
         await using (var context = CreateContextFor(database))
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -267,7 +271,10 @@ public static class EditorContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -299,7 +306,10 @@ public static class EditorContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
