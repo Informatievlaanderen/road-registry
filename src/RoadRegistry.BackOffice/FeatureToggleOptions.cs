@@ -9,6 +9,7 @@ public class FeatureToggleOptions
     public bool UseFeatureCompare { get; private set; }
     public bool UseApiKeyAuthentication { get; private set; }
     public bool UseUploadZipArchiveValidation { get; private set; }
+    public bool UseOrganizationRename { get; private set; }
 }
 
 
@@ -19,6 +20,8 @@ public sealed record UseFeatureCompareFeatureToggle(bool FeatureEnabled) : Appli
 public sealed record UseApiKeyAuthenticationFeatureToggle(bool FeatureEnabled) : ApplicationFeatureToggle(FeatureEnabled);
 
 public sealed record UseUploadZipArchiveValidationFeatureToggle(bool FeatureEnabled) : ApplicationFeatureToggle(FeatureEnabled);
+
+public sealed record UseOrganizationRenameFeatureToggle(bool FeatureEnabled) : ApplicationFeatureToggle(FeatureEnabled);
 
 public abstract record ApplicationFeatureToggle(bool FeatureEnabled) : IFeatureToggle
 {

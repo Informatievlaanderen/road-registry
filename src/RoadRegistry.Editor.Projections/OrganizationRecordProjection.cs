@@ -42,19 +42,17 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
             await context.Organizations.AddAsync(organization, token);
         });
 
-        When<Envelope<RenameOrganization>>((context, envelope, token) =>
+        When<Envelope<RenameOrganizationAccepted>>((context, envelope, token) =>
         {
             var organization = context.Organizations.SingleOrDefault(o => o.Code == envelope.Message.Code);
-            if (organization == null)
+            if (organization != null)
             {
-                throw new InvalidOperationException($"No Organization found with code '{envelope.Message.Code}'");
+                organization.DbaseRecord = new OrganizationDbaseRecord
+                {
+                    ORG = { Value = envelope.Message.Code },
+                    LBLORG = { Value = envelope.Message.Name }
+                }.ToBytes(manager, encoding);
             }
-
-            organization.DbaseRecord = new OrganizationDbaseRecord
-            {
-                ORG = { Value = envelope.Message.Code },
-                LBLORG = { Value = envelope.Message.Name }
-            }.ToBytes(manager, encoding);
 
             return Task.CompletedTask;
         });
