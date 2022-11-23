@@ -11,6 +11,7 @@ public class Organization : EventSourcedEntity
     private Organization()
     {
         On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
+        On<RenameOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
     }
 
     public DutchTranslation Translation { get; private set; }
