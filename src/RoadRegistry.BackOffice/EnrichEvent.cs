@@ -46,6 +46,9 @@ public static class EnrichEvent
                 case NoRoadNetworkChanges m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
+                case RenameOrganization m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
                 case RoadNetworkChangesAccepted m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;

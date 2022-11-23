@@ -2,7 +2,9 @@ namespace RoadRegistry.Product.Projections;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -21,10 +23,10 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
 
     public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
     {
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
 
-        When<Envelope<ImportedOrganization>>(async (content, envelope, token) =>
+        When<Envelope<ImportedOrganization>>(async (context, envelope, token) =>
         {
             var organization = new OrganizationRecord
             {
@@ -37,7 +39,24 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
                 }.ToBytes(manager, encoding)
             };
 
-            await content.AddAsync(organization, token);
+            await context.Organizations.AddAsync(organization, token);
+        });
+
+        When<Envelope<RenameOrganization>>((context, envelope, token) =>
+        {
+            var organization = context.Organizations.SingleOrDefault(o => o.Code == envelope.Message.Code);
+            if (organization == null)
+            {
+                throw new InvalidOperationException($"No Organization found with code '{envelope.Message.Code}'");
+            }
+
+            organization.DbaseRecord = new OrganizationDbaseRecord
+            {
+                ORG = { Value = envelope.Message.Code },
+                LBLORG = { Value = envelope.Message.Name }
+            }.ToBytes(manager, encoding);
+
+            return Task.CompletedTask;
         });
     }
 

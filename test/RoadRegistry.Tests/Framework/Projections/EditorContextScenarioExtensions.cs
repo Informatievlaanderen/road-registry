@@ -148,10 +148,9 @@ public static class EditorContextScenarioExtensions
             {
                 var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
+                await context.SaveChangesAsync();
                 position++;
             }
-
-            await context.SaveChangesAsync();
         }
 
         await using (var context = CreateContextFor(database))
