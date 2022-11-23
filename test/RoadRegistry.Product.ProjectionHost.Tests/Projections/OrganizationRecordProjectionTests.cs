@@ -69,14 +69,11 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
     [Fact]
     public Task When_organization_is_renamed()
     {
-        var messages = new List<object>
+        var importedOrganization = new ImportedOrganization { Code = "ABC", Name = "Organization Inc." };
+        var renameOrganizationAccepted = new RenameOrganizationAccepted
         {
-            new ImportedOrganization { Code = "ABC", Name = "Organization Inc." },
-            new RenameOrganizationAccepted
-            {
-                Code = "ABC",
-                Name = "Alphabet"
-            }
+            Code = "ABC",
+            Name = "Alphabet"
         };
 
         var expected = new OrganizationRecord
@@ -93,7 +90,7 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
 
         return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
             .Scenario()
-            .Given(messages)
-            .Expect(new object[] { expected });
+            .Given(importedOrganization, renameOrganizationAccepted)
+            .Expect(expected);
     }
 }
