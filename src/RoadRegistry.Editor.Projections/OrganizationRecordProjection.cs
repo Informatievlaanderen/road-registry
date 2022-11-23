@@ -2,6 +2,7 @@ namespace RoadRegistry.Editor.Projections;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -43,7 +44,9 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
 
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            var organization = await context.Organizations.SingleAsync(o => o.Code == envelope.Message.Code, token);
+            var organization = await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token)
+                ?? context.Organizations.Local.Single(o => o.Code == envelope.Message.Code);
+
             organization.DbaseRecord = new OrganizationDbaseRecord
             {
                 ORG = { Value = envelope.Message.Code },

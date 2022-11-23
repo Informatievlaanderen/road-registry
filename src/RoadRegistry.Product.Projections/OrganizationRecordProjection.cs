@@ -45,7 +45,9 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
 
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            var organization = await context.Organizations.SingleAsync(o => o.Code == envelope.Message.Code, token);
+            var organization = await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token)
+                               ?? context.Organizations.Local.Single(o => o.Code == envelope.Message.Code);
+
             organization.DbaseRecord = new OrganizationDbaseRecord
             {
                 ORG = { Value = envelope.Message.Code },
