@@ -3,9 +3,9 @@ namespace RoadRegistry.BackOffice.Core;
 using FluentValidation;
 using Messages;
 
-public class RenameOrganizationCommandValidator : AbstractValidator<RenameOrganization>
+public class RenameOrganizationValidator : AbstractValidator<RenameOrganization>
 {
-    public RenameOrganizationCommandValidator()
+    public RenameOrganizationValidator()
     {
         RuleFor(x => x.Code)
             .NotEmpty();
