@@ -32,10 +32,11 @@ public class RoadRegistrySystemController : ControllerBase
 
     [HttpPost("snapshots/refresh")]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<IActionResult> RequestSnapshotRebuild([FromBody] RebuildSnapshotParameters parameters)
+    public async Task<IActionResult> RequestSnapshotRebuild([FromBody] RequestSnapshotRebuildParameters request)
     {
         if (!_snapshotRebuildFeatureToggle.FeatureEnabled) return StatusCode(501); // Not Implemented
 
+        var parameters = new RebuildSnapshotParameters { StartFromVersion = request?.StartFromVersion ?? 0 };
         var validationResult = await _rebuildSnapshotParametersValidator.ValidateAsync(parameters, HttpContext.RequestAborted);
 
         if (!validationResult.IsValid) return BadRequest();
@@ -50,3 +51,5 @@ public class RoadRegistrySystemController : ControllerBase
         return Ok();
     }
 }
+
+public sealed record RequestSnapshotRebuildParameters(int StartFromVersion);

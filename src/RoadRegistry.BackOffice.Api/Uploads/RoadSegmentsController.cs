@@ -24,7 +24,6 @@ public class RoadSegmentsController : ControllerBase
     }
 
     [HttpPost("{id}/actions/linkstreetname")]
-    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
     public async Task<IActionResult> PostLinkStreetNameToRoadSegment([FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle, [FromBody] LinkStreetNameToRoadSegmentParameters parameters, CancellationToken cancellationToken)
     {
         if (!useFeatureCompareToggle.FeatureEnabled) //TODO-rik use own featuretoggle

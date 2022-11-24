@@ -5,6 +5,7 @@ using Framework;
 using Messages;
 using NodaTime;
 using SqlStreamStore;
+using SqlStreamStore.Streams;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
@@ -22,7 +23,10 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
             .Handle(async (context, command, ct) =>
             {
-                await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
+                if (command.Body.StartFromVersion > StreamVersion.Start)
+                {
+                    await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
+                }
                 var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
                 await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
             });

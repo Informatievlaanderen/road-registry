@@ -6,8 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Autofac;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Core;
+using Framework;
 using MediatR;
 using MediatR.Pipeline;
+using RoadRegistry.BackOffice.Messages;
+using SqlStreamStore;
 using Module = Autofac.Module;
 
 public class MediatorModule : Module
@@ -38,6 +43,17 @@ public class MediatorModule : Module
         {
             var c = ctx.Resolve<IComponentContext>();
             return t => c.Resolve(t);
+        });
+
+        builder.Register<IRoadRegistryContext>(context =>
+        {
+            var store = context.Resolve<IStreamStore>();
+            var snapshotReader = context.Resolve<IRoadNetworkSnapshotReader>();
+            var serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+            var eventMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+
+            var map = new EventSourcedEntityMap();
+            return new RoadRegistryContext(map, store, snapshotReader, serializerSettings, eventMapping);
         });
 
         RegisterAvailableAssemblyModules(builder);

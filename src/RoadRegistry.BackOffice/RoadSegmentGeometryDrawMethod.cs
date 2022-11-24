@@ -100,6 +100,15 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment geometry draw method.");
         return parsed;
     }
+    public static RoadSegmentGeometryDrawMethod GetById(int identifier)
+    {
+        if (ByIdentifier.TryGetValue(identifier, out var geometryDrawMethod))
+        {
+            return geometryDrawMethod;
+        }
+
+        throw new ArgumentException($"RoadSegmentGeometryDrawMethod identifier '{identifier}' is invalid");
+    }
 
     public override string ToString()
     {
