@@ -55,7 +55,10 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
     public async Task SetHeadToVersion(int version, CancellationToken cancellationToken)
     {
         var newSnapshotBlobName = SnapshotPrefix.Append(new BlobName(version.ToString()));
-        if (!await _client.BlobExistsAsync(newSnapshotBlobName, cancellationToken)) throw new InvalidOperationException($"Snapshot with name {newSnapshotBlobName} not found");
+        if (version > StreamVersion.Start)
+        {
+            if (!await _client.BlobExistsAsync(newSnapshotBlobName, cancellationToken)) throw new InvalidOperationException($"Snapshot with name {newSnapshotBlobName} not found");
+        }
 
         if (await _client.BlobExistsAsync(SnapshotHead, cancellationToken)) await _client.DeleteBlobAsync(SnapshotHead, cancellationToken);
 

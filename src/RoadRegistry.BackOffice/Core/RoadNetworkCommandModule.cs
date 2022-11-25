@@ -23,10 +23,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
             .Handle(async (context, command, ct) =>
             {
-                if (command.Body.StartFromVersion > StreamVersion.Start)
-                {
-                    await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
-                }
+                await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
                 var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
                 await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
             });
@@ -40,7 +37,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 var @operator = new OperatorName(message.Body.Operator);
                 var reason = new Reason(message.Body.Reason);
                 var organizationId = new OrganizationId(message.Body.OrganizationId);
-                var organization = await context.Organizations.TryGet(organizationId, ct);
+                var organization = await context.Organizations.FindAsync(organizationId, ct);
                 var translation = organization == null ? Organization.PredefinedTranslations.Unknown : organization.Translation;
 
                 var network = await context.RoadNetworks.Get(ct);

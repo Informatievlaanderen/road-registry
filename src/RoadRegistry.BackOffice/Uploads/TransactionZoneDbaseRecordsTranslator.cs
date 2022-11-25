@@ -18,7 +18,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     return changes
                         .WithReason(new Reason(records.Current.BESCHRIJV.Value))
                         .WithOperatorName(string.IsNullOrEmpty(records.Current.OPERATOR.Value)
-                            ? new OperatorName("-8")
+                            ? OperatorName.Unknown
                             : new OperatorName(records.Current.OPERATOR.Value))
                         .WithOrganization(new OrganizationId(records.Current.ORG.Value));
                 return changes;
@@ -44,7 +44,7 @@ namespace RoadRegistry.BackOffice.Uploads
                     return changes
                         .WithReason(new Reason(records.Current.BESCHRIJV.Value))
                         .WithOperatorName(string.IsNullOrEmpty(records.Current.OPERATOR.Value)
-                            ? new OperatorName("-8")
+                            ? OperatorName.Unknown
                             : new OperatorName(records.Current.OPERATOR.Value))
                         .WithOrganization(new OrganizationId(records.Current.ORG.Value));
                 return changes;

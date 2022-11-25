@@ -12,5 +12,5 @@ public class RoadNetworkSnapshotSegmentAttributeHash
     [Key(6)] public string OrganizationId { get; set; }
     [Key(5)] public int? RightSideStreetNameId { get; set; }
     [Key(3)] public string Status { get; set; }
-    [Key(7)] public int GeometryDrawMethod { get; set; }
+    [Key(7)] public string GeometryDrawMethod { get; set; }
 }

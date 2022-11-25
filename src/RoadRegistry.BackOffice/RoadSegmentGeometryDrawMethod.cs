@@ -4,6 +4,7 @@ namespace RoadRegistry.BackOffice;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeometryDrawMethod>
@@ -100,21 +101,12 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
         if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment geometry draw method.");
         return parsed;
     }
-    public static RoadSegmentGeometryDrawMethod GetById(int identifier)
-    {
-        if (ByIdentifier.TryGetValue(identifier, out var geometryDrawMethod))
-        {
-            return geometryDrawMethod;
-        }
-
-        throw new ArgumentException($"RoadSegmentGeometryDrawMethod identifier '{identifier}' is invalid");
-    }
-
+    
     public override string ToString()
     {
         return _value;
     }
-
+    
     public static bool TryParse(string value, out RoadSegmentGeometryDrawMethod parsed)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));

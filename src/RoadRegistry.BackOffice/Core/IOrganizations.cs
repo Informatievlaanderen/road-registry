@@ -5,5 +5,5 @@ using System.Threading.Tasks;
 
 public interface IOrganizations
 {
-    Task<Organization> TryGet(OrganizationId id, CancellationToken ct = default);
+    Task<Organization> FindAsync(OrganizationId id, CancellationToken ct = default);
 }

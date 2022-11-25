@@ -8,6 +8,8 @@ public readonly struct OperatorName : IEquatable<OperatorName>
     public const int MaxLength = 254;
     private readonly string _value;
 
+    public static readonly OperatorName Unknown = new OperatorName("-8");
+
     public OperatorName(string value)
     {
         if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value), "The operator name must not be null or empty.");

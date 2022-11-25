@@ -28,7 +28,7 @@ public class Organizations : IOrganizations
         _mapping = mapping ?? throw new ArgumentNullException(nameof(mapping));
     }
 
-    public async Task<Organization> TryGet(OrganizationId id, CancellationToken ct = default)
+    public async Task<Organization> FindAsync(OrganizationId id, CancellationToken ct = default)
     {
         var stream = ToStreamName(id);
         if (_map.TryGet(stream, out var entry)) return (Organization)entry.Entity;

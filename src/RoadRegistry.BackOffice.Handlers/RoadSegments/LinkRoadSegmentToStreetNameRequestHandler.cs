@@ -4,7 +4,6 @@ using Abstractions;
 using Abstractions.RoadSegments;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Core;
 using FluentValidation;
 using Framework;
 using Messages;
@@ -29,24 +28,27 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
 
     public override async Task<LinkRoadSegmentToStreetNameResponse> HandleAsync(LinkRoadSegmentToStreetNameRequest request, CancellationToken cancellationToken)
     {
-        var messageId = Guid.NewGuid(); //TODO-rik van waar halen?
+        var messageId = Guid.NewGuid(); //TODO-rik nieuwe msg id of komt die van ergens mee? bvb correlationid?
         
         var requestId = ChangeRequestId.FromUploadId(new UploadId(messageId));
-        var translatedChanges = TranslatedChanges.Empty;
-
+        var translatedChanges = TranslatedChanges.Empty
+            .WithOrganization(new OrganizationId("AGIV"))
+            .WithOperatorName(OperatorName.Unknown)
+            .WithReason(new Reason("Straatnaam koppelen"));
+        
         var roadNetwork = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
         var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.RoadSegmentId));
         if (roadSegment != null)
         {
-            var recordNumber = new RecordNumber(1); //TODO-rik moet dit iets anders zijn?
+            var recordNumber = RecordNumber.Initial;
 
             if (request.LeftStreetNameId > 0)
             {
-                if (roadSegment.AttributeHash.LeftStreetNameId > 0)
+                if (!CrabStreetnameId.Accepts(roadSegment.AttributeHash.LeftStreetNameId))
                 {
                     throw new ValidationException("RoadSegment LeftStreetNameId must be empty");
                 }
-
+                
                 translatedChanges.AppendChange(new ModifyRoadSegment(
                     recordNumber,
                     roadSegment.Id,
@@ -64,7 +66,7 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
             }
             else if (request.RightStreetNameId > 0)
             {
-                if (roadSegment.AttributeHash.RightStreetNameId != null)
+                if (!CrabStreetnameId.Accepts(roadSegment.AttributeHash.RightStreetNameId))
                 {
                     throw new ValidationException("RoadSegment LeftStreetNameId must be empty");
                 }
