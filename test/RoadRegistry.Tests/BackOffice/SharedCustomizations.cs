@@ -42,10 +42,11 @@ public static class SharedCustomizations
                         fixture.Create<RoadSegmentStatus>(),
                         fixture.Create<CrabStreetnameId?>(),
                         fixture.Create<CrabStreetnameId?>(),
-                        fixture.Create<OrganizationId>());
+                        fixture.Create<OrganizationId>(),
+                        fixture.Create<RoadSegmentGeometryDrawMethod>());
                     var times = generator.Next(0, 10);
                     for (var index = 0; index < times; index++)
-                        switch (generator.Next(0, 7))
+                        switch (generator.Next(0, 8))
                         {
                             case 0:
                                 result = result.With(fixture.Create<RoadSegmentCategory>());
@@ -67,6 +68,9 @@ public static class SharedCustomizations
                                 break;
                             case 6:
                                 result = result.With(fixture.Create<OrganizationId>());
+                                break;
+                            case 7:
+                                result = result.WithGeometryDrawMethod(fixture.Create<RoadSegmentGeometryDrawMethod>());
                                 break;
                         }
 

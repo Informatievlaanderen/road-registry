@@ -22,14 +22,9 @@ public readonly struct CrabStreetnameId : IEquatable<CrabStreetnameId>
         _value = value;
     }
 
-    public static bool Accepts(CrabStreetnameId? value)
+    public static bool IsEmpty(CrabStreetnameId? value)
     {
-        if (value == null)
-        {
-            return true;
-        }
-
-        return Accepts(value.Value._value);
+        return value == null || value == UnknownValue || value == NotApplicableValue || value <= 0;
     }
 
     public static bool Accepts(int value)

@@ -7,6 +7,7 @@ using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
+using Extensions;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -156,17 +157,18 @@ public class Startup
                     }
                 }
             })
-            .Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey), options => { options.BindNonPublicProperties = true; })
             .AddValidatorsFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<MediatorModule>()
             .AddValidatorsFromAssemblyContaining<Handlers.MediatorModule>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.MediatorModule>()
-            .AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
-            .AddSingleton(c => new UseFeatureCompareFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare))
-            .AddSingleton(c => new UseApiKeyAuthenticationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))
-            .AddSingleton(c => new UseUploadZipArchiveValidationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseUploadZipArchiveValidation))
-            .AddSingleton(c => new UseOrganizationRenameFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseOrganizationRename))
-            ;
+            //.Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey), options => { options.BindNonPublicProperties = true; })
+            //.AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
+            //.AddSingleton(c => new UseFeatureCompareFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare))
+            //.AddSingleton(c => new UseApiKeyAuthenticationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))
+            //.AddSingleton(c => new UseUploadZipArchiveValidationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseUploadZipArchiveValidation))
+            //.AddSingleton(c => new UseOrganizationRenameFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseOrganizationRename))
+            //.AddSingleton(c => new UseLinkRoadSegmentToStreetNameFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseLinkRoadSegmentToStreetName))
+            .AddFeatureToggles<ApplicationFeatureToggle>(_configuration);
 
         var builder = new ContainerBuilder();
         builder.Populate(services);

@@ -291,7 +291,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                               .FromString(envelope.Message.RequestId).ToBytes().ToArray());
             var content = new RoadNetworkChangesBasedOnArchiveAcceptedEntry
             {
-                Archive = new ArchiveInfo { Id = request.ArchiveId },
+                Archive = new ArchiveInfo { Id = request?.ArchiveId },
                 Summary = AcceptedChanges.Summarize(envelope.Message.Changes),
                 Changes = envelope.Message.Changes
                     .Select(change => new AcceptedChange
@@ -308,7 +308,10 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                     .ToArray()
             };
 
-            await EnrichWithArchiveInformation(request.ArchiveId, content.Archive, client, ct);
+            if (content.Archive.Id != null)
+            {
+                await EnrichWithArchiveInformation(content.Archive.Id, content.Archive, client, ct);
+            }
 
             await context.RoadNetworkChanges.AddAsync(
                 new RoadNetworkChange
@@ -331,7 +334,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                               .FromString(envelope.Message.RequestId).ToBytes().ToArray());
             var content = new RoadNetworkChangesBasedOnArchiveRejectedEntry
             {
-                Archive = new ArchiveInfo { Id = request.ArchiveId },
+                Archive = new ArchiveInfo { Id = request?.ArchiveId },
                 Changes = envelope.Message.Changes
                     .Select(change => new RejectedChange
                     {
@@ -347,7 +350,10 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                     .ToArray()
             };
 
-            await EnrichWithArchiveInformation(request.ArchiveId, content.Archive, client, ct);
+            if (content.Archive.Id != null)
+            {
+                await EnrichWithArchiveInformation(content.Archive.Id, content.Archive, client, ct);
+            }
 
             await context.RoadNetworkChanges.AddAsync(
                 new RoadNetworkChange
@@ -368,12 +374,16 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                                       .ToArray())
                           ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(ChangeRequestId
                               .FromString(envelope.Message.RequestId).ToBytes().ToArray());
+
             var content = new NoRoadNetworkChangesBasedOnArchiveEntry
             {
-                Archive = new ArchiveInfo { Id = request.ArchiveId }
+                Archive = new ArchiveInfo { Id = request?.ArchiveId }
             };
 
-            await EnrichWithArchiveInformation(request.ArchiveId, content.Archive, client, ct);
+            if (content.Archive.Id != null)
+            {
+                await EnrichWithArchiveInformation(content.Archive.Id, content.Archive, client, ct);
+            }
 
             await context.RoadNetworkChanges.AddAsync(
                 new RoadNetworkChange

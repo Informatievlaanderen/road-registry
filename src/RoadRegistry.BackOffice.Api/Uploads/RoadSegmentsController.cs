@@ -8,6 +8,7 @@ using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.FeatureToggles;
 
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
@@ -24,9 +25,9 @@ public class RoadSegmentsController : ControllerBase
     }
 
     [HttpPost("{id}/actions/linkstreetname")]
-    public async Task<IActionResult> PostLinkStreetNameToRoadSegment([FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle, [FromBody] LinkStreetNameToRoadSegmentParameters parameters, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostLinkStreetNameToRoadSegment([FromServices] UseLinkRoadSegmentToStreetNameFeatureToggle featureToggle, [FromBody] LinkStreetNameToRoadSegmentParameters parameters, CancellationToken cancellationToken)
     {
-        if (!useFeatureCompareToggle.FeatureEnabled) //TODO-rik use own featuretoggle
+        if (!featureToggle.FeatureEnabled)
         {
             return NotFound();
         }

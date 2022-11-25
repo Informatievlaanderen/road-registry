@@ -48,6 +48,7 @@
                       <br />
                       <div
                         v-if="
+                          activity.changeFeedContent.content.archive.id &&
                           [
                             'RoadNetworkChangesArchiveUploaded',
                             'RoadNetworkExtractChangesArchiveUploaded',
@@ -64,6 +65,7 @@
                       </div>
                       <div
                         v-else-if="
+                          activity.changeFeedContent.content.archive.id &&
                           ['RoadNetworkExtractDownloadBecameAvailable'].some((x) => x === activity.changeFeedEntry.type)
                         "
                       >
@@ -95,12 +97,14 @@
                           <ActivityProblems :problems="file.problems" />
                           <br />
                         </div>
-                        <vl-button v-if="isDownloading" mod-loading>
-                          Download...
-                        </vl-button>
-                        <vl-button v-else @click="downloadUpload(activity)">
-                          Download
-                        </vl-button>
+                        <div v-if="activity.changeFeedContent.content.archive.id">
+                          <vl-button v-if="isDownloading" mod-loading>
+                            Download...
+                          </vl-button>
+                          <vl-button v-else @click="downloadUpload(activity)">
+                            Download
+                          </vl-button>
+                        </div>
                       </div>
                       <div
                         v-else-if="['RoadNetworkChangesAccepted:v2'].some((x) => x === activity.changeFeedEntry.type)"
@@ -204,12 +208,14 @@
                           <ActivityProblems :problems="change.problems" />
                           <br />
                         </div>
-                        <vl-button v-if="isDownloading" mod-loading>
-                          Download...
-                        </vl-button>
-                        <vl-button v-else @click="downloadUpload(activity)">
-                          Download
-                        </vl-button>
+                        <div v-if="activity.changeFeedContent.content.archive.id">
+                          <vl-button v-if="isDownloading" mod-loading>
+                            Download...
+                          </vl-button>
+                          <vl-button v-else @click="downloadUpload(activity)">
+                            Download
+                          </vl-button>
+                        </div>
                       </div>
                       <div v-else-if="['RoadNetworkChangesRejected'].some((x) => x === activity.changeFeedEntry.type)">
                         <div v-for="change in activity.changeFeedContent.content.changes" :key="change.change">
@@ -219,15 +225,14 @@
                           <ActivityProblems :problems="change.problems" />
                           <br />
                         </div>
-                        <vl-button v-if="isDownloading" mod-loading>
-                          Download...
-                        </vl-button>
-                        <vl-button v-else @click="downloadUpload(activity)">
-                          Download
-                        </vl-button>
-                      </div>
-                      <div v-else>
-                        {{ activity.changeFeedContent }}
+                        <div v-if="activity.changeFeedContent.content.archive.id">
+                          <vl-button v-if="isDownloading" mod-loading>
+                            Download...
+                          </vl-button>
+                          <vl-button v-else @click="downloadUpload(activity)">
+                            Download
+                          </vl-button>
+                        </div>
                       </div>
                     </div>
                     <div v-else>

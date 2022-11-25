@@ -20,6 +20,7 @@ public class AttributeHashTests
         _fixture.CustomizeRoadSegmentAccessRestriction();
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeAttributeHash();
+        _fixture.CustomizeRoadSegmentGeometryDrawMethod();
     }
 
     [Fact]

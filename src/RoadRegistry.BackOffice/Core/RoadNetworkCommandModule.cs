@@ -66,7 +66,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .Handle(async (context, command, ct) =>
             {
                 var organizationId = new OrganizationId(command.Body.Code);
-                var organization = await context.Organizations.TryGet(organizationId, ct);
+                var organization = await context.Organizations.FindAsync(organizationId, ct);
 
                 if (organization != null)
                 {
