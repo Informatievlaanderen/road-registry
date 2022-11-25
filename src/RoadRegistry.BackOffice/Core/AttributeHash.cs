@@ -77,7 +77,7 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     }
 
     [Pure]
-    public AttributeHash WithGeometryDrawMethod(RoadSegmentGeometryDrawMethod value)
+    public AttributeHash With(RoadSegmentGeometryDrawMethod value)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, value);
     }

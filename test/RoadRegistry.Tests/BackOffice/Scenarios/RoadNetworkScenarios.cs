@@ -4377,6 +4377,7 @@ public class RoadNetworkScenarios : RoadRegistryFixture
         AddSegment2.AccessRestriction = AddSegment1.AccessRestriction;
         AddSegment2.LeftSideStreetNameId = AddSegment1.LeftSideStreetNameId;
         AddSegment2.RightSideStreetNameId = AddSegment1.RightSideStreetNameId;
+        AddSegment2.GeometryDrawMethod = AddSegment1.GeometryDrawMethod;
 
         Segment2Added.StartNodeId = StartNode1Added.Id;
         Segment2Added.Status = Segment1Added.Status;
@@ -4386,6 +4387,7 @@ public class RoadNetworkScenarios : RoadRegistryFixture
         Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
         Segment2Added.LeftSide = Segment1Added.LeftSide;
         Segment2Added.RightSide = Segment1Added.RightSide;
+        Segment2Added.GeometryDrawMethod = Segment1Added.GeometryDrawMethod;
         Segment2Added.Geometry = GeometryTranslator.Translate(
             new MultiLineString(new[]
             {

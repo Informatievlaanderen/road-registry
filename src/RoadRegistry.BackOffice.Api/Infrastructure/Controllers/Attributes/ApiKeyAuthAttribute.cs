@@ -2,27 +2,20 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
-using Amazon.Runtime.Internal.Util;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Extensions;
+using FeatureToggles;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Polly;
-using RoadRegistry.BackOffice.FeatureToggles;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
@@ -48,11 +41,11 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
             if (context.HttpContext.Request.Headers.TryGetValue(ApiTokenHeaderName, out var apiTokens))
             {
                 var apiToken = apiTokens.FirstOrDefault()
-                    ?? throw RefuseAccess(context);
+                               ?? throw RefuseAccess(context);
 
                 await OnAuthorizationTokenAsync(context, ApiToken.FromBase64String(apiToken));
                 return;
-            }     
+            }
 
             var apiKey = context.GetValueFromHeader(ApiKeyHeaderName) ?? context.GetValueFromQueryString(ApiKeyQueryName);
             if (!string.IsNullOrEmpty(apiKey))
@@ -69,10 +62,14 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
     }
 
     private async Task OnAuthorizationKeyAsync(AuthorizationFilterContext context, string apiKey)
-        => await OnAuthorizationTokenAsync(context, async () => await ReadFromDynamoDbAsync(context, apiKey));
+    {
+        await OnAuthorizationTokenAsync(context, async () => await ReadFromDynamoDbAsync(context, apiKey));
+    }
 
     private async Task OnAuthorizationTokenAsync(AuthorizationFilterContext context, ApiToken apiToken)
-        => await OnAuthorizationTokenAsync(context, async () => await ReadFromDynamoDbAsync(context, apiToken.ApiKey));
+    {
+        await OnAuthorizationTokenAsync(context, async () => await ReadFromDynamoDbAsync(context, apiToken.ApiKey));
+    }
 
     private async Task OnAuthorizationTokenAsync(AuthorizationFilterContext context, Func<Task<ApiToken>> callback)
     {
@@ -146,8 +143,7 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
 
     public record ApiToken([JsonProperty("apikey")] string ApiKey, [JsonProperty("clientname")] string ClientName, [JsonProperty("metadata")] ApiTokenMetadata Metadata)
     {
-        [JsonIgnore]
-        public bool Revoked { get; set; }
+        [JsonIgnore] public bool Revoked { get; set; }
 
         public static ApiToken FromBase64String(string s)
         {
@@ -156,14 +152,17 @@ public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
             return JsonConvert.DeserializeObject<ApiToken>(json);
         }
 
-        public string ToBase64String() => ApiToken.ToBase64String(this);
+        public string ToBase64String()
+        {
+            return ToBase64String(this);
+        }
 
         public static string ToBase64String(ApiToken apiToken)
         {
             var serializedApiToken = JsonConvert.SerializeObject(apiToken);
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(serializedApiToken));
         }
-    };
+    }
 
     public record ApiTokenMetadata([JsonProperty("wraccess")] bool WrAccess, [JsonProperty("syncaccess")] bool SyncAccess = false, [JsonProperty("ticketsaccess")] bool TicketsAccess = false);
 }

@@ -56,6 +56,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
         Fixture.CustomizeGradeSeparatedJunctionId();
         Fixture.CustomizeGradeSeparatedJunctionType();
         Fixture.CustomizeArchiveId();
+        Fixture.CustomizeRoadSegmentGeometryDrawMethod();
         Fixture.CustomizeChangeRequestId();
         Fixture.CustomizeReason();
         Fixture.CustomizeOperatorName();
@@ -1196,6 +1197,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
         Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
         Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
         Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;
+        Segment2Added.GeometryDrawMethod = Segment1Added.GeometryDrawMethod;
 
         return Run(scenario => scenario
             .Given(Organizations.ToStreamName(ChangedByOrganization),
@@ -1809,6 +1811,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
         Segment2Added.AccessRestriction = Segment1Added.AccessRestriction;
         Segment2Added.LeftSide.StreetNameId = Segment1Added.LeftSide.StreetNameId;
         Segment2Added.RightSide.StreetNameId = Segment1Added.RightSide.StreetNameId;
+        Segment2Added.GeometryDrawMethod = Segment1Added.GeometryDrawMethod;
 
         return Run(scenario => scenario
             .Given(Organizations.ToStreamName(ChangedByOrganization),

@@ -8,7 +8,7 @@ using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.FeatureToggles;
+using FeatureToggles;
 
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]

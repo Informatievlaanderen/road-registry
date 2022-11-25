@@ -70,7 +70,7 @@ public static class SharedCustomizations
                                 result = result.With(fixture.Create<OrganizationId>());
                                 break;
                             case 7:
-                                result = result.WithGeometryDrawMethod(fixture.Create<RoadSegmentGeometryDrawMethod>());
+                                result = result.With(fixture.Create<RoadSegmentGeometryDrawMethod>());
                                 break;
                         }
 

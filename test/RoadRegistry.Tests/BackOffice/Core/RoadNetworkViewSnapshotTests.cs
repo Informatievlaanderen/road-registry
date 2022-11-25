@@ -32,6 +32,7 @@ public class RoadNetworkViewSnapshotTests
         _fixture.CustomizeGradeSeparatedJunctionType();
         _fixture.CustomizeTransactionId();
         _fixture.CustomizeAttributeId();
+        _fixture.CustomizeRoadSegmentGeometryDrawMethod();
 
         _fixture.Customize<RoadNodeGeometry>(customizer =>
             customizer.FromFactory(_ => new RoadNodeGeometry
@@ -68,7 +69,8 @@ public class RoadNetworkViewSnapshotTests
                 Status = _fixture.Create<RoadSegmentStatus>(),
                 OrganizationId = _fixture.Create<OrganizationId>(),
                 LeftSideStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32(),
-                RightSideStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32()
+                RightSideStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32(),
+                GeometryDrawMethod = _fixture.Create<RoadSegmentGeometryDrawMethod>().ToString()
             }).OmitAutoProperties());
 
         _fixture.Customize<RoadNetworkSnapshotSegment>(customizer =>

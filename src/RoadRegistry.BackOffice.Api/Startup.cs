@@ -161,13 +161,6 @@ public class Startup
             .AddValidatorsFromAssemblyContaining<MediatorModule>()
             .AddValidatorsFromAssemblyContaining<Handlers.MediatorModule>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.MediatorModule>()
-            //.Configure<FeatureToggleOptions>(_configuration.GetSection(FeatureToggleOptions.ConfigurationKey), options => { options.BindNonPublicProperties = true; })
-            //.AddSingleton(c => new UseSnapshotRebuildFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseSnapshotRebuild))
-            //.AddSingleton(c => new UseFeatureCompareFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseFeatureCompare))
-            //.AddSingleton(c => new UseApiKeyAuthenticationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseApiKeyAuthentication))
-            //.AddSingleton(c => new UseUploadZipArchiveValidationFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseUploadZipArchiveValidation))
-            //.AddSingleton(c => new UseOrganizationRenameFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseOrganizationRename))
-            //.AddSingleton(c => new UseLinkRoadSegmentToStreetNameFeatureToggle(c.GetRequiredService<IOptions<FeatureToggleOptions>>().Value.UseLinkRoadSegmentToStreetName))
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration);
 
         var builder = new ContainerBuilder();

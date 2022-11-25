@@ -27,6 +27,7 @@ public class RoadSegmentTests
         fixture.CustomizeRoadSegmentAccessRestriction();
         fixture.CustomizeOrganizationId();
         fixture.CustomizeAttributeHash();
+        fixture.CustomizeRoadSegmentGeometryDrawMethod();
         _id = fixture.Create<RoadSegmentId>();
         _start = fixture.Create<RoadNodeId>();
         _end = fixture.Create<RoadNodeId>();
