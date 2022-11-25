@@ -116,37 +116,40 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
         MiddlePoint1 = new Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint1 = new Point(new CoordinateM(100.0, 100.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MultiLineString1 = new MultiLineString(
-            new[]
-            {
-                new LineString(
-                    new CoordinateArraySequence(new[] { StartPoint1.Coordinate, MiddlePoint1.Coordinate, EndPoint1.Coordinate }),
-                    GeometryConfiguration.GeometryFactory
-                )
-            }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+                new[]
+                {
+                    new LineString(
+                        new CoordinateArraySequence(new[] { StartPoint1.Coordinate, MiddlePoint1.Coordinate, EndPoint1.Coordinate }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                })
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         StartPoint2 = new Point(new CoordinateM(0.0, 200.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint2 = new Point(new CoordinateM(50.0, 250.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint2 = new Point(new CoordinateM(100.0, 300.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MultiLineString2 = new MultiLineString(
-            new[]
-            {
-                new LineString(
-                    new CoordinateArraySequence(new[] { StartPoint2.Coordinate, MiddlePoint2.Coordinate, EndPoint2.Coordinate }),
-                    GeometryConfiguration.GeometryFactory
-                )
-            }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+                new[]
+                {
+                    new LineString(
+                        new CoordinateArraySequence(new[] { StartPoint2.Coordinate, MiddlePoint2.Coordinate, EndPoint2.Coordinate }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                })
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         StartPoint3 = new Point(new CoordinateM(0.0, 500.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint3 = new Point(new CoordinateM(50.0, 550.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint3 = new Point(new CoordinateM(100.0, 600.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MultiLineString3 = new MultiLineString(
-            new[]
-            {
-                new LineString(
-                    new CoordinateArraySequence(new[] { StartPoint3.Coordinate, MiddlePoint3.Coordinate, EndPoint3.Coordinate }),
-                    GeometryConfiguration.GeometryFactory
-                )
-            }) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+                new[]
+                {
+                    new LineString(
+                        new CoordinateArraySequence(new[] { StartPoint3.Coordinate, MiddlePoint3.Coordinate, EndPoint3.Coordinate }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                })
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         AddStartNode1 = new AddRoadNode
         {
@@ -289,9 +292,13 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString1.Length) / laneCount1);
                     if (index == laneCount1 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString1.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / laneCount1);
+                    }
 
                     return part;
                 })
@@ -302,9 +309,13 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString1.Length) / widthCount1);
                     if (index == widthCount1 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString1.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / widthCount1);
+                    }
 
                     return part;
                 })
@@ -315,9 +326,13 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString1.Length) / surfaceCount1);
                     if (index == surfaceCount1 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString1.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / surfaceCount1);
+                    }
 
                     return part;
                 })
@@ -407,9 +422,13 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString2.Length) / laneCount2);
                     if (index == laneCount2 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString2.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / laneCount2);
+                    }
 
                     return part;
                 })
@@ -420,9 +439,13 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString2.Length) / widthCount2);
                     if (index == widthCount2 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString2.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / widthCount2);
+                    }
 
                     return part;
                 })
@@ -433,9 +456,13 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString2.Length) / surfaceCount2);
                     if (index == surfaceCount2 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString2.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / surfaceCount2);
+                    }
 
                     return part;
                 })
@@ -525,9 +552,13 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString3.Length) / laneCount3);
                     if (index == laneCount3 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString3.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString3.Length) / laneCount3);
+                    }
 
                     return part;
                 })
@@ -538,9 +569,13 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString3.Length) / widthCount3);
                     if (index == widthCount3 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString3.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString3.Length) / widthCount3);
+                    }
 
                     return part;
                 })
@@ -551,9 +586,13 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString3.Length) / surfaceCount3);
                     if (index == surfaceCount3 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString3.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString3.Length) / surfaceCount3);
+                    }
 
                     return part;
                 })
@@ -685,7 +724,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(1),
                 Changes = new[]
                 {
@@ -716,7 +759,84 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
+                TransactionId = new TransactionId(2),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeModified = StartNode1Modified,
+                        Problems = Array.Empty<Problem>()
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            }));
+    }
+
+    [Fact]
+    public Task when_modifying_a_node_with_the_same_values_with_renamed_organization()
+    {
+        return Run(scenario => scenario
+            .Given(Organizations.ToStreamName(ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = ChangedByOrganization,
+                    Name = ChangedByOrganizationName + "DUMMY_AFFIX",
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                },
+                new RenameOrganizationAccepted
+                {
+                    Code = ChangedByOrganization,
+                    Name = ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = StartNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = EndNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = Segment1Added,
+                        Problems = Array.Empty<Problem>()
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .When(TheOperator.ChangesTheRoadNetwork(
+                RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                new RequestedChange
+                {
+                    ModifyRoadNode = ModifyStartNode1
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
@@ -747,7 +867,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(1),
                 Changes = new[]
                 {
@@ -778,7 +902,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
@@ -942,8 +1070,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId,
+                    Reason = ReasonForChange,
+                    Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization,
+                    Organization = ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
@@ -979,8 +1110,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
@@ -1074,8 +1208,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId,
+                    Reason = ReasonForChange,
+                    Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization,
+                    Organization = ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
@@ -1111,8 +1248,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
@@ -1223,8 +1363,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId,
+                    Reason = ReasonForChange,
+                    Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization,
+                    Organization = ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
@@ -1260,8 +1403,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
@@ -1337,7 +1483,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(1),
                 Changes = new[]
                 {
@@ -1368,7 +1518,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator, OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
@@ -1528,8 +1682,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId,
+                    Reason = ReasonForChange,
+                    Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization,
+                    Organization = ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
@@ -1565,8 +1722,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
@@ -1661,8 +1821,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId,
+                    Reason = ReasonForChange,
+                    Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization,
+                    Organization = ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
@@ -1698,8 +1861,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {
@@ -1811,8 +1977,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             )
             .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
                 {
-                    RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                    OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                    RequestId = RequestId,
+                    Reason = ReasonForChange,
+                    Operator = ChangedByOperator,
+                    OrganizationId = ChangedByOrganization,
+                    Organization = ChangedByOrganizationName,
                     TransactionId = new TransactionId(1),
                     Changes = new[]
                     {
@@ -1848,8 +2017,11 @@ public class ModifyRoadNodeScenarios : RoadRegistryFixture
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
             {
-                RequestId = RequestId, Reason = ReasonForChange, Operator = ChangedByOperator,
-                OrganizationId = ChangedByOrganization, Organization = ChangedByOrganizationName,
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
                 TransactionId = new TransactionId(2),
                 Changes = new[]
                 {

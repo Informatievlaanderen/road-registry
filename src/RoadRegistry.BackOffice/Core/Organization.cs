@@ -11,6 +11,7 @@ public class Organization : EventSourcedEntity
     private Organization()
     {
         On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
+        On<RenameOrganizationAccepted>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
     }
 
     public DutchTranslation Translation { get; private set; }
@@ -32,5 +33,14 @@ public class Organization : EventSourcedEntity
         public static readonly DutchTranslation Other = new(OrganizationId.Other, new OrganizationName("andere"));
         public static readonly DutchTranslation Unknown = new(OrganizationId.Unknown, new OrganizationName("niet gekend"));
         public static readonly DutchTranslation[] All = { Other, Unknown };
+    }
+
+    public void Rename(string name)
+    {
+        Apply(new RenameOrganizationAccepted()
+        {
+            Code = Translation.Identifier,
+            Name = name
+        });
     }
 }

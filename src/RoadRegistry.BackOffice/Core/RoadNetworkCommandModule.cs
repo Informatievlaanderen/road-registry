@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Threading.Tasks;
 using Framework;
 using Messages;
 using NodaTime;
@@ -15,12 +16,14 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock)
     {
-        if (store == null) throw new ArgumentNullException(nameof(store));
-        if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
-        if (clock == null) throw new ArgumentNullException(nameof(clock));
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(snapshotReader);
+        ArgumentNullException.ThrowIfNull(clock);
+
+        var enricher = EnrichEvent.WithTime(clock);
 
         For<RebuildRoadNetworkSnapshot>()
-            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, snapshotReader, enricher)
             .Handle(async (context, command, ct) =>
             {
                 await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
@@ -30,7 +33,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
-            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, snapshotReader, enricher)
             .Handle(async (context, message, ct) =>
             {
                 var request = ChangeRequestId.FromString(message.Body.RequestId);
@@ -56,5 +59,34 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 var requestedChanges = await translator.Translate(message.Body.Changes, context.Organizations, ct);
                 network.Change(request, reason, @operator, translation, requestedChanges);
             });
+
+        For<RenameOrganization>()
+            .UseValidator(new RenameOrganizationValidator())
+            .UseRoadRegistryContext(store, snapshotReader, enricher)
+            .Handle(async (context, command, ct) =>
+            {
+                var organizationId = new OrganizationId(command.Body.Code);
+                var organization = await context.Organizations.TryGet(organizationId, ct);
+
+                if (organization != null)
+                {
+                    organization.Rename(command.Body.Name);
+                }
+                else
+                {
+                    var rejectCommand = new RenameOrganizationRejected
+                    {
+                        Code = command.Body.Code,
+                        Name = command.Body.Name
+                    };
+                    enricher(rejectCommand);
+
+                    await new RoadNetworkCommandQueue(store)
+                        .Write(new Command(rejectCommand), ct);
+                }
+            });
+
+        For<RenameOrganizationRejected>()
+            .Handle((_, _) => Task.CompletedTask);
     }
 }

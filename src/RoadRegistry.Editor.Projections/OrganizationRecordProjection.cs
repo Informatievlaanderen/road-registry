@@ -2,10 +2,12 @@ namespace RoadRegistry.Editor.Projections;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
 using Schema.Organizations;
@@ -21,10 +23,10 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
 
     public OrganizationRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
     {
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
 
-        When<Envelope<ImportedOrganization>>(async (content, envelope, token) =>
+        When<Envelope<ImportedOrganization>>(async (context, envelope, token) =>
         {
             var organization = new OrganizationRecord
             {
@@ -37,7 +39,19 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
                 }.ToBytes(manager, encoding)
             };
 
-            await content.AddAsync(organization, token);
+            await context.Organizations.AddAsync(organization, token);
+        });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            var organization = await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token)
+                ?? context.Organizations.Local.Single(o => o.Code == envelope.Message.Code);
+
+            organization.DbaseRecord = new OrganizationDbaseRecord
+            {
+                ORG = { Value = envelope.Message.Code },
+                LBLORG = { Value = envelope.Message.Name }
+            }.ToBytes(manager, encoding);
         });
     }
 

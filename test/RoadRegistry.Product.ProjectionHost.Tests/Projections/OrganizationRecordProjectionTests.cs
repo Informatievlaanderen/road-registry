@@ -64,4 +64,33 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
             .Given(data.Select(d => d.ImportedOrganization))
             .Expect(data.Select(d => d.Expected));
     }
+
+
+    [Fact]
+    public Task When_organization_is_renamed()
+    {
+        var importedOrganization = new ImportedOrganization { Code = "ABC", Name = "Organization Inc." };
+        var renameOrganizationAccepted = new RenameOrganizationAccepted
+        {
+            Code = "ABC",
+            Name = "Alphabet"
+        };
+
+        var expected = new OrganizationRecord
+        {
+            Id = 1,
+            Code = "ABC",
+            SortableCode = OrganizationRecordProjection.GetSortableCodeFor("ABC"),
+            DbaseRecord = new OrganizationDbaseRecord
+            {
+                ORG = { Value = "ABC" },
+                LBLORG = { Value = "Alphabet" }
+            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+        };
+
+        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            .Scenario()
+            .Given(importedOrganization, renameOrganizationAccepted)
+            .Expect(expected);
+    }
 }

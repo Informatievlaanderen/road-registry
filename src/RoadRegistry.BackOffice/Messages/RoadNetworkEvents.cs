@@ -12,6 +12,8 @@ public static class RoadNetworkEvents
         typeof(ImportedRoadNode),
         typeof(ImportedRoadSegment),
         typeof(ImportedOrganization),
+        typeof(RenameOrganizationAccepted),
+        typeof(RenameOrganizationRejected),
         typeof(RoadNetworkChangesArchiveAccepted),
         typeof(RoadNetworkChangesArchiveRejected),
         typeof(RoadNetworkChangesArchiveUploaded),

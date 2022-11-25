@@ -139,7 +139,9 @@ public static class ProductContextScenarioExtensions
             var result = await specification.Verification(context, CancellationToken.None);
 
             if (result.Failed)
+            {
                 throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -190,7 +192,9 @@ public static class ProductContextScenarioExtensions
             var result = await specification.Verification(context, CancellationToken.None);
 
             if (result.Failed)
+            {
                 throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -223,7 +227,9 @@ public static class ProductContextScenarioExtensions
             var result = await specification.Verification(context, CancellationToken.None);
 
             if (result.Failed)
+            {
                 throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
