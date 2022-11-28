@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api;
 
 using System;
 using System.Linq;
+using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
@@ -19,7 +20,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 public class Startup
@@ -166,10 +166,9 @@ public class Startup
         var builder = new ContainerBuilder();
         builder.Populate(services);
         builder.RegisterModule(new DataDogModule(_configuration));
-        builder.RegisterModule(new MediatorModule());
-        builder.RegisterModule(new Handlers.MediatorModule());
-        builder.RegisterModule(new Handlers.Sqs.MediatorModule());
-        builder.RegisterModule(new Handlers.Sqs.SqsHandlersModule());
+        builder.RegisterAssemblyModules(typeof(AutofacModule).Assembly);
+        builder.RegisterAssemblyModules(typeof(Handlers.AutofacModule).Assembly);
+        builder.RegisterAssemblyModules(typeof(Handlers.Sqs.AutofacModule).Assembly);
         _applicationContainer = builder.Build();
 
         return new AutofacServiceProvider(_applicationContainer);

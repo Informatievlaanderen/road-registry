@@ -9,14 +9,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NodaTime;
 using SqlStreamStore;
-using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
 {
     protected override void ConfigureContainer(ContainerBuilder builder)
     {
-        builder.RegisterModule<MediatorModule>();
-        builder.RegisterModule<Handlers.MediatorModule>();
+        builder.RegisterAssemblyModules(typeof(AutofacModule).Assembly);
+        builder.RegisterAssemblyModules(typeof(Handlers.AutofacModule).Assembly);
     }
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)

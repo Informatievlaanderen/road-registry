@@ -20,7 +20,7 @@ using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLa
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
-public class RoadNetworkFixture : RoadRegistryFixture
+public abstract class RoadNetworkFixture : RoadRegistryFixture
 {
     protected RoadNetworkFixture(IStreamStore store = null)
         : base(store: store)
