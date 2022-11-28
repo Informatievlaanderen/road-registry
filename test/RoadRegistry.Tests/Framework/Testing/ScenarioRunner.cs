@@ -119,44 +119,44 @@ public class ScenarioRunner
         return scenario.ButThrewException(exception);
     }
 
-//        private class PointMComparer : BaseTypeComparer
-//        {
-//            public PointMComparer(RootComparer comparer)
-//                :base(comparer)
-//            {
-//            }
-//
-//            public override void CompareType(CompareParms parms)
-//            {
-//                var left = (PointM)parms.Object1;
-//                var right = (PointM)parms.Object2;
-//                if(!Equals(left.X, right.X)
-//                   || !Equals(left.Y, right.Y)
-//                   || !Equals(left.Z, right.Z)
-//                   || !Equals(left.M, right.M))
-//                {
-//                    var difference = new Difference
-//                    {
-//                        Object1 = left,
-//                        Object1TypeName = left.GetType().Name,
-//                        Object1Value = left.ToString(),
-//                        Object2 = right,
-//                        Object2TypeName = right.GetType().Name,
-//                        Object2Value = right.ToString(),
-//                        ParentObject1 = parms.ParentObject1,
-//                        ParentObject2 = parms.ParentObject2
-//                    };
-//                    parms.Result.Differences.Add(difference);
-//                }
-//            }
-//
-//            public override bool IsTypeMatch(Type type1, Type type2)
-//            {
-//                return type1 == typeof(PointM) && type2 == typeof(PointM);
-//            }
-//        }
+    //        private class PointMComparer : BaseTypeComparer
+    //        {
+    //            public PointMComparer(RootComparer comparer)
+    //                :base(comparer)
+    //            {
+    //            }
+    //
+    //            public override void CompareType(CompareParms parms)
+    //            {
+    //                var left = (PointM)parms.Object1;
+    //                var right = (PointM)parms.Object2;
+    //                if(!Equals(left.X, right.X)
+    //                   || !Equals(left.Y, right.Y)
+    //                   || !Equals(left.Z, right.Z)
+    //                   || !Equals(left.M, right.M))
+    //                {
+    //                    var difference = new Difference
+    //                    {
+    //                        Object1 = left,
+    //                        Object1TypeName = left.GetType().Name,
+    //                        Object1Value = left.ToString(),
+    //                        Object2 = right,
+    //                        Object2TypeName = right.GetType().Name,
+    //                        Object2Value = right.ToString(),
+    //                        ParentObject1 = parms.ParentObject1,
+    //                        ParentObject2 = parms.ParentObject2
+    //                    };
+    //                    parms.Result.Differences.Add(difference);
+    //                }
+    //            }
+    //
+    //            public override bool IsTypeMatch(Type type1, Type type2)
+    //            {
+    //                return type1 == typeof(PointM) && type2 == typeof(PointM);
+    //            }
+    //        }
 
-    private async Task<long> WriteGivens(RecordedEvent[] givens)
+    public async Task<long> WriteGivens(RecordedEvent[] givens)
     {
         var checkpoint = Position.Start;
         foreach (var stream in givens.GroupBy(given => given.Stream))
@@ -174,13 +174,6 @@ public class ScenarioRunner
         }
 
         return checkpoint;
-    }
-
-    public async Task SetInitialStoreState(RecordedEvent[] givens)
-    {
-        await WriteGivens(givens);
-
-        //_resolver(new Command(new RenameOrganization() { Code = "TEST", Name = "TEST"}));
     }
     
     private class ValidationFailureComparer : BaseTypeComparer

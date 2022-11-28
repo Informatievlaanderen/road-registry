@@ -72,8 +72,12 @@ public abstract class RoadRegistryFixture : IDisposable
         return builder(new Scenario()).AssertAsync(_runner);
     }
 
-    protected Task SetInitialStoreState(RecordedEvent[] givens)
+    protected Task Given(StreamName streamName, params object[] events)
     {
-        return _runner.SetInitialStoreState(givens);
+        return Given(events.Select(@event => new RecordedEvent(streamName, @event)).ToArray());
+    }
+    protected Task Given(RecordedEvent[] events)
+    {
+        return _runner.WriteGivens(events);
     }
 }

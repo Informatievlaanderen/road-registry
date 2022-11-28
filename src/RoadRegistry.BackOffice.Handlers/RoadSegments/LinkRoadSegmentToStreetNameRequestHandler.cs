@@ -29,17 +29,17 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
 
     public override async Task<LinkRoadSegmentToStreetNameResponse> HandleAsync(LinkRoadSegmentToStreetNameRequest request, CancellationToken cancellationToken)
     {
-        var translatedChanges = TranslatedChanges.Empty
-            .WithOrganization(new OrganizationId("AGIV"))
-            .WithOperatorName(OperatorName.Unknown)
-            .WithReason(new Reason("Straatnaam koppelen"));
-
         var roadNetwork = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
         var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.RoadSegmentId));
         if (roadSegment == null)
         {
             throw ValidationError(nameof(request.RoadSegmentId), "Road segment does not exist.");
         }
+
+        var translatedChanges = TranslatedChanges.Empty
+            .WithOrganization(new OrganizationId("AGIV"))
+            .WithOperatorName(OperatorName.Unknown)
+            .WithReason(new Reason("Straatnaam koppelen"));
 
         var recordNumber = RecordNumber.Initial;
 

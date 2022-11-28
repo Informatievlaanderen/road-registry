@@ -2,22 +2,15 @@ namespace RoadRegistry.BackOffice.Handlers.Tests.RoadSegments;
 
 using Abstractions.RoadSegments;
 using BackOffice.Framework;
-using Be.Vlaanderen.Basisregisters.Generators.Guid;
 using Core;
 using MediatR;
 using Messages;
-using Newtonsoft.Json;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice.Scenarios;
-using RoadRegistry.Tests.Framework.Testing;
-using SqlStreamStore.Streams;
-using System.Runtime;
 using SqlStreamStore;
-using Problem = Messages.Problem;
-using ProblemParameter = Messages.ProblemParameter;
-using RejectedChange = Messages.RejectedChange;
+using AcceptedChange = Messages.AcceptedChange;
 
-public class LinkRoadSegmentToStreetNameRequestHandlerTests : RoadNetworkScenarios
+public class LinkRoadSegmentToStreetNameRequestHandlerTests : RoadNetworkFixture
 {
     private readonly IMediator _mediator;
 
@@ -30,37 +23,44 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests : RoadNetworkScenari
     [Fact]
     public async Task LinkRoadSegmentToStreetName_Succeeded()
     {
-        AddSegment1.LeftSideStreetNameId = null;
+        Segment1Added.LeftSide.StreetNameId = null;
 
-        await SetInitialStoreState(new[]
+        await Given(Organizations.ToStreamName(ChangedByOrganization), new ImportedOrganization
         {
-            new RecordedEvent(Organizations.ToStreamName(ChangedByOrganization), new ImportedOrganization
+            Code = ChangedByOrganization,
+            Name = ChangedByOrganizationName,
+            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+        });
+        await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+        {
+            RequestId = RequestId,
+            Reason = ReasonForChange,
+            Operator = ChangedByOperator,
+            OrganizationId = ChangedByOrganization,
+            Organization = ChangedByOrganizationName,
+            Changes = new[]
             {
-                Code = ChangedByOrganization,
-                Name = ChangedByOrganizationName,
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            }),
-            new RecordedEvent(RoadNetworks.Stream, TheOperator.ChangesTheRoadNetwork(
-                RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
-                new RequestedChange
+                new AcceptedChange
                 {
-                    AddRoadNode = AddStartNode1
+                    RoadNodeAdded = StartNode1Added
                 },
-                new RequestedChange
+                new AcceptedChange
                 {
-                    AddRoadNode = AddEndNode1
+                    RoadNodeAdded = EndNode1Added
                 },
-                new RequestedChange
+                new AcceptedChange
                 {
-                    AddRoadSegment = AddSegment1
+                    RoadSegmentAdded = Segment1Added
                 }
-            ).Body)
+            },
+            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
 
-        //TODO-rik execute streamstore handlers
-        
-        var request = new LinkRoadSegmentToStreetNameRequest(AddSegment1.TemporaryId, 1, 0);
+        var request = new LinkRoadSegmentToStreetNameRequest(1, 1, 0);
+        await _mediator.Send(request, CancellationToken.None);
 
-        var response = await _mediator.Send(request, CancellationToken.None);
+        var command = await Store.GetLastCommand<ChangeRoadNetwork>();
+
+        Assert.Equal(1, command!.Changes.Single().ModifyRoadSegment.LeftSideStreetNameId);
     }
 }
