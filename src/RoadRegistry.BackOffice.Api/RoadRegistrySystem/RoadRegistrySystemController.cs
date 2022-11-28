@@ -11,6 +11,7 @@ using FluentValidation;
 using Infrastructure.Controllers.Attributes;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
+using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
 using Version = Infrastructure.Version;
 
@@ -61,13 +62,14 @@ public class RoadRegistrySystemController : ControllerBase
 
     [HttpPost("snapshots/refresh")]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<IActionResult> RequestSnapshotRebuild([FromBody] RebuildSnapshotParameters parameters)
+    public async Task<IActionResult> RequestSnapshotRebuild([FromBody] RequestSnapshotRebuildParameters request)
     {
         if (!_snapshotRebuildFeatureToggle.FeatureEnabled)
         {
             return StatusCode((int)HttpStatusCode.NotImplemented);
         }
 
+        var parameters = new RebuildSnapshotParameters { StartFromVersion = request?.StartFromVersion ?? 0 };
         var validationResult = await _rebuildSnapshotParametersValidator.ValidateAsync(parameters, HttpContext.RequestAborted);
 
         if (!validationResult.IsValid)
@@ -85,3 +87,5 @@ public class RoadRegistrySystemController : ControllerBase
         return Ok();
     }
 }
+
+public sealed record RequestSnapshotRebuildParameters(int StartFromVersion);

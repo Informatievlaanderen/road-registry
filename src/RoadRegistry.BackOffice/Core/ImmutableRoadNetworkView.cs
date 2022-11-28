@@ -200,7 +200,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                             segment.AttributeHash.RightSideStreetNameId.HasValue
                                 ? new CrabStreetnameId(segment.AttributeHash.RightSideStreetNameId.Value)
                                 : new CrabStreetnameId?(),
-                            new OrganizationId(segment.AttributeHash.OrganizationId)));
+                            new OrganizationId(segment.AttributeHash.OrganizationId),
+                            RoadSegmentGeometryDrawMethod.Parse(segment.AttributeHash.GeometryDrawMethod)));
                     roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));
                     roadSegment = segment.PartOfNationalRoads.Aggregate(roadSegment, (current, number) => current.PartOfNationalRoad(NationalRoadNumber.Parse(number)));
                     roadSegment = segment.PartOfNumberedRoads.Aggregate(roadSegment, (current, number) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(number)));
@@ -262,7 +263,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     Status = segment.Value.AttributeHash.Status,
                     LeftSideStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
                     RightSideStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
-                    OrganizationId = segment.Value.AttributeHash.OrganizationId
+                    OrganizationId = segment.Value.AttributeHash.OrganizationId,
+                    GeometryDrawMethod = segment.Value.AttributeHash.GeometryDrawMethod.ToString()
                 },
                 PartOfEuropeanRoads = segment.Value.PartOfEuropeanRoads.Select(number => number.ToString()).ToArray(),
                 PartOfNationalRoads = segment.Value.PartOfNationalRoads.Select(number => number.ToString()).ToArray(),
@@ -438,7 +440,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             @event.RightSide.StreetNameId.HasValue
                 ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
                 : new CrabStreetnameId?(),
-            new OrganizationId(@event.MaintenanceAuthority.Code));
+            new OrganizationId(@event.MaintenanceAuthority.Code),
+            RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
 
         var segment = new RoadSegment(
             id,
@@ -692,7 +695,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             @event.RightSide.StreetNameId.HasValue
                 ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
                 : new CrabStreetnameId?(),
-            new OrganizationId(@event.MaintenanceAuthority.Code));
+            new OrganizationId(@event.MaintenanceAuthority.Code),
+            RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
 
         var segment = new RoadSegment(
             id,
@@ -755,7 +759,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             @event.RightSide.StreetNameId.HasValue
                 ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
                 : new CrabStreetnameId?(),
-            new OrganizationId(@event.MaintenanceAuthority.Code));
+            new OrganizationId(@event.MaintenanceAuthority.Code),
+            RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
 
         return new ImmutableRoadNetworkView(
             _nodes
@@ -1128,7 +1133,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             command.Status,
             command.LeftSideStreetNameId,
             command.RightSideStreetNameId,
-            command.MaintenanceAuthorityId);
+            command.MaintenanceAuthorityId,
+            command.GeometryDrawMethod);
 
         return new ImmutableRoadNetworkView(
             _nodes
@@ -1166,7 +1172,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             command.Status,
             command.LeftSideStreetNameId,
             command.RightSideStreetNameId,
-            command.MaintenanceAuthorityId);
+            command.MaintenanceAuthorityId,
+            command.GeometryDrawMethod);
 
         var segmentBefore = _segments[command.Id];
 
@@ -1645,7 +1652,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                                 segment.AttributeHash.RightSideStreetNameId.HasValue
                                     ? new CrabStreetnameId(segment.AttributeHash.RightSideStreetNameId.Value)
                                     : new CrabStreetnameId?(),
-                                new OrganizationId(segment.AttributeHash.OrganizationId)));
+                                new OrganizationId(segment.AttributeHash.OrganizationId),
+                                RoadSegmentGeometryDrawMethod.Parse(segment.AttributeHash.GeometryDrawMethod)));
                         roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));
                         roadSegment = segment.PartOfNationalRoads.Aggregate(roadSegment, (current, number) => current.PartOfNationalRoad(NationalRoadNumber.Parse(number)));
                         roadSegment = segment.PartOfNumberedRoads.Aggregate(roadSegment, (current, number) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(number)));
@@ -1707,7 +1715,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         Status = segment.Value.AttributeHash.Status,
                         LeftSideStreetNameId = segment.Value.AttributeHash.LeftStreetNameId?.ToInt32(),
                         RightSideStreetNameId = segment.Value.AttributeHash.RightStreetNameId?.ToInt32(),
-                        OrganizationId = segment.Value.AttributeHash.OrganizationId
+                        OrganizationId = segment.Value.AttributeHash.OrganizationId,
+                        GeometryDrawMethod = segment.Value.AttributeHash.GeometryDrawMethod.ToString()
                     },
                     PartOfEuropeanRoads = segment.Value.PartOfEuropeanRoads.Select(number => number.ToString()).ToArray(),
                     PartOfNationalRoads = segment.Value.PartOfNationalRoads.Select(number => number.ToString()).ToArray(),
@@ -1872,7 +1881,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 @event.RightSide.StreetNameId.HasValue
                     ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
                     : new CrabStreetnameId?(),
-                new OrganizationId(@event.MaintenanceAuthority.Code));
+                new OrganizationId(@event.MaintenanceAuthority.Code),
+                RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
 
             var segment = new RoadSegment(
                 id,
@@ -2049,7 +2059,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 @event.RightSide.StreetNameId.HasValue
                     ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
                     : new CrabStreetnameId?(),
-                new OrganizationId(@event.MaintenanceAuthority.Code));
+                new OrganizationId(@event.MaintenanceAuthority.Code),
+                RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
 
             var segment = new RoadSegment(
                 id,
@@ -2104,7 +2115,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 @event.RightSide.StreetNameId.HasValue
                     ? new CrabStreetnameId(@event.RightSide.StreetNameId.Value)
                     : new CrabStreetnameId?(),
-                new OrganizationId(@event.MaintenanceAuthority.Code));
+                new OrganizationId(@event.MaintenanceAuthority.Code),
+                RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
 
             _nodes
                 .TryReplace(start, node => node.ConnectWith(id))
@@ -2270,7 +2282,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 command.Status,
                 command.LeftSideStreetNameId,
                 command.RightSideStreetNameId,
-                command.MaintenanceAuthorityId);
+                command.MaintenanceAuthorityId,
+                command.GeometryDrawMethod);
 
             _nodes
                 .TryReplace(command.StartNodeId, node => node.ConnectWith(command.Id))
@@ -2296,7 +2309,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 command.Status,
                 command.LeftSideStreetNameId,
                 command.RightSideStreetNameId,
-                command.MaintenanceAuthorityId);
+                command.MaintenanceAuthorityId,
+                command.GeometryDrawMethod);
 
             var segmentBefore = _segments[command.Id];
 

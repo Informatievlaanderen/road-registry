@@ -24,6 +24,15 @@ public class RoadNetwork : EventSourcedEntity
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
     }
 
+    public RoadSegment FindRoadSegment(RoadSegmentId id)
+    {
+        if (_view.Segments.TryGetValue(id, out var segment))
+        {
+            return segment;
+        }
+
+        return null;
+    }
     public void Change(
         ChangeRequestId requestId,
         Reason reason,

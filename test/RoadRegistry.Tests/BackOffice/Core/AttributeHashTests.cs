@@ -20,6 +20,7 @@ public class AttributeHashTests
         _fixture.CustomizeRoadSegmentAccessRestriction();
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeAttributeHash();
+        _fixture.CustomizeRoadSegmentGeometryDrawMethod();
     }
 
     [Fact]
@@ -99,6 +100,18 @@ public class AttributeHashTests
     {
         var value1 = _fixture.Create<RoadSegmentStatus>();
         var value2 = new Generator<RoadSegmentStatus>(_fixture)
+            .First(candidate => candidate != value1);
+        var sut = _fixture.Create<AttributeHash>();
+        var left = sut.With(value1);
+        var right = sut.With(value2);
+        Assert.NotEqual(left, right);
+    }
+
+    [Fact]
+    public void DiffersWhenGeometryDrawMethodDiffers()
+    {
+        var value1 = _fixture.Create<RoadSegmentGeometryDrawMethod>();
+        var value2 = new Generator<RoadSegmentGeometryDrawMethod>(_fixture)
             .First(candidate => candidate != value1);
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.With(value1);

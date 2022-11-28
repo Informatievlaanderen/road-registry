@@ -6,6 +6,7 @@ using Framework;
 using Messages;
 using NodaTime;
 using SqlStreamStore;
+using SqlStreamStore.Streams;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
@@ -39,7 +40,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 var @operator = new OperatorName(message.Body.Operator);
                 var reason = new Reason(message.Body.Reason);
                 var organizationId = new OrganizationId(message.Body.OrganizationId);
-                var organization = await context.Organizations.TryGet(organizationId, ct);
+                var organization = await context.Organizations.FindAsync(organizationId, ct);
                 var translation = organization == null ? Organization.PredefinedTranslations.Unknown : organization.Translation;
 
                 var network = await context.RoadNetworks.Get(ct);
@@ -65,7 +66,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .Handle(async (context, command, ct) =>
             {
                 var organizationId = new OrganizationId(command.Body.Code);
-                var organization = await context.Organizations.TryGet(organizationId, ct);
+                var organization = await context.Organizations.FindAsync(organizationId, ct);
 
                 if (organization != null)
                 {

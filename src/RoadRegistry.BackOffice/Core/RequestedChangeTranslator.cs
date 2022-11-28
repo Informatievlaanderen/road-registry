@@ -185,7 +185,7 @@ internal class RequestedChangeTranslator
 
         var geometry = GeometryTranslator.Translate(command.Geometry);
         var maintainerId = new OrganizationId(command.MaintenanceAuthority);
-        var maintainer = await organizations.TryGet(maintainerId, ct);
+        var maintainer = await organizations.FindAsync(maintainerId, ct);
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
         var morphology = RoadSegmentMorphology.Parse(command.Morphology);
         var status = RoadSegmentStatus.Parse(command.Status);
@@ -289,7 +289,7 @@ internal class RequestedChangeTranslator
 
         var geometry = GeometryTranslator.Translate(command.Geometry);
         var maintainerId = new OrganizationId(command.MaintenanceAuthority);
-        var maintainer = await organizations.TryGet(maintainerId, ct);
+        var maintainer = await organizations.FindAsync(maintainerId, ct);
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
         var morphology = RoadSegmentMorphology.Parse(command.Morphology);
         var status = RoadSegmentStatus.Parse(command.Status);
