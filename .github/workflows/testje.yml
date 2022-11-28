@@ -24,6 +24,8 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v3
+      with:
+          persist-credentials: false
 
     - name: Cache NPM
       uses: actions/cache@v3
@@ -58,7 +60,7 @@ jobs:
       shell: bash
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v3.5.1
       with:
           node-version: 16.15.0
 
@@ -67,7 +69,7 @@ jobs:
       with:
         dotnet-version: ${{ secrets.VBR_DOTNET_VERSION }}
 
-    - name: Set up Python
+    - name: Setup Python
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
@@ -86,7 +88,7 @@ jobs:
 
     - name: Install NPM dependencies
       shell: bash
-      run: npm install 
+      run: npm ci
       env:
         NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
 
@@ -300,7 +302,7 @@ jobs:
 
     - name: Configure AWS credentials (Test)
       if: env.RELEASE_VERSION != 'none'
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v1-node16
       with:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
@@ -308,7 +310,7 @@ jobs:
 
     - name: Login to Amazon ECR (Test)
       if: env.RELEASE_VERSION != 'none'
-      uses: aws-actions/amazon-ecr-login@v1.3.3
+      uses: aws-actions/amazon-ecr-login@v1.5.2
 
     - name: Push Lambda functions to S3 Test
       if: env.RELEASE_VERSION != 'none'
@@ -326,7 +328,7 @@ jobs:
 
     - name: Configure AWS credentials (Staging)
       if: env.RELEASE_VERSION != 'none'
-      uses: aws-actions/configure-aws-credentials@v1.5.9
+      uses: aws-actions/configure-aws-credentials@v1-node16
       with:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
@@ -334,7 +336,7 @@ jobs:
 
     - name: Login to Amazon ECR (Staging)
       if: env.RELEASE_VERSION != 'none'
-      uses: aws-actions/amazon-ecr-login@v1
+      uses: aws-actions/amazon-ecr-login@v1.5.2
 
     - name: Push Lambda functions to S3 Staging
       if: env.RELEASE_VERSION != 'none'
@@ -352,7 +354,7 @@ jobs:
         
 #    - name: Configure AWS credentials (Production)
 #      if: env.RELEASE_VERSION != 'none'
-#      uses: aws-actions/configure-aws-credentials@v1.5.9
+#      uses: aws-actions/configure-aws-credentials@v1-node16
 #      with:
 #        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
 #        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
@@ -360,7 +362,7 @@ jobs:
 #
 #    - name: Login to Amazon ECR (Production)
 #      if: env.RELEASE_VERSION != 'none'
-#      uses: aws-actions/amazon-ecr-login@v1
+#      uses: aws-actions/amazon-ecr-login@v1.5.2
 #
 #    - name: Push Lambda functions to S3 Production
 #      if: env.RELEASE_VERSION != 'none'
@@ -458,53 +460,25 @@ jobs:
       shell: bash
       run: dotnet --info
 
-    - name: Download NuGet package Api.BackOffice
+    - name: Download NuGet package BackOffice.Api
       if: env.RELEASE_VERSION != 'none'
       uses: actions/download-artifact@v3
       with:
-        name: nuget-api-backoffice
+        name: nuget-backoffice-api
         path: ~/
 
-    - name: Download NuGet package Api.BackOffice.Abstractions
+    - name: Download NuGet package BackOffice.Abstractions
       if: env.RELEASE_VERSION != 'none'
       uses: actions/download-artifact@v3
       with:
-        name: nuget-api-backoffice-abstractions
+        name: nuget-backoffice-abstractions
         path: ~/
 
-    - name: Download NuGet package Api.Legacy
+    - name: Download NuGet package BackOffice.ZipArchiveWriters
       if: env.RELEASE_VERSION != 'none'
       uses: actions/download-artifact@v3
       with:
-        name: nuget-api-legacy
-        path: ~/
-
-    - name: Download NuGet package Api.Oslo
-      if: env.RELEASE_VERSION != 'none'
-      uses: actions/download-artifact@v3
-      with:
-        name: nuget-api-oslo
-        path: ~/
-
-    - name: Download NuGet package Api.Extract
-      if: env.RELEASE_VERSION != 'none'
-      uses: actions/download-artifact@v3
-      with:
-        name: nuget-api-extract
-        path: ~/
-
-    - name: Download NuGet package Api.CrabImport
-      if: env.RELEASE_VERSION != 'none'
-      uses: actions/download-artifact@v3
-      with:
-        name: nuget-api-crab-import
-        path: ~/
-
-    - name: Download NuGet package Projector
-      if: env.RELEASE_VERSION != 'none'
-      uses: actions/download-artifact@v3
-      with:
-        name: nuget-projector
+        name: nuget-backoffice-ziparchivewriters
         path: ~/
 
     - name: Publish packages to NuGet
@@ -526,7 +500,7 @@ jobs:
     steps:
       - name: Configure AWS credentials (Test)
         if: needs.build.outputs.version != 'none'
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
           aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
@@ -534,7 +508,7 @@ jobs:
 
       - name: Login to Amazon ECR (Test)
         if: needs.build.outputs.version != 'none'
-        uses: aws-actions/amazon-ecr-login@v1.5.1
+        uses: aws-actions/amazon-ecr-login@v1.5.2
 
       #
       # Download artifacts
@@ -637,21 +611,21 @@ jobs:
       - name: Load artifacts
         shell: bash
         run: |
-          docker image load -i ~/wr-projector-image.tar
-          docker image load -i ~/wr-backoffice-api-image.tar
-          docker image load -i ~/wr-backoffice-ui-image.tar
-          docker image load -i ~/wr-editor-projectionhost-image.tar
-          docker image load -i ~/wr-product-projectionhost-image.tar
-          docker image load -i ~/wr-syndication-projectionhost-image.tar
-          docker image load -i ~/wr-wms-projectionhost-image.tar
-          docker image load -i ~/wr-wfs-projectionhost-image.tar
-          docker image load -i ~/wr-backoffice-eventhost-image.tar
-          docker image load -i ~/wr-backoffice-extracthost-image.tar
-          docker image load -i ~/wr-backoffice-commandhost-image.tar
-          docker image load -i ~/wr-backoffice-messaginghost-sqs-image.tar
-          #docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
-          docker image load -i ~/wr-import-legacy-image.tar
-          docker image load -i ~/wr-extract-legacy-image.tar
+          docker image load -i ~/rr-projector-image.tar
+          docker image load -i ~/rr-backoffice-api-image.tar
+          docker image load -i ~/rr-backoffice-ui-image.tar
+          docker image load -i ~/rr-editor-projectionhost-image.tar
+          docker image load -i ~/rr-product-projectionhost-image.tar
+          docker image load -i ~/rr-syndication-projectionhost-image.tar
+          docker image load -i ~/rr-wms-projectionhost-image.tar
+          docker image load -i ~/rr-wfs-projectionhost-image.tar
+          docker image load -i ~/rr-backoffice-eventhost-image.tar
+          docker image load -i ~/rr-backoffice-extracthost-image.tar
+          docker image load -i ~/rr-backoffice-commandhost-image.tar
+          docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
+          #docker image load -i ~/rr-backoffice-messaginghost-kafka-image.tar
+          docker image load -i ~/rr-import-legacy-image.tar
+          docker image load -i ~/rr-extract-legacy-image.tar
 
       - name: Push artifacts to ECR Test
         if: needs.build.outputs.version != 'none'
@@ -687,7 +661,7 @@ jobs:
     steps:
       - name: Configure AWS credentials (Staging)
         if: needs.build.outputs.version != 'none'
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
@@ -695,7 +669,7 @@ jobs:
 
       - name: Login to Amazon ECR (Staging)
         if: needs.build.outputs.version != 'none'
-        uses: aws-actions/amazon-ecr-login@v1.5.1
+        uses: aws-actions/amazon-ecr-login@v1.5.2
 
       #
       # Download artifacts
@@ -798,21 +772,21 @@ jobs:
       - name: Load artifacts
         shell: bash
         run: |
-          docker image load -i ~/wr-projector-image.tar
-          docker image load -i ~/wr-backoffice-api-image.tar
-          docker image load -i ~/wr-backoffice-ui-image.tar
-          docker image load -i ~/wr-editor-projectionhost-image.tar
-          docker image load -i ~/wr-product-projectionhost-image.tar
-          docker image load -i ~/wr-syndication-projectionhost-image.tar
-          docker image load -i ~/wr-wms-projectionhost-image.tar
-          docker image load -i ~/wr-wfs-projectionhost-image.tar
-          docker image load -i ~/wr-backoffice-eventhost-image.tar
-          docker image load -i ~/wr-backoffice-extracthost-image.tar
-          docker image load -i ~/wr-backoffice-commandhost-image.tar
-          docker image load -i ~/wr-backoffice-messaginghost-sqs-image.tar
-          #docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
-          docker image load -i ~/wr-import-legacy-image.tar
-          docker image load -i ~/wr-extract-legacy-image.tar
+          docker image load -i ~/rr-projector-image.tar
+          docker image load -i ~/rr-backoffice-api-image.tar
+          docker image load -i ~/rr-backoffice-ui-image.tar
+          docker image load -i ~/rr-editor-projectionhost-image.tar
+          docker image load -i ~/rr-product-projectionhost-image.tar
+          docker image load -i ~/rr-syndication-projectionhost-image.tar
+          docker image load -i ~/rr-wms-projectionhost-image.tar
+          docker image load -i ~/rr-wfs-projectionhost-image.tar
+          docker image load -i ~/rr-backoffice-eventhost-image.tar
+          docker image load -i ~/rr-backoffice-extracthost-image.tar
+          docker image load -i ~/rr-backoffice-commandhost-image.tar
+          docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
+          #docker image load -i ~/rr-backoffice-messaginghost-kafka-image.tar
+          docker image load -i ~/rr-import-legacy-image.tar
+          docker image load -i ~/rr-extract-legacy-image.tar
 
       - name: Push artifacts to ECR Staging
         if: env.RELEASE_VERSION != 'none'
@@ -866,7 +840,7 @@ jobs:
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
-          SEMVER: ${{ env.RELEASE_VERSION }}
+          SEMVER: ${{ needs.build.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
 
 #  push_images_to_production:
@@ -877,7 +851,7 @@ jobs:
 #    steps:
 #      - name: Configure AWS credentials (Production)
 #        if: needs.build.outputs.version != 'none'
-#        uses: aws-actions/configure-aws-credentials@v1
+#        uses: aws-actions/configure-aws-credentials@v1-node16
 #        with:
 #          aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
 #          aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
@@ -988,21 +962,21 @@ jobs:
 #      - name: Load artifacts
 #        shell: bash
 #        run: |
-#          docker image load -i ~/wr-projector-image.tar
-#          docker image load -i ~/wr-backoffice-api-image.tar
-#          docker image load -i ~/wr-backoffice-ui-image.tar
-#          docker image load -i ~/wr-editor-projectionhost-image.tar
-#          docker image load -i ~/wr-product-projectionhost-image.tar
-#          docker image load -i ~/wr-syndication-projectionhost-image.tar
-#          docker image load -i ~/wr-wms-projectionhost-image.tar
-#          docker image load -i ~/wr-wfs-projectionhost-image.tar
-#          docker image load -i ~/wr-backoffice-eventhost-image.tar
-#          docker image load -i ~/wr-backoffice-extracthost-image.tar
-#          docker image load -i ~/wr-backoffice-commandhost-image.tar
-#          docker image load -i ~/wr-backoffice-messaginghost-sqs-image.tar
-#          #docker image load -i ~/wr-backoffice-messaginghost-kafka-image.tar
-#          docker image load -i ~/wr-import-legacy-image.tar
-#          docker image load -i ~/wr-extract-legacy-image.tar
+#          docker image load -i ~/rr-projector-image.tar
+#          docker image load -i ~/rr-backoffice-api-image.tar
+#          docker image load -i ~/rr-backoffice-ui-image.tar
+#          docker image load -i ~/rr-editor-projectionhost-image.tar
+#          docker image load -i ~/rr-product-projectionhost-image.tar
+#          docker image load -i ~/rr-syndication-projectionhost-image.tar
+#          docker image load -i ~/rr-wms-projectionhost-image.tar
+#          docker image load -i ~/rr-wfs-projectionhost-image.tar
+#          docker image load -i ~/rr-backoffice-eventhost-image.tar
+#          docker image load -i ~/rr-backoffice-extracthost-image.tar
+#          docker image load -i ~/rr-backoffice-commandhost-image.tar
+#          docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
+#          #docker image load -i ~/rr-backoffice-messaginghost-kafka-image.tar
+#          docker image load -i ~/rr-import-legacy-image.tar
+#          docker image load -i ~/rr-extract-legacy-image.tar
 
 #
 #    - name: Push artifacts to ECR Production
@@ -1093,7 +1067,7 @@ jobs:
         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector']
     
     steps:
-    - name: CD
+    - name: Deploy services
       env:
         BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
         STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
@@ -1123,7 +1097,7 @@ jobs:
     
     steps:
     - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v1-node16
       with:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
@@ -1169,12 +1143,13 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to test finished
+        slack-message: Deployment of road-registry to test has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
         REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-
+  
+        
   deploy_to_staging_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [push_images_to_staging, deploy_to_test_finish_slack, build]
@@ -1237,7 +1212,7 @@ jobs:
 
     steps:
     - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v1
+      uses: aws-actions/configure-aws-credentials@v1-node16
       with:
         aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
@@ -1283,7 +1258,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to staging finished
+        slack-message: Deployment of road-registry to staging has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1313,12 +1288,12 @@ jobs:
 #
 #  deploy_to_production:
 #    if: github.repository_owner == 'Informatievlaanderen'
-#    needs: [deploy_to_staging_finish_slack, build]
+#    needs: [deploy_to_production_start_slack, build]
 #    name: Deploy to Production
 #    runs-on: ubuntu-latest
 #    strategy:
 #      matrix: 
-#        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector']
+        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector']
 #
 #    steps:
 #    - name: CD services
@@ -1351,7 +1326,7 @@ jobs:
 #
 #    steps:
 #    - name: CD Lambda(s) Configure credentials
-#      uses: aws-actions/configure-aws-credentials@v1
+#      uses: aws-actions/configure-aws-credentials@v1-node16
 #      with:
 #        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
 #        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
@@ -1397,7 +1372,7 @@ jobs:
 #      uses: slackapi/slack-github-action@v1.23.0
 #      with:
 #        channel-id: '#team-wegenregister-dev'
-#        slack-message: Deployment of road-registry to production finished
+#        slack-message: Deployment of road-registry to production has finished
 #      env:
 #        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
 #        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
