@@ -65,6 +65,12 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     }
 
     [Pure]
+    public AttributeHash With(RoadSegmentGeometryDrawMethod value)
+    {
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, value);
+    }
+
+    [Pure]
     public AttributeHash WithLeftSide(CrabStreetnameId? value)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, OrganizationId, GeometryDrawMethod);
@@ -74,12 +80,6 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     public AttributeHash WithRightSide(CrabStreetnameId? value)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId, GeometryDrawMethod);
-    }
-
-    [Pure]
-    public AttributeHash With(RoadSegmentGeometryDrawMethod value)
-    {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, value);
     }
 
     [Pure]

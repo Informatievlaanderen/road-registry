@@ -26,7 +26,10 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
 
     public async Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
     {
-        if (!await _client.BlobExistsAsync(SnapshotHead, cancellationToken)) return (null, ExpectedVersion.NoStream);
+        if (!await _client.BlobExistsAsync(SnapshotHead, cancellationToken))
+        {
+            return (null, ExpectedVersion.NoStream);
+        }
 
         var snapshotHeadBlob = await _client.GetBlobAsync(SnapshotHead, cancellationToken);
         await using (var headStream = await snapshotHeadBlob.OpenAsync(cancellationToken))
@@ -37,10 +40,16 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
                     cancellationToken: cancellationToken
                 );
             var snapshotBlobName = new BlobName(snapshotHead.SnapshotBlobName);
-            if (!await _client.BlobExistsAsync(snapshotBlobName, cancellationToken)) return (null, ExpectedVersion.NoStream);
+            if (!await _client.BlobExistsAsync(snapshotBlobName, cancellationToken))
+            {
+                return (null, ExpectedVersion.NoStream);
+            }
 
             var snapshotBlob = await _client.GetBlobAsync(snapshotBlobName, cancellationToken);
-            if (!snapshotBlob.Metadata.TryGetAtVersion(out var version)) return (null, ExpectedVersion.NoStream);
+            if (!snapshotBlob.Metadata.TryGetAtVersion(out var version))
+            {
+                return (null, ExpectedVersion.NoStream);
+            }
 
             await using (var snapshotStream = await snapshotBlob.OpenAsync(cancellationToken))
             {
@@ -55,12 +64,15 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
     public async Task SetHeadToVersion(int version, CancellationToken cancellationToken)
     {
         var newSnapshotBlobName = SnapshotPrefix.Append(new BlobName(version.ToString()));
-        if (version > StreamVersion.Start)
+        if (version > StreamVersion.Start && !await _client.BlobExistsAsync(newSnapshotBlobName, cancellationToken))
         {
-            if (!await _client.BlobExistsAsync(newSnapshotBlobName, cancellationToken)) throw new InvalidOperationException($"Snapshot with name {newSnapshotBlobName} not found");
+            throw new InvalidOperationException($"Snapshot with name {newSnapshotBlobName} not found");
         }
 
-        if (await _client.BlobExistsAsync(SnapshotHead, cancellationToken)) await _client.DeleteBlobAsync(SnapshotHead, cancellationToken);
+        if (await _client.BlobExistsAsync(SnapshotHead, cancellationToken))
+        {
+            await _client.DeleteBlobAsync(SnapshotHead, cancellationToken);
+        }
 
         var newSnapshotHead = new RoadNetworkSnapshotHead
         {
@@ -102,7 +114,10 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
                     cancellationToken);
             }
 
-            if (await _client.BlobExistsAsync(SnapshotHead, cancellationToken)) await _client.DeleteBlobAsync(SnapshotHead, cancellationToken);
+            if (await _client.BlobExistsAsync(SnapshotHead, cancellationToken))
+            {
+                await _client.DeleteBlobAsync(SnapshotHead, cancellationToken);
+            }
 
             var snapshotHead = new RoadNetworkSnapshotHead
             {
