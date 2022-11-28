@@ -113,7 +113,7 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
         var queue = new RoadNetworkCommandQueue(_store);
         await queue.Write(command, cancellationToken);
 
-        return new LinkRoadSegmentToStreetNameResponse();
+        return new LinkRoadSegmentToStreetNameResponse(messageId);
     }
 
     private ValidationException ValidationError(string propertyName, string errorMessage)

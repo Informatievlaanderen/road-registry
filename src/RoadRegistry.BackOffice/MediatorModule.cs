@@ -26,6 +26,9 @@ public class MediatorModule : Module
         typeof(IStreamRequestHandler<,>)
     };
 
+    private static readonly EventMapping RoadNetworkEventsEventMapping =
+        new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+
     private static IEnumerable<Assembly> DetermineAvailableAssemblyCollection()
     {
         var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
@@ -50,10 +53,9 @@ public class MediatorModule : Module
             var store = context.Resolve<IStreamStore>();
             var snapshotReader = context.Resolve<IRoadNetworkSnapshotReader>();
             var serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            var eventMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
-
             var map = new EventSourcedEntityMap();
-            return new RoadRegistryContext(map, store, snapshotReader, serializerSettings, eventMapping);
+
+            return new RoadRegistryContext(map, store, snapshotReader, serializerSettings, RoadNetworkEventsEventMapping);
         });
 
         RegisterAvailableAssemblyModules(builder);

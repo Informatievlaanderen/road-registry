@@ -13,7 +13,7 @@ using FeatureToggles;
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("roadsegments")]
-[ApiExplorerSettings(GroupName = "Uploads")]
+[ApiExplorerSettings(GroupName = "RoadSegments")]
 [ApiKeyAuth(WellKnownAuthRoles.Road)]
 public class RoadSegmentsController : ControllerBase
 {
@@ -25,7 +25,10 @@ public class RoadSegmentsController : ControllerBase
     }
 
     [HttpPost("{id}/actions/linkstreetname")]
-    public async Task<IActionResult> PostLinkStreetNameToRoadSegment([FromServices] UseLinkRoadSegmentToStreetNameFeatureToggle featureToggle, [FromBody] LinkStreetNameToRoadSegmentParameters parameters, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostLinkStreetNameToRoadSegment(
+        [FromServices] UseLinkRoadSegmentToStreetNameFeatureToggle featureToggle,
+        [FromBody] LinkStreetNameToRoadSegmentParameters parameters,
+        CancellationToken cancellationToken)
     {
         if (!featureToggle.FeatureEnabled)
         {
@@ -35,7 +38,7 @@ public class RoadSegmentsController : ControllerBase
         var request = new LinkRoadSegmentToStreetNameRequest(parameters?.RoadSegmentId ?? 0, parameters?.LeftStreetNameId ?? 0, parameters?.RightStreetNameId ?? 0);
         var response = await _mediator.Send(request, cancellationToken);
 
-        return Ok();
+        return Ok(response);
     }
 }
 
