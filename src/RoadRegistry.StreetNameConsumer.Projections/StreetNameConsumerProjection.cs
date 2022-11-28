@@ -1,5 +1,8 @@
 namespace RoadRegistry.StreetNameConsumer.Projections;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Schema;
