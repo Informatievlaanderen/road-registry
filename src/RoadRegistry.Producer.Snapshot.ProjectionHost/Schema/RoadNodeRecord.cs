@@ -1,6 +1,7 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Schema
 {
     using System;
+    using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using NetTopologySuite.Geometries;
 
     public class RoadNodeRecord
@@ -34,24 +35,18 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Schema
             Geometry = point;
             LastChangedTimestamp = lastChangedTimestamp;
         }
+
+        public RoadNodeSnapshot ToContract()
+        {
+            return new RoadNodeSnapshot(
+                Id,
+                Type,
+                Geometry.ToBinary(),
+                Geometry.ToText(),
+                Geometry.SRID,
+                Origin.BeginTime,
+                Origin.Organization,
+                LastChangedTimestamp);
+        }
     }
-
-    //public class RoadNodeBoundingBox
-    //{
-    //    public double MaximumX { get; set; }
-    //    public double MaximumY { get; set; }
-    //    public double MinimumX { get; set; }
-    //    public double MinimumY { get; set; }
-
-    //    public static RoadNodeBoundingBox From(NetTopologySuite.Geometries.Point point)
-    //    {
-    //        return new RoadNodeBoundingBox
-    //        {
-    //            MinimumX = point.EnvelopeInternal.MinX,
-    //            MinimumY = point.EnvelopeInternal.MinY,
-    //            MaximumX = point.EnvelopeInternal.MaxX,
-    //            MaximumY = point.EnvelopeInternal.MaxY
-    //        };
-    //    }
-    //}
 }

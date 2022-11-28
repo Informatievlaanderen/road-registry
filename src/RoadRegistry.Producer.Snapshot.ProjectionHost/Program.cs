@@ -8,6 +8,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
     using Be.Vlaanderen.Basisregisters.EventHandling;
+    using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
@@ -26,6 +27,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using Serilog;
     using Serilog.Debugging;
     using SqlStreamStore;
+    using KafkaProducer = Projections.KafkaProducer;
 
     public class Program
     {
@@ -86,16 +88,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                         .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddSingleton<Scheduler>()
-                        .AddTransient<EventProcessor>()
-                        .AddScoped<IMetadataUpdater, MetadataUpdater>()
+                        .AddHostedService<EventProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
                             EventProcessor.EventMapping,
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
                         )
-                        .AddSingleton(
-                            () =>
+                        .AddSingleton(() =>
                                 new ProducerSnapshotContext(
                                     new DbContextOptionsBuilder<ProducerSnapshotContext>()
                                         .UseSqlServer(
@@ -105,9 +105,24 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                                 .UseNetTopologySuite()
                                     ).Options)
                         )
-                        .AddSingleton(sp => new ConnectedProjection<ProducerSnapshotContext>[]
+                        .AddSingleton(sp =>
                         {
-                            new RoadNodeRecordProjection()
+                            var config = sp.GetRequiredService<IConfiguration>();
+                            var bootstrapServers = config["Kafka:BootstrapServers"];
+                            var kafkaUserName = config["Kafka:SaslUserName"];
+                            var kafkaPassword = config["Kafka:SaslPassword"];
+
+                            return new ConnectedProjection<ProducerSnapshotContext>[]
+                            {
+                                new RoadNodeRecordProjection(new KafkaProducer(new KafkaProducerOptions(
+                                    bootstrapServers,
+                                    kafkaUserName,
+                                    kafkaPassword,
+                                    config["RoadNodeTopic"] ?? throw new ArgumentException($"Configuration has no value for RoadNodeTopic"),
+                                    true,
+                                    EventProcessor.SerializerSettings
+                                )))
+                            };
                         })
                         .AddSingleton(sp =>
                             Resolve
@@ -135,7 +150,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
             var logger = host.Services.GetRequiredService<ILogger<Program>>();
-            var eventProcessor = host.Services.GetRequiredService<EventProcessor>();
 
             try
             {
@@ -150,7 +164,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                             await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
                             await migratorFactory.CreateMigrator(configuration, loggerFactory)
                                 .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
-                            await eventProcessor.Resume(CancellationToken.None);
+                            await host.RunAsync().ConfigureAwait(false);
                         },
                         DistributedLockOptions.LoadFromConfiguration(configuration),
                         logger)

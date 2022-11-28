@@ -25,9 +25,11 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     private const int CatchUpBatchSize = 5000;
     private const int CatchUpThreshold = 1000;
     private const int RecordPositionThreshold = 1000;
+
     public static readonly EventMapping EventMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
     public static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
     private readonly ILogger<DbContextEventProcessor<TDbContext>> _logger;
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
@@ -42,7 +44,9 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         ConnectedProjectionHandlerResolver<TDbContext> resolver,
         Func<TDbContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<DbContextEventProcessor<TDbContext>> logger)
+        ILogger<DbContextEventProcessor<TDbContext>> logger,
+        int catchUpBatchSize = CatchUpBatchSize,
+        int catchUpThreshold = CatchUpThreshold)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
         ArgumentNullException.ThrowIfNull(filter);
@@ -87,8 +91,8 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                     var head = await streamStore.ReadHeadPosition();
                                     if (head == Position.Start
                                         || after.HasValue
-                                            ? head - after.Value <= CatchUpThreshold
-                                            : head - CatchUpThreshold <= 0)
+                                            ? head - after.Value <= catchUpThreshold
+                                            : head - catchUpThreshold <= 0)
                                     {
                                         await _messageChannel.Writer
                                             .WriteAsync(new Subscribe(after), _messagePumpCancellation.Token)
@@ -97,7 +101,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                     else
                                     {
                                         await _messageChannel.Writer
-                                            .WriteAsync(new CatchUp(after, CatchUpBatchSize), _messagePumpCancellation.Token)
+                                            .WriteAsync(new CatchUp(after, catchUpBatchSize), _messagePumpCancellation.Token)
                                             .ConfigureAwait(false);
                                     }
                                 }
@@ -145,7 +149,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                         observedMessageCount++;
                                         catchUpPosition = streamMessage.Position;
 
-                                        if (observedMessageCount % CatchUpBatchSize == 0)
+                                        if (observedMessageCount % catchUpBatchSize == 0)
                                         {
                                             logger.LogInformation(
                                                 "Flushing catch up position of {0} and persisting changes ...",
