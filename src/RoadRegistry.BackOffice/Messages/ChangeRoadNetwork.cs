@@ -2,6 +2,8 @@ namespace RoadRegistry.BackOffice.Messages;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
 
+[EventName("ChangeRoadNetwork")]
+[EventDescription("Indicates a change in the road network.")]
 public class ChangeRoadNetwork : IMessage
 {
     public RequestedChange[] Changes { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Tests.Framework.Testing;
+namespace RoadRegistry.Tests.Framework.Testing;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Generators.Guid;
@@ -7,6 +7,7 @@ using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 
@@ -175,6 +176,13 @@ public class ScenarioRunner
         return checkpoint;
     }
 
+    public async Task SetInitialStoreState(RecordedEvent[] givens)
+    {
+        await WriteGivens(givens);
+
+        //_resolver(new Command(new RenameOrganization() { Code = "TEST", Name = "TEST"}));
+    }
+    
     private class ValidationFailureComparer : BaseTypeComparer
     {
         public ValidationFailureComparer(RootComparer comparer)

@@ -25,11 +25,11 @@ public abstract class RoadRegistryFixture : IDisposable
 
     private readonly ScenarioRunner _runner;
 
-    protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null)
+    protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null, IStreamStore store = null)
     {
         Fixture = new Fixture();
         Client = new MemoryBlobClient();
-        Store = new InMemoryStreamStore();
+        Store = store ?? new InMemoryStreamStore();
         Clock = new FakeClock(NodaConstants.UnixEpoch);
         ZipArchiveValidator = new FakeZipArchiveAfterFeatureCompareValidator();
 
@@ -70,5 +70,10 @@ public abstract class RoadRegistryFixture : IDisposable
     {
         if (builder == null) throw new ArgumentNullException(nameof(builder));
         return builder(new Scenario()).AssertAsync(_runner);
+    }
+
+    protected Task SetInitialStoreState(RecordedEvent[] givens)
+    {
+        return _runner.SetInitialStoreState(givens);
     }
 }
