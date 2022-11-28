@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix: 
-        services:  [
+        services: [
           'road-registry-backoffice-commandhost',
           'road-registry-backoffice-messaginghost-sqs',
           'road-registry-backoffice-eventhost',
