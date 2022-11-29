@@ -1,3 +1,10 @@
+## [3.23.3](https://github.com/informatievlaanderen/road-registry/compare/v3.23.2...v3.23.3) (2022-11-29)
+
+
+### Bug Fixes
+
+* fix workflow again again ([9a15235](https://github.com/informatievlaanderen/road-registry/commit/9a15235a7fde21746f808dc651bf4f2e32614a07))
+
 ## [3.23.2](https://github.com/informatievlaanderen/road-registry/compare/v3.23.1...v3.23.2) (2022-11-29)
 
 
