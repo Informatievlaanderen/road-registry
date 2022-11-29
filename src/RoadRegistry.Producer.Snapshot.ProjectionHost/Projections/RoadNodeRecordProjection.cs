@@ -47,7 +47,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
                             break;
 
                         case RoadNodeRemoved roadNodeRemoved:
-                            await RemoveRoadNode(roadNodeRemoved, context);
+                            await RemoveRoadNode(context, envelope, roadNodeRemoved, token);
                             break;
                     }
             });
@@ -68,7 +68,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
             await Produce(roadNodeAdded.Id, roadNode.Entity.ToContract(), token);
         }
 
-        private async Task ModifyRoadNode(ProducerSnapshotContext context, Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
+        private async Task ModifyRoadNode(
+            ProducerSnapshotContext context,
+            Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
             RoadNodeModified roadNodeModified,
             CancellationToken token)
         {
@@ -86,22 +88,21 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
             await Produce(roadNodeRecord.Id, roadNodeRecord.ToContract(), token);
         }
 
-        private async Task RemoveRoadNode(RoadNodeRemoved roadNodeRemoved, ProducerSnapshotContext context)
+        private async Task RemoveRoadNode(
+            ProducerSnapshotContext context,
+            Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
+            RoadNodeRemoved roadNodeRemoved,
+            CancellationToken token)
         {
             var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id).ConfigureAwait(false);
 
-            if (roadNodeRecord == null) return;
+            if (roadNodeRecord == null) throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is not found!"); ;
 
-            context.RoadNodes.Remove(roadNodeRecord);
-            var result = await _kafkaProducer.Produce(
-                roadNodeRecord.Id.ToString(CultureInfo.InvariantCulture),
-                "{}",
-                CancellationToken.None);
+            roadNodeRecord.Origin.Organization = envelope.Message.Organization;
+            roadNodeRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            roadNodeRecord.IsRemoved = true;
 
-            if (!result.IsSuccess)
-            {
-                throw new InvalidOperationException(result.Error + Environment.NewLine + result.ErrorReason);
-            }
+            await Produce(roadNodeRecord.Id, roadNodeRecord.ToContract(), token);
         }
 
         private async Task Produce(int roadNodeId, RoadNodeSnapshot snapshot, CancellationToken cancellationToken)

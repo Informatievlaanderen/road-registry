@@ -56,6 +56,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
                         .IsRequired()
                         .HasColumnType("Geometry");
 
+                    b.Property<bool>("IsRemoved")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset>("LastChangedTimestamp")
                         .HasColumnType("datetimeoffset");
 
