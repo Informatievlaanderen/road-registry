@@ -1,3 +1,25 @@
+# [3.22.0](https://github.com/informatievlaanderen/road-registry/compare/v3.21.4...v3.22.0) (2022-11-29)
+
+
+### Bug Fixes
+
+* bump dockerimages to dotnet 6 ([30dd236](https://github.com/informatievlaanderen/road-registry/commit/30dd236a35929cb01ec7f7a353b2d016b0b7db2d))
+* Check Local in dbcontext for tests ([2461175](https://github.com/informatievlaanderen/road-registry/commit/2461175a4652325e24e0dbd50fb12bce1fcd61df))
+* correct streetnameconsumer csproj ([556f519](https://github.com/informatievlaanderen/road-registry/commit/556f519b87d3fce84de16c1dbb6d9949422e1a3e))
+* Get validator through DI ([4510cd1](https://github.com/informatievlaanderen/road-registry/commit/4510cd18ac9fe412ebf12ea09d1766db12facca4))
+* Guarantee default organization name to be different than actual organization name for test ([f6442cb](https://github.com/informatievlaanderen/road-registry/commit/f6442cb451d9ccef0484e72e723951542ad2c802))
+* Let validator do null check ([69bb272](https://github.com/informatievlaanderen/road-registry/commit/69bb2729a6baf8d7d5a438d7a0512e471f46870a))
+* Tests ([d4f3ee3](https://github.com/informatievlaanderen/road-registry/commit/d4f3ee33ddd8a36a8d7d0f4996fb5e63fd837972))
+* update workflows ([8207ed3](https://github.com/informatievlaanderen/road-registry/commit/8207ed3ba053dead511f010cc203b63fd284c8cb))
+
+
+### Features
+
+* Add European/National road segments to WMS ([#697](https://github.com/informatievlaanderen/road-registry/issues/697)) ([4daa345](https://github.com/informatievlaanderen/road-registry/commit/4daa345bd9ea4bad0725375cd65d355d8504bb14))
+* Add RenameOrganization message ([6ae36cf](https://github.com/informatievlaanderen/road-registry/commit/6ae36cfe21557c5268be822bee9401ac0cda00d5))
+* Link RoadSegment to StreetName ([f129720](https://github.com/informatievlaanderen/road-registry/commit/f1297205f7038af355e6e89490e88ac6bd2d1e37))
+* Rename an organization ([9c8cfea](https://github.com/informatievlaanderen/road-registry/commit/9c8cfeac57817e7906852fc529660f9291c6e19b))
+
 ## [3.21.4](https://github.com/informatievlaanderen/road-registry/compare/v3.21.3...v3.21.4) (2022-11-17)
 
 
