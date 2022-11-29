@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
 using Abstractions.RoadSegments;
+using Extensions;
 using FluentValidation;
 using MediatR;
 
@@ -10,13 +11,33 @@ public class LinkRoadSegmentToStreetNameRequestValidator : AbstractValidator<Lin
     {
         RuleFor(x => x.RoadSegmentId)
             .GreaterThan(0)
-            .WithMessage($"'{nameof(LinkRoadSegmentToStreetNameRequest.RoadSegmentId)}' must be greater than 0");
+            .WithErrorCode("IncorrectObjectId")
+            .WithMessage(request => $"De waarde '{request.RoadSegmentId}' is ongeldig.");
         RuleFor(x => x.LeftStreetNameId)
-            .Must((request, value) => request.RightStreetNameId <= 0 ? value > 0 : value == 0)
-            .WithMessage($"'{nameof(LinkRoadSegmentToStreetNameRequest.LeftStreetNameId)}' must be greater than 0 while '{nameof(LinkRoadSegmentToStreetNameRequest.RightStreetNameId)}' is empty");
+            .MustBeValidStreetNamePuri()
+            .WithErrorCode("IncorrectObjectId")
+            .WithMessage(request => $"De waarde '{request.LeftStreetNameId}' is ongeldig.")
+            .Must((request, _) =>
+            {
+                var leftIdentifier = request.LeftStreetNameId.GetIdentifierFromPuri();
+                var rightIdentifier = request.RightStreetNameId.GetIdentifierFromPuri();
+                return rightIdentifier <= 0 ? leftIdentifier > 0 : leftIdentifier == 0;
+            })
+            .WithErrorCode("IncorrectObjectId")
+            .WithMessage(request => $"De waarde '{request.LeftStreetNameId}' is ongeldig.");
         RuleFor(x => x.RightStreetNameId)
-            .Must((request, value) => request.LeftStreetNameId <= 0 ? value > 0 : value == 0)
-            .WithMessage($"'{nameof(LinkRoadSegmentToStreetNameRequest.RightStreetNameId)}' must be greater than 0 while '{nameof(LinkRoadSegmentToStreetNameRequest.LeftStreetNameId)}' is empty");
+            .MustBeValidStreetNamePuri()
+            .WithErrorCode("IncorrectObjectId")
+            .WithMessage(request => $"De waarde '{request.RightStreetNameId}' is ongeldig.")
+            .Must((request, _) =>
+            {
+                var leftIdentifier = request.LeftStreetNameId.GetIdentifierFromPuri();
+                var rightIdentifier = request.RightStreetNameId.GetIdentifierFromPuri();
+
+                return leftIdentifier <= 0 ? rightIdentifier > 0 : rightIdentifier == 0;
+            })
+            .WithErrorCode("IncorrectObjectId")
+            .WithMessage(request => $"De waarde '{request.RightStreetNameId}' is ongeldig.");
     }
 
     public async Task<LinkRoadSegmentToStreetNameResponse> Handle(LinkRoadSegmentToStreetNameRequest request, RequestHandlerDelegate<LinkRoadSegmentToStreetNameResponse> next, CancellationToken cancellationToken)

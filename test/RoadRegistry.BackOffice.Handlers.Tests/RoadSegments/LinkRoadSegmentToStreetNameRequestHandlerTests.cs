@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Tests.RoadSegments;
 
+using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.EventHandling;
@@ -16,16 +17,6 @@ using AcceptedChange = Messages.AcceptedChange;
 
 public class LinkRoadSegmentToStreetNameRequestHandlerTests
 {
-    private RoadNetworkFixture Fixture { get; }
-    private LinkRoadSegmentToStreetNameRequestHandler Handler { get; }
-
-    private static class WellKnownStreetNameIds
-    {
-        public const int Proposed = 1;
-        public const int Current = 2;
-        public const int Retired = 3;
-    }
-
     public LinkRoadSegmentToStreetNameRequestHandlerTests(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<LinkRoadSegmentToStreetNameRequestHandler> logger)
     {
         var store = new InMemoryStreamStore();
@@ -44,6 +35,9 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
         Handler = new LinkRoadSegmentToStreetNameRequestHandler(commandHandlerDispatcher, logger, store, roadRegistryContext, streetNameCache);
         Fixture = (RoadNetworkFixture)new RoadNetworkFixture().WithStore(store);
     }
+
+    private RoadNetworkFixture Fixture { get; }
+    private LinkRoadSegmentToStreetNameRequestHandler Handler { get; }
 
     private async Task GivenSegment1Added()
     {
@@ -80,81 +74,18 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
     }
 
     [Fact]
-    public async Task LinkRoadSegmentToStreetName_RoadSegment_NotExists()
+    public async Task LinkRoadSegmentToStreetName_LeftStreetName_AlreadyConnected()
     {
-        await GivenSegment1Added();
-
-        var ex = await Assert.ThrowsAsync<ValidationException>(() =>
-        {
-            var request = new LinkRoadSegmentToStreetNameRequest(int.MaxValue, 99999, 0);
-            return Handler.HandleAsync(request, CancellationToken.None);
-        });
-        Assert.Equal("Road segment does not exist.", ex.Errors.Single().ErrorMessage);
-    }
-
-    [InlineData(WellKnownStreetNameIds.Proposed)]
-    [InlineData(WellKnownStreetNameIds.Current)]
-    [Theory]
-    public async Task LinkRoadSegmentToStreetName_LeftStreetName_Proposed_Current(int streetNameId)
-    {
-        Fixture.Segment1Added.LeftSide.StreetNameId = null;
-
-        await GivenSegment1Added();
-
-        var request = new LinkRoadSegmentToStreetNameRequest(1, streetNameId, 0);
-        await Handler.HandleAsync(request, CancellationToken.None);
-
-        var command = await Fixture.Store.GetLastCommand<ChangeRoadNetwork>();
-
-        Assert.Equal(streetNameId, command!.Changes.Single().ModifyRoadSegment.LeftSideStreetNameId);
-    }
-
-    [InlineData(WellKnownStreetNameIds.Proposed)]
-    [InlineData(WellKnownStreetNameIds.Current)]
-    [Theory]
-    public async Task LinkRoadSegmentToStreetName_RightStreetName_Proposed_Current(int streetNameId)
-    {
-        Fixture.Segment1Added.RightSide.StreetNameId = null;
-
-        await GivenSegment1Added();
-
-        var request = new LinkRoadSegmentToStreetNameRequest(1, 0, streetNameId);
-        await Handler.HandleAsync(request, CancellationToken.None);
-
-        var command = await Fixture.Store.GetLastCommand<ChangeRoadNetwork>();
-
-        Assert.Equal(streetNameId, command!.Changes.Single().ModifyRoadSegment.RightSideStreetNameId);
-    }
-
-    [Fact]
-    public async Task LinkRoadSegmentToStreetName_LeftStreetName_Retired()
-    {
-        Fixture.Segment1Added.LeftSide.StreetNameId = null;
+        Fixture.Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
 
         await GivenSegment1Added();
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() =>
         {
-            var request = new LinkRoadSegmentToStreetNameRequest(1, WellKnownStreetNameIds.Retired, 0);
+            var request = new LinkRoadSegmentToStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Proposed), null);
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("Street name does not exist or is retired.", ex.Errors.Single().ErrorMessage);
-    }
-
-
-    [Fact]
-    public async Task LinkRoadSegmentToStreetName_RightStreetName_Retired()
-    {
-        Fixture.Segment1Added.RightSide.StreetNameId = null;
-
-        await GivenSegment1Added();
-
-        var ex = await Assert.ThrowsAsync<ValidationException>(() =>
-        {
-            var request = new LinkRoadSegmentToStreetNameRequest(1, 0, WellKnownStreetNameIds.Retired);
-            return Handler.HandleAsync(request, CancellationToken.None);
-        });
-        Assert.Equal("Street name does not exist or is retired.", ex.Errors.Single().ErrorMessage);
+        Assert.Equal("LinkerstraatnaamNietOntkoppeldValidatie", ex.Errors.Single().ErrorCode);
     }
 
     [Fact]
@@ -166,12 +97,58 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() =>
         {
-            var request = new LinkRoadSegmentToStreetNameRequest(1, 99999, 0);
+            var request = new LinkRoadSegmentToStreetNameRequest(1, StreetNamePuri(99999), null);
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("Street name does not exist or is retired.", ex.Errors.Single().ErrorMessage);
+        Assert.Equal("StraatnaamNietGekendValidatie", ex.Errors.Single().ErrorCode);
     }
 
+    [InlineData(WellKnownStreetNameIds.Proposed)]
+    [InlineData(WellKnownStreetNameIds.Current)]
+    [Theory]
+    public async Task LinkRoadSegmentToStreetName_LeftStreetName_Proposed_Current(int streetNameId)
+    {
+        Fixture.Segment1Added.LeftSide.StreetNameId = null;
+
+        await GivenSegment1Added();
+
+        var request = new LinkRoadSegmentToStreetNameRequest(1, StreetNamePuri(streetNameId), null);
+        await Handler.HandleAsync(request, CancellationToken.None);
+
+        var command = await Fixture.Store.GetLastCommand<ChangeRoadNetwork>();
+
+        Assert.Equal(streetNameId, command!.Changes.Single().ModifyRoadSegment.LeftSideStreetNameId);
+    }
+
+    [Fact]
+    public async Task LinkRoadSegmentToStreetName_LeftStreetName_Retired()
+    {
+        Fixture.Segment1Added.LeftSide.StreetNameId = null;
+
+        await GivenSegment1Added();
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() =>
+        {
+            var request = new LinkRoadSegmentToStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Retired), null);
+            return Handler.HandleAsync(request, CancellationToken.None);
+        });
+        Assert.Equal("WegsegmentStraatnaamGehistoreerdOfAfgekeurd", ex.Errors.Single().ErrorCode);
+    }
+
+    [Fact]
+    public async Task LinkRoadSegmentToStreetName_RightStreetName_AlreadyConnected()
+    {
+        Fixture.Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+
+        await GivenSegment1Added();
+
+        var ex = await Assert.ThrowsAsync<ValidationException>(() =>
+        {
+            var request = new LinkRoadSegmentToStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Proposed));
+            return Handler.HandleAsync(request, CancellationToken.None);
+        });
+        Assert.Equal("RechterstraatnaamNietOntkoppeldValidatie", ex.Errors.Single().ErrorCode);
+    }
 
     [Fact]
     public async Task LinkRoadSegmentToStreetName_RightStreetName_NotExists()
@@ -182,39 +159,65 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() =>
         {
-            var request = new LinkRoadSegmentToStreetNameRequest(1, 0, 99999);
+            var request = new LinkRoadSegmentToStreetNameRequest(1, null, StreetNamePuri(99999));
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("Street name does not exist or is retired.", ex.Errors.Single().ErrorMessage);
+        Assert.Equal("StraatnaamNietGekendValidatie", ex.Errors.Single().ErrorCode);
+    }
+
+    [InlineData(WellKnownStreetNameIds.Proposed)]
+    [InlineData(WellKnownStreetNameIds.Current)]
+    [Theory]
+    public async Task LinkRoadSegmentToStreetName_RightStreetName_Proposed_Current(int streetNameId)
+    {
+        Fixture.Segment1Added.RightSide.StreetNameId = null;
+
+        await GivenSegment1Added();
+
+        var request = new LinkRoadSegmentToStreetNameRequest(1, null, StreetNamePuri(streetNameId));
+        await Handler.HandleAsync(request, CancellationToken.None);
+
+        var command = await Fixture.Store.GetLastCommand<ChangeRoadNetwork>();
+
+        Assert.Equal(streetNameId, command!.Changes.Single().ModifyRoadSegment.RightSideStreetNameId);
     }
 
     [Fact]
-    public async Task LinkRoadSegmentToStreetName_LeftStreetName_AlreadyConnected()
+    public async Task LinkRoadSegmentToStreetName_RightStreetName_Retired()
     {
-        Fixture.Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+        Fixture.Segment1Added.RightSide.StreetNameId = null;
 
         await GivenSegment1Added();
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() =>
         {
-            var request = new LinkRoadSegmentToStreetNameRequest(1, WellKnownStreetNameIds.Proposed, 0);
+            var request = new LinkRoadSegmentToStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Retired));
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("Road segment is connected to a street name on the left side.", ex.Errors.Single().ErrorMessage);
+        Assert.Equal("WegsegmentStraatnaamGehistoreerdOfAfgekeurd", ex.Errors.Single().ErrorCode);
     }
-    
-    [Fact]
-    public async Task LinkRoadSegmentToStreetName_RightStreetName_AlreadyConnected()
-    {
-        Fixture.Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
 
+    [Fact]
+    public async Task LinkRoadSegmentToStreetName_RoadSegment_NotExists()
+    {
         await GivenSegment1Added();
 
-        var ex = await Assert.ThrowsAsync<ValidationException>(() =>
+        await Assert.ThrowsAsync<RoadSegmentNotFoundException>(() =>
         {
-            var request = new LinkRoadSegmentToStreetNameRequest(1, 0, WellKnownStreetNameIds.Proposed);
+            var request = new LinkRoadSegmentToStreetNameRequest(int.MaxValue, StreetNamePuri(99999), null);
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("Road segment is connected to a street name on the right side.", ex.Errors.Single().ErrorMessage);
+    }
+
+    private string StreetNamePuri(int identifier)
+    {
+        return $"https://data.vlaanderen.be/id/straatnaam/{identifier}";
+    }
+
+    private static class WellKnownStreetNameIds
+    {
+        public const int Proposed = 1;
+        public const int Current = 2;
+        public const int Retired = 3;
     }
 }

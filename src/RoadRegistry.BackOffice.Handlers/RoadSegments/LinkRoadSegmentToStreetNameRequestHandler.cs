@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
 using Abstractions;
+using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
 using Framework;
@@ -15,8 +17,8 @@ using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<LinkRoadSegmentToStreetNameRequest, LinkRoadSegmentToStreetNameResponse>
 {
     private readonly IRoadRegistryContext _roadRegistryContext;
-    private readonly IStreetNameCache _streetNameCache;
     private readonly IStreamStore _store;
+    private readonly IStreetNameCache _streetNameCache;
 
     public LinkRoadSegmentToStreetNameRequestHandler(CommandHandlerDispatcher dispatcher,
         ILogger<LinkRoadSegmentToStreetNameRequestHandler> logger,
@@ -36,7 +38,7 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
         var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.RoadSegmentId));
         if (roadSegment == null)
         {
-            throw ValidationError(nameof(request.RoadSegmentId), "Road segment does not exist.");
+            throw new RoadSegmentNotFoundException();
         }
 
         var translatedChanges = TranslatedChanges.Empty
@@ -46,17 +48,19 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
 
         var recordNumber = RecordNumber.Initial;
 
-        if (request.LeftStreetNameId > 0)
+        var leftStreetNameId = request.LeftStreetNameId.GetIdentifierFromPuri();
+        var rightStreetNameId = request.RightStreetNameId.GetIdentifierFromPuri();
+
+        if (leftStreetNameId > 0)
         {
             if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId))
             {
-                throw ValidationError(nameof(request.RoadSegmentId), "Road segment is connected to a street name on the left side.");
+                throw ValidationError(nameof(request.LeftStreetNameId),
+                    $"Het wegsegment '{request.RoadSegmentId}' heeft reeds een linkerstraatnaam. Gelieve deze eerst te ontkoppelen.",
+                    "LinkerstraatnaamNietOntkoppeldValidatie");
             }
 
-            if (!await StreetNameExistsAndIsNotRetired(request.LeftStreetNameId, cancellationToken))
-            {
-                throw ValidationError(nameof(request.LeftStreetNameId), "Street name does not exist or is retired.");
-            }
+            await ValidateStreetName(nameof(request.LeftStreetNameId), leftStreetNameId, cancellationToken);
 
             translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                 recordNumber,
@@ -69,21 +73,20 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
                 roadSegment.AttributeHash.Status,
                 roadSegment.AttributeHash.Category,
                 roadSegment.AttributeHash.AccessRestriction,
-                new CrabStreetnameId(request.LeftStreetNameId),
+                new CrabStreetnameId(leftStreetNameId),
                 roadSegment.AttributeHash.RightStreetNameId
             ).WithGeometry(roadSegment.Geometry));
         }
-        else if (request.RightStreetNameId > 0)
+        else if (rightStreetNameId > 0)
         {
             if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
             {
-                throw ValidationError(nameof(request.RoadSegmentId), "Road segment is connected to a street name on the right side.");
+                throw ValidationError(nameof(request.RightStreetNameId),
+                    $"Het wegsegment '{request.RoadSegmentId}' heeft reeds een rechterstraatnaam. Gelieve deze eerst te ontkoppelen.",
+                    "RechterstraatnaamNietOntkoppeldValidatie");
             }
 
-            if (!await StreetNameExistsAndIsNotRetired(request.RightStreetNameId, cancellationToken))
-            {
-                throw ValidationError(nameof(request.RightStreetNameId), "Street name does not exist or is retired.");
-            }
+            await ValidateStreetName(nameof(request.RightStreetNameId), rightStreetNameId, cancellationToken);
 
             translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                 recordNumber,
@@ -97,7 +100,7 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
                 roadSegment.AttributeHash.Category,
                 roadSegment.AttributeHash.AccessRestriction,
                 roadSegment.AttributeHash.LeftStreetNameId,
-                new CrabStreetnameId(request.RightStreetNameId)
+                new CrabStreetnameId(rightStreetNameId)
             ).WithGeometry(roadSegment.Geometry));
         }
         else
@@ -129,19 +132,34 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
         return new LinkRoadSegmentToStreetNameResponse(messageId);
     }
 
-    private async Task<bool> StreetNameExistsAndIsNotRetired(int streetNameId, CancellationToken cancellationToken)
+    private async Task ValidateStreetName(string propertyName, int streetNameId, CancellationToken cancellationToken)
     {
         var streetNameStatuses = await _streetNameCache.GetStreetNameStatusesById(new[] { streetNameId }, cancellationToken);
-        if (streetNameStatuses.TryGetValue(streetNameId, out var streetNameStatus) && streetNameStatus != "Retired")
+        if (streetNameStatuses.TryGetValue(streetNameId, out var streetNameStatus))
         {
-            return true;
+            if (streetNameStatus != "Retired")
+            {
+                return;
+            }
+
+            throw ValidationError(propertyName,
+                "De straatnaam is gehistoreerd of afgekeurd.",
+                "WegsegmentStraatnaamGehistoreerdOfAfgekeurd");
         }
 
-        return false;
+        throw ValidationError(propertyName,
+            "De straatnaam is niet gekend in het Straatnamenregister.",
+            "StraatnaamNietGekendValidatie");
     }
 
-    private ValidationException ValidationError(string propertyName, string errorMessage)
+    private ValidationException ValidationError(string propertyName, string errorMessage, string errorCode = null)
     {
-        return new ValidationException(new[] { new ValidationFailure(propertyName, errorMessage) });
+        return new ValidationException(new[]
+        {
+            new ValidationFailure(propertyName, errorMessage)
+            {
+                ErrorCode = errorCode
+            }
+        });
     }
 }

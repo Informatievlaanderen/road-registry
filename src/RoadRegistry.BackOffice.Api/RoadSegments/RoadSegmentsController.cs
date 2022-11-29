@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api;
 using FeatureToggles;
@@ -35,11 +37,23 @@ public class RoadSegmentsController : ControllerBase
             return NotFound();
         }
 
-        var request = new LinkRoadSegmentToStreetNameRequest(parameters?.RoadSegmentId ?? 0, parameters?.LeftStreetNameId ?? 0, parameters?.RightStreetNameId ?? 0);
-        var response = await _mediator.Send(request, cancellationToken);
+        try
+        {
+            var request = new LinkRoadSegmentToStreetNameRequest(parameters?.RoadSegmentId ?? 0, parameters?.LeftStreetNameId, parameters?.RightStreetNameId);
+            var response = await _mediator.Send(request, cancellationToken);
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (RoadSegmentNotFoundException)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Type = "urn:be.vlaanderen.basisregisters.api:roadSegment:not-found",
+                Detail = "Onbestaand wegsegment.",
+                Status = (int)HttpStatusCode.NotFound
+            });
+        }
     }
 }
 
-public sealed record LinkStreetNameToRoadSegmentParameters(int RoadSegmentId, int LeftStreetNameId, int RightStreetNameId);
+public sealed record LinkStreetNameToRoadSegmentParameters(int RoadSegmentId, string? LeftStreetNameId, string? RightStreetNameId);
