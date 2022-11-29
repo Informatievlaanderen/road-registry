@@ -43,6 +43,18 @@ public readonly struct OrganizationName : IEquatable<OrganizationName>
         return _value;
     }
 
+    private OrganizationName Substring(int startIndex, int? length = null)
+    {
+        return length == null
+            ? new OrganizationName(_value.Substring(startIndex))
+            : new OrganizationName(_value.Substring(startIndex, length.Value));
+    }
+
+    public OrganizationName WithMaxLength(int length)
+    {
+        return new OrganizationName(this.Substring(0, length));
+    }
+
     public static implicit operator string(OrganizationName instance)
     {
         return instance._value;
