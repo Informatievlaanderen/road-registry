@@ -13,7 +13,7 @@ using RoadRegistry.Producer.Snapshot.ProjectionHost.Schema;
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
 {
     [DbContext(typeof(ProducerSnapshotContext))]
-    [Migration("20221128102503_Initial")]
+    [Migration("20221129092050_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,6 +57,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
                     b.Property<Geometry>("Geometry")
                         .IsRequired()
                         .HasColumnType("Geometry");
+
+                    b.Property<bool>("IsRemoved")
+                        .HasColumnType("bit");
 
                     b.Property<DateTimeOffset>("LastChangedTimestamp")
                         .HasColumnType("datetimeoffset");

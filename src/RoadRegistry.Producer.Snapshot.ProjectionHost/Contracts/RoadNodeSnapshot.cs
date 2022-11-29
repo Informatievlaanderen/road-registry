@@ -13,6 +13,7 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
         public DateTimeOffset? BeginTime { get; }
         public string Organization { get; }
         public DateTimeOffset LastChangedTimestamp { get; }
+        public bool IsRemoved { get; }
 
         public RoadNodeSnapshot(
             int id,
@@ -22,7 +23,8 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
             int geometrySrid,
             DateTimeOffset? beginTime,
             string organization,
-            DateTimeOffset lastChangedTimestamp)
+            DateTimeOffset lastChangedTimestamp,
+            bool isRemoved)
         {
             Id = id;
             Type = type;
@@ -32,6 +34,7 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
             BeginTime = beginTime;
             Organization = organization;
             LastChangedTimestamp = lastChangedTimestamp;
+            IsRemoved = isRemoved;
         }
     }
 }

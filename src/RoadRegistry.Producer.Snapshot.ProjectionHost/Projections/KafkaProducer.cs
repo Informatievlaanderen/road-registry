@@ -14,9 +14,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
             _kafkaProducerOptions = kafkaProducerOptions;
         }
 
-        public Task<Result> Produce(string key, string message, CancellationToken cancellationToken)
-            => Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple.KafkaProducer.Produce(_kafkaProducerOptions, key, message, cancellationToken);
-
         public Task<Result<T>> Produce<T>(string key, T message, CancellationToken cancellationToken) where T : class, IQueueMessage
             => Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple.KafkaProducer.Produce(_kafkaProducerOptions, key, message, cancellationToken);
     }

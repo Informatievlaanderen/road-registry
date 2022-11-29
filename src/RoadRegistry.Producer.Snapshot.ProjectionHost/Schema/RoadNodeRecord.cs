@@ -13,6 +13,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Schema
 
         public Origin Origin { get; set; }
         public DateTimeOffset LastChangedTimestamp { get; set; }
+        public bool IsRemoved { get; set; }
 
         // EF needs this
         private RoadNodeRecord() { }
@@ -34,6 +35,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Schema
             Type = type;
             Geometry = point;
             LastChangedTimestamp = lastChangedTimestamp;
+            IsRemoved = false;
         }
 
         public RoadNodeSnapshot ToContract()
@@ -46,7 +48,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Schema
                 Geometry.SRID,
                 Origin.BeginTime,
                 Origin.Organization,
-                LastChangedTimestamp);
+                LastChangedTimestamp,
+                IsRemoved);
         }
     }
 }

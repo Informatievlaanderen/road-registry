@@ -86,15 +86,15 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             .WithAcceptedChanges(_fixture.Create<RoadNodeModified>());
 
         var created = DateTimeOffset.UtcNow;
-        
+
         var expectedRecords = Array.ConvertAll(acceptedRoadNodeModified.Changes, change =>
         {
-            var roadNodeAdded = change.RoadNodeModified;
-            var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
+            var roadNodeModified = change.RoadNodeModified;
+            var point = GeometryTranslator.Translate(roadNodeModified.Geometry);
 
             return (object)new RoadNodeRecord(
-                roadNodeAdded.Id,
-                roadNodeAdded.Type,
+                roadNodeModified.Id,
+                roadNodeModified.Type,
                 point,
                 LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadNodeModified.When),
                 acceptedRoadNodeModified.Organization,
@@ -125,18 +125,44 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadNodeRemoved>());
 
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadNodeAdded.Changes, change =>
+        {
+            var roadNodeAdded = change.RoadNodeAdded;
+            var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
+
+            return (object)new RoadNodeRecord(
+                roadNodeAdded.Id,
+                roadNodeAdded.Type,
+                point,
+                LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadNodeAdded.When),
+                acceptedRoadNodeAdded.Organization,
+                created.AddDays(-1))
+            { IsRemoved = true };
+        });
+
+        expectedRecords = Array.ConvertAll(acceptedRoadNodeRemoved.Changes, change =>
+        {
+            var roadNodeRemoved = change.RoadNodeRemoved;
+
+            var record = expectedRecords.Cast<RoadNodeRecord>().Single(x => x.Id == roadNodeRemoved.Id);
+            record.Origin.Organization = acceptedRoadNodeRemoved.Organization;
+            record.IsRemoved = true;
+            record.LastChangedTimestamp = created;
+
+            return (object)record;
+        });
+
         var kafkaProducer = new Mock<IKafkaProducer>();
         kafkaProducer
             .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadNodeSnapshot>(), CancellationToken.None))
             .ReturnsAsync(Result<RoadNodeSnapshot>.Success(It.IsAny<RoadNodeSnapshot>()));
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<string>(), CancellationToken.None))
-            .ReturnsAsync(Result.Success());
 
         return new RoadNodeRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(acceptedRoadNodeAdded, acceptedRoadNodeRemoved)
-            .ExpectNone();
+            .Expect(created.UtcDateTime, expectedRecords);
     }
 
     [Fact]
@@ -150,7 +176,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             {
                 @event.When = _fixture.Create<DateTime>().ToString("yyyy-MM-ddTHH:mm:ss.ffffffZ");
                 var point = GeometryTranslator.Translate(@event.Geometry);
-                
+
                 var expectedRecord = new RoadNodeRecord(
                     @event.Id,
                     @event.Type,

@@ -43,7 +43,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
                     Geometry = table.Column<Geometry>(type: "Geometry", nullable: false),
                     Origin_BeginTime = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     Origin_Organization = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastChangedTimestamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false)
+                    LastChangedTimestamp = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    IsRemoved = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
