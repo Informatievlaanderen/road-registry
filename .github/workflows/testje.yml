@@ -1181,7 +1181,7 @@ jobs:
         
   deploy_to_staging_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [push_images_to_staging, deploy_to_test_finish_slack, build]
+    needs: [push_images_to_staging, build] #deploy_to_test_finish_slack, build]
     name: Deploy to staging started
     environment: stg
     runs-on: ubuntu-latest
