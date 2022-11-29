@@ -136,14 +136,15 @@ jobs:
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER -o ~/rr-backoffice-ui-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER -o ~/rr-editor-projectionhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER -o ~/rr-product-projectionhost-image.tar
+        docker image save $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER -o ~/rr-producer-snapshot-projectionhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER -o ~/rr-syndication-projectionhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER -o ~/rr-wms-projectionhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER -o ~/rr-wfs-projectionhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER -o ~/rr-backoffice-eventhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER -o ~/rr-backoffice-extracthost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER -o ~/rr-backoffice-commandhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER -o ~/rr--image.tar
-        #docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER -o ~/rr--image.tar
+        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER -o ~/rr-backoffice-messaginghost-sqs-image.tar
+        #docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER -o ~/rr-backoffice-messaginghost-kafka-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER -o ~/rr-import-legacy-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER -o ~/rr-extract-legacy-image.tar
       env:
@@ -544,6 +545,12 @@ jobs:
           name: product-projectionhost
           path: ~/
       
+      - name: Download producer-snapshot-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: producer-snapshot-projectionhost
+          path: ~/
+      
       - name: Download syndication-projectionhost
         uses: actions/download-artifact@v3
         with:
@@ -616,6 +623,7 @@ jobs:
           docker image load -i ~/rr-backoffice-ui-image.tar
           docker image load -i ~/rr-editor-projectionhost-image.tar
           docker image load -i ~/rr-product-projectionhost-image.tar
+          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
           docker image load -i ~/rr-syndication-projectionhost-image.tar
           docker image load -i ~/rr-wms-projectionhost-image.tar
           docker image load -i ~/rr-wfs-projectionhost-image.tar
@@ -637,6 +645,7 @@ jobs:
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
@@ -705,6 +714,12 @@ jobs:
           name: product-projectionhost
           path: ~/
       
+      - name: Download producer-snapshot-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: producer-snapshot-projectionhost
+          path: ~/
+      
       - name: Download syndication-projectionhost
         uses: actions/download-artifact@v3
         with:
@@ -777,6 +792,7 @@ jobs:
           docker image load -i ~/rr-backoffice-ui-image.tar
           docker image load -i ~/rr-editor-projectionhost-image.tar
           docker image load -i ~/rr-product-projectionhost-image.tar
+          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
           docker image load -i ~/rr-syndication-projectionhost-image.tar
           docker image load -i ~/rr-wms-projectionhost-image.tar
           docker image load -i ~/rr-wfs-projectionhost-image.tar
@@ -806,6 +822,9 @@ jobs:
 
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
 
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
@@ -895,6 +914,12 @@ jobs:
 #          name: product-projectionhost
 #          path: ~/
 #      
+#      - name: Download producer-snapshot-projectionhost
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: producer-snapshot-projectionhost
+#          path: ~/
+#      
 #      - name: Download syndication-projectionhost
 #        uses: actions/download-artifact@v3
 #        with:
@@ -967,6 +992,7 @@ jobs:
 #          docker image load -i ~/rr-backoffice-ui-image.tar
 #          docker image load -i ~/rr-editor-projectionhost-image.tar
 #          docker image load -i ~/rr-product-projectionhost-image.tar
+#          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
 #          docker image load -i ~/rr-syndication-projectionhost-image.tar
 #          docker image load -i ~/rr-wms-projectionhost-image.tar
 #          docker image load -i ~/rr-wfs-projectionhost-image.tar
@@ -997,6 +1023,9 @@ jobs:
 
 #        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
 #        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
+
+#        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
+#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
 
 #        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
 #        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
