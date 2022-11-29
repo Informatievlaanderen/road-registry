@@ -15,16 +15,19 @@ using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<LinkRoadSegmentToStreetNameRequest, LinkRoadSegmentToStreetNameResponse>
 {
     private readonly IRoadRegistryContext _roadRegistryContext;
+    private readonly IStreetNameCache _streetNameCache;
     private readonly IStreamStore _store;
 
     public LinkRoadSegmentToStreetNameRequestHandler(CommandHandlerDispatcher dispatcher,
         ILogger<LinkRoadSegmentToStreetNameRequestHandler> logger,
         IStreamStore store,
-        IRoadRegistryContext roadRegistryContext)
+        IRoadRegistryContext roadRegistryContext,
+        IStreetNameCache streetNameCache)
         : base(dispatcher, logger)
     {
         _store = store;
         _roadRegistryContext = roadRegistryContext;
+        _streetNameCache = streetNameCache;
     }
 
     public override async Task<LinkRoadSegmentToStreetNameResponse> HandleAsync(LinkRoadSegmentToStreetNameRequest request, CancellationToken cancellationToken)
@@ -50,6 +53,11 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
                 throw ValidationError(nameof(request.RoadSegmentId), "Road segment is connected to a street name on the left side.");
             }
 
+            if (!await StreetNameExistsAndIsNotRetired(request.LeftStreetNameId, cancellationToken))
+            {
+                throw ValidationError(nameof(request.LeftStreetNameId), "Street name does not exist or is retired.");
+            }
+
             translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                 recordNumber,
                 roadSegment.Id,
@@ -70,6 +78,11 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
             if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
             {
                 throw ValidationError(nameof(request.RoadSegmentId), "Road segment is connected to a street name on the right side.");
+            }
+
+            if (!await StreetNameExistsAndIsNotRetired(request.RightStreetNameId, cancellationToken))
+            {
+                throw ValidationError(nameof(request.RightStreetNameId), "Street name does not exist or is retired.");
             }
 
             translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
@@ -116,8 +129,19 @@ public class LinkRoadSegmentToStreetNameRequestHandler : EndpointRequestHandler<
         return new LinkRoadSegmentToStreetNameResponse(messageId);
     }
 
+    private async Task<bool> StreetNameExistsAndIsNotRetired(int streetNameId, CancellationToken cancellationToken)
+    {
+        var streetNameStatuses = await _streetNameCache.GetStreetNameStatusesById(new[] { streetNameId }, cancellationToken);
+        if (streetNameStatuses.TryGetValue(streetNameId, out var streetNameStatus) && streetNameStatus != "Retired")
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     private ValidationException ValidationError(string propertyName, string errorMessage)
     {
-        return new ValidationException("Validation error", new[] { new ValidationFailure(propertyName, errorMessage) });
+        return new ValidationException(new[] { new ValidationFailure(propertyName, errorMessage) });
     }
 }

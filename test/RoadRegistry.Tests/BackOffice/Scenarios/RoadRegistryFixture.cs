@@ -1,10 +1,12 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
+using Autofac.Core;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework.Testing;
 using KellermanSoftware.CompareNetObjects;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Testing;
@@ -23,15 +25,21 @@ public abstract class RoadRegistryFixture : IDisposable
     private static readonly JsonSerializerSettings Settings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    private readonly ScenarioRunner _runner;
+    private ScenarioRunner _runner;
 
-    protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null, IStreamStore store = null)
+    protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null)
     {
         Fixture = new Fixture();
+
         Client = new MemoryBlobClient();
-        Store = store ?? new InMemoryStreamStore();
         Clock = new FakeClock(NodaConstants.UnixEpoch);
         ZipArchiveValidator = new FakeZipArchiveAfterFeatureCompareValidator();
+        WithStore(new InMemoryStreamStore(), comparisonConfig);
+    }
+
+    public RoadRegistryFixture WithStore(IStreamStore store, ComparisonConfig comparisonConfig = null)
+    {
+        Store = store.ThrowIfNull();
 
         _runner = new ScenarioRunner(
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
@@ -47,37 +55,48 @@ public abstract class RoadRegistryFixture : IDisposable
         {
             ComparisonConfig = comparisonConfig
         };
+
+        return this;
     }
 
-    protected MemoryBlobClient Client { get; }
-    protected FakeClock Clock { get; }
-    protected Fixture Fixture { get; }
-    protected IStreamStore Store { get; }
-    protected IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
+    public MemoryBlobClient Client { get; }
+    public FakeClock Clock { get; }
+    public Fixture Fixture { get; }
+    public IStreamStore Store { get; private set; }
+    public IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
 
     public void Dispose()
     {
         Store?.Dispose();
     }
 
-    protected Task Run(Func<Scenario, IExpectExceptionScenarioBuilder> builder)
-    {
-        if (builder == null) throw new ArgumentNullException(nameof(builder));
-        return builder(new Scenario()).AssertAsync(_runner);
-    }
-
-    protected Task Run(Func<Scenario, IExpectEventsScenarioBuilder> builder)
-    {
-        if (builder == null) throw new ArgumentNullException(nameof(builder));
-        return builder(new Scenario()).AssertAsync(_runner);
-    }
-
-    protected Task Given(StreamName streamName, params object[] events)
+    public Task Given(StreamName streamName, params object[] events)
     {
         return Given(events.Select(@event => new RecordedEvent(streamName, @event)).ToArray());
     }
-    protected Task Given(RecordedEvent[] events)
+
+    public Task Given(RecordedEvent[] events)
     {
         return _runner.WriteGivens(events);
+    }
+
+    public Task Run(Func<Scenario, IExpectExceptionScenarioBuilder> builder)
+    {
+        if (builder == null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
+        return builder(new Scenario()).AssertAsync(_runner);
+    }
+
+    public Task Run(Func<Scenario, IExpectEventsScenarioBuilder> builder)
+    {
+        if (builder == null)
+        {
+            throw new ArgumentNullException(nameof(builder));
+        }
+
+        return builder(new Scenario()).AssertAsync(_runner);
     }
 }

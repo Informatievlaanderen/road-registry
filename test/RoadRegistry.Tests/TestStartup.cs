@@ -15,7 +15,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IO;
 using NetTopologySuite;
 using NetTopologySuite.IO;
@@ -26,7 +25,6 @@ using RoadRegistry.BackOffice.Abstractions.Configuration;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
@@ -125,7 +123,7 @@ public abstract class TestStartup
                     .SingleInstance();
             });
     }
-
+    
     protected virtual void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
     }
