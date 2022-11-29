@@ -96,7 +96,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
         {
             var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id).ConfigureAwait(false);
 
-            if (roadNodeRecord == null) throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is not found!"); ;
+            if (roadNodeRecord == null) throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is not found!");
 
             roadNodeRecord.Origin.Organization = envelope.Message.Organization;
             roadNodeRecord.LastChangedTimestamp = envelope.CreatedUtc;
