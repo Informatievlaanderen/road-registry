@@ -1,3 +1,10 @@
+## [3.23.5](https://github.com/informatievlaanderen/road-registry/compare/v3.23.4...v3.23.5) (2022-11-30)
+
+
+### Bug Fixes
+
+* exclude lambda from production ([#717](https://github.com/informatievlaanderen/road-registry/issues/717)) ([808a951](https://github.com/informatievlaanderen/road-registry/commit/808a9511fa6980decd35de3b70a49423a53b9b7c))
+
 ## [3.23.4](https://github.com/informatievlaanderen/road-registry/compare/v3.23.3...v3.23.4) (2022-11-30)
 
 
