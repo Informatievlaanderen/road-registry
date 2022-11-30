@@ -1,3 +1,11 @@
+## [3.24.1](https://github.com/informatievlaanderen/road-registry/compare/v3.24.0...v3.24.1) (2022-11-30)
+
+
+### Bug Fixes
+
+* correct typo ([5946ae5](https://github.com/informatievlaanderen/road-registry/commit/5946ae52703b9b005f6aa3dae6f3a1900651a4b8))
+* remove producer-snapshot-projectionhost ([#724](https://github.com/informatievlaanderen/road-registry/issues/724)) ([43df566](https://github.com/informatievlaanderen/road-registry/commit/43df5664c064d576d58cc3a17cff0bf2d9bb8027))
+
 # [3.24.0](https://github.com/informatievlaanderen/road-registry/compare/v3.23.6...v3.24.0) (2022-11-30)
 
 
