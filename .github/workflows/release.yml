@@ -969,11 +969,11 @@ jobs:
           name: backoffice-messaginghost-sqs
           path: ~/
       
-      - name: Download backoffice-messaginghost-kafka
-        uses: actions/download-artifact@v3
-        with:
-          name: backoffice-messaginghost-kafka
-          path: ~/
+#      - name: Download backoffice-messaginghost-kafka
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: backoffice-messaginghost-kafka
+#          path: ~/
       
       - name: Download import-legacy
         uses: actions/download-artifact@v3
