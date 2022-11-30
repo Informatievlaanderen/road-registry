@@ -830,8 +830,8 @@ jobs:
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
 
-#          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
-#          docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          #docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          #docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
 
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
