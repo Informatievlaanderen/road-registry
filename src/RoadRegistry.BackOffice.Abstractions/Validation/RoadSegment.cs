@@ -12,13 +12,13 @@ namespace RoadRegistry.BackOffice.Abstractions.Validation
 
             public static class LeftStreetNameIsNotAvailable
             {
-                public const string Code = "LinkerstraatnaamNietOntkoppeldValidatie";
+                public const string Code = "LinkerstraatnaamNietOntkoppeld";
                 public static string Message(int roadSegmentId) => $"Het wegsegment '{roadSegmentId}' heeft reeds een linkerstraatnaam. Gelieve deze eerst te ontkoppelen.";
             }
 
             public static class RightStreetNameIsNotAvailable
             {
-                public const string Code = "RechterstraatnaamNietOntkoppeldValidatie";
+                public const string Code = "RechterstraatnaamNietOntkoppeld";
                 public static string Message(int roadSegmentId) => $"Het wegsegment '{roadSegmentId}' heeft reeds een rechterstraatnaam. Gelieve deze eerst te ontkoppelen.";
             }
 

@@ -85,7 +85,7 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
             var request = new LinkRoadSegmentToStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Proposed), null);
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("LinkerstraatnaamNietOntkoppeldValidatie", ex.Errors.Single().ErrorCode);
+        Assert.Equal("LinkerstraatnaamNietOntkoppeld", ex.Errors.Single().ErrorCode);
     }
 
     [Fact]
@@ -100,7 +100,7 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
             var request = new LinkRoadSegmentToStreetNameRequest(1, StreetNamePuri(99999), null);
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("StraatnaamNietGekendValidatie", ex.Errors.Single().ErrorCode);
+        Assert.Equal("StraatnaamNietGekend", ex.Errors.Single().ErrorCode);
     }
 
     [InlineData(WellKnownStreetNameIds.Proposed)]
@@ -147,7 +147,7 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
             var request = new LinkRoadSegmentToStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Proposed));
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("RechterstraatnaamNietOntkoppeldValidatie", ex.Errors.Single().ErrorCode);
+        Assert.Equal("RechterstraatnaamNietOntkoppeld", ex.Errors.Single().ErrorCode);
     }
 
     [Fact]
@@ -162,7 +162,7 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
             var request = new LinkRoadSegmentToStreetNameRequest(1, null, StreetNamePuri(99999));
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("StraatnaamNietGekendValidatie", ex.Errors.Single().ErrorCode);
+        Assert.Equal("StraatnaamNietGekend", ex.Errors.Single().ErrorCode);
     }
 
     [InlineData(WellKnownStreetNameIds.Proposed)]

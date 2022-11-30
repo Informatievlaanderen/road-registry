@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Abstractions.Validation
         {
             public static class NotFound
             {
-                public const string Code = "StraatnaamNietGekendValidatie";
+                public const string Code = "StraatnaamNietGekend";
                 public const string Message = "De straatnaam is niet gekend in het Straatnamenregister.";
             }
         }
