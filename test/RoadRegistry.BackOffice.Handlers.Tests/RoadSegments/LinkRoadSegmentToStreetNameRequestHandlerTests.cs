@@ -132,7 +132,7 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
             var request = new LinkRoadSegmentToStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Retired), null);
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("WegsegmentStraatnaamGehistoreerdOfAfgekeurd", ex.Errors.Single().ErrorCode);
+        Assert.Equal("WegsegmentStraatnaamNietVoorgesteldOfInGebruik", ex.Errors.Single().ErrorCode);
     }
 
     [Fact]
@@ -194,7 +194,7 @@ public class LinkRoadSegmentToStreetNameRequestHandlerTests
             var request = new LinkRoadSegmentToStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Retired));
             return Handler.HandleAsync(request, CancellationToken.None);
         });
-        Assert.Equal("WegsegmentStraatnaamGehistoreerdOfAfgekeurd", ex.Errors.Single().ErrorCode);
+        Assert.Equal("WegsegmentStraatnaamNietVoorgesteldOfInGebruik", ex.Errors.Single().ErrorCode);
     }
 
     [Fact]
