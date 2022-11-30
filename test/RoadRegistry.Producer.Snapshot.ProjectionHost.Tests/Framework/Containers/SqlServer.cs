@@ -4,6 +4,7 @@ using BackOffice.Abstractions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadNode;
 using RoadRegistry.Tests.Framework.Containers;
 using Schema;
 
@@ -41,22 +42,22 @@ public class SqlServer : ISqlServerDatabase
         return _inner.InitializeAsync();
     }
 
-    public async Task<ProducerSnapshotContext> CreateProducerSnapshotContextAsync(SqlConnectionStringBuilder builder)
+    public async Task<RoadNodeProducerSnapshotContext> CreateRoadNodeProducerSnapshotContextAsync(SqlConnectionStringBuilder builder)
     {
-        var options = new DbContextOptionsBuilder<ProducerSnapshotContext>()
+        var options = new DbContextOptionsBuilder<RoadNodeProducerSnapshotContext>()
             .UseSqlServer(builder.ConnectionString,
                 dbContextOptionsBuilder => dbContextOptionsBuilder.UseNetTopologySuite())
             .EnableSensitiveDataLogging()
             .Options;
 
-        var context = new ProducerSnapshotContext(options);
+        var context = new RoadNodeProducerSnapshotContext(options);
         await context.Database.MigrateAsync();
         return context;
     }
 
-    public async Task<ProducerSnapshotContext> CreateEmptyProducerSnapshotContextAsync(SqlConnectionStringBuilder builder)
+    public async Task<RoadNodeProducerSnapshotContext> CreateEmptyProducerSnapshotContextAsync(SqlConnectionStringBuilder builder)
     {
-        var context = await CreateProducerSnapshotContextAsync(builder);
+        var context = await CreateRoadNodeProducerSnapshotContextAsync(builder);
         
         context.RoadNodes.RemoveRange(context.RoadNodes);
 

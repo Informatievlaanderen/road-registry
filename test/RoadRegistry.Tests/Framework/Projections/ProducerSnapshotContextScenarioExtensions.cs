@@ -8,21 +8,22 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
+using Producer.Snapshot.ProjectionHost.RoadNode;
 using Producer.Snapshot.ProjectionHost.Schema;
 using Xunit.Sdk;
 
-public class MemoryProducerSnapshotContext : ProducerSnapshotContext
+public class MemoryRoadNodeProducerSnapshotContext : RoadNodeProducerSnapshotContext
 {
-    public MemoryProducerSnapshotContext(DbContextOptions<ProducerSnapshotContext> options) : base(options)
+    public MemoryRoadNodeProducerSnapshotContext(DbContextOptions<RoadNodeProducerSnapshotContext> options) : base(options)
     {
     }
 }
 
-public static class ProducerSnapshotContextScenarioExtensions
+public static class RoadNodeProducerSnapshotContextScenarioExtensions
 {
     //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
     //
-    private static async Task<object[]> AllRecords(this ProducerSnapshotContext context)
+    private static async Task<object[]> AllRecords(this RoadNodeProducerSnapshotContext context)
     {
         var records = new List<object>();
         records.AddRange(await context.RoadNodes.ToArrayAsync());
@@ -30,17 +31,17 @@ public static class ProducerSnapshotContextScenarioExtensions
         return records.ToArray();
     }
 
-    private static ProducerSnapshotContext CreateContextFor(string database)
+    private static RoadNodeProducerSnapshotContext CreateContextFor(string database)
     {
-        var options = new DbContextOptionsBuilder<ProducerSnapshotContext>()
+        var options = new DbContextOptionsBuilder<RoadNodeProducerSnapshotContext>()
             .UseInMemoryDatabase(database)
             .EnableSensitiveDataLogging()
             .Options;
 
-        return new MemoryProducerSnapshotContext(options);
+        return new MemoryRoadNodeProducerSnapshotContext(options);
     }
 
-    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<ProducerSnapshotContext> specification, VerificationResult result)
+    private static XunitException CreateFailedScenarioExceptionFor(this ConnectedProjectionTestSpecification<RoadNodeProducerSnapshotContext> specification, VerificationResult result)
     {
         var title = string.Empty;
         var exceptionMessage = new StringBuilder()
@@ -52,7 +53,7 @@ public static class ProducerSnapshotContextScenarioExtensions
     }
 
     public static Task Expect(
-        this ConnectedProjectionScenario<ProducerSnapshotContext> scenario,
+        this ConnectedProjectionScenario<RoadNodeProducerSnapshotContext> scenario,
         DateTime created,
         IEnumerable<object> records)
     {
@@ -60,7 +61,7 @@ public static class ProducerSnapshotContextScenarioExtensions
     }
 
     public static async Task Expect(
-        this ConnectedProjectionScenario<ProducerSnapshotContext> scenario,
+        this ConnectedProjectionScenario<RoadNodeProducerSnapshotContext> scenario,
         DateTime created,
         params object[] records)
     {
@@ -94,7 +95,7 @@ public static class ProducerSnapshotContextScenarioExtensions
 
         await using (var context = CreateContextFor(database))
         {
-            var projector = new ConnectedProjector<ProducerSnapshotContext>(specification.Resolver);
+            var projector = new ConnectedProjector<RoadNodeProducerSnapshotContext>(specification.Resolver);
             var position = 0L;
             foreach (var message in specification.Messages)
             {
@@ -115,14 +116,14 @@ public static class ProducerSnapshotContextScenarioExtensions
     }
 
     public static Task ExpectInAnyOrder(
-        this ConnectedProjectionScenario<ProducerSnapshotContext> scenario,
+        this ConnectedProjectionScenario<RoadNodeProducerSnapshotContext> scenario,
         IEnumerable<object> records)
     {
         return scenario.ExpectInAnyOrder(records.ToArray());
     }
 
     public static async Task ExpectInAnyOrder(
-        this ConnectedProjectionScenario<ProducerSnapshotContext> scenario,
+        this ConnectedProjectionScenario<RoadNodeProducerSnapshotContext> scenario,
         params object[] records)
     {
         var database = Guid.NewGuid().ToString("N");
@@ -144,7 +145,7 @@ public static class ProducerSnapshotContextScenarioExtensions
 
         await using (var context = CreateContextFor(database))
         {
-            var projector = new ConnectedProjector<ProducerSnapshotContext>(specification.Resolver);
+            var projector = new ConnectedProjector<RoadNodeProducerSnapshotContext>(specification.Resolver);
             var position = 0L;
             foreach (var message in specification.Messages)
             {
@@ -164,7 +165,7 @@ public static class ProducerSnapshotContextScenarioExtensions
         }
     }
 
-    public static async Task ExpectNone(this ConnectedProjectionScenario<ProducerSnapshotContext> scenario)
+    public static async Task ExpectNone(this ConnectedProjectionScenario<RoadNodeProducerSnapshotContext> scenario)
     {
         var database = Guid.NewGuid().ToString("N");
 
@@ -178,7 +179,7 @@ public static class ProducerSnapshotContextScenarioExtensions
 
         await using (var context = CreateContextFor(database))
         {
-            var projector = new ConnectedProjector<ProducerSnapshotContext>(specification.Resolver);
+            var projector = new ConnectedProjector<RoadNodeProducerSnapshotContext>(specification.Resolver);
             foreach (var message in specification.Messages)
             {
                 var envelope = new Envelope(message, new Dictionary<string, object>() { { "CreatedUtc", DateTime.Now } }).ToGenericEnvelope();
@@ -196,8 +197,8 @@ public static class ProducerSnapshotContextScenarioExtensions
         }
     }
 
-    public static ConnectedProjectionScenario<ProducerSnapshotContext> Scenario(this ConnectedProjection<ProducerSnapshotContext> projection)
+    public static ConnectedProjectionScenario<RoadNodeProducerSnapshotContext> Scenario(this ConnectedProjection<RoadNodeProducerSnapshotContext> projection)
     {
-        return new ConnectedProjectionScenario<ProducerSnapshotContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
+        return new ConnectedProjectionScenario<RoadNodeProducerSnapshotContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
 }

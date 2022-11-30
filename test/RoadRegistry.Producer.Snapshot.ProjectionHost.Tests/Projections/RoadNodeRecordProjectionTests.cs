@@ -8,10 +8,10 @@ using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
 using Moq;
 using ProjectionHost.Projections;
+using RoadNode;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
-using Schema;
 
 public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
