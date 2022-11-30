@@ -22,8 +22,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using Microsoft.IO;
     using Newtonsoft.Json;
     using NodaTime;
-    using Projections;
-    using Schema;
+    using RoadNode;
     using Serilog;
     using Serilog.Debugging;
     using SqlStreamStore;
@@ -87,65 +86,66 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                     builder
                         .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
-                        .AddSingleton<Scheduler>()
-                        .AddHostedService<EventProcessor>()
+                        .AddTransient<Scheduler>()
+                        .AddHostedService<RoadNodeEventProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
-                            EventProcessor.EventMapping,
+                            RoadNodeEventProcessor.EventMapping,
                             new EventDeserializer((eventData, eventType) =>
-                                JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
+                                JsonConvert.DeserializeObject(eventData, eventType, RoadNodeEventProcessor.SerializerSettings)))
                         )
                         .AddSingleton(() =>
-                                new ProducerSnapshotContext(
-                                    new DbContextOptionsBuilder<ProducerSnapshotContext>()
-                                        .UseSqlServer(
-                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.ProducerSnapshotProjections),
-                                            options => options
-                                                .EnableRetryOnFailure()
-                                                .UseNetTopologySuite()
+                            new RoadNodeProducerSnapshotContext(
+                                new DbContextOptionsBuilder<RoadNodeProducerSnapshotContext>()
+                                    .UseSqlServer(
+                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.ProducerSnapshotProjections),
+                                        options => options
+                                            .EnableRetryOnFailure()
+                                            .UseNetTopologySuite()
                                     ).Options)
                         )
                         .AddSingleton(sp =>
                         {
                             var config = sp.GetRequiredService<IConfiguration>();
-                            var bootstrapServers = config["Kafka:BootstrapServers"];
-                            var kafkaUserName = config["Kafka:SaslUserName"];
-                            var kafkaPassword = config["Kafka:SaslPassword"];
 
-                            return new ConnectedProjection<ProducerSnapshotContext>[]
+                            return new ConnectedProjection<RoadNodeProducerSnapshotContext>[]
                             {
                                 new RoadNodeRecordProjection(new KafkaProducer(new KafkaProducerOptions(
-                                    bootstrapServers,
-                                    kafkaUserName,
-                                    kafkaPassword,
+                                    config["Kafka:BootstrapServers"],
+                                    config["Kafka:SaslUserName"],
+                                    config["Kafka:SaslPassword"],
                                     config["RoadNodeTopic"] ?? throw new ArgumentException($"Configuration has no value for RoadNodeTopic"),
                                     true,
-                                    EventProcessor.SerializerSettings
+                                    RoadNodeEventProcessor.SerializerSettings
                                 )))
                             };
                         })
                         .AddSingleton(sp =>
                             Resolve
                                 .WhenEqualToHandlerMessageType(
-                                    sp.GetRequiredService<ConnectedProjection<ProducerSnapshotContext>[]>()
+                                    sp.GetRequiredService<ConnectedProjection<RoadNodeProducerSnapshotContext>[]>()
                                         .SelectMany(projection => projection.Handlers)
                                         .ToArray()
                                 )
                         )
-                        .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<ProducerSnapshotContext>[]>(), EventProcessor.EventMapping))
-                        .AddSingleton<IStreamStore>(sp =>
+                        .AddSingleton(sp => RoadNodeAcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<RoadNodeProducerSnapshotContext>[]>(), RoadNodeEventProcessor.EventMapping))
+                        .AddTransient<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
                                 new MsSqlStreamStoreV3Settings(
-                                    sp
-                                        .GetService<IConfiguration>()
-                                        .GetConnectionString(WellknownConnectionNames.Events)
-                                )
-                                { Schema = WellknownSchemas.EventSchema }))
-                        .AddSingleton<IRunnerDbContextMigratorFactory>(new ProducerSnapshotContextMigrationFactory());
+                                        sp
+                                            .GetService<IConfiguration>()
+                                            .GetConnectionString(WellknownConnectionNames.Events)
+                                    )
+                                    { Schema = WellknownSchemas.EventSchema }))
+                        .AddSingleton<IRunnerDbContextMigratorFactory[]>(
+                            new IRunnerDbContextMigratorFactory[]
+                            {
+                                new RoadNodeProducerSnapshotContextMigrationFactory()
+                            });
                 })
                 .Build();
 
-            var migratorFactory = host.Services.GetRequiredService<IRunnerDbContextMigratorFactory>();
+            var migratorFactories = host.Services.GetRequiredService<IRunnerDbContextMigratorFactory[]>();
             var configuration = host.Services.GetRequiredService<IConfiguration>();
             var streamStore = host.Services.GetRequiredService<IStreamStore>();
             var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
@@ -162,13 +162,25 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                 await DistributedLock<Program>.RunAsync(async () =>
                         {
                             await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
-                            await migratorFactory.CreateMigrator(configuration, loggerFactory)
-                                .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+                            foreach (var migratorFactory in migratorFactories)
+                            {
+                                await migratorFactory
+                                    .CreateMigrator(configuration, loggerFactory)
+                                    .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+                            }
+
                             await host.RunAsync().ConfigureAwait(false);
                         },
                         DistributedLockOptions.LoadFromConfiguration(configuration),
                         logger)
                     .ConfigureAwait(false);
+            }
+            catch (AggregateException aggregateException)
+            {
+                foreach (var innerException in aggregateException.InnerExceptions)
+                {
+                    logger.LogCritical(innerException, "Encountered a fatal exception, exiting program.");
+                }
             }
             catch (Exception e)
             {

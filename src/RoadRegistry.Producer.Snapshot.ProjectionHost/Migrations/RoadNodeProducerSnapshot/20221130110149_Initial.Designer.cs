@@ -6,14 +6,14 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
-using RoadRegistry.Producer.Snapshot.ProjectionHost.Schema;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode;
 
 #nullable disable
 
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProducerSnapshot
 {
-    [DbContext(typeof(ProducerSnapshotContext))]
-    [Migration("20221129092050_Initial")]
+    [DbContext(typeof(RoadNodeProducerSnapshotContext))]
+    [Migration("20221130110149_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,10 +46,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
 
-                    b.ToTable("ProjectionStates", "RoadRegistryProducerSnapshotMeta");
+                    b.ToTable("ProjectionStates", "RoadRegistryRoadNodeProducerSnapshotMeta");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.Schema.RoadNodeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeRecord", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
@@ -71,10 +71,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
-                    b.ToTable("RoadNode", "RoadRegistryProducerSnapshot");
+                    b.ToTable("RoadNode", "RoadRegistryRoadNodeProducerSnapshot");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.Schema.RoadNodeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeRecord", b =>
                 {
                     b.OwnsOne("RoadRegistry.Producer.Snapshot.ProjectionHost.Schema.Origin", "Origin", b1 =>
                         {
@@ -89,7 +89,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
 
                             b1.HasKey("RoadNodeRecordId");
 
-                            b1.ToTable("RoadNode", "RoadRegistryProducerSnapshot");
+                            b1.ToTable("RoadNode", "RoadRegistryRoadNodeProducerSnapshot");
 
                             b1.WithOwner()
                                 .HasForeignKey("RoadNodeRecordId");
