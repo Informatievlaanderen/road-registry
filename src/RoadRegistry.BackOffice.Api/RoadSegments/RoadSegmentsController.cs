@@ -33,6 +33,7 @@ public class RoadSegmentsController : ControllerBase
     public async Task<IActionResult> PostLinkStreetNameToRoadSegment(
         [FromServices] UseLinkRoadSegmentToStreetNameFeatureToggle featureToggle,
         [FromBody] PostLinkStreetNameToRoadSegmentParameters parameters,
+        [FromRoute] int id,
         CancellationToken cancellationToken)
     {
         if (!featureToggle.FeatureEnabled)
@@ -42,7 +43,7 @@ public class RoadSegmentsController : ControllerBase
 
         try
         {
-            var request = new LinkRoadSegmentToStreetNameRequest(parameters?.WegsegmentId ?? 0, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
+            var request = new LinkRoadSegmentToStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             var response = await _mediator.Send(request, cancellationToken);
 
             return Ok(response);
@@ -54,4 +55,4 @@ public class RoadSegmentsController : ControllerBase
     }
 }
 
-public sealed record PostLinkStreetNameToRoadSegmentParameters(int WegsegmentId, string? LinkerstraatnaamId, string? RechterstraatnaamId);
+public sealed record PostLinkStreetNameToRoadSegmentParameters(string? LinkerstraatnaamId, string? RechterstraatnaamId);
