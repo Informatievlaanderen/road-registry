@@ -1,4 +1,4 @@
-name: Testje
+name: Release
 
 on:
   workflow_dispatch:
@@ -221,6 +221,13 @@ jobs:
         name: product-projectionhost
         path: ~/rr-product-projectionhost-image.tar
 
+#    - name: Upload producer-snapshot-projectionhost
+#      if: env.RELEASE_VERSION != 'none
+#      uses: actions/upload-artifact@v3
+#      with:
+#        name: producer-snapshot-projectionhost
+#        path: ~/rr-producer-snapshot-projectionhost-image.tar
+   
     - name: Upload syndication-projectionhost artifact
       if: env.RELEASE_VERSION != 'none'
       uses: actions/upload-artifact@v3
@@ -862,206 +869,206 @@ jobs:
           SEMVER: ${{ needs.build.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
 
-#  push_images_to_production:
-#    if: needs.build.outputs.version != 'none'
-#    needs: build
-#    name: Push images to Production
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Configure AWS credentials (Production)
-#        if: needs.build.outputs.version != 'none'
-#        uses: aws-actions/configure-aws-credentials@v1-node16
-#        with:
-#          aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
-#          aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
-#          aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-#
-#      - name: Login to Amazon ECR (Production)
-#        if: needs.build.outputs.version != 'none'
-#        uses: aws-actions/amazon-ecr-login@v1.5.1
-#
-#      #
-#      # Download artifacts
-#      #
-#      
-#      - name: Download projector
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: projector
-#          path: ~/
-#      
-#      - name: Download backoffice-api
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: backoffice-api
-#          path: ~/
-#      
-#      - name: Download backoffice-ui
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: backoffice-ui
-#          path: ~/
-#      
-#      - name: Download editor-projectionhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: editor-projectionhost
-#          path: ~/
-#      
-#      - name: Download product-projectionhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: product-projectionhost
-#          path: ~/
-#      
+  push_images_to_production:
+    if: needs.build.outputs.version != 'none'
+    needs: build
+    name: Push images to Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials (Production)
+        if: needs.build.outputs.version != 'none'
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
+          aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
+          aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+      - name: Login to Amazon ECR (Production)
+        if: needs.build.outputs.version != 'none'
+        uses: aws-actions/amazon-ecr-login@v1.5.1
+
+      #
+      # Download artifacts
+      #
+      
+      - name: Download projector
+        uses: actions/download-artifact@v3
+        with:
+          name: projector
+          path: ~/
+      
+      - name: Download backoffice-api
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-api
+          path: ~/
+      
+      - name: Download backoffice-ui
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-ui
+          path: ~/
+      
+      - name: Download editor-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: editor-projectionhost
+          path: ~/
+      
+      - name: Download product-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: product-projectionhost
+          path: ~/
+      
 #      - name: Download producer-snapshot-projectionhost
 #        uses: actions/download-artifact@v3
 #        with:
 #          name: producer-snapshot-projectionhost
 #          path: ~/
-#      
-#      - name: Download syndication-projectionhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: syndication-projectionhost
-#          path: ~/
-#      
-#      - name: Download wms-projectionhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: wms-projectionhost
-#          path: ~/
-#      
-#      - name: Download wfs-projectionhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: wfs-projectionhost
-#          path: ~/
-#      
-#      - name: Download backoffice-eventhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: backoffice-eventhost
-#          path: ~/
-#      
-#      - name: Download backoffice-extracthost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: backoffice-extracthost
-#          path: ~/
-#      
-#      - name: Download backoffice-commandhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: backoffice-commandhost
-#          path: ~/
-#      
-#      - name: Download backoffice-messaginghost-sqs
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: backoffice-messaginghost-sqs
-#          path: ~/
-#      
-#      - name: Download backoffice-messaginghost-kafka
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: backoffice-messaginghost-kafka
-#          path: ~/
-#      
-#      - name: Download import-legacy
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: import-legacy
-#          path: ~/
-#
-#      - name: Download extract-legacy
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: extract-legacy
-#          path: ~/
-#
-#      #
-#      # Load artifacts
-#      #
-#
-#      - name: Load artifacts
-#        shell: bash
-#        run: |
-#          docker image load -i ~/rr-projector-image.tar
-#          docker image load -i ~/rr-backoffice-api-image.tar
-#          docker image load -i ~/rr-backoffice-ui-image.tar
-#          docker image load -i ~/rr-editor-projectionhost-image.tar
-#          docker image load -i ~/rr-product-projectionhost-image.tar
-#          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
-#          docker image load -i ~/rr-syndication-projectionhost-image.tar
-#          docker image load -i ~/rr-wms-projectionhost-image.tar
-#          docker image load -i ~/rr-wfs-projectionhost-image.tar
-#          docker image load -i ~/rr-backoffice-eventhost-image.tar
-#          docker image load -i ~/rr-backoffice-extracthost-image.tar
-#          docker image load -i ~/rr-backoffice-commandhost-image.tar
-#          docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
-#          #docker image load -i ~/rr-backoffice-messaginghost-kafka-image.tar
-#          docker image load -i ~/rr-import-legacy-image.tar
-#          docker image load -i ~/rr-extract-legacy-image.tar
+      
+      - name: Download syndication-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: syndication-projectionhost
+          path: ~/
+      
+      - name: Download wms-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wms-projectionhost
+          path: ~/
+      
+      - name: Download wfs-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wfs-projectionhost
+          path: ~/
+      
+      - name: Download backoffice-eventhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-eventhost
+          path: ~/
+      
+      - name: Download backoffice-extracthost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-extracthost
+          path: ~/
+      
+      - name: Download backoffice-commandhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-commandhost
+          path: ~/
+      
+      - name: Download backoffice-messaginghost-sqs
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-messaginghost-sqs
+          path: ~/
+      
+      - name: Download backoffice-messaginghost-kafka
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-messaginghost-kafka
+          path: ~/
+      
+      - name: Download import-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: import-legacy
+          path: ~/
 
-#
-#    - name: Push artifacts to ECR Production
-#      if: env.RELEASE_VERSION != 'none'
-#      shell: bash
-#      run: |
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
+      - name: Download extract-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: extract-legacy
+          path: ~/
 
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
+      #
+      # Load artifacts
+      #
 
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
+      - name: Load artifacts
+        shell: bash
+        run: |
+          docker image load -i ~/rr-projector-image.tar
+          docker image load -i ~/rr-backoffice-api-image.tar
+          docker image load -i ~/rr-backoffice-ui-image.tar
+          docker image load -i ~/rr-editor-projectionhost-image.tar
+          docker image load -i ~/rr-product-projectionhost-image.tar
+          #docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
+          docker image load -i ~/rr-syndication-projectionhost-image.tar
+          docker image load -i ~/rr-wms-projectionhost-image.tar
+          docker image load -i ~/rr-wfs-projectionhost-image.tar
+          docker image load -i ~/rr-backoffice-eventhost-image.tar
+          docker image load -i ~/rr-backoffice-extracthost-image.tar
+          docker image load -i ~/rr-backoffice-commandhost-image.tar
+          docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
+          #docker image load -i ~/rr-backoffice-messaginghost-kafka-image.tar
+          docker image load -i ~/rr-import-legacy-image.tar
+          docker image load -i ~/rr-extract-legacy-image.tar
 
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
 
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
+      - name: Push artifacts to ECR Production
+        if: env.RELEASE_VERSION != 'none'
+        shell: bash
+        run: |
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
 
-#        docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
-
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
-
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
-
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wfs-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wfs-projectionhost:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wfs-projectionhost:$SEMVER
-
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
-
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
-
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
-
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
-
-#        #docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
-#        #docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
-
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
-
-#        docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
-#        docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
-#
-#      env:
-#        BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
-#        BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
-#        SEMVER: ${{ needs.build.outputs.version }}
-#        WORKSPACE: ${{ github.workspace }}
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
+  
+          #docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
+          #docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wfs-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wfs-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wfs-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
+  
+          #docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
+          #docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
+  
+        env:
+          BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
+          BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
+          SEMVER: ${{ needs.build.outputs.version }}
+          WORKSPACE: ${{ github.workspace }}
 
   deploy_to_test_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
@@ -1293,60 +1300,60 @@ jobs:
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
         REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
 
-#  deploy_to_production_start_slack:
-#    if: github.repository_owner == 'Informatievlaanderen'
-#    needs: [push_images_to_production, deploy_to_staging_finish_slack, build]
-#    name: Deploy to production started
-#    environment: prd
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - name: Parse repository name
-#      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-#      shell: bash
-#
-#    - name: Notify deployment started
-#      uses: slackapi/slack-github-action@v1.23.0
-#      with:
-#        channel-id: '#team-wegenregister-dev'
-#        slack-message: Deployment of road-registry to production has started
-#      env:
-#        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-#        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-#        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-#
-#  deploy_to_production:
-#    if: github.repository_owner == 'Informatievlaanderen'
-#    needs: [deploy_to_production_start_slack, build]
-#    name: Deploy to Production
-#    runs-on: ubuntu-latest
-#    strategy:
-#       matrix: 
-#         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector']
-#
-#    steps:
-#    - name: CD services
-#      env:
-#        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
-#        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
-#      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
-#      with:
-#          environment: prd
-#          version: ${{ needs.build.outputs.version }}
-#          status-url: $STATUS_URL
-#          deploy-url: $BUILD_URL
-#          access-key: ${{ secrets.VBR_AWS_BUILD_USER_ACCESS_KEY_ID }}
-#          secret-key: ${{ secrets.VBR_AWS_BUILD_USER_SECRET_ACCESS_KEY }}
-#          region: eu-west-1
-#          interval: 2
-#
-#    - name: output CD services
-#      shell: bash
-#      run: |
-#        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
-#        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
-#        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
-#
+  deploy_to_production_start_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [push_images_to_production, deploy_to_staging_finish_slack, build]
+    name: Deploy to production started
+    environment: prd
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment started
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: Deployment of road-registry to production has started
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+
+  deploy_to_production:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [deploy_to_production_start_slack, build]
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    strategy:
+       matrix: 
+         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector']
+
+    steps:
+    - name: CD services
+      env:
+        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
+        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
+      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
+      with:
+          environment: prd
+          version: ${{ needs.build.outputs.version }}
+          status-url: $STATUS_URL
+          deploy-url: $BUILD_URL
+          access-key: ${{ secrets.VBR_AWS_BUILD_USER_ACCESS_KEY_ID }}
+          secret-key: ${{ secrets.VBR_AWS_BUILD_USER_SECRET_ACCESS_KEY }}
+          region: eu-west-1
+          interval: 2
+
+    - name: output CD services
+      shell: bash
+      run: |
+        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
+        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
+        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
+
 #  deploy_lambda_to_production:
 #    if: github.repository_owner == 'Informatievlaanderen'
 #    needs: [deploy_to_production, build]
@@ -1385,25 +1392,24 @@ jobs:
 #        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
 #        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
 #        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
-#
-#  deploy_to_production_finish_slack:
-#    if: github.repository_owner == 'Informatievlaanderen'
-#    needs: [deploy_lambda_to_production]
-#    name: Deploy to production finished
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - name: Parse repository name
-#      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-#      shell: bash
-#
-#    - name: Notify deployment finished
-#      uses: slackapi/slack-github-action@v1.23.0
-#      with:
-#        channel-id: '#team-wegenregister-dev'
-#        slack-message: Deployment of road-registry to production has finished
-#      env:
-#        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-#        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-#        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-#
+
+  deploy_to_production_finish_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [deploy_to_production] #[deploy_lambda_to_production]
+    name: Deploy to production finished
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment finished
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: Deployment of road-registry to production has finished
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
