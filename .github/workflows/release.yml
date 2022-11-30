@@ -360,31 +360,31 @@ jobs:
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
         
-#    - name: Configure AWS credentials (Production)
-#      if: env.RELEASE_VERSION != 'none'
-#      uses: aws-actions/configure-aws-credentials@v1-node16
-#      with:
-#        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
-#        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
-#        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-#
-#    - name: Login to Amazon ECR (Production)
-#      if: env.RELEASE_VERSION != 'none'
-#      uses: aws-actions/amazon-ecr-login@v1.5.3
-#
-#    - name: Push Lambda functions to S3 Production
-#      if: env.RELEASE_VERSION != 'none'
-#      shell: bash
-#      run: |
-#       echo Push Lambda functions to S3 Production
-#       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-#       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
-#       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
-#       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
-#       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
-#       popd
-#      env:
-#       SEMVER: ${{ env.RELEASE_VERSION }}
+    - name: Configure AWS credentials (Production)
+      if: env.RELEASE_VERSION != 'none'
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+    - name: Login to Amazon ECR (Production)
+      if: env.RELEASE_VERSION != 'none'
+      uses: aws-actions/amazon-ecr-login@v1.5.3
+
+    - name: Push Lambda functions to S3 Production
+      if: env.RELEASE_VERSION != 'none'
+      shell: bash
+      run: |
+       echo Push Lambda functions to S3 Production
+       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+       popd
+      env:
+       SEMVER: ${{ env.RELEASE_VERSION }}
 
   publish_to_atlassian:
     if: needs.build.outputs.version != 'none'
