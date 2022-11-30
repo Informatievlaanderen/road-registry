@@ -9,7 +9,7 @@ using SqlStreamStore;
 
 public class ContextModule : Module
 {
-    private static readonly EventMapping RoadNetworkEventsEventMapping =
+    public static readonly EventMapping RoadNetworkEventsEventMapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
     protected override void Load(ContainerBuilder builder)

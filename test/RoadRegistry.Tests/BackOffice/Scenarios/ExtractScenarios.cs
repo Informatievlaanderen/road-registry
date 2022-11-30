@@ -14,7 +14,8 @@ using Xunit;
 
 public class ExtractScenarios : RoadRegistryFixture
 {
-    public ExtractScenarios() : base(CreateComparisonConfig())
+    public ExtractScenarios()
+        : base(CreateComparisonConfig())
     {
         Fixture.CustomizeExternalExtractRequestId();
         Fixture.CustomizeRoadNetworkExtractGeometry();

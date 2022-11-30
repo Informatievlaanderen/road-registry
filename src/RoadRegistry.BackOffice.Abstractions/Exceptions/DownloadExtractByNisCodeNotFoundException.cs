@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public sealed class DownloadExtractByNisCodeNotFoundException : DownloadExtractNotFoundException
 {
-    public DownloadExtractByNisCodeNotFoundException(string message)
+    public DownloadExtractByNisCodeNotFoundException(string? message)
         : base(message ?? "Could not find download extract with the specified NIS code")
     { }
 

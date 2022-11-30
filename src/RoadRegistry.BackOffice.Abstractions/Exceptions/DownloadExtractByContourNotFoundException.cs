@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public sealed class DownloadExtractByContourNotFoundException : DownloadExtractNotFoundException
 {
-    public DownloadExtractByContourNotFoundException(string message)
+    public DownloadExtractByContourNotFoundException(string? message)
         : base(message ?? "Could not find download extract with the specified contour")
     {
     }

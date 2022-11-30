@@ -1,0 +1,18 @@
+namespace RoadRegistry.BackOffice.Handlers.Extensions;
+
+internal static class StringExtensions
+{
+    public static int GetIdentifierFromPuri(this string puri)
+    {
+        if (puri != null)
+        {
+            var lastPart = puri.Split('/').Last();
+            if (int.TryParse(lastPart, out var identifier))
+            {
+                return identifier;
+            }
+        }
+
+        return 0;
+    }
+}

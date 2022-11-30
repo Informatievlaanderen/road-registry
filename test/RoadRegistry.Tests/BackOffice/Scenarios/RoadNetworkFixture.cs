@@ -7,23 +7,13 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
-using SqlStreamStore;
-using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
-using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
-using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
 using Point = NetTopologySuite.Geometries.Point;
-using Problem = RoadRegistry.BackOffice.Messages.Problem;
-using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
-using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
-using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
-using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
-public abstract class RoadNetworkFixture : RoadRegistryFixture
+public class RoadNetworkFixture : RoadRegistryFixture
 {
-    protected RoadNetworkFixture(IStreamStore store = null)
-        : base(store: store)
+    public RoadNetworkFixture()
     {
         Fixture.CustomizePoint();
         Fixture.CustomizePolylineM();
@@ -120,40 +110,40 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
         MiddlePoint1 = new Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint1 = new Point(new CoordinateM(100.0, 100.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MultiLineString1 = new MultiLineString(
-            new[]
-            {
-                new LineString(
-                    new CoordinateArraySequence(new[] { StartPoint1.Coordinate, MiddlePoint1.Coordinate, EndPoint1.Coordinate }),
-                    GeometryConfiguration.GeometryFactory
-                )
-            })
-        { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+                new[]
+                {
+                    new LineString(
+                        new CoordinateArraySequence(new[] { StartPoint1.Coordinate, MiddlePoint1.Coordinate, EndPoint1.Coordinate }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                })
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         StartPoint2 = new Point(new CoordinateM(0.0, 200.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint2 = new Point(new CoordinateM(50.0, 250.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint2 = new Point(new CoordinateM(100.0, 300.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MultiLineString2 = new MultiLineString(
-            new[]
-            {
-                new LineString(
-                    new CoordinateArraySequence(new[] { StartPoint2.Coordinate, MiddlePoint2.Coordinate, EndPoint2.Coordinate }),
-                    GeometryConfiguration.GeometryFactory
-                )
-            })
-        { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+                new[]
+                {
+                    new LineString(
+                        new CoordinateArraySequence(new[] { StartPoint2.Coordinate, MiddlePoint2.Coordinate, EndPoint2.Coordinate }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                })
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         StartPoint3 = new Point(new CoordinateM(0.0, 500.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint3 = new Point(new CoordinateM(50.0, 550.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         EndPoint3 = new Point(new CoordinateM(100.0, 600.0, 100.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MultiLineString3 = new MultiLineString(
-            new[]
-            {
-                new LineString(
-                    new CoordinateArraySequence(new[] { StartPoint3.Coordinate, MiddlePoint3.Coordinate, EndPoint3.Coordinate }),
-                    GeometryConfiguration.GeometryFactory
-                )
-            })
-        { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+                new[]
+                {
+                    new LineString(
+                        new CoordinateArraySequence(new[] { StartPoint3.Coordinate, MiddlePoint3.Coordinate, EndPoint3.Coordinate }),
+                        GeometryConfiguration.GeometryFactory
+                    )
+                })
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         AddStartNode1 = new AddRoadNode
         {
@@ -296,9 +286,13 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString1.Length) / laneCount1);
                     if (index == laneCount1 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString1.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / laneCount1);
+                    }
 
                     return part;
                 })
@@ -309,9 +303,13 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString1.Length) / widthCount1);
                     if (index == widthCount1 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString1.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / widthCount1);
+                    }
 
                     return part;
                 })
@@ -322,9 +320,13 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString1.Length) / surfaceCount1);
                     if (index == surfaceCount1 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString1.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString1.Length) / surfaceCount1);
+                    }
 
                     return part;
                 })
@@ -414,9 +416,13 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString2.Length) / laneCount2);
                     if (index == laneCount2 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString2.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / laneCount2);
+                    }
 
                     return part;
                 })
@@ -427,9 +433,13 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString2.Length) / widthCount2);
                     if (index == widthCount2 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString2.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / widthCount2);
+                    }
 
                     return part;
                 })
@@ -440,9 +450,13 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString2.Length) / surfaceCount2);
                     if (index == surfaceCount2 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString2.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString2.Length) / surfaceCount2);
+                    }
 
                     return part;
                 })
@@ -532,9 +546,13 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString3.Length) / laneCount3);
                     if (index == laneCount3 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString3.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString3.Length) / laneCount3);
+                    }
 
                     return part;
                 })
@@ -545,9 +563,13 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString3.Length) / widthCount3);
                     if (index == widthCount3 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString3.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString3.Length) / widthCount3);
+                    }
 
                     return part;
                 })
@@ -558,9 +580,13 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
                 {
                     part.FromPosition = index * (Convert.ToDecimal(MultiLineString3.Length) / surfaceCount3);
                     if (index == surfaceCount3 - 1)
+                    {
                         part.ToPosition = Convert.ToDecimal(MultiLineString3.Length);
+                    }
                     else
+                    {
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(MultiLineString3.Length) / surfaceCount3);
+                    }
 
                     return part;
                 })
@@ -1126,7 +1152,6 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
     public RoadSegmentAdded Segment1Added { get; }
     public RoadSegmentAdded Segment2Added { get; }
     public RoadSegmentAdded Segment3Added { get; }
-
     public RoadNodeAdded StartNode1Added { get; }
     public RoadNodeModified StartNode1Modified { get; }
     public RoadNodeAdded StartNode2Added { get; }
@@ -1135,6 +1160,4 @@ public abstract class RoadNetworkFixture : RoadRegistryFixture
     public Point StartPoint2 { get; }
     public Point StartPoint3 { get; }
     public TransactionId TransactionId { get; }
-
-
 }
