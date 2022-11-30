@@ -1,3 +1,38 @@
+## [3.23.3](https://github.com/informatievlaanderen/road-registry/compare/v3.23.2...v3.23.3) (2022-11-29)
+
+
+### Bug Fixes
+
+* fix workflow again again ([9a15235](https://github.com/informatievlaanderen/road-registry/commit/9a15235a7fde21746f808dc651bf4f2e32614a07))
+
+## [3.23.2](https://github.com/informatievlaanderen/road-registry/compare/v3.23.1...v3.23.2) (2022-11-29)
+
+
+### Bug Fixes
+
+* fix workflow again ([#711](https://github.com/informatievlaanderen/road-registry/issues/711)) ([afd6e07](https://github.com/informatievlaanderen/road-registry/commit/afd6e07e02b46d07e71ae8a8ca788da5b159a3ae))
+
+## [3.23.1](https://github.com/informatievlaanderen/road-registry/compare/v3.23.0...v3.23.1) (2022-11-29)
+
+
+### Bug Fixes
+
+* fix workflow & add producer-snapshot-projectionhost ([22ff556](https://github.com/informatievlaanderen/road-registry/commit/22ff5563e901d21c17cd45ffa0e21a8656bed25b))
+* remove empty statement ([9a176b6](https://github.com/informatievlaanderen/road-registry/commit/9a176b62bff034f357558a2e03c145febff42c55))
+
+# [3.23.0](https://github.com/informatievlaanderen/road-registry/compare/v3.22.0...v3.23.0) (2022-11-29)
+
+
+### Bug Fixes
+
+* correct workflow ([ab03af1](https://github.com/informatievlaanderen/road-registry/commit/ab03af18bfaf0e1a2eafede12b992d7e739e86b1))
+
+
+### Features
+
+* add kafka produce for roadnode snapshot producer ([a33a0cc](https://github.com/informatievlaanderen/road-registry/commit/a33a0cc103e30dec850392293a5e16f75b71926c))
+* add roadnode projections for producer snapshot ([8d2c726](https://github.com/informatievlaanderen/road-registry/commit/8d2c726860bf2880d0881198cca53b2e95b90b60))
+
 # [3.22.0](https://github.com/informatievlaanderen/road-registry/compare/v3.21.4...v3.22.0) (2022-11-29)
 
 
