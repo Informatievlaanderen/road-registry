@@ -222,7 +222,7 @@ jobs:
         path: ~/rr-product-projectionhost-image.tar
 
     - name: Upload producer-snapshot-projectionhost
-      if: env.RELEASE_VERSION != 'none
+      if: env.RELEASE_VERSION != 'none'
       uses: actions/upload-artifact@v3
       with:
         name: producer-snapshot-projectionhost
