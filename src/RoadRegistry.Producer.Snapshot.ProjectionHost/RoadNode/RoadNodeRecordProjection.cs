@@ -1,4 +1,4 @@
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 {
     using System;
     using System.Globalization;
@@ -8,9 +8,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-    using Schema;
+    using Projections;
 
-    public class RoadNodeRecordProjection : ConnectedProjection<ProducerSnapshotContext>
+    public class RoadNodeRecordProjection : ConnectedProjection<RoadNodeProducerSnapshotContext>
     {
         private readonly IKafkaProducer _kafkaProducer;
 
@@ -53,7 +53,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
             });
         }
 
-        private async Task AddRoadNode(ProducerSnapshotContext context, Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
+        private async Task AddRoadNode(RoadNodeProducerSnapshotContext context, Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
             RoadNodeAdded roadNodeAdded,
             CancellationToken token)
         {
@@ -69,7 +69,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
         }
 
         private async Task ModifyRoadNode(
-            ProducerSnapshotContext context,
+            RoadNodeProducerSnapshotContext context,
             Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
             RoadNodeModified roadNodeModified,
             CancellationToken token)
@@ -89,7 +89,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
         }
 
         private async Task RemoveRoadNode(
-            ProducerSnapshotContext context,
+            RoadNodeProducerSnapshotContext context,
             Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
             RoadNodeRemoved roadNodeRemoved,
             CancellationToken token)
