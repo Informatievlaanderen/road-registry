@@ -46,6 +46,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 		docker-compose.yml = docker-compose.yml
 		LICENSE = LICENSE
+		paket.dependencies = paket.dependencies
 		README.md = README.md
 		RoadRegistry.sln.DotSettings = RoadRegistry.sln.DotSettings
 	EndProjectSection
@@ -124,11 +125,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.StreetNameCons
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Handlers.Kafka", "src\RoadRegistry.BackOffice.Handlers.Kafka\RoadRegistry.BackOffice.Handlers.Kafka.csproj", "{4E98C4F0-4DE1-4FEF-8D6C-2C8F755373C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.BackOffice.Handlers.Kafka.Tests", "test\RoadRegistry.BackOffice.Handlers.Kafka.Tests\RoadRegistry.BackOffice.Handlers.Kafka.Tests.csproj", "{A6CC41A0-D86B-468A-A06F-89F5DC453498}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.BackOffice.Handlers.Kafka.Tests", "test\RoadRegistry.BackOffice.Handlers.Kafka.Tests\RoadRegistry.BackOffice.Handlers.Kafka.Tests.csproj", "{A6CC41A0-D86B-468A-A06F-89F5DC453498}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.StreetNameConsumer.Schema", "src\RoadRegistry.StreetNameConsumer.Schema\RoadRegistry.StreetNameConsumer.Schema.csproj", "{C8839F0D-5540-4250-AFE6-EB5366431DB1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.StreetNameConsumer.Schema", "src\RoadRegistry.StreetNameConsumer.Schema\RoadRegistry.StreetNameConsumer.Schema.csproj", "{C8839F0D-5540-4250-AFE6-EB5366431DB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoadRegistry.StreetNameConsumer.Projections", "src\RoadRegistry.StreetNameConsumer.Projections\RoadRegistry.StreetNameConsumer.Projections.csproj", "{15E2301E-787D-40D6-A46C-C9C672F13393}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.StreetNameConsumer.Projections", "src\RoadRegistry.StreetNameConsumer.Projections\RoadRegistry.StreetNameConsumer.Projections.csproj", "{15E2301E-787D-40D6-A46C-C9C672F13393}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Producer.Snapshot.ProjectionHost", "src\RoadRegistry.Producer.Snapshot.ProjectionHost\RoadRegistry.Producer.Snapshot.ProjectionHost.csproj", "{B327D115-8C65-40EE-99A2-B9FDD22C88A2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RoadRegistry.Producer.Snapshot.ProjectionHost.Tests", "test\RoadRegistry.Producer.Snapshot.ProjectionHost.Tests\RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.csproj", "{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -776,6 +781,30 @@ Global
 		{15E2301E-787D-40D6-A46C-C9C672F13393}.Release|x64.Build.0 = Release|Any CPU
 		{15E2301E-787D-40D6-A46C-C9C672F13393}.Release|x86.ActiveCfg = Release|Any CPU
 		{15E2301E-787D-40D6-A46C-C9C672F13393}.Release|x86.Build.0 = Release|Any CPU
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Debug|x64.ActiveCfg = Debug|x64
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Debug|x64.Build.0 = Debug|x64
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Debug|x86.ActiveCfg = Debug|x86
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Debug|x86.Build.0 = Debug|x86
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Release|x64.ActiveCfg = Release|x64
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Release|x64.Build.0 = Release|x64
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Release|x86.ActiveCfg = Release|x86
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2}.Release|x86.Build.0 = Release|x86
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Debug|x64.ActiveCfg = Debug|x64
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Debug|x64.Build.0 = Debug|x64
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Debug|x86.ActiveCfg = Debug|x86
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Debug|x86.Build.0 = Debug|x86
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Release|x64.ActiveCfg = Release|x64
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Release|x64.Build.0 = Release|x64
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Release|x86.ActiveCfg = Release|x86
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -834,6 +863,8 @@ Global
 		{A6CC41A0-D86B-468A-A06F-89F5DC453498} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
 		{C8839F0D-5540-4250-AFE6-EB5366431DB1} = {C2F8FF63-7A48-4179-A720-86206C42F496}
 		{15E2301E-787D-40D6-A46C-C9C672F13393} = {C2F8FF63-7A48-4179-A720-86206C42F496}
+		{B327D115-8C65-40EE-99A2-B9FDD22C88A2} = {C2F8FF63-7A48-4179-A720-86206C42F496}
+		{2DCDE5B2-CF8D-4D00-86D8-A4F90A716E55} = {8EA18457-86E2-4D2D-AC9E-2552FDC9676F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EB87445-E263-4E1E-89CC-3839170028E5}

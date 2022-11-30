@@ -8,6 +8,8 @@ public static class WellknownSchemas
     public const string ExtractHostSchema = "RoadRegistryBackOfficeExtractHost";
     public const string EventHostSchema = "RoadRegistryBackOfficeEventHost";
     public const string EventSchema = "RoadRegistry";
+    public const string ProducerSnapshotMetaSchema = "RoadRegistryProducerSnapshotMeta";
+    public const string ProducerSnapshotSchema = "RoadRegistryProducerSnapshot";
     public const string ProductMetaSchema = "RoadRegistryProductMeta";
     public const string ProductSchema = "RoadRegistryProduct";
     public const string SnapshotSchema = "RoadRegistrySnapshot";
@@ -23,6 +25,7 @@ public static class WellknownSchemas
 public static class MigrationTables
 {
     public const string Syndication = "__EFMigrationsHistorySyndication";
+    public const string ProducerSnapshot = "__EFMigrationsHistoryProducerSnapshot";
     public const string Product = "__EFMigrationsHistoryProduct";
     public const string Editor = "__EFMigrationsHistoryEditor";
     public const string Wms = "__EFMigrationsHistoryWms";
