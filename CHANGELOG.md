@@ -1,3 +1,15 @@
+# [3.24.0](https://github.com/informatievlaanderen/road-registry/compare/v3.23.6...v3.24.0) (2022-11-30)
+
+
+### Bug Fixes
+
+* correct typo in release.yml ([e796925](https://github.com/informatievlaanderen/road-registry/commit/e796925509b038411d84282d8ad9bbb19554ac75))
+
+
+### Features
+
+* Street name validation for linking to road segment ([a24f5bf](https://github.com/informatievlaanderen/road-registry/commit/a24f5bf6e9a54e77eb99bc7708f59b0ad8ed3da6))
+
 ## [3.23.6](https://github.com/informatievlaanderen/road-registry/compare/v3.23.5...v3.23.6) (2022-11-30)
 
 
