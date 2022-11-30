@@ -1,25 +1,24 @@
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 {
     using System;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Hosts;
     using Microsoft.Extensions.Logging;
-    using Schema;
     using SqlStreamStore;
 
-    public class EventProcessor : DbContextEventProcessor<ProducerSnapshotContext>
+    public class RoadNodeEventProcessor : DbContextEventProcessor<RoadNodeProducerSnapshotContext>
     {
-        private const string QueueName = "roadregistry-producer-snapshot-projectionhost";
+        private const string QueueName = "roadregistry-producer-roadnode-snapshot-projectionhost";
 
-        public EventProcessor(
+        public RoadNodeEventProcessor(
             IStreamStore streamStore,
             AcceptStreamMessageFilter filter,
             EnvelopeFactory envelopeFactory,
-            ConnectedProjectionHandlerResolver<ProducerSnapshotContext> resolver,
-            Func<ProducerSnapshotContext> dbContextFactory,
+            ConnectedProjectionHandlerResolver<RoadNodeProducerSnapshotContext> resolver,
+            Func<RoadNodeProducerSnapshotContext> dbContextFactory,
             Scheduler scheduler,
-            ILogger<DbContextEventProcessor<ProducerSnapshotContext>> logger)
+            ILogger<DbContextEventProcessor<RoadNodeProducerSnapshotContext>> logger)
             : base(
                 QueueName,
                 streamStore,

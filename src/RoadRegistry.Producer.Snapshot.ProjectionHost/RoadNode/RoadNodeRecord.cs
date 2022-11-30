@@ -1,8 +1,9 @@
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Schema
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 {
     using System;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using NetTopologySuite.Geometries;
+    using Schema;
 
     public class RoadNodeRecord
     {

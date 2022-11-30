@@ -1,13 +1,13 @@
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Schema
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 {
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Infrastructure;
 
-    public class ProducerSnapshotContextMigrationFactory : RunnerDbContextMigrationFactory<ProducerSnapshotContext>
+    public class RoadNodeProducerSnapshotContextMigrationFactory : RunnerDbContextMigrationFactory<RoadNodeProducerSnapshotContext>
     {
-        public ProducerSnapshotContextMigrationFactory() :
+        public RoadNodeProducerSnapshotContextMigrationFactory() :
             base(WellknownConnectionNames.ProducerSnapshotProjectionsAdmin, HistoryConfiguration)
         {
         }
@@ -15,8 +15,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Schema
         private static MigrationHistoryConfiguration HistoryConfiguration =>
             new()
             {
-                Schema = WellknownSchemas.ProducerSnapshotSchema,
-                Table = MigrationTables.ProducerSnapshot
+                Schema = WellknownSchemas.RoadNodeProducerSnapshotSchema,
+                Table = MigrationTables.RoadNodeProducerSnapshot
             };
 
         protected override void ConfigureSqlServerOptions(SqlServerDbContextOptionsBuilder sqlServerOptions)
@@ -25,9 +25,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Schema
             base.ConfigureSqlServerOptions(sqlServerOptions);
         }
 
-        protected override ProducerSnapshotContext CreateContext(DbContextOptions<ProducerSnapshotContext> migrationContextOptions)
+        protected override RoadNodeProducerSnapshotContext CreateContext(DbContextOptions<RoadNodeProducerSnapshotContext> migrationContextOptions)
         {
-            return new ProducerSnapshotContext(migrationContextOptions);
+            return new RoadNodeProducerSnapshotContext(migrationContextOptions);
         }
     }
 }

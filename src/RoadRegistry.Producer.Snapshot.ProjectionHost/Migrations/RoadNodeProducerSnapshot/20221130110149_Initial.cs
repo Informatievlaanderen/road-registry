@@ -4,21 +4,21 @@ using NetTopologySuite.Geometries;
 
 #nullable disable
 
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProducerSnapshot
 {
     public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "RoadRegistryProducerSnapshotMeta");
+                name: "RoadRegistryRoadNodeProducerSnapshotMeta");
 
             migrationBuilder.EnsureSchema(
-                name: "RoadRegistryProducerSnapshot");
+                name: "RoadRegistryRoadNodeProducerSnapshot");
 
             migrationBuilder.CreateTable(
                 name: "ProjectionStates",
-                schema: "RoadRegistryProducerSnapshotMeta",
+                schema: "RoadRegistryRoadNodeProducerSnapshotMeta",
                 columns: table => new
                 {
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -35,7 +35,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RoadNode",
-                schema: "RoadRegistryProducerSnapshot",
+                schema: "RoadRegistryRoadNodeProducerSnapshot",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
@@ -57,11 +57,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
         {
             migrationBuilder.DropTable(
                 name: "ProjectionStates",
-                schema: "RoadRegistryProducerSnapshotMeta");
+                schema: "RoadRegistryRoadNodeProducerSnapshotMeta");
 
             migrationBuilder.DropTable(
                 name: "RoadNode",
-                schema: "RoadRegistryProducerSnapshot");
+                schema: "RoadRegistryRoadNodeProducerSnapshot");
         }
     }
 }

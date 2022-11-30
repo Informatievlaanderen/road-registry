@@ -1,3 +1,21 @@
+## [3.23.5](https://github.com/informatievlaanderen/road-registry/compare/v3.23.4...v3.23.5) (2022-11-30)
+
+
+### Bug Fixes
+
+* exclude lambda from production ([#717](https://github.com/informatievlaanderen/road-registry/issues/717)) ([808a951](https://github.com/informatievlaanderen/road-registry/commit/808a9511fa6980decd35de3b70a49423a53b9b7c))
+
+## [3.23.4](https://github.com/informatievlaanderen/road-registry/compare/v3.23.3...v3.23.4) (2022-11-30)
+
+
+### Bug Fixes
+
+* correct release.yml ([2f73274](https://github.com/informatievlaanderen/road-registry/commit/2f7327499650c783ffb6ec91d2b2b6ee359c1347))
+* fix flaky test ([886c698](https://github.com/informatievlaanderen/road-registry/commit/886c698342eb4a9f9766ba719cef5e40321e38eb))
+* include production in release.yml ([#715](https://github.com/informatievlaanderen/road-registry/issues/715)) ([9730e6e](https://github.com/informatievlaanderen/road-registry/commit/9730e6e1eb2a00948546fb5ca93c42ad924f8c89))
+* really fix flaky test ([b26ae6c](https://github.com/informatievlaanderen/road-registry/commit/b26ae6c13f1c71c2ef48f0d9b9a7cb5f6d7dfb3b))
+* use new release.yml ([ec417b6](https://github.com/informatievlaanderen/road-registry/commit/ec417b6a19285950e9dc76e19a45df9c1df02c66))
+
 ## [3.23.3](https://github.com/informatievlaanderen/road-registry/compare/v3.23.2...v3.23.3) (2022-11-29)
 
 
