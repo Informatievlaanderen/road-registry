@@ -1021,49 +1021,49 @@ jobs:
 
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-ui:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-api:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/editor-projectionhost:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
-
+  
           #docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
           #docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wms-projectionhost:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wfs-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/wfs-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/wfs-projectionhost:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-eventhost:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-extracthost:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-commandhost:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
-
+  
           #docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
           #docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
-
+  
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
-
+  
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
@@ -1354,48 +1354,48 @@ jobs:
         echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
         echo ${{ steps.awscurl-polling-action.outputs.final-message }}
 
-  deploy_lambda_to_production:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [deploy_to_production, build]
-    name: Deploy lambda to production
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
-      with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-        
-    - name: Prepare Lambda(s)
-      shell: bash
-      run: |
-        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip  --copy-props none
-        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip --copy-props none
-        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/lambda.zip --copy-props none
-      env:
-        VERSION: ${{ needs.build.outputs.version }}
-        
-    - name: Promote Lambda(s)
-      shell: bash
-      run: |
-        echo pulling awscurl docker image
-        docker pull ghcr.io/okigan/awscurl:latest
-        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "initiatefeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "initiatefeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-      env:
-        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
-        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
-        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
+#  deploy_lambda_to_production:
+#    if: github.repository_owner == 'Informatievlaanderen'
+#    needs: [deploy_to_production, build]
+#    name: Deploy lambda to production
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#    - name: CD Lambda(s) Configure credentials
+#      uses: aws-actions/configure-aws-credentials@v1-node16
+#      with:
+#        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
+#        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
+#        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+#        
+#    - name: Prepare Lambda(s)
+#      shell: bash
+#      run: |
+#        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip  --copy-props none
+#        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip --copy-props none
+#        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/lambda.zip --copy-props none
+#        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/lambda.zip --copy-props none
+#      env:
+#        VERSION: ${{ needs.build.outputs.version }}
+#        
+#    - name: Promote Lambda(s)
+#      shell: bash
+#      run: |
+#        echo pulling awscurl docker image
+#        docker pull ghcr.io/okigan/awscurl:latest
+#        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "initiatefeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+#        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "initiatefeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+#        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+#        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+#      env:
+#        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
+#        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
+#        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
+#        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
 
   deploy_to_production_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [deploy_lambda_to_production]
+    needs: [deploy_to_production] #[deploy_lambda_to_production]
     name: Deploy to production finished
     runs-on: ubuntu-latest
 
