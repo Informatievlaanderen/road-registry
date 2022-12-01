@@ -4,65 +4,80 @@ updates:
 - package-ecosystem: nuget
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
   open-pull-requests-limit: 25
+  rebase-strategy: "disabled"
   
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: npm
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.BackOffice.Api"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.BackOffice.CommandHost"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.BackOffice.MessagingHost.Sqs"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.BackOffice.EventHost"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.Editor.ProjectionHost"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.Legacy.Extract"
   schedule:
-    interval: daily
+    interval: weekly
+  # Disable rebasing for npm pull requests
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.Legacy.Import"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.Product.ProjectionHost"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.Wms.ProjectionHost"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
 
 - package-ecosystem: docker
   directory: "/src/RoadRegistry.Wfs.ProjectionHost"
   schedule:
-    interval: daily
+    interval: weekly
+  rebase-strategy: "disabled"
+    
