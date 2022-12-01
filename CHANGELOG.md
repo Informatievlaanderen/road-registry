@@ -1,3 +1,10 @@
+## [3.24.3](https://github.com/informatievlaanderen/road-registry/compare/v3.24.2...v3.24.3) (2022-12-01)
+
+
+### Bug Fixes
+
+* deploy lambda to production & deploy producer-snapshot-projectionhost ([#727](https://github.com/informatievlaanderen/road-registry/issues/727)) ([c934663](https://github.com/informatievlaanderen/road-registry/commit/c934663ab608e2a4dfaca77957c63af7055b0667))
+
 ## [3.24.2](https://github.com/informatievlaanderen/road-registry/compare/v3.24.1...v3.24.2) (2022-12-01)
 
 
