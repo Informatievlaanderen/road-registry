@@ -1,3 +1,10 @@
+## [3.24.2](https://github.com/informatievlaanderen/road-registry/compare/v3.24.1...v3.24.2) (2022-12-01)
+
+
+### Bug Fixes
+
+* exclude messaginghost-kafka ([3d55596](https://github.com/informatievlaanderen/road-registry/commit/3d55596d87c8c562a5e611eaa3c4df5c06743635))
+
 ## [3.24.1](https://github.com/informatievlaanderen/road-registry/compare/v3.24.0...v3.24.1) (2022-11-30)
 
 
