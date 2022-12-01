@@ -136,7 +136,7 @@ jobs:
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER -o ~/rr-backoffice-ui-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER -o ~/rr-editor-projectionhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER -o ~/rr-product-projectionhost-image.tar
-        #docker image save $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER -o ~/rr-producer-snapshot-projectionhost-image.tar
+        docker image save $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER -o ~/rr-producer-snapshot-projectionhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER -o ~/rr-syndication-projectionhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER -o ~/rr-wms-projectionhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER -o ~/rr-wfs-projectionhost-image.tar
@@ -144,7 +144,6 @@ jobs:
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER -o ~/rr-backoffice-extracthost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER -o ~/rr-backoffice-commandhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER -o ~/rr-backoffice-messaginghost-sqs-image.tar
-        #docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER -o ~/rr-backoffice-messaginghost-kafka-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER -o ~/rr-import-legacy-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER -o ~/rr-extract-legacy-image.tar
       env:
@@ -221,12 +220,12 @@ jobs:
         name: product-projectionhost
         path: ~/rr-product-projectionhost-image.tar
 
-#    - name: Upload producer-snapshot-projectionhost
-#      if: env.RELEASE_VERSION != 'none
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: producer-snapshot-projectionhost
-#        path: ~/rr-producer-snapshot-projectionhost-image.tar
+    - name: Upload producer-snapshot-projectionhost
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: producer-snapshot-projectionhost
+        path: ~/rr-producer-snapshot-projectionhost-image.tar
    
     - name: Upload syndication-projectionhost artifact
       if: env.RELEASE_VERSION != 'none'
@@ -276,13 +275,6 @@ jobs:
       with:
         name: backoffice-messaginghost-sqs
         path: ~/rr-backoffice-messaginghost-sqs-image.tar
-
-#    - name: Upload backoffice-messaginghost-kafka artifact
-#      if: env.RELEASE_VERSION != 'none'
-#      uses: actions/upload-artifact@v3
-#      with:
-#        name: backoffice-messaginghost-kafka
-#        path: ~/rr-backoffice-messaginghost-kafka-image.tar
 
     - name: Upload import-legacy artifact
       if: env.RELEASE_VERSION != 'none'
@@ -360,31 +352,31 @@ jobs:
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
         
-#    - name: Configure AWS credentials (Production)
-#      if: env.RELEASE_VERSION != 'none'
-#      uses: aws-actions/configure-aws-credentials@v1-node16
-#      with:
-#        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
-#        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
-#        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-#
-#    - name: Login to Amazon ECR (Production)
-#      if: env.RELEASE_VERSION != 'none'
-#      uses: aws-actions/amazon-ecr-login@v1.5.3
-#
-#    - name: Push Lambda functions to S3 Production
-#      if: env.RELEASE_VERSION != 'none'
-#      shell: bash
-#      run: |
-#       echo Push Lambda functions to S3 Production
-#       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-#       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
-#       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
-#       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
-#       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
-#       popd
-#      env:
-#       SEMVER: ${{ env.RELEASE_VERSION }}
+    - name: Configure AWS credentials (Production)
+      if: env.RELEASE_VERSION != 'none'
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+    - name: Login to Amazon ECR (Production)
+      if: env.RELEASE_VERSION != 'none'
+      uses: aws-actions/amazon-ecr-login@v1.5.3
+
+    - name: Push Lambda functions to S3 Production
+      if: env.RELEASE_VERSION != 'none'
+      shell: bash
+      run: |
+       echo Push Lambda functions to S3 Production
+       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$SEMVER/lambda.zip
+       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$SEMVER/lambda.zip
+       popd
+      env:
+       SEMVER: ${{ env.RELEASE_VERSION }}
 
   publish_to_atlassian:
     if: needs.build.outputs.version != 'none'
@@ -552,11 +544,11 @@ jobs:
           name: product-projectionhost
           path: ~/
       
-#      - name: Download producer-snapshot-projectionhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: producer-snapshot-projectionhost
-#          path: ~/
+      - name: Download producer-snapshot-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: producer-snapshot-projectionhost
+          path: ~/
       
       - name: Download syndication-projectionhost
         uses: actions/download-artifact@v3
@@ -600,12 +592,6 @@ jobs:
           name: backoffice-messaginghost-sqs
           path: ~/
       
-#      - name: Download backoffice-messaginghost-kafka
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: backoffice-messaginghost-kafka
-#          path: ~/
-      
       - name: Download import-legacy
         uses: actions/download-artifact@v3
         with:
@@ -630,7 +616,7 @@ jobs:
           docker image load -i ~/rr-backoffice-ui-image.tar
           docker image load -i ~/rr-editor-projectionhost-image.tar
           docker image load -i ~/rr-product-projectionhost-image.tar
-          #docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
+          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
           docker image load -i ~/rr-syndication-projectionhost-image.tar
           docker image load -i ~/rr-wms-projectionhost-image.tar
           docker image load -i ~/rr-wfs-projectionhost-image.tar
@@ -638,7 +624,6 @@ jobs:
           docker image load -i ~/rr-backoffice-extracthost-image.tar
           docker image load -i ~/rr-backoffice-commandhost-image.tar
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
-          #docker image load -i ~/rr-backoffice-messaginghost-kafka-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
 
@@ -652,7 +637,7 @@ jobs:
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
-          #docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
@@ -660,7 +645,6 @@ jobs:
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
-          #docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
         env:
@@ -721,11 +705,11 @@ jobs:
           name: product-projectionhost
           path: ~/
       
-#      - name: Download producer-snapshot-projectionhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: producer-snapshot-projectionhost
-#          path: ~/
+      - name: Download producer-snapshot-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: producer-snapshot-projectionhost
+          path: ~/
       
       - name: Download syndication-projectionhost
         uses: actions/download-artifact@v3
@@ -769,12 +753,6 @@ jobs:
           name: backoffice-messaginghost-sqs
           path: ~/
       
-#      - name: Download backoffice-messaginghost-kafka
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: backoffice-messaginghost-kafka
-#          path: ~/
-      
       - name: Download import-legacy
         uses: actions/download-artifact@v3
         with:
@@ -799,7 +777,7 @@ jobs:
           docker image load -i ~/rr-backoffice-ui-image.tar
           docker image load -i ~/rr-editor-projectionhost-image.tar
           docker image load -i ~/rr-product-projectionhost-image.tar
-          #docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
+          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
           docker image load -i ~/rr-syndication-projectionhost-image.tar
           docker image load -i ~/rr-wms-projectionhost-image.tar
           docker image load -i ~/rr-wfs-projectionhost-image.tar
@@ -807,7 +785,6 @@ jobs:
           docker image load -i ~/rr-backoffice-extracthost-image.tar
           docker image load -i ~/rr-backoffice-commandhost-image.tar
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
-          #docker image load -i ~/rr-backoffice-messaginghost-kafka-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
 
@@ -830,8 +807,8 @@ jobs:
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
 
-          #docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
-          #docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
 
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
@@ -853,9 +830,6 @@ jobs:
 
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
-
-          #docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
-          #docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-kafka:$SEMVER
 
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
@@ -921,11 +895,11 @@ jobs:
           name: product-projectionhost
           path: ~/
       
-#      - name: Download producer-snapshot-projectionhost
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: producer-snapshot-projectionhost
-#          path: ~/
+      - name: Download producer-snapshot-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: producer-snapshot-projectionhost
+          path: ~/
       
       - name: Download syndication-projectionhost
         uses: actions/download-artifact@v3
@@ -969,12 +943,6 @@ jobs:
           name: backoffice-messaginghost-sqs
           path: ~/
       
-      - name: Download backoffice-messaginghost-kafka
-        uses: actions/download-artifact@v3
-        with:
-          name: backoffice-messaginghost-kafka
-          path: ~/
-      
       - name: Download import-legacy
         uses: actions/download-artifact@v3
         with:
@@ -999,7 +967,7 @@ jobs:
           docker image load -i ~/rr-backoffice-ui-image.tar
           docker image load -i ~/rr-editor-projectionhost-image.tar
           docker image load -i ~/rr-product-projectionhost-image.tar
-          #docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
+          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
           docker image load -i ~/rr-syndication-projectionhost-image.tar
           docker image load -i ~/rr-wms-projectionhost-image.tar
           docker image load -i ~/rr-wfs-projectionhost-image.tar
@@ -1007,7 +975,6 @@ jobs:
           docker image load -i ~/rr-backoffice-extracthost-image.tar
           docker image load -i ~/rr-backoffice-commandhost-image.tar
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
-          #docker image load -i ~/rr-backoffice-messaginghost-kafka-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
 
@@ -1031,8 +998,8 @@ jobs:
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/product-projectionhost:$SEMVER
   
-          #docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
-          #docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/producer-snapshot-projectionhost:$SEMVER
   
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/syndication-projectionhost:$SEMVER
@@ -1054,9 +1021,6 @@ jobs:
   
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-sqs:$SEMVER
-  
-          #docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-kafka:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
-          #docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/backoffice-messaginghost-kafka:$SEMVER
   
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/import-legacy:$SEMVER
@@ -1188,7 +1152,7 @@ jobs:
         
   deploy_to_staging_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [push_images_to_staging, build] #deploy_to_test_finish_slack, build]
+    needs: [push_images_to_staging, deploy_to_test_finish_slack, build]
     name: Deploy to staging started
     environment: stg
     runs-on: ubuntu-latest
@@ -1354,48 +1318,48 @@ jobs:
         echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
         echo ${{ steps.awscurl-polling-action.outputs.final-message }}
 
-#  deploy_lambda_to_production:
-#    if: github.repository_owner == 'Informatievlaanderen'
-#    needs: [deploy_to_production, build]
-#    name: Deploy lambda to production
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#    - name: CD Lambda(s) Configure credentials
-#      uses: aws-actions/configure-aws-credentials@v1-node16
-#      with:
-#        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
-#        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
-#        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-#        
-#    - name: Prepare Lambda(s)
-#      shell: bash
-#      run: |
-#        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip  --copy-props none
-#        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip --copy-props none
-#        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/lambda.zip --copy-props none
-#        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/lambda.zip --copy-props none
-#      env:
-#        VERSION: ${{ needs.build.outputs.version }}
-#        
-#    - name: Promote Lambda(s)
-#      shell: bash
-#      run: |
-#        echo pulling awscurl docker image
-#        docker pull ghcr.io/okigan/awscurl:latest
-#        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "initiatefeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-#        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "initiatefeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-#        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-#        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-#      env:
-#        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
-#        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
-#        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-#        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
+  deploy_lambda_to_production:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [deploy_to_production, build]
+    name: Deploy lambda to production
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: CD Lambda(s) Configure credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+        
+    - name: Prepare Lambda(s)
+      shell: bash
+      run: |
+        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip  --copy-props none
+        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-initiate/lambda.zip --copy-props none
+      env:
+        VERSION: ${{ needs.build.outputs.version }}
+        
+    - name: Promote Lambda(s)
+      shell: bash
+      run: |
+        echo pulling awscurl docker image
+        docker pull ghcr.io/okigan/awscurl:latest
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "initiatefeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "initiatefeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+      env:
+        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
+        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
+        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
+        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
 
   deploy_to_production_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [deploy_to_production] #[deploy_lambda_to_production]
+    needs: [deploy_lambda_to_production]
     name: Deploy to production finished
     runs-on: ubuntu-latest
 

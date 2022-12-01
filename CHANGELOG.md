@@ -1,3 +1,37 @@
+## [3.24.2](https://github.com/informatievlaanderen/road-registry/compare/v3.24.1...v3.24.2) (2022-12-01)
+
+
+### Bug Fixes
+
+* exclude messaginghost-kafka ([3d55596](https://github.com/informatievlaanderen/road-registry/commit/3d55596d87c8c562a5e611eaa3c4df5c06743635))
+
+## [3.24.1](https://github.com/informatievlaanderen/road-registry/compare/v3.24.0...v3.24.1) (2022-11-30)
+
+
+### Bug Fixes
+
+* correct typo ([5946ae5](https://github.com/informatievlaanderen/road-registry/commit/5946ae52703b9b005f6aa3dae6f3a1900651a4b8))
+* remove producer-snapshot-projectionhost ([#724](https://github.com/informatievlaanderen/road-registry/issues/724)) ([43df566](https://github.com/informatievlaanderen/road-registry/commit/43df5664c064d576d58cc3a17cff0bf2d9bb8027))
+
+# [3.24.0](https://github.com/informatievlaanderen/road-registry/compare/v3.23.6...v3.24.0) (2022-11-30)
+
+
+### Bug Fixes
+
+* correct typo in release.yml ([e796925](https://github.com/informatievlaanderen/road-registry/commit/e796925509b038411d84282d8ad9bbb19554ac75))
+
+
+### Features
+
+* Street name validation for linking to road segment ([a24f5bf](https://github.com/informatievlaanderen/road-registry/commit/a24f5bf6e9a54e77eb99bc7708f59b0ad8ed3da6))
+
+## [3.23.6](https://github.com/informatievlaanderen/road-registry/compare/v3.23.5...v3.23.6) (2022-11-30)
+
+
+### Bug Fixes
+
+* remove lambda from production again ([89b4043](https://github.com/informatievlaanderen/road-registry/commit/89b40434e21c72ac834248938ea95efa045fe4d6))
+
 ## [3.23.5](https://github.com/informatievlaanderen/road-registry/compare/v3.23.4...v3.23.5) (2022-11-30)
 
 

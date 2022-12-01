@@ -69,6 +69,7 @@ Target.create "Test_Solution" (fun _ ->
     "test" @@ "RoadRegistry.BackOffice.ZipArchiveWriters.Tests"
     "test" @@ "RoadRegistry.Editor.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Product.ProjectionHost.Tests"
+    "test" @@ "RoadRegistry.Producer.Snapshot.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Syndication.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Tests"
     "test" @@ "RoadRegistry.Wms.ProjectionHost.Tests"
@@ -89,6 +90,7 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.Legacy.Extract"
     "RoadRegistry.Legacy.Import"
     "RoadRegistry.Product.ProjectionHost"
+    "RoadRegistry.Producer.Snapshot.ProjectionHost"
     "RoadRegistry.Projector"
     "RoadRegistry.Syndication.ProjectionHost"
     "RoadRegistry.Wfs.ProjectionHost"
@@ -126,6 +128,9 @@ Target.create "PushContainer_EditorProjectionHost" (fun _ -> push "editor-projec
 
 Target.create "Containerize_ProductProjectionHost" (fun _ -> containerize "RoadRegistry.Product.ProjectionHost" "product-projectionhost")
 Target.create "PushContainer_ProductProjectionHost" (fun _ -> push "product-projectionhost")
+
+Target.create "Containerize_ProducerSnapshotProjectionHost" (fun _ -> containerize "RoadRegistry.Producer.Snapshot.ProjectionHost" "producer-snapshot-projectionhost")
+Target.create "PushContainer_ProducerSnapshotProjectionHost" (fun _ -> push "producer-snapshot-projectionhost")
 
 Target.create "Containerize_WmsProjectionHost" (fun _ -> containerize "RoadRegistry.Wms.ProjectionHost" "wms-projectionhost")
 Target.create "PushContainer_WmsProjectionHost" (fun _ -> push "wms-projectionhost")
@@ -187,6 +192,7 @@ Target.create "Push" ignore
   ==> "Containerize_BackOfficeApi"
   ==> "Containerize_EditorProjectionHost"
   ==> "Containerize_ProductProjectionHost"
+  ==> "Containerize_ProducerSnapshotProjectionHost"
   ==> "Containerize_WmsProjectionHost"
   ==> "Containerize_WfsProjectionHost"
   ==> "Containerize_SyndicationProjectionHost"
@@ -207,6 +213,7 @@ Target.create "Push" ignore
   ==> "PushContainer_BackOfficeUI"
   ==> "PushContainer_EditorProjectionHost"
   ==> "PushContainer_ProductProjectionHost"
+  ==> "PushContainer_ProducerSnapshotProjectionHost"
   ==> "PushContainer_WmsProjectionHost"
   ==> "PushContainer_WfsProjectionHost"
   ==> "PushContainer_SyndicationProjectionHost"
