@@ -163,6 +163,8 @@ public class Program
                         await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
                         await migratorFactory.CreateMigrator(configuration, loggerFactory)
                             .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+
+                        Console.WriteLine("Started RoadRegistry.Wms.ProjectionHost");
                         await eventProcessor.Resume(CancellationToken.None);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),

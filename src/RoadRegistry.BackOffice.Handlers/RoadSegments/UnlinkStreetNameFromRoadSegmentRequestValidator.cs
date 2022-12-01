@@ -6,9 +6,9 @@ using Extensions;
 using FluentValidation;
 using MediatR;
 
-public class LinkRoadSegmentToStreetNameRequestValidator : AbstractValidator<LinkRoadSegmentToStreetNameRequest>, IPipelineBehavior<LinkRoadSegmentToStreetNameRequest, LinkRoadSegmentToStreetNameResponse>
+public class UnlinkStreetNameFromRoadSegmentRequestValidator : AbstractValidator<UnlinkStreetNameFromRoadSegmentRequest>, IPipelineBehavior<UnlinkStreetNameFromRoadSegmentRequest, UnlinkStreetNameFromRoadSegmentResponse>
 {
-    public LinkRoadSegmentToStreetNameRequestValidator()
+    public UnlinkStreetNameFromRoadSegmentRequestValidator()
     {
         RuleFor(x => x.WegsegmentId)
             .GreaterThan(0)
@@ -46,7 +46,7 @@ public class LinkRoadSegmentToStreetNameRequestValidator : AbstractValidator<Lin
             .WithMessage(request => ValidationErrors.Common.IncorrectObjectId.Message(request.RechterstraatnaamId));
     }
 
-    public async Task<LinkRoadSegmentToStreetNameResponse> Handle(LinkRoadSegmentToStreetNameRequest request, RequestHandlerDelegate<LinkRoadSegmentToStreetNameResponse> next, CancellationToken cancellationToken)
+    public async Task<UnlinkStreetNameFromRoadSegmentResponse> Handle(UnlinkStreetNameFromRoadSegmentRequest request, RequestHandlerDelegate<UnlinkStreetNameFromRoadSegmentResponse> next, CancellationToken cancellationToken)
     {
         await this.ValidateAndThrowAsync(request, cancellationToken);
         var response = await next();
