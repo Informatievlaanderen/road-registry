@@ -69,7 +69,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandler : EndpointRequestHand
                 roadSegment.AttributeHash.Status,
                 roadSegment.AttributeHash.Category,
                 roadSegment.AttributeHash.AccessRestriction,
-                null, //TODO-rik is null goed voor ontkoppelen, of moet het 0 zijn?
+                null,
                 roadSegment.AttributeHash.RightStreetNameId
             ).WithGeometry(roadSegment.Geometry));
         }
