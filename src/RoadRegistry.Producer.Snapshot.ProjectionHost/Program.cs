@@ -169,6 +169,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                     .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
                             }
 
+                            Console.WriteLine("Started RoadRegistry.Producer.Snapshot.ProjectionHost");
                             await host.RunAsync().ConfigureAwait(false);
                         },
                         DistributedLockOptions.LoadFromConfiguration(configuration),
