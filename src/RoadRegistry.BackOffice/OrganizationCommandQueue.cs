@@ -11,23 +11,22 @@ using Newtonsoft.Json;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 
-public class RoadNetworkCommandQueue : IRoadNetworkCommandQueue
+public class OrganizationCommandQueue : IOrganizationCommandQueue
 {
     private static readonly EventMapping CommandMapping =
-        new(RoadNetworkCommands.All.ToDictionary(command => command.Name));
+        new(OrganizationCommands.All.ToDictionary(command => command.Name));
 
     private static readonly JsonSerializerSettings SerializerSettings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
-    public static readonly StreamName Stream = new("roadnetwork-command-queue");
+    
     private readonly IStreamStore _store;
 
-    public RoadNetworkCommandQueue(IStreamStore store)
+    public OrganizationCommandQueue(IStreamStore store)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
     }
 
-    public async Task Write(Command command, CancellationToken cancellationToken)
+    public async Task Write(OrganizationId organizationId, Command command, CancellationToken cancellationToken)
     {
         var jsonMetadata = JsonConvert.SerializeObject(
             new CommandMetadata
@@ -39,7 +38,7 @@ public class RoadNetworkCommandQueue : IRoadNetworkCommandQueue
                     .ToArray()
             },
             SerializerSettings);
-        await _store.AppendToStream(Stream, ExpectedVersion.Any, new[]
+        await _store.AppendToStream(OrganizationId.ToStreamName(organizationId), ExpectedVersion.Any, new[]
         {
             new NewStreamMessage(
                 command.MessageId,

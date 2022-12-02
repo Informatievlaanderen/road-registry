@@ -36,6 +36,6 @@ public partial class RoadSegmentsController
             throw new ApiException(ValidationErrors.RoadSegment.NotFound.Message, StatusCodes.Status404NotFound);
         }
     }
-
-    public sealed record PostUnlinkStreetNameParameters(string? LinkerstraatnaamId, string? RechterstraatnaamId);
 }
+
+public sealed record PostUnlinkStreetNameParameters(string? LinkerstraatnaamId, string? RechterstraatnaamId);
