@@ -1,3 +1,15 @@
+# [3.25.0](https://github.com/informatievlaanderen/road-registry/compare/v3.24.3...v3.25.0) (2022-12-02)
+
+
+### Bug Fixes
+
+* change dependabot.yml for less noise ([3f4ee4f](https://github.com/informatievlaanderen/road-registry/commit/3f4ee4fc9a89a78b60fa7364ca9760a1c657cb0d))
+
+
+### Features
+
+* Unlink street name from road segment ([c3844c2](https://github.com/informatievlaanderen/road-registry/commit/c3844c228c29adfc74d72f5ed2c2eba9a44e2d45))
+
 ## [3.24.3](https://github.com/informatievlaanderen/road-registry/compare/v3.24.2...v3.24.3) (2022-12-01)
 
 
