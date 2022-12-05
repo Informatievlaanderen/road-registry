@@ -4,7 +4,7 @@ using System;
 
 public readonly struct ExtractDescription : IEquatable<ExtractDescription>
 {
-    public const int MaxLength = 256;
+    public const int MaxLength = 254;
     private readonly string _value;
 
     public ExtractDescription(string value)
