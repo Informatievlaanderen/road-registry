@@ -48,8 +48,8 @@ nuget Serilog.Settings.Configuration 3.4.0
 nuget Serilog.Sinks.Seq 5.2.1
 nuget SqlStreamStore 1.2.0
 nuget SqlStreamStore.MsSql 1.2.0
-nuget Structurizr.Client 1.1.0
-nuget Structurizr.Core 1.1.0
+nuget Structurizr.Client 0.9.7
+nuget Structurizr.Core 0.9.7
 nuget Swashbuckle.AspNetCore 6.2.3
 nuget Swashbuckle.AspNetCore.Annotations 6.2.3
 nuget Swashbuckle.AspNetCore.Swagger 6.2.3
