@@ -8,6 +8,7 @@
 .paket/
 elm-stuff/
 docker/dynamodb/*
+paket.lock
 
 [Pp]ackages/
 [Pp]aket-files/
