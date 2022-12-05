@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.Schema.Organizations;
+namespace RoadRegistry.Dbase.Organizations;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 

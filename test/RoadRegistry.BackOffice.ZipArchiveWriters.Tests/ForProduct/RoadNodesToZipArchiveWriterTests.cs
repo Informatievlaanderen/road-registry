@@ -4,9 +4,9 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase;
+using Dbase.RoadNodes;
 using Framework.Containers;
 using Product.Schema;
-using Product.Schema.RoadNodes;
 using ZipArchiveWriters.ForProduct;
 
 [Collection(nameof(SqlServerCollection))]

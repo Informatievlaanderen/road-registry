@@ -4,6 +4,7 @@ using System.Text;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
+using Dbase.GradeSeparatedJuntions;
 using Editor.Projections;
 using Editor.Schema.GradeSeparatedJunctions;
 using Microsoft.IO;

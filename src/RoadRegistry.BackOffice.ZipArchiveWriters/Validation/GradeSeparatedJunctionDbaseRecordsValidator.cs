@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
 using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema.GradeSeparatedJunctions;
+using Dbase.GradeSeparatedJuntions;
 using Uploads;
 
 public class GradeSeparatedJunctionDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<GradeSeparatedJunctionDbaseRecord>

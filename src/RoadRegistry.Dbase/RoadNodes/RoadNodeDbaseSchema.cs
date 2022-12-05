@@ -1,4 +1,4 @@
-namespace RoadRegistry.Product.Schema.RoadNodes;
+namespace RoadRegistry.Dbase.RoadNodes;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
