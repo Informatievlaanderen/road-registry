@@ -1,6 +1,6 @@
-namespace RoadRegistry.Editor.Schema.RoadSegments;
+namespace RoadRegistry.Dbase.RoadSegments;
 
-public class RoadSegmentSurfaceAttributeRecord
+public class RoadSegmentNumberedRoadAttributeRecord
 {
     public byte[] DbaseRecord { get; set; }
     public int Id { get; set; }
