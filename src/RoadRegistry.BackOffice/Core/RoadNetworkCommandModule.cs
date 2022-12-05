@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Framework;
 using Messages;
 using NodaTime;
+using NodaTime.Text;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 
@@ -60,6 +61,71 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 network.Change(request, reason, @operator, translation, requestedChanges);
             });
 
+        For<CreateOrganization>()
+            .UseValidator(new CreateOrganizationValidator())
+            .UseRoadRegistryContext(store, snapshotReader, enricher)
+            .Handle(async (context, command, ct) =>
+            {
+                var organizationId = new OrganizationId(command.Body.Code);
+                var organization = await context.Organizations.FindAsync(organizationId, ct);
+
+                if (organization != null)
+                {
+                    var rejectedCommand = new CreateOrganizationRejected
+                    {
+                        Code = command.Body.Code,
+                        Name = command.Body.Name
+                    };
+                    enricher(rejectedCommand);
+
+                    await new RoadNetworkCommandQueue(store)
+                        .Write(new Command(rejectedCommand), ct);
+                }
+                else
+                {
+                    var acceptedCommand = new CreateOrganizationAccepted
+                    {
+                        Code = command.Body.Code,
+                        Name = command.Body.Name
+                    };
+                    enricher(acceptedCommand);
+
+                    await new OrganizationCommandQueue(store)
+                        .Write(organizationId, new Command(acceptedCommand), ct);
+                }
+            });
+
+        For<CreateOrganizationRejected>()
+            .Handle((_, _) => Task.CompletedTask);
+
+        For<DeleteOrganization>()
+            .UseValidator(new DeleteOrganizationValidator())
+            .UseRoadRegistryContext(store, snapshotReader, enricher)
+            .Handle(async (context, command, ct) =>
+            {
+                var organizationId = new OrganizationId(command.Body.Code);
+                var organization = await context.Organizations.FindAsync(organizationId, ct);
+
+                if (organization != null)
+                {
+                    organization.Delete();
+                }
+                else
+                {
+                    var rejectedCommand = new DeleteOrganizationRejected
+                    {
+                        Code = command.Body.Code
+                    };
+                    enricher(rejectedCommand);
+
+                    await new RoadNetworkCommandQueue(store)
+                        .Write(new Command(rejectedCommand), ct);
+                }
+            });
+
+        For<DeleteOrganizationRejected>()
+            .Handle((_, _) => Task.CompletedTask);
+
         For<RenameOrganization>()
             .UseValidator(new RenameOrganizationValidator())
             .UseRoadRegistryContext(store, snapshotReader, enricher)
@@ -74,15 +140,15 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 }
                 else
                 {
-                    var rejectCommand = new RenameOrganizationRejected
+                    var rejectedCommand = new RenameOrganizationRejected
                     {
                         Code = command.Body.Code,
                         Name = command.Body.Name
                     };
-                    enricher(rejectCommand);
+                    enricher(rejectedCommand);
 
                     await new RoadNetworkCommandQueue(store)
-                        .Write(new Command(rejectCommand), ct);
+                        .Write(new Command(rejectedCommand), ct);
                 }
             });
 

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
+using Framework;
 
 public readonly struct OrganizationId : IEquatable<OrganizationId>
 {
@@ -58,5 +59,10 @@ public readonly struct OrganizationId : IEquatable<OrganizationId>
     public static bool operator !=(OrganizationId left, OrganizationId right)
     {
         return !left.Equals(right);
+    }
+
+    public static StreamName ToStreamName(OrganizationId organizationId)
+    {
+        return new StreamName(organizationId.ToString()).WithPrefix("organization-");
     }
 }

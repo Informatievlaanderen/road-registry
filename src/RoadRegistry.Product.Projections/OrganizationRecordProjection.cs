@@ -43,6 +43,22 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
             await context.Organizations.AddAsync(organization, token);
         });
 
+        When<Envelope<CreateOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            var organization = new OrganizationRecord
+            {
+                Code = envelope.Message.Code,
+                SortableCode = GetSortableCodeFor(envelope.Message.Code),
+                DbaseRecord = new OrganizationDbaseRecord
+                {
+                    ORG = { Value = envelope.Message.Code },
+                    LBLORG = { Value = envelope.Message.Name }
+                }.ToBytes(manager, encoding)
+            };
+
+            await context.Organizations.AddAsync(organization, token);
+        });
+
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
         {
             var organization = await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token)
@@ -53,6 +69,14 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
                 ORG = { Value = envelope.Message.Code },
                 LBLORG = { Value = envelope.Message.Name }
             }.ToBytes(manager, encoding);
+        });
+
+        When<Envelope<DeleteOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            var organization = await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token)
+                               ?? context.Organizations.Local.Single(o => o.Code == envelope.Message.Code);
+
+            context.Remove(organization);
         });
     }
 

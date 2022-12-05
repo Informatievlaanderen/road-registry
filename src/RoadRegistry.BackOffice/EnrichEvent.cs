@@ -46,16 +46,29 @@ public static class EnrichEvent
                 case NoRoadNetworkChanges m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
-                case RenameOrganizationAccepted m:
-                    m.When = pattern.Format(clock.GetCurrentInstant());
-                    break;
-                case RenameOrganizationRejected m:
-                    m.When = pattern.Format(clock.GetCurrentInstant());
-                    break;
                 case RoadNetworkChangesAccepted m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
                 case RoadNetworkChangesRejected m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                // Organization
+                case CreateOrganizationAccepted m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case CreateOrganizationRejected m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case DeleteOrganizationAccepted m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case DeleteOrganizationRejected m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case RenameOrganizationAccepted m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case RenameOrganizationRejected m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
                 // Extracts
