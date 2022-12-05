@@ -1,3 +1,10 @@
+# [3.26.0](https://github.com/informatievlaanderen/road-registry/compare/v3.25.0...v3.26.0) (2022-12-05)
+
+
+### Features
+
+* Add endpoints to create/delete organizations ([b43ba21](https://github.com/informatievlaanderen/road-registry/commit/b43ba21094cd75f9ac1e5da30a1361f092c8bee0))
+
 # [3.25.0](https://github.com/informatievlaanderen/road-registry/compare/v3.24.3...v3.25.0) (2022-12-02)
 
 
