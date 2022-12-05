@@ -7,9 +7,10 @@ using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Dbase.RoadSegments;
 using Microsoft.IO;
 using Schema;
-using Schema.RoadSegments;
+using RoadSegmentEuropeanRoadAttributeRecord = Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeRecord;
 
 public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProjection<ProductContext>
 {

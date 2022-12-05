@@ -1,18 +1,17 @@
-namespace RoadRegistry.Editor.Schema.RoadSegments;
+namespace RoadRegistry.Dbase.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
-public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
+public class RoadSegmentWidthAttributeDbaseRecord : DbaseRecord
 {
-    public static readonly RoadSegmentSurfaceAttributeDbaseSchema Schema = new();
+    public static readonly RoadSegmentWidthAttributeDbaseSchema Schema = new();
 
-    public RoadSegmentSurfaceAttributeDbaseRecord()
+    public RoadSegmentWidthAttributeDbaseRecord()
     {
-        WV_OIDN = new DbaseInt32(Schema.WV_OIDN);
+        WB_OIDN = new DbaseInt32(Schema.WB_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
         WS_GIDN = new DbaseString(Schema.WS_GIDN);
-        TYPE = new DbaseInt32(Schema.TYPE);
-        LBLTYPE = new DbaseString(Schema.LBLTYPE);
+        BREEDTE = new DbaseInt32(Schema.BREEDTE);
         VANPOS = new DbaseDouble(Schema.VANPOS);
         TOTPOS = new DbaseDouble(Schema.TOTPOS);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
@@ -21,11 +20,10 @@ public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
 
         Values = new DbaseFieldValue[]
         {
-            WV_OIDN,
+            WB_OIDN,
             WS_OIDN,
             WS_GIDN,
-            TYPE,
-            LBLTYPE,
+            BREEDTE,
             VANPOS,
             TOTPOS,
             BEGINTIJD,
@@ -36,12 +34,11 @@ public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
 
     public DbaseString BEGINORG { get; set; }
     public DbaseDateTime BEGINTIJD { get; set; }
+    public DbaseInt32 BREEDTE { get; set; }
     public DbaseString LBLBGNORG { get; set; }
-    public DbaseString LBLTYPE { get; set; }
     public DbaseDouble TOTPOS { get; set; }
-    public DbaseInt32 TYPE { get; set; }
     public DbaseDouble VANPOS { get; set; }
+    public DbaseInt32 WB_OIDN { get; set; }
     public DbaseString WS_GIDN { get; set; }
     public DbaseInt32 WS_OIDN { get; set; }
-    public DbaseInt32 WV_OIDN { get; set; }
 }

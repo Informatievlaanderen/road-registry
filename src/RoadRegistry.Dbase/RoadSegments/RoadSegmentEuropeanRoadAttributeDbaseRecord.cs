@@ -1,25 +1,25 @@
-namespace RoadRegistry.Product.Schema.RoadSegments;
+namespace RoadRegistry.Dbase.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
-public class RoadSegmentNationalRoadAttributeDbaseRecord : DbaseRecord
+public class RoadSegmentEuropeanRoadAttributeDbaseRecord : DbaseRecord
 {
-    public static readonly RoadSegmentNationalRoadAttributeDbaseSchema Schema = new();
+    public static readonly RoadSegmentEuropeanRoadAttributeDbaseSchema Schema = new();
 
-    public RoadSegmentNationalRoadAttributeDbaseRecord()
+    public RoadSegmentEuropeanRoadAttributeDbaseRecord()
     {
-        NW_OIDN = new DbaseInt32(Schema.NW_OIDN);
+        EU_OIDN = new DbaseInt32(Schema.EU_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        IDENT2 = new DbaseString(Schema.IDENT2);
+        EUNUMMER = new DbaseString(Schema.EUNUMMER);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
         BEGINORG = new DbaseString(Schema.BEGINORG);
         LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
         Values = new DbaseFieldValue[]
         {
-            NW_OIDN,
+            EU_OIDN,
             WS_OIDN,
-            IDENT2,
+            EUNUMMER,
             BEGINTIJD,
             BEGINORG,
             LBLBGNORG
@@ -28,8 +28,8 @@ public class RoadSegmentNationalRoadAttributeDbaseRecord : DbaseRecord
 
     public DbaseString BEGINORG { get; }
     public DbaseDateTime BEGINTIJD { get; }
-    public DbaseString IDENT2 { get; }
+    public DbaseInt32 EU_OIDN { get; }
+    public DbaseString EUNUMMER { get; }
     public DbaseString LBLBGNORG { get; }
-    public DbaseInt32 NW_OIDN { get; }
     public DbaseInt32 WS_OIDN { get; }
 }

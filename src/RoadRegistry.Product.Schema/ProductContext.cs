@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Dbase;
+using Dbase.RoadSegments;
 using GradeSeparatedJunctions;
 using Hosts;
 using Microsoft.EntityFrameworkCore;

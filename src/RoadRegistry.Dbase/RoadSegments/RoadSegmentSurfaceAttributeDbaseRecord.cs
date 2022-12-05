@@ -1,20 +1,18 @@
-namespace RoadRegistry.Editor.Schema.RoadSegments;
+namespace RoadRegistry.Dbase.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.RoadSegments;
 
-public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
+public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
 {
-    public static readonly RoadSegmentLaneAttributeDbaseSchema Schema = new();
+    public static readonly RoadSegmentSurfaceAttributeDbaseSchema Schema = new();
 
-    public RoadSegmentLaneAttributeDbaseRecord()
+    public RoadSegmentSurfaceAttributeDbaseRecord()
     {
-        RS_OIDN = new DbaseInt32(Schema.RS_OIDN);
+        WV_OIDN = new DbaseInt32(Schema.WV_OIDN);
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
         WS_GIDN = new DbaseString(Schema.WS_GIDN);
-        AANTAL = new DbaseInt32(Schema.AANTAL);
-        RICHTING = new DbaseInt32(Schema.RICHTING);
-        LBLRICHT = new DbaseString(Schema.LBLRICHT);
+        TYPE = new DbaseInt32(Schema.TYPE);
+        LBLTYPE = new DbaseString(Schema.LBLTYPE);
         VANPOS = new DbaseDouble(Schema.VANPOS);
         TOTPOS = new DbaseDouble(Schema.TOTPOS);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
@@ -23,12 +21,11 @@ public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
 
         Values = new DbaseFieldValue[]
         {
-            RS_OIDN,
+            WV_OIDN,
             WS_OIDN,
             WS_GIDN,
-            AANTAL,
-            RICHTING,
-            LBLRICHT,
+            TYPE,
+            LBLTYPE,
             VANPOS,
             TOTPOS,
             BEGINTIJD,
@@ -37,15 +34,14 @@ public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
         };
     }
 
-    public DbaseInt32 AANTAL { get; set; }
     public DbaseString BEGINORG { get; set; }
     public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseString LBLBGNORG { get; set; }
-    public DbaseString LBLRICHT { get; set; }
-    public DbaseInt32 RICHTING { get; set; }
-    public DbaseInt32 RS_OIDN { get; set; }
+    public DbaseString LBLTYPE { get; set; }
     public DbaseDouble TOTPOS { get; set; }
+    public DbaseInt32 TYPE { get; set; }
     public DbaseDouble VANPOS { get; set; }
     public DbaseString WS_GIDN { get; set; }
     public DbaseInt32 WS_OIDN { get; set; }
+    public DbaseInt32 WV_OIDN { get; set; }
 }

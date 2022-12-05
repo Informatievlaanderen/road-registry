@@ -8,7 +8,6 @@ using Be.Vlaanderen.Basisregisters.Projector.Modules;
 using Hosts;
 using Microsoft.Extensions.DependencyInjection;
 using Modules;
-using RoadRegistry.Syndication.Schema;
 using System;
 using System.Threading.Tasks;
 using Schema;

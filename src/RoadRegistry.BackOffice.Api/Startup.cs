@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Api;
 
 using System;
 using System.Linq;
-using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;

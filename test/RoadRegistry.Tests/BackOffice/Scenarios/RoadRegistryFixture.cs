@@ -1,12 +1,10 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using Autofac.Core;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework.Testing;
 using KellermanSoftware.CompareNetObjects;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Testing;
