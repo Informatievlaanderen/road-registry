@@ -1,4 +1,4 @@
-namespace RoadRegistry.Product.Schema.GradeSeparatedJunctions;
+namespace RoadRegistry.Dbase.GradeSeparatedJuntions;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
