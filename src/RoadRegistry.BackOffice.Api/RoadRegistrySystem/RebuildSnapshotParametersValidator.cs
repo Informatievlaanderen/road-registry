@@ -22,6 +22,8 @@ public class RebuildSnapshotParametersValidator : AbstractValidator<RebuildSnaps
                 }
 
                 return Task.FromResult(true);
-            });
+            })
+            .WithErrorCode("NotFound")
+            .WithMessage(item => $"No snapshot blob found for version '{item.StartFromVersion}'");
     }
 }

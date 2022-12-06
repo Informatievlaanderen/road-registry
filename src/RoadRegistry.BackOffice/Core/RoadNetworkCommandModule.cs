@@ -34,11 +34,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     StartFromVersion = command.Body.StartFromVersion,
                     CurrentVersion = version
                 };
-                enricher(completedCommand);
 
                 await new RoadNetworkCommandQueue(store)
                     .Write(new Command(completedCommand), ct);
             });
+
+        For<RebuildRoadNetworkSnapshotCompleted>()
+            .Handle((_, _) => Task.CompletedTask);
 
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
