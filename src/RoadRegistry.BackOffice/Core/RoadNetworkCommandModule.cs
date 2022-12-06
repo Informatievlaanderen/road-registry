@@ -30,6 +30,16 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
                 var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
                 await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
+
+                var completedCommand = new RebuildRoadNetworkSnapshotCompleted
+                {
+                    StartFromVersion = command.Body.StartFromVersion,
+                    CurrentVersion = version
+                };
+                enricher(completedCommand);
+
+                await new RoadNetworkCommandQueue(store)
+                    .Write(new Command(completedCommand), ct);
             });
 
         For<ChangeRoadNetwork>()
