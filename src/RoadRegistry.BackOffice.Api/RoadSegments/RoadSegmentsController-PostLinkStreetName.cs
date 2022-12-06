@@ -9,10 +9,17 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using FeatureToggles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Filters;
 
 public partial class RoadSegmentsController
 {
     [HttpPost("{id}/acties/straatnaamkoppelen")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     public async Task<IActionResult> PostLinkStreetName(
         [FromServices] UseRoadSegmentLinkStreetNameFeatureToggle featureToggle,
         [FromBody] PostLinkStreetNameParameters parameters,
@@ -29,7 +36,7 @@ public partial class RoadSegmentsController
             var request = new LinkStreetNameToRoadSegmentRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             var response = await _mediator.Send(request, cancellationToken);
 
-            return Ok(response);
+            return Accepted(response);
         }
         catch (RoadSegmentNotFoundException)
         {

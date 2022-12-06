@@ -125,7 +125,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandler : EndpointRequestHand
         var queue = new RoadNetworkCommandQueue(_store);
         await queue.Write(command, cancellationToken);
 
-        return new UnlinkStreetNameFromRoadSegmentResponse(messageId);
+        return new UnlinkStreetNameFromRoadSegmentResponse();
     }
     
     private ValidationException ValidationError(string propertyName, string errorMessage, string errorCode)
