@@ -4,14 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Dbase.Organizations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
-using Schema.Organizations;
 
 public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
 {

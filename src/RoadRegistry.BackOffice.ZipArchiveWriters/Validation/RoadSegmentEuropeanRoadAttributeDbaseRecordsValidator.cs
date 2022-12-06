@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
 using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema.RoadSegments;
+using Dbase.RoadSegments;
 using Uploads;
 
 public class RoadSegmentEuropeanRoadAttributeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<RoadSegmentEuropeanRoadAttributeDbaseRecord>

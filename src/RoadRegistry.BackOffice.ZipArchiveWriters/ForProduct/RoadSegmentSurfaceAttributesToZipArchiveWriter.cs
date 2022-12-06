@@ -3,10 +3,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;
-using Product.Schema.RoadSegments;
 
 public class RoadSegmentSurfaceAttributesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
 {

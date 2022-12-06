@@ -7,10 +7,10 @@ using System.Text;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Dbase.Organizations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
-using Schema.Organizations;
 
 public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
 {

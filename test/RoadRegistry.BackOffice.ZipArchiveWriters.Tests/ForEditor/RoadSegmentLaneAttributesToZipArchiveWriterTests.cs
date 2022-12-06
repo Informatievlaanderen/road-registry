@@ -3,8 +3,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForEditor;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase.RoadSegments;
 using Editor.Schema;
-using Editor.Schema.RoadSegments;
 using Framework.Containers;
 using ZipArchiveWriters.ForEditor;
 

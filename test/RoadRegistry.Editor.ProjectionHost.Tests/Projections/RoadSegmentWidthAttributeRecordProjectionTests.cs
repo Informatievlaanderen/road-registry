@@ -4,8 +4,8 @@ using System.Text;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
+using Dbase.RoadSegments;
 using Editor.Projections;
-using Editor.Schema.RoadSegments;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 
