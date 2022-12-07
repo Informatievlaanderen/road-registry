@@ -20,6 +20,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
+    using NationalRoad;
     using Newtonsoft.Json;
     using NodaTime;
     using RoadNode;
@@ -83,6 +84,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                 })
                 .ConfigureServices((hostContext, builder) =>
                 {
+                    var runnerDbContextMigratorFactories = typeof(Program).Assembly
+                        .GetTypes()
+                        .Where(x => typeof(RunnerDbContextMigrationFactory<>).IsAssignableFrom(x))
+                        .Select(type => (IRunnerDbContextMigratorFactory)Activator.CreateInstance(type))
+                        .ToArray();
+
                     builder
                         .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
@@ -136,12 +143,24 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                             .GetService<IConfiguration>()
                                             .GetConnectionString(WellknownConnectionNames.Events)
                                     )
-                                    { Schema = WellknownSchemas.EventSchema }))
-                        .AddSingleton<IRunnerDbContextMigratorFactory[]>(
-                            new IRunnerDbContextMigratorFactory[]
-                            {
-                                new RoadNodeProducerSnapshotContextMigrationFactory()
-                            });
+                                { Schema = WellknownSchemas.EventSchema }))
+
+                        .AddSnapshotProducer<NationalRoadProducerSnapshotContext, NationalRoadRecordProjection, NationalRoadEventProcessor>(
+                            "NationalRoad",
+                            dbContextOptionsBuilder =>
+                                new NationalRoadProducerSnapshotContext(dbContextOptionsBuilder.Options),
+                            kafkaProducer =>
+                                new NationalRoadRecordProjection(kafkaProducer),
+                            connectedProjection =>
+                                NationalRoadAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, NationalRoadEventProcessor.EventMapping))
+
+                        .AddSingleton(runnerDbContextMigratorFactories);
+                    //.AddSingleton<IRunnerDbContextMigratorFactory[]>(
+                    //    new IRunnerDbContextMigratorFactory[]
+                    //    {
+                    //        new RoadNodeProducerSnapshotContextMigrationFactory(),
+                    //        new NationalRoadProducerSnapshotContextMigrationFactory()
+                    //    });
                 })
                 .Build();
 
@@ -191,6 +210,66 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
             {
                 await Log.CloseAndFlushAsync();
             }
+        }
+    }
+
+    public static class ServiceCollectionExtensions
+    {
+        public static IServiceCollection AddSnapshotProducer<TSnapshotContext, TProjection, TEventProcessor>(this IServiceCollection services,
+            string entityName,
+            Func<DbContextOptionsBuilder<TSnapshotContext>, TSnapshotContext> resolveContext,
+            Func<KafkaProducer, TProjection> resolveProjection,
+            Func<ConnectedProjection<TSnapshotContext>[], AcceptStreamMessageFilter> buildAcceptStreamMessageFilter
+        )
+            where TSnapshotContext : RunnerDbContext<TSnapshotContext>
+            where TEventProcessor : DbContextEventProcessor<TSnapshotContext>
+            where TProjection : ConnectedProjection<TSnapshotContext>
+        {
+            return services
+                .AddSingleton<Func<TSnapshotContext>>(sp =>
+                {
+                    return () =>
+                    {
+                        var configuration = sp.GetRequiredService<IConfiguration>();
+
+                        var dbContextOptionsBuilder = new DbContextOptionsBuilder<TSnapshotContext>()
+                            .UseSqlServer(
+                                configuration.GetConnectionString(WellknownConnectionNames.ProducerSnapshotProjections),
+                                options => options
+                                    .EnableRetryOnFailure()
+                                    .UseNetTopologySuite()
+                            );
+
+                        return resolveContext(dbContextOptionsBuilder);
+                    };
+                })
+                .AddSingleton(sp =>
+                {
+                    var configuration = sp.GetRequiredService<IConfiguration>();
+
+                    return new ConnectedProjection<TSnapshotContext>[]
+                    {
+                        resolveProjection(new KafkaProducer(new KafkaProducerOptions(
+                            configuration["Kafka:BootstrapServers"],
+                            configuration["Kafka:SaslUserName"],
+                            configuration["Kafka:SaslPassword"],
+                            configuration.GetRequiredValue<string>(entityName + "Topic"),
+                            true,
+                            RoadNodeEventProcessor.SerializerSettings
+                        )))
+                    };
+                })
+                .AddSingleton(sp =>
+                    Resolve
+                        .WhenEqualToHandlerMessageType(
+                            sp.GetRequiredService<ConnectedProjection<TSnapshotContext>[]>()
+                                .SelectMany(projection => projection.Handlers)
+                                .ToArray()
+                        )
+                )
+                .AddSingleton(sp => buildAcceptStreamMessageFilter(sp.GetRequiredService<ConnectedProjection<TSnapshotContext>[]>()))
+                .AddHostedService<TEventProcessor>()
+                ;
         }
     }
 }
