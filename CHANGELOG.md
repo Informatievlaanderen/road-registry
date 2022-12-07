@@ -1,3 +1,12 @@
+## [3.26.3](https://github.com/informatievlaanderen/road-registry/compare/v3.26.2...v3.26.3) (2022-12-07)
+
+
+### Bug Fixes
+
+* Add docker build steps to readme for tst/stg/prd environments ([596ce21](https://github.com/informatievlaanderen/road-registry/commit/596ce21baea667cf8f50354aa46061a1cabfd0d6))
+* Correct env variable name ([f69625a](https://github.com/informatievlaanderen/road-registry/commit/f69625a65decb861d593393b08510dd524b14a33))
+* UI env configurations ([ecb39df](https://github.com/informatievlaanderen/road-registry/commit/ecb39df16216ab3e92f73f1b14dbd14ccfb32492))
+
 ## [3.26.2](https://github.com/informatievlaanderen/road-registry/compare/v3.26.1...v3.26.2) (2022-12-07)
 
 
