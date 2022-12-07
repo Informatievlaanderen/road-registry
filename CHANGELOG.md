@@ -1,3 +1,10 @@
+## [3.26.4](https://github.com/informatievlaanderen/road-registry/compare/v3.26.3...v3.26.4) (2022-12-07)
+
+
+### Bug Fixes
+
+* Straatnaam koppelen docs ([7b988b6](https://github.com/informatievlaanderen/road-registry/commit/7b988b6bc9b2c34bb05d3835b675e51df9db1ee2))
+
 ## [3.26.3](https://github.com/informatievlaanderen/road-registry/compare/v3.26.2...v3.26.3) (2022-12-07)
 
 
