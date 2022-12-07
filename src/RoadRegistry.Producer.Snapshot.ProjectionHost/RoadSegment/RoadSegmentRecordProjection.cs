@@ -177,10 +177,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
                 BeginRoadNodeId = roadSegmentAdded.StartNodeId,
                 EndRoadNodeId = roadSegmentAdded.EndNodeId,
-                StreetNameCachePosition = streetNameCachePosition
+                StreetNameCachePosition = streetNameCachePosition,
+                LastChangedTimestamp = envelope.CreatedUtc
             };
 
-            roadSegmentRecord.LastChangedTimestamp = roadSegmentRecord.LastChangedTimestamp;
             await context.RoadSegments.AddAsync(roadSegmentRecord, token);
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
         }
@@ -260,7 +260,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             roadSegmentRecord.BeginRoadNodeId = roadSegmentModified.StartNodeId;
             roadSegmentRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
             roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
-            roadSegmentRecord.LastChangedTimestamp = roadSegmentRecord.LastChangedTimestamp;
+            roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
         }
@@ -279,7 +279,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             roadSegmentRecord.BeginApplication = null;
             roadSegmentRecord.IsRemoved = true;
-            roadSegmentRecord.LastChangedTimestamp = roadSegmentRecord.LastChangedTimestamp;
+            roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
         }
