@@ -1,3 +1,10 @@
+## [3.26.2](https://github.com/informatievlaanderen/road-registry/compare/v3.26.1...v3.26.2) (2022-12-07)
+
+
+### Bug Fixes
+
+* remove messaginghost-sqs from production release ([eebae9b](https://github.com/informatievlaanderen/road-registry/commit/eebae9b6a0f5fa1eb37a7c166b01850c3abfca44))
+
 ## [3.26.1](https://github.com/informatievlaanderen/road-registry/compare/v3.26.0...v3.26.1) (2022-12-06)
 
 
