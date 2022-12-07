@@ -9,17 +9,17 @@ using Handlers.RoadSegments;
 using Messages;
 using Microsoft.Extensions.Logging;
 
-public class UnlinkStreetNameFromRoadSegmentRequestHandlerTests : LinkUnlinkStreetNameToFromRoadSegmentTestsBase
-    <UnlinkStreetNameFromRoadSegmentRequest, UnlinkStreetNameFromRoadSegmentResponse, UnlinkStreetNameFromRoadSegmentRequestHandler>
+public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
+    <UnlinkStreetNameRequest, UnlinkStreetNameResponse, UnlinkStreetNameRequestHandler>
 {
-    public UnlinkStreetNameFromRoadSegmentRequestHandlerTests(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<UnlinkStreetNameFromRoadSegmentRequestHandler> logger)
+    public UnlinkStreetNameRequestHandlerTests(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<UnlinkStreetNameRequestHandler> logger)
         : base(commandHandlerDispatcher, logger)
     {
     }
 
-    protected override UnlinkStreetNameFromRoadSegmentRequestHandler CreateHandler(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<UnlinkStreetNameFromRoadSegmentRequestHandler> logger)
+    protected override UnlinkStreetNameRequestHandler CreateHandler(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<UnlinkStreetNameRequestHandler> logger)
     {
-        return new UnlinkStreetNameFromRoadSegmentRequestHandler(commandHandlerDispatcher, logger, Fixture.Store, RoadRegistryContext);
+        return new UnlinkStreetNameRequestHandler(commandHandlerDispatcher, logger, Fixture.Store, RoadRegistryContext);
     }
 
     [Fact]
@@ -31,7 +31,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandlerTests : LinkUnlinkStre
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() =>
         {
-            var request = new UnlinkStreetNameFromRoadSegmentRequest(1, StreetNamePuri(WellKnownStreetNameIds.Proposed), null);
+            var request = new UnlinkStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Proposed), null);
             return Handler.HandleAsync(request, CancellationToken.None);
         });
         Assert.Equal("LinkerstraatnaamNietGekoppeld", ex.Errors.Single().ErrorCode);
@@ -46,7 +46,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandlerTests : LinkUnlinkStre
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() =>
         {
-            var request = new UnlinkStreetNameFromRoadSegmentRequest(1, StreetNamePuri(WellKnownStreetNameIds.Current), null);
+            var request = new UnlinkStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Current), null);
             return Handler.HandleAsync(request, CancellationToken.None);
         });
         Assert.Equal("LinkerstraatnaamNietGekoppeld", ex.Errors.Single().ErrorCode);
@@ -59,7 +59,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandlerTests : LinkUnlinkStre
 
         await GivenSegment1Added();
 
-        var request = new UnlinkStreetNameFromRoadSegmentRequest(1, StreetNamePuri(WellKnownStreetNameIds.Proposed), null);
+        var request = new UnlinkStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Proposed), null);
         await Handler.HandleAsync(request, CancellationToken.None);
 
         var command = await Fixture.Store.GetLastCommand<ChangeRoadNetwork>();
@@ -76,7 +76,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandlerTests : LinkUnlinkStre
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() =>
         {
-            var request = new UnlinkStreetNameFromRoadSegmentRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Proposed));
+            var request = new UnlinkStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Proposed));
             return Handler.HandleAsync(request, CancellationToken.None);
         });
         Assert.Equal("RechterstraatnaamNietGekoppeld", ex.Errors.Single().ErrorCode);
@@ -91,7 +91,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandlerTests : LinkUnlinkStre
 
         var ex = await Assert.ThrowsAsync<ValidationException>(() =>
         {
-            var request = new UnlinkStreetNameFromRoadSegmentRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Current));
+            var request = new UnlinkStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Current));
             return Handler.HandleAsync(request, CancellationToken.None);
         });
         Assert.Equal("RechterstraatnaamNietGekoppeld", ex.Errors.Single().ErrorCode);
@@ -104,7 +104,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandlerTests : LinkUnlinkStre
 
         await GivenSegment1Added();
 
-        var request = new UnlinkStreetNameFromRoadSegmentRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Proposed));
+        var request = new UnlinkStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Proposed));
         await Handler.HandleAsync(request, CancellationToken.None);
 
         var command = await Fixture.Store.GetLastCommand<ChangeRoadNetwork>();
@@ -119,7 +119,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandlerTests : LinkUnlinkStre
 
         await Assert.ThrowsAsync<RoadSegmentNotFoundException>(() =>
         {
-            var request = new UnlinkStreetNameFromRoadSegmentRequest(int.MaxValue, StreetNamePuri(99999), null);
+            var request = new UnlinkStreetNameRequest(int.MaxValue, StreetNamePuri(99999), null);
             return Handler.HandleAsync(request, CancellationToken.None);
         });
     }

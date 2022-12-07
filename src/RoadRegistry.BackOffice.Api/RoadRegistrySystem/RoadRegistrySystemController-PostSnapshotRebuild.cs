@@ -21,12 +21,7 @@ public partial class RoadRegistrySystemController
         }
 
         var parameters = new RebuildSnapshotParameters { StartFromVersion = request?.StartFromVersion ?? 0 };
-        var validationResult = await validator.ValidateAsync(parameters, HttpContext.RequestAborted);
-
-        if (!validationResult.IsValid)
-        {
-            return BadRequest();
-        }
+        await validator.ValidateAndThrowAsync(parameters, HttpContext.RequestAborted);
 
         var command = new RebuildRoadNetworkSnapshot
         {

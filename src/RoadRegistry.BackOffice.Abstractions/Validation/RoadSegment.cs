@@ -6,7 +6,7 @@ namespace RoadRegistry.BackOffice.Abstractions.Validation
         {
             public static class NotFound
             {
-                public const string Code = "NotFound";
+                public const string Code = Common.NotFound.Code;
                 public const string Message = "Onbestaand wegsegment.";
             }
 

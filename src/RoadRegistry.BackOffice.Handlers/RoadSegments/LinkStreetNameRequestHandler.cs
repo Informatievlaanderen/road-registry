@@ -15,22 +15,25 @@ using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
-public class UnlinkStreetNameFromRoadSegmentRequestHandler : EndpointRequestHandler<UnlinkStreetNameFromRoadSegmentRequest, UnlinkStreetNameFromRoadSegmentResponse>
+public class LinkStreetNameRequestHandler : EndpointRequestHandler<LinkStreetNameRequest, LinkStreetNameResponse>
 {
     private readonly IRoadRegistryContext _roadRegistryContext;
     private readonly IStreamStore _store;
+    private readonly IStreetNameCache _streetNameCache;
 
-    public UnlinkStreetNameFromRoadSegmentRequestHandler(CommandHandlerDispatcher dispatcher,
-        ILogger<UnlinkStreetNameFromRoadSegmentRequestHandler> logger,
+    public LinkStreetNameRequestHandler(CommandHandlerDispatcher dispatcher,
+        ILogger<LinkStreetNameRequestHandler> logger,
         IStreamStore store,
-        IRoadRegistryContext roadRegistryContext)
+        IRoadRegistryContext roadRegistryContext,
+        IStreetNameCache streetNameCache)
         : base(dispatcher, logger)
     {
         _store = store;
         _roadRegistryContext = roadRegistryContext;
+        _streetNameCache = streetNameCache;
     }
 
-    public override async Task<UnlinkStreetNameFromRoadSegmentResponse> HandleAsync(UnlinkStreetNameFromRoadSegmentRequest request, CancellationToken cancellationToken)
+    public override async Task<LinkStreetNameResponse> HandleAsync(LinkStreetNameRequest request, CancellationToken cancellationToken)
     {
         var roadNetwork = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
         var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.WegsegmentId));
@@ -42,7 +45,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandler : EndpointRequestHand
         var translatedChanges = TranslatedChanges.Empty
             .WithOrganization(new OrganizationId("AGIV"))
             .WithOperatorName(OperatorName.Unknown)
-            .WithReason(new Reason("Straatnaam ontkoppelen"));
+            .WithReason(new Reason("Straatnaam koppelen"));
 
         var recordNumber = RecordNumber.Initial;
 
@@ -51,13 +54,15 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandler : EndpointRequestHand
 
         if (leftStreetNameId > 0)
         {
-            if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
+            if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId))
             {
                 throw ValidationError(nameof(request.LinkerstraatnaamId),
-                    ValidationErrors.RoadSegment.LeftStreetNameIsNotLinked.Message(request.WegsegmentId, request.LinkerstraatnaamId!),
-                    ValidationErrors.RoadSegment.LeftStreetNameIsNotLinked.Code);
+                    ValidationErrors.RoadSegment.LeftStreetNameIsNotUnlinked.Message(request.WegsegmentId),
+                    ValidationErrors.RoadSegment.LeftStreetNameIsNotUnlinked.Code);
             }
-            
+
+            await ValidateStreetName(nameof(request.LinkerstraatnaamId), leftStreetNameId, cancellationToken);
+
             translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                 recordNumber,
                 roadSegment.Id,
@@ -69,19 +74,21 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandler : EndpointRequestHand
                 roadSegment.AttributeHash.Status,
                 roadSegment.AttributeHash.Category,
                 roadSegment.AttributeHash.AccessRestriction,
-                null,
+                new CrabStreetnameId(leftStreetNameId),
                 roadSegment.AttributeHash.RightStreetNameId
             ).WithGeometry(roadSegment.Geometry));
         }
         else if (rightStreetNameId > 0)
         {
-            if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
+            if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
             {
                 throw ValidationError(nameof(request.RechterstraatnaamId),
-                    ValidationErrors.RoadSegment.RightStreetNameIsNotLinked.Message(request.WegsegmentId, request.RechterstraatnaamId!),
-                    ValidationErrors.RoadSegment.RightStreetNameIsNotLinked.Code);
+                    ValidationErrors.RoadSegment.RightStreetNameIsNotUnlinked.Message(request.WegsegmentId),
+                    ValidationErrors.RoadSegment.RightStreetNameIsNotUnlinked.Code);
             }
-            
+
+            await ValidateStreetName(nameof(request.RechterstraatnaamId), rightStreetNameId, cancellationToken);
+
             translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                 recordNumber,
                 roadSegment.Id,
@@ -94,7 +101,7 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandler : EndpointRequestHand
                 roadSegment.AttributeHash.Category,
                 roadSegment.AttributeHash.AccessRestriction,
                 roadSegment.AttributeHash.LeftStreetNameId,
-                null
+                new CrabStreetnameId(rightStreetNameId)
             ).WithGeometry(roadSegment.Geometry));
         }
         else
@@ -125,9 +132,28 @@ public class UnlinkStreetNameFromRoadSegmentRequestHandler : EndpointRequestHand
         var queue = new RoadNetworkCommandQueue(_store);
         await queue.Write(command, cancellationToken);
 
-        return new UnlinkStreetNameFromRoadSegmentResponse(messageId);
+        return new LinkStreetNameResponse();
     }
-    
+
+    private async Task ValidateStreetName(string propertyName, int streetNameId, CancellationToken cancellationToken)
+    {
+        var streetNameStatuses = await _streetNameCache.GetStreetNameStatusesById(new[] { streetNameId }, cancellationToken);
+        if (!streetNameStatuses.TryGetValue(streetNameId, out var streetNameStatus))
+        {
+            throw ValidationError(propertyName,
+                ValidationErrors.StreetName.NotFound.Message,
+                ValidationErrors.StreetName.NotFound.Code);
+        }
+
+        if (!string.Equals(streetNameStatus,"proposed", StringComparison.InvariantCultureIgnoreCase)
+            && !string.Equals(streetNameStatus, "current", StringComparison.InvariantCultureIgnoreCase))
+        {
+            throw ValidationError(propertyName,
+                ValidationErrors.RoadSegment.StreetNameIsNotProposedOrCurrent.Message,
+                ValidationErrors.RoadSegment.StreetNameIsNotProposedOrCurrent.Code);
+        }
+    }
+
     private ValidationException ValidationError(string propertyName, string errorMessage, string errorCode)
     {
         return new ValidationException(new[]

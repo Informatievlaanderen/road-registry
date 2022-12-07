@@ -10,6 +10,7 @@ public static class RoadNetworkCommands
         typeof(ChangeRoadNetwork),
         typeof(RequestRoadNetworkExtract),
         typeof(RebuildRoadNetworkSnapshot),
+        typeof(RebuildRoadNetworkSnapshotCompleted),
         typeof(CreateOrganization),
         typeof(CreateOrganizationRejected),
         typeof(DeleteOrganization),

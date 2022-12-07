@@ -52,6 +52,7 @@ nuget Structurizr.Client 0.9.7
 nuget Structurizr.Core 0.9.7
 nuget Swashbuckle.AspNetCore 6.2.3
 nuget Swashbuckle.AspNetCore.Annotations 6.2.3
+nuget Swashbuckle.AspNetCore.Filters 6.0.1
 nuget Swashbuckle.AspNetCore.Swagger 6.2.3
 nuget Swashbuckle.AspNetCore.SwaggerGen 6.2.3
 nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
