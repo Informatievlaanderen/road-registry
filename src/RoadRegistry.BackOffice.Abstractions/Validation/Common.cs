@@ -6,6 +6,11 @@ namespace RoadRegistry.BackOffice.Abstractions.Validation
     {
         public static class Common
         {
+            public static class NotFound
+            {
+                public const string Code = "NotFound";
+            }
+
             public static class IncorrectObjectId
             {
                 public const string Code = "IncorrectObjectId";

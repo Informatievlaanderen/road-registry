@@ -33,7 +33,7 @@ public partial class RoadSegmentsController
 
         try
         {
-            var request = new UnlinkStreetNameFromRoadSegmentRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
+            var request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             var response = await _mediator.Send(request, cancellationToken);
 
             return Accepted(response);

@@ -12,12 +12,12 @@ using SqlStreamStore;
 using StreetNameConsumer.Schema;
 using AcceptedChange = Messages.AcceptedChange;
 
-public abstract class LinkUnlinkStreetNameToFromRoadSegmentTestsBase<TRequest, TResponse, THandler>
+public abstract class LinkUnlinkStreetNameTestsBase<TRequest, TResponse, THandler>
     where TRequest : EndpointRequest<TResponse>
     where TResponse : EndpointResponse
     where THandler : EndpointRequestHandler<TRequest, TResponse>
 {
-    protected LinkUnlinkStreetNameToFromRoadSegmentTestsBase(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<THandler> logger)
+    protected LinkUnlinkStreetNameTestsBase(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<THandler> logger)
     {
         var store = new InMemoryStreamStore();
         RoadRegistryContext = new RoadRegistryContext(
