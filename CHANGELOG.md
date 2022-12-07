@@ -1,3 +1,22 @@
+## [3.26.2](https://github.com/informatievlaanderen/road-registry/compare/v3.26.1...v3.26.2) (2022-12-07)
+
+
+### Bug Fixes
+
+* remove messaginghost-sqs from production release ([eebae9b](https://github.com/informatievlaanderen/road-registry/commit/eebae9b6a0f5fa1eb37a7c166b01850c3abfca44))
+
+## [3.26.1](https://github.com/informatievlaanderen/road-registry/compare/v3.26.0...v3.26.1) (2022-12-06)
+
+
+### Bug Fixes
+
+* Add paket.lock for build ([6e7804e](https://github.com/informatievlaanderen/road-registry/commit/6e7804ea828068d52c53a26517f5664becd85305))
+* Append featuretoggles to window instead of overwrite ([bc4c21a](https://github.com/informatievlaanderen/road-registry/commit/bc4c21a6ce29ad33878f9043cf10ec8f327bbd05))
+* Paket dependencies and Docker files ([#735](https://github.com/informatievlaanderen/road-registry/issues/735)) ([b37431e](https://github.com/informatievlaanderen/road-registry/commit/b37431ecca2914cc580c9d942cceed05a78ec2ae))
+* Set extract description max field length to 254 for random test failure ([8e8b18c](https://github.com/informatievlaanderen/road-registry/commit/8e8b18c2e541df5dc615cd2309430401ec79493a))
+* unify product & editor schema's ([bffdb2d](https://github.com/informatievlaanderen/road-registry/commit/bffdb2d9dd0f0e60f564241eaf7ee8b5314a8b16))
+* unify schema RoadSegments ([909078d](https://github.com/informatievlaanderen/road-registry/commit/909078dc4505b1c1305f710ec639728ea1a9ff8e))
+
 # [3.26.0](https://github.com/informatievlaanderen/road-registry/compare/v3.25.0...v3.26.0) (2022-12-05)
 
 
