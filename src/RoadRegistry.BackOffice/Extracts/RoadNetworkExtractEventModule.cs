@@ -79,7 +79,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         var blobName = new BlobName(archiveId);
         var extractDescription = message switch
         {
-            Event<RoadNetworkExtractGotRequested> v1 => string.Empty,
+            Event<RoadNetworkExtractGotRequested> => string.Empty,
             Event<RoadNetworkExtractGotRequestedV2> v2 => v2.Body.Description
         };
 
