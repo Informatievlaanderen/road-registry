@@ -12,8 +12,7 @@ using SqlStreamStore.Streams;
 
 public class Organizations : IOrganizations
 {
-    public static readonly Func<OrganizationId, StreamName> ToStreamName =
-        id => new StreamName(id.ToString()).WithPrefix("organization-");
+    public static readonly Func<OrganizationId, StreamName> ToStreamName = OrganizationId.ToStreamName;
 
     private readonly EventSourcedEntityMap _map;
     private readonly EventMapping _mapping;
@@ -31,7 +30,12 @@ public class Organizations : IOrganizations
     public async Task<Organization> FindAsync(OrganizationId id, CancellationToken ct = default)
     {
         var stream = ToStreamName(id);
-        if (_map.TryGet(stream, out var entry)) return (Organization)entry.Entity;
+        if (_map.TryGet(stream, out var entry))
+        {
+            var cachedOrganization = (Organization)entry.Entity;
+            return cachedOrganization.IsDeleted ? null : cachedOrganization;
+        }
+
         var organization = Organization.Factory();
         var page = await _store.ReadStreamForwards(stream, StreamVersion.Start, 100, ct);
         if (page.Status == PageReadStatus.StreamNotFound) return null;
@@ -59,6 +63,7 @@ public class Organizations : IOrganizations
         }
 
         _map.Attach(new EventSourcedEntityMapEntry(entity, stream, page.LastStreamVersion));
-        return organization;
+
+        return organization.IsDeleted ? null : organization;
     }
 }

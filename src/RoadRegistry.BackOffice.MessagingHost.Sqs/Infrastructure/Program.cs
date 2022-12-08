@@ -187,7 +187,6 @@ public class Program
                 hostContext.Configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
 
                 services
-                    .AddHostedService<CheckFeatureCompareDockerContainerBackgroundService>()
                     .AddHostedService<FeatureCompareMessageConsumer>()
                     .AddSingleton<Scheduler>()
                     .AddSingleton<IStreamStore>(sp =>
@@ -271,6 +270,8 @@ public class Program
                                 new SqlConnectionStringBuilder(
                                     configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
                             ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema).ConfigureAwait(false);
+
+                        Console.WriteLine("Started RoadRegistry.BackOffice.MessagingHost.Sqs");
                         await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),

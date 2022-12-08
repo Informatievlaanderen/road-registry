@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
-using Schema.RoadSegments;
 
 public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<ProductContext>
 {

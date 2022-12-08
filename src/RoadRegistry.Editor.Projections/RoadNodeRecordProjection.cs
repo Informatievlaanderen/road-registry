@@ -9,6 +9,7 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase.RoadNodes;
 using Microsoft.IO;
 using Schema;
 using Schema.RoadNodes;

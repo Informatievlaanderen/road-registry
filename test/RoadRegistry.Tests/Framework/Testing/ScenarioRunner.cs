@@ -7,7 +7,6 @@ using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Messages;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 
