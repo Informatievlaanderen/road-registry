@@ -3,10 +3,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase.GradeSeparatedJuntions;
+using Dbase.RoadNodes;
+using Dbase.RoadSegments;
 using Editor.Schema.Extracts;
-using Editor.Schema.GradeSeparatedJunctions;
-using Editor.Schema.RoadNodes;
-using Editor.Schema.RoadSegments;
 using Uploads;
 
 /// <summary>

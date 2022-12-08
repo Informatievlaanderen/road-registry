@@ -12,9 +12,12 @@ public class Organization : EventSourcedEntity
     {
         On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
         On<RenameOrganizationAccepted>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
+        On<CreateOrganizationAccepted>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
+        On<DeleteOrganizationAccepted>(e => Translation = null);
     }
 
     public DutchTranslation Translation { get; private set; }
+    public bool IsDeleted => Translation == null;
 
     public class DutchTranslation
     {
@@ -41,6 +44,14 @@ public class Organization : EventSourcedEntity
         {
             Code = Translation.Identifier,
             Name = name
+        });
+    }
+    
+    public void Delete()
+    {
+        Apply(new DeleteOrganizationAccepted()
+        {
+            Code = Translation.Identifier
         });
     }
 }
