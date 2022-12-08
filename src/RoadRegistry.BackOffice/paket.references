@@ -6,7 +6,6 @@ Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 
 AWSSDK.DynamoDBv2
-Ductus.FluentDocker
 DotSpatial.Projections
 FeatureToggle.Common
 FluentValidation
