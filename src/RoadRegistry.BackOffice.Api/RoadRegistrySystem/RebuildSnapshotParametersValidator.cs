@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.RoadRegistrySystem;
 
 using System.Threading.Tasks;
+using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentValidation;
 using SqlStreamStore.Streams;
@@ -22,6 +23,8 @@ public class RebuildSnapshotParametersValidator : AbstractValidator<RebuildSnaps
                 }
 
                 return Task.FromResult(true);
-            });
+            })
+            .WithErrorCode(ValidationErrors.Common.NotFound.Code)
+            .WithMessage(item => $"No snapshot blob found for version '{item.StartFromVersion}'");
     }
 }

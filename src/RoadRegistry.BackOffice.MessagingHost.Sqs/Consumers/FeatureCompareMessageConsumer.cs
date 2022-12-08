@@ -26,8 +26,7 @@ public class FeatureCompareMessageConsumer : ApplicationBackgroundService
         _messagingOptions = messagingOptions;
         _sqsConsumer = sqsQueueConsumer;
     }
-
-
+    
     protected override async Task ExecuteCallbackAsync(CancellationToken cancellationToken)
     {
         await _sqsConsumer.Consume(_messagingOptions.ResponseQueueUrl, async message =>

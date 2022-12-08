@@ -19,8 +19,6 @@ nuget CompareNETObjects 4.78.0
 nuget CsvHelper 29.0.0
 nuget Docker.DotNet 3.125.12
 nuget DotSpatial.Projections 4.0.656
-nuget Ductus.FluentDocker 2.10.57
-nuget Ductus.FluentDocker.Xunit 2.10.57
 nuget FeatureToggle.Common 4.0.2
 nuget FluentAssertions 6.7.0
 nuget FluentValidation 11.2.2
@@ -52,6 +50,7 @@ nuget Structurizr.Client 0.9.7
 nuget Structurizr.Core 0.9.7
 nuget Swashbuckle.AspNetCore 6.2.3
 nuget Swashbuckle.AspNetCore.Annotations 6.2.3
+nuget Swashbuckle.AspNetCore.Filters 6.0.1
 nuget Swashbuckle.AspNetCore.Swagger 6.2.3
 nuget Swashbuckle.AspNetCore.SwaggerGen 6.2.3
 nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
