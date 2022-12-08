@@ -255,6 +255,8 @@ public class Program
                                 new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
                             ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema).ConfigureAwait(false);
                         await blobClient.ProvisionResources(host).ConfigureAwait(false);
+
+                        Console.WriteLine("Started RoadRegistry.BackOffice.EventHost");
                         await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),

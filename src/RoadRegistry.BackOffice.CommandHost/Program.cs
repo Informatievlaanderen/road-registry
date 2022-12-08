@@ -257,6 +257,8 @@ public class Program
                                 new SqlConnectionStringBuilder(
                                     configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
                             ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema).ConfigureAwait(false);
+
+                        Console.WriteLine("Started RoadRegistry.BackOffice.CommandHost");
                         await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),

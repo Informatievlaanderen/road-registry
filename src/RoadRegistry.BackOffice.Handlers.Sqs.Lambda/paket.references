@@ -4,5 +4,4 @@ Be.Vlaanderen.Basisregisters.EventHandling
 Amazon.Lambda.Serialization.SystemTextJson
 Autofac.Extensions.DependencyInjection
 AWSSDK.Core
-Ductus.FluentDocker
 Microsoft.Extensions.DependencyInjection

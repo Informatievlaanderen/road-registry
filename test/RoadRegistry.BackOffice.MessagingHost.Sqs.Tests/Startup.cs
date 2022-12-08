@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Tests;
 
-using Abstractions.Configuration;
 using Amazon;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;

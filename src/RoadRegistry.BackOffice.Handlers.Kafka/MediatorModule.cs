@@ -2,12 +2,7 @@ namespace RoadRegistry.BackOffice.Handlers.Kafka;
 
 using Abstractions;
 using Autofac;
-using Be.Vlaanderen.Basisregisters.Projector;
-using Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections;
-using Extensions;
 using MediatR.Pipeline;
-using RoadRegistry.StreetNameConsumer.Projections;
-using RoadRegistry.StreetNameConsumer.Schema;
 
 public class MediatorModule : Module
 {

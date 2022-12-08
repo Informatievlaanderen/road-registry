@@ -9,7 +9,6 @@ using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
 using Producer.Snapshot.ProjectionHost.RoadNode;
-using Producer.Snapshot.ProjectionHost.Schema;
 using Xunit.Sdk;
 
 public class MemoryRoadNodeProducerSnapshotContext : RoadNodeProducerSnapshotContext
