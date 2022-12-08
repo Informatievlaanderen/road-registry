@@ -19,8 +19,6 @@ nuget CompareNETObjects 4.78.0
 nuget CsvHelper 29.0.0
 nuget Docker.DotNet 3.125.12
 nuget DotSpatial.Projections 4.0.656
-nuget Ductus.FluentDocker 2.10.57
-nuget Ductus.FluentDocker.Xunit 2.10.57
 nuget FeatureToggle.Common 4.0.2
 nuget FluentAssertions 6.7.0
 nuget FluentValidation 11.2.2
