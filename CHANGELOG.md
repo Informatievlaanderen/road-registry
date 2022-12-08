@@ -1,3 +1,64 @@
+## [3.26.5](https://github.com/informatievlaanderen/road-registry/compare/v3.26.4...v3.26.5) (2022-12-08)
+
+
+### Bug Fixes
+
+* remove feature-compare container start system ([#745](https://github.com/informatievlaanderen/road-registry/issues/745)) ([f9ff724](https://github.com/informatievlaanderen/road-registry/commit/f9ff724660c1d92353f9d71e63f91e8b3ac814a9))
+
+## [3.26.4](https://github.com/informatievlaanderen/road-registry/compare/v3.26.3...v3.26.4) (2022-12-07)
+
+
+### Bug Fixes
+
+* Straatnaam koppelen docs ([7b988b6](https://github.com/informatievlaanderen/road-registry/commit/7b988b6bc9b2c34bb05d3835b675e51df9db1ee2))
+
+## [3.26.3](https://github.com/informatievlaanderen/road-registry/compare/v3.26.2...v3.26.3) (2022-12-07)
+
+
+### Bug Fixes
+
+* Add docker build steps to readme for tst/stg/prd environments ([596ce21](https://github.com/informatievlaanderen/road-registry/commit/596ce21baea667cf8f50354aa46061a1cabfd0d6))
+* Correct env variable name ([f69625a](https://github.com/informatievlaanderen/road-registry/commit/f69625a65decb861d593393b08510dd524b14a33))
+* UI env configurations ([ecb39df](https://github.com/informatievlaanderen/road-registry/commit/ecb39df16216ab3e92f73f1b14dbd14ccfb32492))
+
+## [3.26.2](https://github.com/informatievlaanderen/road-registry/compare/v3.26.1...v3.26.2) (2022-12-07)
+
+
+### Bug Fixes
+
+* remove messaginghost-sqs from production release ([eebae9b](https://github.com/informatievlaanderen/road-registry/commit/eebae9b6a0f5fa1eb37a7c166b01850c3abfca44))
+
+## [3.26.1](https://github.com/informatievlaanderen/road-registry/compare/v3.26.0...v3.26.1) (2022-12-06)
+
+
+### Bug Fixes
+
+* Add paket.lock for build ([6e7804e](https://github.com/informatievlaanderen/road-registry/commit/6e7804ea828068d52c53a26517f5664becd85305))
+* Append featuretoggles to window instead of overwrite ([bc4c21a](https://github.com/informatievlaanderen/road-registry/commit/bc4c21a6ce29ad33878f9043cf10ec8f327bbd05))
+* Paket dependencies and Docker files ([#735](https://github.com/informatievlaanderen/road-registry/issues/735)) ([b37431e](https://github.com/informatievlaanderen/road-registry/commit/b37431ecca2914cc580c9d942cceed05a78ec2ae))
+* Set extract description max field length to 254 for random test failure ([8e8b18c](https://github.com/informatievlaanderen/road-registry/commit/8e8b18c2e541df5dc615cd2309430401ec79493a))
+* unify product & editor schema's ([bffdb2d](https://github.com/informatievlaanderen/road-registry/commit/bffdb2d9dd0f0e60f564241eaf7ee8b5314a8b16))
+* unify schema RoadSegments ([909078d](https://github.com/informatievlaanderen/road-registry/commit/909078dc4505b1c1305f710ec639728ea1a9ff8e))
+
+# [3.26.0](https://github.com/informatievlaanderen/road-registry/compare/v3.25.0...v3.26.0) (2022-12-05)
+
+
+### Features
+
+* Add endpoints to create/delete organizations ([b43ba21](https://github.com/informatievlaanderen/road-registry/commit/b43ba21094cd75f9ac1e5da30a1361f092c8bee0))
+
+# [3.25.0](https://github.com/informatievlaanderen/road-registry/compare/v3.24.3...v3.25.0) (2022-12-02)
+
+
+### Bug Fixes
+
+* change dependabot.yml for less noise ([3f4ee4f](https://github.com/informatievlaanderen/road-registry/commit/3f4ee4fc9a89a78b60fa7364ca9760a1c657cb0d))
+
+
+### Features
+
+* Unlink street name from road segment ([c3844c2](https://github.com/informatievlaanderen/road-registry/commit/c3844c228c29adfc74d72f5ed2c2eba9a44e2d45))
+
 ## [3.24.3](https://github.com/informatievlaanderen/road-registry/compare/v3.24.2...v3.24.3) (2022-12-01)
 
 

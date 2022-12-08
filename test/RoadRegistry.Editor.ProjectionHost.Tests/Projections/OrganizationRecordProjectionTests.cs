@@ -4,8 +4,8 @@ using System.Text;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
+using Dbase.Organizations;
 using Editor.Projections;
-using Editor.Schema.Organizations;
 using Microsoft.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
@@ -91,5 +91,40 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
             .Scenario()
             .Given(importedOrganization, renameOrganizationAccepted)
             .Expect(expected);
+    }
+
+    [Fact]
+    public Task When_organization_is_created()
+    {
+        var createOrganizationAccepted = new CreateOrganizationAccepted { Code = "ABC", Name = "Alphabet" };
+
+        var expected = new OrganizationRecord
+        {
+            Id = 1,
+            Code = "ABC",
+            SortableCode = OrganizationRecordProjection.GetSortableCodeFor("ABC"),
+            DbaseRecord = new OrganizationDbaseRecord
+            {
+                ORG = { Value = "ABC" },
+                LBLORG = { Value = "Alphabet" }
+            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+        };
+
+        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            .Scenario()
+            .Given(createOrganizationAccepted)
+            .Expect(expected);
+    }
+
+    [Fact]
+    public Task When_organization_is_deleted()
+    {
+        var createOrganizationAccepted = new CreateOrganizationAccepted { Code = "ABC", Name = "Alphabet" };
+        var deleteOrganizationAccepted = new DeleteOrganizationAccepted { Code = "ABC" };
+        
+        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            .Scenario()
+            .Given(createOrganizationAccepted, deleteOrganizationAccepted)
+            .Expect(Enumerable.Empty<OrganizationRecord>());
     }
 }

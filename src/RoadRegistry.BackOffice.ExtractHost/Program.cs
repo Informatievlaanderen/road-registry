@@ -290,6 +290,8 @@ public class Program
                                 new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.ExtractHostAdmin))
                             ).CreateSchemaIfNotExists(WellknownSchemas.ExtractHostSchema).ConfigureAwait(false);
                         await blobClient.ProvisionResources(host).ConfigureAwait(false);
+
+                        Console.WriteLine("Started {0}", typeof(Program).Namespace);
                         await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),

@@ -9,7 +9,6 @@ using Framework;
 using Infrastructure;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiVersion(Version.Current)]

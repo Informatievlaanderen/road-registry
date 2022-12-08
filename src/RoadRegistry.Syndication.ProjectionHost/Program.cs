@@ -187,6 +187,7 @@ public class Program
                         await migratorFactory.CreateMigrator(configuration, loggerFactory)
                             .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
 
+                        Console.WriteLine("Started RoadRegistry.Syndication.ProjectionHost");
                         await host.RunAsync().ConfigureAwait(false);
                     },
                     DistributedLockOptions.LoadFromConfiguration(configuration),

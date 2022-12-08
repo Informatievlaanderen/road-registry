@@ -1,5 +1,6 @@
 namespace RoadRegistry.Product.Schema.Organizations;
 
+using Dbase.Organizations;
 using Hosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

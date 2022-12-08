@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using RoadNode;
 using RoadRegistry.Tests.Framework.Containers;
-using Schema;
 
 public class SqlServer : ISqlServerDatabase
 {

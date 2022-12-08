@@ -4,6 +4,7 @@ using System.Text;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
+using Dbase.GradeSeparatedJuntions;
 using Microsoft.IO;
 using Product.Projections;
 using RoadRegistry.Tests.BackOffice;
