@@ -150,7 +150,7 @@ public class ExtractScenarios : RoadRegistryFixture
     }
 
     [Fact]
-    public Task when_announcing_a_requested_road_network_extract_download_timeout_ocurred()
+    public Task when_announcing_a_requested_road_network_extract_download_timeout_occurred()
     {
         var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);

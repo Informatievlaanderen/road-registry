@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Core;
 using Framework;
 using Messages;
 using Microsoft.Data.SqlClient;
