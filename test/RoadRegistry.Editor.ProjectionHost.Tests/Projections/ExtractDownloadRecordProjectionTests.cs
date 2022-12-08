@@ -63,6 +63,23 @@ public class ExtractDownloadRecordProjectionTests
                     )
                     .OmitAutoProperties()
         );
+        _fixture.Customize<RoadNetworkExtractDownloadTimeoutOccurred>(
+            customization =>
+                customization
+                    .FromFactory(generator =>
+                        {
+                            var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
+                            return new RoadNetworkExtractDownloadTimeoutOccurred
+                            {
+                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
+                                ExternalRequestId = externalRequestId,
+                                Description = _fixture.Create<ExtractDescription>(),
+                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                            };
+                        }
+                    )
+                    .OmitAutoProperties()
+        );
     }
 
     [Fact]
