@@ -81,6 +81,9 @@ public static class EnrichEvent
                 case RoadNetworkExtractDownloadBecameAvailable m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
+                case RoadNetworkExtractDownloadTimeoutOccurred m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
                 case RoadNetworkExtractChangesArchiveUploaded m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
