@@ -2,7 +2,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 {
     using System;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
-    using NetTopologySuite.Geometries;
     using Schema;
 
     public class NationalRoadRecord
@@ -43,14 +42,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
         {
             return new NationalRoadSnapshot(
                 Id,
-                Type,
-                Geometry.ToBinary(),
-                Geometry.ToText(),
-                Geometry.SRID,
+                RoadSegmentId,
+                Number,
                 Origin.BeginTime,
                 Origin.Organization,
                 LastChangedTimestamp,
-                IsRemoved);
+                IsRemoved
+            );
         }
     }
 }

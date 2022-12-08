@@ -1,15 +1,13 @@
 namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
 {
     using System;
-    using Utilities.HexByteConvertor;
 
     public class NationalRoadSnapshot : IQueueMessage
     {
-        public int Id { get; }
-        public string Type { get; }
-        public string ExtendedWkbGeometryAsHex { get; }
-        public string WktGeometry { get; }
-        public int GeometrySrid { get; }
+        public int Id { get; set; }
+        public int RoadSegmentId { get; set; }
+        public string Number { get; set; }
+
         public DateTimeOffset? BeginTime { get; }
         public string Organization { get; }
         public DateTimeOffset LastChangedTimestamp { get; }
@@ -17,20 +15,16 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
 
         public NationalRoadSnapshot(
             int id,
-            string type,
-            byte[] extendedWkbGeometry,
-            string wktGeometry,
-            int geometrySrid,
+            int roadSegmentId,
+            string number,
             DateTimeOffset? beginTime,
             string organization,
             DateTimeOffset lastChangedTimestamp,
             bool isRemoved)
         {
             Id = id;
-            Type = type;
-            ExtendedWkbGeometryAsHex = extendedWkbGeometry.ToHexString();
-            WktGeometry = wktGeometry;
-            GeometrySrid = geometrySrid;
+            RoadSegmentId = roadSegmentId;
+            Number = number;
             BeginTime = beginTime;
             Organization = organization;
             LastChangedTimestamp = lastChangedTimestamp;
