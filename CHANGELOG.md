@@ -1,3 +1,10 @@
+## [3.26.5](https://github.com/informatievlaanderen/road-registry/compare/v3.26.4...v3.26.5) (2022-12-08)
+
+
+### Bug Fixes
+
+* remove feature-compare container start system ([#745](https://github.com/informatievlaanderen/road-registry/issues/745)) ([f9ff724](https://github.com/informatievlaanderen/road-registry/commit/f9ff724660c1d92353f9d71e63f91e8b3ac814a9))
+
 ## [3.26.4](https://github.com/informatievlaanderen/road-registry/compare/v3.26.3...v3.26.4) (2022-12-07)
 
 
