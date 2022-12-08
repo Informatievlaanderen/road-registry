@@ -35,13 +35,17 @@ public class RoadNetworkExtract : EventSourcedEntity
             _extractDescription = new ExtractDescription(e.Description);
             _requestedDownloads.Add(new DownloadId(e.DownloadId));
         });
+        On<RoadNetworkExtractDownloadTimeoutOccurred>(e => {
+            Id = ExtractRequestId.FromString(e.RequestId);
+            _extractDescription = new ExtractDescription(e.Description);
+        });
         On<RoadNetworkExtractDownloadBecameAvailable>(e => { _announcedDownloads.Add(new DownloadId(e.DownloadId)); });
         On<RoadNetworkExtractChangesArchiveUploaded>(e => { _knownUploads.Add(new UploadId(e.UploadId)); });
     }
 
     public ExtractRequestId Id { get; private set; }
 
-    public void Announce(DownloadId downloadId, ArchiveId archiveId)
+    public void AnnounceAvailable(DownloadId downloadId, ArchiveId archiveId)
     {
         if (_requestedDownloads.Contains(downloadId) && !_announcedDownloads.Contains(downloadId))
             Apply(new RoadNetworkExtractDownloadBecameAvailable
@@ -52,6 +56,15 @@ public class RoadNetworkExtract : EventSourcedEntity
                 DownloadId = downloadId,
                 ArchiveId = archiveId
             });
+    }
+
+    public void AnnounceTimeoutOccurred()
+    {
+        Apply(new RoadNetworkExtractDownloadTimeoutOccurred
+        {
+            RequestId = Id.ToString(),
+            Description = _extractDescription,
+        });
     }
 
     public static RoadNetworkExtract Request(

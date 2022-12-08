@@ -3,9 +3,11 @@ namespace RoadRegistry.BackOffice.Extracts;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
 using Messages;
+using Microsoft.Data.SqlClient;
 using Polly;
 using SqlStreamStore;
 using Uploads;
@@ -45,12 +47,12 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 if (blobExists)
                 {
                     var command = new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
-                        {
-                            RequestId = message.Body.RequestId,
-                            DownloadId = message.Body.DownloadId,
-                            //Revision = revision,
-                            ArchiveId = archiveId
-                        })
+                    {
+                        RequestId = message.Body.RequestId,
+                        DownloadId = message.Body.DownloadId,
+                        //Revision = revision,
+                        ArchiveId = archiveId
+                    })
                         .WithMessageId(message.MessageId);
                     await queue.Write(command, ct);
                 }
@@ -61,28 +63,40 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                         new DownloadId(message.Body.DownloadId),
                         new ExtractDescription(string.Empty),
                         GeometryTranslator.Translate(message.Body.Contour));
-                    using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
+
+                    try
                     {
-                        content.Position = 0L;
-
-                        await downloadsBlobClient.CreateBlobAsync(
-                            new BlobName(archiveId),
-                            Metadata.None,
-                            // .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("Revision"), revision.ToInt32().ToString(CultureInfo.InvariantCulture))),
-                            ContentType.Parse("application/x-zip-compressed"),
-                            content,
-                            ct);
-                    }
-
-                    var command = new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
+                        using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
                         {
-                            RequestId = message.Body.RequestId,
-                            DownloadId = message.Body.DownloadId,
-                            //Revision = revision,
-                            ArchiveId = archiveId
-                        })
-                        .WithMessageId(message.MessageId);
-                    await queue.Write(command, ct);
+                            content.Position = 0L;
+
+                            await downloadsBlobClient.CreateBlobAsync(
+                                new BlobName(archiveId),
+                                Metadata.None,
+                                ContentType.Parse("application/x-zip-compressed"),
+                                content,
+                                ct);
+                        }
+
+                        await queue.Write(new Command(
+                                new AnnounceRoadNetworkExtractDownloadBecameAvailable
+                                {
+                                    RequestId = message.Body.RequestId,
+                                    DownloadId = message.Body.DownloadId,
+                                    //Revision = revision,
+                                    ArchiveId = archiveId
+                                })
+                            .WithMessageId(message.MessageId), ct);
+                    }
+                    catch (SqlException ex) when (ex.Number.Equals(-2))
+                    {
+                        await queue.Write(new Command(
+                            new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
+                                {
+                                    RequestId = message.Body.RequestId,
+                                })
+                            .WithMessageId(message.MessageId), ct);
+                    }
                 }
             });
 
@@ -105,15 +119,15 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
 
                 if (blobExists)
                 {
-                    var command = new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
-                        {
-                            RequestId = message.Body.RequestId,
-                            DownloadId = message.Body.DownloadId,
-                            //Revision = revision,
-                            ArchiveId = archiveId
-                        })
-                        .WithMessageId(message.MessageId);
-                    await queue.Write(command, ct);
+                    await queue.Write(new Command(
+                            new AnnounceRoadNetworkExtractDownloadBecameAvailable
+                            {
+                                RequestId = message.Body.RequestId,
+                                DownloadId = message.Body.DownloadId,
+                                //Revision = revision,
+                                ArchiveId = archiveId
+                            })
+                        .WithMessageId(message.MessageId), ct);
                 }
                 else
                 {
@@ -122,28 +136,40 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                         new DownloadId(message.Body.DownloadId),
                         new ExtractDescription(message.Body.Description),
                         GeometryTranslator.Translate(message.Body.Contour));
-                    using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
+
+                    try
                     {
-                        content.Position = 0L;
-
-                        await downloadsBlobClient.CreateBlobAsync(
-                            new BlobName(archiveId),
-                            Metadata.None,
-                            // .Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("Revision"), revision.ToInt32().ToString(CultureInfo.InvariantCulture))),
-                            ContentType.Parse("application/x-zip-compressed"),
-                            content,
-                            ct);
-                    }
-
-                    var command = new Command(new AnnounceRoadNetworkExtractDownloadBecameAvailable
+                        using (var content = await assembler.AssembleArchive(request, ct)) //(content, revision)
                         {
-                            RequestId = message.Body.RequestId,
-                            DownloadId = message.Body.DownloadId,
-                            //Revision = revision,
-                            ArchiveId = archiveId
-                        })
-                        .WithMessageId(message.MessageId);
-                    await queue.Write(command, ct);
+                            content.Position = 0L;
+
+                            await downloadsBlobClient.CreateBlobAsync(
+                                new BlobName(archiveId),
+                                Metadata.None,
+                                ContentType.Parse("application/x-zip-compressed"),
+                                content,
+                                ct);
+                        }
+
+                        await queue.Write(new Command(
+                            new AnnounceRoadNetworkExtractDownloadBecameAvailable
+                            {
+                                RequestId = message.Body.RequestId,
+                                DownloadId = message.Body.DownloadId,
+                                //Revision = revision,
+                                ArchiveId = archiveId
+                            })
+                            .WithMessageId(message.MessageId), ct);
+                    }
+                    catch (SqlException ex) when (ex.Number.Equals(-2))
+                    {
+                        await queue.Write(new Command(
+                            new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
+                            {
+                                RequestId = message.Body.RequestId,
+                            })
+                            .WithMessageId(message.MessageId), ct);
+                    }
                 }
             });
 
@@ -168,13 +194,13 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                     }
 
                     var command = new Command(new ChangeRoadNetwork
-                        {
-                            RequestId = requestId,
-                            Changes = requestedChanges.ToArray(),
-                            Reason = translatedChanges.Reason,
-                            Operator = translatedChanges.Operator,
-                            OrganizationId = translatedChanges.Organization
-                        })
+                    {
+                        RequestId = requestId,
+                        Changes = requestedChanges.ToArray(),
+                        Reason = translatedChanges.Reason,
+                        Operator = translatedChanges.Operator,
+                        OrganizationId = translatedChanges.Organization
+                    })
                         .WithMessageId(message.MessageId);
 
                     await queue.Write(command, ct);

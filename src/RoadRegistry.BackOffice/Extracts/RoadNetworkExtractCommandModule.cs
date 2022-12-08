@@ -55,7 +55,16 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var downloadId = new DownloadId(message.Body.DownloadId);
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
-                extract.Announce(downloadId, archiveId);
+                extract.AnnounceAvailable(downloadId, archiveId);
+            });
+
+        For<AnnounceRoadNetworkExtractDownloadTimeoutOccurred>()
+            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
+            .Handle(async (context, message, ct) =>
+            {
+                var requestId = ExtractRequestId.FromString(message.Body.RequestId);
+                var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
+                extract.AnnounceTimeoutOccurred();
             });
 
         For<UploadRoadNetworkExtractChangesArchive>()
