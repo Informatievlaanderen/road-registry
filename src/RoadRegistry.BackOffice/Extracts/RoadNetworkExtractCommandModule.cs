@@ -19,11 +19,11 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         IZipArchiveAfterFeatureCompareValidator validator,
         IClock clock)
     {
-        if (uploadsBlobClient == null) throw new ArgumentNullException(nameof(uploadsBlobClient));
-        if (store == null) throw new ArgumentNullException(nameof(store));
-        if (validator == null) throw new ArgumentNullException(nameof(validator));
-        if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
-        if (clock == null) throw new ArgumentNullException(nameof(clock));
+        ArgumentNullException.ThrowIfNull(uploadsBlobClient);
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(snapshotReader);
+        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(clock);
 
         For<RequestRoadNetworkExtract>()
             .UseValidator(new RequestRoadNetworkExtractValidator())

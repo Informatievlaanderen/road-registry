@@ -63,6 +63,7 @@ public class RoadNetworkExtract : EventSourcedEntity
         Apply(new RoadNetworkExtractDownloadTimeoutOccurred
         {
             RequestId = Id.ToString(),
+            ExternalRequestId = _externalExtractRequestId,
             Description = _extractDescription,
         });
     }
