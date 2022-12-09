@@ -59,7 +59,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
 
         var created = DateTimeOffset.UtcNow;
-
+        
         var expectedRecords = Array.ConvertAll(message.Changes, change =>
         {
             var roadSegmentAdded = change.RoadSegmentAdded;
@@ -110,7 +110,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 RightSideMunicipalityId = null,
                 RightSideMunicipalityNisCode = null,
-                RightSideStreetNameId = 0,
+                RightSideStreetNameId = roadSegmentAdded?.RightSide?.StreetNameId,
                 RightSideStreetName = null,
 
                 RoadSegmentVersion = roadSegmentAdded.Version,
@@ -209,12 +209,12 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 LeftSideMunicipalityId = null,
                 LeftSideMunicipalityNisCode = null,
-                LeftSideStreetNameId = roadSegmentModified?.LeftSide?.StreetNameId,
+                LeftSideStreetNameId = roadSegmentModified.LeftSide?.StreetNameId,
                 LeftSideStreetName = null,
 
                 RightSideMunicipalityId = null,
                 RightSideMunicipalityNisCode = null,
-                RightSideStreetNameId = 0,
+                RightSideStreetNameId = roadSegmentModified.RightSide?.StreetNameId,
                 RightSideStreetName = null,
 
                 RoadSegmentVersion = roadSegmentModified.Version,
@@ -270,17 +270,17 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
         var expectedRecords = Array.ConvertAll(acceptedRoadSegmentAdded.Changes, change =>
         {
-            var RoadSegmentAdded = change.RoadSegmentAdded;
+            var roadSegmentAdded = change.RoadSegmentAdded;
             var transactionId = new TransactionId(acceptedRoadSegmentAdded.TransactionId);
-            var method = RoadSegmentGeometryDrawMethod.Parse(RoadSegmentAdded.GeometryDrawMethod);
-            var accessRestriction = RoadSegmentAccessRestriction.Parse(RoadSegmentAdded.AccessRestriction);
-            var status = RoadSegmentStatus.Parse(RoadSegmentAdded.Status);
-            var morphology = RoadSegmentMorphology.Parse(RoadSegmentAdded.Morphology);
-            var category = RoadSegmentCategory.Parse(RoadSegmentAdded.Category);
+            var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
+            var status = RoadSegmentStatus.Parse(roadSegmentAdded.Status);
+            var morphology = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology);
+            var category = RoadSegmentCategory.Parse(roadSegmentAdded.Category);
 
             return (object)new RoadSegmentRecord
             {
-                Id = RoadSegmentAdded.Id,
+                Id = roadSegmentAdded.Id,
 
                 BeginOperator = acceptedRoadSegmentAdded.Operator,
                 BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
@@ -288,8 +288,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
                 BeginApplication = null,
 
-                MaintainerId = RoadSegmentAdded.MaintenanceAuthority.Code,
-                MaintainerName = RoadSegmentAdded.MaintenanceAuthority.Name,
+                MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
+                MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
 
                 MethodId = method.Translation.Identifier,
                 MethodDutchName = method.Translation.Name,
@@ -297,8 +297,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 CategoryId = category.Translation.Identifier,
                 CategoryDutchName = category.Translation.Name,
 
-                Geometry = GeometryTranslator.Translate(RoadSegmentAdded.Geometry),
-                GeometryVersion = RoadSegmentAdded.GeometryVersion,
+                Geometry = GeometryTranslator.Translate(roadSegmentAdded.Geometry),
+                GeometryVersion = roadSegmentAdded.GeometryVersion,
 
                 MorphologyId = morphology.Translation.Identifier,
                 MorphologyDutchName = morphology.Translation.Name,
@@ -314,18 +314,18 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 LeftSideMunicipalityId = null,
                 LeftSideMunicipalityNisCode = null,
-                LeftSideStreetNameId = RoadSegmentAdded.LeftSide.StreetNameId,
+                LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
                 LeftSideStreetName = null,
 
                 RightSideMunicipalityId = null,
                 RightSideMunicipalityNisCode = null,
-                RightSideStreetNameId = 0,
+                RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
                 RightSideStreetName = null,
 
-                RoadSegmentVersion = RoadSegmentAdded.Version,
+                RoadSegmentVersion = roadSegmentAdded.Version,
 
-                BeginRoadNodeId = RoadSegmentAdded.StartNodeId,
-                EndRoadNodeId = RoadSegmentAdded.EndNodeId,
+                BeginRoadNodeId = roadSegmentAdded.StartNodeId,
+                EndRoadNodeId = roadSegmentAdded.EndNodeId,
                 StreetNameCachePosition = 0L,
                 LastChangedTimestamp = created.AddDays(-1),
                 IsRemoved = true
@@ -334,9 +334,9 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
         expectedRecords = Array.ConvertAll(acceptedRoadSegmentRemoved.Changes, change =>
         {
-            var RoadSegmentRemoved = change.RoadSegmentRemoved;
+            var roadSegmentRemoved = change.RoadSegmentRemoved;
 
-            var roadSegmentRecord = expectedRecords.Cast<RoadSegmentRecord>().Single(x => x.Id == RoadSegmentRemoved.Id);
+            var roadSegmentRecord = expectedRecords.Cast<RoadSegmentRecord>().Single(x => x.Id == roadSegmentRemoved.Id);
             roadSegmentRecord.BeginOperator = acceptedRoadSegmentRemoved.Operator;
             roadSegmentRecord.BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId;
             roadSegmentRecord.BeginOrganizationName = acceptedRoadSegmentRemoved.Organization;
