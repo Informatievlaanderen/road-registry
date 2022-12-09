@@ -22,8 +22,8 @@ public static class WellknownSchemas
     public const string RoadNodeProducerSnapshotMetaSchema = "RoadRegistryRoadNodeProducerSnapshotMeta";
     public const string RoadNodeProducerSnapshotSchema = "RoadRegistryRoadNodeProducerSnapshot";
 
-    public const string NationalRoadProducerSnapshotMetaSchema = "NationalRoadProducerSnapshotMetaSchema";
-    public const string NationalRoadProducerSnapshotSchema = "NationalRoadProducerSnapshotSchema";
+    public const string NationalRoadProducerSnapshotMetaSchema = "RoadRegistryNationalRoadProducerSnapshotMetaSchema";
+    public const string NationalRoadProducerSnapshotSchema = "RoadRegistryNationalRoadProducerSnapshotSchema";
     
 }
 

@@ -10,14 +10,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.NationalRoadP
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
-                name: "NationalRoadProducerSnapshotSchema");
+                name: "RoadRegistryNationalRoadProducerSnapshotSchema");
 
             migrationBuilder.EnsureSchema(
-                name: "NationalRoadProducerSnapshotMetaSchema");
+                name: "RoadRegistryNationalRoadProducerSnapshotMetaSchema");
 
             migrationBuilder.CreateTable(
                 name: "NationalRoad",
-                schema: "NationalRoadProducerSnapshotSchema",
+                schema: "RoadRegistryNationalRoadProducerSnapshotSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
@@ -36,7 +36,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.NationalRoadP
 
             migrationBuilder.CreateTable(
                 name: "ProjectionStates",
-                schema: "NationalRoadProducerSnapshotMetaSchema",
+                schema: "RoadRegistryNationalRoadProducerSnapshotMetaSchema",
                 columns: table => new
                 {
                     Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -56,11 +56,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.NationalRoadP
         {
             migrationBuilder.DropTable(
                 name: "NationalRoad",
-                schema: "NationalRoadProducerSnapshotSchema");
+                schema: "RoadRegistryNationalRoadProducerSnapshotSchema");
 
             migrationBuilder.DropTable(
                 name: "ProjectionStates",
-                schema: "NationalRoadProducerSnapshotMetaSchema");
+                schema: "RoadRegistryNationalRoadProducerSnapshotMetaSchema");
         }
     }
 }

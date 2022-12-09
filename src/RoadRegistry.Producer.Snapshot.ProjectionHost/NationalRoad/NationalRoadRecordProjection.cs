@@ -5,11 +5,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using BackOffice;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-    using Dbase.RoadSegments;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Projections;
 
     public class NationalRoadRecordProjection : ConnectedProjection<NationalRoadProducerSnapshotContext>
@@ -20,30 +19,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
         {
             _kafkaProducer = kafkaProducer;
 
-            When<Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<ImportedRoadSegment>>(ImportedRoadSegment);
-
-            When<Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, token) =>
-            {
-                foreach (var change in envelope.Message.Changes.Flatten())
-                {
-                    switch (change)
-                    {
-                        case RoadSegmentAddedToNationalRoad nationalRoad:
-                            await RoadSegmentAddedToNationalRoad(context, envelope, nationalRoad, token);
-                            break;
-                        case RoadSegmentRemovedFromNationalRoad nationalRoad:
-                            await RoadSegmentRemovedFromNationalRoad(context, envelope, nationalRoad, token);
-                            break;
-                        case RoadSegmentRemoved roadSegment:
-                            await RoadSegmentRemoved(context, envelope, roadSegment, token);
-                            break;
-                    }
-                }
-            });
+            When<Envelope<ImportedRoadSegment>>(ImportedRoadSegment);
+            When<Envelope<RoadNetworkChangesAccepted>>(RoadNetworkChangesAccepted);
         }
 
-        private async Task ImportedRoadSegment(NationalRoadProducerSnapshotContext context, Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<ImportedRoadSegment> envelope,
-            CancellationToken token)
+        private async Task ImportedRoadSegment(NationalRoadProducerSnapshotContext context, Envelope<ImportedRoadSegment> envelope, CancellationToken token)
         {
             if (envelope.Message.PartOfNationalRoads.Length == 0)
             {
@@ -65,11 +45,30 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             {
                 var nationalRoadRecord = await context.NationalRoads.AddAsync(nationalRoad, token);
 
-                await Produce(envelope.Message.Id, nationalRoadRecord.Entity.ToContract(), token);
+                await Produce(nationalRoadRecord.Entity.Id, nationalRoadRecord.Entity.ToContract(), token);
             }
         }
 
-        private async Task RoadSegmentAddedToNationalRoad(NationalRoadProducerSnapshotContext context, Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
+        private async Task RoadNetworkChangesAccepted(NationalRoadProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope, CancellationToken token)
+        {
+            foreach (var change in envelope.Message.Changes.Flatten())
+            {
+                switch (change)
+                {
+                    case RoadSegmentAddedToNationalRoad nationalRoad:
+                        await RoadSegmentAddedToNationalRoad(context, envelope, nationalRoad, token);
+                        break;
+                    case RoadSegmentRemovedFromNationalRoad nationalRoad:
+                        await RoadSegmentRemovedFromNationalRoad(context, envelope, nationalRoad, token);
+                        break;
+                    case RoadSegmentRemoved roadSegment:
+                        await RoadSegmentRemoved(context, envelope, roadSegment, token);
+                        break;
+                }
+            }
+        }
+
+        private async Task RoadSegmentAddedToNationalRoad(NationalRoadProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentAddedToNationalRoad nationalRoadAdded,
             CancellationToken token)
         {
@@ -87,7 +86,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 
         private async Task RoadSegmentRemovedFromNationalRoad(
             NationalRoadProducerSnapshotContext context,
-            Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
+            Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentRemovedFromNationalRoad nationalRoadRemoved,
             CancellationToken token)
         {
@@ -96,16 +95,16 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 
         private async Task RoadSegmentRemoved(
             NationalRoadProducerSnapshotContext context,
-            Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
+            Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentRemoved roadSegment,
             CancellationToken token)
         {
             var nationalRoadRecords =
                 context.NationalRoads
                     .Local
-                    .Where(x => x.Id == roadSegment.Id)
+                    .Where(x => x.RoadSegmentId == roadSegment.Id)
                     .Concat(context.NationalRoads
-                        .Where(x => x.Id == roadSegment.Id));
+                        .Where(x => x.RoadSegmentId == roadSegment.Id));
 
             foreach (var nationalRoadRecord in nationalRoadRecords)
             {
@@ -115,7 +114,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 
         private async Task RemovedNationalRoadById(
             NationalRoadProducerSnapshotContext context,
-            Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Envelope<RoadNetworkChangesAccepted> envelope,
+            Envelope<RoadNetworkChangesAccepted> envelope,
             int nationalRoadId,
             CancellationToken token)
         {

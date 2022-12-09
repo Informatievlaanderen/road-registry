@@ -8,13 +8,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
     using Be.Vlaanderen.Basisregisters.EventHandling;
-    using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Hosts;
     using Hosts.Metadata;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -24,10 +21,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using Newtonsoft.Json;
     using NodaTime;
     using RoadNode;
+    using RoadRegistry.Producer.Snapshot.ProjectionHost.Extensions;
     using Serilog;
     using Serilog.Debugging;
     using SqlStreamStore;
-    using KafkaProducer = Projections.KafkaProducer;
 
     public class Program
     {
@@ -84,58 +81,18 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                 })
                 .ConfigureServices((hostContext, builder) =>
                 {
-                    var runnerDbContextMigratorFactories = typeof(Program).Assembly
-                        .GetTypes()
-                        .Where(x => typeof(RunnerDbContextMigrationFactory<>).IsAssignableFrom(x))
-                        .Select(type => (IRunnerDbContextMigratorFactory)Activator.CreateInstance(type))
-                        .ToArray();
+                    var runnerDbContextMigratorFactories = CreateRunnerDbContextMigratorFactories();
 
                     builder
                         .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddTransient<Scheduler>()
-                        .AddHostedService<RoadNodeEventProcessor>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
                         .AddSingleton(new EnvelopeFactory(
                             RoadNodeEventProcessor.EventMapping,
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, RoadNodeEventProcessor.SerializerSettings)))
                         )
-                        .AddSingleton(() =>
-                            new RoadNodeProducerSnapshotContext(
-                                new DbContextOptionsBuilder<RoadNodeProducerSnapshotContext>()
-                                    .UseSqlServer(
-                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.ProducerSnapshotProjections),
-                                        options => options
-                                            .EnableRetryOnFailure()
-                                            .UseNetTopologySuite()
-                                    ).Options)
-                        )
-                        .AddSingleton(sp =>
-                        {
-                            var config = sp.GetRequiredService<IConfiguration>();
-
-                            return new ConnectedProjection<RoadNodeProducerSnapshotContext>[]
-                            {
-                                new RoadNodeRecordProjection(new KafkaProducer(new KafkaProducerOptions(
-                                    config["Kafka:BootstrapServers"],
-                                    config["Kafka:SaslUserName"],
-                                    config["Kafka:SaslPassword"],
-                                    config["RoadNodeTopic"] ?? throw new ArgumentException($"Configuration has no value for RoadNodeTopic"),
-                                    true,
-                                    RoadNodeEventProcessor.SerializerSettings
-                                )))
-                            };
-                        })
-                        .AddSingleton(sp =>
-                            Resolve
-                                .WhenEqualToHandlerMessageType(
-                                    sp.GetRequiredService<ConnectedProjection<RoadNodeProducerSnapshotContext>[]>()
-                                        .SelectMany(projection => projection.Handlers)
-                                        .ToArray()
-                                )
-                        )
-                        .AddSingleton(sp => RoadNodeAcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<RoadNodeProducerSnapshotContext>[]>(), RoadNodeEventProcessor.EventMapping))
                         .AddTransient<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
                                 new MsSqlStreamStoreV3Settings(
@@ -145,6 +102,15 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                     )
                                 { Schema = WellknownSchemas.EventSchema }))
 
+                        .AddSnapshotProducer<RoadNodeProducerSnapshotContext, RoadNodeRecordProjection, RoadNodeEventProcessor>(
+                            "RoadNode",
+                            dbContextOptionsBuilder =>
+                                new RoadNodeProducerSnapshotContext(dbContextOptionsBuilder.Options),
+                            kafkaProducer =>
+                                new RoadNodeRecordProjection(kafkaProducer),
+                            connectedProjection =>
+                                RoadNodeAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadNodeEventProcessor.EventMapping)
+                        )
                         .AddSnapshotProducer<NationalRoadProducerSnapshotContext, NationalRoadRecordProjection, NationalRoadEventProcessor>(
                             "NationalRoad",
                             dbContextOptionsBuilder =>
@@ -155,12 +121,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                 NationalRoadAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, NationalRoadEventProcessor.EventMapping))
 
                         .AddSingleton(runnerDbContextMigratorFactories);
-                    //.AddSingleton<IRunnerDbContextMigratorFactory[]>(
-                    //    new IRunnerDbContextMigratorFactory[]
-                    //    {
-                    //        new RoadNodeProducerSnapshotContextMigrationFactory(),
-                    //        new NationalRoadProducerSnapshotContextMigrationFactory()
-                    //    });
                 })
                 .Build();
 
@@ -211,65 +171,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                 await Log.CloseAndFlushAsync();
             }
         }
-    }
 
-    public static class ServiceCollectionExtensions
-    {
-        public static IServiceCollection AddSnapshotProducer<TSnapshotContext, TProjection, TEventProcessor>(this IServiceCollection services,
-            string entityName,
-            Func<DbContextOptionsBuilder<TSnapshotContext>, TSnapshotContext> resolveContext,
-            Func<KafkaProducer, TProjection> resolveProjection,
-            Func<ConnectedProjection<TSnapshotContext>[], AcceptStreamMessageFilter> buildAcceptStreamMessageFilter
-        )
-            where TSnapshotContext : RunnerDbContext<TSnapshotContext>
-            where TEventProcessor : DbContextEventProcessor<TSnapshotContext>
-            where TProjection : ConnectedProjection<TSnapshotContext>
+        private static IRunnerDbContextMigratorFactory[] CreateRunnerDbContextMigratorFactories()
         {
-            return services
-                .AddSingleton<Func<TSnapshotContext>>(sp =>
-                {
-                    return () =>
-                    {
-                        var configuration = sp.GetRequiredService<IConfiguration>();
-
-                        var dbContextOptionsBuilder = new DbContextOptionsBuilder<TSnapshotContext>()
-                            .UseSqlServer(
-                                configuration.GetConnectionString(WellknownConnectionNames.ProducerSnapshotProjections),
-                                options => options
-                                    .EnableRetryOnFailure()
-                                    .UseNetTopologySuite()
-                            );
-
-                        return resolveContext(dbContextOptionsBuilder);
-                    };
-                })
-                .AddSingleton(sp =>
-                {
-                    var configuration = sp.GetRequiredService<IConfiguration>();
-
-                    return new ConnectedProjection<TSnapshotContext>[]
-                    {
-                        resolveProjection(new KafkaProducer(new KafkaProducerOptions(
-                            configuration["Kafka:BootstrapServers"],
-                            configuration["Kafka:SaslUserName"],
-                            configuration["Kafka:SaslPassword"],
-                            configuration.GetRequiredValue<string>(entityName + "Topic"),
-                            true,
-                            RoadNodeEventProcessor.SerializerSettings
-                        )))
-                    };
-                })
-                .AddSingleton(sp =>
-                    Resolve
-                        .WhenEqualToHandlerMessageType(
-                            sp.GetRequiredService<ConnectedProjection<TSnapshotContext>[]>()
-                                .SelectMany(projection => projection.Handlers)
-                                .ToArray()
-                        )
-                )
-                .AddSingleton(sp => buildAcceptStreamMessageFilter(sp.GetRequiredService<ConnectedProjection<TSnapshotContext>[]>()))
-                .AddHostedService<TEventProcessor>()
-                ;
+            return typeof(Program).Assembly
+                .GetTypes()
+                .Where(x => !x.IsAbstract && typeof(IRunnerDbContextMigratorFactory).IsAssignableFrom(x))
+                .Select(type => (IRunnerDbContextMigratorFactory)Activator.CreateInstance(type))
+                .ToArray();
         }
     }
 }
