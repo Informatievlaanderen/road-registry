@@ -67,12 +67,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                         TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
 
                         LeftSideMunicipalityId = null,
-                        LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode,
+                        LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode ??
+                                                      envelope.Message.LeftSide.MunicipalityNISCode,
                         LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
                         LeftSideStreetName = leftSideStreetNameRecord?.DutchNameWithHomonymAddition ??
                                              envelope.Message.LeftSide.StreetName,
                         RightSideMunicipalityId = null,
-                        RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode,
+                        RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode ??
+                                                       envelope.Message.RightSide.MunicipalityNISCode,
                         RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
                         RightSideStreetName = rightSideStreetNameRecord?.DutchNameWithHomonymAddition ??
                                               envelope.Message.RightSide.StreetName,

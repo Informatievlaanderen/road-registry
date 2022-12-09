@@ -56,8 +56,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         var message = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
-
-
+        
         var created = DateTimeOffset.UtcNow;
         
         var expectedRecords = Array.ConvertAll(message.Changes, change =>
@@ -105,12 +104,12 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
                 LeftSideMunicipalityId = null,
                 LeftSideMunicipalityNisCode = null,
-                LeftSideStreetNameId = roadSegmentAdded?.LeftSide?.StreetNameId,
+                LeftSideStreetNameId = roadSegmentAdded.LeftSide?.StreetNameId,
                 LeftSideStreetName = null,
 
                 RightSideMunicipalityId = null,
                 RightSideMunicipalityNisCode = null,
-                RightSideStreetNameId = roadSegmentAdded?.RightSide?.StreetNameId,
+                RightSideStreetNameId = roadSegmentAdded.RightSide?.StreetNameId,
                 RightSideStreetName = null,
 
                 RoadSegmentVersion = roadSegmentAdded.Version,
@@ -383,22 +382,22 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             .Select(@event =>
             {
                 @event.When = _fixture.Create<DateTime>().ToString("yyyy-MM-ddTHH:mm:ss.ffffffZ");
+                @event.Origin.TransactionId = _fixture.Create<TransactionId>();
 
-                var transactionId = _fixture.Create<TransactionId>();
                 var method = RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod);
                 var accessRestriction = RoadSegmentAccessRestriction.Parse(@event.AccessRestriction);
                 var status = RoadSegmentStatus.Parse(@event.Status);
                 var morphology = RoadSegmentMorphology.Parse(@event.Morphology);
                 var category = RoadSegmentCategory.Parse(@event.Category);
-
+                
                 var expectedRecord = new RoadSegmentRecord
                 {
                     Id = @event.Id,
-
+                    
                     BeginOperator = @event.Origin.Operator,
                     BeginOrganizationId = @event.Origin.OrganizationId,
                     BeginOrganizationName = @event.Origin.Organization,
-                    BeginTime = LocalDateTimeTranslator.TranslateFromWhen(@event.When),
+                    BeginTime = @event.Origin.Since,
                     BeginApplication = @event.Origin.Application,
 
                     MaintainerId = @event.MaintenanceAuthority.Code,
@@ -423,7 +422,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     AccessRestrictionDutchName = accessRestriction.Translation.Name,
 
                     RecordingDate = @event.RecordingDate,
-                    TransactionId = transactionId,
+                    TransactionId = @event.Origin.TransactionId,
 
                     LeftSideMunicipalityId = null,
                     LeftSideMunicipalityNisCode = @event.LeftSide.MunicipalityNISCode,
@@ -440,7 +439,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     BeginRoadNodeId = @event.StartNodeId,
                     EndRoadNodeId = @event.EndNodeId,
                     StreetNameCachePosition = 0L,
-                    LastChangedTimestamp = created.AddDays(-1),
+                    LastChangedTimestamp = created,
                     IsRemoved = false
                 };
 
