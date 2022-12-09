@@ -1,0 +1,480 @@
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
+
+using System.Globalization;
+using AutoFixture;
+using BackOffice;
+using BackOffice.Framework;
+using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Moq;
+using ProjectionHost.Projections;
+using RoadSegment;
+using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Uploads;
+using RoadRegistry.Tests.Framework.Projections;
+using Syndication.Schema;
+
+public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
+{
+    private readonly Fixture _fixture;
+    private readonly ProjectionTestServices _services;
+
+    public RoadSegmentRecordProjectionTests(ProjectionTestServices services)
+    {
+        _services = services ?? throw new ArgumentNullException(nameof(services));
+
+        _fixture = new Fixture();
+        _fixture.CustomizeArchiveId();
+        _fixture.CustomizeOperatorName();
+        _fixture.CustomizeOriginProperties();
+        _fixture.CustomizeRoadSegmentId();
+        _fixture.CustomizeRoadSegmentMorphology();
+        _fixture.CustomizeRoadSegmentStatus();
+        _fixture.CustomizeOrganizationId();
+        _fixture.CustomizeOrganizationName();
+        _fixture.CustomizeRoadSegmentAccessRestriction();
+        _fixture.CustomizeRoadSegmentCategory();
+        _fixture.CustomizeRoadSegmentGeometryDrawMethod();
+        _fixture.CustomizeRoadSegmentGeometryVersion();
+        _fixture.CustomizeRoadSegmentPosition();
+        _fixture.CustomizeMultiPolygon();
+        _fixture.CustomizePolylineM();
+        _fixture.CustomizeImportedRoadSegment();
+        _fixture.CustomizeRoadNetworkChangesAccepted();
+        _fixture.CustomizeCrabStreetnameId();
+        _fixture.CustomizeImportedRoadSegmentSideAttributes();
+
+        _fixture.CustomizeRoadSegmentAdded();
+        _fixture.CustomizeRoadSegmentModified();
+        _fixture.CustomizeRoadSegmentRemoved();
+    }
+
+    [Fact]
+    public async Task When_adding_road_segment()
+    {
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
+
+
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var roadSegmentAdded = change.RoadSegmentAdded;
+            var transactionId = new TransactionId(message.TransactionId);
+            var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
+            var status = RoadSegmentStatus.Parse(roadSegmentAdded.Status);
+            var morphology = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology);
+            var category = RoadSegmentCategory.Parse(roadSegmentAdded.Category);
+
+            var roadSegmentRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentAdded.Id,
+                BeginOperator = message.Operator,
+                BeginOrganizationId = message.OrganizationId,
+                BeginOrganizationName = message.Organization,
+                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When),
+                BeginApplication = null,
+
+                MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
+                MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
+
+                MethodId = method.Translation.Identifier,
+                MethodDutchName = method.Translation.Name,
+
+                CategoryId = category.Translation.Identifier,
+                CategoryDutchName = category.Translation.Name,
+
+                Geometry = GeometryTranslator.Translate(roadSegmentAdded.Geometry),
+                GeometryVersion = roadSegmentAdded.GeometryVersion,
+
+                MorphologyId = morphology.Translation.Identifier,
+                MorphologyDutchName = morphology.Translation.Name,
+
+                StatusId = status.Translation.Identifier,
+                StatusDutchName = status.Translation.Name,
+
+                AccessRestrictionId = accessRestriction.Translation.Identifier,
+                AccessRestrictionDutchName = accessRestriction.Translation.Name,
+
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(message.When),
+                TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
+
+                LeftSideMunicipalityId = null,
+                LeftSideMunicipalityNisCode = null,
+                LeftSideStreetNameId = roadSegmentAdded?.LeftSide?.StreetNameId,
+                LeftSideStreetName = null,
+
+                RightSideMunicipalityId = null,
+                RightSideMunicipalityNisCode = null,
+                RightSideStreetNameId = 0,
+                RightSideStreetName = null,
+
+                RoadSegmentVersion = roadSegmentAdded.Version,
+
+                BeginRoadNodeId = roadSegmentAdded.StartNodeId,
+                EndRoadNodeId = roadSegmentAdded.EndNodeId,
+                StreetNameCachePosition = 0L,
+                LastChangedTimestamp = created
+            };
+            return (object)roadSegmentRecord;
+        });
+
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
+
+        var streetNameCache = new Mock<IStreetNameCache>();
+        streetNameCache
+            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
+            .ReturnsAsync((StreetNameRecord)null);
+
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(message)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+    }
+
+    [Fact]
+    public async Task When_modifying_road_segments()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentModified = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
+
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
+        {
+            var roadSegmentModified = change.RoadSegmentModified;
+            var transactionId = new TransactionId(acceptedRoadSegmentModified.TransactionId);
+            var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod);
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction);
+            var status = RoadSegmentStatus.Parse(roadSegmentModified.Status);
+            var morphology = RoadSegmentMorphology.Parse(roadSegmentModified.Morphology);
+            var category = RoadSegmentCategory.Parse(roadSegmentModified.Category);
+
+            var roadSegmentRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentModified.Id,
+                BeginOperator = acceptedRoadSegmentModified.Operator,
+                BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
+                BeginOrganizationName = acceptedRoadSegmentModified.Organization,
+                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When),
+                BeginApplication = null,
+
+                MaintainerId = roadSegmentModified.MaintenanceAuthority.Code,
+                MaintainerName = roadSegmentModified.MaintenanceAuthority.Name,
+
+                MethodId = method.Translation.Identifier,
+                MethodDutchName = method.Translation.Name,
+
+                CategoryId = category.Translation.Identifier,
+                CategoryDutchName = category.Translation.Name,
+
+                Geometry = GeometryTranslator.Translate(roadSegmentModified.Geometry),
+                GeometryVersion = roadSegmentModified.GeometryVersion,
+
+                MorphologyId = morphology.Translation.Identifier,
+                MorphologyDutchName = morphology.Translation.Name,
+
+                StatusId = status.Translation.Identifier,
+                StatusDutchName = status.Translation.Name,
+
+                AccessRestrictionId = accessRestriction.Translation.Identifier,
+                AccessRestrictionDutchName = accessRestriction.Translation.Name,
+
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When),
+                TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
+
+                LeftSideMunicipalityId = null,
+                LeftSideMunicipalityNisCode = null,
+                LeftSideStreetNameId = roadSegmentModified?.LeftSide?.StreetNameId,
+                LeftSideStreetName = null,
+
+                RightSideMunicipalityId = null,
+                RightSideMunicipalityNisCode = null,
+                RightSideStreetNameId = 0,
+                RightSideStreetName = null,
+
+                RoadSegmentVersion = roadSegmentModified.Version,
+
+                BeginRoadNodeId = roadSegmentModified.StartNodeId,
+                EndRoadNodeId = roadSegmentModified.EndNodeId,
+                StreetNameCachePosition = 0L,
+                LastChangedTimestamp = created
+            };
+            return (object)roadSegmentRecord;
+        });
+
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
+
+        var streetNameCache = new Mock<IStreetNameCache>();
+        streetNameCache
+            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
+            .ReturnsAsync((StreetNameRecord)null);
+
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+    }
+
+    [Fact]
+    public async Task When_removing_road_segments()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemoved>());
+
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentAdded.Changes, change =>
+        {
+            var RoadSegmentAdded = change.RoadSegmentAdded;
+            var transactionId = new TransactionId(acceptedRoadSegmentAdded.TransactionId);
+            var method = RoadSegmentGeometryDrawMethod.Parse(RoadSegmentAdded.GeometryDrawMethod);
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(RoadSegmentAdded.AccessRestriction);
+            var status = RoadSegmentStatus.Parse(RoadSegmentAdded.Status);
+            var morphology = RoadSegmentMorphology.Parse(RoadSegmentAdded.Morphology);
+            var category = RoadSegmentCategory.Parse(RoadSegmentAdded.Category);
+
+            return (object)new RoadSegmentRecord
+            {
+                Id = RoadSegmentAdded.Id,
+
+                BeginOperator = acceptedRoadSegmentAdded.Operator,
+                BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+                BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
+                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                BeginApplication = null,
+
+                MaintainerId = RoadSegmentAdded.MaintenanceAuthority.Code,
+                MaintainerName = RoadSegmentAdded.MaintenanceAuthority.Name,
+
+                MethodId = method.Translation.Identifier,
+                MethodDutchName = method.Translation.Name,
+
+                CategoryId = category.Translation.Identifier,
+                CategoryDutchName = category.Translation.Name,
+
+                Geometry = GeometryTranslator.Translate(RoadSegmentAdded.Geometry),
+                GeometryVersion = RoadSegmentAdded.GeometryVersion,
+
+                MorphologyId = morphology.Translation.Identifier,
+                MorphologyDutchName = morphology.Translation.Name,
+
+                StatusId = status.Translation.Identifier,
+                StatusDutchName = status.Translation.Name,
+
+                AccessRestrictionId = accessRestriction.Translation.Identifier,
+                AccessRestrictionDutchName = accessRestriction.Translation.Name,
+
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
+
+                LeftSideMunicipalityId = null,
+                LeftSideMunicipalityNisCode = null,
+                LeftSideStreetNameId = RoadSegmentAdded.LeftSide.StreetNameId,
+                LeftSideStreetName = null,
+
+                RightSideMunicipalityId = null,
+                RightSideMunicipalityNisCode = null,
+                RightSideStreetNameId = 0,
+                RightSideStreetName = null,
+
+                RoadSegmentVersion = RoadSegmentAdded.Version,
+
+                BeginRoadNodeId = RoadSegmentAdded.StartNodeId,
+                EndRoadNodeId = RoadSegmentAdded.EndNodeId,
+                StreetNameCachePosition = 0L,
+                LastChangedTimestamp = created.AddDays(-1),
+                IsRemoved = true
+            };
+        });
+
+        expectedRecords = Array.ConvertAll(acceptedRoadSegmentRemoved.Changes, change =>
+        {
+            var RoadSegmentRemoved = change.RoadSegmentRemoved;
+
+            var roadSegmentRecord = expectedRecords.Cast<RoadSegmentRecord>().Single(x => x.Id == RoadSegmentRemoved.Id);
+            roadSegmentRecord.BeginOperator = acceptedRoadSegmentRemoved.Operator;
+            roadSegmentRecord.BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId;
+            roadSegmentRecord.BeginOrganizationName = acceptedRoadSegmentRemoved.Organization;
+            roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When);
+            roadSegmentRecord.BeginApplication = null;
+            roadSegmentRecord.IsRemoved = true;
+            roadSegmentRecord.LastChangedTimestamp = created;
+            return (object)roadSegmentRecord;
+        });
+
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
+
+        var streetNameCache = new Mock<IStreetNameCache>();
+        streetNameCache
+            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
+            .ReturnsAsync((StreetNameRecord)null);
+
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+    }
+
+    [Fact]
+    public async Task When_road_segments_were_imported()
+    {
+        var created = DateTimeOffset.UtcNow;
+
+        var data = _fixture
+            .CreateMany<ImportedRoadSegment>(new Random().Next(1, 100))
+            .Select(@event =>
+            {
+                @event.When = _fixture.Create<DateTime>().ToString("yyyy-MM-ddTHH:mm:ss.ffffffZ");
+
+                var transactionId = _fixture.Create<TransactionId>();
+                var method = RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod);
+                var accessRestriction = RoadSegmentAccessRestriction.Parse(@event.AccessRestriction);
+                var status = RoadSegmentStatus.Parse(@event.Status);
+                var morphology = RoadSegmentMorphology.Parse(@event.Morphology);
+                var category = RoadSegmentCategory.Parse(@event.Category);
+
+                var expectedRecord = new RoadSegmentRecord
+                {
+                    Id = @event.Id,
+
+                    BeginOperator = @event.Origin.Operator,
+                    BeginOrganizationId = @event.Origin.OrganizationId,
+                    BeginOrganizationName = @event.Origin.Organization,
+                    BeginTime = LocalDateTimeTranslator.TranslateFromWhen(@event.When),
+                    BeginApplication = @event.Origin.Application,
+
+                    MaintainerId = @event.MaintenanceAuthority.Code,
+                    MaintainerName = @event.MaintenanceAuthority.Name,
+
+                    MethodId = method.Translation.Identifier,
+                    MethodDutchName = method.Translation.Name,
+
+                    CategoryId = category.Translation.Identifier,
+                    CategoryDutchName = category.Translation.Name,
+
+                    Geometry = GeometryTranslator.Translate(@event.Geometry),
+                    GeometryVersion = @event.GeometryVersion,
+
+                    MorphologyId = morphology.Translation.Identifier,
+                    MorphologyDutchName = morphology.Translation.Name,
+
+                    StatusId = status.Translation.Identifier,
+                    StatusDutchName = status.Translation.Name,
+
+                    AccessRestrictionId = accessRestriction.Translation.Identifier,
+                    AccessRestrictionDutchName = accessRestriction.Translation.Name,
+
+                    RecordingDate = @event.RecordingDate,
+                    TransactionId = transactionId,
+
+                    LeftSideMunicipalityId = null,
+                    LeftSideMunicipalityNisCode = @event.LeftSide.MunicipalityNISCode,
+                    LeftSideStreetNameId = @event.LeftSide.StreetNameId,
+                    LeftSideStreetName = @event.LeftSide.StreetName,
+
+                    RightSideMunicipalityId = null,
+                    RightSideMunicipalityNisCode = @event.RightSide.MunicipalityNISCode,
+                    RightSideStreetNameId = @event.RightSide.StreetNameId,
+                    RightSideStreetName = @event.RightSide.StreetName,
+
+                    RoadSegmentVersion = @event.Version,
+
+                    BeginRoadNodeId = @event.StartNodeId,
+                    EndRoadNodeId = @event.EndNodeId,
+                    StreetNameCachePosition = 0L,
+                    LastChangedTimestamp = created.AddDays(-1),
+                    IsRemoved = false
+                };
+
+                return new
+                {
+                    ImportedRoadSegment = @event,
+                    ExpectedRecord = expectedRecord
+                };
+            }).ToList();
+
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
+
+        var streetNameCache = new Mock<IStreetNameCache>();
+        streetNameCache
+            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
+            .ReturnsAsync((StreetNameRecord)null);
+
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(data.Select(d => d.ImportedRoadSegment))
+            .Expect(created.UtcDateTime, data.Select(d => d.ExpectedRecord));
+
+
+        foreach (var expectedRecord in data.AsReadOnly().Select(x => x.ExpectedRecord))
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+    }
+}
