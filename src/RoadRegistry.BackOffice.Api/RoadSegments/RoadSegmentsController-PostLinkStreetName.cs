@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Abstractions.Validation;
-using Amazon.S3.Model;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using FeatureToggles;
 using Microsoft.AspNetCore.Http;
