@@ -14,11 +14,17 @@ using Swashbuckle.AspNetCore.Filters;
 public partial class RoadSegmentsController
 {
     [HttpPost("{id}/acties/straatnaamkoppelen")]
-    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(LinkStreetNameResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+    [SwaggerResponseHeader(StatusCodes.Status200OK, "ETag", "string", "De ETag van de response.")]
+    [SwaggerResponseHeader(StatusCodes.Status200OK, "x-correlation-id", "string", "Correlatie identificator van de response.")]
+    [SwaggerResponseExample(StatusCodes.Status200OK, typeof(LinkStreetNameResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status429TooManyRequests, typeof(TooManyRequestsResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     public async Task<IActionResult> PostLinkStreetName(
         [FromServices] UseRoadSegmentLinkStreetNameFeatureToggle featureToggle,
@@ -36,7 +42,7 @@ public partial class RoadSegmentsController
             var request = new LinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             var response = await _mediator.Send(request, cancellationToken);
 
-            return Accepted(response);
+            return Ok(response);
         }
         catch (RoadSegmentNotFoundException)
         {

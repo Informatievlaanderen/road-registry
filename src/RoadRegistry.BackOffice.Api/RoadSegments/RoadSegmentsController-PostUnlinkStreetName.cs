@@ -14,8 +14,9 @@ using Swashbuckle.AspNetCore.Filters;
 public partial class RoadSegmentsController
 {
     [HttpPost("{id}/acties/straatnaamontkoppelen")]
-    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
@@ -36,7 +37,7 @@ public partial class RoadSegmentsController
             var request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             var response = await _mediator.Send(request, cancellationToken);
 
-            return Accepted(response);
+            return Ok(response);
         }
         catch (RoadSegmentNotFoundException)
         {
