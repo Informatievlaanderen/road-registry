@@ -18,4 +18,12 @@ public static class OurSystem
             ArchiveId = archiveId
         });
     }
+
+    public static Command AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(ExtractRequestId requestId)
+    {
+        return new Command(new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
+        {
+            RequestId = requestId,
+        });
+    }
 }

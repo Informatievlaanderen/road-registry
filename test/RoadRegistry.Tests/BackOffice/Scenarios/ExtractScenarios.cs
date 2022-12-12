@@ -150,6 +150,37 @@ public class ExtractScenarios : RoadRegistryFixture
     }
 
     [Fact]
+    public Task when_announcing_a_requested_road_network_extract_download_timeout_occurred()
+    {
+        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+        var extractDescription = Fixture.Create<ExtractDescription>();
+        var downloadId = Fixture.Create<DownloadId>();
+        var archiveId = Fixture.Create<ArchiveId>();
+        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+
+        return Run(scenario => scenario
+            .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
+            {
+                RequestId = extractRequestId,
+                ExternalRequestId = externalExtractRequestId,
+                DownloadId = downloadId,
+                Contour = contour,
+                Description = extractDescription,
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(extractRequestId))
+            .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractDownloadTimeoutOccurred
+            {
+                RequestId = extractRequestId,
+                ExternalRequestId = externalExtractRequestId,
+                Description = extractDescription,
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+        );
+    }
+
+    [Fact]
     public Task when_requesting_an_extract_again_with_a_different_download_id()
     {
         var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();

@@ -187,7 +187,6 @@ public class Program
                 hostContext.Configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
 
                 services
-                    .AddHostedService<CheckFeatureCompareDockerContainerBackgroundService>()
                     .AddHostedService<FeatureCompareMessageConsumer>()
                     .AddSingleton<Scheduler>()
                     .AddSingleton<IStreamStore>(sp =>
