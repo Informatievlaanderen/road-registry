@@ -30,7 +30,6 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
         _fixture.CustomizeGradeSeparatedJunctionType();
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeOrganizationName();
-        _fixture.CustomizePoint();
         _fixture.CustomizeOriginProperties();
         _fixture.CustomizeImportedGradeSeparatedJunction();
 
