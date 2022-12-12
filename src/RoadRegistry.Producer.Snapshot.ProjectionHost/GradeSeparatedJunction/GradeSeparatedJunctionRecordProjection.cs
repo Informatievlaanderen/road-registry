@@ -25,14 +25,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
 
         private async Task ImportedGradeSeparatedJunction(GradeSeparatedJunctionProducerSnapshotContext context, Envelope<ImportedGradeSeparatedJunction> envelope, CancellationToken token)
         {
-            var translation = GradeSeparatedJunctionType.Parse(envelope.Message.Type).Translation;
+            var typeTranslation = GradeSeparatedJunctionType.Parse(envelope.Message.Type).Translation;
 
             var gradeSeparatedJunctionRecord = await context.GradeSeparatedJunctions.AddAsync(
                 new GradeSeparatedJunctionRecord(
                     envelope.Message.Id,
                     envelope.Message.LowerRoadSegmentId,
                     envelope.Message.UpperRoadSegmentId,
-                    translation.Identifier,
+                    typeTranslation.Identifier,
                     envelope.Message.Origin.Since,
                     envelope.Message.Origin.Organization,
                     envelope.CreatedUtc
@@ -64,14 +64,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded,
             CancellationToken token)
         {
-            var translation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionAdded.Type).Translation;
+            var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionAdded.Type).Translation;
 
             var gradeSeparatedJunctionRecord = await context.GradeSeparatedJunctions.AddAsync(
                 new GradeSeparatedJunctionRecord(
                     gradeSeparatedJunctionAdded.Id,
                     gradeSeparatedJunctionAdded.LowerRoadSegmentId,
                     gradeSeparatedJunctionAdded.UpperRoadSegmentId,
-                    translation.Identifier,
+                    typeTranslation.Identifier,
                     LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
                     envelope.Message.Organization,
                     envelope.CreatedUtc
@@ -93,11 +93,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                 throw new InvalidOperationException($"{nameof(GradeSeparatedJunctionRecord)} with id {gradeSeparatedJunctionModified.Id} is not found!");
             }
 
-            var translation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionModified.Type).Translation;
+            var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionModified.Type).Translation;
 
             gradeSeparatedJunctionRecord.UpperRoadSegmentId = gradeSeparatedJunctionModified.UpperRoadSegmentId;
             gradeSeparatedJunctionRecord.LowerRoadSegmentId = gradeSeparatedJunctionModified.LowerRoadSegmentId;
-            gradeSeparatedJunctionRecord.Type = translation.Identifier;
+            gradeSeparatedJunctionRecord.Type = typeTranslation.Identifier;
             gradeSeparatedJunctionRecord.Origin.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             gradeSeparatedJunctionRecord.Origin.Organization = envelope.Message.Organization;
             gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
