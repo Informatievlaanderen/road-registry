@@ -17,7 +17,7 @@ internal static class ServiceCollectionExtensions
     public static IServiceCollection AddSnapshotProducer<TSnapshotContext, TProjection, TEventProcessor>(this IServiceCollection services,
         string entityName,
         Func<DbContextOptionsBuilder<TSnapshotContext>, TSnapshotContext> resolveContext,
-        Func<KafkaProducer, TProjection> resolveProjection,
+        Func<IServiceProvider, KafkaProducer, TProjection> resolveProjection,
         Func<ConnectedProjection<TSnapshotContext>[], AcceptStreamMessageFilter> buildAcceptStreamMessageFilter
     )
         where TSnapshotContext : RunnerDbContext<TSnapshotContext>
@@ -48,7 +48,7 @@ internal static class ServiceCollectionExtensions
 
                     return new ConnectedProjection<TSnapshotContext>[]
                     {
-                        resolveProjection(new KafkaProducer(new KafkaProducerOptions(
+                        resolveProjection(sp, new KafkaProducer(new KafkaProducerOptions(
                             configuration["Kafka:BootstrapServers"],
                             configuration["Kafka:SaslUserName"],
                             configuration["Kafka:SaslPassword"],

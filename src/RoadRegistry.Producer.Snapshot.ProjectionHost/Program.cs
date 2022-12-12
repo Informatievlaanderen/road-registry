@@ -12,6 +12,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Hosts;
     using Hosts.Metadata;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
@@ -22,7 +23,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using NodaTime;
     using RoadNode;
     using RoadSegment;
-    using RoadRegistry.Producer.Snapshot.ProjectionHost.Extensions;
+    using Extensions;
     using Serilog;
     using Serilog.Debugging;
     using SqlStreamStore;
@@ -120,19 +121,29 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                             "RoadNode",
                             dbContextOptionsBuilder =>
                                 new RoadNodeProducerSnapshotContext(dbContextOptionsBuilder.Options),
-                            kafkaProducer =>
+                            (_, kafkaProducer) =>
                                 new RoadNodeRecordProjection(kafkaProducer),
                             connectedProjection =>
                                 RoadNodeAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadNodeEventProcessor.EventMapping)
+                        )
+                        .AddSnapshotProducer<RoadSegmentProducerSnapshotContext, RoadSegmentRecordProjection, RoadSegmentEventProcessor>(
+                            "RoadSegment",
+                            dbContextOptionsBuilder =>
+                                new RoadSegmentProducerSnapshotContext(dbContextOptionsBuilder.Options),
+                            (sp, kafkaProducer) =>
+                                new RoadSegmentRecordProjection(kafkaProducer, sp.GetRequiredService<IStreetNameCache>()),
+                            connectedProjection =>
+                                RoadSegmentAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadSegmentEventProcessor.EventMapping)
                         )
                         .AddSnapshotProducer<NationalRoadProducerSnapshotContext, NationalRoadRecordProjection, NationalRoadEventProcessor>(
                             "NationalRoad",
                             dbContextOptionsBuilder =>
                                 new NationalRoadProducerSnapshotContext(dbContextOptionsBuilder.Options),
-                            kafkaProducer =>
+                            (_, kafkaProducer) =>
                                 new NationalRoadRecordProjection(kafkaProducer),
                             connectedProjection =>
-                                NationalRoadAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, NationalRoadEventProcessor.EventMapping))
+                                NationalRoadAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, NationalRoadEventProcessor.EventMapping)
+                        )
 
                         .AddSingleton(runnerDbContextMigratorFactories);
                 })
