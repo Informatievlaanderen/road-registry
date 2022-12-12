@@ -5,9 +5,9 @@ using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Dbase;
+using Dbase.RoadSegments;
 using Framework.Containers;
 using Product.Schema;
-using Product.Schema.RoadSegments;
 using ZipArchiveWriters.ForProduct;
 
 [Collection(nameof(SqlServerCollection))]

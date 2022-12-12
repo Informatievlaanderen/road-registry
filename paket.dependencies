@@ -19,8 +19,6 @@ nuget CompareNETObjects 4.78.0
 nuget CsvHelper 29.0.0
 nuget Docker.DotNet 3.125.12
 nuget DotSpatial.Projections 4.0.656
-nuget Ductus.FluentDocker 2.10.57
-nuget Ductus.FluentDocker.Xunit 2.10.57
 nuget FeatureToggle.Common 4.0.2
 nuget FluentAssertions 6.7.0
 nuget FluentValidation 11.2.2
@@ -34,7 +32,7 @@ nuget NetTopologySuite 2.5.0
 nuget NetTopologySuite.IO.GeoJSON 2.0.4
 nuget NodaTime 3.1.4
 nuget NodaTime.Testing 3.1.4
-nuget NuGet.Frameworks 6.3.1
+nuget NuGet.Frameworks 6.4.0
 nuget Polly 7.2.3
 nuget RestSharp 108.0.2
 nuget Serilog 2.12.0
@@ -48,11 +46,11 @@ nuget Serilog.Settings.Configuration 3.4.0
 nuget Serilog.Sinks.Seq 5.2.1
 nuget SqlStreamStore 1.2.0
 nuget SqlStreamStore.MsSql 1.2.0
-nuget Structurizr.AdrTools 0.9.3
 nuget Structurizr.Client 0.9.7
 nuget Structurizr.Core 0.9.7
 nuget Swashbuckle.AspNetCore 6.2.3
 nuget Swashbuckle.AspNetCore.Annotations 6.2.3
+nuget Swashbuckle.AspNetCore.Filters 6.0.1
 nuget Swashbuckle.AspNetCore.Swagger 6.2.3
 nuget Swashbuckle.AspNetCore.SwaggerGen 6.2.3
 nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3

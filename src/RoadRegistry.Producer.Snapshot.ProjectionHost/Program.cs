@@ -23,9 +23,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using Newtonsoft.Json;
     using NodaTime;
     using RoadNode;
+    using RoadSegment;
     using Serilog;
     using Serilog.Debugging;
     using SqlStreamStore;
+    using Syndication.Schema;
     using KafkaProducer = Projections.KafkaProducer;
 
     public class Program
@@ -88,7 +90,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddTransient<Scheduler>()
                         .AddHostedService<RoadNodeEventProcessor>()
+                        .AddHostedService<RoadSegmentEventProcessor>()
+                        .AddSingleton<IStreetNameCache, StreetNameCache>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
+                        //Only needs one envelope factory
                         .AddSingleton(new EnvelopeFactory(
                             RoadNodeEventProcessor.EventMapping,
                             new EventDeserializer((eventData, eventType) =>
@@ -103,6 +108,26 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                             .EnableRetryOnFailure()
                                             .UseNetTopologySuite()
                                     ).Options)
+                        )
+                        .AddSingleton(() =>
+                            new RoadSegmentProducerSnapshotContext(
+                                new DbContextOptionsBuilder<RoadSegmentProducerSnapshotContext>()
+                                    .UseSqlServer(
+                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.ProducerSnapshotProjections),
+                                        options => options
+                                            .EnableRetryOnFailure()
+                                            .UseNetTopologySuite()
+                                    ).Options)
+                        )
+                        .AddSingleton(
+                            () =>
+                                new SyndicationContext(
+                                    new DbContextOptionsBuilder<SyndicationContext>()
+                                        .UseSqlServer(
+                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                            options => options
+                                                .EnableRetryOnFailure()
+                                        ).Options)
                         )
                         .AddSingleton(sp =>
                         {
@@ -121,6 +146,23 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                             };
                         })
                         .AddSingleton(sp =>
+                        {
+                            var config = sp.GetRequiredService<IConfiguration>();
+
+                            return new ConnectedProjection<RoadSegmentProducerSnapshotContext>[]
+                            {
+                                new RoadSegmentRecordProjection(
+                                    new KafkaProducer(new KafkaProducerOptions(
+                                        config["Kafka:BootstrapServers"],
+                                        config["Kafka:SaslUserName"],
+                                        config["Kafka:SaslPassword"],
+                                        config["RoadSegmentTopic"] ?? throw new ArgumentException($"Configuration has no value for RoadSegmentTopic"),
+                                        true,
+                                        RoadSegmentEventProcessor.SerializerSettings
+                                    )), sp.GetRequiredService<IStreetNameCache>())
+                            };
+                        })
+                        .AddSingleton(sp =>
                             Resolve
                                 .WhenEqualToHandlerMessageType(
                                     sp.GetRequiredService<ConnectedProjection<RoadNodeProducerSnapshotContext>[]>()
@@ -128,7 +170,16 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                         .ToArray()
                                 )
                         )
+                        .AddSingleton(sp =>
+                            Resolve
+                                .WhenEqualToHandlerMessageType(
+                                    sp.GetRequiredService<ConnectedProjection<RoadSegmentProducerSnapshotContext>[]>()
+                                        .SelectMany(projection => projection.Handlers)
+                                        .ToArray()
+                                )
+                        )
                         .AddSingleton(sp => RoadNodeAcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<RoadNodeProducerSnapshotContext>[]>(), RoadNodeEventProcessor.EventMapping))
+                        .AddSingleton(sp => RoadSegmentAcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<RoadSegmentProducerSnapshotContext>[]>(), RoadSegmentEventProcessor.EventMapping))
                         .AddTransient<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
                                 new MsSqlStreamStoreV3Settings(
@@ -140,7 +191,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                         .AddSingleton<IRunnerDbContextMigratorFactory[]>(
                             new IRunnerDbContextMigratorFactory[]
                             {
-                                new RoadNodeProducerSnapshotContextMigrationFactory()
+                                new RoadNodeProducerSnapshotContextMigrationFactory(),
+                                new RoadSegmentProducerSnapshotContextMigrationFactory()
                             });
                 })
                 .Build();
@@ -154,7 +206,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
             try
             {
                 await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
-
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProducerSnapshotProjections);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProducerSnapshotProjectionsAdmin);
@@ -169,6 +221,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                     .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
                             }
 
+                            Console.WriteLine("Started RoadRegistry.Producer.Snapshot.ProjectionHost");
                             await host.RunAsync().ConfigureAwait(false);
                         },
                         DistributedLockOptions.LoadFromConfiguration(configuration),

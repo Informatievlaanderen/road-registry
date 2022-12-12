@@ -5,6 +5,7 @@ using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase.RoadNodes;
 using Editor.Projections;
 using Editor.Schema.RoadNodes;
 using Microsoft.IO;

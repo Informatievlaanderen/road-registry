@@ -476,7 +476,6 @@ services:
     environment:
       API_ENDPOINT: http://localhost:2080
       API_OLDENDPOINT: http://localhost:5020
-      API_KEY: 00000000-0000-0000-0000-000000000000
 
   public-api:
     image: 830031229216.dkr.ecr.eu-west-1.amazonaws.com/public-api/api-legacy:5.35.1

@@ -4,11 +4,11 @@ using System.Text;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
+using Dbase.RoadSegments;
 using Microsoft.IO;
 using Product.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
-using Schema.RoadSegments;
 
 public class RoadSegmentEuropeanRoadAttributeRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {

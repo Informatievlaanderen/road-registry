@@ -52,5 +52,14 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
             record.Available = true;
             record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
         });
+
+        When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>
+        {
+            var record =
+                context.ExtractDownloads.Local.SingleOrDefault(download => download.RequestId == envelope.Message.RequestId)
+                ?? await context.ExtractDownloads.SingleAsync(download => download.RequestId == envelope.Message.RequestId, ct);
+            record.Available = true;
+            record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
+        });
     }
 }

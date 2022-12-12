@@ -1,12 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
-using Amazon;
 using Autofac;
 using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Core;
 using Editor.Schema;
 using Microsoft.EntityFrameworkCore;

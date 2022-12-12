@@ -417,6 +417,34 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     }
 
     [Fact]
+    public async Task When_extract_download_timeout_occurred()
+    {
+        var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
+        var extractRequestId = _fixture.Create<ExtractRequestId>();
+
+        await new RoadNetworkChangeFeedProjection(_client)
+            .Scenario()
+            .Given(new RoadNetworkExtractDownloadTimeoutOccurred
+            {
+                ExternalRequestId = externalExtractRequestId,
+                RequestId = extractRequestId,
+                Description = "TEST"
+            })
+            .Expect(new RoadNetworkChange
+            {
+                Id = 0,
+                Title = $"Extract aanvraag {externalExtractRequestId} werd niet verwerkt, contour is te complex of te groot.",
+                Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
+                Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadTimeoutOccurredEntry
+                {
+                    ExternalRequestId = externalExtractRequestId,
+                    RequestId = extractRequestId,
+                    Description = "TEST"
+                })
+            });
+    }
+
+    [Fact]
     public Task When_import_began()
     {
         return new RoadNetworkChangeFeedProjection(_client)
