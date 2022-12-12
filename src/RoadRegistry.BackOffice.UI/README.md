@@ -43,8 +43,8 @@ start http://127.0.0.1:5010
 
 ### PRD
 ```
-npm run build-prd
+npm run build
 docker build . -t road-registry-backoffice-ui-prd:1.0.0 --build-arg build_number=1.0.0
-docker run --env API_ENDPOINT=https://api.basisregisters.vlaanderen.be/ --env API_OLDENDPOINT=https://backoffice-api.wegen.vlaanderen.be/ --env FeatureToggles__UseFeatureCompare=true -p 127.0.0.1:5010:10007/tcp road-registry-backoffice-ui-prd:1.0.0
+docker run --env API_ENDPOINT=https://api.basisregisters.vlaanderen.be/ --env API_OLDENDPOINT=https://backoffice-api.wegen.vlaanderen.be/ --env FeatureToggles__UseFeatureCompare=false -p 127.0.0.1:5010:10007/tcp road-registry-backoffice-ui-prd:1.0.0
 start http://127.0.0.1:5010
 ```
