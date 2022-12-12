@@ -69,6 +69,8 @@ public class ChangeFeedController : ControllerBase
                 typeof(RoadNetworkExtractChangesArchiveRejectedEntry)),
             nameof(RoadNetworkExtractDownloadBecameAvailable) => JsonConvert.DeserializeObject(entry.Content,
                 typeof(RoadNetworkExtractDownloadBecameAvailableEntry)),
+            nameof(RoadNetworkExtractDownloadTimeoutOccurred) => JsonConvert.DeserializeObject(entry.Content,
+                typeof(RoadNetworkExtractDownloadTimeoutOccurredEntry)),
             _ => null
         };
         return new JsonResult(new ChangeFeedEntryContent

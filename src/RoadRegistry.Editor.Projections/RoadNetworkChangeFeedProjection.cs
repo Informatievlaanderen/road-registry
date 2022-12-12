@@ -86,6 +86,25 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             }, ct);
         });
 
+        When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>
+        {
+            var content = new RoadNetworkExtractDownloadTimeoutOccurredEntry
+            {
+                RequestId = envelope.Message.RequestId,
+                ExternalRequestId = envelope.Message.ExternalRequestId,
+                Description = envelope.Message.Description
+            };
+
+            await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
+            {
+                Id = envelope.Position,
+                Title = $"Extract aanvraag {envelope.Message.ExternalRequestId} werd niet verwerkt, contour is te complex of te groot.",
+                Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
+                Content = JsonConvert.SerializeObject(content),
+                When = envelope.Message.When
+            }, ct);
+        });
+
         When<Envelope<RoadNetworkChangesArchiveUploaded>>(async (context, envelope, ct) =>
         {
             var content = new RoadNetworkChangesArchiveUploadedEntry
