@@ -9,6 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Syndication.Schema\RoadRegistry.Syndication.Schema.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" />

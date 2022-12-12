@@ -21,10 +21,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using Newtonsoft.Json;
     using NodaTime;
     using RoadNode;
+    using RoadSegment;
     using RoadRegistry.Producer.Snapshot.ProjectionHost.Extensions;
     using Serilog;
     using Serilog.Debugging;
     using SqlStreamStore;
+    using Syndication.Schema;
 
     public class Program
     {
@@ -87,11 +89,23 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                         .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
                         .AddSingleton<IClock>(SystemClock.Instance)
                         .AddTransient<Scheduler>()
+                        .AddSingleton<IStreetNameCache, StreetNameCache>()
                         .AddSingleton(new RecyclableMemoryStreamManager())
+                        //Only needs one envelope factory
                         .AddSingleton(new EnvelopeFactory(
                             RoadNodeEventProcessor.EventMapping,
                             new EventDeserializer((eventData, eventType) =>
                                 JsonConvert.DeserializeObject(eventData, eventType, RoadNodeEventProcessor.SerializerSettings)))
+                        )
+                        .AddSingleton(
+                            () =>
+                                new SyndicationContext(
+                                    new DbContextOptionsBuilder<SyndicationContext>()
+                                        .UseSqlServer(
+                                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                            options => options
+                                                .EnableRetryOnFailure()
+                                        ).Options)
                         )
                         .AddTransient<IStreamStore>(sp =>
                             new MsSqlStreamStoreV3(
@@ -133,7 +147,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
             try
             {
                 await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
-
+                logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SyndicationProjections);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProducerSnapshotProjections);
                 logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.ProducerSnapshotProjectionsAdmin);
