@@ -1,18 +1,26 @@
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Projections;
+
+using System;
+using NodaTime;
+using NodaTime.Text;
+
+public static class LocalDateTimeTranslator
 {
-    using System;
-    using NodaTime;
-    using NodaTime.Text;
+    private static readonly DateTimeZone LocalTimeZone =
+        DateTimeZoneProviders.Tzdb["Europe/Brussels"];
 
-    public static class LocalDateTimeTranslator
+    public static DateTime TranslateFromWhen(string value)
     {
-        private static readonly DateTimeZone LocalTimeZone =
-            DateTimeZoneProviders.Tzdb["Europe/Brussels"];
+        return new ZonedDateTime(InstantPattern.ExtendedIso.Parse(value).Value, LocalTimeZone)
+            .ToDateTimeUnspecified();
+    }
 
-        public static DateTime TranslateFromWhen(string value)
-        {
-            return new ZonedDateTime(InstantPattern.ExtendedIso.Parse(value).Value, LocalTimeZone)
-                .ToDateTimeUnspecified();
-        }
+    public static string TranslateToWhen(DateTime value)
+    {
+        return value.ToString("yyyy-MM-ddTHH:mm:ss.ffffffZ");
+    }
+    public static string TranslateToWhen(DateTimeOffset value)
+    {
+        return value.ToString("yyyy-MM-ddTHH:mm:ss.ffffffZ");
     }
 }
