@@ -1,3 +1,17 @@
+# [3.27.0](https://github.com/informatievlaanderen/road-registry/compare/v3.26.5...v3.27.0) (2022-12-12)
+
+
+### Bug Fixes
+
+* add edit-endpoint request examples + update Swagger decoration ([#747](https://github.com/informatievlaanderen/road-registry/issues/747)) ([e3888a4](https://github.com/informatievlaanderen/road-registry/commit/e3888a4da7a367c02d9263ac1fe66293edd07d89))
+* npm version bumping to fix backoffice UI 504 timeout ([#749](https://github.com/informatievlaanderen/road-registry/issues/749)) ([4ff810f](https://github.com/informatievlaanderen/road-registry/commit/4ff810f35617df2efcf42feaf4dc4209255d59f6))
+
+
+### Features
+
+* Add handler which can allow SQL timeout without stream processing beeing halted ([#746](https://github.com/informatievlaanderen/road-registry/issues/746)) ([7564d50](https://github.com/informatievlaanderen/road-registry/commit/7564d50c64bc034a250722e1ec7015b7075e3024))
+* add road segment to snapshot producer ([#741](https://github.com/informatievlaanderen/road-registry/issues/741)) ([b9b946f](https://github.com/informatievlaanderen/road-registry/commit/b9b946f6e5205162113ecbf6cb1ec9f8fac5febc))
+
 ## [3.26.5](https://github.com/informatievlaanderen/road-registry/compare/v3.26.4...v3.26.5) (2022-12-08)
 
 
