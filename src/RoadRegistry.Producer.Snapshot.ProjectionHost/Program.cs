@@ -24,6 +24,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using RoadNode;
     using RoadSegment;
     using Extensions;
+    using GradeSeparatedJunction;
     using Serilog;
     using Serilog.Debugging;
     using SqlStreamStore;
@@ -143,6 +144,15 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                 new NationalRoadRecordProjection(kafkaProducer),
                             connectedProjection =>
                                 NationalRoadAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, NationalRoadEventProcessor.EventMapping)
+                        )
+                        .AddSnapshotProducer<GradeSeparatedJunctionProducerSnapshotContext, GradeSeparatedJunctionRecordProjection, GradeSeparatedJunctionEventProcessor>(
+                            "GradeSeparatedJunction",
+                            dbContextOptionsBuilder =>
+                                new GradeSeparatedJunctionProducerSnapshotContext(dbContextOptionsBuilder.Options),
+                            (_, kafkaProducer) =>
+                                new GradeSeparatedJunctionRecordProjection(kafkaProducer),
+                            connectedProjection =>
+                                GradeSeparatedJunctionAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, GradeSeparatedJunctionEventProcessor.EventMapping)
                         )
 
                         .AddSingleton(runnerDbContextMigratorFactories);

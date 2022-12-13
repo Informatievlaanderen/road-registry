@@ -1,0 +1,142 @@
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
+{
+    using System;
+    using System.Globalization;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using BackOffice;
+    using BackOffice.Messages;
+    using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Projections;
+
+    public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<GradeSeparatedJunctionProducerSnapshotContext>
+    {
+        private readonly IKafkaProducer _kafkaProducer;
+
+        public GradeSeparatedJunctionRecordProjection(IKafkaProducer kafkaProducer)
+        {
+            _kafkaProducer = kafkaProducer;
+
+            When<Envelope<ImportedGradeSeparatedJunction>>(ImportedGradeSeparatedJunction);
+            When<Envelope<RoadNetworkChangesAccepted>>(RoadNetworkChangesAccepted);
+        }
+
+        private async Task ImportedGradeSeparatedJunction(GradeSeparatedJunctionProducerSnapshotContext context, Envelope<ImportedGradeSeparatedJunction> envelope, CancellationToken token)
+        {
+            var typeTranslation = GradeSeparatedJunctionType.Parse(envelope.Message.Type).Translation;
+
+            var gradeSeparatedJunctionRecord = await context.GradeSeparatedJunctions.AddAsync(
+                new GradeSeparatedJunctionRecord(
+                    envelope.Message.Id,
+                    envelope.Message.LowerRoadSegmentId,
+                    envelope.Message.UpperRoadSegmentId,
+                    typeTranslation.Identifier,
+                    envelope.Message.Origin.Since,
+                    envelope.Message.Origin.Organization,
+                    envelope.CreatedUtc
+                ), token);
+
+            await Produce(gradeSeparatedJunctionRecord.Entity.Id, gradeSeparatedJunctionRecord.Entity.ToContract(), token);
+        }
+
+        private async Task RoadNetworkChangesAccepted(GradeSeparatedJunctionProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope, CancellationToken token)
+        {
+            foreach (var change in envelope.Message.Changes.Flatten())
+            {
+                switch (change)
+                {
+                    case GradeSeparatedJunctionAdded gradeSeparatedJunction:
+                        await GradeSeparatedJunctionAdded(context, envelope, gradeSeparatedJunction, token);
+                        break;
+                    case GradeSeparatedJunctionModified gradeSeparatedJunction:
+                        await GradeSeparatedJunctionModified(context, envelope, gradeSeparatedJunction, token);
+                        break;
+                    case GradeSeparatedJunctionRemoved gradeSeparatedJunction:
+                        await GradeSeparatedJunctionRemoved(context, envelope, gradeSeparatedJunction, token);
+                        break;
+                }
+            }
+        }
+
+        private async Task GradeSeparatedJunctionAdded(GradeSeparatedJunctionProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope,
+            GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded,
+            CancellationToken token)
+        {
+            var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionAdded.Type).Translation;
+
+            var gradeSeparatedJunctionRecord = await context.GradeSeparatedJunctions.AddAsync(
+                new GradeSeparatedJunctionRecord(
+                    gradeSeparatedJunctionAdded.Id,
+                    gradeSeparatedJunctionAdded.LowerRoadSegmentId,
+                    gradeSeparatedJunctionAdded.UpperRoadSegmentId,
+                    typeTranslation.Identifier,
+                    LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
+                    envelope.Message.Organization,
+                    envelope.CreatedUtc
+                ), token);
+
+            await Produce(gradeSeparatedJunctionRecord.Entity.Id, gradeSeparatedJunctionRecord.Entity.ToContract(), token);
+        }
+
+        private async Task GradeSeparatedJunctionModified(
+            GradeSeparatedJunctionProducerSnapshotContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            GradeSeparatedJunctionModified gradeSeparatedJunctionModified,
+            CancellationToken token)
+        {
+            var gradeSeparatedJunctionRecord = await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionModified.Id, cancellationToken: token).ConfigureAwait(false);
+
+            if (gradeSeparatedJunctionRecord == null)
+            {
+                throw new InvalidOperationException($"{nameof(GradeSeparatedJunctionRecord)} with id {gradeSeparatedJunctionModified.Id} is not found!");
+            }
+
+            var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionModified.Type).Translation;
+
+            gradeSeparatedJunctionRecord.UpperRoadSegmentId = gradeSeparatedJunctionModified.UpperRoadSegmentId;
+            gradeSeparatedJunctionRecord.LowerRoadSegmentId = gradeSeparatedJunctionModified.LowerRoadSegmentId;
+            gradeSeparatedJunctionRecord.Type = typeTranslation.Identifier;
+            gradeSeparatedJunctionRecord.Origin.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+            gradeSeparatedJunctionRecord.Origin.Organization = envelope.Message.Organization;
+            gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
+
+            await Produce(gradeSeparatedJunctionRecord.Id, gradeSeparatedJunctionRecord.ToContract(), token);
+        }
+
+        private async Task GradeSeparatedJunctionRemoved(
+            GradeSeparatedJunctionProducerSnapshotContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            GradeSeparatedJunctionRemoved gradeSeparatedJunctionRemoved,
+            CancellationToken token)
+        {
+            var gradeSeparatedJunctionRecord =
+                await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionRemoved.Id).ConfigureAwait(false);
+
+            if (gradeSeparatedJunctionRecord == null)
+            {
+                throw new InvalidOperationException($"{nameof(GradeSeparatedJunctionRecord)} with id {gradeSeparatedJunctionRemoved.Id} is not found!");
+            }
+
+            gradeSeparatedJunctionRecord.Origin.Organization = envelope.Message.Organization;
+            gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            gradeSeparatedJunctionRecord.IsRemoved = true;
+
+            await Produce(gradeSeparatedJunctionRecord.Id, gradeSeparatedJunctionRecord.ToContract(), token);
+        }
+        
+        private async Task Produce(int gradeSeparatedJunctionId, GradeSeparatedJunctionSnapshot snapshot, CancellationToken cancellationToken)
+        {
+            var result = await _kafkaProducer.Produce(
+                gradeSeparatedJunctionId.ToString(CultureInfo.InvariantCulture),
+                snapshot,
+                cancellationToken);
+
+            if (!result.IsSuccess)
+            {
+                throw new InvalidOperationException(result.Error + Environment.NewLine + result.ErrorReason);
+            }
+        }
+    }
+}
