@@ -2,10 +2,11 @@ namespace RoadRegistry.BackOffice.Messages;
 
 using System;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using RoadRegistry.BackOffice.Core;
 
 [EventName("RoadNetworkExtractGotRequestedV2")]
 [EventDescription("Indicates a road network extract was requested.")]
-public class RoadNetworkExtractGotRequestedV2 : IMessage
+public class RoadNetworkExtractGotRequestedV2 : IRoadNetworkExtractGotRequestedMessage
 {
     public RoadNetworkExtractGeometry Contour { get; set; }
     public string Description { get; set; }

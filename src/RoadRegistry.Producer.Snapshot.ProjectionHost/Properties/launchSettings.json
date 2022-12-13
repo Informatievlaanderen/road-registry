@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RoadRegistry.Producer.Snapshot.ProjectionHost": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
