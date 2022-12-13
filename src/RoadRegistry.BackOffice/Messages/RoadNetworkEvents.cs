@@ -27,6 +27,7 @@ public static class RoadNetworkEvents
         typeof(RoadNetworkExtractGotRequested),
         typeof(RoadNetworkExtractGotRequestedV2),
         typeof(RoadNetworkExtractDownloadBecameAvailable),
+        typeof(RoadNetworkExtractDownloadTimeoutOccurred),
         typeof(RoadNetworkExtractChangesArchiveAccepted),
         typeof(RoadNetworkExtractChangesArchiveRejected),
         typeof(RoadNetworkExtractChangesArchiveUploaded)

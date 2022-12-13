@@ -19,11 +19,11 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         IZipArchiveAfterFeatureCompareValidator validator,
         IClock clock)
     {
-        if (uploadsBlobClient == null) throw new ArgumentNullException(nameof(uploadsBlobClient));
-        if (store == null) throw new ArgumentNullException(nameof(store));
-        if (validator == null) throw new ArgumentNullException(nameof(validator));
-        if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
-        if (clock == null) throw new ArgumentNullException(nameof(clock));
+        ArgumentNullException.ThrowIfNull(uploadsBlobClient);
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(snapshotReader);
+        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(clock);
 
         For<RequestRoadNetworkExtract>()
             .UseValidator(new RequestRoadNetworkExtractValidator())
@@ -55,7 +55,16 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var downloadId = new DownloadId(message.Body.DownloadId);
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
-                extract.Announce(downloadId, archiveId);
+                extract.AnnounceAvailable(downloadId, archiveId);
+            });
+
+        For<AnnounceRoadNetworkExtractDownloadTimeoutOccurred>()
+            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
+            .Handle(async (context, message, ct) =>
+            {
+                var requestId = ExtractRequestId.FromString(message.Body.RequestId);
+                var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
+                extract.AnnounceTimeoutOccurred();
             });
 
         For<UploadRoadNetworkExtractChangesArchive>()

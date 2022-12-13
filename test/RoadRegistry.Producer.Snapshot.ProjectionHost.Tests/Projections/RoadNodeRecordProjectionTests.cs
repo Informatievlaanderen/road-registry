@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
 using Moq;
 using ProjectionHost.Projections;
 using RoadNode;
+using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
@@ -206,7 +207,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             .CreateMany<ImportedRoadNode>(new Random().Next(1, 100))
             .Select(@event =>
             {
-                @event.When = _fixture.Create<DateTime>().ToString("yyyy-MM-ddTHH:mm:ss.ffffffZ");
+                @event.When = LocalDateTimeTranslator.TranslateToWhen(_fixture.Create<DateTime>());
                 var point = GeometryTranslator.Translate(@event.Geometry);
 
                 var expectedRecord = new RoadNodeRecord(
