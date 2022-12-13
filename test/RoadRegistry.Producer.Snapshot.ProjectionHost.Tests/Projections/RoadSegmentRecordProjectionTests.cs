@@ -381,7 +381,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             .CreateMany<ImportedRoadSegment>(new Random().Next(1, 100))
             .Select(@event =>
             {
-                @event.When = _fixture.Create<DateTime>().ToString("yyyy-MM-ddTHH:mm:ss.ffffffZ");
+                @event.When = LocalDateTimeTranslator.TranslateToWhen(_fixture.Create<DateTime>());
                 @event.Origin.TransactionId = _fixture.Create<TransactionId>();
 
                 var method = RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod);

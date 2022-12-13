@@ -33,13 +33,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Configuration\**" />
-	  <Content Remove="Configuration\**" />
-	  <EmbeddedResource Remove="Configuration\**" />
-	  <None Remove="Configuration\**" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
 	</ItemGroup>
 
