@@ -9,12 +9,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     {
         public string AccessRestrictionDutchName { get; set; }
         public int? AccessRestrictionId { get; set; }
-        public string BeginApplication { get; set; }
-        public string BeginOperator { get; set; }
-        public string BeginOrganizationId { get; set; }
-        public string BeginOrganizationName { get; set; }
         public int? BeginRoadNodeId { get; set; }
-        public DateTime? BeginTime { get; set; }
         public string CategoryDutchName { get; set; }
         public string CategoryId { get; set; }
         public int? EndRoadNodeId { get; set; }
@@ -42,6 +37,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         public long StreetNameCachePosition { get; set; }
         public int? TransactionId { get; set; }
 
+        public Origin Origin { get; set; }
         public DateTimeOffset LastChangedTimestamp { get; set; }
         public bool IsRemoved { get; set; }
 
@@ -53,12 +49,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             return new RoadSegmentSnapshot(
                 AccessRestrictionDutchName,
                 AccessRestrictionId,
-                BeginApplication,
-                BeginOperator,
-                BeginOrganizationId,
-                BeginOrganizationName,
                 BeginRoadNodeId,
-                BeginTime,
                 CategoryDutchName,
                 CategoryId,
                 EndRoadNodeId,
@@ -85,6 +76,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 StatusId,
                 StreetNameCachePosition,
                 TransactionId,
+                Origin,
                 LastChangedTimestamp,
                 IsRemoved);
         }

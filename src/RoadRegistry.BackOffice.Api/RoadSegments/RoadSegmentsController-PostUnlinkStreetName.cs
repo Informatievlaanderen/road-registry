@@ -71,14 +71,14 @@ public class PostUnlinkStreetNameParameters
     /// De unieke en persistente identificator van de straatnaam aan de linkerzijde van het wegsegment.
     /// </summary>
     [DataMember(Name = "LinkerstraatnaamId", Order = 1)]
-    [JsonProperty(Required = Required.AllowNull)]
+    [JsonProperty]
     public string LinkerstraatnaamId { get; set; }
 
     /// <summary>
     /// De unieke en persistente identificator van de straatnaam aan de rechterzijde van het wegsegment.
     /// </summary>
     [DataMember(Name = "RechterstraatnaamId", Order = 2)]
-    [JsonProperty(Required = Required.AllowNull)]
+    [JsonProperty]
     public string RechterstraatnaamId { get; set; }
 }
 

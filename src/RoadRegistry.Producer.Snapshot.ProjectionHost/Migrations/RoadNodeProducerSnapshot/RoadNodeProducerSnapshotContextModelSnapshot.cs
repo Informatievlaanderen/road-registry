@@ -62,8 +62,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProdu
                     b.Property<DateTimeOffset>("LastChangedTimestamp")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("TypeDutchName")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -79,11 +82,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProdu
                             b1.Property<int>("RoadNodeRecordId")
                                 .HasColumnType("int");
 
-                            b1.Property<DateTimeOffset?>("BeginTime")
-                                .HasColumnType("datetimeoffset");
-
                             b1.Property<string>("Organization")
                                 .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTimeOffset?>("Timestamp")
+                                .HasColumnType("datetimeoffset");
 
                             b1.HasKey("RoadNodeRecordId");
 

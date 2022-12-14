@@ -6,6 +6,7 @@ using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Extensions;
 using Moq;
 using ProjectionHost.Projections;
 using GradeSeparatedJunction;
@@ -57,8 +58,8 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
                     @event.LowerRoadSegmentId,
                     @event.UpperRoadSegmentId,
                     typeTranslation.Identifier,
-                    @event.Origin.Since,
-                    @event.Origin.Organization,
+                    typeTranslation.Name,
+                    @event.Origin.ToOrigin(),
                     created);
 
                 return new
@@ -66,7 +67,8 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
                     ImportedGradeSeparatedJunction = @event,
                     ExpectedRecord = expectedRecord
                 };
-            }).ToList();
+            })
+            .ToList();
 
         var kafkaProducer = new Mock<IKafkaProducer>();
         kafkaProducer
@@ -108,8 +110,8 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
                 gradeSeparatedJunctionAdded.LowerRoadSegmentId,
                 gradeSeparatedJunctionAdded.UpperRoadSegmentId,
                 typeTranslation.Identifier,
-                LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                message.Organization,
+                typeTranslation.Name,
+                message.ToOrigin(),
                 created);
         });
 
@@ -159,8 +161,8 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
                 gradeSeparatedJunctionModified.LowerRoadSegmentId,
                 gradeSeparatedJunctionModified.UpperRoadSegmentId,
                 typeTranslation.Identifier,
-                LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionModified.When),
-                acceptedGradeSeparatedJunctionModified.Organization,
+                typeTranslation.Name,
+                acceptedGradeSeparatedJunctionModified.ToOrigin(),
                 created);
         });
 
@@ -210,8 +212,8 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
                 gradeSeparatedJunctionAdded.LowerRoadSegmentId,
                 gradeSeparatedJunctionAdded.UpperRoadSegmentId,
                 typeTranslation.Identifier,
-                LocalDateTimeTranslator.TranslateFromWhen(acceptedGradeSeparatedJunctionAdded.When),
-                acceptedGradeSeparatedJunctionAdded.Organization,
+                typeTranslation.Name,
+                acceptedGradeSeparatedJunctionAdded.ToOrigin(),
                 created.AddDays(-1))
             { IsRemoved = true };
         });
@@ -221,7 +223,7 @@ public class GradeSeparatedJunctionRecordProjectionTests : IClassFixture<Project
             var gradeSeparatedJunctionRemoved = change.GradeSeparatedJunctionRemoved;
 
             var record = expectedRecords.Cast<GradeSeparatedJunctionRecord>().Single(x => x.Id == gradeSeparatedJunctionRemoved.Id);
-            record.Origin.Organization = acceptedGradeSeparatedJunctionRemoved.Organization;
+            record.Origin = acceptedGradeSeparatedJunctionRemoved.ToOrigin();
             record.IsRemoved = true;
             record.LastChangedTimestamp = created;
 

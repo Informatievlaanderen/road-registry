@@ -60,7 +60,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
                     b.Property<int>("LowerRoadSegmentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Type")
+                    b.Property<string>("TypeDutchName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TypeId")
                         .HasColumnType("int");
 
                     b.Property<int>("UpperRoadSegmentId")
@@ -80,11 +83,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
                             b1.Property<int>("GradeSeparatedJunctionRecordId")
                                 .HasColumnType("int");
 
-                            b1.Property<DateTimeOffset?>("BeginTime")
-                                .HasColumnType("datetimeoffset");
-
                             b1.Property<string>("Organization")
                                 .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTimeOffset?>("Timestamp")
+                                .HasColumnType("datetimeoffset");
 
                             b1.HasKey("GradeSeparatedJunctionRecordId");
 
