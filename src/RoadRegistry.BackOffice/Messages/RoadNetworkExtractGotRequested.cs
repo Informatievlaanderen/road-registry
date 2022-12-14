@@ -12,5 +12,6 @@ public class RoadNetworkExtractGotRequested : IRoadNetworkExtractGotRequestedMes
     public Guid DownloadId { get; set; }
     public string ExternalRequestId { get; set; }
     public string RequestId { get; set; }
+    public object Description { get; set; }
     public string When { get; set; }
 }
