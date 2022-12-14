@@ -3,18 +3,19 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NetTopologySuite.Geometries;
-using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
 
 #nullable disable
 
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProducerSnapshot
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.GradeSeparatedJunctionProducerSnapshot
 {
-    [DbContext(typeof(RoadNodeProducerSnapshotContext))]
-    partial class RoadNodeProducerSnapshotContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(GradeSeparatedJunctionProducerSnapshotContext))]
+    [Migration("20221213105135_TypeIdDutchName")]
+    partial class TypeIdDutchName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,17 +45,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProdu
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
 
-                    b.ToTable("ProjectionStates", "RoadRegistryRoadNodeProducerSnapshotMeta");
+                    b.ToTable("ProjectionStates", "RoadRegistryGradeSeparatedJunctionProducerSnapshotMetaSchema");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction.GradeSeparatedJunctionRecord", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
-
-                    b.Property<Geometry>("Geometry")
-                        .IsRequired()
-                        .HasColumnType("Geometry");
 
                     b.Property<bool>("IsRemoved")
                         .HasColumnType("bit");
@@ -62,24 +59,30 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProdu
                     b.Property<DateTimeOffset>("LastChangedTimestamp")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int>("LowerRoadSegmentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("TypeDutchName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("TypeId")
                         .HasColumnType("int");
 
+                    b.Property<int>("UpperRoadSegmentId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
-                    b.ToTable("RoadNode", "RoadRegistryRoadNodeProducerSnapshot");
+                    b.ToTable("GradeSeparatedJunction", "RoadRegistryGradeSeparatedJunctionProducerSnapshotSchema");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction.GradeSeparatedJunctionRecord", b =>
                 {
                     b.OwnsOne("RoadRegistry.Producer.Snapshot.ProjectionHost.Schema.Origin", "Origin", b1 =>
                         {
-                            b1.Property<int>("RoadNodeRecordId")
+                            b1.Property<int>("GradeSeparatedJunctionRecordId")
                                 .HasColumnType("int");
 
                             b1.Property<DateTimeOffset?>("BeginTime")
@@ -91,12 +94,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProdu
                             b1.Property<string>("OrganizationName")
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.HasKey("RoadNodeRecordId");
+                            b1.HasKey("GradeSeparatedJunctionRecordId");
 
-                            b1.ToTable("RoadNode", "RoadRegistryRoadNodeProducerSnapshot");
+                            b1.ToTable("GradeSeparatedJunction", "RoadRegistryGradeSeparatedJunctionProducerSnapshotSchema");
 
                             b1.WithOwner()
-                                .HasForeignKey("RoadNodeRecordId");
+                                .HasForeignKey("GradeSeparatedJunctionRecordId");
                         });
 
                     b.Navigation("Origin");

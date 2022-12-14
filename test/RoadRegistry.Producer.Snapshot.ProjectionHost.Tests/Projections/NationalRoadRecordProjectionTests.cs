@@ -6,6 +6,7 @@ using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Extensions;
 using Moq;
 using ProjectionHost.Projections;
 using NationalRoad;
@@ -77,8 +78,7 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
                 nationalRoad.AttributeId,
                 importedRoadSegment.Id,
                 nationalRoad.Number,
-                nationalRoad.Origin.Since,
-                nationalRoad.Origin.Organization,
+                nationalRoad.Origin.ToOrigin(),
                 created))
             .ToList();
 
@@ -120,8 +120,7 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
                 nationalRoadAdded.AttributeId,
                 nationalRoadAdded.SegmentId,
                 nationalRoadAdded.Number,
-                LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                message.Organization,
+                message.ToOrigin(),
                 created);
         });
 
@@ -174,8 +173,7 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
                     nationalRoadAdded.AttributeId,
                     nationalRoadAdded.SegmentId,
                     nationalRoadAdded.Number,
-                    LocalDateTimeTranslator.TranslateFromWhen(acceptedNationalRoadAdded.When),
-                    acceptedNationalRoadAdded.Organization,
+                    acceptedNationalRoadAdded.ToOrigin(),
                     created.AddDays(-1))
             { IsRemoved = true };
         });
@@ -185,7 +183,7 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
             var nationalRoadRemoved = change.RoadSegmentRemovedFromNationalRoad;
 
             var record = expectedRecords.Cast<NationalRoadRecord>().Single(x => x.Id == nationalRoadRemoved.AttributeId);
-            record.Origin.Organization = acceptedNationalRoadRemoved.Organization;
+            record.Origin = acceptedNationalRoadRemoved.ToOrigin();
             record.IsRemoved = true;
             record.LastChangedTimestamp = created;
 
@@ -242,8 +240,7 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
                     nationalRoadAdded.AttributeId,
                     nationalRoadAdded.SegmentId,
                     nationalRoadAdded.Number,
-                    LocalDateTimeTranslator.TranslateFromWhen(acceptedNationalRoadAdded.When),
-                    acceptedNationalRoadAdded.Organization,
+                    acceptedNationalRoadAdded.ToOrigin(),
                     created.AddDays(-1))
             { IsRemoved = true };
         });
@@ -253,7 +250,7 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
             var roadSegmentRemoved = change.RoadSegmentRemoved;
 
             var record = expectedRecords.Cast<NationalRoadRecord>().Single(x => x.RoadSegmentId == roadSegmentRemoved.Id);
-            record.Origin.Organization = acceptedRoadSegmentRemoved.Organization;
+            record.Origin = acceptedRoadSegmentRemoved.ToOrigin();
             record.IsRemoved = true;
             record.LastChangedTimestamp = created;
 

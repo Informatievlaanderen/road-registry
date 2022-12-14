@@ -9,7 +9,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
     {
         public int Id { get; set; }
 
-        public string Type { get; set; }
+        public int TypeId { get; set; }
+        public string TypeDutchName { get; set; }
         public Geometry Geometry { get; set; }
 
         public Origin Origin { get; set; }
@@ -21,19 +22,16 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 
         public RoadNodeRecord(
             int id,
-            string type,
+            int typeId,
+            string typeDutchName,
             Point point,
-            DateTime? beginTime,
-            string organization,
+            Origin origin,
             DateTimeOffset lastChangedTimestamp)
         {
             Id = id;
-            Origin = new Origin
-            {
-                Organization = organization,
-                BeginTime = beginTime
-            };
-            Type = type;
+            Origin = origin;
+            TypeId = typeId;
+            TypeDutchName = typeDutchName;
             Geometry = point;
             LastChangedTimestamp = lastChangedTimestamp;
             IsRemoved = false;
@@ -43,12 +41,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
         {
             return new RoadNodeSnapshot(
                 Id,
-                Type,
+                TypeId,
+                TypeDutchName,
                 Geometry.ToBinary(),
                 Geometry.ToText(),
                 Geometry.SRID,
-                Origin.BeginTime,
-                Origin.Organization,
+                Origin,
                 LastChangedTimestamp,
                 IsRemoved);
         }
