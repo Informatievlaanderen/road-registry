@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
+using NetTopologySuite.Geometries;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode;
 
 #nullable disable
 
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProducerSnapshot
 {
-    [DbContext(typeof(RoadSegmentSurfaceProducerSnapshotContext))]
-    partial class RoadSegmentSurfaceProducerSnapshotContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(RoadNodeProducerSnapshotContext))]
+    [Migration("20221214121304_Origin")]
+    partial class Origin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,31 +46,23 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
 
-                    b.ToTable("ProjectionStates", "RoadRegistryRoadSegmentSurfaceProducerSnapshotMetaSchema");
+                    b.ToTable("ProjectionStates", "RoadRegistryRoadNodeProducerSnapshotMeta");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface.RoadSegmentSurfaceRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeRecord", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.Property<double>("FromPosition")
-                        .HasColumnType("float");
+                    b.Property<Geometry>("Geometry")
+                        .IsRequired()
+                        .HasColumnType("Geometry");
 
                     b.Property<bool>("IsRemoved")
                         .HasColumnType("bit");
 
                     b.Property<DateTimeOffset>("LastChangedTimestamp")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<int>("RoadSegmentGeometryVersion")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RoadSegmentId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("ToPosition")
-                        .HasColumnType("float");
 
                     b.Property<string>("TypeDutchName")
                         .HasColumnType("nvarchar(max)");
@@ -79,14 +74,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
-                    b.ToTable("RoadSegmentSurface", "RoadRegistryRoadSegmentSurfaceProducerSnapshotSchema");
+                    b.ToTable("RoadNode", "RoadRegistryRoadNodeProducerSnapshot");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface.RoadSegmentSurfaceRecord", b =>
+            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeRecord", b =>
                 {
                     b.OwnsOne("RoadRegistry.Producer.Snapshot.ProjectionHost.Schema.Origin", "Origin", b1 =>
                         {
-                            b1.Property<int>("RoadSegmentSurfaceRecordId")
+                            b1.Property<int>("RoadNodeRecordId")
                                 .HasColumnType("int");
 
                             b1.Property<string>("Organization")
@@ -95,12 +90,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
                             b1.Property<DateTimeOffset?>("Timestamp")
                                 .HasColumnType("datetimeoffset");
 
-                            b1.HasKey("RoadSegmentSurfaceRecordId");
+                            b1.HasKey("RoadNodeRecordId");
 
-                            b1.ToTable("RoadSegmentSurface", "RoadRegistryRoadSegmentSurfaceProducerSnapshotSchema");
+                            b1.ToTable("RoadNode", "RoadRegistryRoadNodeProducerSnapshot");
 
                             b1.WithOwner()
-                                .HasForeignKey("RoadSegmentSurfaceRecordId");
+                                .HasForeignKey("RoadNodeRecordId");
                         });
 
                     b.Navigation("Origin");

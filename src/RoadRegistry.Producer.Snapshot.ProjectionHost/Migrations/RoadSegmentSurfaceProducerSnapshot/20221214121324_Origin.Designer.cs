@@ -3,17 +3,19 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
 
 #nullable disable
 
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadSegmentSurfaceProducerSnapshot
 {
     [DbContext(typeof(RoadSegmentSurfaceProducerSnapshotContext))]
-    partial class RoadSegmentSurfaceProducerSnapshotContextModelSnapshot : ModelSnapshot
+    [Migration("20221214121324_Origin")]
+    partial class Origin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

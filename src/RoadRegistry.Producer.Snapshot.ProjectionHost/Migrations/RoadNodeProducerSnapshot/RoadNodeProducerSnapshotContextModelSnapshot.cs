@@ -82,14 +82,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProdu
                             b1.Property<int>("RoadNodeRecordId")
                                 .HasColumnType("int");
 
-                            b1.Property<DateTimeOffset?>("BeginTime")
+                            b1.Property<string>("Organization")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTimeOffset?>("Timestamp")
                                 .HasColumnType("datetimeoffset");
-
-                            b1.Property<string>("OrganizationId")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("OrganizationName")
-                                .HasColumnType("nvarchar(max)");
 
                             b1.HasKey("RoadNodeRecordId");
 
