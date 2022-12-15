@@ -1,3 +1,12 @@
+# [3.28.0](https://github.com/informatievlaanderen/road-registry/compare/v3.27.0...v3.28.0) (2022-12-15)
+
+
+### Features
+
+* add GradeSeparatedJunction snapshot projection ([ad08816](https://github.com/informatievlaanderen/road-registry/commit/ad08816eeb2518f26fd11d2dab362238e6ede525))
+* add nationalroad snapshot producer ([#748](https://github.com/informatievlaanderen/road-registry/issues/748)) ([53fcc7b](https://github.com/informatievlaanderen/road-registry/commit/53fcc7b08b4ee8b0d9a5d24443169e361b3366d7))
+* add road segment surface snapshot producer ([c9b6923](https://github.com/informatievlaanderen/road-registry/commit/c9b69235e419683cc1428545860685a76a5ad9b1))
+
 # [3.27.0](https://github.com/informatievlaanderen/road-registry/compare/v3.26.5...v3.27.0) (2022-12-12)
 
 
