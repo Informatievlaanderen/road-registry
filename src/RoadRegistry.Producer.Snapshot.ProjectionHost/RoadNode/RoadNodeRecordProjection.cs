@@ -10,8 +10,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Extensions;
     using Projections;
-    using Schema;
-
+    
     public class RoadNodeRecordProjection : ConnectedProjection<RoadNodeProducerSnapshotContext>
     {
         private readonly IKafkaProducer _kafkaProducer;
