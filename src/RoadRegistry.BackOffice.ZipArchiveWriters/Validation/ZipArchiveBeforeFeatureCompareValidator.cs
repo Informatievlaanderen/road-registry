@@ -19,11 +19,13 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
         "TRANSACTIEZONES.DBF",
         "WEGKNOOP.DBF",
         "WEGKNOOP.SHP",
+        "WEGKNOOP.PRJ",
         "WEGSEGMENT.DBF",
+        "WEGSEGMENT.SHP",
+        "WEGSEGMENT.PRJ",
         "ATTRIJSTROKEN.DBF",
         "ATTWEGBREEDTE.DBF",
         "ATTWEGVERHARDING.DBF",
-        "WEGSEGMENT.SHP",
         "ATTEUROPWEG.DBF",
         "ATTNATIONWEG.DBF",
         "ATTGENUMWEG.DBF",
@@ -34,8 +36,7 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
 
     public ZipArchiveBeforeFeatureCompareValidator(Encoding encoding)
     {
-        if (encoding == null)
-            throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(encoding);
 
         _validators =
             new Dictionary<string, IZipArchiveEntryValidator>(StringComparer.InvariantCultureIgnoreCase)
@@ -59,7 +60,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             Uploads.Basic.Schema.RoadNodeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadNodeDbaseRecordsValidator()
-                        ))
+                        )
+                    )
+                },
+                {
+                    "WEGKNOOP.PRJ",
+                    new ZipArchiveProjectionFormatEntryValidator(
+                        encoding
+                    )
                 },
                 {
                     "WEGSEGMENT.SHP",
@@ -80,7 +88,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             Uploads.Basic.Schema.RoadSegmentDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentDbaseRecordsValidator()
-                        ))
+                        )
+                    )
+                },
+                {
+                    "WEGSEGMENT.PRJ",
+                    new ZipArchiveProjectionFormatEntryValidator(
+                        encoding
+                    )
                 },
                 {
                     "ATTEUROPWEG.DBF",
@@ -94,7 +109,8 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             Uploads.Basic.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentEuropeanRoadAttributeDbaseRecordsValidator()
-                        ))
+                        )
+                    )
                 },
                 {
                     "ATTNATIONWEG.DBF",
@@ -108,7 +124,8 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             Uploads.Basic.Schema.RoadSegmentNationalRoadAttributeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentNationalRoadAttributeDbaseRecordsValidator()
-                        ))
+                        )
+                    )
                 },
                 {
                     "ATTGENUMWEG.DBF",
@@ -122,7 +139,8 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             Uploads.Basic.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentNumberedRoadAttributeDbaseRecordsValidator()
-                        ))
+                        )
+                    )
                 },
                 {
                     "ATTRIJSTROKEN.DBF",
@@ -136,7 +154,8 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             Uploads.Basic.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentLaneAttributeDbaseRecordsValidator()
-                        ))
+                        )
+                    )
                 },
                 {
                     "ATTWEGBREEDTE.DBF",
@@ -150,7 +169,8 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             Uploads.Basic.Schema.RoadSegmentWidthAttributeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentWidthAttributeDbaseRecordsValidator()
-                        ))
+                        )
+                    )
                 },
                 {
                     "ATTWEGVERHARDING.DBF",
@@ -164,7 +184,8 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             Uploads.Basic.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentSurfaceAttributeDbaseRecordsValidator()
-                        ))
+                        )
+                    )
                 },
                 {
                     "RLTOGKRUISING.DBF",
@@ -178,7 +199,8 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             Uploads.Basic.Schema.GradeSeparatedJunctionDbaseRecord.Schema,
                             new Uploads.Basic.Validation.GradeSeparatedJunctionDbaseRecordsValidator()
-                        ))
+                        )
+                    )
                 },
                 {
                     "TRANSACTIEZONES.DBF",
