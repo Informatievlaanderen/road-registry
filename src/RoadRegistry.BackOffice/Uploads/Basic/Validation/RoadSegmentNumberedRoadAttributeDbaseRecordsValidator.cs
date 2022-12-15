@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Uploads.BeforeFeatureCompare.Validation;
+namespace RoadRegistry.BackOffice.Uploads.Basic.Validation;
 
 using System;
 using System.IO.Compression;

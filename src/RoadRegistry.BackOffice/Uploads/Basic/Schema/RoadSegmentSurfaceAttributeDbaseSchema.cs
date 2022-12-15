@@ -1,15 +1,15 @@
-namespace RoadRegistry.BackOffice.Uploads.BeforeFeatureCompare.Schema;
+namespace RoadRegistry.BackOffice.Uploads.Basic.Schema;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
-public class RoadSegmentWidthAttributeDbaseSchema : DbaseSchema
+public class RoadSegmentSurfaceAttributeDbaseSchema : DbaseSchema
 {
-    public RoadSegmentWidthAttributeDbaseSchema()
+    public RoadSegmentSurfaceAttributeDbaseSchema()
     {
         Fields = new[]
         {
             DbaseField.CreateNumberField(
-                new DbaseFieldName(nameof(WB_OIDN)),
+                new DbaseFieldName(nameof(WV_OIDN)),
                 new DbaseFieldLength(15),
                 new DbaseDecimalCount(0)),
 
@@ -21,7 +21,7 @@ public class RoadSegmentWidthAttributeDbaseSchema : DbaseSchema
 
             DbaseField
                 .CreateNumberField(
-                    new DbaseFieldName(nameof(BREEDTE)),
+                    new DbaseFieldName(nameof(TYPE)),
                     new DbaseFieldLength(2),
                     new DbaseDecimalCount(0)),
 
@@ -39,9 +39,9 @@ public class RoadSegmentWidthAttributeDbaseSchema : DbaseSchema
         };
     }
 
-    public DbaseField BREEDTE => this.GetField();
     public DbaseField TOTPOS => this.GetField();
+    public DbaseField TYPE => this.GetField();
     public DbaseField VANPOS => this.GetField();
-    public DbaseField WB_OIDN => this.GetField();
     public DbaseField WS_OIDN => this.GetField();
+    public DbaseField WV_OIDN => this.GetField();
 }

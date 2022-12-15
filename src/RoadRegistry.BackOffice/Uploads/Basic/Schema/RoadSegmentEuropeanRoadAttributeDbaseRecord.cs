@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Uploads.BeforeFeatureCompare.Schema;
+namespace RoadRegistry.BackOffice.Uploads.Basic.Schema;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 

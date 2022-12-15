@@ -1,13 +1,13 @@
-namespace RoadRegistry.BackOffice.Uploads.BeforeFeatureCompare.Validation;
+namespace RoadRegistry.BackOffice.Uploads.Basic.Validation;
 
 using System;
 using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Schema;
 
-public class RoadSegmentSurfaceAttributeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<RoadSegmentSurfaceAttributeDbaseRecord>
+public class RoadSegmentLaneAttributeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<RoadSegmentLaneAttributeDbaseRecord>
 {
-    public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentSurfaceAttributeDbaseRecord> records, ZipArchiveValidationContext context)
+    public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<RoadSegmentLaneAttributeDbaseRecord> records, ZipArchiveValidationContext context)
     {
         ArgumentNullException.ThrowIfNull(entry);
         ArgumentNullException.ThrowIfNull(records);
@@ -25,25 +25,34 @@ public class RoadSegmentSurfaceAttributeDbaseRecordsValidator : IZipArchiveDbase
                     var record = records.Current;
                     if (record != null)
                     {
-                        if (record.WV_OIDN.HasValue)
+                        if (record.RS_OIDN.HasValue)
                         {
-                            if (record.WV_OIDN.Value == 0)
+                            if (record.RS_OIDN.Value == 0)
                             {
                                 problems += recordContext.IdentifierZero();
                             }
                         }
                         else
                         {
-                            problems += recordContext.RequiredFieldIsNull(record.WV_OIDN.Field);
+                            problems += recordContext.RequiredFieldIsNull(record.RS_OIDN.Field);
                         }
 
-                        if (!record.TYPE.HasValue)
+                        if (!record.AANTAL.HasValue)
                         {
-                            problems += recordContext.RequiredFieldIsNull(record.TYPE.Field);
+                            problems += recordContext.RequiredFieldIsNull(record.AANTAL.Field);
                         }
-                        else if (!RoadSegmentSurfaceType.ByIdentifier.ContainsKey(record.TYPE.Value))
+                        else if (!RoadSegmentLaneCount.Accepts(record.AANTAL.Value))
                         {
-                            problems += recordContext.SurfaceTypeMismatch(record.TYPE.Value);
+                            problems += recordContext.LaneCountOutOfRange(record.AANTAL.Value);
+                        }
+
+                        if (!record.RICHTING.HasValue)
+                        {
+                            problems += recordContext.RequiredFieldIsNull(record.RICHTING.Field);
+                        }
+                        else if (!RoadSegmentLaneDirection.ByIdentifier.ContainsKey(record.RICHTING.Value))
+                        {
+                            problems += recordContext.LaneDirectionMismatch(record.RICHTING.Value);
                         }
 
                         if (!record.VANPOS.HasValue)

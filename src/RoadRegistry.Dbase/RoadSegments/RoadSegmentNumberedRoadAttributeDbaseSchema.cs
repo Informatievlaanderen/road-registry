@@ -1,18 +1,45 @@
 namespace RoadRegistry.Dbase.RoadSegments;
 
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
-public class RoadSegmentNumberedRoadAttributeDbaseSchema : BackOffice.Uploads.BeforeFeatureCompare.Schema.RoadSegmentNumberedRoadAttributeDbaseSchema
+public class RoadSegmentNumberedRoadAttributeDbaseSchema : DbaseSchema
 {
     public RoadSegmentNumberedRoadAttributeDbaseSchema()
     {
-        Fields = Fields.Concat(new[]
+        Fields = new[]
         {
+            DbaseField.CreateNumberField(
+                new DbaseFieldName(nameof(GW_OIDN)),
+                new DbaseFieldLength(15),
+                new DbaseDecimalCount(0)),
+
+            DbaseField
+                .CreateNumberField(
+                    new DbaseFieldName(nameof(WS_OIDN)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
+
+            DbaseField
+                .CreateCharacterField(
+                    new DbaseFieldName(nameof(IDENT8)),
+                    new DbaseFieldLength(8)),
+
+            DbaseField
+                .CreateNumberField(
+                    new DbaseFieldName(nameof(RICHTING)),
+                    new DbaseFieldLength(2),
+                    new DbaseDecimalCount(0)),
+
             DbaseField
                 .CreateCharacterField(
                     new DbaseFieldName(nameof(LBLRICHT)),
                     new DbaseFieldLength(64)),
+
+            DbaseField
+                .CreateNumberField(
+                    new DbaseFieldName(nameof(VOLGNUMMER)),
+                    new DbaseFieldLength(5),
+                    new DbaseDecimalCount(0)),
 
             DbaseField
                 .CreateCharacterField(
@@ -28,11 +55,16 @@ public class RoadSegmentNumberedRoadAttributeDbaseSchema : BackOffice.Uploads.Be
                 .CreateCharacterField(
                     new DbaseFieldName(nameof(LBLBGNORG)),
                     new DbaseFieldLength(64))
-        }).ToArray();
+        };
     }
-    
-    public DbaseField BEGINORG => this.GetField();
-    public DbaseField BEGINTIJD => this.GetField();
-    public DbaseField LBLBGNORG => this.GetField();
-    public DbaseField LBLRICHT => this.GetField();
+
+    public DbaseField BEGINORG => Fields[7];
+    public DbaseField BEGINTIJD => Fields[6];
+    public DbaseField GW_OIDN => Fields[0];
+    public DbaseField IDENT8 => Fields[2];
+    public DbaseField LBLBGNORG => Fields[8];
+    public DbaseField LBLRICHT => Fields[4];
+    public DbaseField RICHTING => Fields[3];
+    public DbaseField VOLGNUMMER => Fields[5];
+    public DbaseField WS_OIDN => Fields[1];
 }
