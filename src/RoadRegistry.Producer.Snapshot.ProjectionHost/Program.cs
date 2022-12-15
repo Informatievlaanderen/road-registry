@@ -119,42 +119,42 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                                     )
                                 { Schema = WellknownSchemas.EventSchema }))
 
-                        //.AddSnapshotProducer<RoadNodeProducerSnapshotContext, RoadNodeRecordProjection, RoadNodeEventProcessor>(
-                        //    "RoadNode",
-                        //    dbContextOptionsBuilder =>
-                        //        new RoadNodeProducerSnapshotContext(dbContextOptionsBuilder.Options),
-                        //    (_, kafkaProducer) =>
-                        //        new RoadNodeRecordProjection(kafkaProducer),
-                        //    connectedProjection =>
-                        //        RoadNodeAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadNodeEventProcessor.EventMapping)
-                        //)
-                        //.AddSnapshotProducer<RoadSegmentProducerSnapshotContext, RoadSegmentRecordProjection, RoadSegmentEventProcessor>(
-                        //    "RoadSegment",
-                        //    dbContextOptionsBuilder =>
-                        //        new RoadSegmentProducerSnapshotContext(dbContextOptionsBuilder.Options),
-                        //    (sp, kafkaProducer) =>
-                        //        new RoadSegmentRecordProjection(kafkaProducer, sp.GetRequiredService<IStreetNameCache>()),
-                        //    connectedProjection =>
-                        //        RoadSegmentAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadSegmentEventProcessor.EventMapping)
-                        //)
-                        //.AddSnapshotProducer<NationalRoadProducerSnapshotContext, NationalRoadRecordProjection, NationalRoadEventProcessor>(
-                        //    "NationalRoad",
-                        //    dbContextOptionsBuilder =>
-                        //        new NationalRoadProducerSnapshotContext(dbContextOptionsBuilder.Options),
-                        //    (_, kafkaProducer) =>
-                        //        new NationalRoadRecordProjection(kafkaProducer),
-                        //    connectedProjection =>
-                        //        NationalRoadAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, NationalRoadEventProcessor.EventMapping)
-                        //)
-                        //.AddSnapshotProducer<GradeSeparatedJunctionProducerSnapshotContext, GradeSeparatedJunctionRecordProjection, GradeSeparatedJunctionEventProcessor>(
-                        //    "GradeSeparatedJunction",
-                        //    dbContextOptionsBuilder =>
-                        //        new GradeSeparatedJunctionProducerSnapshotContext(dbContextOptionsBuilder.Options),
-                        //    (_, kafkaProducer) =>
-                        //        new GradeSeparatedJunctionRecordProjection(kafkaProducer),
-                        //    connectedProjection =>
-                        //        GradeSeparatedJunctionAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, GradeSeparatedJunctionEventProcessor.EventMapping)
-                        //)
+                        .AddSnapshotProducer<RoadNodeProducerSnapshotContext, RoadNodeRecordProjection, RoadNodeEventProcessor>(
+                            "RoadNode",
+                            dbContextOptionsBuilder =>
+                                new RoadNodeProducerSnapshotContext(dbContextOptionsBuilder.Options),
+                            (_, kafkaProducer) =>
+                                new RoadNodeRecordProjection(kafkaProducer),
+                            connectedProjection =>
+                                RoadNodeAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadNodeEventProcessor.EventMapping)
+                        )
+                        .AddSnapshotProducer<RoadSegmentProducerSnapshotContext, RoadSegmentRecordProjection, RoadSegmentEventProcessor>(
+                            "RoadSegment",
+                            dbContextOptionsBuilder =>
+                                new RoadSegmentProducerSnapshotContext(dbContextOptionsBuilder.Options),
+                            (sp, kafkaProducer) =>
+                                new RoadSegmentRecordProjection(kafkaProducer, sp.GetRequiredService<IStreetNameCache>()),
+                            connectedProjection =>
+                                RoadSegmentAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadSegmentEventProcessor.EventMapping)
+                        )
+                        .AddSnapshotProducer<NationalRoadProducerSnapshotContext, NationalRoadRecordProjection, NationalRoadEventProcessor>(
+                            "NationalRoad",
+                            dbContextOptionsBuilder =>
+                                new NationalRoadProducerSnapshotContext(dbContextOptionsBuilder.Options),
+                            (_, kafkaProducer) =>
+                                new NationalRoadRecordProjection(kafkaProducer),
+                            connectedProjection =>
+                                NationalRoadAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, NationalRoadEventProcessor.EventMapping)
+                        )
+                        .AddSnapshotProducer<GradeSeparatedJunctionProducerSnapshotContext, GradeSeparatedJunctionRecordProjection, GradeSeparatedJunctionEventProcessor>(
+                            "GradeSeparatedJunction",
+                            dbContextOptionsBuilder =>
+                                new GradeSeparatedJunctionProducerSnapshotContext(dbContextOptionsBuilder.Options),
+                            (_, kafkaProducer) =>
+                                new GradeSeparatedJunctionRecordProjection(kafkaProducer),
+                            connectedProjection =>
+                                GradeSeparatedJunctionAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, GradeSeparatedJunctionEventProcessor.EventMapping)
+                        )
                         .AddSnapshotProducer<RoadSegmentSurfaceProducerSnapshotContext, RoadSegmentSurfaceRecordProjection, RoadSegmentSurfaceEventProcessor>(
                             "RoadSegmentSurface",
                             dbContextOptionsBuilder =>
