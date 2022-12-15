@@ -1,29 +1,32 @@
 namespace RoadRegistry.Dbase.RoadNodes;
 
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
-public class RoadNodeDbaseRecord : BackOffice.Uploads.BeforeFeatureCompare.Schema.RoadNodeDbaseRecord
+public class RoadNodeDbaseRecord : DbaseRecord
 {
-    public new static readonly RoadNodeDbaseSchema Schema = new();
+    public static readonly RoadNodeDbaseSchema Schema = new();
 
     public RoadNodeDbaseRecord()
     {
+        WK_OIDN = new DbaseInt32(Schema.WK_OIDN);
         WK_UIDN = new DbaseString(Schema.WK_UIDN);
+        TYPE = new DbaseInt32(Schema.TYPE);
         LBLTYPE = new DbaseString(Schema.LBLTYPE);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
         BEGINORG = new DbaseString(Schema.BEGINORG);
         LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
 
-        Values = Values.Concat(new DbaseFieldValue[]
+        Values = new DbaseFieldValue[]
         {
-            WK_UIDN, LBLTYPE, BEGINTIJD, BEGINORG, LBLBGNORG
-        }).ToArray();
+            WK_OIDN, WK_UIDN, TYPE, LBLTYPE, BEGINTIJD, BEGINORG, LBLBGNORG
+        };
     }
 
     public DbaseString BEGINORG { get; }
     public DbaseDateTime BEGINTIJD { get; }
     public DbaseString LBLBGNORG { get; }
     public DbaseString LBLTYPE { get; }
+    public DbaseInt32 TYPE { get; }
+    public DbaseInt32 WK_OIDN { get; }
     public DbaseString WK_UIDN { get; }
 }

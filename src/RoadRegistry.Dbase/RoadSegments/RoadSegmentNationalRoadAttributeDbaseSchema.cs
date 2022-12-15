@@ -1,14 +1,29 @@
 namespace RoadRegistry.Dbase.RoadSegments;
 
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
-public class RoadSegmentNationalRoadAttributeDbaseSchema : BackOffice.Uploads.BeforeFeatureCompare.Schema.RoadSegmentNationalRoadAttributeDbaseSchema
+public class RoadSegmentNationalRoadAttributeDbaseSchema : DbaseSchema
 {
     public RoadSegmentNationalRoadAttributeDbaseSchema()
     {
-        Fields = Fields.Concat(new[]
+        Fields = new[]
         {
+            DbaseField.CreateNumberField(
+                new DbaseFieldName(nameof(NW_OIDN)),
+                new DbaseFieldLength(15),
+                new DbaseDecimalCount(0)),
+
+            DbaseField
+                .CreateNumberField(
+                    new DbaseFieldName(nameof(WS_OIDN)),
+                    new DbaseFieldLength(15),
+                    new DbaseDecimalCount(0)),
+
+            DbaseField
+                .CreateCharacterField(
+                    new DbaseFieldName(nameof(IDENT2)),
+                    new DbaseFieldLength(8)),
+
             DbaseField
                 .CreateCharacterField(
                     new DbaseFieldName(nameof(BEGINTIJD)),
@@ -23,10 +38,13 @@ public class RoadSegmentNationalRoadAttributeDbaseSchema : BackOffice.Uploads.Be
                 .CreateCharacterField(
                     new DbaseFieldName(nameof(LBLBGNORG)),
                     new DbaseFieldLength(64))
-        }).ToArray();
+        };
     }
-    
+
     public DbaseField BEGINORG => Fields[4];
     public DbaseField BEGINTIJD => Fields[3];
+    public DbaseField IDENT2 => Fields[2];
     public DbaseField LBLBGNORG => Fields[5];
+    public DbaseField NW_OIDN => Fields[0];
+    public DbaseField WS_OIDN => Fields[1];
 }
