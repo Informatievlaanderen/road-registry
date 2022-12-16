@@ -1,3 +1,15 @@
+## [3.28.1](https://github.com/informatievlaanderen/road-registry/compare/v3.28.0...v3.28.1) (2022-12-16)
+
+
+### Bug Fixes
+
+* add prj file to test zip ([c77b86e](https://github.com/informatievlaanderen/road-registry/commit/c77b86e8fdfc1203985d7615f26a235b64c1a0e0))
+* add tests for Basic structure upload ([be1a154](https://github.com/informatievlaanderen/road-registry/commit/be1a154051c4ad7ac489bb45d047b9ee030d6b71))
+* add unit tests for before featurecompare validator ([e9f7fcc](https://github.com/informatievlaanderen/road-registry/commit/e9f7fcc3758f7f4fdc75c1c86b98a6e5dd0a3e56))
+* feaure-compare upload must be able to deal with multiple DBF schemas ([874f5b0](https://github.com/informatievlaanderen/road-registry/commit/874f5b0313b7c04c554f57e92d58ccb7da346b27))
+* keep original schema structure for download, seperate from basic schema ([a9800f2](https://github.com/informatievlaanderen/road-registry/commit/a9800f2bb26a48b95f0f500eefc965cb8809bd1a))
+* undo commented out code ([1a2b42a](https://github.com/informatievlaanderen/road-registry/commit/1a2b42a72103c98f6c75f0d96f70b2ab12c56af3))
+
 # [3.28.0](https://github.com/informatievlaanderen/road-registry/compare/v3.27.0...v3.28.0) (2022-12-15)
 
 
