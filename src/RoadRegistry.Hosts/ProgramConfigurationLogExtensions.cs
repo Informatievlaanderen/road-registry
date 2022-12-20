@@ -36,19 +36,7 @@ public static class ProgramConfigurationLogExtensions
                             minioSecretKey.Substring(minioSecretKey.Length - revealCharacterCount,
                                 revealCharacterCount));
                 }
-                else
-                {
-                    logger.LogInformation("AWS_ACCESS_KEY_ID set to: {AWS_ACCESS_KEY_ID}",
-                        Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID") ?? "<null>");
-                    var awsSecretAccessKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
-                    if (awsSecretAccessKey is { Length: >= revealCharacterCount })
-                        logger.LogInformation(
-                            "AWS_SECRET_ACCESS_KEY set to: {AWS_SECRET_ACCESS_KEY_START}...{AWS_SECRET_ACCESS_KEY_END}",
-                            awsSecretAccessKey.Substring(0, revealCharacterCount),
-                            awsSecretAccessKey.Substring(awsSecretAccessKey.Length - revealCharacterCount,
-                                revealCharacterCount));
-                }
-
+ 
                 break;
             }
         }
