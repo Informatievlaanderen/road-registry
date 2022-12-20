@@ -1,6 +1,6 @@
 {
   "name": "road-registry",
-  "version": "3.28.1",
+  "version": "3.28.2",
   "description": "Authentic base registry containing all road nodes and segments of Flanders.",
   "author": "Basisregisters Vlaanderen",
   "license": "EUPL-1.2",
@@ -147,7 +147,7 @@
     "fail": false
   },
   "engines": {
-    "node": ">= 16.15.0",
-    "npm": ">= 8.5.5"
+    "node": ">= 18.12.1",
+    "npm": ">= 8.19.2"
   }
 }

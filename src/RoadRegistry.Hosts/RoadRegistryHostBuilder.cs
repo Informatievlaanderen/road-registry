@@ -185,12 +185,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                             }
                         ));
                     else // Use AWS
-                        services.AddSingleton(new AmazonS3Client(
-                            new BasicAWSCredentials(
-                                hostContext.Configuration.GetRequiredValue<string>("AWS_ACCESS_KEY_ID"),
-                                hostContext.Configuration.GetRequiredValue<string>("AWS_SECRET_ACCESS_KEY")
-                            )
-                        ));
+                        services.AddSingleton(new AmazonS3Client());
 
                     services
                         .AddSingleton(sp =>

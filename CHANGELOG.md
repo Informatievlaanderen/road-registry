@@ -1,3 +1,11 @@
+## [3.28.2](https://github.com/informatievlaanderen/road-registry/compare/v3.28.1...v3.28.2) (2022-12-20)
+
+
+### Bug Fixes
+
+* Remove all AWS environment variables from code ([eb2515b](https://github.com/informatievlaanderen/road-registry/commit/eb2515bede139dc981797d9427fdc0dff8ccf9ab))
+* UI change header color & title according to env ([cef1345](https://github.com/informatievlaanderen/road-registry/commit/cef134559501f28c320a2f8504a02a045ec51970))
+
 ## [3.28.1](https://github.com/informatievlaanderen/road-registry/compare/v3.28.0...v3.28.1) (2022-12-16)
 
 

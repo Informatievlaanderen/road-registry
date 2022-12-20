@@ -121,16 +121,7 @@ public class Program
                         }
                         else // Use AWS
                         {
-                            if (hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID") == null) throw new InvalidOperationException("The AWS_ACCESS_KEY_ID configuration variable was not set.");
-
-                            if (hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY") == null) throw new InvalidOperationException("The AWS_SECRET_ACCESS_KEY configuration variable was not set.");
-
-                            builder.AddSingleton(new AmazonS3Client(
-                                    new BasicAWSCredentials(
-                                        hostContext.Configuration.GetValue<string>("AWS_ACCESS_KEY_ID"),
-                                        hostContext.Configuration.GetValue<string>("AWS_SECRET_ACCESS_KEY"))
-                                )
-                            );
+                            builder.AddSingleton(new AmazonS3Client());
                         }
 
                         builder.AddSingleton<IBlobClient>(sp =>
