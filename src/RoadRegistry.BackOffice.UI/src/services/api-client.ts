@@ -54,7 +54,6 @@ class AxiosHttpApiClient implements IApiClient {
         return response;
       },
       (error) => {
-        console.info(error);
         if (error.response.status == 403 || error.response.status == 401) {
           let redirect =
             router.currentRoute?.name === "login" ? router.currentRoute.query.redirect : router.currentRoute.fullPath;
@@ -62,6 +61,8 @@ class AxiosHttpApiClient implements IApiClient {
             name: "login",
             query: { redirect },
           });
+        }else{
+          console.info(error);
         }
         apiStats.pendingRequests--;
         return Promise.reject(error);
