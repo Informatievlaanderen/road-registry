@@ -33,8 +33,6 @@ export const AuthService = {
     await this.checkAuthentication();
   },
   async checkAuthentication(): Promise<void> {
-    console.trace(isAuthenticated);
-
     try {
       if (process.env.NODE_ENV === "production") {
         await PublicApi.Information.getInformation();
@@ -43,10 +41,7 @@ export const AuthService = {
       }
       isAuthenticated.state = true;
     } catch (err) {
-      console.error("Authentication failed", err);
       isAuthenticated.state = false;
     }
-
-    console.trace(isAuthenticated);
   },
 };

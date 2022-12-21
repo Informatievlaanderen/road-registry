@@ -6,9 +6,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 
     public class NationalRoadRecord
     {
-        public int Id { get; set; } // NW_OIDN
-        public int RoadSegmentId { get; set; } // WS_OIDN
-        public string Number { get; set; } // IDENT2
+        public int Id { get; set; }
+        public int RoadSegmentId { get; set; }
+        public string Number { get; set; }
 
         public Origin Origin { get; set; }
         public DateTimeOffset LastChangedTimestamp { get; set; }
@@ -21,19 +21,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             int id,
             int roadSegmentId,
             string number,
-            DateTime? beginTime,
-            string organization,
+            Origin origin,
             DateTimeOffset lastChangedTimestamp)
         {
             Id = id;
             RoadSegmentId = roadSegmentId;
             Number = number;
 
-            Origin = new Origin
-            {
-                Organization = organization,
-                BeginTime = beginTime
-            };
+            Origin = origin;
             LastChangedTimestamp = lastChangedTimestamp;
             IsRemoved = false;
         }
@@ -44,8 +39,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
                 Id,
                 RoadSegmentId,
                 Number,
-                Origin.BeginTime,
-                Origin.Organization,
+                Origin,
                 LastChangedTimestamp,
                 IsRemoved
             );

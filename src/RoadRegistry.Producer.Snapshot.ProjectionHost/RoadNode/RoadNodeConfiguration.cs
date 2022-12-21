@@ -23,8 +23,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
                 .Property(p => p.Geometry)
                 .HasColumnType("Geometry")
                 .IsRequired();
+            builder.Property(p => p.TypeId);
+            builder.Property(p => p.TypeDutchName);
 
-            builder.Property(p => p.Type);
             builder.OwnsOne(p => p.Origin);
             builder.Property(p => p.LastChangedTimestamp);
         }

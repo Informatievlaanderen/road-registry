@@ -27,6 +27,8 @@ public static class WellknownSchemas
     public const string NationalRoadProducerSnapshotSchema = "RoadRegistryNationalRoadProducerSnapshotSchema";
     public const string GradeSeparatedJunctionProducerSnapshotMetaSchema = "RoadRegistryGradeSeparatedJunctionProducerSnapshotMetaSchema";
     public const string GradeSeparatedJunctionProducerSnapshotSchema = "RoadRegistryGradeSeparatedJunctionProducerSnapshotSchema";
+    public const string RoadSegmentSurfaceProducerSnapshotMetaSchema = "RoadRegistryRoadSegmentSurfaceProducerSnapshotMetaSchema";
+    public const string RoadSegmentSurfaceProducerSnapshotSchema = "RoadRegistryRoadSegmentSurfaceProducerSnapshotSchema";
 }
 
 public static class MigrationTables
@@ -42,4 +44,5 @@ public static class MigrationTables
     public const string RoadSegmentProducerSnapshot = "__EFMigrationsHistoryRoadSegmentProducerSnapshot";
     public const string NationalRoadProducerSnapshot = "__EFMigrationsHistoryNationalRoadProducerSnapshot";
     public const string GradeSeparatedJunctionProducerSnapshot = "__EFMigrationsHistoryGradeSeparatedJunctionProducerSnapshot";
+    public const string RoadSegmentSurfaceProducerSnapshot = "__EFMigrationsHistoryRoadSegmentSurfaceProducerSnapshot";
 }

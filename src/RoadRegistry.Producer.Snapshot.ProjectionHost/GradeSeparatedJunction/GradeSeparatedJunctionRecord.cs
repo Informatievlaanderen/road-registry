@@ -9,7 +9,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
         public int Id { get; set; }
         public int LowerRoadSegmentId { get; set; }
         public int UpperRoadSegmentId { get; set; }
-        public int Type { get; set; }
+        public int TypeId { get; set; }
+        public string TypeDutchName { get; set; }
 
         public Origin Origin { get; set; }
         public DateTimeOffset LastChangedTimestamp { get; set; }
@@ -22,21 +23,18 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             int id,
             int lowerRoadSegmentId,
             int upperRoadSegmentId,
-            int type,
-            DateTime? beginTime,
-            string organization,
+            int typeId,
+            string typeDutchName,
+            Origin origin,
             DateTimeOffset lastChangedTimestamp)
         {
             Id = id;
             LowerRoadSegmentId = lowerRoadSegmentId;
             UpperRoadSegmentId = upperRoadSegmentId;
-            Type = type;
+            TypeId = typeId;
+            TypeDutchName = typeDutchName;
 
-            Origin = new Origin
-            {
-                Organization = organization,
-                BeginTime = beginTime
-            };
+            Origin = origin;
             LastChangedTimestamp = lastChangedTimestamp;
             IsRemoved = false;
         }
@@ -47,9 +45,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                 Id,
                 LowerRoadSegmentId,
                 UpperRoadSegmentId,
-                Type,
-                Origin.BeginTime,
-                Origin.Organization,
+                TypeId,
+                TypeDutchName,
+                Origin,
                 LastChangedTimestamp,
                 IsRemoved
             );

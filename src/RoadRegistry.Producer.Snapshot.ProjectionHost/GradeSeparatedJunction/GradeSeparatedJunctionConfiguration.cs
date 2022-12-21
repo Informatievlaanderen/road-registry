@@ -21,8 +21,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             
             builder.Property(p => p.LowerRoadSegmentId);
             builder.Property(p => p.UpperRoadSegmentId);
-            builder.Property(p => p.Type);
-            
+            builder.Property(p => p.TypeId);
+            builder.Property(p => p.TypeDutchName);
+
             builder.OwnsOne(p => p.Origin);
             builder.Property(p => p.LastChangedTimestamp);
         }

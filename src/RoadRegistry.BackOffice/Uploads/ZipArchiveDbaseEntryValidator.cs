@@ -29,8 +29,8 @@ public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveDbaseEntry
 
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
         using (var stream = entry.Open())
@@ -49,14 +49,18 @@ public class ZipArchiveDbaseEntryValidator<TDbaseRecord> : IZipArchiveDbaseEntry
             if (header != null)
             {
                 if (!header.Schema.Equals(Schema))
+                {
                     problems += entry.HasDbaseSchemaMismatch(Schema, header.Schema);
+                }
                 else
+                {
                     using (var records = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader))
                     {
                         var (recordProblems, recordContext) = _recordValidator.Validate(entry, records, context);
                         problems += recordProblems;
                         context = recordContext;
                     }
+                }
             }
         }
 

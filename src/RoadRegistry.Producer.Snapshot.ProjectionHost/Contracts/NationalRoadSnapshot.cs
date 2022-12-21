@@ -1,6 +1,7 @@
 namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
 {
     using System;
+    using global::RoadRegistry.Producer.Snapshot.ProjectionHost.Schema;
 
     public class NationalRoadSnapshot : IQueueMessage
     {
@@ -8,8 +9,7 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
         public int RoadSegmentId { get; set; }
         public string Number { get; set; }
 
-        public DateTimeOffset? BeginTime { get; }
-        public string Organization { get; }
+        public Origin Origin { get; }
         public DateTimeOffset LastChangedTimestamp { get; }
         public bool IsRemoved { get; }
 
@@ -17,16 +17,15 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
             int id,
             int roadSegmentId,
             string number,
-            DateTimeOffset? beginTime,
-            string organization,
+            Origin origin,
             DateTimeOffset lastChangedTimestamp,
             bool isRemoved)
         {
             Id = id;
             RoadSegmentId = roadSegmentId;
             Number = number;
-            BeginTime = beginTime;
-            Organization = organization;
+
+            Origin = origin;
             LastChangedTimestamp = lastChangedTimestamp;
             IsRemoved = isRemoved;
         }
