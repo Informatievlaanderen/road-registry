@@ -30,6 +30,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     [Fact]
     public async Task When_an_archive_for_an_extract_is_accepted()
     {
+        var description = _fixture.Create<ExtractDescription>();
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         var extractRequestId = _fixture.Create<ExtractRequestId>();
         var downloadId = _fixture.Create<DownloadId>();
@@ -45,6 +46,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Scenario()
             .Given(new RoadNetworkExtractChangesArchiveUploaded
             {
+                Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
@@ -52,6 +54,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 ArchiveId = archiveId
             }, new RoadNetworkExtractChangesArchiveAccepted
             {
+                Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
@@ -85,7 +88,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading bestand voor download {downloadId.ToGuid():N} van extract aanvraag {externalExtractRequestId} ontvangen",
+                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
@@ -94,7 +97,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             }, new RoadNetworkChange
             {
                 Id = 1,
-                Title = $"Oplading bestand voor download {downloadId.ToGuid():N} van extract aanvraag {externalExtractRequestId} werd aanvaard",
+                Title = $"Oplading gevalideerd voor extractaanvraag '{description}'",
                 Type = nameof(RoadNetworkExtractChangesArchiveAccepted),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                 {
@@ -125,6 +128,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     [Fact]
     public async Task When_an_archive_for_an_extract_is_rejected()
     {
+        var description = _fixture.Create<ExtractDescription>();
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         var extractRequestId = _fixture.Create<ExtractRequestId>();
         var downloadId = _fixture.Create<DownloadId>();
@@ -140,6 +144,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Scenario()
             .Given(new RoadNetworkExtractChangesArchiveUploaded
             {
+                Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
@@ -147,6 +152,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 ArchiveId = archiveId
             }, new RoadNetworkExtractChangesArchiveRejected
             {
+                Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
@@ -180,7 +186,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading bestand voor download {downloadId.ToGuid():N} van extract aanvraag {externalExtractRequestId} ontvangen",
+                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
@@ -189,7 +195,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             }, new RoadNetworkChange
             {
                 Id = 1,
-                Title = $"Oplading bestand voor download {downloadId.ToGuid():N} van extract aanvraag {externalExtractRequestId} werd geweigerd",
+                Title = $"Oplading geweigerd voor extractaanvraag {description}",
                 Type = nameof(RoadNetworkExtractChangesArchiveRejected),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveRejectedEntry
                 {
@@ -220,6 +226,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     [Fact]
     public async Task When_an_archive_is_accepted()
     {
+        var description = _fixture.Create<ExtractDescription>();
         var file = _fixture.Create<string>();
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
@@ -231,9 +238,11 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Scenario()
             .Given(new RoadNetworkChangesArchiveUploaded
             {
+                Description = description,
                 ArchiveId = archiveId
             }, new RoadNetworkChangesArchiveAccepted
             {
+                Description = description,
                 ArchiveId = archiveId,
                 Problems = new[]
                 {
@@ -263,7 +272,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
                 {
                     Id = 0,
-                    Title = "Oplading bestand ontvangen",
+                    Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
@@ -273,7 +282,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 new RoadNetworkChange
                 {
                     Id = 1,
-                    Title = "Oplading bestand werd aanvaard",
+                    Title = $"Oplading gevalideerd voor extractaanvraag '{description}'",
                     Type = nameof(RoadNetworkChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                     {
@@ -304,6 +313,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     [Fact]
     public async Task When_an_archive_is_rejected()
     {
+        var description = _fixture.Create<ExtractDescription>();
         var file = _fixture.Create<string>();
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
@@ -314,9 +324,11 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Scenario()
             .Given(new RoadNetworkChangesArchiveUploaded
             {
+                Description = description,
                 ArchiveId = archiveId
             }, new RoadNetworkChangesArchiveRejected
             {
+                Description = description,
                 ArchiveId = archiveId,
                 Problems = new[]
                 {
@@ -346,7 +358,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = "Oplading bestand ontvangen",
+                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
                 Type = nameof(RoadNetworkChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                 {
@@ -355,7 +367,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             }, new RoadNetworkChange
             {
                 Id = 1,
-                Title = "Oplading bestand werd geweigerd",
+                Title = $"Oplading geweigerd voor extractaanvraag {description}",
                 Type = nameof(RoadNetworkChangesArchiveRejected),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveRejectedEntry
                 {
@@ -386,6 +398,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     [Fact]
     public async Task When_extract_download_became_available()
     {
+        var description = _fixture.Create<ExtractDescription>();
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         var extractRequestId = _fixture.Create<ExtractRequestId>();
         var downloadId = _fixture.Create<DownloadId>();
@@ -399,6 +412,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Scenario()
             .Given(new RoadNetworkExtractDownloadBecameAvailable
             {
+                Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
@@ -407,7 +421,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Download {downloadId.ToGuid():N} van extract aanvraag {externalExtractRequestId} werd beschikbaar",
+                Title = $"Download voor extractaanvraag '{description}' werd beschikbaar",
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
                 {
@@ -419,6 +433,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     [Fact]
     public async Task When_extract_download_timeout_occurred()
     {
+        var description = _fixture.Create<ExtractDescription>();
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         var extractRequestId = _fixture.Create<ExtractRequestId>();
 
@@ -426,20 +441,20 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Scenario()
             .Given(new RoadNetworkExtractDownloadTimeoutOccurred
             {
+                Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
-                Description = "TEST"
             })
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Extract aanvraag {externalExtractRequestId} werd niet verwerkt, contour is te complex of te groot.",
+                Title = $"Download voor extractaanvraag '{description}' niet beschikbaar: contour te complex of te groot",
                 Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadTimeoutOccurredEntry
                 {
                     ExternalRequestId = externalExtractRequestId,
                     RequestId = extractRequestId,
-                    Description = "TEST"
+                    Description = description
                 })
             });
     }
@@ -484,6 +499,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     [Fact]
     public async Task When_requesting_an_extract()
     {
+        var description = _fixture.Create<ExtractDescription>();
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         var extractRequestId = _fixture.Create<ExtractRequestId>();
         var downloadId = _fixture.Create<DownloadId>();
@@ -492,6 +508,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Scenario()
             .Given(new RoadNetworkExtractGotRequested
             {
+                Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
@@ -500,7 +517,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Extract aanvraag {externalExtractRequestId} voor download {downloadId.ToGuid():N} ontvangen",
+                Title = $"Extractaanvraag '{description}' ontvangen",
                 Type = nameof(RoadNetworkExtractGotRequested),
                 Content = null
             });
@@ -509,6 +526,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     [Fact]
     public async Task When_uploading_an_archive()
     {
+        var description = _fixture.Create<ExtractDescription>();
         var archiveId = _fixture.Create<ArchiveId>();
         var filename = _fixture.Create<string>();
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
@@ -519,16 +537,22 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Scenario()
             .Given(new RoadNetworkChangesArchiveUploaded
             {
+                Description = description,
                 ArchiveId = archiveId
             })
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = "Oplading bestand ontvangen",
+                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
                 Type = nameof(RoadNetworkChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                 {
-                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
+                    Archive = new ArchiveInfo
+                    {
+                        Id = archiveId,
+                        Available = true,
+                        Filename = filename
+                    },
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {
@@ -540,6 +564,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
     [Fact]
     public async Task When_uploading_an_archive_for_an_extract()
     {
+        var description = _fixture.Create<ExtractDescription>();
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         var extractRequestId = _fixture.Create<ExtractRequestId>();
         var downloadId = _fixture.Create<DownloadId>();
@@ -554,6 +579,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Scenario()
             .Given(new RoadNetworkExtractChangesArchiveUploaded
             {
+                Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
@@ -563,7 +589,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading bestand voor download {downloadId.ToGuid():N} van extract aanvraag {externalExtractRequestId} ontvangen",
+                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
