@@ -98,6 +98,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
             await queue.Write(new Command(
                 new AnnounceRoadNetworkExtractDownloadBecameAvailable
                 {
+                    Description = message.Body.Description,
                     RequestId = message.Body.RequestId,
                     DownloadId = message.Body.DownloadId,
                     //Revision = revision,
