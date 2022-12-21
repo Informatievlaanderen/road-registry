@@ -100,7 +100,6 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 {
                     RequestId = message.Body.RequestId,
                     DownloadId = message.Body.DownloadId,
-                    //Revision = revision,
                     ArchiveId = archiveId
                 })
                 .WithMessageId(message.MessageId), ct);

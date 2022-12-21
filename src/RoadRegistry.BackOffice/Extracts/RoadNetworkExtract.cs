@@ -50,9 +50,9 @@ public class RoadNetworkExtract : EventSourcedEntity
         if (_requestedDownloads.Contains(downloadId) && !_announcedDownloads.Contains(downloadId))
             Apply(new RoadNetworkExtractDownloadBecameAvailable
             {
+                Description = _extractDescription,
                 RequestId = Id.ToString(),
                 ExternalRequestId = _externalExtractRequestId,
-                Description = _extractDescription,
                 DownloadId = downloadId,
                 ArchiveId = archiveId
             });
@@ -62,9 +62,9 @@ public class RoadNetworkExtract : EventSourcedEntity
     {
         Apply(new RoadNetworkExtractDownloadTimeoutOccurred
         {
+            Description = _extractDescription,
             RequestId = Id.ToString(),
             ExternalRequestId = _externalExtractRequestId,
-            Description = _extractDescription,
         });
     }
 
@@ -77,10 +77,10 @@ public class RoadNetworkExtract : EventSourcedEntity
         var instance = Factory();
         instance.Apply(new RoadNetworkExtractGotRequestedV2
         {
+            Description = extractDescription,
             RequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId).ToString(),
             ExternalRequestId = externalExtractRequestId,
             DownloadId = downloadId,
-            Description = extractDescription,
             Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour)
         });
         return instance;
@@ -91,9 +91,9 @@ public class RoadNetworkExtract : EventSourcedEntity
         if (!_requestedDownloads.Contains(downloadId))
             Apply(new RoadNetworkExtractGotRequestedV2
             {
+                Description = _extractDescription,
                 RequestId = Id.ToString(),
                 ExternalRequestId = _externalExtractRequestId,
-                Description = _extractDescription,
                 DownloadId = downloadId,
                 Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour)
             });
@@ -115,6 +115,7 @@ public class RoadNetworkExtract : EventSourcedEntity
 
         Apply(new RoadNetworkExtractChangesArchiveUploaded
         {
+            Description = _extractDescription,
             RequestId = Id,
             ExternalRequestId = _externalExtractRequestId,
             DownloadId = downloadId,

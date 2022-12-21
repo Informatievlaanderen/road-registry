@@ -50,7 +50,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Extract aanvraag {envelope.Message.ExternalRequestId} voor download {envelope.Message.DownloadId:N} ontvangen",
+                    Title = $"Extractaanvraag '{envelope.Message.Description}' ontvangen",
                     Type = nameof(RoadNetworkExtractGotRequested),
                     Content = null,
                     When = envelope.Message.When
@@ -61,7 +61,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Extract aanvraag {envelope.Message.ExternalRequestId} voor download {envelope.Message.DownloadId:N} met omschrijving {envelope.Message.Description} ontvangen",
+                    Title = $"Extractaanvraag '{envelope.Message.Description}' ontvangen",
                     Type = nameof(RoadNetworkExtractGotRequestedV2),
                     Content = null,
                     When = envelope.Message.When
@@ -79,7 +79,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
             {
                 Id = envelope.Position,
-                Title = $"Download {envelope.Message.DownloadId:N} van extract aanvraag {envelope.Message.ExternalRequestId} werd beschikbaar",
+                Title = $"Download voor extractaanvraag '{envelope.Message.Description}' werd beschikbaar",
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When
@@ -98,7 +98,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
             {
                 Id = envelope.Position,
-                Title = $"Extract aanvraag {envelope.Message.ExternalRequestId} werd niet verwerkt, contour is te complex of te groot.",
+                Title = $"Download voor extractaanvraag '{envelope.Message.Description}' niet beschikbaar: contour te complex of te groot",
                 Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When
@@ -117,7 +117,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
             {
                 Id = envelope.Position,
-                Title = "Oplading bestand ontvangen",
+                Title = $"Oplading ontvangen voor extractaanvraag '{envelope.Message.Description}'",
                 Type = nameof(RoadNetworkChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When
@@ -147,7 +147,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             {
                 Id = envelope.Position,
                 Title =
-                    $"Oplading bestand voor download {envelope.Message.DownloadId:N} van extract aanvraag {envelope.Message.ExternalRequestId} ontvangen",
+                    $"Oplading ontvangen voor extractaanvraag '{envelope.Message.Description}'",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When
@@ -191,7 +191,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = "Oplading bestand werd aanvaard",
+                    Title = $"Oplading gevalideerd voor extractaanvraag '{envelope.Message.Description}'",
                     Type = nameof(RoadNetworkChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -225,7 +225,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading bestand voor download {envelope.Message.DownloadId:N} van extract aanvraag {envelope.Message.ExternalRequestId} werd aanvaard",
+                    Title = $"Oplading gevalideerd voor extractaanvraag '{envelope.Message.Description}'",
                     Type = nameof(RoadNetworkExtractChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -259,7 +259,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = "Oplading bestand werd geweigerd",
+                    Title = $"Oplading geweigerd voor extractaanvraag {envelope.Message.Description}",
                     Type = nameof(RoadNetworkChangesArchiveRejected),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -293,7 +293,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading bestand voor download {envelope.Message.DownloadId:N} van extract aanvraag {envelope.Message.ExternalRequestId} werd geweigerd",
+                    Title = $"Oplading geweigerd voor extractaanvraag {envelope.Message.Description}",
                     Type = nameof(RoadNetworkExtractChangesArchiveRejected),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -336,7 +336,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading \"{envelope.Message.Reason}\" door {envelope.Message.Organization} ({envelope.Message.Operator}) werd aanvaard",
+                    Title = $"Oplading aanvaard voor extractaanvraag {envelope.Message.Description}",
                     Type = nameof(RoadNetworkChangesAccepted) + ":v2",
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -378,7 +378,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading \"{envelope.Message.Reason}\" door {envelope.Message.Organization} ({envelope.Message.Operator}) werd geweigerd",
+                    Title = $"Oplading geweigerd voor extractaanvraag {envelope.Message.Description}",
                     Type = nameof(RoadNetworkChangesRejected),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -408,7 +408,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Geen wijzigingen in oplading \"{envelope.Message.Reason}\" door {envelope.Message.Organization} ({envelope.Message.Operator})",
+                    Title = $"Geen wijzigingen in oplading voor extractaanvraag {envelope.Message.Description}",
                     Type = nameof(NoRoadNetworkChanges),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -416,8 +416,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
         });
     }
 
-    private static async Task EnrichWithArchiveInformation(string archiveId,
-        ArchiveInfo archiveInfo, IBlobClient client, CancellationToken ct)
+    private static async Task EnrichWithArchiveInformation(string archiveId, ArchiveInfo archiveInfo, IBlobClient client, CancellationToken ct)
     {
         var blobName = new BlobName(archiveId);
         if (await client.BlobExistsAsync(blobName, ct))

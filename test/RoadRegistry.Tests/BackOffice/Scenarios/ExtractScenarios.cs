@@ -417,17 +417,17 @@ public class ExtractScenarios : RoadRegistryFixture
         await Run(scenario => scenario
             .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
             {
+                Description = extractDescription,
                 RequestId = extractRequestId,
                 ExternalRequestId = externalExtractRequestId,
-                Description = extractDescription,
                 DownloadId = downloadId,
                 Contour = contour,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }, new RoadNetworkExtractDownloadBecameAvailable
             {
+                Description = extractDescription,
                 RequestId = extractRequestId,
                 ExternalRequestId = externalExtractRequestId,
-                Description = extractDescription,
                 DownloadId = downloadId,
                 ArchiveId = archiveId,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -436,6 +436,7 @@ public class ExtractScenarios : RoadRegistryFixture
             .Then(RoadNetworkExtracts.ToStreamName(extractRequestId),
                 new RoadNetworkExtractChangesArchiveUploaded
                 {
+                    Description = extractDescription,
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
@@ -445,6 +446,7 @@ public class ExtractScenarios : RoadRegistryFixture
                 },
                 new RoadNetworkExtractChangesArchiveAccepted
                 {
+                    Description = extractDescription,
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
@@ -472,17 +474,17 @@ public class ExtractScenarios : RoadRegistryFixture
         await Run(scenario => scenario
             .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
             {
+                Description = extractDescription,
                 RequestId = extractRequestId,
                 ExternalRequestId = externalExtractRequestId,
                 DownloadId = downloadId,
-                Description = extractDescription,
                 Contour = contour,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }, new RoadNetworkExtractDownloadBecameAvailable
             {
+                Description = extractDescription,
                 RequestId = extractRequestId,
                 ExternalRequestId = externalExtractRequestId,
-                Description = extractDescription,
                 DownloadId = downloadId,
                 ArchiveId = archiveId,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -491,6 +493,7 @@ public class ExtractScenarios : RoadRegistryFixture
             .Then(RoadNetworkExtracts.ToStreamName(extractRequestId),
                 new RoadNetworkExtractChangesArchiveUploaded
                 {
+                    Description = extractDescription,
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,
@@ -500,6 +503,7 @@ public class ExtractScenarios : RoadRegistryFixture
                 },
                 new RoadNetworkExtractChangesArchiveRejected
                 {
+                    Description = extractDescription,
                     RequestId = extractRequestId,
                     ExternalRequestId = externalExtractRequestId,
                     DownloadId = downloadId,

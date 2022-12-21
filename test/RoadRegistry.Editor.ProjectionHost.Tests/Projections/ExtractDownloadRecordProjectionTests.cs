@@ -29,6 +29,7 @@ public class ExtractDownloadRecordProjectionTests
                             var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
                             return new RoadNetworkExtractGotRequested
                             {
+                                Description = _fixture.Create<ExtractDescription>(),
                                 DownloadId = _fixture.Create<Guid>(),
                                 ExternalRequestId = externalRequestId,
                                 RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
@@ -53,6 +54,7 @@ public class ExtractDownloadRecordProjectionTests
                             var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
                             return new RoadNetworkExtractDownloadBecameAvailable
                             {
+                                Description = _fixture.Create<ExtractDescription>(),
                                 DownloadId = _fixture.Create<Guid>(),
                                 ExternalRequestId = externalRequestId,
                                 RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
@@ -71,9 +73,9 @@ public class ExtractDownloadRecordProjectionTests
                             var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
                             return new RoadNetworkExtractDownloadTimeoutOccurred
                             {
+                                Description = _fixture.Create<ExtractDescription>(),
                                 RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
                                 ExternalRequestId = externalRequestId,
-                                Description = _fixture.Create<ExtractDescription>(),
                                 When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
                             };
                         }
@@ -104,6 +106,7 @@ public class ExtractDownloadRecordProjectionTests
                 {
                     given = new RoadNetworkExtractGotRequested
                     {
+                        Description = _fixture.Create<ExtractDescription>(),
                         ExternalRequestId = available.ExternalRequestId,
                         RequestId = available.RequestId,
                         DownloadId = available.DownloadId,

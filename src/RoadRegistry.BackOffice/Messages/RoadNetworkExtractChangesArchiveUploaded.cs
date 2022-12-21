@@ -12,5 +12,6 @@ public class RoadNetworkExtractChangesArchiveUploaded : IMessage
     public string ExternalRequestId { get; set; }
     public string RequestId { get; set; }
     public Guid UploadId { get; set; }
+    public string Description { get; set; }
     public string When { get; set; }
 }

@@ -7,5 +7,6 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 public class RoadNetworkChangesArchiveUploaded : IMessage
 {
     public string ArchiveId { get; set; }
+    public string Description { get; set; }
     public string When { get; set; }
 }
