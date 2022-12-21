@@ -3,9 +3,9 @@ import App from "./App.vue";
 import router from "./router";
 import "./core";
 import { AuthService } from "@/auth";
-import { featureToggles } from "@/environment";
+import { featureToggles, WR_ENV } from "@/environment";
 
-if (process.env.NODE_ENV === "development") {
+if (WR_ENV == "development") {
   console.log("environment.featureToggles", featureToggles);
 }
 

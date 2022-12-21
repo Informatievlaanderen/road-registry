@@ -9,6 +9,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Extensions;
     using Projections;
 
     public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<GradeSeparatedJunctionProducerSnapshotContext>
@@ -33,8 +34,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                     envelope.Message.LowerRoadSegmentId,
                     envelope.Message.UpperRoadSegmentId,
                     typeTranslation.Identifier,
-                    envelope.Message.Origin.Since,
-                    envelope.Message.Origin.Organization,
+                    typeTranslation.Name,
+                    envelope.Message.Origin.ToOrigin(),
                     envelope.CreatedUtc
                 ), token);
 
@@ -72,8 +73,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                     gradeSeparatedJunctionAdded.LowerRoadSegmentId,
                     gradeSeparatedJunctionAdded.UpperRoadSegmentId,
                     typeTranslation.Identifier,
-                    LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-                    envelope.Message.Organization,
+                    typeTranslation.Name,
+                    envelope.Message.ToOrigin(),
                     envelope.CreatedUtc
                 ), token);
 
@@ -97,9 +98,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
 
             gradeSeparatedJunctionRecord.UpperRoadSegmentId = gradeSeparatedJunctionModified.UpperRoadSegmentId;
             gradeSeparatedJunctionRecord.LowerRoadSegmentId = gradeSeparatedJunctionModified.LowerRoadSegmentId;
-            gradeSeparatedJunctionRecord.Type = typeTranslation.Identifier;
-            gradeSeparatedJunctionRecord.Origin.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-            gradeSeparatedJunctionRecord.Origin.Organization = envelope.Message.Organization;
+            gradeSeparatedJunctionRecord.TypeId = typeTranslation.Identifier;
+            gradeSeparatedJunctionRecord.TypeDutchName = typeTranslation.Name;
+            gradeSeparatedJunctionRecord.Origin = envelope.Message.ToOrigin();
             gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
 
             await Produce(gradeSeparatedJunctionRecord.Id, gradeSeparatedJunctionRecord.ToContract(), token);
@@ -119,7 +120,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
                 throw new InvalidOperationException($"{nameof(GradeSeparatedJunctionRecord)} with id {gradeSeparatedJunctionRemoved.Id} is not found!");
             }
 
-            gradeSeparatedJunctionRecord.Origin.Organization = envelope.Message.Organization;
+            gradeSeparatedJunctionRecord.Origin = envelope.Message.ToOrigin();
             gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
             gradeSeparatedJunctionRecord.IsRemoved = true;
 

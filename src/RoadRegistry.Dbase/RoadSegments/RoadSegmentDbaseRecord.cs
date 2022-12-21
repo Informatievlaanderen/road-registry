@@ -3,7 +3,6 @@
 namespace RoadRegistry.Dbase.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using RoadRegistry.Dbase;
 
 public class RoadSegmentDbaseRecord : DbaseRecord
 {

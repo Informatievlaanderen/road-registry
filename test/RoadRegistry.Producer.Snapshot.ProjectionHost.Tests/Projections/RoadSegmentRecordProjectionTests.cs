@@ -7,6 +7,7 @@ using BackOffice.Framework;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Extensions;
 using Moq;
 using ProjectionHost.Projections;
 using RoadSegment;
@@ -72,11 +73,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             var roadSegmentRecord = new RoadSegmentRecord
             {
                 Id = roadSegmentAdded.Id,
-                BeginOperator = message.Operator,
-                BeginOrganizationId = message.OrganizationId,
-                BeginOrganizationName = message.Organization,
-                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                BeginApplication = null,
 
                 MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
                 MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
@@ -117,6 +113,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 BeginRoadNodeId = roadSegmentAdded.StartNodeId,
                 EndRoadNodeId = roadSegmentAdded.EndNodeId,
                 StreetNameCachePosition = 0L,
+
+                Origin = message.ToOrigin(),
                 LastChangedTimestamp = created
             };
             return (object)roadSegmentRecord;
@@ -176,11 +174,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             var roadSegmentRecord = new RoadSegmentRecord
             {
                 Id = roadSegmentModified.Id,
-                BeginOperator = acceptedRoadSegmentModified.Operator,
-                BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
-                BeginOrganizationName = acceptedRoadSegmentModified.Organization,
-                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When),
-                BeginApplication = null,
 
                 MaintainerId = roadSegmentModified.MaintenanceAuthority.Code,
                 MaintainerName = roadSegmentModified.MaintenanceAuthority.Name,
@@ -221,6 +214,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 BeginRoadNodeId = roadSegmentModified.StartNodeId,
                 EndRoadNodeId = roadSegmentModified.EndNodeId,
                 StreetNameCachePosition = 0L,
+
+                Origin = acceptedRoadSegmentModified.ToOrigin(),
                 LastChangedTimestamp = created
             };
             return (object)roadSegmentRecord;
@@ -280,13 +275,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             return (object)new RoadSegmentRecord
             {
                 Id = roadSegmentAdded.Id,
-
-                BeginOperator = acceptedRoadSegmentAdded.Operator,
-                BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
-                BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
-                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
-                BeginApplication = null,
-
+                
                 MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
                 MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
 
@@ -326,6 +315,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 BeginRoadNodeId = roadSegmentAdded.StartNodeId,
                 EndRoadNodeId = roadSegmentAdded.EndNodeId,
                 StreetNameCachePosition = 0L,
+
+                Origin = acceptedRoadSegmentAdded.ToOrigin(),
                 LastChangedTimestamp = created.AddDays(-1),
                 IsRemoved = true
             };
@@ -336,11 +327,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             var roadSegmentRemoved = change.RoadSegmentRemoved;
 
             var roadSegmentRecord = expectedRecords.Cast<RoadSegmentRecord>().Single(x => x.Id == roadSegmentRemoved.Id);
-            roadSegmentRecord.BeginOperator = acceptedRoadSegmentRemoved.Operator;
-            roadSegmentRecord.BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId;
-            roadSegmentRecord.BeginOrganizationName = acceptedRoadSegmentRemoved.Organization;
-            roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When);
-            roadSegmentRecord.BeginApplication = null;
+            roadSegmentRecord.Origin = acceptedRoadSegmentRemoved.ToOrigin();
             roadSegmentRecord.IsRemoved = true;
             roadSegmentRecord.LastChangedTimestamp = created;
             return (object)roadSegmentRecord;
@@ -394,12 +381,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 {
                     Id = @event.Id,
                     
-                    BeginOperator = @event.Origin.Operator,
-                    BeginOrganizationId = @event.Origin.OrganizationId,
-                    BeginOrganizationName = @event.Origin.Organization,
-                    BeginTime = @event.Origin.Since,
-                    BeginApplication = @event.Origin.Application,
-
                     MaintainerId = @event.MaintenanceAuthority.Code,
                     MaintainerName = @event.MaintenanceAuthority.Name,
 
@@ -439,6 +420,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     BeginRoadNodeId = @event.StartNodeId,
                     EndRoadNodeId = @event.EndNodeId,
                     StreetNameCachePosition = 0L,
+
+                    Origin = @event.Origin.ToOrigin(),
                     LastChangedTimestamp = created,
                     IsRemoved = false
                 };

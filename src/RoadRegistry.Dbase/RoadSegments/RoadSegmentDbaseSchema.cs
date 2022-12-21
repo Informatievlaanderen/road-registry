@@ -1,6 +1,6 @@
 // ReSharper disable InconsistentNaming
 
-namespace RoadRegistry.Dbase;
+namespace RoadRegistry.Dbase.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 

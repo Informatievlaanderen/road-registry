@@ -97,9 +97,7 @@ public class Program
             }
             else
             {
-                var (accessKey, secretKey) = GetAccessKey("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY");
-
-                return new AmazonS3Client(accessKey, secretKey);
+                return new AmazonS3Client();
             }
         }
 

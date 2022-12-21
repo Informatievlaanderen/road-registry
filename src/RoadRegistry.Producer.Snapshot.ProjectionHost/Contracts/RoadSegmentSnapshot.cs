@@ -1,20 +1,16 @@
 namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
 {
     using System;
+    using Common;
+    using global::RoadRegistry.Producer.Snapshot.ProjectionHost.Schema;
     using NetTopologySuite.Geometries;
     using Utilities.HexByteConvertor;
 
     public class RoadSegmentSnapshot : IQueueMessage
     {
-
         public string AccessRestrictionDutchName { get; }
         public int? AccessRestrictionId { get; }
-        public string BeginApplication { get; }
-        public string BeginOperator { get; }
-        public string BeginOrganizationId { get; }
-        public string BeginOrganizationName { get; }
         public int? BeginRoadNodeId { get; }
-        public DateTime? BeginTime { get; }
         public string CategoryDutchName { get; }
         public string CategoryId { get; }
         public int? EndRoadNodeId { get; }
@@ -43,26 +39,54 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
         public int? StatusId { get; }
         public long StreetNameCachePosition { get; }
         public int? TransactionId { get; }
-
+        
+        public Origin Origin { get; }
         public DateTimeOffset LastChangedTimestamp { get; }
         public bool IsRemoved { get; }
 
-        public RoadSegmentSnapshot(string accessRestrictionDutchName, int? accessRestrictionId, string beginApplication, string beginOperator, string beginOrganizationId, string beginOrganizationName, int? beginRoadNodeId, DateTime? beginTime, string categoryDutchName, string categoryId, int? endRoadNodeId, Geometry geometry2D, int? geometryVersion, int id, int? leftSideMunicipalityId, string leftSideMunicipalityNisCode, string leftSideStreetName, int? leftSideStreetNameId, string maintainerId, string maintainerName, string methodDutchName, int? methodId, string morphologyDutchName, int? morphologyId, DateTime? recordingDate, int? rightSideMunicipalityId, string rightSideMunicipalityNisCode, string rightSideStreetName, int? rightSideStreetNameId, int? roadSegmentVersion, string statusDutchName, int? statusId, long streetNameCachePosition, int? transactionId, DateTimeOffset lastChangedTimestamp, bool isRemoved)
+        public RoadSegmentSnapshot(
+            string accessRestrictionDutchName,
+            int? accessRestrictionId,
+            int? beginRoadNodeId,
+            string categoryDutchName,
+            string categoryId,
+            int? endRoadNodeId,
+            Geometry geometry,
+            int? geometryVersion,
+            int id,
+            int? leftSideMunicipalityId,
+            string leftSideMunicipalityNisCode,
+            string leftSideStreetName,
+            int? leftSideStreetNameId,
+            string maintainerId,
+            string maintainerName,
+            string methodDutchName,
+            int? methodId,
+            string morphologyDutchName,
+            int? morphologyId,
+            DateTime? recordingDate,
+            int? rightSideMunicipalityId,
+            string rightSideMunicipalityNisCode,
+            string rightSideStreetName,
+            int? rightSideStreetNameId,
+            int? roadSegmentVersion,
+            string statusDutchName,
+            int? statusId,
+            long streetNameCachePosition,
+            int? transactionId,
+            Origin origin,
+            DateTimeOffset lastChangedTimestamp,
+            bool isRemoved)
         {
             AccessRestrictionDutchName = accessRestrictionDutchName;
             AccessRestrictionId = accessRestrictionId;
-            BeginApplication = beginApplication;
-            BeginOperator = beginOperator;
-            BeginOrganizationId = beginOrganizationId;
-            BeginOrganizationName = beginOrganizationName;
             BeginRoadNodeId = beginRoadNodeId;
-            BeginTime = beginTime;
             CategoryDutchName = categoryDutchName;
             CategoryId = categoryId;
             EndRoadNodeId = endRoadNodeId;
-            GeometryAsHex = geometry2D.ToBinary().ToHexString();
-            GeometryAsWkt = geometry2D.AsText();
-            GeometrySrid = geometry2D.SRID;
+            GeometryAsHex = geometry.ToBinary().ToHexString();
+            GeometryAsWkt = geometry.AsText();
+            GeometrySrid = geometry.SRID;
             GeometryVersion = geometryVersion;
             Id = id;
             LeftSideMunicipalityId = leftSideMunicipalityId;
@@ -85,6 +109,8 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
             StatusId = statusId;
             StreetNameCachePosition = streetNameCachePosition;
             TransactionId = transactionId;
+
+            Origin = origin;
             LastChangedTimestamp = lastChangedTimestamp;
             IsRemoved = isRemoved;
         }

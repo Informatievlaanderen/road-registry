@@ -1,3 +1,32 @@
+## [3.28.2](https://github.com/informatievlaanderen/road-registry/compare/v3.28.1...v3.28.2) (2022-12-20)
+
+
+### Bug Fixes
+
+* Remove all AWS environment variables from code ([eb2515b](https://github.com/informatievlaanderen/road-registry/commit/eb2515bede139dc981797d9427fdc0dff8ccf9ab))
+* UI change header color & title according to env ([cef1345](https://github.com/informatievlaanderen/road-registry/commit/cef134559501f28c320a2f8504a02a045ec51970))
+
+## [3.28.1](https://github.com/informatievlaanderen/road-registry/compare/v3.28.0...v3.28.1) (2022-12-16)
+
+
+### Bug Fixes
+
+* add prj file to test zip ([c77b86e](https://github.com/informatievlaanderen/road-registry/commit/c77b86e8fdfc1203985d7615f26a235b64c1a0e0))
+* add tests for Basic structure upload ([be1a154](https://github.com/informatievlaanderen/road-registry/commit/be1a154051c4ad7ac489bb45d047b9ee030d6b71))
+* add unit tests for before featurecompare validator ([e9f7fcc](https://github.com/informatievlaanderen/road-registry/commit/e9f7fcc3758f7f4fdc75c1c86b98a6e5dd0a3e56))
+* feaure-compare upload must be able to deal with multiple DBF schemas ([874f5b0](https://github.com/informatievlaanderen/road-registry/commit/874f5b0313b7c04c554f57e92d58ccb7da346b27))
+* keep original schema structure for download, seperate from basic schema ([a9800f2](https://github.com/informatievlaanderen/road-registry/commit/a9800f2bb26a48b95f0f500eefc965cb8809bd1a))
+* undo commented out code ([1a2b42a](https://github.com/informatievlaanderen/road-registry/commit/1a2b42a72103c98f6c75f0d96f70b2ab12c56af3))
+
+# [3.28.0](https://github.com/informatievlaanderen/road-registry/compare/v3.27.0...v3.28.0) (2022-12-15)
+
+
+### Features
+
+* add GradeSeparatedJunction snapshot projection ([ad08816](https://github.com/informatievlaanderen/road-registry/commit/ad08816eeb2518f26fd11d2dab362238e6ede525))
+* add nationalroad snapshot producer ([#748](https://github.com/informatievlaanderen/road-registry/issues/748)) ([53fcc7b](https://github.com/informatievlaanderen/road-registry/commit/53fcc7b08b4ee8b0d9a5d24443169e361b3366d7))
+* add road segment surface snapshot producer ([c9b6923](https://github.com/informatievlaanderen/road-registry/commit/c9b69235e419683cc1428545860685a76a5ad9b1))
+
 # [3.27.0](https://github.com/informatievlaanderen/road-registry/compare/v3.26.5...v3.27.0) (2022-12-12)
 
 

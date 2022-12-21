@@ -17,11 +17,6 @@ public class RoadSegmentSnapshotEqualityComparer : IEqualityComparer<RoadSegment
         }
 
         return left.Id.Equals(right.Id)
-               && left.BeginOperator == right.BeginOperator
-               && left.BeginOrganizationId == right.BeginOrganizationId
-               && left.BeginOrganizationName == right.BeginOrganizationName
-               && left.BeginTime.Equals(right.BeginTime)
-               && left.BeginApplication == right.BeginApplication
                && left.MaintainerId == right.MaintainerId
                && left.MaintainerName == right.MaintainerName
                && left.MethodId.Equals(right.MethodId)
@@ -52,6 +47,7 @@ public class RoadSegmentSnapshotEqualityComparer : IEqualityComparer<RoadSegment
                && left.BeginRoadNodeId.Equals(right.BeginRoadNodeId)
                && left.EndRoadNodeId.Equals(right.EndRoadNodeId)
                && left.StreetNameCachePosition.Equals(right.StreetNameCachePosition)
+               && left.Origin.Equals(right.Origin)
                && left.LastChangedTimestamp.Equals(right.LastChangedTimestamp)
                && left.IsRemoved.Equals(right.IsRemoved);
     }

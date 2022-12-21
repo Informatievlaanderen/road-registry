@@ -58,23 +58,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadSegmentPr
                     b.Property<int?>("AccessRestrictionId")
                         .HasColumnType("int");
 
-                    b.Property<string>("BeginApplication")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BeginOperator")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BeginOrganizationId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("BeginOrganizationName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("BeginRoadNodeId")
                         .HasColumnType("int");
-
-                    b.Property<DateTime?>("BeginTime")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("CategoryDutchName")
                         .HasColumnType("nvarchar(max)");
@@ -166,6 +151,30 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadSegmentPr
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreetNameCachePosition"), false);
 
                     b.ToTable("RoadSegment", "RoadRegistryRoadSegmentProducerSnapshot");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment.RoadSegmentRecord", b =>
+                {
+                    b.OwnsOne("RoadRegistry.Producer.Snapshot.ProjectionHost.Schema.Origin", "Origin", b1 =>
+                        {
+                            b1.Property<int>("RoadSegmentRecordId")
+                                .HasColumnType("int");
+
+                            b1.Property<string>("Organization")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.Property<DateTimeOffset?>("Timestamp")
+                                .HasColumnType("datetimeoffset");
+
+                            b1.HasKey("RoadSegmentRecordId");
+
+                            b1.ToTable("RoadSegment", "RoadRegistryRoadSegmentProducerSnapshot");
+
+                            b1.WithOwner()
+                                .HasForeignKey("RoadSegmentRecordId");
+                        });
+
+                    b.Navigation("Origin");
                 });
 #pragma warning restore 612, 618
         }

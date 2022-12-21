@@ -1,11 +1,13 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 
 using System.Globalization;
+using System.Linq;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Extensions;
 using Moq;
 using ProjectionHost.Projections;
 using RoadNode;
@@ -53,14 +55,15 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
         var expectedRecords = Array.ConvertAll(message.Changes, change =>
         {
             var roadNodeAdded = change.RoadNodeAdded;
+            var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
             var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
 
             return (object)new RoadNodeRecord(
                 roadNodeAdded.Id,
-                roadNodeAdded.Type,
+                typeTranslation.Identifier,
+                typeTranslation.Name,
                 point,
-                LocalDateTimeTranslator.TranslateFromWhen(message.When),
-                message.Organization,
+                message.ToOrigin(),
                 created);
         });
 
@@ -103,14 +106,15 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
         var expectedRecords = Array.ConvertAll(acceptedRoadNodeModified.Changes, change =>
         {
             var roadNodeModified = change.RoadNodeModified;
+            var typeTranslation = RoadNodeType.Parse(roadNodeModified.Type).Translation;
             var point = GeometryTranslator.Translate(roadNodeModified.Geometry);
 
             return (object)new RoadNodeRecord(
                 roadNodeModified.Id,
-                roadNodeModified.Type,
+                typeTranslation.Identifier,
+                typeTranslation.Name,
                 point,
-                LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadNodeModified.When),
-                acceptedRoadNodeModified.Organization,
+                acceptedRoadNodeModified.ToOrigin(),
                 created);
         });
 
@@ -153,14 +157,15 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
         var expectedRecords = Array.ConvertAll(acceptedRoadNodeAdded.Changes, change =>
         {
             var roadNodeAdded = change.RoadNodeAdded;
+            var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
             var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
 
             return (object)new RoadNodeRecord(
                 roadNodeAdded.Id,
-                roadNodeAdded.Type,
+                typeTranslation.Identifier,
+                typeTranslation.Name,
                 point,
-                LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadNodeAdded.When),
-                acceptedRoadNodeAdded.Organization,
+                acceptedRoadNodeAdded.ToOrigin(),
                 created.AddDays(-1))
             { IsRemoved = true };
         });
@@ -170,7 +175,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             var roadNodeRemoved = change.RoadNodeRemoved;
 
             var record = expectedRecords.Cast<RoadNodeRecord>().Single(x => x.Id == roadNodeRemoved.Id);
-            record.Origin.Organization = acceptedRoadNodeRemoved.Organization;
+            record.Origin = acceptedRoadNodeRemoved.ToOrigin();
             record.IsRemoved = true;
             record.LastChangedTimestamp = created;
 
@@ -208,14 +213,15 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             .Select(@event =>
             {
                 @event.When = LocalDateTimeTranslator.TranslateToWhen(_fixture.Create<DateTime>());
+                var typeTranslation = RoadNodeType.Parse(@event.Type).Translation;
                 var point = GeometryTranslator.Translate(@event.Geometry);
 
                 var expectedRecord = new RoadNodeRecord(
                     @event.Id,
-                    @event.Type,
+                    typeTranslation.Identifier,
+                    typeTranslation.Name,
                     point,
-                    @event.Origin.Since,
-                    @event.Origin.Organization,
+                    @event.Origin.ToOrigin(),
                     created);
 
                 return new

@@ -9,6 +9,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Extensions;
     using Projections;
 
     public class NationalRoadRecordProjection : ConnectedProjection<NationalRoadProducerSnapshotContext>
@@ -36,8 +37,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
                     nationalRoad.AttributeId,
                     envelope.Message.Id,
                     nationalRoad.Number,
-                    nationalRoad.Origin.Since,
-                    nationalRoad.Origin.Organization,
+                    nationalRoad.Origin.ToOrigin(),
                     envelope.CreatedUtc)
                 );
 
@@ -76,8 +76,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
                 nationalRoadAdded.AttributeId,
                 nationalRoadAdded.SegmentId,
                 nationalRoadAdded.Number,
-                LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
-                envelope.Message.Organization,
+                envelope.Message.ToOrigin(),
                 envelope.CreatedUtc
             ), token);
 
@@ -126,7 +125,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
                 throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is not found!");
             }
 
-            nationalRoadRecord.Origin.Organization = envelope.Message.Organization;
+            nationalRoadRecord.Origin = envelope.Message.ToOrigin();
             nationalRoadRecord.LastChangedTimestamp = envelope.CreatedUtc;
             nationalRoadRecord.IsRemoved = true;
 
