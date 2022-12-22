@@ -9,6 +9,7 @@ using Infrastructure;
 using MediatR;
 using Messages;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 
 public class FeatureCompareMessageConsumer : ApplicationBackgroundService
 {
@@ -26,7 +27,7 @@ public class FeatureCompareMessageConsumer : ApplicationBackgroundService
         _messagingOptions = messagingOptions;
         _sqsConsumer = sqsQueueConsumer;
     }
-    
+
     protected override async Task ExecuteCallbackAsync(CancellationToken cancellationToken)
     {
         await _sqsConsumer.Consume(_messagingOptions.ResponseQueueUrl, async message =>
@@ -45,6 +46,14 @@ public class FeatureCompareMessageConsumer : ApplicationBackgroundService
                     await Mediator.Send(request, cancellationToken);
                 }
                     break;
+                case JObject jObject:
+                {
+                    var uploadRoadNetworkChangesArchive = jObject.ToObject<UploadRoadNetworkChangesArchive>();
+                    var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
+                    await Mediator.Send(request, cancellationToken);
+                }
+                    break;
+
                 default:
                     throw new UnknownSqsMessageTypeException($"Unhandled message type '{message.GetType()}' found on queue '{_messagingOptions.ResponseQueueUrl}'", message.GetType().FullName);
             }
