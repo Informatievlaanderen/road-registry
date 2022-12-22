@@ -89,7 +89,7 @@ public static class ProblemWithZipArchive
 
                 case nameof(DbaseFileProblems.FromPositionEqualToOrGreaterThanToPosition):
                     translation =
-                        $"De dbase record {problem.Parameters[0].Value} heeft een van positie ({problem.Parameters[1].Value}) die gelijk aan of groter dan de tot positie ({problem.Parameters[1].Value}) is.";
+                        $"De dbase record {problem.Parameters[0].Value} heeft een van positie ({problem.Parameters[1].Value}) die gelijk aan of groter dan de tot positie ({problem.Parameters[2].Value}) is.";
                     break;
 
                 case nameof(DbaseFileProblems.GradeSeparatedJunctionTypeMismatch):
