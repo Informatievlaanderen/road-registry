@@ -1,3 +1,16 @@
+# [3.29.0](https://github.com/informatievlaanderen/road-registry/compare/v3.28.2...v3.29.0) (2022-12-22)
+
+
+### Bug Fixes
+
+* bug wr-270 error message ([a8544de](https://github.com/informatievlaanderen/road-registry/commit/a8544de8032e9aa6faf49a85cfb01d20833a5ff6))
+* Bump runtime dependencies version from 7.0.0 to 7.0.1 ([#767](https://github.com/informatievlaanderen/road-registry/issues/767)) ([5505d40](https://github.com/informatievlaanderen/road-registry/commit/5505d4074ab1e3f36bdee0e01dc691c0d57afc05))
+
+
+### Features
+
+* Update description on the change feed projection ([5cb7c39](https://github.com/informatievlaanderen/road-registry/commit/5cb7c39b992bfff1c6eec2d63e7e1621743a06b7))
+
 ## [3.28.2](https://github.com/informatievlaanderen/road-registry/compare/v3.28.1...v3.28.2) (2022-12-20)
 
 
