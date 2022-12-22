@@ -1,3 +1,10 @@
+## [3.29.1](https://github.com/informatievlaanderen/road-registry/compare/v3.29.0...v3.29.1) (2022-12-22)
+
+
+### Bug Fixes
+
+* Add support for JObject ([6675483](https://github.com/informatievlaanderen/road-registry/commit/66754833ead3324874ee93c0611f80288d9da931))
+
 # [3.29.0](https://github.com/informatievlaanderen/road-registry/compare/v3.28.2...v3.29.0) (2022-12-22)
 
 
