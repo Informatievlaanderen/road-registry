@@ -26,7 +26,9 @@ public class Startup : TestStartup
                     sp.GetService<IStreamStore>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
-                    sp.GetService<IClock>()
+                    sp.GetService<IClock>(),
+                    sp.GetService<ILogger<RoadNetworkChangesArchiveCommandModule>>()
+
                 ),
                 new RoadNetworkCommandModule(
                     sp.GetService<IStreamStore>(),

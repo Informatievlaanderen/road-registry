@@ -7,6 +7,7 @@ using BackOffice.Uploads;
 using Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
 
@@ -32,7 +33,9 @@ public class Startup : TestStartup
                     sp.GetService<IStreamStore>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
-                    sp.GetService<IClock>()
+                    sp.GetService<IClock>(),
+                    sp.GetService<ILogger<RoadNetworkChangesArchiveCommandModule>>()
+
                 ),
                 new RoadNetworkCommandModule(
                     sp.GetService<IStreamStore>(),
