@@ -205,7 +205,9 @@ public class Program
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
-                                sp.GetService<IClock>()
+                                sp.GetService<IClock>(),
+                                sp.GetService<ILogger<RoadNetworkChangesArchiveCommandModule>>()
+
                             ),
                             new RoadNetworkCommandModule(
                                 sp.GetService<IStreamStore>(),
