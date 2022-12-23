@@ -32,7 +32,7 @@ public class FeatureCompareMessageConsumer : ApplicationBackgroundService
     {
         await _sqsConsumer.Consume(_messagingOptions.ResponseQueueUrl, async message =>
         {
-            Logger.LogInformation("Feature compare started for new message received from SQS");
+            Logger.LogInformation("SQS message from feature compare received!");
 
             switch (message)
             {
