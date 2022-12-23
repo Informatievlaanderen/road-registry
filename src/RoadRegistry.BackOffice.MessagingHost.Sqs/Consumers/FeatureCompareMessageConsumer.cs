@@ -32,16 +32,20 @@ public class FeatureCompareMessageConsumer : ApplicationBackgroundService
     {
         await _sqsConsumer.Consume(_messagingOptions.ResponseQueueUrl, async message =>
         {
+            Logger.LogInformation("Feature compare started for new message received from SQS");
+
             switch (message)
             {
                 case UploadRoadNetworkChangesArchive uploadRoadNetworkChangesArchive:
                 {
+                    Logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkChangesArchive.ArchiveId);
                     var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
                     await Mediator.Send(request, cancellationToken);
                 }
                     break;
                 case UploadRoadNetworkExtractChangesArchive uploadRoadNetworkExtractChangesArchive:
                 {
+                    Logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkExtractChangesArchive.ArchiveId);
                     var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkExtractChangesArchive.ArchiveId);
                     await Mediator.Send(request, cancellationToken);
                 }
@@ -49,6 +53,8 @@ public class FeatureCompareMessageConsumer : ApplicationBackgroundService
                 case JObject jObject:
                 {
                     var uploadRoadNetworkChangesArchive = jObject.ToObject<UploadRoadNetworkChangesArchive>();
+
+                    Logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkChangesArchive.ArchiveId);
                     var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
                     await Mediator.Send(request, cancellationToken);
                 }
