@@ -1,3 +1,12 @@
+## [3.29.2](https://github.com/informatievlaanderen/road-registry/compare/v3.29.1...v3.29.2) (2022-12-23)
+
+
+### Bug Fixes
+
+* Add logging into roadnetwork changes archive handlers ([6e02e76](https://github.com/informatievlaanderen/road-registry/commit/6e02e76736e6741f6c4dceab9cc0e12a95febefd))
+* Add missing instantiator parameters ([5410d03](https://github.com/informatievlaanderen/road-registry/commit/5410d03a2a60e6f731a2a8d7125613178c04aedd))
+* Changed logger statement into something RR ([024c15c](https://github.com/informatievlaanderen/road-registry/commit/024c15ccc951b3fb80970f86e02e31818e964bda))
+
 ## [3.29.1](https://github.com/informatievlaanderen/road-registry/compare/v3.29.0...v3.29.1) (2022-12-22)
 
 
