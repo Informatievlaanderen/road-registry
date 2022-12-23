@@ -24,8 +24,6 @@ public abstract class ApplicationBackgroundService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            Logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-
             try
             {
                 await ExecuteCallbackAsync(stoppingToken);

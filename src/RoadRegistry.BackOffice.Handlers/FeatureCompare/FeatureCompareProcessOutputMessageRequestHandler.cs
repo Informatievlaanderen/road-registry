@@ -21,6 +21,8 @@ public class FeatureCompareProcessOutputMessageRequestHandler : SqsMessageReques
         var command = new Command(message);
         await Dispatcher(command, cancellationToken);
 
+        _logger.LogInformation("Dispatched command {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), request.ArchiveId);
+
         return new FeatureCompareProcessOutputMessageResponse(new ArchiveId(message.ArchiveId));
     }
 }
