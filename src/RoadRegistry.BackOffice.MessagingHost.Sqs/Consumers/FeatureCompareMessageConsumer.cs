@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Consumers;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Configuration;
@@ -8,13 +9,16 @@ using Exceptions;
 using Infrastructure;
 using MediatR;
 using Messages;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
-public class FeatureCompareMessageConsumer : ApplicationBackgroundService
+public class FeatureCompareMessageConsumer : BackgroundService
 {
     private readonly FeatureCompareMessagingOptions _messagingOptions;
     private readonly ISqsQueueConsumer _sqsConsumer;
+    private readonly ILogger _logger;
+    private readonly IMediator _mediator;
 
     public FeatureCompareMessageConsumer(
         IMediator mediator,
@@ -22,47 +26,66 @@ public class FeatureCompareMessageConsumer : ApplicationBackgroundService
         FeatureCompareMessagingOptions messagingOptions,
         ISqsQueueConsumer sqsQueueConsumer
     )
-        : base(mediator, logger, messagingOptions.ConsumerDelaySeconds)
     {
+        _mediator = mediator;
         _messagingOptions = messagingOptions;
         _sqsConsumer = sqsQueueConsumer;
+        _logger = logger;
     }
 
-    protected override async Task ExecuteCallbackAsync(CancellationToken cancellationToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await _sqsConsumer.Consume(_messagingOptions.ResponseQueueUrl, async message =>
+        while (!stoppingToken.IsCancellationRequested)
         {
-            Logger.LogInformation("SQS message from feature compare received!");
-
-            switch (message)
+            try
             {
-                case UploadRoadNetworkChangesArchive uploadRoadNetworkChangesArchive:
+                await _sqsConsumer.Consume(_messagingOptions.ResponseQueueUrl, async message =>
                 {
-                    Logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkChangesArchive.ArchiveId);
-                    var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
-                    await Mediator.Send(request, cancellationToken);
-                }
-                    break;
-                case UploadRoadNetworkExtractChangesArchive uploadRoadNetworkExtractChangesArchive:
-                {
-                    Logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkExtractChangesArchive.ArchiveId);
-                    var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkExtractChangesArchive.ArchiveId);
-                    await Mediator.Send(request, cancellationToken);
-                }
-                    break;
-                case JObject jObject:
-                {
-                    var uploadRoadNetworkChangesArchive = jObject.ToObject<UploadRoadNetworkChangesArchive>();
+                    _logger.LogInformation("SQS message from feature compare received!");
 
-                    Logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkChangesArchive.ArchiveId);
-                    var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
-                    await Mediator.Send(request, cancellationToken);
-                }
-                    break;
+                    switch (message)
+                    {
+                        case UploadRoadNetworkChangesArchive uploadRoadNetworkChangesArchive:
+                            {
+                                _logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkChangesArchive.ArchiveId);
+                                var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
+                                await _mediator.Send(request, stoppingToken);
+                            }
+                            break;
+                        case UploadRoadNetworkExtractChangesArchive uploadRoadNetworkExtractChangesArchive:
+                            {
+                                _logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkExtractChangesArchive.ArchiveId);
+                                var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkExtractChangesArchive.ArchiveId);
+                                await _mediator.Send(request, stoppingToken);
+                            }
+                            break;
+                        case JObject jObject:
+                            {
+                                var uploadRoadNetworkChangesArchive = jObject.ToObject<UploadRoadNetworkChangesArchive>();
 
-                default:
-                    throw new UnknownSqsMessageTypeException($"Unhandled message type '{message.GetType()}' found on queue '{_messagingOptions.ResponseQueueUrl}'", message.GetType().FullName);
+                                _logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkChangesArchive.ArchiveId);
+                                var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
+                                await _mediator.Send(request, stoppingToken);
+                            }
+                            break;
+
+                        default:
+                            throw new UnknownSqsMessageTypeException($"Unhandled message type '{message.GetType()}' found on queue '{_messagingOptions.ResponseQueueUrl}'", message.GetType().FullName);
+                    }
+                }, stoppingToken);
             }
-        }, cancellationToken);
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogTrace(ex, "Task has been cancelled, wait until next run...");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(ex, $"An unhandled exception has occurred! {ex.Message}");
+            }
+            finally
+            {
+                await Task.Delay(_messagingOptions.ConsumerDelaySeconds * 1000, stoppingToken);
+            }
+        }
     }
 }

@@ -225,14 +225,16 @@ public class Program
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IRoadNetworkSnapshotWriter>(),
-                                sp.GetService<IClock>()
+                                sp.GetService<IClock>(),
+                                sp.GetService<ILogger<RoadNetworkCommandModule>>()
                             ),
                             new RoadNetworkExtractCommandModule(
                                 sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
-                                sp.GetService<IClock>()
+                                sp.GetService<IClock>(),
+                                sp.GetService<ILogger<RoadNetworkExtractCommandModule>>()
                             )
                         })))
                     .AddSingleton(featureCompareMessagingOptions);

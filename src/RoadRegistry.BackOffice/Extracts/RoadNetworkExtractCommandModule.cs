@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core;
 using Framework;
 using Messages;
+using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
 using Uploads;
@@ -17,7 +18,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         IStreamStore store,
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveAfterFeatureCompareValidator validator,
-        IClock clock)
+        IClock clock,
+        ILogger<RoadNetworkExtractCommandModule> logger)
     {
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(store);
@@ -45,6 +47,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 {
                     extract.RequestAgain(downloadId, contour);
                 }
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(RequestRoadNetworkExtract));
             });
 
         For<AnnounceRoadNetworkExtractDownloadBecameAvailable>()
@@ -56,6 +60,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
                 extract.AnnounceAvailable(downloadId, archiveId);
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(AnnounceRoadNetworkExtractDownloadBecameAvailable));
             });
 
         For<AnnounceRoadNetworkExtractDownloadTimeoutOccurred>()
@@ -65,6 +71,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 var requestId = ExtractRequestId.FromString(message.Body.RequestId);
                 var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
                 extract.AnnounceTimeoutOccurred();
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred));
             });
 
         For<UploadRoadNetworkExtractChangesArchive>()
@@ -85,6 +93,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 {
                     upload.ValidateArchiveUsing(archive, validator);
                 }
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(UploadRoadNetworkExtractChangesArchive));
             });
     }
 }
