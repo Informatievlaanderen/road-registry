@@ -27,8 +27,10 @@ public class FeatureCompareMessageConsumer : BackgroundService
         ISqsQueueConsumer sqsQueueConsumer
     )
     {
+        _mediator = mediator;
         _messagingOptions = messagingOptions;
         _sqsConsumer = sqsQueueConsumer;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
