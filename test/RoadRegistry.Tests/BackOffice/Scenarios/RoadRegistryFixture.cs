@@ -5,6 +5,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework.Testing;
 using KellermanSoftware.CompareNetObjects;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Testing;
@@ -32,6 +33,8 @@ public abstract class RoadRegistryFixture : IDisposable
         Client = new MemoryBlobClient();
         Clock = new FakeClock(NodaConstants.UnixEpoch);
         ZipArchiveValidator = new FakeZipArchiveAfterFeatureCompareValidator();
+        LoggerFactory = new LoggerFactory();
+
         WithStore(new InMemoryStreamStore(), comparisonConfig);
     }
 
@@ -42,8 +45,8 @@ public abstract class RoadRegistryFixture : IDisposable
         _runner = new ScenarioRunner(
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
-                new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock),
-                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock)
+                new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock, LoggerFactory.CreateLogger<RoadNetworkCommandModule>()),
+                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock, LoggerFactory.CreateLogger<RoadNetworkExtractCommandModule>())
             }),
             Store,
             Settings,
@@ -62,6 +65,8 @@ public abstract class RoadRegistryFixture : IDisposable
     public Fixture Fixture { get; }
     public IStreamStore Store { get; private set; }
     public IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
+
+    protected LoggerFactory LoggerFactory { get; private set; }
 
     public void Dispose()
     {

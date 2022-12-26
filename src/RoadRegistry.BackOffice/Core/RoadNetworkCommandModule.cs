@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Framework;
 using Messages;
+using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
 
@@ -13,7 +14,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IStreamStore store,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
-        IClock clock)
+        IClock clock,
+        ILogger<RoadNetworkCommandModule> logger)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
@@ -37,10 +39,16 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
                 await new RoadNetworkCommandQueue(store)
                     .Write(new Command(completedCommand), ct);
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
             });
 
         For<RebuildRoadNetworkSnapshotCompleted>()
-            .Handle((_, _) => Task.CompletedTask);
+            .Handle((_, _) =>
+            {
+                logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshotCompleted));
+                return Task.CompletedTask;
+            });
 
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
@@ -69,6 +77,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 );
                 var requestedChanges = await translator.Translate(message.Body.Changes, context.Organizations, ct);
                 network.Change(request, reason, @operator, translation, requestedChanges);
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(ChangeRoadNetwork));
             });
 
         For<CreateOrganization>()
@@ -103,10 +113,16 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     await new OrganizationCommandQueue(store)
                         .Write(organizationId, new Command(acceptedCommand), ct);
                 }
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(CreateOrganization));
             });
 
         For<CreateOrganizationRejected>()
-            .Handle((_, _) => Task.CompletedTask);
+            .Handle((_, _) =>
+            {
+                logger.LogInformation("Command handler finished for {Command}", nameof(CreateOrganizationRejected));
+                return Task.CompletedTask;
+            });
 
         For<DeleteOrganization>()
             .UseValidator(new DeleteOrganizationValidator())
@@ -131,10 +147,16 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     await new RoadNetworkCommandQueue(store)
                         .Write(new Command(rejectedCommand), ct);
                 }
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(DeleteOrganization));
             });
 
         For<DeleteOrganizationRejected>()
-            .Handle((_, _) => Task.CompletedTask);
+            .Handle((_, _) =>
+            {
+                logger.LogInformation("Command handler finished for {Command}", nameof(DeleteOrganizationRejected));
+                return Task.CompletedTask;
+            });
 
         For<RenameOrganization>()
             .UseValidator(new RenameOrganizationValidator())
@@ -160,9 +182,15 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     await new RoadNetworkCommandQueue(store)
                         .Write(new Command(rejectedCommand), ct);
                 }
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(RenameOrganization));
             });
 
         For<RenameOrganizationRejected>()
-            .Handle((_, _) => Task.CompletedTask);
+            .Handle((_, _) =>
+            {
+                logger.LogInformation("Command handler finished for {Command}", nameof(RenameOrganizationRejected));
+                return Task.CompletedTask;
+            });
     }
 }
