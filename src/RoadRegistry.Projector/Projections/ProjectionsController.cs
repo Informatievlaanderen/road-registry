@@ -34,19 +34,34 @@ public class ProjectionsController : DefaultProjectionsController
 
             if (detail.IsSyndication) continue;
 
-            var projection = await GetProjectionStateItem(detail.Id, p.Value, cancellationToken);
-
-            if (projection == null) continue;
-            var state = projection.DesiredState ?? detail.FallbackDesiredState;
-            response.Projections.Add(new ProjectionStatus
+            try
             {
-                CurrentPosition = projection.Position,
-                Description = detail.Description,
-                ErrorMessage = projection.ErrorMessage ?? string.Empty,
-                Id = detail.Id,
-                Name = detail.Name,
-                State = state ?? "unknown"
-            });
+                var projection = await GetProjectionStateItem(detail.Id, p.Value, cancellationToken);
+
+                if (projection == null) continue;
+                var state = projection.DesiredState ?? detail.FallbackDesiredState;
+                response.Projections.Add(new ProjectionStatus
+                {
+                    CurrentPosition = projection.Position,
+                    Description = detail.Description,
+                    ErrorMessage = projection.ErrorMessage ?? string.Empty,
+                    Id = detail.Id,
+                    Name = detail.Name,
+                    State = state
+                });
+            }
+            catch (Exception)
+            {
+                response.Projections.Add(new ProjectionStatus
+                {
+                    CurrentPosition = 0,
+                    Description = detail.Description,
+                    ErrorMessage = "Something went wrong",
+                    Id = detail.Id,
+                    Name = detail.Name,
+                    State = "unknown"
+                });
+            }
         }
 
         return Ok(response);

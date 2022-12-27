@@ -165,6 +165,11 @@ public class Startup
                         health.AddDbContextCheck<WmsContext>();
                         health.AddDbContextCheck<EditorContext>();
                         health.AddDbContextCheck<ProductContext>();
+                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeProducerSnapshotContext>();
+                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadSegment.RoadSegmentProducerSnapshotContext>();
+                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadSegmentSurface.RoadSegmentSurfaceProducerSnapshotContext>();
+                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.GradeSeparatedJunction.GradeSeparatedJunctionProducerSnapshotContext>();
+                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.NationalRoad.NationalRoadProducerSnapshotContext>();
                         health.AddDbContextCheck<SyndicationContext>();
                     }
                 }
