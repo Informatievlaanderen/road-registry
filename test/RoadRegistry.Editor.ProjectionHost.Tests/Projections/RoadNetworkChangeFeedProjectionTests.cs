@@ -88,7 +88,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
+                Title = $"Oplading ontvangen voor extractaanvraag {description}",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
@@ -97,7 +97,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             }, new RoadNetworkChange
             {
                 Id = 1,
-                Title = $"Oplading gevalideerd voor extractaanvraag '{description}'",
+                Title = $"Oplading gevalideerd voor extractaanvraag {description}",
                 Type = nameof(RoadNetworkExtractChangesArchiveAccepted),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                 {
@@ -186,7 +186,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
+                Title = $"Oplading ontvangen voor extractaanvraag {description}",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
@@ -272,7 +272,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
                 {
                     Id = 0,
-                    Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
+                    Title = $"Oplading ontvangen voor extractaanvraag {description}",
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
@@ -282,7 +282,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 new RoadNetworkChange
                 {
                     Id = 1,
-                    Title = $"Oplading gevalideerd voor extractaanvraag '{description}'",
+                    Title = $"Oplading gevalideerd voor extractaanvraag {description}",
                     Type = nameof(RoadNetworkChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                     {
@@ -358,7 +358,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
+                Title = $"Oplading ontvangen voor extractaanvraag {description}",
                 Type = nameof(RoadNetworkChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                 {
@@ -421,7 +421,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Download voor extractaanvraag '{description}' werd beschikbaar",
+                Title = $"Download voor extractaanvraag {description} werd beschikbaar",
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
                 {
@@ -448,7 +448,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Download voor extractaanvraag '{description}' niet beschikbaar: contour te complex of te groot",
+                Title = $"Download voor extractaanvraag {description} niet beschikbaar: contour te complex of te groot",
                 Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadTimeoutOccurredEntry
                 {
@@ -517,7 +517,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Extractaanvraag '{description}' ontvangen",
+                Title = $"Extractaanvraag {description} ontvangen",
                 Type = nameof(RoadNetworkExtractGotRequested),
                 Content = null
             });
@@ -543,7 +543,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
+                Title = $"Oplading ontvangen voor extractaanvraag {description}",
                 Type = nameof(RoadNetworkChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                 {
@@ -589,7 +589,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag '{description}'",
+                Title = $"Oplading ontvangen voor extractaanvraag {description}",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
