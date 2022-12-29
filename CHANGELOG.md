@@ -1,3 +1,10 @@
+## [3.29.4](https://github.com/informatievlaanderen/road-registry/compare/v3.29.3...v3.29.4) (2022-12-27)
+
+
+### Bug Fixes
+
+* add producer snapshot projectionstates to status page ([#773](https://github.com/informatievlaanderen/road-registry/issues/773)) ([4fb328a](https://github.com/informatievlaanderen/road-registry/commit/4fb328ac7025246a9612c52a0bff0f5844b16338))
+
 ## [3.29.3](https://github.com/informatievlaanderen/road-registry/compare/v3.29.2...v3.29.3) (2022-12-26)
 
 

@@ -66,6 +66,56 @@ public class ApiModule : Module
 
     private void RegisterProjections()
     {
+        RegisterProjection<Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeProducerSnapshotContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-producer-roadnode-snapshot-projectionhost",
+            Description = "",
+            Name = "Producer Snapshot - RoadNode",
+            WellKnownConnectionName = WellknownConnectionNames.ProducerSnapshotProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<Producer.Snapshot.ProjectionHost.RoadSegment.RoadSegmentProducerSnapshotContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-producer-roadsegment-snapshot-projectionhost",
+            Description = "",
+            Name = "Producer Snapshot - RoadSegment",
+            WellKnownConnectionName = WellknownConnectionNames.ProducerSnapshotProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<Producer.Snapshot.ProjectionHost.RoadSegmentSurface.RoadSegmentSurfaceProducerSnapshotContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-producer-roadsegmentsurface-snapshot-projectionhost",
+            Description = "",
+            Name = "Producer Snapshot - RoadSegmentSurface",
+            WellKnownConnectionName = WellknownConnectionNames.ProducerSnapshotProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<Producer.Snapshot.ProjectionHost.GradeSeparatedJunction.GradeSeparatedJunctionProducerSnapshotContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-producer-gradeseparatedjunction-snapshot-projectionhost",
+            Description = "",
+            Name = "Producer Snapshot - GradeSeparatedJunction",
+            WellKnownConnectionName = WellknownConnectionNames.ProducerSnapshotProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
+        RegisterProjection<Producer.Snapshot.ProjectionHost.NationalRoad.NationalRoadProducerSnapshotContext>(new ProjectionDetail
+        {
+            Id = "roadregistry-producer-nationalroad-snapshot-projectionhost",
+            Description = "",
+            Name = "Producer Snapshot - NationalRoad",
+            WellKnownConnectionName = WellknownConnectionNames.ProducerSnapshotProjections,
+            FallbackDesiredState = "subscribed",
+            IsSyndication = false
+        });
+
         RegisterProjection<ProductContext>(new ProjectionDetail
         {
             Id = "roadregistry-product-projectionhost",
