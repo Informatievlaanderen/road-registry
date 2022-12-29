@@ -50,25 +50,23 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
                     {
                         header = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
                     }
-                    catch (Exception)
+                    finally
                     {
-                    }
-
-                    if (header is not null)
-                    {
-                        using var records = header.CreateDbaseRecordEnumerator<TransactionZoneDbaseRecord>(reader);
-                        while (records.MoveNext())
+                        if (header is not null)
                         {
-                            extractDescription = !string.IsNullOrEmpty(records.Current.BESCHRIJV.Value)
-                                ? new ExtractDescription(records.Current.BESCHRIJV.Value)
-                                : new ExtractDescription();
+                            using var records = header.CreateDbaseRecordEnumerator<TransactionZoneDbaseRecord>(reader);
+                            while (records.MoveNext())
+                            {
+                                extractDescription = !string.IsNullOrEmpty(records.Current.BESCHRIJV.Value)
+                                    ? new ExtractDescription(records.Current.BESCHRIJV.Value)
+                                    : new ExtractDescription();
+                            }
                         }
                     }
                 }
             }
 
             sourceStream.Position = 0;
-            readStream = sourceStream;
         }
 
         return Upload(id, extractDescription);
