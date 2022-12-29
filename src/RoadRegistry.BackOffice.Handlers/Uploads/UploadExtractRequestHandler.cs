@@ -66,6 +66,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     private async Task UploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
         readStream.Position = 0;
+
         await _client.CreateBlobAsync(
             new BlobName(archiveId.ToString()),
             metadata,
@@ -83,7 +84,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     private async Task ValidateAndUploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
-        var entity = RoadNetworkChangesArchive.Upload(archiveId);
+        var entity = RoadNetworkChangesArchive.Upload(archiveId, readStream);
 
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
