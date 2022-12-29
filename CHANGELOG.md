@@ -1,3 +1,10 @@
+# [3.30.0](https://github.com/informatievlaanderen/road-registry/compare/v3.29.4...v3.30.0) (2022-12-29)
+
+
+### Features
+
+* Add info from BESCHRIJV field inside Transactiezones.dbf when performing an upload ([#774](https://github.com/informatievlaanderen/road-registry/issues/774)) ([b24a821](https://github.com/informatievlaanderen/road-registry/commit/b24a821b98caea7de16d66a5585e4a3205f6f407))
+
 ## [3.29.4](https://github.com/informatievlaanderen/road-registry/compare/v3.29.3...v3.29.4) (2022-12-27)
 
 
