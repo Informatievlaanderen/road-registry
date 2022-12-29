@@ -19,6 +19,7 @@
     <EmbeddedResource Include="polygon.shp" />
     <EmbeddedResource Include="valid-after.zip" />
     <EmbeddedResource Include="valid-before.zip" />
+    <EmbeddedResource Include="Transactiezones.dfb" />
   </ItemGroup>
 
   <ItemGroup>
