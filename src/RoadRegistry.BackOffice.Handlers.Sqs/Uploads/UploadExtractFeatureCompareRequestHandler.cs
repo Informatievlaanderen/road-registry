@@ -59,7 +59,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                     : request.Archive.FileName)
         );
 
-        var entity = RoadNetworkChangesArchive.Upload(archiveId);
+        var entity = RoadNetworkChangesArchive.Upload(archiveId, readStream);
 
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
