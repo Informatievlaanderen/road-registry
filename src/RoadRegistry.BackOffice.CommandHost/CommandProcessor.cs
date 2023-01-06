@@ -33,7 +33,7 @@ public class CommandProcessor : IHostedService
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
     private readonly Scheduler _scheduler;
-    private readonly RoadRegistryApplication _origin;
+    private readonly RoadRegistryApplication _applicationProcessor;
 
     public CommandProcessor(
         IStreamStore streamStore,
@@ -41,7 +41,7 @@ public class CommandProcessor : IHostedService
         ICommandProcessorPositionStore positionStore,
         CommandHandlerDispatcher dispatcher,
         Scheduler scheduler,
-        RoadRegistryApplication origin,
+        RoadRegistryApplication applicationProcessor,
         ILogger<CommandProcessor> logger)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
@@ -49,7 +49,7 @@ public class CommandProcessor : IHostedService
         ArgumentNullException.ThrowIfNull(dispatcher);
 
         _scheduler = scheduler.ThrowIfNull();
-        _origin = origin;
+        _applicationProcessor = applicationProcessor;
         _logger = logger.ThrowIfNull();
 
         _messagePumpCancellation = new CancellationTokenSource();
@@ -112,7 +112,7 @@ public class CommandProcessor : IHostedService
                                         process.Message.Type, process.Message.Position);
 
                                     var messageProcessor = JsonConvert.DeserializeObject<MessageMetadata>(process.Message.JsonMetadata, SerializerSettings)?.Processor ?? RoadRegistryApplication.BackOffice;
-                                    if (messageProcessor == _origin)
+                                    if (messageProcessor == _applicationProcessor)
                                     {
                                         var body = JsonConvert.DeserializeObject(
                                             await process.Message
@@ -125,7 +125,7 @@ public class CommandProcessor : IHostedService
                                     }
                                     else
                                     {
-                                        logger.LogInformation("Skipping {MessageType} at {Position} - Message Processor '{MessageProcessor}' does not match '{Processor}'", process.Message.Type, process.Message.Position, messageProcessor, _origin);
+                                        logger.LogInformation("Skipping {MessageType} at {Position} - Message Processor '{MessageProcessor}' does not match '{Processor}'", process.Message.Type, process.Message.Position, messageProcessor, _applicationProcessor);
                                     }
 
                                     await positionStore

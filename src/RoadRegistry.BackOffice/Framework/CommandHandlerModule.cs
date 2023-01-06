@@ -28,7 +28,7 @@ public abstract class CommandHandlerModule
         });
     }
 
-    protected void Handle<TCommand>(Func<Command<TCommand>, CommandMetadata, CancellationToken, Task> handler)
+    protected void Handle<TCommand>(Func<Command<TCommand>, ApplicationMetadata, CancellationToken, Task> handler)
     {
         if (handler == null)
             throw new ArgumentNullException(nameof(handler));

@@ -15,8 +15,8 @@ public class RoadNetworkCommandQueue : RoadRegistryCommandQueue, IRoadNetworkCom
 
     public static readonly StreamName Stream = new("roadnetwork-command-queue");
 
-    public RoadNetworkCommandQueue(IStreamStore store, CommandMetadata commandMetadata)
-        : base(store, CommandMapping, commandMetadata)
+    public RoadNetworkCommandQueue(IStreamStore store, ApplicationMetadata applicationMetadata)
+        : base(store, CommandMapping, applicationMetadata)
     {
     }
 

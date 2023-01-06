@@ -22,7 +22,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         IRoadNetworkExtractArchiveAssembler assembler,
         IZipArchiveTranslator translator,
         IStreamStore store,
-        CommandMetadata commandMetadata)
+        ApplicationMetadata applicationMetadata)
     {
         ArgumentNullException.ThrowIfNull(downloadsBlobClient);
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
@@ -39,7 +39,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
             .Handle(async (queue, message, ct) => await RoadNetworkExtractRequestHandler(queue, assembler, downloadsBlobClient, message, ct));
 
         For<RoadNetworkExtractChangesArchiveAccepted>()
-            .UseRoadNetworkCommandQueue(store, commandMetadata)
+            .UseRoadNetworkCommandQueue(store, applicationMetadata)
             .Handle(async (queue, message, ct) =>
             {
                 var uploadId = new UploadId(message.Body.UploadId);

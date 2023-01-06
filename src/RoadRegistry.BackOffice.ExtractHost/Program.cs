@@ -36,7 +36,7 @@ using ZipArchiveWriters.ExtractHost;
 
 public class Program
 {
-    private static readonly CommandMetadata CommandMetadata = new(RoadRegistryApplication.BackOffice);
+    private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 
     protected Program()
     {
@@ -245,7 +245,7 @@ public class Program
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
                             new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
                             sp.GetService<IStreamStore>(),
-                            CommandMetadata)
+                            ApplicationMetadata)
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));

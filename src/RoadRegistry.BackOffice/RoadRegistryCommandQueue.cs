@@ -17,13 +17,13 @@ public abstract class RoadRegistryCommandQueue
 
     private readonly IStreamStore _store;
     private readonly EventMapping _commandMapping;
-    private readonly CommandMetadata _commandMetadata;
+    private readonly ApplicationMetadata _applicationMetadata;
 
-    protected RoadRegistryCommandQueue(IStreamStore store, EventMapping commandMapping, CommandMetadata commandMetadata = null)
+    protected RoadRegistryCommandQueue(IStreamStore store, EventMapping commandMapping, ApplicationMetadata applicationMetadata = null)
     {
         _store = store.ThrowIfNull();
         _commandMapping = commandMapping;
-        _commandMetadata = commandMetadata;
+        _applicationMetadata = applicationMetadata;
     }
 
     protected async Task AppendToStoreStream(Command command, StreamName streamName, CancellationToken cancellationToken)
@@ -36,7 +36,7 @@ public abstract class RoadRegistryCommandQueue
                     .Claims
                     .Select(claim => new Claim { Type = claim.Type, Value = claim.Value })
                     .ToArray(),
-                Processor = _commandMetadata?.Processor ?? RoadRegistryApplication.BackOffice
+                Processor = _applicationMetadata?.MessageProcessor ?? RoadRegistryApplication.BackOffice
             },
             SerializerSettings);
         await _store.AppendToStream(streamName, ExpectedVersion.Any, new[]

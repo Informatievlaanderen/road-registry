@@ -32,7 +32,7 @@ using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public sealed class Function : FunctionBase
 {
-    private static readonly CommandMetadata CommandMetadata = new(RoadRegistryApplication.Lambda);
+    private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 
     public Function()
         : base(new List<Assembly> { typeof(DomainAssemblyMarker).Assembly })
@@ -96,12 +96,12 @@ public sealed class Function : FunctionBase
         services
             .AddSingleton<IStreetNameCache, StreetNameCache>()
             .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
-            .AddSingleton<IRoadNetworkCommandQueue>(sp => new RoadNetworkCommandQueue(sp.GetRequiredService<IStreamStore>(), CommandMetadata))
+            .AddSingleton<IRoadNetworkCommandQueue>(sp => new RoadNetworkCommandQueue(sp.GetRequiredService<IStreamStore>(), ApplicationMetadata))
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
                     CommandModules.RoadNetwork(sp)
-                }), CommandMetadata))
+                }), ApplicationMetadata))
             ;
 
         builder.RegisterIdempotentCommandHandler();

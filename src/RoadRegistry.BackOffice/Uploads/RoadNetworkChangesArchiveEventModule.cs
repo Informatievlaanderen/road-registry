@@ -14,14 +14,14 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         RoadNetworkUploadsBlobClient client,
         IZipArchiveTranslator translator,
         IStreamStore store,
-        CommandMetadata commandMetadata)
+        ApplicationMetadata applicationMetadata)
     {
         if (client == null) throw new ArgumentNullException(nameof(client));
         if (translator == null) throw new ArgumentNullException(nameof(translator));
         if (store == null) throw new ArgumentNullException(nameof(store));
 
         For<RoadNetworkChangesArchiveAccepted>()
-            .UseRoadNetworkCommandQueue(store, commandMetadata)
+            .UseRoadNetworkCommandQueue(store, applicationMetadata)
             .Handle(async (queue, message, ct) =>
             {
                 var archiveId = new ArchiveId(message.Body.ArchiveId);

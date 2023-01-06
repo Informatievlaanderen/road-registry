@@ -20,6 +20,6 @@ public partial class RoadRegistrySystemController : ControllerBase
         IStreamStore store)
     {
         Store = store;
-        CommandQueue = new RoadNetworkCommandQueue(Store, new CommandMetadata(RoadRegistryApplication.BackOffice));
+        CommandQueue = new RoadNetworkCommandQueue(Store, new ApplicationMetadata(RoadRegistryApplication.BackOffice));
     }
 }

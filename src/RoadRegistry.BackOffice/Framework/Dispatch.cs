@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 public static class Dispatch
 {
-    public static CommandHandlerDispatcher Using(CommandHandlerResolver resolver, CommandMetadata commandMetadata = null)
+    public static CommandHandlerDispatcher Using(CommandHandlerResolver resolver, ApplicationMetadata applicationMetadata = null)
     {
         ArgumentNullException.ThrowIfNull(resolver);
-        return (message, cancellationToken) => resolver(message)(message, commandMetadata, cancellationToken);
+        return (message, cancellationToken) => resolver(message)(message, applicationMetadata, cancellationToken);
     }
 
     public static EventHandlerDispatcher Using(EventHandlerResolver resolver)

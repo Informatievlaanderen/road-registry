@@ -4,4 +4,4 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-public delegate Func<Command, CommandMetadata, CancellationToken, Task> CommandHandlerResolver(Command command);
+public delegate Func<Command, ApplicationMetadata, CancellationToken, Task> CommandHandlerResolver(Command command);
