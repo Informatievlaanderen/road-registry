@@ -24,10 +24,13 @@ public abstract class RoadRegistryFixture : IDisposable
     private static readonly JsonSerializerSettings Settings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
+    private readonly Func<EventSourcedEntityMap> _entityMapFactory;
     private ScenarioRunner _runner;
 
     protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null)
     {
+        _entityMapFactory = () => new EventSourcedEntityMap();
+
         Fixture = new Fixture();
 
         Client = new MemoryBlobClient();
@@ -38,35 +41,12 @@ public abstract class RoadRegistryFixture : IDisposable
         WithStore(new InMemoryStreamStore(), comparisonConfig);
     }
 
-    public RoadRegistryFixture WithStore(IStreamStore store, ComparisonConfig comparisonConfig = null)
-    {
-        Store = store.ThrowIfNull();
-
-        _runner = new ScenarioRunner(
-            Resolve.WhenEqualToMessage(new CommandHandlerModule[]
-            {
-                new RoadNetworkCommandModule(Store, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock, LoggerFactory.CreateLogger<RoadNetworkCommandModule>()),
-                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock, LoggerFactory.CreateLogger<RoadNetworkExtractCommandModule>())
-            }),
-            Store,
-            Settings,
-            Mapping,
-            StreamNameConversions.PassThru
-        )
-        {
-            ComparisonConfig = comparisonConfig
-        };
-
-        return this;
-    }
-
     public MemoryBlobClient Client { get; }
     public FakeClock Clock { get; }
     public Fixture Fixture { get; }
     public IStreamStore Store { get; private set; }
     public IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
-
-    protected LoggerFactory LoggerFactory { get; private set; }
+    protected LoggerFactory LoggerFactory { get; }
 
     public void Dispose()
     {
@@ -101,5 +81,27 @@ public abstract class RoadRegistryFixture : IDisposable
         }
 
         return builder(new Scenario()).AssertAsync(_runner);
+    }
+
+    public RoadRegistryFixture WithStore(IStreamStore store, ComparisonConfig comparisonConfig = null)
+    {
+        Store = store.ThrowIfNull();
+
+        _runner = new ScenarioRunner(
+            Resolve.WhenEqualToMessage(new CommandHandlerModule[]
+            {
+                new RoadNetworkCommandModule(Store, _entityMapFactory, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock, LoggerFactory.CreateLogger<RoadNetworkCommandModule>()),
+                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, _entityMapFactory, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock, LoggerFactory.CreateLogger<RoadNetworkExtractCommandModule>())
+            }),
+            Store,
+            Settings,
+            Mapping,
+            StreamNameConversions.PassThru
+        )
+        {
+            ComparisonConfig = comparisonConfig
+        };
+
+        return this;
     }
 }

@@ -3,12 +3,15 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 using NetTopologySuite.Geometries;
 using LineString = NetTopologySuite.Geometries.LineString;
 
-public class ModifyRoadSegment : IRequestedChange
+public class ModifyRoadSegment : IRequestedChange, IHaveHash
 {
+    public const string EventName = "ModifyRoadSegment";
+
     public ModifyRoadSegment(
         RoadSegmentId id,
         RoadNodeId startNodeId,
@@ -279,7 +282,7 @@ public class ModifyRoadSegment : IRequestedChange
                     problems =
                         problems.Add(new RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length));
                 }
-                else if (measure < 0.0 || measure > line.Length)
+                else if (measure < 0.0 || (measure - line.Length) > context.Tolerances.MeasurementTolerance)
                 {
                     problems =
                         problems.Add(new RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length));
@@ -413,4 +416,7 @@ public class ModifyRoadSegment : IRequestedChange
 
         return problems;
     }
+
+    public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }

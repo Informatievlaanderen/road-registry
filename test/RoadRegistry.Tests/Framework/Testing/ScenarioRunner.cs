@@ -66,7 +66,7 @@ public class ScenarioRunner
     public async Task<object> RunAsync(ExpectEventsScenario scenario, CancellationToken ct = default)
     {
         var checkpoint = await WriteGivens(scenario.Givens);
-        var exception = await Catch.Exception(() => _resolver(scenario.When)(scenario.When, ct));
+        var exception = await Catch.Exception(() => _resolver(scenario.When)(scenario.When, null, ct));
         if (exception != null) return scenario.ButThrewException(exception);
 
         var recordedEvents = await ReadThens(checkpoint);
@@ -87,7 +87,7 @@ public class ScenarioRunner
     {
         var checkpoint = await WriteGivens(scenario.Givens);
 
-        var exception = await Catch.Exception(() => _resolver(scenario.When)(scenario.When, ct));
+        var exception = await Catch.Exception(() => _resolver(scenario.When)(scenario.When, null, ct));
         if (exception == null)
         {
             var recordedEvents = await ReadThens(checkpoint);

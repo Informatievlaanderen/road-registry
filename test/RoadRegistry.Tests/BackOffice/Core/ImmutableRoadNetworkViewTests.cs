@@ -63,6 +63,7 @@ public class ImmutableRoadNetworkViewTests
                 Problems = Array.Empty<Problem>()
             }
         };
+        
         roadNetwork = roadNetwork.RestoreFromEvent(given);
 
         // WHEN

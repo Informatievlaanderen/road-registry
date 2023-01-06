@@ -1,6 +1,13 @@
 namespace RoadRegistry.BackOffice.Messages;
 
-public class RoadSegmentRemoved
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
+
+public class RoadSegmentRemoved: IHaveHash
 {
+    public const string EventName = "RoadSegmentRemoved";
+
     public int Id { get; set; }
+
+    public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }

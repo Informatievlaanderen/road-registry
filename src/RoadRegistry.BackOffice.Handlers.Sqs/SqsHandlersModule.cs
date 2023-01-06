@@ -5,10 +5,14 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs
 {
+    using Be.Vlaanderen.Basisregisters.Sqs;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
 
     public sealed class SqsHandlersModule : Module
     {
+        internal const string SqsQueueUrlConfigKey = "SqsQueueUrl";
+
         protected override void Load(ContainerBuilder builder)
         {
             builder
@@ -23,6 +27,15 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs
             builder
                 .Register(c => new SqsQueueConsumer(c.Resolve<SqsOptions>(), c.Resolve<ILogger<SqsQueueConsumer>>()))
                 .As<ISqsQueueConsumer>()
+                .SingleInstance();
+
+            builder.Register<ISqsQueue>(c =>
+                {
+                    var configuration = c.Resolve<IConfiguration>();
+                    
+                    return new SqsQueue(c.Resolve<SqsOptions>(), configuration.GetRequiredValue<string>(SqsQueueUrlConfigKey));
+                })
+                .AsSelf()
                 .SingleInstance();
         }
     }

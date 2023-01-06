@@ -1,3 +1,6 @@
 namespace RoadRegistry.BackOffice.Abstractions.RoadSegments;
 
-public sealed record UnlinkStreetNameRequest(int WegsegmentId, string? LinkerstraatnaamId, string? RechterstraatnaamId) : EndpointRequest<UnlinkStreetNameResponse>;
+using Be.Vlaanderen.Basisregisters.Sqs.Responses;
+using MediatR;
+
+public sealed record UnlinkStreetNameRequest(int WegsegmentId, string? LinkerstraatnaamId, string? RechterstraatnaamId) : IRequest<ETagResponse>;

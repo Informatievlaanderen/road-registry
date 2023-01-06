@@ -1,10 +1,13 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 
-public class RemoveRoadSegmentFromNumberedRoad : IRequestedChange
+public class RemoveRoadSegmentFromNumberedRoad : IRequestedChange, IHaveHash
 {
+    public const string EventName = "RemoveRoadSegmentFromNumberedRoad";
+
     public RemoveRoadSegmentFromNumberedRoad(
         AttributeId attributeId,
         RoadSegmentId segmentId,
@@ -67,4 +70,7 @@ public class RemoveRoadSegmentFromNumberedRoad : IRequestedChange
 
         return problems;
     }
+
+    public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }

@@ -1,5 +1,7 @@
 Be.Vlaanderen.Basisregisters.Api
 Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
+Be.Vlaanderen.Basisregisters.EventHandling
+Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 
 AspNetCore.HealthChecks.SqlServer
 Dapper

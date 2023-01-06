@@ -3,14 +3,16 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -25,43 +27,47 @@ public partial class RoadSegmentsController
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het wegsegment gevonden is.</response>
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
-    /// <response code="429">Als het aantal requests per seconde de limiet overschreven heeft.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost("{id}/acties/straatnaamkoppelen")]
-    [ProducesResponseType(typeof(LinkStreetNameResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerRequestExample(typeof(PostLinkStreetNameParameters), typeof(PostLinkStreetNameParametersExamples))]
-    //[SwaggerResponseHeader(StatusCodes.Status202Accepted, "ETag", "string", "De ETag van de response.")]
-    [SwaggerResponseHeader(StatusCodes.Status200OK, "x-correlation-id", "string", "Correlatie identificator van de response.")]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
-    [SwaggerResponseExample(StatusCodes.Status429TooManyRequests, typeof(TooManyRequestsResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
+    [SwaggerRequestExample(typeof(PostLinkStreetNameParameters), typeof(PostLinkStreetNameParametersExamples))]
     [SwaggerOperation(Description = "Koppel een linker- en/of rechterstraatnaam met status `voorgesteld` of `inGebruik` aan een wegsegment waaraan momenteel geen linker- en/of rechterstraatnaam gekoppeld werd.")]
     public async Task<IActionResult> PostLinkStreetName(
         [FromServices] UseRoadSegmentLinkStreetNameFeatureToggle featureToggle,
         [FromBody] PostLinkStreetNameParameters parameters,
         [FromRoute] int id,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         if (!featureToggle.FeatureEnabled)
         {
             return NotFound();
         }
-
+        
         try
         {
-            var request = new LinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
-            var response = await _mediator.Send(request, cancellationToken);
+            var result = await _mediator.Send(
+                new LinkStreetNameSqsRequest
+                {
+                    Request = new LinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId),
+                    Metadata = GetMetadata(),
+                    ProvenanceData = new ProvenanceData(CreateFakeProvenance())
+                }, cancellationToken);
 
-            return Ok(response);
+            return Accepted(result);
         }
-        catch (RoadSegmentNotFoundException)
+        catch (AggregateIdIsNotFoundException)
         {
             throw new ApiException(ValidationErrors.RoadSegment.NotFound.Message, StatusCodes.Status404NotFound);
+        }
+        catch (IdempotencyException)
+        {
+            return Accepted();
         }
     }
 }

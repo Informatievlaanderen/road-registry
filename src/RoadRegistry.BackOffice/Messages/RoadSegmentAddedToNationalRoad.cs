@@ -1,9 +1,16 @@
-﻿namespace RoadRegistry.BackOffice.Messages;
+namespace RoadRegistry.BackOffice.Messages;
 
-public class RoadSegmentAddedToNationalRoad
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
+
+public class RoadSegmentAddedToNationalRoad: IHaveHash
 {
+    public const string EventName = "RoadSegmentAddedToNationalRoad";
+
     public int AttributeId { get; set; }
     public string Number { get; set; }
     public int SegmentId { get; set; }
     public int TemporaryAttributeId { get; set; }
+
+    public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }

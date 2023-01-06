@@ -18,6 +18,7 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(p => p.ShapeRecordContent).IsRequired();
         b.Property(p => p.ShapeRecordContentLength).IsRequired();
         b.Property(p => p.DbaseRecord).IsRequired();
+        b.Property(p => p.LastEventHash);
 
         b.OwnsOne(p => p.BoundingBox);
     }

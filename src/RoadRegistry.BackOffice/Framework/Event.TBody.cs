@@ -3,18 +3,18 @@ namespace RoadRegistry.BackOffice.Framework;
 using System;
 using System.Security.Claims;
 
-public class Event<TBody>
+public class Event<TBody> : IRoadRegistryMessage
 {
     public Event(Event @event)
     {
-        if (@event == null)
-            throw new ArgumentNullException(nameof(@event));
+        ArgumentNullException.ThrowIfNull(@event);
+
         MessageId = @event.MessageId;
-        Principal = @event.Principal;
         Body = (TBody)@event.Body;
+        Principal = @event.Principal;
     }
 
-    public TBody Body { get; }
     public Guid MessageId { get; }
+    public TBody Body { get; }
     public ClaimsPrincipal Principal { get; }
 }

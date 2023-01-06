@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
 using Extensions;
 using FluentValidation;
+using Infrastructure.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -160,14 +161,19 @@ public class Startup
             .AddValidatorsFromAssemblyContaining<MediatorModule>()
             .AddValidatorsFromAssemblyContaining<Handlers.MediatorModule>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.MediatorModule>()
-            .AddFeatureToggles<ApplicationFeatureToggle>(_configuration);
+            .Configure<TicketingOptions>(_configuration.GetSection(TicketingOptions.ConfigurationKey))
+            .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
+            .AddTicketing();
 
         var builder = new ContainerBuilder();
-        builder.Populate(services);
         builder.RegisterModule(new DataDogModule(_configuration));
-        builder.RegisterAssemblyModules(typeof(AutofacModule).Assembly);
-        builder.RegisterAssemblyModules(typeof(Handlers.AutofacModule).Assembly);
-        builder.RegisterAssemblyModules(typeof(Handlers.Sqs.AutofacModule).Assembly);
+
+        builder.RegisterAssemblyModules(typeof(DomainAssemblyMarker).Assembly);
+        builder.RegisterAssemblyModules(typeof(Handlers.DomainAssemblyMarker).Assembly);
+        builder.RegisterAssemblyModules(typeof(Handlers.Sqs.DomainAssemblyMarker).Assembly);
+        
+        builder.Populate(services);
+
         _applicationContainer = builder.Build();
 
         return new AutofacServiceProvider(_applicationContainer);

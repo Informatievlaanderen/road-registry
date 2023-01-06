@@ -24,6 +24,7 @@ public class Startup : TestStartup
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetService<RoadNetworkUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
+                    sp.GetService<Func<EventSourcedEntityMap>>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),
@@ -31,6 +32,7 @@ public class Startup : TestStartup
                 ),
                 new RoadNetworkCommandModule(
                     sp.GetService<IStreamStore>(),
+                    sp.GetService<Func<EventSourcedEntityMap>>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IRoadNetworkSnapshotWriter>(),
                     sp.GetService<IClock>(),
@@ -39,6 +41,7 @@ public class Startup : TestStartup
                 new RoadNetworkExtractCommandModule(
                     sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
+                    sp.GetService<Func<EventSourcedEntityMap>>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),

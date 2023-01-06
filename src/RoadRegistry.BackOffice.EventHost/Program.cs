@@ -31,6 +31,8 @@ using Uploads;
 
 public class Program
 {
+    private static readonly CommandMetadata CommandMetadata = new(RoadRegistryApplication.BackOffice);
+
     protected Program()
     {
     }
@@ -203,7 +205,8 @@ public class Program
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetService<RoadNetworkUploadsBlobClient>(),
                             new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
-                            sp.GetService<IStreamStore>()
+                            sp.GetService<IStreamStore>(),
+                            CommandMetadata
                         ),
                         new RoadNetworkEventModule(
                             sp.GetService<IStreamStore>(),

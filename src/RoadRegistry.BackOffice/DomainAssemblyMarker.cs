@@ -1,5 +1,5 @@
 namespace RoadRegistry.BackOffice;
 
-public class DomainAssemblyMarker
+public sealed class DomainAssemblyMarker
 {
 }

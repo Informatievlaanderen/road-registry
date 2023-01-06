@@ -1,10 +1,13 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 
-public class AddRoadSegmentToNumberedRoad : IRequestedChange
+public class AddRoadSegmentToNumberedRoad : IRequestedChange, IHaveHash
 {
+    public const string EventName = "AddRoadSegmentToNumberedRoad";
+
     public AddRoadSegmentToNumberedRoad(AttributeId attributeId,
         AttributeId temporaryAttributeId,
         RoadSegmentId segmentId,
@@ -75,4 +78,7 @@ public class AddRoadSegmentToNumberedRoad : IRequestedChange
         if (context == null) throw new ArgumentNullException(nameof(context));
         return Problems.None;
     }
+
+    public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }

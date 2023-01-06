@@ -23,19 +23,19 @@ public abstract class CommandHandlerModule
             _handlers.Add(
                 new CommandHandler(
                     typeof(TCommand),
-                    (message, ct) => handler(new Command<TCommand>(message), ct)
+                    (message, commandMetadata, ct) => handler(new Command<TCommand>(message), commandMetadata, ct)
                 ));
         });
     }
 
-    protected void Handle<TCommand>(Func<Command<TCommand>, CancellationToken, Task> handler)
+    protected void Handle<TCommand>(Func<Command<TCommand>, CommandMetadata, CancellationToken, Task> handler)
     {
         if (handler == null)
             throw new ArgumentNullException(nameof(handler));
         _handlers.Add(
             new CommandHandler(
                 typeof(TCommand),
-                (message, ct) => handler(new Command<TCommand>(message), ct)
+                (message, commandMetadata, ct) => handler(new Command<TCommand>(message), commandMetadata, ct)
             ));
     }
 }

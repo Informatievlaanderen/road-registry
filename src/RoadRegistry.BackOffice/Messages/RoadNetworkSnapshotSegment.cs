@@ -13,4 +13,5 @@ public class RoadNetworkSnapshotSegment
     [Key(6)] public string[] PartOfNationalRoads { get; set; }
     [Key(7)] public string[] PartOfNumberedRoads { get; set; }
     [Key(1)] public int StartNodeId { get; set; }
+    [Key(8)] public string LastEventHash { get; set; }
 }

@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Extensions;
 
-internal static class StringExtensions
+public static class StringExtensions
 {
     public static int GetIdentifierFromPuri(this string puri)
     {

@@ -16,6 +16,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
     public RoadNetworkExtractCommandModule(
         RoadNetworkExtractUploadsBlobClient uploadsBlobClient,
         IStreamStore store,
+        Func<EventSourcedEntityMap> entityMapFactory,
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveAfterFeatureCompareValidator validator,
         IClock clock,
@@ -29,8 +30,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
 
         For<RequestRoadNetworkExtract>()
             .UseValidator(new RequestRoadNetworkExtractValidator())
-            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
-            .Handle(async (context, message, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .Handle(async (context, message, _, ct) =>
             {
                 var externalRequestId = new ExternalExtractRequestId(message.Body.ExternalRequestId);
                 var requestId = ExtractRequestId.FromExternalRequestId(externalRequestId);
@@ -52,8 +53,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<AnnounceRoadNetworkExtractDownloadBecameAvailable>()
-            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
-            .Handle(async (context, message, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .Handle(async (context, message, _, ct) =>
             {
                 var requestId = ExtractRequestId.FromString(message.Body.RequestId);
                 var downloadId = new DownloadId(message.Body.DownloadId);
@@ -65,8 +66,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<AnnounceRoadNetworkExtractDownloadTimeoutOccurred>()
-            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
-            .Handle(async (context, message, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .Handle(async (context, message, _, ct) =>
             {
                 var requestId = ExtractRequestId.FromString(message.Body.RequestId);
                 var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
@@ -76,8 +77,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<UploadRoadNetworkExtractChangesArchive>()
-            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
-            .Handle(async (context, message, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .Handle(async (context, message, _, ct) =>
             {
                 var requestId = ExtractRequestId.FromString(message.Body.RequestId);
                 var forDownloadId = new DownloadId(message.Body.DownloadId);

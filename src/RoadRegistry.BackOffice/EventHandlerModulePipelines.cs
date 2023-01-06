@@ -7,10 +7,10 @@ using SqlStreamStore;
 internal static class EventHandlerModulePipelines
 {
     public static IEventHandlerBuilder<IRoadNetworkCommandQueue, TEvent> UseRoadNetworkCommandQueue<TEvent>(
-        this IEventHandlerBuilder<TEvent> builder, IStreamStore store)
+        this IEventHandlerBuilder<TEvent> builder, IStreamStore store, CommandMetadata commandMetadata)
     {
         if (store == null) throw new ArgumentNullException(nameof(store));
-        return builder.Pipe<IRoadNetworkCommandQueue>(next => (message, ct) => next(new RoadNetworkCommandQueue(store), message, ct));
+        return builder.Pipe<IRoadNetworkCommandQueue>(next => (message, ct) => next(new RoadNetworkCommandQueue(store, commandMetadata), message, ct));
     }
 
     public static IEventHandlerBuilder<IRoadNetworkExtractCommandQueue, TEvent> UseRoadNetworkExtractCommandQueue<TEvent>(

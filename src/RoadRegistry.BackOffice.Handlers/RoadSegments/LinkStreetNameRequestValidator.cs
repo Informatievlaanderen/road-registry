@@ -4,9 +4,8 @@ using Abstractions.RoadSegments;
 using Abstractions.Validation;
 using Extensions;
 using FluentValidation;
-using MediatR;
 
-public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRequest>, IPipelineBehavior<LinkStreetNameRequest, LinkStreetNameResponse>
+public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRequest>
 {
     public LinkStreetNameRequestValidator()
     {
@@ -44,12 +43,5 @@ public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRe
             })
             .WithErrorCode(ValidationErrors.Common.IncorrectObjectId.Code)
             .WithMessage(request => ValidationErrors.Common.IncorrectObjectId.Message(request.RechterstraatnaamId));
-    }
-
-    public async Task<LinkStreetNameResponse> Handle(LinkStreetNameRequest request, RequestHandlerDelegate<LinkStreetNameResponse> next, CancellationToken cancellationToken)
-    {
-        await this.ValidateAndThrowAsync(request, cancellationToken);
-        var response = await next();
-        return response;
     }
 }

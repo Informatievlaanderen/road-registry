@@ -8,12 +8,12 @@ public class CommandHandler
 {
     public CommandHandler(
         Type command,
-        Func<Command, CancellationToken, Task> handler)
+        Func<Command, CommandMetadata, CancellationToken, Task> handler)
     {
         Command = command ?? throw new ArgumentNullException(nameof(command));
         Handler = handler ?? throw new ArgumentNullException(nameof(handler));
     }
 
     public Type Command { get; }
-    public Func<Command, CancellationToken, Task> Handler { get; }
+    public Func<Command, CommandMetadata, CancellationToken, Task> Handler { get; }
 }

@@ -14,7 +14,7 @@ public class RoadNetworkExtractCommandProcessor : CommandProcessor
         CommandHandlerDispatcher dispatcher,
         Scheduler scheduler,
         ILogger<RoadNetworkExtractCommandProcessor> logger)
-        : base(streamStore, RoadNetworkExtractCommandQueue.Stream, positionStore, dispatcher, scheduler, logger)
+        : base(streamStore, RoadNetworkExtractCommandQueue.Stream, positionStore, dispatcher, scheduler, RoadRegistryApplication.BackOffice, logger)
     {
     }
 }

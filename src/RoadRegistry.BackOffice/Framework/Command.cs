@@ -3,13 +3,14 @@ namespace RoadRegistry.BackOffice.Framework;
 using System;
 using System.Security.Claims;
 
-public class Command
+public class Command: IRoadRegistryMessage
 {
     public Command(object body)
+        : this(Guid.NewGuid(),
+            new ClaimsPrincipal(new ClaimsIdentity(Array.Empty<System.Security.Claims.Claim>())),
+            body ?? throw new ArgumentNullException(nameof(body))
+        )
     {
-        MessageId = Guid.NewGuid();
-        Principal = new ClaimsPrincipal(new ClaimsIdentity(Array.Empty<Claim>()));
-        Body = body ?? throw new ArgumentNullException(nameof(body));
     }
 
     private Command(Guid messageId, ClaimsPrincipal principal, object body)
@@ -27,10 +28,10 @@ public class Command
     {
         return new Command(value, Principal, Body);
     }
-
+    
     public Command WithPrincipal(ClaimsPrincipal value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
         return new Command(MessageId, value, Body);
     }
 }

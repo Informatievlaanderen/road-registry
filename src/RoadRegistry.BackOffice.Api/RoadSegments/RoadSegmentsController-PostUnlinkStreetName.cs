@@ -3,14 +3,17 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
+using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
 public partial class RoadSegmentsController
@@ -27,18 +30,15 @@ public partial class RoadSegmentsController
     /// <response code="429">Als het aantal requests per seconde de limiet overschreven heeft.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost("{id}/acties/straatnaamontkoppelen")]
-    [ProducesResponseType(typeof(UnlinkStreetNameResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    [SwaggerRequestExample(typeof(PostUnlinkStreetNameParameters), typeof(PostUnlinkStreetNameParametersExamples))]
-    //[SwaggerResponseHeader(StatusCodes.Status202Accepted, "ETag", "string", "De ETag van de response.")]
-    [SwaggerResponseHeader(StatusCodes.Status200OK, "x-correlation-id", "string", "Correlatie identificator van de response.")]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
-    [SwaggerResponseExample(StatusCodes.Status429TooManyRequests, typeof(TooManyRequestsResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
+    [SwaggerRequestExample(typeof(PostUnlinkStreetNameParameters), typeof(PostUnlinkStreetNameParametersExamples))]
+    [SwaggerOperation(Description = "Ontkoppel een linker- en/of rechterstraatnaam van een wegsegment waaraan momenteel een linker- en/of rechterstraatnaam gekoppeld is.")]
     public async Task<IActionResult> PostUnlinkStreetName(
         [FromServices] UseRoadSegmentUnlinkStreetNameFeatureToggle featureToggle,
         [FromBody] PostUnlinkStreetNameParameters parameters,
@@ -52,14 +52,23 @@ public partial class RoadSegmentsController
 
         try
         {
-            var request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
-            var response = await _mediator.Send(request, cancellationToken);
+            var result = await _mediator.Send(
+                new UnlinkStreetNameSqsRequest
+                {
+                    Request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId),
+                    Metadata = GetMetadata(),
+                    ProvenanceData = new ProvenanceData(CreateFakeProvenance())
+                }, cancellationToken);
 
-            return Ok(response);
+            return Accepted(result);
         }
-        catch (RoadSegmentNotFoundException)
+        catch (AggregateIdIsNotFoundException)
         {
             throw new ApiException(ValidationErrors.RoadSegment.NotFound.Message, StatusCodes.Status404NotFound);
+        }
+        catch (IdempotencyException)
+        {
+            return Accepted();
         }
     }
 }

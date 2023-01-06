@@ -6,6 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using Be.Vlaanderen.Basisregisters.GrAr.Common.Pipes;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -34,7 +37,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
             var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod).Translation;
             var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(envelope.Message.AccessRestriction).Translation;
             await context.RoadSegments.AddAsync(
-                new RoadSegmentRecord
+                UpdateHash(new RoadSegmentRecord
                 {
                     Id = envelope.Message.Id,
                     StartNodeId = envelope.Message.StartNodeId,
@@ -71,7 +74,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         TGBEP = { Value = accessRestrictionTranslation.Identifier },
                         LBLTGBEP = { Value = accessRestrictionTranslation.Name }
                     }.ToBytes(manager, encoding)
-                },
+                }, envelope.Message),
                 token);
         });
 
@@ -109,8 +112,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var categoryTranslation = RoadSegmentCategory.Parse(segment.Category).Translation;
         var geometryDrawMethodTranslation = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation;
         var accessRestrictionTranslation = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation;
+
         await context.RoadSegments.AddAsync(
-            new RoadSegmentRecord
+            UpdateHash(new RoadSegmentRecord
             {
                 Id = segment.Id,
                 StartNodeId = segment.StartNodeId,
@@ -147,7 +151,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                     TGBEP = { Value = accessRestrictionTranslation.Identifier },
                     LBLTGBEP = { Value = accessRestrictionTranslation.Name }
                 }.ToBytes(manager, encoding)
-            },
+            }, segment),
             token);
     }
 
@@ -175,8 +179,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
         roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
         roadSegmentRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry);
-        var dbaseRecord = new RoadSegmentDbaseRecord();
-        dbaseRecord.FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
+        
+        var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
         dbaseRecord.WS_UIDN.Value = $"{roadSegmentModified.Id}_{roadSegmentModified.Version}";
         dbaseRecord.WS_GIDN.Value = $"{roadSegmentModified.Id}_{roadSegmentModified.GeometryVersion}";
         dbaseRecord.B_WK_OIDN.Value = roadSegmentModified.StartNodeId;
@@ -202,6 +206,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         dbaseRecord.TGBEP.Value = accessRestrictionTranslation.Identifier;
         dbaseRecord.LBLTGBEP.Value = accessRestrictionTranslation.Name;
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+
+        UpdateHash(roadSegmentRecord, roadSegmentModified);
     }
 
     private static async Task RemoveRoadSegment(EditorContext context, RoadSegmentRemoved roadSegmentRemoved)
@@ -209,5 +215,11 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id);
 
         context.RoadSegments.Remove(roadSegmentRecord);
+    }
+
+    private static RoadSegmentRecord UpdateHash<T>(RoadSegmentRecord entity, T message) where T : IHaveHash
+    {
+        entity.LastEventHash = message.GetHash();
+        return entity;
     }
 }
