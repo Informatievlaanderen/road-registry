@@ -1,13 +1,8 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+using Abstractions;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.Syndication.Schema;
+using Syndication.Schema;
 
 public class StreetNameCache : IStreetNameCache
 {

@@ -18,13 +18,3 @@ public class Command<TBody>: IRoadRegistryMessage
     public TBody Body { get; }
     public ClaimsPrincipal Principal { get; }
 }
-
-public class CommandMetadata
-{
-    public CommandMetadata(RoadRegistryApplication processor)
-    {
-        Processor = processor;
-    }
-
-    public RoadRegistryApplication Processor { get; }
-}

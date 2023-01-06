@@ -16,7 +16,7 @@ public static class ConfigurationBuilderExtensions
         }
 
         builder
-            .AddJsonFile("appsettings.json", true, false)
+            .AddJsonFile("appsettings.json", false, false)
             .AddJsonFile($"appsettings.{environment.EnvironmentName.ToLowerInvariant()}.json", true, false)
             .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
             .AddEnvironmentVariables();

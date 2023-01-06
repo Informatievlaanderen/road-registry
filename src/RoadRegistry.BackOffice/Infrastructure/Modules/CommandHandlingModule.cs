@@ -14,12 +14,7 @@ public class CommandHandlingModule : Module
             .InstancePerLifetimeScope();
 
         builder.RegisterInstance<IClock>(SystemClock.Instance);
-
-        //builder
-        //    .RegisterEventstreamModule(_configuration);
-
-        //CommandHandlerModules.Register(builder);
-
+        
         builder
             .RegisterType<CommandHandlerResolver>()
             .As<ICommandHandlerResolver>();

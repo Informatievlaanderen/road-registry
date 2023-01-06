@@ -6,29 +6,27 @@ using Amazon.Lambda.Serialization.Json;
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
 using System.Reflection;
+using Abstractions;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using BackOffice.Infrastructure.Modules;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
+using Framework;
+using Hosts;
+using Hosts.Infrastructure.Extensions;
+using Hosts.Infrastructure.Modules;
 using Infrastructure;
 using Infrastructure.Modules;
-using Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Infrastructure.Modules;
-using RoadRegistry.Hosts;
-using RoadRegistry.Hosts.Infrastructure.Extensions;
-using RoadRegistry.Hosts.Infrastructure.Modules;
 using SqlStreamStore;
-using TicketingService.Proxy.HttpProxy;
 using DomainAssemblyMarker = BackOffice.Handlers.DomainAssemblyMarker;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
@@ -37,7 +35,7 @@ public sealed class Function : FunctionBase
     private static readonly CommandMetadata CommandMetadata = new(RoadRegistryApplication.Lambda);
 
     public Function()
-        : base(new List<Assembly> { typeof(Sqs.DomainAssemblyMarker).Assembly })
+        : base(new List<Assembly> { typeof(DomainAssemblyMarker).Assembly })
     {
     }
 
@@ -74,7 +72,7 @@ public sealed class Function : FunctionBase
             .As<IConfiguration>()
             .SingleInstance();
 
-        services.AddHttpProxyTicketing(configuration.GetSection(TicketingOptions.ConfigurationKey)[nameof(TicketingOptions.InternalBaseUrl)]);
+        services.AddTicketing();
 
         builder.RegisterRetryPolicy(configuration);
 

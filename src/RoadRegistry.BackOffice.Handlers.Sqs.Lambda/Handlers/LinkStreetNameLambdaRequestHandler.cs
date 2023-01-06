@@ -196,6 +196,9 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers
                     ValidationErrors.RoadSegment.StreetNameIsNotProposedOrCurrent.Message,
                     ValidationErrors.RoadSegment.StreetNameIsNotProposedOrCurrent.Code);
             }
+
+            var streetNames = await _streetNameCache.GetStreetNamesById(new[] { streetNameId }, cancellationToken);
+
         }
     }
 }

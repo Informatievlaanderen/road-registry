@@ -5,10 +5,10 @@ using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using TicketingService.Abstractions;
 using TicketingService.Proxy.HttpProxy;
 
-public static class ServiceCollectionExtensions
+public static class TicketingExtensions
 {
     private static string GetBaseUrl(IConfiguration configuration) =>
-        configuration.GetSection(TicketingOptions.ConfigurationKey)[nameof(TicketingOptions.InternalBaseUrl)];
+        configuration.GetSection(TicketingOptions.ConfigurationKey).GetRequiredValue<string>(nameof(TicketingOptions.InternalBaseUrl));
     
     public static IServiceCollection AddTicketing(
         this IServiceCollection services)
