@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests.BackOffice;
 
+using Amazon.DynamoDBv2;
 using AutoFixture;
 using AutoFixture.Dsl;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -620,7 +621,7 @@ public static class SharedCustomizations
             composer.FromFactory(generator => new TransactionId(generator.Next()))
         );
     }
-
+    
     public static IPostprocessComposer<T> FromFactory<T>(this IFactoryComposer<T> composer, Func<Random, T> factory)
     {
         return composer.FromFactory<int>(value => factory(new Random(value)));

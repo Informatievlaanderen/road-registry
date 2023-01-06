@@ -12,6 +12,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
+using Xunit.Abstractions;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
 using AddRoadSegmentToEuropeanRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToEuropeanRoad;
@@ -29,6 +30,11 @@ using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentW
 
 public class RoadNetworkScenarios : RoadNetworkFixture
 {
+    public RoadNetworkScenarios(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
+    {
+    }
+
     [Fact]
     public Task when_adding_a_disconnected_node()
     {

@@ -1,78 +1,58 @@
-namespace RoadRegistry.BackOffice.Handlers.Tests.RoadSegments.Common;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.Common;
 
 using Abstractions;
-using BackOffice.Framework;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Core;
+using Framework;
 using Messages;
-using Microsoft.Extensions.Logging;
 using NodaTime.Text;
-using RoadRegistry.Tests.BackOffice.Scenarios;
-using SqlStreamStore;
 using StreetNameConsumer.Schema;
+using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
-public abstract class LinkUnlinkStreetNameTestsBase<TRequest, TResponse, THandler>
-    where TRequest : EndpointRequest<TResponse>
-    where TResponse : EndpointResponse
-    where THandler : EndpointRequestHandler<TRequest, TResponse>
+public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
 {
-    protected LinkUnlinkStreetNameTestsBase(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<THandler> logger)
+    protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
-        var store = new InMemoryStreamStore();
-        RoadRegistryContext = new RoadRegistryContext(
-            new EventSourcedEntityMap(),
-            store,
-            new FakeRoadNetworkSnapshotReader(),
-            EventsJsonSerializerSettingsProvider.CreateSerializerSettings(),
-            ContextModule.RoadNetworkEventsEventMapping
-        );
         StreetNameCache = new FakeStreetNameCache()
             .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))
             .AddStreetName(WellKnownStreetNameIds.Current, "Current street", nameof(StreetNameStatus.Current))
             .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired));
-        Fixture = (RoadNetworkFixture)new RoadNetworkFixture().WithStore(store);
-
-        Handler = CreateHandler(commandHandlerDispatcher, logger);
     }
-
-    protected RoadRegistryContext RoadRegistryContext { get; }
+    
     protected IStreetNameCache StreetNameCache { get; }
-    protected RoadNetworkFixture Fixture { get; }
-    protected THandler Handler { get; }
-    protected abstract THandler CreateHandler(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<THandler> logger);
 
     protected async Task GivenSegment1Added()
     {
-        await Fixture.Given(Organizations.ToStreamName(Fixture.ChangedByOrganization), new ImportedOrganization
+        await Given(Organizations.ToStreamName(ChangedByOrganization), new ImportedOrganization
         {
-            Code = Fixture.ChangedByOrganization,
-            Name = Fixture.ChangedByOrganizationName,
-            When = InstantPattern.ExtendedIso.Format(Fixture.Clock.GetCurrentInstant())
+            Code = ChangedByOrganization,
+            Name = ChangedByOrganizationName,
+            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
-        await Fixture.Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+        await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
         {
-            RequestId = Fixture.RequestId,
-            Reason = Fixture.ReasonForChange,
-            Operator = Fixture.ChangedByOperator,
-            OrganizationId = Fixture.ChangedByOrganization,
-            Organization = Fixture.ChangedByOrganizationName,
+            RequestId = RequestId,
+            Reason = ReasonForChange,
+            Operator = ChangedByOperator,
+            OrganizationId = ChangedByOrganization,
+            Organization = ChangedByOrganizationName,
             Changes = new[]
             {
                 new AcceptedChange
                 {
-                    RoadNodeAdded = Fixture.StartNode1Added
+                    RoadNodeAdded = StartNode1Added
                 },
                 new AcceptedChange
                 {
-                    RoadNodeAdded = Fixture.EndNode1Added
+                    RoadNodeAdded = EndNode1Added
                 },
                 new AcceptedChange
                 {
-                    RoadSegmentAdded = Fixture.Segment1Added
+                    RoadSegmentAdded = Segment1Added
                 }
             },
-            When = InstantPattern.ExtendedIso.Format(Fixture.Clock.GetCurrentInstant())
+            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
     }
 

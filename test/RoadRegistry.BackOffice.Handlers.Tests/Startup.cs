@@ -9,14 +9,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using RoadRegistry.BackOffice.Extensions;
 using SqlStreamStore;
 
 public class Startup : TestStartup
 {
     protected override void ConfigureContainer(ContainerBuilder builder)
     {
-        builder.RegisterAssemblyModules(typeof(BackOffice.DomainAssemblyMarker).Assembly);
-        builder.RegisterAssemblyModules(typeof(Handlers.DomainAssemblyMarker).Assembly);
+        builder.RegisterModulesFromAssemblyContaining<BackOffice.DomainAssemblyMarker>();
+        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
     }
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)

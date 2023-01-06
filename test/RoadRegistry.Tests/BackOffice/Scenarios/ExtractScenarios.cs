@@ -11,11 +11,12 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
+using Xunit.Abstractions;
 
 public class ExtractScenarios : RoadRegistryFixture
 {
-    public ExtractScenarios()
-        : base(CreateComparisonConfig())
+    public ExtractScenarios(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper, CreateComparisonConfig())
     {
         Fixture.CustomizeExternalExtractRequestId();
         Fixture.CustomizeRoadNetworkExtractGeometry();

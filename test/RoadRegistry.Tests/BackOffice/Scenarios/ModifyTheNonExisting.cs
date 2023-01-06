@@ -8,6 +8,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
+using Xunit.Abstractions;
 using ModifyGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.ModifyGradeSeparatedJunction;
 using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
 using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;
@@ -19,7 +20,8 @@ using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
 
 public class ModifyTheNonExisting : RoadRegistryFixture
 {
-    public ModifyTheNonExisting()
+    public ModifyTheNonExisting(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
         Fixture.CustomizePoint();
         Fixture.CustomizePolylineM();

@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
 using Extensions;
 using FluentValidation;
+using Infrastructure;
 using Infrastructure.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -158,20 +159,20 @@ public class Startup
                 }
             })
             .AddValidatorsFromAssemblyContaining<Startup>()
-            .AddValidatorsFromAssemblyContaining<MediatorModule>()
-            .AddValidatorsFromAssemblyContaining<Handlers.MediatorModule>()
-            .AddValidatorsFromAssemblyContaining<Handlers.Sqs.MediatorModule>()
-            .Configure<TicketingOptions>(_configuration.GetSection(TicketingOptions.ConfigurationKey))
+            .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
+            .AddValidatorsFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>()
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
             .AddTicketing();
 
         var builder = new ContainerBuilder();
         builder.RegisterModule(new DataDogModule(_configuration));
-
-        builder.RegisterAssemblyModules(typeof(DomainAssemblyMarker).Assembly);
-        builder.RegisterAssemblyModules(typeof(Handlers.DomainAssemblyMarker).Assembly);
-        builder.RegisterAssemblyModules(typeof(Handlers.Sqs.DomainAssemblyMarker).Assembly);
         
+        builder.RegisterModulesFromAssemblyContaining<Startup>();
+        builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
+        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
+        builder.RegisterModulesFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>();
+
         builder.Populate(services);
 
         _applicationContainer = builder.Build();

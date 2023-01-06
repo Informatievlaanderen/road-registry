@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework.Containers;
 
+using Abstractions;
+using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.Editor.Schema;
-using RoadRegistry.Product.Schema;
+using Product.Schema;
 using RoadRegistry.Tests.Framework.Containers;
 
 public class SqlServer : ISqlServerDatabase
@@ -16,9 +16,13 @@ public class SqlServer : ISqlServerDatabase
     {
         const int hostPort = 21537;
         if (Environment.GetEnvironmentVariable("CI") == null)
+        {
             _inner = new SqlServerEmbeddedContainer(hostPort);
+        }
         else
+        {
             _inner = new SqlServerComposedContainer(hostPort.ToString());
+        }
 
         MemoryStreamManager = new RecyclableMemoryStreamManager();
         StreetNameCache = new FakeStreetNameCache();

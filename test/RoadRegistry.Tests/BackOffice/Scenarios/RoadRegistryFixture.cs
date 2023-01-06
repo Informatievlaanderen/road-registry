@@ -1,23 +1,33 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
+using Autofac;
 using AutoFixture;
+using Be.Vlaanderen.Basisregisters.AggregateSource.Snapshotting;
+using Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Framework.Testing;
 using KellermanSoftware.CompareNetObjects;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Testing;
+using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
 using SqlStreamStore;
+using Xunit.Abstractions;
 
-public abstract class RoadRegistryFixture : IDisposable
+public abstract class RoadRegistryFixture : AutofacBasedTest, IDisposable
 {
+    protected string ConfigDetailUrl => "http://base/{0}";
+
     private static readonly EventMapping Mapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
@@ -27,11 +37,13 @@ public abstract class RoadRegistryFixture : IDisposable
     private readonly Func<EventSourcedEntityMap> _entityMapFactory;
     private ScenarioRunner _runner;
 
-    protected RoadRegistryFixture(ComparisonConfig comparisonConfig = null)
+    protected RoadRegistryFixture(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
+        : base(testOutputHelper)
     {
         _entityMapFactory = () => new EventSourcedEntityMap();
 
         Fixture = new Fixture();
+        Fixture.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
 
         Client = new MemoryBlobClient();
         Clock = new FakeClock(NodaConstants.UnixEpoch);
@@ -39,6 +51,7 @@ public abstract class RoadRegistryFixture : IDisposable
         LoggerFactory = new LoggerFactory();
 
         WithStore(new InMemoryStreamStore(), comparisonConfig);
+        RoadRegistryContext = new RoadRegistryContext(new EventSourcedEntityMap(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping);
     }
 
     public MemoryBlobClient Client { get; }
@@ -46,6 +59,7 @@ public abstract class RoadRegistryFixture : IDisposable
     public Fixture Fixture { get; }
     public IStreamStore Store { get; private set; }
     public IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
+    protected IRoadRegistryContext RoadRegistryContext { get; }
     protected LoggerFactory LoggerFactory { get; }
 
     public void Dispose()
@@ -104,4 +118,35 @@ public abstract class RoadRegistryFixture : IDisposable
 
         return this;
     }
+
+    protected override void ConfigureCommandHandling(ContainerBuilder builder)
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string>
+            {
+                { "ConnectionStrings:Events", "x" },
+                { "ConnectionStrings:Snapshots", "x" },
+                { "DetailUrl", ConfigDetailUrl }
+            })
+            .Build();
+
+        builder.Register((a) => (IConfiguration)configuration);
+
+        builder
+            .RegisterModule(new CommandHandlingModule())
+            .RegisterModule(new SqlStreamStoreModule())
+            .RegisterModule(new SqlSnapshotStoreModule());
+
+        //builder
+        //    .Register(c => new MunicipalityFactory(Fixture.Create<ISnapshotStrategy>()))
+        //    .As<IMunicipalityFactory>();
+    }
+
+    protected override void ConfigureEventHandling(ContainerBuilder builder)
+    {
+        var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+        builder.RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
+    }
+
+    protected string FormatDetailUrl(object o) => string.Format(ConfigDetailUrl, o);
 }

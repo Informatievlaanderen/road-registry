@@ -7,13 +7,15 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
+using Xunit.Abstractions;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNetworkFixture : RoadRegistryFixture
 {
-    public RoadNetworkFixture()
+    public RoadNetworkFixture(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
         Fixture.CustomizePoint();
         Fixture.CustomizePolylineM();

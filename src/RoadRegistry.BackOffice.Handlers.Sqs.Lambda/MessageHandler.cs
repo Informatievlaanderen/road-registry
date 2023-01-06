@@ -38,8 +38,8 @@ public sealed class MessageHandler : IMessageHandler
     {
         return sqsRequest switch
         {
-            LinkStreetNameSqsRequest request => new LinkStreetNameLambdaRequest(groupId, request),
-            UnlinkStreetNameSqsRequest request => new UnlinkStreetNameLambdaRequest(groupId, request),
+            LinkStreetNameSqsRequest request => new LinkStreetNameSqsLambdaRequest(groupId, request),
+            UnlinkStreetNameSqsRequest request => new UnlinkStreetNameSqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };

@@ -1,15 +1,16 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
 
+using Abstractions;
+using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
+using RoadSegments;
 
-public sealed record UnlinkStreetNameLambdaRequest :
+public sealed record UnlinkStreetNameSqsLambdaRequest :
     SqsLambdaRequest,
-    IHasBackOfficeRequest<UnlinkStreetNameRequest>
+    IHasBackOfficeRequest<UnlinkStreetNameRequest>,
+    IHasRoadSegmentId
 {
-    public UnlinkStreetNameLambdaRequest(string groupId, UnlinkStreetNameSqsRequest sqsRequest)
+    public UnlinkStreetNameSqsLambdaRequest(string groupId, UnlinkStreetNameSqsRequest sqsRequest)
         : base(
             groupId,
             sqsRequest.TicketId,
@@ -21,4 +22,5 @@ public sealed record UnlinkStreetNameLambdaRequest :
     }
 
     public UnlinkStreetNameRequest Request { get; init; }
+    public int RoadSegmentId => Request.WegsegmentId;
 }
