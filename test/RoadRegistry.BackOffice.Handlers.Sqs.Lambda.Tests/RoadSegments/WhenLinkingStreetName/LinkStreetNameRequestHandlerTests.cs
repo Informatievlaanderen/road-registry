@@ -2,9 +2,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenLin
 
 using Autofac;
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.CommandHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Dbase;
 using Framework;
 using Handlers;
@@ -25,17 +23,17 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         : base(testOutputHelper)
     {
     }
-    
+
     private async Task HandleRequest(ITicketing ticketing, LinkStreetNameRequest request)
     {
         var handler = new LinkStreetNameSqsLambdaRequestHandler(
             Container.Resolve<IConfiguration>(),
             new FakeRetryPolicy(),
             ticketing,
-            new IdempotentCommandHandler(Container.Resolve<ICommandHandlerResolver>(), IdempotencyContext),
+            new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()), 
             RoadRegistryContext,
             StreetNameCache,
-            new RoadNetworkCommandQueue(Store, new ApplicationMetadata(RoadRegistryApplication.Lambda))
+            new RoadNetworkCommandQueue(Store, ApplicationMetadata)
         );
 
         await handler.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetworkInfo.Identifier.ToString(), new LinkStreetNameSqsRequest
@@ -100,14 +98,12 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, StreetNamePuri(streetNameId), null));
 
         //Assert
-        //TODO-rik fix success test, then set up the same for unlink
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
         VerifyThatTicketHasCompleted(ticketing, string.Format(ConfigDetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
-        //var command = await Store.GetLastCommand<ChangeRoadNetwork>();
-
-        //Xunit.Assert.Equal(streetNameId, command!.Changes.Single().ModifyRoadSegment.LeftSideStreetNameId);
+        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        Xunit.Assert.Equal(streetNameId, command!.Changes.Single().RoadSegmentModified.LeftSide.StreetNameId);
     }
 
     [Fact]
@@ -164,22 +160,29 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         VerifyThatTicketHasError(ticketing, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
     }
 
-    //[InlineData(WellKnownStreetNameIds.Proposed)]
-    //[InlineData(WellKnownStreetNameIds.Current)]
-    //[Theory]
-    //public async Task LinkStreetNameToRoadSegment_RightStreetName_Proposed_Current(int streetNameId)
-    //{
-    //    Fixture.Segment1Added.RightSide.StreetNameId = null;
+    [InlineData(WellKnownStreetNameIds.Proposed)]
+    [InlineData(WellKnownStreetNameIds.Current)]
+    [Theory]
+    public async Task LinkStreetNameToRoadSegment_RightStreetName_Proposed_Current(int streetNameId)
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = new RoadSegmentId(Segment1Added.Id);
 
-    //    await GivenSegment1Added();
+        Segment1Added.RightSide.StreetNameId = null;
 
-    //    var request = new LinkStreetNameRequest(1, null, StreetNamePuri(streetNameId));
-    //    await Handler.HandleAsync(request, CancellationToken.None);
+        await GivenSegment1Added();
 
-    //    var command = await Fixture.Store.GetLastCommand<ChangeRoadNetwork>();
+        //Act
+        await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, null, StreetNamePuri(streetNameId)));
 
-    //    Assert.Equal(streetNameId, command!.Changes.Single().ModifyRoadSegment.RightSideStreetNameId);
-    //}
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
+        var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(ConfigDetailUrl, roadSegmentId), roadSegment.LastEventHash);
+
+        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        Xunit.Assert.Equal(streetNameId, command!.Changes.Single().RoadSegmentModified.RightSide.StreetNameId);
+    }
 
     [Fact]
     public async Task LinkStreetNameToRoadSegment_RightStreetName_Retired()

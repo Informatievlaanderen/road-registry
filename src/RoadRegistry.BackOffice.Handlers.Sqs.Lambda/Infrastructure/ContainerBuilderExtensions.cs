@@ -45,4 +45,13 @@ internal static class ContainerBuilderExtensions
             .AsSelf()
             .InstancePerLifetimeScope();
     }
+
+    public static IRegistrationBuilder<IConfiguration, SimpleActivatorData, SingleRegistrationStyle> RegisterConfiguration(this ContainerBuilder builder, IConfiguration configuration)
+    {
+        return builder
+            .Register(c => configuration)
+            .AsSelf()
+            .As<IConfiguration>()
+            .SingleInstance();
+    }
 }

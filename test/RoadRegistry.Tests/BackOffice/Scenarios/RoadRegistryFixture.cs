@@ -34,13 +34,14 @@ public abstract class RoadRegistryFixture : AutofacBasedTest, IDisposable
     private static readonly JsonSerializerSettings Settings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    private readonly Func<EventSourcedEntityMap> _entityMapFactory;
+    protected readonly Func<EventSourcedEntityMap> EntityMapFactory;
     private ScenarioRunner _runner;
 
     protected RoadRegistryFixture(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
         : base(testOutputHelper)
     {
-        _entityMapFactory = () => new EventSourcedEntityMap();
+        var eventSourcedEntityMap = new EventSourcedEntityMap();
+        EntityMapFactory = () => eventSourcedEntityMap;
 
         Fixture = new Fixture();
         Fixture.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
@@ -51,7 +52,7 @@ public abstract class RoadRegistryFixture : AutofacBasedTest, IDisposable
         LoggerFactory = new LoggerFactory();
 
         WithStore(new InMemoryStreamStore(), comparisonConfig);
-        RoadRegistryContext = new RoadRegistryContext(new EventSourcedEntityMap(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping);
+        RoadRegistryContext = new RoadRegistryContext(EntityMapFactory(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping);
     }
 
     public MemoryBlobClient Client { get; }
@@ -104,8 +105,8 @@ public abstract class RoadRegistryFixture : AutofacBasedTest, IDisposable
         _runner = new ScenarioRunner(
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
-                new RoadNetworkCommandModule(Store, _entityMapFactory, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock, LoggerFactory.CreateLogger<RoadNetworkCommandModule>()),
-                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, _entityMapFactory, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock, LoggerFactory.CreateLogger<RoadNetworkExtractCommandModule>())
+                new RoadNetworkCommandModule(Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock, LoggerFactory.CreateLogger<RoadNetworkCommandModule>()),
+                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock, LoggerFactory.CreateLogger<RoadNetworkExtractCommandModule>())
             }),
             Store,
             Settings,

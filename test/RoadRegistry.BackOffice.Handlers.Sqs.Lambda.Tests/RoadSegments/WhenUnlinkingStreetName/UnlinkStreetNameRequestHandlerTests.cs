@@ -1,135 +1,193 @@
-//namespace RoadRegistry.BackOffice.Handlers.Tests.RoadSegments;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenUnlinkingStreetName;
 
-//using Abstractions.Exceptions;
-//using Abstractions.RoadSegments;
-//using BackOffice.Framework;
-//using Common;
-//using FluentValidation;
-//using Handlers.RoadSegments;
-//using Messages;
-//using Microsoft.Extensions.Logging;
+using Autofac;
+using AutoFixture;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Dbase;
+using Framework;
+using Handlers;
+using Microsoft.Extensions.Configuration;
+using Moq;
+using Requests;
+using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.Framework;
+using Common;
+using Messages;
+using Sqs.RoadSegments;
+using TicketingService.Abstractions;
+using Xunit.Abstractions;
 
-//public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
-//    <UnlinkStreetNameRequest, UnlinkStreetNameResponse, UnlinkStreetNameRequestHandler>
-//{
-//    public UnlinkStreetNameRequestHandlerTests(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<UnlinkStreetNameRequestHandler> logger)
-//        : base(commandHandlerDispatcher, logger)
-//    {
-//    }
+public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
+{
+    public UnlinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
+    {
+    }
 
-//    protected override UnlinkStreetNameRequestHandler CreateHandler(CommandHandlerDispatcher commandHandlerDispatcher, ILogger<UnlinkStreetNameRequestHandler> logger)
-//    {
-//        return new UnlinkStreetNameRequestHandler(commandHandlerDispatcher, logger, Fixture.Store, RoadRegistryContext);
-//    }
+    private async Task HandleRequest(ITicketing ticketing, UnlinkStreetNameRequest request)
+    {
+        var handler = new UnlinkStreetNameSqsLambdaRequestHandler(
+            Container.Resolve<IConfiguration>(),
+            new FakeRetryPolicy(),
+            ticketing,
+            new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()),
+            RoadRegistryContext,
+            new RoadNetworkCommandQueue(Store, ApplicationMetadata)
+        );
 
-//    [Fact]
-//    public async Task UnlinkStreetNameFromRoadSegment_LeftStreetName_NotLinked()
-//    {
-//        Fixture.Segment1Added.LeftSide.StreetNameId = null;
+        await handler.Handle(new UnlinkStreetNameSqsLambdaRequest(RoadNetworkInfo.Identifier.ToString(), new UnlinkStreetNameSqsRequest
+        {
+            Request = request,
+            TicketId = Guid.NewGuid(),
+            Metadata = new Dictionary<string, object?>(),
+            ProvenanceData = Fixture.Create<ProvenanceData>()
+        }), CancellationToken.None);
+    }
+    
+    [Fact]
+    public async Task UnlinkStreetNameFromRoadSegment_LeftStreetName_NotLinked()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = Segment1Added.Id;
 
-//        await GivenSegment1Added();
+        Segment1Added.LeftSide.StreetNameId = null;
 
-//        var ex = await Assert.ThrowsAsync<ValidationException>(() =>
-//        {
-//            var request = new UnlinkStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Proposed), null);
-//            return Handler.HandleAsync(request, CancellationToken.None);
-//        });
-//        Assert.Equal("LinkerstraatnaamNietGekoppeld", ex.Errors.Single().ErrorCode);
-//    }
+        await GivenSegment1Added();
 
-//    [Fact]
-//    public async Task UnlinkStreetNameFromRoadSegment_LeftStreetName_NotLinkedToTheOneBeingUnlinked()
-//    {
-//        Fixture.Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+        //Act
+        var linkerstraatnaamPuri = StreetNamePuri(WellKnownStreetNameIds.Proposed);
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, linkerstraatnaamPuri, null));
 
-//        await GivenSegment1Added();
+        //Assert
+        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
+    }
 
-//        var ex = await Assert.ThrowsAsync<ValidationException>(() =>
-//        {
-//            var request = new UnlinkStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Current), null);
-//            return Handler.HandleAsync(request, CancellationToken.None);
-//        });
-//        Assert.Equal("LinkerstraatnaamNietGekoppeld", ex.Errors.Single().ErrorCode);
-//    }
+    [Fact]
+    public async Task UnlinkStreetNameFromRoadSegment_LeftStreetName_NotLinkedToTheOneBeingUnlinked()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = Segment1Added.Id;
 
-//    [Fact]
-//    public async Task UnlinkStreetNameFromRoadSegment_LeftStreetName_Succeeded()
-//    {
-//        Fixture.Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+        Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
 
-//        await GivenSegment1Added();
+        await GivenSegment1Added();
 
-//        var request = new UnlinkStreetNameRequest(1, StreetNamePuri(WellKnownStreetNameIds.Proposed), null);
-//        await Handler.HandleAsync(request, CancellationToken.None);
+        //Act
+        var linkerstraatnaamPuri = StreetNamePuri(WellKnownStreetNameIds.Current);
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, linkerstraatnaamPuri, null));
 
-//        var command = await Fixture.Store.GetLastCommand<ChangeRoadNetwork>();
+        //Assert
+        VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
+    }
 
-//        Assert.Equal(0, command!.Changes.Single().ModifyRoadSegment.LeftSideStreetNameId);
-//    }
+    [Fact]
+    public async Task UnlinkStreetNameFromRoadSegment_LeftStreetName_Succeeded()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = new RoadSegmentId(Segment1Added.Id);
 
-//    [Fact]
-//    public async Task UnlinkStreetNameFromRoadSegment_RightStreetName_NotLinked()
-//    {
-//        Fixture.Segment1Added.RightSide.StreetNameId = null;
+        Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
 
-//        await GivenSegment1Added();
+        await GivenSegment1Added();
 
-//        var ex = await Assert.ThrowsAsync<ValidationException>(() =>
-//        {
-//            var request = new UnlinkStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Proposed));
-//            return Handler.HandleAsync(request, CancellationToken.None);
-//        });
-//        Assert.Equal("RechterstraatnaamNietGekoppeld", ex.Errors.Single().ErrorCode);
-//    }
+        //Act
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, StreetNamePuri(WellKnownStreetNameIds.Proposed), null));
 
-//    [Fact]
-//    public async Task UnlinkStreetNameFromRoadSegment_RightStreetName_NotLinkedToTheOneBeingUnlinked()
-//    {
-//        Fixture.Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+        //Assert
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
+        var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(ConfigDetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
-//        await GivenSegment1Added();
+        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        Xunit.Assert.Equal(0, command!.Changes.Single().RoadSegmentModified.LeftSide.StreetNameId);
+    }
 
-//        var ex = await Assert.ThrowsAsync<ValidationException>(() =>
-//        {
-//            var request = new UnlinkStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Current));
-//            return Handler.HandleAsync(request, CancellationToken.None);
-//        });
-//        Assert.Equal("RechterstraatnaamNietGekoppeld", ex.Errors.Single().ErrorCode);
-//    }
+    [Fact]
+    public async Task UnlinkStreetNameFromRoadSegment_RightStreetName_NotLinked()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = Segment1Added.Id;
 
-//    [Fact]
-//    public async Task UnlinkStreetNameFromRoadSegment_RightStreetName_Succeeded()
-//    {
-//        Fixture.Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+        Segment1Added.RightSide.StreetNameId = null;
 
-//        await GivenSegment1Added();
+        await GivenSegment1Added();
 
-//        var request = new UnlinkStreetNameRequest(1, null, StreetNamePuri(WellKnownStreetNameIds.Proposed));
-//        await Handler.HandleAsync(request, CancellationToken.None);
+        //Act
+        var rechterstraatnaamPuri = StreetNamePuri(WellKnownStreetNameIds.Proposed);
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, null, rechterstraatnaamPuri));
 
-//        var command = await Fixture.Store.GetLastCommand<ChangeRoadNetwork>();
+        //Assert
+        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
+    }
 
-//        Assert.Equal(0, command!.Changes.Single().ModifyRoadSegment.RightSideStreetNameId);
-//    }
+    [Fact]
+    public async Task UnlinkStreetNameFromRoadSegment_RightStreetName_NotLinkedToTheOneBeingUnlinked()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = Segment1Added.Id;
 
-//    [Fact]
-//    public async Task UnlinkStreetNameFromRoadSegment_RoadSegment_NotExists()
-//    {
-//        await GivenSegment1Added();
+        Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
 
-//        await Assert.ThrowsAsync<RoadSegmentNotFoundException>(() =>
-//        {
-//            var request = new UnlinkStreetNameRequest(int.MaxValue, StreetNamePuri(99999), null);
-//            return Handler.HandleAsync(request, CancellationToken.None);
-//        });
-//    }
+        await GivenSegment1Added();
 
-//    private static class WellKnownStreetNameIds
-//    {
-//        public const int Proposed = 1;
-//        public const int Current = 2;
-//        public const int Retired = 3;
-//    }
-//}
+        //Act
+        var rechterstraatnaamPuri = StreetNamePuri(WellKnownStreetNameIds.Current);
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, null, rechterstraatnaamPuri));
+
+        //Assert
+        VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
+    }
+
+    [Fact]
+    public async Task UnlinkStreetNameFromRoadSegment_RightStreetName_Succeeded()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = new RoadSegmentId(Segment1Added.Id);
+
+        Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+
+        await GivenSegment1Added();
+
+        //Act
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, null, StreetNamePuri(WellKnownStreetNameIds.Proposed)));
+
+        //Assert
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
+        var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(ConfigDetailUrl, roadSegmentId), roadSegment.LastEventHash);
+
+        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        Xunit.Assert.Equal(0, command!.Changes.Single().RoadSegmentModified.RightSide.StreetNameId);
+    }
+
+    [Fact]
+    public async Task UnlinkStreetNameFromRoadSegment_RoadSegment_NotExists()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = int.MaxValue;
+
+        await GivenSegment1Added();
+
+        //Act
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, StreetNamePuri(99999), null));
+
+        //Assert
+        VerifyThatTicketHasError(ticketing, "NotFound", "Onbestaand wegsegment.");
+    }
+
+    private static class WellKnownStreetNameIds
+    {
+        public const int Proposed = 1;
+        public const int Current = 2;
+        public const int Retired = 3;
+    }
+}
 
 

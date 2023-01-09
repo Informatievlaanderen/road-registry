@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
-using RoadRegistry.BackOffice.Framework;
+using Framework;
 
 public class RoadRegistryIdempotentCommandHandler : IIdempotentCommandHandler
 {

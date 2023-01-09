@@ -9,6 +9,7 @@ using System.Reflection;
 using Abstractions;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using BackOffice.Extensions;
 using BackOffice.Infrastructure.Modules;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
@@ -26,8 +27,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Newtonsoft.Json;
-using SqlStreamStore;
-using DomainAssemblyMarker = BackOffice.Handlers.DomainAssemblyMarker;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public sealed class Function : FunctionBase
@@ -35,7 +34,7 @@ public sealed class Function : FunctionBase
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 
     public Function()
-        : base(new List<Assembly> { typeof(DomainAssemblyMarker).Assembly })
+        : base(new List<Assembly> { typeof(BackOffice.Handlers.Sqs.DomainAssemblyMarker).Assembly })
     {
     }
 
@@ -54,12 +53,40 @@ public sealed class Function : FunctionBase
             .UseDefaultConfiguration(hostEnvironment)
             .Build();
 
-        return ConfigureServices(services, configuration);
+        ConfigureServices(services, configuration);
+
+        var builder = new ContainerBuilder();
+        builder.RegisterConfiguration(configuration);
+        builder.Populate(services);
+
+        ConfigureContainer(builder, configuration);
+        
+        return new AutofacServiceProvider(builder.Build());
     }
 
-    private IServiceProvider ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    private void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        var builder = new ContainerBuilder();
+        var eventSourcedEntityMap = new EventSourcedEntityMap();
+
+        services
+            .AddSingleton(ApplicationMetadata)
+            .AddTicketing()
+            .AddSingleton<IStreetNameCache, StreetNameCache>()
+            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
+            .AddRoadNetworkCommandQueue()
+            .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
+                new CommandHandlerModule[]
+                {
+                    CommandModules.RoadNetwork(sp)
+                }))
+            ;
+    }
+
+    private void ConfigureContainer(ContainerBuilder builder, IConfiguration configuration)
+    {
+        var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+        JsonConvert.DefaultSettings = () => eventSerializerSettings;
+
         builder
             .RegisterMediator();
 
@@ -67,23 +94,12 @@ public sealed class Function : FunctionBase
             .RegisterAssemblyTypes(typeof(MessageHandler).GetTypeInfo().Assembly)
             .AsImplementedInterfaces();
 
-        builder.Register(c => configuration)
-            .AsSelf()
-            .As<IConfiguration>()
-            .SingleInstance();
-
-        services.AddTicketing();
-
         builder.RegisterRetryPolicy(configuration);
-
-        var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
-        JsonConvert.DefaultSettings = () => eventSerializerSettings;
 
         builder
             .RegisterModule(new DataDogModule(configuration))
             .RegisterModule<EnvelopeModule>()
-            .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings))
+            .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, eventSerializerSettings))
             .RegisterModule<StreamStoreModule>()
             .RegisterModule<RoadNetworkSnapshotModule>()
             .RegisterModule<CommandHandlingModule>()
@@ -91,23 +107,6 @@ public sealed class Function : FunctionBase
             .RegisterModule<SyndicationModule>()
             ;
 
-        var eventSourcedEntityMap = new EventSourcedEntityMap();
-
-        services
-            .AddSingleton<IStreetNameCache, StreetNameCache>()
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
-            .AddSingleton<IRoadNetworkCommandQueue>(sp => new RoadNetworkCommandQueue(sp.GetRequiredService<IStreamStore>(), ApplicationMetadata))
-            .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
-                new CommandHandlerModule[]
-                {
-                    CommandModules.RoadNetwork(sp)
-                }), ApplicationMetadata))
-            ;
-
         builder.RegisterIdempotentCommandHandler();
-
-        builder.Populate(services);
-
-        return new AutofacServiceProvider(builder.Build());
     }
 }

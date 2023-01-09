@@ -1,9 +1,12 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.Common;
 
 using Abstractions;
+using Autofac;
+using BackOffice.Framework;
 using Core;
 using Framework;
 using Messages;
+using Microsoft.Extensions.Logging;
 using NodaTime.Text;
 using StreetNameConsumer.Schema;
 using Xunit.Abstractions;
@@ -11,6 +14,8 @@ using AcceptedChange = Messages.AcceptedChange;
 
 public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
 {
+    protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
+
     protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
     {
@@ -19,8 +24,26 @@ public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
             .AddStreetName(WellKnownStreetNameIds.Current, "Current street", nameof(StreetNameStatus.Current))
             .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired));
     }
-    
+
     protected IStreetNameCache StreetNameCache { get; }
+
+    protected override void ConfigureCommandHandling(ContainerBuilder builder)
+    {
+        base.ConfigureCommandHandling(builder);
+
+        builder.RegisterInstance(Dispatch.Using(Resolve.WhenEqualToMessage(
+            new CommandHandlerModule[]
+            {
+                new RoadNetworkCommandModule(
+                    Store,
+                    EntityMapFactory,
+                    new FakeRoadNetworkSnapshotReader(),
+                    new FakeRoadNetworkSnapshotWriter(),
+                    Clock,
+                    LoggerFactory.CreateLogger<RoadNetworkCommandModule>()
+                )
+            }), ApplicationMetadata));
+    }
 
     protected async Task GivenSegment1Added()
     {
