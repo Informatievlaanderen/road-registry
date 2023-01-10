@@ -25,6 +25,7 @@ using Core;
 using Editor.Schema;
 using Hosts;
 using Hosts.Configuration;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -170,11 +171,7 @@ public class Program
                     .AddSingleton(extractDownloadsOptions)
                     .AddSingleton(extractUploadsOptions)
                     .AddSingleton(featureCompareMessagingOptions)
-                    .AddSingleton<IStreamStore>(sp =>
-                        new MsSqlStreamStoreV3(
-                            new MsSqlStreamStoreV3Settings(
-                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events))
-                                { Schema = WellknownSchemas.EventSchema }))
+                    .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new WKTReader(
                         new NtsGeometryServices(

@@ -75,6 +75,7 @@ public sealed class Function : FunctionBase
             .AddTicketing()
             .AddSingleton<IStreetNameCache, StreetNameCache>()
             .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
+            .AddStreamStore()
             .AddRoadNetworkCommandQueue()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
@@ -102,7 +103,6 @@ public sealed class Function : FunctionBase
             .RegisterModule(new DataDogModule(configuration))
             .RegisterModule<EnvelopeModule>()
             .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, eventSerializerSettings))
-            .RegisterModule<StreamStoreModule>()
             .RegisterModule<RoadNetworkSnapshotModule>()
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()

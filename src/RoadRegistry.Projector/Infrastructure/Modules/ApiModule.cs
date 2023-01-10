@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Product.Schema;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using SqlStreamStore;
 using Syndication.Schema;
 using Wfs.Schema;
@@ -37,13 +38,7 @@ public class ApiModule : Module
         builder
             .RegisterType<ProblemDetailsHelper>()
             .AsSelf();
-        _services.AddSingleton<IStreamStore>(sp =>
-            new MsSqlStreamStoreV3(
-                new MsSqlStreamStoreV3Settings(
-                    sp
-                        .GetService<IConfiguration>()
-                        .GetConnectionString(WellknownConnectionNames.Events)
-                ) { Schema = WellknownSchemas.EventSchema }));
+        _services.AddStreamStore();
         RegisterProjections();
         _services.AddSingleton(_listOfProjections);
         builder.Populate(_services);
