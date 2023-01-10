@@ -13,10 +13,10 @@ public abstract class BackofficeApiController : ApiController
         return new Provenance(
             SystemClock.Instance.GetCurrentInstant(),
             Application.RoadRegistry,
-            new Reason(""), // TODO: TBD
-            new Operator(""), // TODO: from claims
+            new Reason(string.Empty),
+            new Operator(string.Empty),
             Modification.Insert,
-            Organisation.Agiv // TODO: from claims
+            Organisation.Agiv
         );
     }
 

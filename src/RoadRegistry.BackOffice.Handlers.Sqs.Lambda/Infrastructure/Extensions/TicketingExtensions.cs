@@ -1,21 +1,13 @@
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Options;
+using Options;
 using TicketingService.Abstractions;
 using TicketingService.Proxy.HttpProxy;
 
 public static class TicketingExtensions
 {
-    private static string GetBaseUrl(IConfiguration configuration) =>
-        configuration.GetSection(TicketingOptions.ConfigurationKey).GetRequiredValue<string>(nameof(TicketingOptions.InternalBaseUrl));
-    
-    public static IServiceCollection AddTicketing(
-        this IServiceCollection services)
-    {
-        return AddHttpProxyTicketing(services, GetBaseUrl)
-            ;
-    }
-
     private static IServiceCollection AddHttpProxyTicketing(
         IServiceCollection services,
         Func<IConfiguration, string> baseUrlProvider)
@@ -27,5 +19,17 @@ public static class TicketingExtensions
         });
 
         return services;
+    }
+
+    public static IServiceCollection AddTicketing(
+        this IServiceCollection services)
+    {
+        return AddHttpProxyTicketing(services, GetBaseUrl)
+            ;
+    }
+
+    private static string GetBaseUrl(IConfiguration configuration)
+    {
+        return configuration.GetSection(TicketingOptions.ConfigurationKey).GetRequiredValue<string>(nameof(TicketingOptions.InternalBaseUrl));
     }
 }

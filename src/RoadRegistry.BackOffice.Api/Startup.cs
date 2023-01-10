@@ -10,6 +10,7 @@ using Configuration;
 using Extensions;
 using FluentValidation;
 using Infrastructure;
+using Infrastructure.Extensions;
 using Infrastructure.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;

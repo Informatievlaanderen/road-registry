@@ -23,6 +23,7 @@ using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using Infrastructure;
+using Infrastructure.Extensions;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -55,19 +56,6 @@ public sealed class Function : FunctionBase
             .UseDefaultConfiguration(hostEnvironment)
             .Build();
 
-        ConfigureServices(services, configuration);
-
-        var builder = new ContainerBuilder();
-        builder.RegisterConfiguration(configuration);
-        builder.Populate(services);
-
-        ConfigureContainer(builder, configuration);
-        
-        return new AutofacServiceProvider(builder.Build());
-    }
-
-    private void ConfigureServices(IServiceCollection services, IConfiguration configuration)
-    {
         var eventSourcedEntityMap = new EventSourcedEntityMap();
 
         services
@@ -83,6 +71,14 @@ public sealed class Function : FunctionBase
                     CommandModules.RoadNetwork(sp)
                 }))
             ;
+
+        var builder = new ContainerBuilder();
+        builder.RegisterConfiguration(configuration);
+        builder.Populate(services);
+
+        ConfigureContainer(builder, configuration);
+        
+        return new AutofacServiceProvider(builder.Build());
     }
 
     private void ConfigureContainer(ContainerBuilder builder, IConfiguration configuration)

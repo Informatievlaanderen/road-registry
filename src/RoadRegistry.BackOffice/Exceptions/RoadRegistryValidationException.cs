@@ -14,7 +14,7 @@ public class RoadRegistryValidationException : RoadRegistryException
         ErrorCode = errorCode;
     }
 
-    public RoadRegistryValidationException(SerializationInfo info, StreamingContext context)
+    protected RoadRegistryValidationException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
     }

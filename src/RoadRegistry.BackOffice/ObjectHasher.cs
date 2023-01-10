@@ -10,6 +10,38 @@ using NetTopologySuite.Geometries;
 
 public static class ObjectHasher
 {
+    private static void AddValueToFields(object item, object value, List<string> fields)
+    {
+        if (value == null)
+        {
+            fields.Add(string.Empty);
+            return;
+        }
+
+        switch (value)
+        {
+            case string:
+            {
+                fields.AddRange(GetHashFields(value, item));
+                break;
+            }
+            case IEnumerable enumerable:
+            {
+                foreach (var enumerableItem in enumerable)
+                {
+                    fields.AddRange(GetHashFields(enumerableItem, item));
+                }
+
+                break;
+            }
+            default:
+            {
+                fields.AddRange(GetHashFields(value, item));
+                break;
+            }
+        }
+    }
+
     public static IEnumerable<string> GetHashFields(object item)
     {
         var hashFields = GetHashFields(item, null);
@@ -26,19 +58,19 @@ public static class ObjectHasher
         var type = item.GetType();
         var fields = new List<string>();
 
-        if (type == typeof(string) || (type.IsPrimitive && !type.IsClass) || type.IsValueType)
+        if (UseToStringOnValue(type))
         {
             fields.Add(item.ToString());
             return fields;
         }
-        
+
         var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).Where(x => x.CanRead).ToArray();
         if (!properties.Any())
         {
             fields.Add(item.ToString());
             return fields;
         }
-        
+
         if (parentItem != null && item is IHaveHashFields haveHashFields)
         {
             fields.AddRange(haveHashFields.GetHashFields());
@@ -59,35 +91,19 @@ public static class ObjectHasher
             }
 
             var value = pi.GetValue(item);
-            if (value == null)
-            {
-                fields.Add(string.Empty);
-                continue;
-            }
-
-            switch (value)
-            {
-                case string:
-                {
-                    fields.AddRange(GetHashFields(value, item));
-                    break;
-                }
-                case IEnumerable enumerable:
-                    {
-                        foreach (var enumerableItem in enumerable)
-                        {
-                            fields.AddRange(GetHashFields(enumerableItem, item));
-                        }
-                        break;
-                    }
-                default:
-                    {
-                        fields.AddRange(GetHashFields(value, item));
-                        break;
-                    }
-            }
+            AddValueToFields(item, value, fields);
         }
 
         return fields;
+    }
+
+    private static bool UseToStringOnValue(Type type)
+    {
+        if (type == typeof(string) || (type.IsPrimitive && !type.IsClass) || type.IsValueType)
+        {
+            return true;
+        }
+
+        return false;
     }
 }
