@@ -1,7 +1,11 @@
 namespace RoadRegistry.BackOffice.Messages;
 
-public class RoadSegmentModified
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
+
+public class RoadSegmentModified: IHaveHash
 {
+    public const string EventName = "RoadSegmentModified";
+
     public string AccessRestriction { get; set; }
     public string Category { get; set; }
     public int EndNodeId { get; set; }
@@ -19,4 +23,7 @@ public class RoadSegmentModified
     public RoadSegmentSurfaceAttributes[] Surfaces { get; set; }
     public int Version { get; set; }
     public RoadSegmentWidthAttributes[] Widths { get; set; }
+
+    public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }

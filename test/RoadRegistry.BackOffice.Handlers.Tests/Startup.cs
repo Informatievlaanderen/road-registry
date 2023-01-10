@@ -9,14 +9,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using RoadRegistry.BackOffice.Extensions;
 using SqlStreamStore;
 
 public class Startup : TestStartup
 {
     protected override void ConfigureContainer(ContainerBuilder builder)
     {
-        builder.RegisterAssemblyModules(typeof(AutofacModule).Assembly);
-        builder.RegisterAssemblyModules(typeof(Handlers.AutofacModule).Assembly);
+        builder.RegisterModulesFromAssemblyContaining<BackOffice.DomainAssemblyMarker>();
+        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
     }
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
@@ -31,6 +32,7 @@ public class Startup : TestStartup
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetService<RoadNetworkUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
+                    sp.GetService<Func<EventSourcedEntityMap>>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),
@@ -38,6 +40,7 @@ public class Startup : TestStartup
                 ),
                 new RoadNetworkCommandModule(
                     sp.GetService<IStreamStore>(),
+                    sp.GetService<Func<EventSourcedEntityMap>>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IRoadNetworkSnapshotWriter>(),
                     sp.GetService<IClock>(),
@@ -46,6 +49,7 @@ public class Startup : TestStartup
                 new RoadNetworkExtractCommandModule(
                     sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
+                    sp.GetService<Func<EventSourcedEntityMap>>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),

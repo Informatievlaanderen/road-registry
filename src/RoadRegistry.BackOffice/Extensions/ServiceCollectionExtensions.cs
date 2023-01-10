@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Extensions;
 using System;
 using System.Linq;
 using FeatureToggle;
+using Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -37,5 +38,17 @@ public static class ServiceCollectionExtensions
         }
 
         return services;
+    }
+
+    public static IServiceCollection AddRoadNetworkCommandQueue(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<IRoadNetworkCommandQueue, RoadNetworkCommandQueue>();
+    }
+
+    public static IServiceCollection AddCommandHandlerDispatcher(this IServiceCollection services, Func<IServiceProvider, CommandHandlerResolver> commandHandlerResolverBuilder)
+    {
+        return services
+                .AddSingleton(sp => Dispatch.Using(commandHandlerResolverBuilder(sp), sp.GetRequiredService<ApplicationMetadata>()));
     }
 }

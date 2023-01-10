@@ -197,14 +197,14 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                 {
                     logger.LogInformation("Processing {MessageType} at {Position}",
                         process.Message.Type, process.Message.Position);
-
+                    
                     var body = JsonConvert.DeserializeObject(
                         await process.Message.GetJsonData(_messagePumpCancellation.Token).ConfigureAwait(false),
                         EventMapping.GetEventType(process.Message.Type),
                         SerializerSettings);
                     var @event = new Event(body).WithMessageId(process.Message.MessageId);
-                    await dispatcher(@event, _messagePumpCancellation.Token).ConfigureAwait(false);
 
+                    await dispatcher(@event, _messagePumpCancellation.Token).ConfigureAwait(false);
                     await positionStore
                         .WritePosition(
                             queueName,

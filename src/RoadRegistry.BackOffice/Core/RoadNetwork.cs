@@ -33,6 +33,7 @@ public class RoadNetwork : EventSourcedEntity
 
         return null;
     }
+
     public void Change(
         ChangeRequestId requestId,
         Reason reason,

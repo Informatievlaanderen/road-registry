@@ -4,6 +4,7 @@ using System;
 using Framework;
 using Messages;
 using NodaTime;
+using NodaTime.TimeZones;
 using SqlStreamStore;
 
 public class RoadNetworkEventModule : EventHandlerModule
@@ -11,10 +12,10 @@ public class RoadNetworkEventModule : EventHandlerModule
     public RoadNetworkEventModule(IStreamStore store, IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter, IClock clock)
     {
-        if (store == null) throw new ArgumentNullException(nameof(store));
-        if (clock == null) throw new ArgumentNullException(nameof(clock));
-        if (snapshotReader == null) throw new ArgumentNullException(nameof(snapshotReader));
-        if (snapshotWriter == null) throw new ArgumentNullException(nameof(snapshotWriter));
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(clock);
+        ArgumentNullException.ThrowIfNull(snapshotReader);
+        ArgumentNullException.ThrowIfNull(snapshotWriter);
 
         For<CompletedRoadNetworkImport>()
             .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))

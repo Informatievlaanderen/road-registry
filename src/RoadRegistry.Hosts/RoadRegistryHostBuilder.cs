@@ -24,6 +24,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
@@ -234,15 +235,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
             services
                 .AddSingleton<Scheduler>()
-                .AddSingleton<IStreamStore>(sp =>
-                    new MsSqlStreamStoreV3(
-                        new MsSqlStreamStoreV3Settings(
-                            sp
-                                .GetService<IConfiguration>()
-                                .GetConnectionString(WellknownConnectionNames.Events))
-                        {
-                            Schema = WellknownSchemas.EventSchema
-                        }))
+                .AddStreamStore()
                 .AddSingleton<IClock>(SystemClock.Instance)
                 .AddSingleton(new RecyclableMemoryStreamManager())
                 .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(

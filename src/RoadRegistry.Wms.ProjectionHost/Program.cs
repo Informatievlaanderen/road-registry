@@ -22,6 +22,7 @@ using Microsoft.IO;
 using Newtonsoft.Json;
 using NodaTime;
 using Projections;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Schema;
 using Serilog;
 using Serilog.Debugging;
@@ -132,13 +133,7 @@ public class Program
                             )
                     )
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<WmsContext>[]>(), EventProcessor.EventMapping))
-                    .AddSingleton<IStreamStore>(sp =>
-                        new MsSqlStreamStoreV3(
-                            new MsSqlStreamStoreV3Settings(
-                                sp
-                                    .GetService<IConfiguration>()
-                                    .GetConnectionString(WellknownConnectionNames.Events)
-                            ) { Schema = WellknownSchemas.EventSchema }))
+                    .AddStreamStore()
                     .AddSingleton<IRunnerDbContextMigratorFactory>(new WmsContextMigrationFactory());
             })
             .Build();

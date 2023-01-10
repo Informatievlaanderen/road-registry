@@ -21,7 +21,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         RoadNetworkExtractUploadsBlobClient uploadsBlobClient,
         IRoadNetworkExtractArchiveAssembler assembler,
         IZipArchiveTranslator translator,
-        IStreamStore store)
+        IStreamStore store,
+        ApplicationMetadata applicationMetadata)
     {
         ArgumentNullException.ThrowIfNull(downloadsBlobClient);
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
@@ -38,7 +39,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
             .Handle(async (queue, message, ct) => await RoadNetworkExtractRequestHandler(queue, assembler, downloadsBlobClient, message, ct));
 
         For<RoadNetworkExtractChangesArchiveAccepted>()
-            .UseRoadNetworkCommandQueue(store)
+            .UseRoadNetworkCommandQueue(store, applicationMetadata)
             .Handle(async (queue, message, ct) =>
             {
                 var uploadId = new UploadId(message.Body.UploadId);
@@ -80,7 +81,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         var extractDescription = message switch
         {
             Event<RoadNetworkExtractGotRequested> => string.Empty,
-            Event<RoadNetworkExtractGotRequestedV2> v2 => v2.Body.Description
+            Event<RoadNetworkExtractGotRequestedV2> v2 => v2.Body.Description,
+            _ => throw new NotSupportedException($"Message type '{message.GetType().Name}' does not have support to extract the description")
         };
 
         var policy = Policy

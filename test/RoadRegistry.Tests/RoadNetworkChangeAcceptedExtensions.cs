@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests;
 
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice.Messages;
 
 public static class RoadNetworkChangeAcceptedExtensions
@@ -14,6 +15,15 @@ public static class RoadNetworkChangeAcceptedExtensions
         var acceptedChanges = new List<AcceptedChange>();
         foreach (var change in changes)
         {
+            if (change is IHaveHash haveHash)
+            {
+                var messageHash = haveHash.GetHash();
+                if (messageHash == null)
+                {
+                    throw new InvalidOperationException($"{nameof(haveHash.GetHash)}() returned null");
+                }
+            }
+
             var acceptedChange = new AcceptedChange();
             switch (change)
             {

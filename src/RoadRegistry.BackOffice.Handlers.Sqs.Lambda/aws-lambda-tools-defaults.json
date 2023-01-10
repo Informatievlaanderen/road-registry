@@ -8,7 +8,8 @@
   "profile": "vbr-test",
   "region": "eu-west-1",
   "configuration": "Release",
-  "s3-prefix": "RoadRegistry.BackOffice.Handlers.Sqs.Lambda/",
-  "template": "serverless.template",
-  "template-parameters": ""
+  "function-runtime": "dotnet6",
+  "function-memory-size": 256,
+  "function-timeout": 30,
+  "function-handler": "RoadRegistry.BackOffice.Handlers.Sqs.Lambda::RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Function::Handler"
 }

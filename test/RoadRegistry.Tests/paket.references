@@ -1,3 +1,8 @@
+Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling
+Be.Vlaanderen.Basisregisters.AggregateSource.Testing
+Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac
+Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit
+Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing
 
 Autofac.Extensions.DependencyInjection

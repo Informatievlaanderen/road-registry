@@ -27,7 +27,7 @@ public partial class RoadRegistrySystemController
         {
             StartFromVersion = parameters.StartFromVersion
         };
-        await new RoadNetworkCommandQueue(Store)
+        await CommandQueue
             .Write(new Command(command), HttpContext.RequestAborted);
 
         return Ok();

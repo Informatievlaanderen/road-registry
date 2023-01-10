@@ -27,6 +27,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
@@ -36,6 +37,8 @@ using ZipArchiveWriters.ExtractHost;
 
 public class Program
 {
+    private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
+
     protected Program()
     {
     }
@@ -180,13 +183,7 @@ public class Program
                                 sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ExtractHost)
                             ),
                             WellknownSchemas.ExtractHostSchema))
-                    .AddSingleton<IStreamStore>(sp =>
-                        new MsSqlStreamStoreV3(
-                            new MsSqlStreamStoreV3Settings(
-                                sp
-                                    .GetService<IConfiguration>()
-                                    .GetConnectionString(WellknownConnectionNames.Events)
-                            ) { Schema = WellknownSchemas.EventSchema }))
+                    .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new RecyclableMemoryStreamManager())
                     .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
@@ -242,7 +239,8 @@ public class Program
                             sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
                             new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
-                            sp.GetService<IStreamStore>())
+                            sp.GetService<IStreamStore>(),
+                            ApplicationMetadata)
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));

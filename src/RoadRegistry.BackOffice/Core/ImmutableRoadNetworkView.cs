@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using Messages;
 using NetTopologySuite.Geometries;
@@ -201,7 +202,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                                 ? new CrabStreetnameId(segment.AttributeHash.RightSideStreetNameId.Value)
                                 : new CrabStreetnameId?(),
                             new OrganizationId(segment.AttributeHash.OrganizationId),
-                            RoadSegmentGeometryDrawMethod.Parse(segment.AttributeHash.GeometryDrawMethod)));
+                            RoadSegmentGeometryDrawMethod.Parse(segment.AttributeHash.GeometryDrawMethod)),
+                        segment.LastEventHash);
                     roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));
                     roadSegment = segment.PartOfNationalRoads.Aggregate(roadSegment, (current, number) => current.PartOfNationalRoad(NationalRoadNumber.Parse(number)));
                     roadSegment = segment.PartOfNumberedRoads.Aggregate(roadSegment, (current, number) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(number)));
@@ -448,7 +450,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             GeometryTranslator.Translate(@event.Geometry),
             start,
             end,
-            attributeHash);
+            attributeHash,
+            @event.GetHash());
         segment = @event.PartOfEuropeanRoads.Aggregate(segment, (current, europeanRoad) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(europeanRoad.Number)));
         segment = @event.PartOfNationalRoads.Aggregate(segment, (current, nationalRoad) => current.PartOfNationalRoad(NationalRoadNumber.Parse(nationalRoad.Number)));
         segment = @event.PartOfNumberedRoads.Aggregate(segment, (current, numberedRoad) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(numberedRoad.Number)));
@@ -683,7 +686,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         var id = new RoadSegmentId(@event.Id);
         var start = new RoadNodeId(@event.StartNodeId);
         var end = new RoadNodeId(@event.EndNodeId);
-
+        
         var attributeHash = new AttributeHash(
             RoadSegmentAccessRestriction.Parse(@event.AccessRestriction),
             RoadSegmentCategory.Parse(@event.Category),
@@ -703,7 +706,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             GeometryTranslator.Translate(@event.Geometry),
             start,
             end,
-            attributeHash);
+            attributeHash,
+            @event.GetHash());
 
         return new ImmutableRoadNetworkView(
             _nodes
@@ -772,6 +776,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithStart(start)
                     .WithEnd(end)
                     .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(@event.GetHash())
                 ),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
@@ -917,7 +922,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     {
         return new ImmutableRoadNetworkView(
             _nodes,
-            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(@event.Number))),
+            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment
+                .PartOfEuropeanRoad(EuropeanRoadNumber.Parse(@event.Number))
+                .WithLastEventHash(@event.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -938,7 +945,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     {
         return new ImmutableRoadNetworkView(
             _nodes,
-            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.NotPartOfEuropeanRoad(EuropeanRoadNumber.Parse(@event.Number))),
+            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment
+                .NotPartOfEuropeanRoad(EuropeanRoadNumber.Parse(@event.Number))
+                .WithLastEventHash(@event.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -959,7 +968,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     {
         return new ImmutableRoadNetworkView(
             _nodes,
-            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.PartOfNationalRoad(NationalRoadNumber.Parse(@event.Number))),
+            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment
+                .PartOfNationalRoad(NationalRoadNumber.Parse(@event.Number))
+                .WithLastEventHash(@event.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -980,7 +991,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     {
         return new ImmutableRoadNetworkView(
             _nodes,
-            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.NotPartOfNationalRoad(NationalRoadNumber.Parse(@event.Number))),
+            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment
+                .NotPartOfNationalRoad(NationalRoadNumber.Parse(@event.Number))
+                .WithLastEventHash(@event.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1001,7 +1014,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     {
         return new ImmutableRoadNetworkView(
             _nodes,
-            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.PartOfNumberedRoad(NumberedRoadNumber.Parse(@event.Number))),
+            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment
+                .PartOfNumberedRoad(NumberedRoadNumber.Parse(@event.Number))
+                .WithLastEventHash(@event.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1043,7 +1058,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     {
         return new ImmutableRoadNetworkView(
             _nodes,
-            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment.NotPartOfNumberedRoad(NumberedRoadNumber.Parse(@event.Number))),
+            _segments.TryReplace(new RoadSegmentId(@event.SegmentId), segment => segment
+                .NotPartOfNumberedRoad(NumberedRoadNumber.Parse(@event.Number))
+                .WithLastEventHash(@event.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1142,7 +1159,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id)),
             _segments.Add(command.Id,
                 new RoadSegment(command.Id, command.Geometry, command.StartNodeId, command.EndNodeId,
-                    attributeHash)),
+        attributeHash, command.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1187,7 +1204,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 .WithGeometry(command.Geometry)
                 .WithStart(command.StartNodeId)
                 .WithEnd(command.EndNodeId)
-                .WithAttributeHash(attributeHash)),
+                .WithAttributeHash(attributeHash)
+                .WithLastEventHash(command.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1308,7 +1326,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments.TryReplace(command.SegmentId,
-                segment => segment.PartOfEuropeanRoad(command.Number)),
+                segment => segment
+                    .PartOfEuropeanRoad(command.Number)
+                    .WithLastEventHash(command.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1330,7 +1350,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments.TryReplace(command.SegmentId,
-                segment => segment.NotPartOfEuropeanRoad(command.Number)),
+                segment => segment
+                    .NotPartOfEuropeanRoad(command.Number)
+                    .WithLastEventHash(command.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1352,7 +1374,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments.TryReplace(command.SegmentId,
-                segment => segment.PartOfNationalRoad(command.Number)),
+                segment => segment
+                    .PartOfNationalRoad(command.Number)
+                    .WithLastEventHash(command.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1374,7 +1398,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments.TryReplace(command.SegmentId,
-                segment => segment.NotPartOfNationalRoad(command.Number)),
+                segment => segment
+                    .NotPartOfNationalRoad(command.Number)
+                    .WithLastEventHash(command.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1396,7 +1422,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments.TryReplace(command.SegmentId,
-                segment => segment.PartOfNumberedRoad(command.Number)),
+                segment => segment
+                    .PartOfNumberedRoad(command.Number)
+                    .WithLastEventHash(command.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1439,7 +1467,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments.TryReplace(command.SegmentId,
-                segment => segment.NotPartOfNumberedRoad(command.Number)),
+                segment => segment
+                    .NotPartOfNumberedRoad(command.Number)
+                    .WithLastEventHash(command.GetHash())),
             _gradeSeparatedJunctions,
             _maximumTransactionId,
             _maximumNodeId,
@@ -1653,7 +1683,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                                     ? new CrabStreetnameId(segment.AttributeHash.RightSideStreetNameId.Value)
                                     : new CrabStreetnameId?(),
                                 new OrganizationId(segment.AttributeHash.OrganizationId),
-                                RoadSegmentGeometryDrawMethod.Parse(segment.AttributeHash.GeometryDrawMethod)));
+                                RoadSegmentGeometryDrawMethod.Parse(segment.AttributeHash.GeometryDrawMethod)),
+                            segment.LastEventHash);
                         roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));
                         roadSegment = segment.PartOfNationalRoads.Aggregate(roadSegment, (current, number) => current.PartOfNationalRoad(NationalRoadNumber.Parse(number)));
                         roadSegment = segment.PartOfNumberedRoads.Aggregate(roadSegment, (current, number) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(number)));
@@ -1720,7 +1751,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     },
                     PartOfEuropeanRoads = segment.Value.PartOfEuropeanRoads.Select(number => number.ToString()).ToArray(),
                     PartOfNationalRoads = segment.Value.PartOfNationalRoads.Select(number => number.ToString()).ToArray(),
-                    PartOfNumberedRoads = segment.Value.PartOfNumberedRoads.Select(number => number.ToString()).ToArray()
+                    PartOfNumberedRoads = segment.Value.PartOfNumberedRoads.Select(number => number.ToString()).ToArray(),
+                    LastEventHash = segment.Value.LastEventHash
                 }).ToArray(),
                 GradeSeparatedJunctions = _gradeSeparatedJunctions.Select(gradeSeparatedJunction => new RoadNetworkSnapshotGradeSeparatedJunction
                 {
@@ -1889,7 +1921,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 GeometryTranslator.Translate(@event.Geometry),
                 start,
                 end,
-                attributeHash);
+                attributeHash,
+                @event.GetHash());
             segment = @event.PartOfEuropeanRoads.Aggregate(segment, (current, europeanRoad) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(europeanRoad.Number)));
             segment = @event.PartOfNationalRoads.Aggregate(segment, (current, nationalRoad) => current.PartOfNationalRoad(NationalRoadNumber.Parse(nationalRoad.Number)));
             segment = @event.PartOfNumberedRoads.Aggregate(segment, (current, numberedRoad) => current.PartOfNumberedRoad(NumberedRoadNumber.Parse(numberedRoad.Number)));
@@ -2067,7 +2100,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 GeometryTranslator.Translate(@event.Geometry),
                 start,
                 end,
-                attributeHash);
+                attributeHash,
+                @event.GetHash());
 
             _nodes
                 .TryReplace(start, node => node.ConnectWith(id))
@@ -2290,7 +2324,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 .TryReplace(command.EndNodeId, node => node.ConnectWith(command.Id));
             _segments.Add(command.Id,
                 new RoadSegment(command.Id, command.Geometry, command.StartNodeId, command.EndNodeId,
-                    attributeHash));
+                    attributeHash, command.GetHash()));
             _maximumSegmentId = RoadSegmentId.Max(command.Id, _maximumSegmentId);
             _segmentReusableLaneAttributeIdentifiers.Merge(command.Id,
                 command.Lanes.Select(lane => new AttributeId(lane.Id)));
@@ -2324,7 +2358,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithGeometry(command.Geometry)
                     .WithStart(command.StartNodeId)
                     .WithEnd(command.EndNodeId)
-                    .WithAttributeHash(attributeHash));
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(command.GetHash()));
             _maximumSegmentId = RoadSegmentId.Max(command.Id, _maximumSegmentId);
             _segmentReusableLaneAttributeIdentifiers.Merge(command.Id,
                 command.Lanes.Select(lane => new AttributeId(lane.Id)));

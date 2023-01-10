@@ -1,12 +1,16 @@
 namespace RoadRegistry.BackOffice.Messages;
 
 using System;
+using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
 
-[EventName("ImportedRoadSegment")]
+[EventName(EventName)]
 [EventDescription("Indicates a road network segment was imported.")]
-public class ImportedRoadSegment : IMessage
+public class ImportedRoadSegment : IMessage, IHaveHash
 {
+    public const string EventName = "ImportedRoadSegment";
+
     public string AccessRestriction { get; set; }
     public string Category { get; set; }
     public int EndNodeId { get; set; }
@@ -30,4 +34,7 @@ public class ImportedRoadSegment : IMessage
     public int Version { get; set; }
     public string When { get; set; }
     public ImportedRoadSegmentWidthAttribute[] Widths { get; set; }
+
+    public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }

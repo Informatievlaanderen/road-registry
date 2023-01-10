@@ -30,6 +30,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
@@ -187,15 +188,7 @@ public class Program
                 services
                     .AddHostedService<FeatureCompareMessageConsumer>()
                     .AddSingleton<Scheduler>()
-                    .AddSingleton<IStreamStore>(sp =>
-                        new MsSqlStreamStoreV3(
-                            new MsSqlStreamStoreV3Settings(
-                                sp
-                                    .GetService<IConfiguration>()
-                                    .GetConnectionString(WellknownConnectionNames.Events))
-                            {
-                                Schema = WellknownSchemas.EventSchema
-                            }))
+                    .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new RecyclableMemoryStreamManager())
                     .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
@@ -209,12 +202,14 @@ public class Program
                         sp.GetService<RecyclableMemoryStreamManager>()))
                     .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
                     .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                    .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                         new CommandHandlerModule[]
                         {
                             new RoadNetworkChangesArchiveCommandModule(
                                 sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
+                                sp.GetService<Func<EventSourcedEntityMap>>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
                                 sp.GetService<IClock>(),
@@ -223,6 +218,7 @@ public class Program
                             ),
                             new RoadNetworkCommandModule(
                                 sp.GetService<IStreamStore>(),
+                                sp.GetService<Func<EventSourcedEntityMap>>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IRoadNetworkSnapshotWriter>(),
                                 sp.GetService<IClock>(),
@@ -231,6 +227,7 @@ public class Program
                             new RoadNetworkExtractCommandModule(
                                 sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
+                                sp.GetService<Func<EventSourcedEntityMap>>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
                                 sp.GetService<IClock>(),

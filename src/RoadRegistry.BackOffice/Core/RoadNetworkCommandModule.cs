@@ -12,6 +12,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 {
     public RoadNetworkCommandModule(
         IStreamStore store,
+        Func<EventSourcedEntityMap> entityMapFactory,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
@@ -20,12 +21,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(clock);
-
+        ArgumentNullException.ThrowIfNull(logger);
+        
         var enricher = EnrichEvent.WithTime(clock);
 
         For<RebuildRoadNetworkSnapshot>()
-            .UseRoadRegistryContext(store, snapshotReader, enricher)
-            .Handle(async (context, command, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .Handle(async (context, command, commandMetadata, ct) =>
             {
                 await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
                 var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
@@ -37,23 +39,23 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     CurrentVersion = version
                 };
 
-                await new RoadNetworkCommandQueue(store)
+                await new RoadNetworkCommandQueue(store, commandMetadata)
                     .Write(new Command(completedCommand), ct);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
             });
 
         For<RebuildRoadNetworkSnapshotCompleted>()
-            .Handle((_, _) =>
+            .Handle((_, _, _) =>
             {
                 logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshotCompleted));
                 return Task.CompletedTask;
             });
-
+        
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
-            .UseRoadRegistryContext(store, snapshotReader, enricher)
-            .Handle(async (context, message, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .Handle(async (context, message, _, ct) =>
             {
                 var request = ChangeRequestId.FromString(message.Body.RequestId);
                 var @operator = new OperatorName(message.Body.Operator);
@@ -83,8 +85,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<CreateOrganization>()
             .UseValidator(new CreateOrganizationValidator())
-            .UseRoadRegistryContext(store, snapshotReader, enricher)
-            .Handle(async (context, command, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .Handle(async (context, command, commandMetadata, ct) =>
             {
                 var organizationId = new OrganizationId(command.Body.Code);
                 var organization = await context.Organizations.FindAsync(organizationId, ct);
@@ -98,7 +100,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     };
                     enricher(rejectedCommand);
 
-                    await new RoadNetworkCommandQueue(store)
+                    await new RoadNetworkCommandQueue(store, commandMetadata)
                         .Write(new Command(rejectedCommand), ct);
                 }
                 else
@@ -118,7 +120,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             });
 
         For<CreateOrganizationRejected>()
-            .Handle((_, _) =>
+            .Handle((_, _, _) =>
             {
                 logger.LogInformation("Command handler finished for {Command}", nameof(CreateOrganizationRejected));
                 return Task.CompletedTask;
@@ -126,8 +128,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<DeleteOrganization>()
             .UseValidator(new DeleteOrganizationValidator())
-            .UseRoadRegistryContext(store, snapshotReader, enricher)
-            .Handle(async (context, command, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .Handle(async (context, command, commandMetadata, ct) =>
             {
                 var organizationId = new OrganizationId(command.Body.Code);
                 var organization = await context.Organizations.FindAsync(organizationId, ct);
@@ -144,7 +146,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     };
                     enricher(rejectedCommand);
 
-                    await new RoadNetworkCommandQueue(store)
+                    await new RoadNetworkCommandQueue(store, commandMetadata)
                         .Write(new Command(rejectedCommand), ct);
                 }
 
@@ -152,7 +154,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             });
 
         For<DeleteOrganizationRejected>()
-            .Handle((_, _) =>
+            .Handle((_, _, _) =>
             {
                 logger.LogInformation("Command handler finished for {Command}", nameof(DeleteOrganizationRejected));
                 return Task.CompletedTask;
@@ -160,8 +162,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<RenameOrganization>()
             .UseValidator(new RenameOrganizationValidator())
-            .UseRoadRegistryContext(store, snapshotReader, enricher)
-            .Handle(async (context, command, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .Handle(async (context, command, commandMetadata, ct) =>
             {
                 var organizationId = new OrganizationId(command.Body.Code);
                 var organization = await context.Organizations.FindAsync(organizationId, ct);
@@ -179,7 +181,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     };
                     enricher(rejectedCommand);
 
-                    await new RoadNetworkCommandQueue(store)
+                    await new RoadNetworkCommandQueue(store, commandMetadata)
                         .Write(new Command(rejectedCommand), ct);
                 }
 
@@ -187,7 +189,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             });
 
         For<RenameOrganizationRejected>()
-            .Handle((_, _) =>
+            .Handle((_, _, _) =>
             {
                 logger.LogInformation("Command handler finished for {Command}", nameof(RenameOrganizationRejected));
                 return Task.CompletedTask;

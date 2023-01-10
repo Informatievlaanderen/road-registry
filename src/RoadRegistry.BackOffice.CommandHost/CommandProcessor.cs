@@ -33,6 +33,7 @@ public class CommandProcessor : IHostedService
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
     private readonly Scheduler _scheduler;
+    private readonly RoadRegistryApplication _applicationProcessor;
 
     public CommandProcessor(
         IStreamStore streamStore,
@@ -40,14 +41,16 @@ public class CommandProcessor : IHostedService
         ICommandProcessorPositionStore positionStore,
         CommandHandlerDispatcher dispatcher,
         Scheduler scheduler,
+        RoadRegistryApplication applicationProcessor,
         ILogger<CommandProcessor> logger)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
         ArgumentNullException.ThrowIfNull(positionStore);
         ArgumentNullException.ThrowIfNull(dispatcher);
 
-        _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _scheduler = scheduler.ThrowIfNull();
+        _applicationProcessor = applicationProcessor;
+        _logger = logger.ThrowIfNull();
 
         _messagePumpCancellation = new CancellationTokenSource();
         _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
@@ -80,6 +83,7 @@ public class CommandProcessor : IHostedService
                                     async (_, streamMessage, token) =>
                                     {
                                         var command = new ProcessStreamMessage(streamMessage);
+
                                         await _messageChannel.Writer
                                             .WriteAsync(command, token)
                                             .ConfigureAwait(false);
@@ -103,18 +107,27 @@ public class CommandProcessor : IHostedService
                             case ProcessStreamMessage process:
                                 try
                                 {
-                                    logger.LogDebug(
+                                    logger.LogInformation(
                                         "Processing {MessageType} at {Position}",
                                         process.Message.Type, process.Message.Position);
 
-                                    var body = JsonConvert.DeserializeObject(
-                                        await process.Message
-                                            .GetJsonData(_messagePumpCancellation.Token)
-                                            .ConfigureAwait(false),
-                                        CommandMapping.GetEventType(process.Message.Type),
-                                        SerializerSettings);
-                                    var command = new Command(body).WithMessageId(process.Message.MessageId);
-                                    await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
+                                    var messageProcessor = JsonConvert.DeserializeObject<MessageMetadata>(process.Message.JsonMetadata, SerializerSettings)?.Processor ?? RoadRegistryApplication.BackOffice;
+                                    if (messageProcessor == _applicationProcessor)
+                                    {
+                                        var body = JsonConvert.DeserializeObject(
+                                            await process.Message
+                                                .GetJsonData(_messagePumpCancellation.Token)
+                                                .ConfigureAwait(false),
+                                            CommandMapping.GetEventType(process.Message.Type),
+                                            SerializerSettings);
+                                        var command = new Command(body).WithMessageId(process.Message.MessageId);
+                                        await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
+                                    }
+                                    else
+                                    {
+                                        logger.LogInformation("Skipping {MessageType} at {Position} - Message Processor '{MessageProcessor}' does not match '{Processor}'", process.Message.Type, process.Message.Position, messageProcessor, _applicationProcessor);
+                                    }
+
                                     await positionStore
                                         .WriteVersion(queue.ToString(),
                                             process.Message.StreamVersion,

@@ -11,6 +11,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
+using Xunit.Abstractions;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
 using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;
@@ -27,7 +28,8 @@ using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentW
 
 public class ModifyRoadNodeScenarios : RoadRegistryFixture
 {
-    public ModifyRoadNodeScenarios()
+    public ModifyRoadNodeScenarios(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
         Fixture.CustomizePoint();
         Fixture.CustomizePolylineM();

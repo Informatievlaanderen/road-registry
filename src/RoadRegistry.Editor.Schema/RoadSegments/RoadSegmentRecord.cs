@@ -12,4 +12,5 @@ public class RoadSegmentRecord
     public byte[] ShapeRecordContent { get; set; }
     public int ShapeRecordContentLength { get; set; }
     public int StartNodeId { get; set; }
+    public string LastEventHash { get; set; }
 }

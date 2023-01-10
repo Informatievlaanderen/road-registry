@@ -59,7 +59,8 @@ public abstract class TestStartup
             .ConfigureAppConfiguration((hostContext, configurationBuilder) =>
             {
                 configurationBuilder
-                    .AddJsonFile("appsettings.json", true, true);
+                    .AddJsonFile("appsettings.json", true, true)
+                    .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false);
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
             .ConfigureServices((context, services) =>
@@ -82,6 +83,7 @@ public abstract class TestStartup
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter())
                     .AddSingleton<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader())
+                    .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
                     .AddSingleton(ConfigureCommandHandlerDispatcher)
                     .AddSingleton(new RecyclableMemoryStreamManager())
                     .AddSingleton(new ZipArchiveWriterOptions())

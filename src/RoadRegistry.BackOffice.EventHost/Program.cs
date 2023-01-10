@@ -24,6 +24,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
@@ -31,6 +32,8 @@ using Uploads;
 
 public class Program
 {
+    private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
+
     protected Program()
     {
     }
@@ -178,13 +181,7 @@ public class Program
                                 sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EventHost)
                             ),
                             WellknownSchemas.EventHostSchema))
-                    .AddSingleton<IStreamStore>(sp =>
-                        new MsSqlStreamStoreV3(
-                            new MsSqlStreamStoreV3Settings(
-                                sp
-                                    .GetService<IConfiguration>()
-                                    .GetConnectionString(WellknownConnectionNames.Events)
-                            ) { Schema = WellknownSchemas.EventSchema }))
+                    .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new RecyclableMemoryStreamManager())
                     .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
@@ -203,7 +200,8 @@ public class Program
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetService<RoadNetworkUploadsBlobClient>(),
                             new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
-                            sp.GetService<IStreamStore>()
+                            sp.GetService<IStreamStore>(),
+                            ApplicationMetadata
                         ),
                         new RoadNetworkEventModule(
                             sp.GetService<IStreamStore>(),

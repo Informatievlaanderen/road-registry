@@ -5,17 +5,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
+using Abstractions.Validation;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using FluentValidation;
+using FluentValidation.Results;
 using Framework;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.FeatureToggles;
+using FeatureToggles;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
@@ -49,8 +52,14 @@ public class UploadController : ControllerBase
 
     private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback)
     {
-        ArgumentNullException.ThrowIfNull(archive);
-
+        if (archive == null)
+        {
+            throw new ValidationException("Archive is missing", new []
+            {
+                new ValidationFailure(nameof(archive), ValidationErrors.Common.NotFound.Message)
+            });
+        }
+        
         try
         {
             return await callback.Invoke();

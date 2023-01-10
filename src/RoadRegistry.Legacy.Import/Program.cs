@@ -22,6 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
@@ -169,14 +170,7 @@ public class Program
                             hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events)
                         )
                     )
-                    .AddSingleton<IStreamStore>(
-                        new MsSqlStreamStoreV3(
-                            new MsSqlStreamStoreV3Settings(
-                                hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Events)
-                            )
-                            {
-                                Schema = WellknownSchemas.EventSchema
-                            }))
+                    .AddStreamStore()
                     .AddSingleton<LegacyStreamEventsWriter>();
             })
             .Build();

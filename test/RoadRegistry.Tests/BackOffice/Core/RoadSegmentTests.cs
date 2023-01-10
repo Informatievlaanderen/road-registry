@@ -33,7 +33,7 @@ public class RoadSegmentTests
         _end = fixture.Create<RoadNodeId>();
         _geometry = fixture.Create<MultiLineString>();
         _attributeHash = fixture.Create<AttributeHash>();
-        _sut = new RoadSegment(_id, _geometry, _start, _end, _attributeHash);
+        _sut = new RoadSegment(_id, _geometry, _start, _end, _attributeHash, null);
     }
 
     [Fact]
@@ -82,7 +82,8 @@ public class RoadSegmentTests
             _geometry,
             new RoadNodeId(start),
             new RoadNodeId(end),
-            _attributeHash);
+            _attributeHash,
+            null);
 
         var result = sut.SelectOppositeNode(new RoadNodeId(node)).ToArray();
 
@@ -99,6 +100,6 @@ public class RoadSegmentTests
     [Fact]
     public void ThrowsWhenStartIsSameAsEnd()
     {
-        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash));
+        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash, null));
     }
 }

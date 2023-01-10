@@ -8,6 +8,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Xunit;
+using Xunit.Abstractions;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Problem = RoadRegistry.BackOffice.Messages.Problem;
 using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
@@ -21,7 +22,8 @@ using RemoveRoadSegmentFromNumberedRoad = RoadRegistry.BackOffice.Messages.Remov
 
 public class RemoveTheNonExisting : RoadRegistryFixture
 {
-    public RemoveTheNonExisting()
+    public RemoveTheNonExisting(ITestOutputHelper testOutputHelper)
+        : base(testOutputHelper)
     {
         Fixture.CustomizePoint();
         Fixture.CustomizePolylineM();

@@ -1,11 +1,16 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.GrAr.Common;
+using BackOffice;
 
-[EventName("RoadNetworkChangesAccepted")]
+[EventName(EventName)]
 [EventDescription("Indicates the road network changes were accepted.")]
-public class RoadNetworkChangesAccepted : IMessage
+public class RoadNetworkChangesAccepted : IMessage, IHaveHash
 {
+    public const string EventName = "RoadNetworkChangesAccepted";
+    
     public AcceptedChange[] Changes { get; set; }
     public string Operator { get; set; }
     public string Organization { get; set; }
@@ -15,4 +20,7 @@ public class RoadNetworkChangesAccepted : IMessage
     public int TransactionId { get; set; }
     public string Description { get; set; }
     public string When { get; set; }
+
+    public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public string GetHash() => this.ToEventHash(EventName);
 }

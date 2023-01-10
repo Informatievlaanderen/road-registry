@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
 using System;
-using System.IO;
 using System.IO.Compression;
 
 public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
@@ -16,6 +15,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
     public RoadNetworkChangesArchiveCommandModule(
         RoadNetworkUploadsBlobClient blobClient,
         IStreamStore store,
+        Func<EventSourcedEntityMap> entityMapFactory,
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveAfterFeatureCompareValidator validator,
         IClock clock,
@@ -29,8 +29,8 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(logger);
 
         For<UploadRoadNetworkChangesArchive>()
-            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
-            .Handle(async (context, message, ct) =>
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .Handle(async (context, message, _, ct) =>
             {
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
 

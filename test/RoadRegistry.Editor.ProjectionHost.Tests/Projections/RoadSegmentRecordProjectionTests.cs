@@ -109,7 +109,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLBGNORG = { Value = message.Organization },
                     TGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier },
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name }
-                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                LastEventHash = segment.GetHash()
             };
         });
 
@@ -174,7 +175,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization },
                     TGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier },
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name }
-                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                LastEventHash = segment.GetHash()
             };
         });
 
@@ -256,7 +258,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                         LBLBGNORG = { Value = importedRoadSegment.Origin.Organization },
                         TGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Identifier },
                         LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(importedRoadSegment.AccessRestriction).Translation.Name }
-                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8),
+                    LastEventHash = importedRoadSegment.GetHash()
                 };
                 return new { importedRoadSegment, expected };
             }).ToList();
