@@ -1,3 +1,10 @@
+# [3.31.0](https://github.com/informatievlaanderen/road-registry/compare/v3.30.0...v3.31.0) (2023-01-10)
+
+
+### Features
+
+* use ticketing system for link/unlink streetname ([#776](https://github.com/informatievlaanderen/road-registry/issues/776)) ([cb8c071](https://github.com/informatievlaanderen/road-registry/commit/cb8c071fbcacff2b314d92628feaadd2170a8478))
+
 # [3.30.0](https://github.com/informatievlaanderen/road-registry/compare/v3.29.4...v3.30.0) (2022-12-29)
 
 
