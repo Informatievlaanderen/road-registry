@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Options;
@@ -13,13 +12,12 @@ public static class TicketingExtensions
     public static IServiceCollection AddTicketing(
         this IServiceCollection services)
     {
-        return services
-            .AddHttpProxyTicketing(GetBaseUrl)
+        return AddHttpProxyTicketing(services, GetBaseUrl)
             ;
     }
 
     private static IServiceCollection AddHttpProxyTicketing(
-        this IServiceCollection services,
+        IServiceCollection services,
         Func<IConfiguration, string> baseUrlProvider)
     {
         services.AddHttpClient<ITicketing, HttpProxyTicketing>((sp, c) =>
