@@ -1,7 +1,9 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.Serialization.Json;
+using System.Runtime.CompilerServices;
 
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
+[assembly: InternalsVisibleTo("RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests")]
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
