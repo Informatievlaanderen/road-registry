@@ -1169,7 +1169,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector']
+        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost']
 
     steps:
     - name: CD services
@@ -1280,7 +1280,7 @@ jobs:
     strategy:
        matrix: 
          #services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector']
-         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector']
+         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost']
 
     steps:
     - name: CD services
