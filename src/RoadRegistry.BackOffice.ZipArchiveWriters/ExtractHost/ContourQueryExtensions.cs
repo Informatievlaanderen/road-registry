@@ -50,7 +50,7 @@ OR [junction].[LowerRoadSegmentId] IN (
         this DbSet<RoadSegmentRecord> source, IPolygonal contour)
     {
         return source.FromSqlRaw(
-            @"SELECT [segment].[Id], [segment].[StartNodeId], [segment].[EndNodeId], [segment].[ShapeRecordContent], [segment].[ShapeRecordContentLength], [segment].[DbaseRecord], [segment].[Geometry], [segment].[BoundingBox_MinimumX], [segment].[BoundingBox_MaximumX], [segment].[BoundingBox_MinimumY], [segment].[BoundingBox_MaximumY], [segment].[BoundingBox_MinimumM],  [segment].[BoundingBox_MaximumM]
+            @"SELECT [segment].[Id], [segment].[StartNodeId], [segment].[EndNodeId], [segment].[ShapeRecordContent], [segment].[ShapeRecordContentLength], [segment].[DbaseRecord], [segment].[Geometry], [segment].[BoundingBox_MinimumX], [segment].[BoundingBox_MaximumX], [segment].[BoundingBox_MinimumY], [segment].[BoundingBox_MaximumY], [segment].[BoundingBox_MinimumM], [segment].[BoundingBox_MaximumM], [segment].[LastEventHash]
 FROM [RoadRegistryEditor].[RoadSegment] AS [segment]
 WHERE [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit)", contour.ToSqlParameter());
     }
