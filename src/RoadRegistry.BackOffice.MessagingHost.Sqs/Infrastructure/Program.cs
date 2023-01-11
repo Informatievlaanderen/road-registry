@@ -231,7 +231,6 @@ public class Program
                             )
                         })))
                     .AddSingleton(featureCompareMessagingOptions);
-                _serviceCollection = services;
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
             .ConfigureContainer<ContainerBuilder>(ConfigureContainer)
