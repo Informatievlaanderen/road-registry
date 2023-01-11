@@ -1,3 +1,12 @@
+## [3.31.1](https://github.com/informatievlaanderen/road-registry/compare/v3.31.0...v3.31.1) (2023-01-11)
+
+
+### Bug Fixes
+
+* add LastEventHash to custom spatial query ([#786](https://github.com/informatievlaanderen/road-registry/issues/786)) ([2be8bdb](https://github.com/informatievlaanderen/road-registry/commit/2be8bdb6bcf46f545ddf3dd97c6b0ba7466051c9))
+* Add logging and fix double registration inside messaging host ([#785](https://github.com/informatievlaanderen/road-registry/issues/785)) ([4953e32](https://github.com/informatievlaanderen/road-registry/commit/4953e32e440377dc647d68aa6aa1124ec3b707a2))
+* add producer snapshot to release.yml ([263343f](https://github.com/informatievlaanderen/road-registry/commit/263343fe4f5436e63d2b65ff662c34f573c072a2))
+
 # [3.31.0](https://github.com/informatievlaanderen/road-registry/compare/v3.30.0...v3.31.0) (2023-01-10)
 
 
