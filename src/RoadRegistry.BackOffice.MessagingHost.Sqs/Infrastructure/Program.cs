@@ -39,8 +39,6 @@ using ZipArchiveWriters.Validation;
 
 public class Program
 {
-    private static IServiceCollection _serviceCollection = new ServiceCollection();
-
     protected Program()
     {
     }
@@ -186,7 +184,6 @@ public class Program
 
                 services
                     .AddHostedService<FeatureCompareMessageConsumer>()
-                    //.AddSingleton<Scheduler>()
                     .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new RecyclableMemoryStreamManager())
