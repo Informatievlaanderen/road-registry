@@ -201,13 +201,15 @@ public class Program
                             sp.GetService<RoadNetworkUploadsBlobClient>(),
                             new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
                             sp.GetService<IStreamStore>(),
-                            ApplicationMetadata
+                            ApplicationMetadata,
+                            sp.GetService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
                         new RoadNetworkEventModule(
                             sp.GetService<IStreamStore>(),
                             sp.GetService<IRoadNetworkSnapshotReader>(),
                             sp.GetService<IRoadNetworkSnapshotWriter>(),
-                            sp.GetService<IClock>())
+                            sp.GetService<IClock>(),
+                            sp.GetService<ILogger<RoadNetworkEventModule>>())
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));

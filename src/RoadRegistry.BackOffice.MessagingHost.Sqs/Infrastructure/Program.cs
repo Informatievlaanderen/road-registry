@@ -123,7 +123,6 @@ public class Program
 
     private static void ConfigureContainer(ContainerBuilder builder)
     {
-        builder.Populate(_serviceCollection);
         builder.RegisterModule(new MediatorModule());
         builder.RegisterModule(new Handlers.Sqs.MediatorModule());
         builder.RegisterModule(new SqsHandlersModule());
@@ -187,7 +186,7 @@ public class Program
 
                 services
                     .AddHostedService<FeatureCompareMessageConsumer>()
-                    .AddSingleton<Scheduler>()
+                    //.AddSingleton<Scheduler>()
                     .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new RecyclableMemoryStreamManager())
