@@ -6,6 +6,7 @@ using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
 using Messages;
+using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
@@ -14,7 +15,8 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         RoadNetworkUploadsBlobClient client,
         IZipArchiveTranslator translator,
         IStreamStore store,
-        ApplicationMetadata applicationMetadata)
+        ApplicationMetadata applicationMetadata,
+        ILogger<RoadNetworkChangesArchiveEventModule> logger)
     {
         if (client == null) throw new ArgumentNullException(nameof(client));
         if (translator == null) throw new ArgumentNullException(nameof(translator));
@@ -27,6 +29,9 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var requestId = ChangeRequestId.FromArchiveId(archiveId);
                 var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
+
+                logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesArchiveAccepted));
+
                 await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                 using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                 {
@@ -51,6 +56,8 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 
                     await queue.Write(command, ct);
                 }
+
+                logger.LogInformation("Event handler finished for {EventName}", nameof(RoadNetworkChangesArchiveAccepted));
             });
     }
 }
