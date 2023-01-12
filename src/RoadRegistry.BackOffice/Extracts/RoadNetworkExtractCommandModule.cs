@@ -33,15 +33,19 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
+                logger.LogInformation("Command handler started for {Command}", nameof(RequestRoadNetworkExtract));
+
                 var externalRequestId = new ExternalExtractRequestId(message.Body.ExternalRequestId);
-                var requestId = ExtractRequestId.FromExternalRequestId(externalRequestId);
+                var extractRequestId = ExtractRequestId.FromExternalRequestId(externalRequestId);
+                var extractDescription = new ExtractDescription(message.Body.Description);
+
                 var downloadId = new DownloadId(message.Body.DownloadId);
-                var description = new ExtractDescription(message.Body.Description);
                 var contour = GeometryTranslator.Translate(message.Body.Contour);
-                var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
+
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
                 if (extract == null)
                 {
-                    extract = RoadNetworkExtract.Request(externalRequestId, downloadId, description, contour);
+                    extract = RoadNetworkExtract.Request(externalRequestId, downloadId, extractDescription, contour);
                     context.RoadNetworkExtracts.Add(extract);
                 }
                 else
@@ -56,10 +60,13 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
-                var requestId = ExtractRequestId.FromString(message.Body.RequestId);
+                logger.LogInformation("Command handler started for {Command}", nameof(AnnounceRoadNetworkExtractDownloadBecameAvailable));
+
                 var downloadId = new DownloadId(message.Body.DownloadId);
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
-                var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
+
+                var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
                 extract.AnnounceAvailable(downloadId, archiveId);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(AnnounceRoadNetworkExtractDownloadBecameAvailable));
@@ -69,8 +76,10 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
-                var requestId = ExtractRequestId.FromString(message.Body.RequestId);
-                var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
+                logger.LogInformation("Command handler started for {Command}", nameof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred));
+
+                var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
                 extract.AnnounceTimeoutOccurred();
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred));
@@ -80,13 +89,16 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
-                var requestId = ExtractRequestId.FromString(message.Body.RequestId);
-                var forDownloadId = new DownloadId(message.Body.DownloadId);
-                var uploadId = new UploadId(message.Body.UploadId);
-                var archiveId = new ArchiveId(message.Body.ArchiveId);
-                var extract = await context.RoadNetworkExtracts.Get(requestId, ct);
+                logger.LogInformation("Command handler started for {Command}", nameof(UploadRoadNetworkExtractChangesArchive));
 
-                var upload = extract.Upload(forDownloadId, uploadId, archiveId);
+                var downloadId = new DownloadId(message.Body.DownloadId);
+                var archiveId = new ArchiveId(message.Body.ArchiveId);
+                var uploadId = new UploadId(message.Body.UploadId);
+
+                var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
+
+                var upload = extract.Upload(downloadId, uploadId, archiveId);
 
                 var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
                 await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
