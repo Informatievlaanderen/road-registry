@@ -50,7 +50,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Extractaanvraag {envelope.Message.Description} ontvangen",
+                    Title = $"Extractaanvraag \"{envelope.Message.Description}\" ontvangen",
                     Type = nameof(RoadNetworkExtractGotRequested),
                     Content = null,
                     When = envelope.Message.When
@@ -61,7 +61,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Extractaanvraag {envelope.Message.Description} ontvangen",
+                    Title = $"Extractaanvraag \"{envelope.Message.Description}\" ontvangen",
                     Type = nameof(RoadNetworkExtractGotRequestedV2),
                     Content = null,
                     When = envelope.Message.When
@@ -79,7 +79,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
             {
                 Id = envelope.Position,
-                Title = $"Download voor extractaanvraag {envelope.Message.Description} werd beschikbaar",
+                Title = $"Download voor extractaanvraag \"{envelope.Message.Description}\" werd beschikbaar",
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When
@@ -98,7 +98,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
             {
                 Id = envelope.Position,
-                Title = $"Download voor extractaanvraag {envelope.Message.Description} niet beschikbaar: contour te complex of te groot",
+                Title = $"Download voor extractaanvraag \"{envelope.Message.Description}\" niet beschikbaar: contour te complex of te groot",
                 Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When
@@ -118,7 +118,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             {
                 Id = envelope.Position,
                 Title = !string.IsNullOrEmpty(envelope.Message.Description)
-                    ? $"Oplading ontvangen voor extractaanvraag {envelope.Message.Description}"
+                    ? $"Oplading ontvangen voor extractaanvraag \"{envelope.Message.Description}\""
                     : $"Oplading ontvangen voor extractaanvraag, omschrijving niet gevonden in bestand",
                 Type = nameof(RoadNetworkChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(content),
@@ -149,7 +149,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             {
                 Id = envelope.Position,
                 Title = !string.IsNullOrEmpty(envelope.Message.Description)
-                    ? $"Oplading ontvangen voor extractaanvraag {envelope.Message.Description}"
+                    ? $"Oplading ontvangen voor extractaanvraag \"{envelope.Message.Description}\""
                     : $"Oplading ontvangen voor extractaanvraag, omschrijving niet gevonden in bestand",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(content),
@@ -194,7 +194,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading gevalideerd voor extractaanvraag {envelope.Message.Description}",
+                    Title = $"Oplading gevalideerd voor extractaanvraag \"{envelope.Message.Description}\"",
                     Type = nameof(RoadNetworkChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -228,7 +228,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading gevalideerd voor extractaanvraag {envelope.Message.Description}",
+                    Title = $"Oplading gevalideerd voor extractaanvraag \"{envelope.Message.Description}\"",
                     Type = nameof(RoadNetworkExtractChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -262,7 +262,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading geweigerd voor extractaanvraag {envelope.Message.Description}",
+                    Title = $"Oplading geweigerd voor extractaanvraag \"{envelope.Message.Description}\"",
                     Type = nameof(RoadNetworkChangesArchiveRejected),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -296,7 +296,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading geweigerd voor extractaanvraag {envelope.Message.Description}",
+                    Title = $"Oplading geweigerd voor extractaanvraag \"{envelope.Message.Description}\"",
                     Type = nameof(RoadNetworkExtractChangesArchiveRejected),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -339,7 +339,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading aanvaard voor extractaanvraag {envelope.Message.Description}",
+                    Title = $"Oplading aanvaard voor extractaanvraag \"{envelope.Message.Description}\"",
                     Type = nameof(RoadNetworkChangesAccepted) + ":v2",
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -381,7 +381,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading geweigerd voor extractaanvraag {envelope.Message.Description}",
+                    Title = $"Oplading geweigerd voor extractaanvraag \"{envelope.Message.Description}\"",
                     Type = nameof(RoadNetworkChangesRejected),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -411,7 +411,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Geen wijzigingen in oplading voor extractaanvraag {envelope.Message.Description}",
+                    Title = $"Geen wijzigingen in oplading voor extractaanvraag \"{envelope.Message.Description}\"",
                     Type = nameof(NoRoadNetworkChanges),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
