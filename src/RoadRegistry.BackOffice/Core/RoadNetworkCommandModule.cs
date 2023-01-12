@@ -83,7 +83,11 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     network.ProvidesNextRoadSegmentSurfaceAttributeId()
                 );
                 var requestedChanges = await translator.Translate(message.Body.Changes, context.Organizations, ct);
-                network.Change(request, reason, @operator, translation, requestedChanges);
+
+                var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
+
+                network.Change(request, reason, extract.Description, @operator, translation, requestedChanges);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(ChangeRoadNetwork));
             });
