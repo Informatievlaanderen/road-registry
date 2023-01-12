@@ -284,6 +284,7 @@ export default Vue.extend({
       pagination: {
         pageSize: 25,
         isLoading: false,
+        isLoadingTop: false,
       },
       isDownloading: false,
     };
@@ -294,7 +295,12 @@ export default Vue.extend({
   },
   methods: {
     async loadToTop(): Promise<any> {
-      this.pagination.isLoading = true;
+      if (this.pagination.isLoadingTop) {
+      	console.warn('Skipping load, loading is still in progress');
+        return;
+      }
+
+      this.pagination.isLoadingTop = true;
       try {
         let response = await PublicApi.ChangeFeed.getHead(this.pagination.pageSize);
         let activities = response.entries.map((entry) => new Activity(entry));
@@ -317,10 +323,15 @@ export default Vue.extend({
 
         this.activities = [...activities, ...this.activities];
       } finally {
-        this.pagination.isLoading = false;
+        this.pagination.isLoadingTop = false;
       }
     },
     async loadNextPage(): Promise<any> {
+      if (this.pagination.isLoading) {
+      	console.warn('Skipping load, loading is still in progress');
+        return;
+      }
+
       this.pagination.isLoading = true;
       try {
         const currentEntry = Math.min(...this.activities.map((a) => a.id));
