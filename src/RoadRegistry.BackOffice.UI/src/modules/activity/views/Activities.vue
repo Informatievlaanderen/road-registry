@@ -306,6 +306,9 @@ export default Vue.extend({
           if (firstActivityInReceivedData) {
             let index = activities.indexOf(firstActivityInReceivedData);
             activities = activities.slice(0, index);
+            if (!activities.length){
+              return;
+            }
           } else {
             // current data is too old, do a refresh
             this.activities = [];
