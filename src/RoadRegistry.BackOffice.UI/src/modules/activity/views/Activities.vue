@@ -284,22 +284,63 @@ export default Vue.extend({
       pagination: {
         pageSize: 25,
         isLoading: false,
+        isLoadingTop: false,
       },
       isDownloading: false,
     };
   },
   async mounted() {
-    var response = await PublicApi.ChangeFeed.getHead(this.pagination.pageSize);
-    this.activities = response.entries.map((entry) => new Activity(entry));
+    await this.loadToTop();
+    setInterval(this.loadToTop, 10000);
   },
   methods: {
-    async loadNextPage(): Promise<any> {
-      this.pagination.isLoading = true;
-      const currentEntry = Math.min(...this.activities.map((a) => a.id));
+    async loadToTop(): Promise<any> {
+      if (this.pagination.isLoadingTop) {
+      	console.warn('Skipping load, loading is still in progress');
+        return;
+      }
 
-      var response = await PublicApi.ChangeFeed.getPrevious(currentEntry, this.pagination.pageSize);
-      this.activities = this.activities.concat(response.entries.map((entry) => new Activity(entry)));
-      this.pagination.isLoading = false;
+      this.pagination.isLoadingTop = true;
+      try {
+        let response = await PublicApi.ChangeFeed.getHead(this.pagination.pageSize);
+        let activities = response.entries.map((entry) => new Activity(entry));
+
+        if (this.activities.length) {
+          let firstActivityId = this.activities[0].id;
+
+          let firstActivityInReceivedData = activities.find((x) => x.id === firstActivityId);
+          if (firstActivityInReceivedData) {
+            let index = activities.indexOf(firstActivityInReceivedData);
+            activities = activities.slice(0, index);
+            if (!activities.length){
+              return;
+            }
+          } else {
+            // current data is too old, do a refresh
+            this.activities = [];
+          }
+        }
+
+        this.activities = [...activities, ...this.activities];
+      } finally {
+        this.pagination.isLoadingTop = false;
+      }
+    },
+    async loadNextPage(): Promise<any> {
+      if (this.pagination.isLoading) {
+      	console.warn('Skipping load, loading is still in progress');
+        return;
+      }
+
+      this.pagination.isLoading = true;
+      try {
+        const currentEntry = Math.min(...this.activities.map((a) => a.id));
+
+        var response = await PublicApi.ChangeFeed.getPrevious(currentEntry, this.pagination.pageSize);
+        this.activities = this.activities.concat(response.entries.map((entry) => new Activity(entry)));
+      } finally {
+        this.pagination.isLoading = false;
+      }
     },
     async downloadUpload(activity: any): Promise<void> {
       this.isDownloading = true;
