@@ -23,7 +23,7 @@ public class RoadNetworkExtract : EventSourcedEntity
         On<RoadNetworkExtractGotRequested>(e =>
         {
             Id = ExtractRequestId.FromString(e.RequestId);
-            Description = new ExtractDescription(string.Empty);
+            Description = new ExtractDescription(e.Description ?? string.Empty);
             _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
             _requestedDownloads.Add(new DownloadId(e.DownloadId));
         });
