@@ -37,7 +37,6 @@ public class RoadNetwork : EventSourcedEntity
     public void Change(
         ChangeRequestId requestId,
         Reason reason,
-        ExtractDescription extractDescription,
         OperatorName @operator,
         Organization.DutchTranslation organization,
         RequestedChanges requestedChanges)
@@ -67,7 +66,6 @@ public class RoadNetwork : EventSourcedEntity
             {
                 RequestId = requestId,
                 Reason = reason,
-                Description = extractDescription,
                 Operator = @operator,
                 OrganizationId = organization.Identifier,
                 Organization = organization.Name,
@@ -78,7 +76,6 @@ public class RoadNetwork : EventSourcedEntity
             {
                 RequestId = requestId,
                 Reason = reason,
-                Description = extractDescription,
                 Operator = @operator,
                 OrganizationId = organization.Identifier,
                 Organization = organization.Name,
@@ -93,7 +90,6 @@ public class RoadNetwork : EventSourcedEntity
             {
                 RequestId = requestId,
                 Reason = reason,
-                Description = extractDescription,
                 Operator = @operator,
                 OrganizationId = organization.Identifier,
                 Organization = organization.Name,
