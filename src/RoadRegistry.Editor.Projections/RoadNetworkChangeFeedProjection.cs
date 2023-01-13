@@ -339,7 +339,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading aanvaard voor extractaanvraag \"{envelope.Message.Description}\"",
+                    Title = $"Oplading aanvaard voor extractaanvraag \"{envelope.Message.Reason}\"",
                     Type = nameof(RoadNetworkChangesAccepted) + ":v2",
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -381,7 +381,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Oplading geweigerd voor extractaanvraag \"{envelope.Message.Description}\"",
+                    Title = $"Oplading geweigerd voor extractaanvraag \"{envelope.Message.Reason}\"",
                     Type = nameof(RoadNetworkChangesRejected),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
@@ -411,7 +411,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Geen wijzigingen in oplading voor extractaanvraag \"{envelope.Message.Description}\"",
+                    Title = $"Geen wijzigingen in oplading voor extractaanvraag \"{envelope.Message.Reason}\"",
                     Type = nameof(NoRoadNetworkChanges),
                     Content = JsonConvert.SerializeObject(content),
                     When = envelope.Message.When
