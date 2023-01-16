@@ -263,6 +263,10 @@ public static class ProblemWithZipArchive
                     translation = $"De shape record {problem.Parameters[0].Value} geometrie kruist zichzelf.";
                     break;
 
+                case nameof(ShapeFileProblems.ShapeRecordGeometryHasInvalidMeasureOrdinates):
+                    translation = $"De shape record {problem.Parameters[0].Value} geometrie bevat ongeldige measure ordinaten.";
+                    break;
+
                 default:
                     translation = $"'{problem.Reason}' has no translation. Please fix it.";
                     break;

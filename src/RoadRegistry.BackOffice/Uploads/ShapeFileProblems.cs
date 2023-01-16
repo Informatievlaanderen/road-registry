@@ -61,6 +61,11 @@ public static class ShapeFileProblems
         return builder.Error(nameof(ShapeRecordGeometrySelfOverlaps)).Build();
     }
 
+    public static FileError ShapeRecordGeometryHasInvalidMeasureOrdinates(this IShapeFileRecordProblemBuilder builder)
+    {
+        return builder.Error(nameof(ShapeRecordGeometryHasInvalidMeasureOrdinates)).Build();
+    }
+
     public static FileError ShapeRecordShapeTypeMismatch(this IShapeFileRecordProblemBuilder builder,
         ShapeType expectedShapeType, ShapeType actualShapeType)
     {

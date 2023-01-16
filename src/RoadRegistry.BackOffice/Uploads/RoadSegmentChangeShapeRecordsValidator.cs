@@ -13,9 +13,9 @@ public class RoadSegmentChangeShapeRecordsValidator : IZipArchiveShapeRecordsVal
 {
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-        if (records == null) throw new ArgumentNullException(nameof(records));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(records);
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
         var recordNumber = RecordNumber.Initial;
@@ -23,6 +23,7 @@ public class RoadSegmentChangeShapeRecordsValidator : IZipArchiveShapeRecordsVal
         {
             var moved = records.MoveNext();
             if (moved)
+            {
                 while (moved)
                 {
                     var record = records.Current;
@@ -58,8 +59,17 @@ public class RoadSegmentChangeShapeRecordsValidator : IZipArchiveShapeRecordsVal
                                 {
                                     var line = lines[0];
                                     if (line.SelfOverlaps())
+                                    {
                                         problems += recordContext.ShapeRecordGeometrySelfOverlaps();
-                                    else if (line.SelfIntersects()) problems += recordContext.ShapeRecordGeometrySelfIntersects();
+                                    }
+                                    else if (line.SelfIntersects())
+                                    {
+                                        problems += recordContext.ShapeRecordGeometrySelfIntersects();
+                                    }
+                                    else if (line.HasInvalidMeasureOrdinates())
+                                    {
+                                        problems += recordContext.ShapeRecordGeometryHasInvalidMeasureOrdinates();
+                                    }
                                 }
                             }
                         }
@@ -73,8 +83,11 @@ public class RoadSegmentChangeShapeRecordsValidator : IZipArchiveShapeRecordsVal
 
                     moved = records.MoveNext();
                 }
+            }
             else
+            {
                 problems += entry.HasNoShapeRecords();
+            }
         }
         catch (Exception exception)
         {

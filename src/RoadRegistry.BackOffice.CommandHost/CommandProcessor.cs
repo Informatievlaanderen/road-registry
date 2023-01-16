@@ -137,7 +137,7 @@ public class CommandProcessor : IHostedService
                                 }
                                 catch (Exception exception)
                                 {
-                                    _logger.LogError(exception, exception.Message);
+                                    logger.LogError(exception, exception.Message);
 
                                     // how are we going to recover from this? do we even need to recover from this?
                                     // prediction: it's going to be a serialization error, a data quality error, or a bug
