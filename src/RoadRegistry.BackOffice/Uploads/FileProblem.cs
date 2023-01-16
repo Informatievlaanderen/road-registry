@@ -36,6 +36,7 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
     public virtual bool Equals(FileProblem other)
     {
         return other != null
+               && GetType() == other.GetType()
                && string.Equals(File, other.File, StringComparison.InvariantCultureIgnoreCase)
                && string.Equals(Reason, other.Reason)
                && Parameters.SequenceEqual(other.Parameters);

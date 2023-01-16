@@ -47,7 +47,6 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 {
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
-
                         logger.LogInformation("Validation started for archive with validator {Validator}", validator.GetType().Name);
                         upload.ValidateArchiveUsing(archive, validator);
                         logger.LogInformation("Validation completed for archive with validator {Validator}", validator.GetType().Name);

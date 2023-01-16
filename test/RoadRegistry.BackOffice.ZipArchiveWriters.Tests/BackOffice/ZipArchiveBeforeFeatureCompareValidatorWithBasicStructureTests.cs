@@ -23,468 +23,154 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
         {
             var fixture = CreateFixture();
 
-            var roadSegmentShapeChangeStream = new MemoryStream();
-            var polyLineMShapeContent = fixture.Create<PolyLineMShapeContent>();
-            var roadSegmentShapeChangeRecord =
-                polyLineMShapeContent.RecordAs(fixture.Create<RecordNumber>());
-            using (var writer = new ShapeBinaryWriter(
-                       new ShapeFileHeader(
-                           roadSegmentShapeChangeRecord.Length.Plus(ShapeFileHeader.Length),
-                           ShapeType.PolyLineM,
-                           BoundingBox3D.FromGeometry(polyLineMShapeContent.Shape)),
-                       new BinaryWriter(
-                           roadSegmentShapeChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                writer.Write(roadSegmentShapeChangeRecord);
-            }
-
-            var roadSegmentProjectionFormatStream = new MemoryStream();
-            using (var writer = new StreamWriter(
-                       roadSegmentProjectionFormatStream,
-                       Encoding.UTF8,
-                       leaveOpen: true))
-            {
-                writer.Write(ProjectionFormat.BelgeLambert1972);
-            }
-
+            var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFileWithOneRecord();
+            var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
             var roadSegmentChangeDbaseRecord = fixture.Create<Dbase.RoadSegments.RoadSegmentDbaseRecord>();
-            var roadSegmentDbaseChangeStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           Dbase.RoadSegments.RoadSegmentDbaseRecord.Schema),
-                       new BinaryWriter(
-                           roadSegmentDbaseChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                writer.Write(roadSegmentChangeDbaseRecord);
-            }
+            var roadSegmentDbaseChangeStream = fixture.CreateDbfFileWithOneRecord(Dbase.RoadSegments.RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
 
-            var europeanRoadChangeStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema),
-                       new BinaryWriter(
-                           europeanRoadChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                writer.Write(fixture.Create<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>());
-            }
+            var europeanRoadChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>(
+                Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
+            var nationalRoadChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord>(
+                Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
+            var numberedRoadChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord>(
+                Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
+            var laneChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord>(
+                Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord.Schema,
+                record =>
+                {
+                    record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
+                });
+            var widthChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord>(
+                Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord.Schema,
+                record =>
+                {
+                    record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
+                });
+            var surfaceChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord>(
+                Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord.Schema,
+                record =>
+                {
+                    record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
+                });
 
-            var nationalRoadChangeStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord.Schema),
-                       new BinaryWriter(
-                           nationalRoadChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                writer.Write(fixture.Create<Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord>());
-            }
+            var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFileWithOneRecord();
+            var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+            var roadNodeDbaseChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadNodes.RoadNodeDbaseRecord>(
+                Dbase.RoadNodes.RoadNodeDbaseRecord.Schema);
 
-            var numberedRoadChangeStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema),
-                       new BinaryWriter(
-                           numberedRoadChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                writer.Write(fixture.Create<Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord>());
-            }
+            var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord>(
+                Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord.Schema);
 
-            var laneChangeStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord.Schema),
-                       new BinaryWriter(
-                           laneChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                var laneChangeDbaseRecord = fixture.Create<Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord>();
-                laneChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-                writer.Write(laneChangeDbaseRecord);
-            }
-
-            var widthChangeStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord.Schema),
-                       new BinaryWriter(
-                           widthChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                var widthChangeDbaseRecord = fixture.Create<Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord>();
-                widthChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-                writer.Write(widthChangeDbaseRecord);
-            }
-
-            var surfaceChangeStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord.Schema),
-                       new BinaryWriter(
-                           surfaceChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                var surfaceChangeDbaseRecord = fixture.Create<Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord>();
-                surfaceChangeDbaseRecord.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-                writer.Write(surfaceChangeDbaseRecord);
-            }
-
-            var roadNodeShapeChangeStream = new MemoryStream();
-            var pointShapeContent = fixture.Create<PointShapeContent>();
-            var roadNodeShapeChangeRecord =
-                pointShapeContent.RecordAs(fixture.Create<RecordNumber>());
-            using (var writer = new ShapeBinaryWriter(
-                       new ShapeFileHeader(
-                           roadNodeShapeChangeRecord.Length.Plus(ShapeFileHeader.Length),
-                           ShapeType.Point,
-                           BoundingBox3D.FromGeometry(pointShapeContent.Shape)),
-                       new BinaryWriter(
-                           roadNodeShapeChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                writer.Write(roadNodeShapeChangeRecord);
-            }
-
-            var roadNodeProjectionFormatStream = new MemoryStream();
-            using (var writer = new StreamWriter(
-                       roadNodeProjectionFormatStream,
-                       Encoding.UTF8,
-                       leaveOpen: true))
-            {
-                writer.Write(ProjectionFormat.BelgeLambert1972);
-            }
-
-            var roadNodeDbaseChangeStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           Dbase.RoadNodes.RoadNodeDbaseRecord.Schema),
-                       new BinaryWriter(
-                           roadNodeDbaseChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                writer.Write(fixture.Create<Dbase.RoadNodes.RoadNodeDbaseRecord>());
-            }
-
-            var gradeSeparatedJunctionChangeStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord.Schema),
-                       new BinaryWriter(
-                           gradeSeparatedJunctionChangeStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                writer.Write(fixture.Create<Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord>());
-            }
-
-            var transactionZoneStream = new MemoryStream();
-            using (var writer = new DbaseBinaryWriter(
-                       new DbaseFileHeader(
-                           fixture.Create<DateTime>(),
-                           DbaseCodePage.Western_European_ANSI,
-                           new DbaseRecordCount(1),
-                           TransactionZoneDbaseRecord.Schema),
-                       new BinaryWriter(
-                           transactionZoneStream,
-                           Encoding.UTF8,
-                           true)))
-            {
-                writer.Write(fixture.Create<TransactionZoneDbaseRecord>());
-            }
-
+            var transactionZoneStream = fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
+            
             var requiredFiles = new[]
             {
                 "TRANSACTIEZONES.DBF",
+                "EWEGKNOOP.DBF",
                 "WEGKNOOP.DBF",
+                "EWEGKNOOP.SHP",
                 "WEGKNOOP.SHP",
                 "WEGKNOOP.PRJ",
+                "EWEGSEGMENT.DBF",
                 "WEGSEGMENT.DBF",
+                "EWEGSEGMENT.SHP",
                 "WEGSEGMENT.SHP",
                 "WEGSEGMENT.PRJ",
+                "EATTRIJSTROKEN.DBF",
                 "ATTRIJSTROKEN.DBF",
+                "EATTWEGBREEDTE.DBF",
                 "ATTWEGBREEDTE.DBF",
+                "EATTWEGVERHARDING.DBF",
                 "ATTWEGVERHARDING.DBF",
+                "EATTEUROPWEG.DBF",
                 "ATTEUROPWEG.DBF",
+                "EATTNATIONWEG.DBF",
                 "ATTNATIONWEG.DBF",
+                "EATTGENUMWEG.DBF",
                 "ATTGENUMWEG.DBF",
+                "ERLTOGKRUISING.DBF",
                 "RLTOGKRUISING.DBF"
             };
 
             for (var index = 0; index < requiredFiles.Length; index++)
             {
-                roadSegmentShapeChangeStream.Position = 0;
-                roadSegmentProjectionFormatStream.Position = 0;
-                roadSegmentDbaseChangeStream.Position = 0;
-                europeanRoadChangeStream.Position = 0;
-                nationalRoadChangeStream.Position = 0;
-                numberedRoadChangeStream.Position = 0;
-                laneChangeStream.Position = 0;
-                widthChangeStream.Position = 0;
-                surfaceChangeStream.Position = 0;
-                roadNodeShapeChangeStream.Position = 0;
-                roadNodeProjectionFormatStream.Position = 0;
-                roadNodeDbaseChangeStream.Position = 0;
-                gradeSeparatedJunctionChangeStream.Position = 0;
-                transactionZoneStream.Position = 0;
-
                 var errors = ZipArchiveProblems.None;
                 var archiveStream = new MemoryStream();
                 using (var createArchive =
                        new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
                 {
+                    void CreateEntryOrRequiredFileMissingError(string file, MemoryStream fileStream)
+                    {
+                        if (requiredFiles[index] == file)
+                        {
+                            errors = errors.RequiredFileMissing(file);
+                        }
+                        else
+                        {
+                            using (var entryStream = createArchive.CreateEntry(file).Open())
+                            {
+                                fileStream.Position = 0;
+                                fileStream.CopyTo(entryStream);
+                            }
+                        }
+                    }
+
                     foreach (var requiredFile in requiredFiles)
                     {
                         switch (requiredFile)
                         {
+                            case "EWEGSEGMENT.SHP":
                             case "WEGSEGMENT.SHP":
-                                if (requiredFiles[index] == "WEGSEGMENT.SHP")
-                                {
-                                    errors = errors.RequiredFileMissing("WEGSEGMENT.SHP");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("WEGSEGMENT.SHP").Open())
-                                    {
-                                        roadSegmentShapeChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, roadSegmentShapeChangeStream);
                                 break;
                             case "WEGSEGMENT.PRJ":
-                                if (requiredFiles[index] == "WEGSEGMENT.PRJ")
-                                {
-                                    errors = errors.RequiredFileMissing("WEGSEGMENT.PRJ");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("WEGSEGMENT.PRJ").Open())
-                                    {
-                                        roadSegmentProjectionFormatStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, roadSegmentProjectionFormatStream);
                                 break;
+                            case "EWEGSEGMENT.DBF":
                             case "WEGSEGMENT.DBF":
-                                if (requiredFiles[index] == "WEGSEGMENT.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("WEGSEGMENT.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("WEGSEGMENT.DBF").Open())
-                                    {
-                                        roadSegmentDbaseChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, roadSegmentDbaseChangeStream);
                                 break;
+                            case "EWEGKNOOP.SHP":
                             case "WEGKNOOP.SHP":
-                                if (requiredFiles[index] == "WEGKNOOP.SHP")
-                                {
-                                    errors = errors.RequiredFileMissing("WEGKNOOP.SHP");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("WEGKNOOP.SHP").Open())
-                                    {
-                                        roadNodeShapeChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, roadNodeShapeChangeStream);
                                 break;
                             case "WEGKNOOP.PRJ":
-                                if (requiredFiles[index] == "WEGKNOOP.PRJ")
-                                {
-                                    errors = errors.RequiredFileMissing("WEGKNOOP.PRJ");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("WEGKNOOP.PRJ").Open())
-                                    {
-                                        roadNodeProjectionFormatStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, roadNodeProjectionFormatStream);
                                 break;
+                            case "EWEGKNOOP.DBF":
                             case "WEGKNOOP.DBF":
-                                if (requiredFiles[index] == "WEGKNOOP.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("WEGKNOOP.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("WEGKNOOP.DBF").Open())
-                                    {
-                                        roadNodeDbaseChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, roadNodeDbaseChangeStream);
                                 break;
+                            case "EATTEUROPWEG.DBF":
                             case "ATTEUROPWEG.DBF":
-                                if (requiredFiles[index] == "ATTEUROPWEG.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("ATTEUROPWEG.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("ATTEUROPWEG.DBF").Open())
-                                    {
-                                        europeanRoadChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, europeanRoadChangeStream);
                                 break;
+                            case "EATTGENUMWEG.DBF":
                             case "ATTGENUMWEG.DBF":
-                                if (requiredFiles[index] == "ATTGENUMWEG.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("ATTGENUMWEG.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("ATTGENUMWEG.DBF").Open())
-                                    {
-                                        numberedRoadChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, numberedRoadChangeStream);
                                 break;
+                            case "EATTNATIONWEG.DBF":
                             case "ATTNATIONWEG.DBF":
-                                if (requiredFiles[index] == "ATTNATIONWEG.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("ATTNATIONWEG.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("ATTNATIONWEG.DBF").Open())
-                                    {
-                                        nationalRoadChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, nationalRoadChangeStream);
                                 break;
+                            case "EATTRIJSTROKEN.DBF":
                             case "ATTRIJSTROKEN.DBF":
-                                if (requiredFiles[index] == "ATTRIJSTROKEN.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("ATTRIJSTROKEN.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("ATTRIJSTROKEN.DBF").Open())
-                                    {
-                                        laneChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, laneChangeStream);
                                 break;
+                            case "EATTWEGBREEDTE.DBF":
                             case "ATTWEGBREEDTE.DBF":
-                                if (requiredFiles[index] == "ATTWEGBREEDTE.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("ATTWEGBREEDTE.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("ATTWEGBREEDTE.DBF").Open())
-                                    {
-                                        widthChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, widthChangeStream);
                                 break;
+                            case "EATTWEGVERHARDING.DBF":
                             case "ATTWEGVERHARDING.DBF":
-                                if (requiredFiles[index] == "ATTWEGVERHARDING.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("ATTWEGVERHARDING.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("ATTWEGVERHARDING.DBF").Open())
-                                    {
-                                        surfaceChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, surfaceChangeStream);
                                 break;
+                            case "ERLTOGKRUISING.DBF":
                             case "RLTOGKRUISING.DBF":
-                                if (requiredFiles[index] == "RLTOGKRUISING.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("RLTOGKRUISING.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("RLTOGKRUISING.DBF").Open())
-                                    {
-                                        gradeSeparatedJunctionChangeStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, gradeSeparatedJunctionChangeStream);
                                 break;
                             case "TRANSACTIEZONES.DBF":
-                                if (requiredFiles[index] == "TRANSACTIEZONES.DBF")
-                                {
-                                    errors = errors.RequiredFileMissing("TRANSACTIEZONES.DBF");
-                                }
-                                else
-                                {
-                                    using (var entryStream =
-                                           createArchive.CreateEntry("TRANSACTIEZONES.DBF").Open())
-                                    {
-                                        transactionZoneStream.CopyTo(entryStream);
-                                    }
-                                }
-
+                                CreateEntryOrRequiredFileMissingError(requiredFile, transactionZoneStream);
                                 break;
                         }
                     }
@@ -505,304 +191,73 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
     {
         var fixture = CreateFixture();
 
-        var roadSegmentShapeChangeStream = new MemoryStream();
-        using (var writer = new ShapeBinaryWriter(
-                   new ShapeFileHeader(
-                       ShapeFileHeader.Length,
-                       ShapeType.PolyLineM,
-                       BoundingBox3D.Empty),
-                   new BinaryWriter(
-                       roadSegmentShapeChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(new ShapeRecord[0]);
-        }
+        var extractRoadSegmentDbaseChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentDbaseRecord>(Dbase.RoadSegments.RoadSegmentDbaseRecord.Schema);
+        var roadSegmentShapeChangeStream = fixture.CreateEmptyRoadSegmentShapeFile();
+        var roadSegmentProjectionFormatStream = fixture.CreateEmptyProjectionFormatFile();
+        var roadSegmentDbaseChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema);
 
-        var roadSegmentProjectionFormatStream = new MemoryStream();
-        using (var writer = new StreamWriter(
-                   roadSegmentProjectionFormatStream,
-                   Encoding.UTF8,
-                   leaveOpen: true))
-        {
-            writer.Write(string.Empty);
-        }
+        var extractEuropeanRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
+        var europeanRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
+        var extractNationalRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
+        var nationalRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
+        var extractNumberedRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
+        var numberedRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentNumberedRoadAttributeDbaseRecord>(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
+        var extractLaneChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord.Schema);
+        var laneChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentLaneAttributeDbaseRecord>(RoadSegmentLaneAttributeDbaseRecord.Schema);
+        var extractWidthChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord.Schema);
+        var widthChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentWidthAttributeDbaseRecord>(RoadSegmentWidthAttributeDbaseRecord.Schema);
+        var extractSurfaceChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord.Schema);
+        var surfaceChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentSurfaceAttributeDbaseRecord>(RoadSegmentSurfaceAttributeDbaseRecord.Schema);
 
-        var roadSegmentDbaseChangeStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(0),
-                       RoadSegmentDbaseRecord.Schema),
-                   new BinaryWriter(
-                       roadSegmentDbaseChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<RoadSegmentDbaseRecord>());
-        }
+        var extractRoadNodeDbaseChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadNodes.RoadNodeDbaseRecord>(Dbase.RoadNodes.RoadNodeDbaseRecord.Schema);
+        var roadNodeShapeChangeStream = fixture.CreateEmptyRoadNodeShapeFile();
+        var roadNodeProjectionFormatStream = fixture.CreateEmptyProjectionFormatFile();
+        var roadNodeDbaseChangeStream = fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema);
 
-        var europeanRoadChangeStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(0),
-                       RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema),
-                   new BinaryWriter(
-                       europeanRoadChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<RoadSegmentEuropeanRoadAttributeDbaseRecord>());
-        }
+        var extractGradeSeparatedJunctionChangeStream = fixture.CreateEmptyDbfFile<Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord>(Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord.Schema);
+        var gradeSeparatedJunctionChangeStream = fixture.CreateEmptyDbfFile<GradeSeparatedJunctionDbaseRecord>(GradeSeparatedJunctionDbaseRecord.Schema);
 
-        var nationalRoadChangeStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(0),
-                       RoadSegmentNationalRoadAttributeDbaseRecord.Schema),
-                   new BinaryWriter(
-                       nationalRoadChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<RoadSegmentNationalRoadAttributeDbaseRecord>());
-        }
-
-        var numberedRoadChangeStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(1),
-                       RoadSegmentNumberedRoadAttributeDbaseRecord.Schema),
-                   new BinaryWriter(
-                       numberedRoadChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<RoadSegmentNumberedRoadAttributeDbaseRecord>());
-        }
-
-        var laneChangeStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(0),
-                       RoadSegmentLaneAttributeDbaseRecord.Schema),
-                   new BinaryWriter(
-                       laneChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<RoadSegmentLaneAttributeDbaseRecord>());
-        }
-
-        var widthChangeStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(0),
-                       RoadSegmentWidthAttributeDbaseRecord.Schema),
-                   new BinaryWriter(
-                       widthChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<RoadSegmentWidthAttributeDbaseRecord>());
-        }
-
-        var surfaceChangeStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(1),
-                       RoadSegmentSurfaceAttributeDbaseRecord.Schema),
-                   new BinaryWriter(
-                       surfaceChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<RoadSegmentSurfaceAttributeDbaseRecord>());
-        }
-
-        var roadNodeShapeChangeStream = new MemoryStream();
-        using (var writer = new ShapeBinaryWriter(
-                   new ShapeFileHeader(
-                       ShapeFileHeader.Length,
-                       ShapeType.Point,
-                       BoundingBox3D.Empty),
-                   new BinaryWriter(
-                       roadNodeShapeChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<ShapeRecord>());
-        }
-
-        var roadNodeProjectionFormatStream = new MemoryStream();
-        using (var writer = new StreamWriter(
-                   roadNodeProjectionFormatStream,
-                   Encoding.UTF8,
-                   leaveOpen: true))
-        {
-            writer.Write(string.Empty);
-        }
-
-        var roadNodeDbaseChangeStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(0),
-                       RoadNodeDbaseRecord.Schema),
-                   new BinaryWriter(
-                       roadNodeDbaseChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<RoadNodeDbaseRecord>());
-        }
-
-        var gradeSeparatedJunctionChangeStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(0),
-                       GradeSeparatedJunctionDbaseRecord.Schema),
-                   new BinaryWriter(
-                       gradeSeparatedJunctionChangeStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<GradeSeparatedJunctionDbaseRecord>());
-        }
-
-        var transactionZoneStream = new MemoryStream();
-        using (var writer = new DbaseBinaryWriter(
-                   new DbaseFileHeader(
-                       fixture.Create<DateTime>(),
-                       DbaseCodePage.Western_European_ANSI,
-                       new DbaseRecordCount(0),
-                       TransactionZoneDbaseRecord.Schema),
-                   new BinaryWriter(
-                       transactionZoneStream,
-                       Encoding.UTF8,
-                       true)))
-        {
-            writer.Write(Array.Empty<TransactionZoneDbaseRecord>());
-        }
-
-        roadSegmentShapeChangeStream.Position = 0;
-        roadSegmentProjectionFormatStream.Position = 0;
-        roadSegmentDbaseChangeStream.Position = 0;
-        europeanRoadChangeStream.Position = 0;
-        nationalRoadChangeStream.Position = 0;
-        numberedRoadChangeStream.Position = 0;
-        laneChangeStream.Position = 0;
-        widthChangeStream.Position = 0;
-        surfaceChangeStream.Position = 0;
-        roadNodeShapeChangeStream.Position = 0;
-        roadNodeProjectionFormatStream.Position = 0;
-        roadNodeDbaseChangeStream.Position = 0;
-        gradeSeparatedJunctionChangeStream.Position = 0;
-        transactionZoneStream.Position = 0;
-
+        var transactionZoneStream = fixture.CreateEmptyDbfFile<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
+        
         var archiveStream = new MemoryStream();
         using (var createArchive =
                new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
         {
-            using (var entryStream =
-                   createArchive.CreateEntry("TRANSACTIEZONES.DBF").Open())
+            void CreateEntryInArchive(string file, MemoryStream fileStream)
             {
-                transactionZoneStream.CopyTo(entryStream);
+                fileStream.Position = 0;
+
+                using (var entryStream = createArchive.CreateEntry(file).Open())
+                {
+                    fileStream.CopyTo(entryStream);
+                }
             }
 
-            using (var entryStream =
-                   createArchive.CreateEntry("WEGKNOOP.DBF").Open())
-            {
-                roadNodeDbaseChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("WEGKNOOP.SHP").Open())
-            {
-                roadNodeShapeChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("WEGKNOOP.PRJ").Open())
-            {
-                roadNodeProjectionFormatStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("WEGSEGMENT.DBF").Open())
-            {
-                roadSegmentDbaseChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("WEGSEGMENT.SHP").Open())
-            {
-                roadSegmentShapeChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("WEGSEGMENT.PRJ").Open())
-            {
-                roadSegmentProjectionFormatStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("ATTRIJSTROKEN.DBF").Open())
-            {
-                laneChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("ATTWEGBREEDTE.DBF").Open())
-            {
-                widthChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("ATTWEGVERHARDING.DBF").Open())
-            {
-                surfaceChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("ATTEUROPWEG.DBF").Open())
-            {
-                europeanRoadChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("ATTNATIONWEG.DBF").Open())
-            {
-                nationalRoadChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("ATTGENUMWEG.DBF").Open())
-            {
-                numberedRoadChangeStream.CopyTo(entryStream);
-            }
-
-            using (var entryStream =
-                   createArchive.CreateEntry("RLTOGKRUISING.DBF").Open())
-            {
-                gradeSeparatedJunctionChangeStream.CopyTo(entryStream);
-            }
+            CreateEntryInArchive("TRANSACTIEZONES.DBF", transactionZoneStream);
+            CreateEntryInArchive("EWEGKNOOP.DBF", extractRoadNodeDbaseChangeStream);
+            CreateEntryInArchive("WEGKNOOP.DBF", roadNodeDbaseChangeStream);
+            CreateEntryInArchive("WEGKNOOP.SHP", roadNodeShapeChangeStream);
+            CreateEntryInArchive("EWEGKNOOP.SHP", roadNodeShapeChangeStream);
+            CreateEntryInArchive("WEGKNOOP.PRJ", roadNodeProjectionFormatStream);
+            CreateEntryInArchive("EWEGSEGMENT.DBF", extractRoadSegmentDbaseChangeStream);
+            CreateEntryInArchive("WEGSEGMENT.DBF", roadSegmentDbaseChangeStream);
+            CreateEntryInArchive("EWEGSEGMENT.SHP", roadSegmentShapeChangeStream);
+            CreateEntryInArchive("WEGSEGMENT.SHP", roadSegmentShapeChangeStream);
+            CreateEntryInArchive("WEGSEGMENT.PRJ", roadSegmentProjectionFormatStream);
+            CreateEntryInArchive("EATTRIJSTROKEN.DBF", extractLaneChangeStream);
+            CreateEntryInArchive("ATTRIJSTROKEN.DBF", laneChangeStream);
+            CreateEntryInArchive("EATTWEGBREEDTE.DBF", extractWidthChangeStream);
+            CreateEntryInArchive("ATTWEGBREEDTE.DBF", widthChangeStream);
+            CreateEntryInArchive("EATTWEGVERHARDING.DBF", extractSurfaceChangeStream);
+            CreateEntryInArchive("ATTWEGVERHARDING.DBF", surfaceChangeStream);
+            CreateEntryInArchive("EATTEUROPWEG.DBF", extractEuropeanRoadChangeStream);
+            CreateEntryInArchive("ATTEUROPWEG.DBF", europeanRoadChangeStream);
+            CreateEntryInArchive("EATTNATIONWEG.DBF", extractNationalRoadChangeStream);
+            CreateEntryInArchive("ATTNATIONWEG.DBF", nationalRoadChangeStream);
+            CreateEntryInArchive("EATTGENUMWEG.DBF", extractNumberedRoadChangeStream);
+            CreateEntryInArchive("ATTGENUMWEG.DBF", numberedRoadChangeStream);
+            CreateEntryInArchive("ERLTOGKRUISING.DBF", extractGradeSeparatedJunctionChangeStream);
+            CreateEntryInArchive("RLTOGKRUISING.DBF", gradeSeparatedJunctionChangeStream);
         }
 
         archiveStream.Position = 0;
@@ -1081,6 +536,19 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
     [Fact]
     public void ValidateReturnsExpectedResultFromEntryValidators()
     {
+        var filesWithWarning = new[]
+        {
+            "TRANSACTIEZONES.DBF",
+            "EATTEUROPWEG.DBF",
+            "ATTEUROPWEG.DBF",
+            "EATTNATIONWEG.DBF",
+            "ATTNATIONWEG.DBF",
+            "EATTGENUMWEG.DBF",
+            "ATTGENUMWEG.DBF",
+            "ERLTOGKRUISING.DBF",
+            "RLTOGKRUISING.DBF"
+        };
+
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8);
@@ -1096,7 +564,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
                         case ".SHP":
                             return entry.HasNoShapeRecords();
                         case ".DBF":
-                            return entry.HasNoDbaseRecords(false);
+                            return entry.HasNoDbaseRecords(filesWithWarning.Contains(entry.Name));
                         case ".PRJ":
                             return entry.ProjectionFormatInvalid();
                     }
@@ -1105,7 +573,14 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
                 })
             );
             
-            Assert.Equal(expected, result);
+            var files = archive.Entries.Select(x => x.Name).ToArray();
+
+            foreach (var file in files)
+            {
+                var expectedProblem = expected.Single(x => x.File == file);
+                var actualProblem = result.Single(x => x.File == file);
+                Assert.Equal(expectedProblem, actualProblem);
+            }
         }
     }
 
