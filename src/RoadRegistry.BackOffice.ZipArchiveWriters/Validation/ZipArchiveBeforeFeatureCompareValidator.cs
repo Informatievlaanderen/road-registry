@@ -17,18 +17,29 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
     private static readonly string[] ValidationOrder =
     {
         "TRANSACTIEZONES.DBF",
+        "EWEGKNOOP.DBF",
         "WEGKNOOP.DBF",
+        "EWEGKNOOP.SHP",
         "WEGKNOOP.SHP",
         "WEGKNOOP.PRJ",
+        "EWEGSEGMENT.DBF",
         "WEGSEGMENT.DBF",
+        "EWEGSEGMENT.SHP",
         "WEGSEGMENT.SHP",
         "WEGSEGMENT.PRJ",
+        "EATTRIJSTROKEN.DBF",
         "ATTRIJSTROKEN.DBF",
+        "EATTWEGBREEDTE.DBF",
         "ATTWEGBREEDTE.DBF",
+        "EATTWEGVERHARDING.DBF",
         "ATTWEGVERHARDING.DBF",
+        "EATTEUROPWEG.DBF",
         "ATTEUROPWEG.DBF",
+        "EATTNATIONWEG.DBF",
         "ATTNATIONWEG.DBF",
+        "EATTGENUMWEG.DBF",
         "ATTGENUMWEG.DBF",
+        "ERLTOGKRUISING.DBF",
         "RLTOGKRUISING.DBF"
     };
 
@@ -42,10 +53,25 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
             new Dictionary<string, IZipArchiveEntryValidator>(StringComparer.InvariantCultureIgnoreCase)
             {
                 {
+                    "EWEGKNOOP.SHP",
+                    new ZipArchiveShapeEntryValidator(
+                        encoding,
+                        new RoadNodeChangeShapeRecordsValidator()
+                    )
+                },
+                {
                     "WEGKNOOP.SHP",
                     new ZipArchiveShapeEntryValidator(
                         encoding,
                         new RoadNodeChangeShapeRecordsValidator()
+                    )
+                },
+                {
+                    "EWEGKNOOP.DBF",
+                    new ZipArchiveDbaseEntryValidator<Dbase.RoadNodes.RoadNodeDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        Dbase.RoadNodes.RoadNodeDbaseRecord.Schema,
+                        new RoadNodeDbaseRecordsValidator()
                     )
                 },
                 {
@@ -70,10 +96,25 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                     )
                 },
                 {
+                    "EWEGSEGMENT.SHP",
+                    new ZipArchiveShapeEntryValidator(
+                        encoding,
+                        new RoadSegmentChangeShapeRecordsValidator()
+                    )
+                },
+                {
                     "WEGSEGMENT.SHP",
                     new ZipArchiveShapeEntryValidator(
                         encoding,
                         new RoadSegmentChangeShapeRecordsValidator()
+                    )
+                },
+                {
+                    "EWEGSEGMENT.DBF",
+                    new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        Dbase.RoadSegments.RoadSegmentDbaseRecord.Schema,
+                        new RoadSegmentDbaseRecordsValidator()
                     )
                 },
                 {
@@ -98,6 +139,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                     )
                 },
                 {
+                    "EATTEUROPWEG.DBF",
+                    new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema,
+                        new RoadSegmentEuropeanRoadAttributeDbaseRecordsValidator()
+                    )
+                },
+                {
                     "ATTEUROPWEG.DBF",
                     new MultipleSchemaZipArchiveEntryValidator(
                         new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>(
@@ -110,6 +159,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             Uploads.Basic.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentEuropeanRoadAttributeDbaseRecordsValidator()
                         )
+                    )
+                },
+                {
+                    "EATTNATIONWEG.DBF",
+                    new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord.Schema,
+                        new RoadSegmentNationalRoadAttributeDbaseRecordsValidator()
                     )
                 },
                 {
@@ -128,6 +185,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                     )
                 },
                 {
+                    "EATTGENUMWEG.DBF",
+                    new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema,
+                        new RoadSegmentNumberedRoadAttributeDbaseRecordsValidator()
+                    )
+                },
+                {
                     "ATTGENUMWEG.DBF",
                     new MultipleSchemaZipArchiveEntryValidator(
                         new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord>(
@@ -140,6 +205,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             Uploads.Basic.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentNumberedRoadAttributeDbaseRecordsValidator()
                         )
+                    )
+                },
+                {
+                    "EATTRIJSTROKEN.DBF",
+                    new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord.Schema,
+                        new RoadSegmentLaneAttributeDbaseRecordsValidator()
                     )
                 },
                 {
@@ -158,6 +231,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                     )
                 },
                 {
+                    "EATTWEGBREEDTE.DBF",
+                    new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord.Schema,
+                        new RoadSegmentWidthAttributeDbaseRecordsValidator()
+                    )
+                },
+                {
                     "ATTWEGBREEDTE.DBF",
                     new MultipleSchemaZipArchiveEntryValidator(
                         new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord>(
@@ -173,6 +254,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                     )
                 },
                 {
+                    "EATTWEGVERHARDING.DBF",
+                    new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord.Schema,
+                        new RoadSegmentSurfaceAttributeDbaseRecordsValidator()
+                    )
+                },
+                {
                     "ATTWEGVERHARDING.DBF",
                     new MultipleSchemaZipArchiveEntryValidator(
                         new ZipArchiveDbaseEntryValidator<Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord>(
@@ -185,6 +274,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                             Uploads.Basic.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema,
                             new Uploads.Basic.Validation.RoadSegmentSurfaceAttributeDbaseRecordsValidator()
                         )
+                    )
+                },
+                {
+                    "ERLTOGKRUISING.DBF",
+                    new ZipArchiveDbaseEntryValidator<Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord.Schema,
+                        new GradeSeparatedJunctionDbaseRecordsValidator()
                     )
                 },
                 {
@@ -207,7 +304,8 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                     new ZipArchiveDbaseEntryValidator<TransactionZoneDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
                         TransactionZoneDbaseRecord.Schema,
-                        new TransactionZoneDbaseRecordsValidator())
+                        new TransactionZoneDbaseRecordsValidator()
+                    )
                 }
             };
     }
@@ -256,6 +354,7 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                          .OrderBy(file => Array.IndexOf(ValidationOrder, file.ToUpperInvariant())))
                 if (_validators.TryGetValue(file, out var validator))
                 {
+                    //TODO-rik sommige errors komen als warning terug terwijl het errors moeten zijn
                     var (fileProblems, fileContext) = validator.Validate(archive.GetEntry(file), context);
                     problems = problems.AddRange(fileProblems);
                     context = fileContext;
