@@ -1,3 +1,21 @@
+# [3.32.0](https://github.com/informatievlaanderen/road-registry/compare/v3.31.1...v3.32.0) (2023-01-16)
+
+
+### Bug Fixes
+
+* Add description from the request into the extract itself ([f36550a](https://github.com/informatievlaanderen/road-registry/commit/f36550a028ed348ddf762ea4966b711c11b1e157))
+* add lambda to TST release ([#791](https://github.com/informatievlaanderen/road-registry/issues/791)) ([9b732f9](https://github.com/informatievlaanderen/road-registry/commit/9b732f9f877ceedf3307c415490480b9b99f19f7))
+* Forward extract description into Change method on RoadNetwork ([c22e19a](https://github.com/informatievlaanderen/road-registry/commit/c22e19ac059ae45608f647472acfa30e95701286))
+* Pass description into last message for RoadNetworkChangeFeedProjection ([ead032c](https://github.com/informatievlaanderen/road-registry/commit/ead032cbbd410449f3d8cf73583661a32cdef1c1))
+* separate loading activity top from loading bottom ([443b55d](https://github.com/informatievlaanderen/road-registry/commit/443b55d68bb2caf369380b01b1284d57e16f06ee))
+* Use double quotes around description inside changefeed projection ([53a325c](https://github.com/informatievlaanderen/road-registry/commit/53a325c63944f5a27d07bee80c27c1e63d75bc65))
+* use RequestId as Description for API extract requests ([612484c](https://github.com/informatievlaanderen/road-registry/commit/612484c686ce1386c5784452d52b45d41dc19829))
+
+
+### Features
+
+* Auto load new activity ([27c4434](https://github.com/informatievlaanderen/road-registry/commit/27c44343ce5edfd3eb4579d84cda4d9845cfd7de))
+
 ## [3.31.1](https://github.com/informatievlaanderen/road-registry/compare/v3.31.0...v3.31.1) (2023-01-11)
 
 
