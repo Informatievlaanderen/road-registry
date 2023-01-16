@@ -80,7 +80,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         var blobName = new BlobName(archiveId);
         var extractDescription = message switch
         {
-            Event<RoadNetworkExtractGotRequested> => string.Empty,
+            Event<RoadNetworkExtractGotRequested> v1 => v1.Body.Description ?? string.Empty,
             Event<RoadNetworkExtractGotRequestedV2> v2 => v2.Body.Description,
             _ => throw new NotSupportedException($"Message type '{message.GetType().Name}' does not have support to extract the description")
         };
