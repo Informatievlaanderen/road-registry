@@ -41,7 +41,10 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
-
+        
+        var changeRequestId = ChangeRequestId
+            .FromArchiveId(archiveId);
+        
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
             .Given(new RoadNetworkExtractChangesArchiveUploaded
@@ -88,7 +91,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag \"{description}\"",
+                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": ontvangen",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
@@ -97,7 +100,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             }, new RoadNetworkChange
             {
                 Id = 1,
-                Title = $"Oplading gevalideerd voor extractaanvraag \"{description}\"",
+                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": gevalideerd",
                 Type = nameof(RoadNetworkExtractChangesArchiveAccepted),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                 {
@@ -120,7 +123,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {
-                ChangeRequestId = ChangeRequestId.FromUploadId(uploadId).ToBytes().ToArray(),
+                ChangeRequestId = changeRequestId.ToBytes().ToArray(),
                 ArchiveId = archiveId
             });
     }
@@ -139,6 +142,9 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
+
+        var changeRequestId = ChangeRequestId
+            .FromArchiveId(archiveId);
 
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
@@ -186,7 +192,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag \"{description}\"",
+                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": ontvangen",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
@@ -195,7 +201,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             }, new RoadNetworkChange
             {
                 Id = 1,
-                Title = $"Oplading geweigerd voor extractaanvraag \"{description}\"",
+                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": geweigerd",
                 Type = nameof(RoadNetworkExtractChangesArchiveRejected),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveRejectedEntry
                 {
@@ -218,7 +224,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {
-                ChangeRequestId = ChangeRequestId.FromUploadId(uploadId).ToBytes().ToArray(),
+                ChangeRequestId = changeRequestId.ToBytes().ToArray(),
                 ArchiveId = archiveId
             });
     }
@@ -233,6 +239,9 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
+
+        var changeRequestId = ChangeRequestId
+            .FromArchiveId(archiveId);
 
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
@@ -272,7 +281,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
                 {
                     Id = 0,
-                    Title = $"Oplading ontvangen voor extractaanvraag \"{description}\"",
+                    Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": ontvangen",
                     Type = nameof(RoadNetworkChangesArchiveUploaded),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                     {
@@ -282,7 +291,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 new RoadNetworkChange
                 {
                     Id = 1,
-                    Title = $"Oplading gevalideerd voor extractaanvraag \"{description}\"",
+                    Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": gevalideerd",
                     Type = nameof(RoadNetworkChangesArchiveAccepted),
                     Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
                     {
@@ -305,7 +314,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                     })
                 }, new RoadNetworkChangeRequestBasedOnArchive
                 {
-                    ChangeRequestId = ChangeRequestId.FromArchiveId(archiveId).ToBytes().ToArray(),
+                    ChangeRequestId = changeRequestId.ToBytes().ToArray(),
                     ArchiveId = archiveId
                 });
     }
@@ -320,6 +329,10 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
+
+        var changeRequestId = ChangeRequestId
+            .FromArchiveId(archiveId);
+
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
             .Given(new RoadNetworkChangesArchiveUploaded
@@ -358,7 +371,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag \"{description}\"",
+                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": ontvangen",
                 Type = nameof(RoadNetworkChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                 {
@@ -367,7 +380,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             }, new RoadNetworkChange
             {
                 Id = 1,
-                Title = $"Oplading geweigerd voor extractaanvraag \"{description}\"",
+                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": geweigerd",
                 Type = nameof(RoadNetworkChangesArchiveRejected),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveRejectedEntry
                 {
@@ -390,7 +403,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {
-                ChangeRequestId = ChangeRequestId.FromArchiveId(archiveId).ToBytes().ToArray(),
+                ChangeRequestId = changeRequestId.ToBytes().ToArray(),
                 ArchiveId = archiveId
             });
     }
@@ -407,7 +420,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
-
+        
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
             .Given(new RoadNetworkExtractDownloadBecameAvailable
@@ -421,7 +434,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Download voor extractaanvraag \"{description}\" werd beschikbaar",
+                Title = $"Extractaanvraag \"{description}\": download beschikbaar",
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
                 {
@@ -448,7 +461,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Download voor extractaanvraag \"{description}\" niet beschikbaar: contour te complex of te groot",
+                Title = $"Extractaanvraag \"{description}\": download niet beschikbaar, contour te complex of te groot",
                 Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadTimeoutOccurredEntry
                 {
@@ -517,7 +530,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Extractaanvraag \"{description}\" ontvangen",
+                Title = $"Extractaanvraag \"{description}\": ontvangen",
                 Type = nameof(RoadNetworkExtractGotRequested),
                 Content = null
             });
@@ -533,6 +546,9 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
 
+        var changeRequestId = ChangeRequestId
+            .FromArchiveId(archiveId);
+
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
             .Given(new RoadNetworkChangesArchiveUploaded
@@ -543,7 +559,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag \"{description}\"",
+                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": ontvangen",
                 Type = nameof(RoadNetworkChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveUploadedEntry
                 {
@@ -556,7 +572,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {
-                ChangeRequestId = ChangeRequestId.FromArchiveId(archiveId).ToBytes().ToArray(),
+                ChangeRequestId = changeRequestId.ToBytes().ToArray(),
                 ArchiveId = archiveId
             });
     }
@@ -575,6 +591,9 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
 
+        var changeRequestId = ChangeRequestId
+            .FromArchiveId(archiveId);
+
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
             .Given(new RoadNetworkExtractChangesArchiveUploaded
@@ -589,7 +608,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
-                Title = $"Oplading ontvangen voor extractaanvraag \"{description}\"",
+                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": ontvangen",
                 Type = nameof(RoadNetworkExtractChangesArchiveUploaded),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
@@ -597,7 +616,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {
-                ChangeRequestId = ChangeRequestId.FromUploadId(uploadId).ToBytes().ToArray(),
+                ChangeRequestId = changeRequestId.ToBytes().ToArray(),
                 ArchiveId = archiveId
             });
     }
