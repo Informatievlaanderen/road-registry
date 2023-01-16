@@ -264,7 +264,7 @@ public static class ProblemWithZipArchive
                     break;
 
                 case nameof(ShapeFileProblems.ShapeRecordGeometryHasInvalidMeasureOrdinates):
-                    translation = $"De shape record {problem.Parameters[0].Value} geometrie bevat ongeldige measure ordinaten.";
+                    translation = $"De shape record {problem.Parameters[0].Value} geometrie bevat ongeldige measure waarden.";
                     break;
 
                 default:
