@@ -354,7 +354,6 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                          .OrderBy(file => Array.IndexOf(ValidationOrder, file.ToUpperInvariant())))
                 if (_validators.TryGetValue(file, out var validator))
                 {
-                    //TODO-rik sommige errors komen als warning terug terwijl het errors moeten zijn
                     var (fileProblems, fileContext) = validator.Validate(archive.GetEntry(file), context);
                     problems = problems.AddRange(fileProblems);
                     context = fileContext;

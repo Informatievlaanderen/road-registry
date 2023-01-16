@@ -56,12 +56,12 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
             var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
             var roadNodeDbaseChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadNodes.RoadNodeDbaseRecord>(
                 Dbase.RoadNodes.RoadNodeDbaseRecord.Schema);
-            
+
             var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord>(
                 Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord.Schema);
 
             var transactionZoneStream = fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
-            
+
             var requiredFiles = new[]
             {
                 "TRANSACTIEZONES.DBF",
@@ -186,7 +186,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
         }
     }
 
-    
+
 
     private static ZipArchive CreateArchiveWithEmptyFiles()
     {
@@ -218,7 +218,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
             Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord.Schema);
 
         var transactionZoneStream = fixture.CreateEmptyDbfFile<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
-        
+
         var archiveStream = new MemoryStream();
         using (var createArchive =
                new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
@@ -232,7 +232,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                     fileStream.CopyTo(entryStream);
                 }
             }
-            
+
             CreateEntryInArchive("TRANSACTIEZONES.DBF", transactionZoneStream);
             CreateEntryInArchive("EWEGKNOOP.DBF", roadNodeDbaseChangeStream);
             CreateEntryInArchive("WEGKNOOP.DBF", roadNodeDbaseChangeStream);
@@ -297,7 +297,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
         fixture.CustomizeOrganizationId();
         fixture.CustomizeOperatorName();
         fixture.CustomizeReason();
-        
+
         fixture.Customize<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>(
             composer => composer
                 .FromFactory(random => new Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord
@@ -536,6 +536,19 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
     [Fact]
     public void ValidateReturnsExpectedResultFromEntryValidators()
     {
+        var filesWithWarning = new[]
+        {
+            "TRANSACTIEZONES.DBF",
+            "EATTEUROPWEG.DBF",
+            "ATTEUROPWEG.DBF",
+            "EATTNATIONWEG.DBF",
+            "ATTNATIONWEG.DBF",
+            "EATTGENUMWEG.DBF",
+            "ATTGENUMWEG.DBF",
+            "ERLTOGKRUISING.DBF",
+            "RLTOGKRUISING.DBF"
+        };
+
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8);
@@ -551,7 +564,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                         case ".SHP":
                             return entry.HasNoShapeRecords();
                         case ".DBF":
-                            return entry.HasNoDbaseRecords(false);
+                            return entry.HasNoDbaseRecords(filesWithWarning.Contains(entry.Name));
                         case ".PRJ":
                             return entry.ProjectionFormatInvalid();
                     }
@@ -559,8 +572,15 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                     return null;
                 })
             );
-            
-            Assert.Equal(expected, result);
+
+            var files = archive.Entries.Select(x => x.Name).ToArray();
+
+            foreach (var file in files)
+            {
+                var expectedProblem = expected.Single(x => x.File == file);
+                var actualProblem = result.Single(x => x.File == file);
+                Assert.Equal(expectedProblem, actualProblem);
+            }
         }
     }
 

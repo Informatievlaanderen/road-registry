@@ -191,21 +191,30 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
     {
         var fixture = CreateFixture();
 
+        var extractRoadSegmentDbaseChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentDbaseRecord>(Dbase.RoadSegments.RoadSegmentDbaseRecord.Schema);
         var roadSegmentShapeChangeStream = fixture.CreateEmptyRoadSegmentShapeFile();
         var roadSegmentProjectionFormatStream = fixture.CreateEmptyProjectionFormatFile();
-        var roadSegmentDbaseChangeStream = fixture.CreateEmptyRoadNodeShapeFile();
+        var roadSegmentDbaseChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema);
 
+        var extractEuropeanRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
         var europeanRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
+        var extractNationalRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
         var nationalRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
+        var extractNumberedRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
         var numberedRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentNumberedRoadAttributeDbaseRecord>(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
+        var extractLaneChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord.Schema);
         var laneChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentLaneAttributeDbaseRecord>(RoadSegmentLaneAttributeDbaseRecord.Schema);
+        var extractWidthChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord.Schema);
         var widthChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentWidthAttributeDbaseRecord>(RoadSegmentWidthAttributeDbaseRecord.Schema);
+        var extractSurfaceChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord>(Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord.Schema);
         var surfaceChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentSurfaceAttributeDbaseRecord>(RoadSegmentSurfaceAttributeDbaseRecord.Schema);
 
+        var extractRoadNodeDbaseChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadNodes.RoadNodeDbaseRecord>(Dbase.RoadNodes.RoadNodeDbaseRecord.Schema);
         var roadNodeShapeChangeStream = fixture.CreateEmptyRoadNodeShapeFile();
         var roadNodeProjectionFormatStream = fixture.CreateEmptyProjectionFormatFile();
         var roadNodeDbaseChangeStream = fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema);
 
+        var extractGradeSeparatedJunctionChangeStream = fixture.CreateEmptyDbfFile<Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord>(Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord.Schema);
         var gradeSeparatedJunctionChangeStream = fixture.CreateEmptyDbfFile<GradeSeparatedJunctionDbaseRecord>(GradeSeparatedJunctionDbaseRecord.Schema);
 
         var transactionZoneStream = fixture.CreateEmptyDbfFile<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
@@ -225,29 +234,29 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
             }
 
             CreateEntryInArchive("TRANSACTIEZONES.DBF", transactionZoneStream);
-            CreateEntryInArchive("EWEGKNOOP.DBF", roadNodeDbaseChangeStream);
+            CreateEntryInArchive("EWEGKNOOP.DBF", extractRoadNodeDbaseChangeStream);
             CreateEntryInArchive("WEGKNOOP.DBF", roadNodeDbaseChangeStream);
             CreateEntryInArchive("WEGKNOOP.SHP", roadNodeShapeChangeStream);
             CreateEntryInArchive("EWEGKNOOP.SHP", roadNodeShapeChangeStream);
             CreateEntryInArchive("WEGKNOOP.PRJ", roadNodeProjectionFormatStream);
-            CreateEntryInArchive("EWEGSEGMENT.DBF", roadSegmentDbaseChangeStream);
+            CreateEntryInArchive("EWEGSEGMENT.DBF", extractRoadSegmentDbaseChangeStream);
             CreateEntryInArchive("WEGSEGMENT.DBF", roadSegmentDbaseChangeStream);
             CreateEntryInArchive("EWEGSEGMENT.SHP", roadSegmentShapeChangeStream);
             CreateEntryInArchive("WEGSEGMENT.SHP", roadSegmentShapeChangeStream);
             CreateEntryInArchive("WEGSEGMENT.PRJ", roadSegmentProjectionFormatStream);
-            CreateEntryInArchive("EATTRIJSTROKEN.DBF", laneChangeStream);
+            CreateEntryInArchive("EATTRIJSTROKEN.DBF", extractLaneChangeStream);
             CreateEntryInArchive("ATTRIJSTROKEN.DBF", laneChangeStream);
-            CreateEntryInArchive("EATTWEGBREEDTE.DBF", widthChangeStream);
+            CreateEntryInArchive("EATTWEGBREEDTE.DBF", extractWidthChangeStream);
             CreateEntryInArchive("ATTWEGBREEDTE.DBF", widthChangeStream);
-            CreateEntryInArchive("EATTWEGVERHARDING.DBF", surfaceChangeStream);
+            CreateEntryInArchive("EATTWEGVERHARDING.DBF", extractSurfaceChangeStream);
             CreateEntryInArchive("ATTWEGVERHARDING.DBF", surfaceChangeStream);
-            CreateEntryInArchive("EATTEUROPWEG.DBF", europeanRoadChangeStream);
+            CreateEntryInArchive("EATTEUROPWEG.DBF", extractEuropeanRoadChangeStream);
             CreateEntryInArchive("ATTEUROPWEG.DBF", europeanRoadChangeStream);
-            CreateEntryInArchive("EATTNATIONWEG.DBF", nationalRoadChangeStream);
+            CreateEntryInArchive("EATTNATIONWEG.DBF", extractNationalRoadChangeStream);
             CreateEntryInArchive("ATTNATIONWEG.DBF", nationalRoadChangeStream);
-            CreateEntryInArchive("EATTGENUMWEG.DBF", numberedRoadChangeStream);
+            CreateEntryInArchive("EATTGENUMWEG.DBF", extractNumberedRoadChangeStream);
             CreateEntryInArchive("ATTGENUMWEG.DBF", numberedRoadChangeStream);
-            CreateEntryInArchive("ERLTOGKRUISING.DBF", gradeSeparatedJunctionChangeStream);
+            CreateEntryInArchive("ERLTOGKRUISING.DBF", extractGradeSeparatedJunctionChangeStream);
             CreateEntryInArchive("RLTOGKRUISING.DBF", gradeSeparatedJunctionChangeStream);
         }
 
@@ -527,6 +536,19 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
     [Fact]
     public void ValidateReturnsExpectedResultFromEntryValidators()
     {
+        var filesWithWarning = new[]
+        {
+            "TRANSACTIEZONES.DBF",
+            "EATTEUROPWEG.DBF",
+            "ATTEUROPWEG.DBF",
+            "EATTNATIONWEG.DBF",
+            "ATTNATIONWEG.DBF",
+            "EATTGENUMWEG.DBF",
+            "ATTGENUMWEG.DBF",
+            "ERLTOGKRUISING.DBF",
+            "RLTOGKRUISING.DBF"
+        };
+
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8);
@@ -542,7 +564,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
                         case ".SHP":
                             return entry.HasNoShapeRecords();
                         case ".DBF":
-                            return entry.HasNoDbaseRecords(false);
+                            return entry.HasNoDbaseRecords(filesWithWarning.Contains(entry.Name));
                         case ".PRJ":
                             return entry.ProjectionFormatInvalid();
                     }
@@ -551,7 +573,14 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
                 })
             );
             
-            Assert.Equal(expected, result);
+            var files = archive.Entries.Select(x => x.Name).ToArray();
+
+            foreach (var file in files)
+            {
+                var expectedProblem = expected.Single(x => x.File == file);
+                var actualProblem = result.Single(x => x.File == file);
+                Assert.Equal(expectedProblem, actualProblem);
+            }
         }
     }
 

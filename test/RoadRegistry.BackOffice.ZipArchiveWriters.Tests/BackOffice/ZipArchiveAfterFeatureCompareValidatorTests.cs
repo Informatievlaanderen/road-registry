@@ -1042,32 +1042,48 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     [Fact]
     public void ValidateReturnsExpectedResultFromEntryValidators()
     {
+        var filesWithWarning = new[]
+        {
+            "TRANSACTIEZONES.DBF",
+            "ATTEUROPWEG_ALL.DBF",
+            "ATTNATIONWEG_ALL.DBF",
+            "ATTGENUMWEG_ALL.DBF",
+            "RLTOGKRUISING_ALL.DBF"
+        };
+
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8);
-
+            
             var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
 
-            Assert.Equal(
-                ZipArchiveProblems.Many(
-                    archive.Entries.Select
-                    (entry =>
+            var expected = ZipArchiveProblems.Many(
+                archive.Entries.Select
+                (entry =>
+                {
+                    var extension = Path.GetExtension(entry.Name);
+                    switch (extension)
                     {
-                        var extension = Path.GetExtension(entry.Name);
-                        switch (extension)
-                        {
-                            case ".SHP":
-                                return entry.HasNoShapeRecords();
-                            case ".DBF":
-                                return entry.HasNoDbaseRecords(false);
-                            case ".PRJ":
-                                return entry.ProjectionFormatInvalid();
-                        }
+                        case ".SHP":
+                            return entry.HasNoShapeRecords();
+                        case ".DBF":
+                            return entry.HasNoDbaseRecords(filesWithWarning.Contains(entry.Name));
+                        case ".PRJ":
+                            return entry.ProjectionFormatInvalid();
+                    }
 
-                        return null;
-                    })
-                ),
-                result);
+                    return null;
+                })
+            );
+            
+            var files = archive.Entries.Select(x => x.Name).ToArray();
+
+            foreach (var file in files)
+            {
+                var expectedProblem = expected.Single(x => x.File == file);
+                var actualProblem = result.Single(x => x.File == file);
+                Assert.Equal(expectedProblem, actualProblem);
+            }
         }
     }
 
