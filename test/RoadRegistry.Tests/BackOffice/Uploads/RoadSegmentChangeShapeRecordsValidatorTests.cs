@@ -331,4 +331,34 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
             result);
         Assert.Same(_context, context);
     }
+
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void ValidateWithGeometryHasInvalidMeasureOrdinatesReturnsExpectedResult(double m)
+    {
+        var multiLineString = new MultiLineString(
+            new[]
+            {
+                new LineString(new CoordinateArraySequence(new[]
+                {
+                    new CoordinateM(0, 0, m),
+                    new CoordinateM(1,1,0)
+                }), GeometryConfiguration.GeometryFactory)
+            });
+
+        var records = new List<ShapeRecord>
+            {
+                new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(multiLineString)).RecordAs(new RecordNumber(1))
+            }
+            .GetEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryHasInvalidMeasureOrdinates()),
+            result);
+        Assert.Same(_context, context);
+    }
 }
