@@ -103,7 +103,7 @@ public class TransactionZoneDbaseRecordsValidatorTests : IDisposable
         var (result, context) = _sut.Validate(_entry, _enumerator, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(false)),
+            ZipArchiveProblems.Single(_entry.HasNoDbaseRecords(true)),
             result);
         Assert.Same(_context, context);
     }
