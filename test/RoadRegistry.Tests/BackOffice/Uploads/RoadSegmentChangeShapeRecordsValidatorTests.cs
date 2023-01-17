@@ -35,10 +35,10 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
             customization.FromFactory(generator =>
                 new LineString(
                     new CoordinateArraySequence(
-                        new[]
+                        new Coordinate[]
                         {
-                            new Coordinate(0.0, 0.0),
-                            new Coordinate(1.0, 1.0)
+                            new CoordinateM(0.0, 0.0, 0),
+                            new CoordinateM(1.0, 1.0, 0)
                         }),
                     GeometryConfiguration.GeometryFactory
                 )
@@ -278,17 +278,17 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
                         new MultiLineString(new[]
                         {
                             new LineString(
-                                new CoordinateArraySequence(new[]
+                                new CoordinateArraySequence(new Coordinate[]
                                 {
-                                    new Coordinate(index * 2.0, index * 2.0),
-                                    new Coordinate(index * 2.0 + 1.0, index * 2.0 + 1.0)
+                                    new CoordinateM(index * 2.0, index * 2.0),
+                                    new CoordinateM(index * 2.0 + 1.0, index * 2.0 + 1.0)
                                 }),
                                 GeometryConfiguration.GeometryFactory),
                             new LineString(
-                                new CoordinateArraySequence(new[]
+                                new CoordinateArraySequence(new Coordinate[]
                                 {
-                                    new Coordinate(index * 4.0, index * 4.0),
-                                    new Coordinate(index * 4.0 + 1.0, index * 4.0 + 1.0)
+                                    new CoordinateM(index * 4.0, index * 4.0, 0),
+                                    new CoordinateM(index * 4.0 + 1.0, index * 4.0 + 1.0, 0)
                                 }),
                                 GeometryConfiguration.GeometryFactory)
                         }))
@@ -316,10 +316,10 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
                     new MultiLineString(
                         new[]
                         {
-                            new LineString(new CoordinateArraySequence(new[]
+                            new LineString(new CoordinateArraySequence(new Coordinate[]
                             {
-                                new Coordinate(index * 2.0, index * 2.0),
-                                new Coordinate(index * 2.0 + 1.0, index * 2.0 + 1.0)
+                                new CoordinateM(index * 2.0, index * 2.0, 0),
+                                new CoordinateM(index * 2.0 + 1.0, index * 2.0 + 1.0, 0)
                             }), GeometryConfiguration.GeometryFactory)
                         }))).RecordAs(new RecordNumber(index + 1)))
             .GetEnumerator();
@@ -328,6 +328,36 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
 
         Assert.Equal(
             ZipArchiveProblems.None,
+            result);
+        Assert.Same(_context, context);
+    }
+
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void ValidateWithGeometryHasInvalidMeasureOrdinatesReturnsExpectedResult(double m)
+    {
+        var multiLineString = new MultiLineString(
+            new[]
+            {
+                new LineString(new CoordinateArraySequence(new[]
+                {
+                    new CoordinateM(0, 0, m),
+                    new CoordinateM(1,1,0)
+                }), GeometryConfiguration.GeometryFactory)
+            });
+
+        var records = new List<ShapeRecord>
+            {
+                new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(multiLineString)).RecordAs(new RecordNumber(1))
+            }
+            .GetEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryHasInvalidMeasureOrdinates()),
             result);
         Assert.Same(_context, context);
     }
