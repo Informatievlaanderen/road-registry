@@ -43,10 +43,10 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
             customization.FromFactory(generator =>
                 new LineString(
                     new CoordinateArraySequence(
-                        new[]
+                        new Coordinate[]
                         {
-                            new Coordinate(0.0, 0.0),
-                            new Coordinate(1.0, 1.0)
+                            new CoordinateM(0.0, 0.0, 0),
+                            new CoordinateM(1.0, 1.0, 0)
                         }),
                     GeometryConfiguration.GeometryFactory
                 )
