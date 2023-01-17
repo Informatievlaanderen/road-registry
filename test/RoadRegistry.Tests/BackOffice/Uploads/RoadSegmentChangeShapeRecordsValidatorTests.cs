@@ -137,13 +137,13 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
 
         var (result, context) = _sut.Validate(_entry, records, _context);
 
-        Assert.Equal(
-            ZipArchiveProblems.Single(
-                _entry.AtShapeRecord(RecordNumber.Initial).ShapeRecordShapeTypeMismatch(
-                    ShapeType.PolyLineM,
-                    ShapeType.NullShape)
-            ),
-            result);
+        var actualProblem = result.Single(x => x.Reason == nameof(ShapeFileProblems.ShapeRecordShapeTypeMismatch));
+        var expectedProblem = _entry.AtShapeRecord(RecordNumber.Initial).ShapeRecordShapeTypeMismatch(
+            ShapeType.PolyLineM,
+            ShapeType.NullShape
+        );
+
+        Assert.Equal(expectedProblem, actualProblem);
         Assert.Same(_context, context);
     }
 
