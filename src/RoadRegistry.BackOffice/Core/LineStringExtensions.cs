@@ -46,4 +46,10 @@ internal static class LineStringExtensions
             select left.Overlaps(right) || left.Covers(right)
         ).Any(overlaps => overlaps);
     }
+
+    public static bool HasInvalidMeasureOrdinates(this LineString instance)
+    {
+        var measures = instance.GetOrdinates(Ordinate.M);
+        return measures.Any(value => double.IsNaN(value) || double.IsNegativeInfinity(value) || double.IsPositiveInfinity(value));
+    }
 }

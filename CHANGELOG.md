@@ -1,3 +1,11 @@
+## [3.32.1](https://github.com/informatievlaanderen/road-registry/compare/v3.32.0...v3.32.1) (2023-01-17)
+
+
+### Bug Fixes
+
+* add extract files to feature compare before validation ([#796](https://github.com/informatievlaanderen/road-registry/issues/796)) ([5ecee48](https://github.com/informatievlaanderen/road-registry/commit/5ecee488031e4bd1e2e0e3fd2195acc3a48d6357))
+* add validation for measure values when uploading ([#797](https://github.com/informatievlaanderen/road-registry/issues/797)) ([a1358a0](https://github.com/informatievlaanderen/road-registry/commit/a1358a04f5bc3b501e108e2e216c68e31de032a4))
+
 # [3.32.0](https://github.com/informatievlaanderen/road-registry/compare/v3.31.1...v3.32.0) (2023-01-16)
 
 
