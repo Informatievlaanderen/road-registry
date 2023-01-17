@@ -1,16 +1,12 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Framework.Attributes
 {
-    using Be.Vlaanderen.Basisregisters.EventHandling;
     using Infrastructure.Controllers.Attributes;
     using Newtonsoft.Json;
 
     public class ApiAuthAttributeTests
     {
-        private readonly JsonSerializerSettings _jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
         public ApiAuthAttributeTests()
         {
-                
         }
 
         [Fact]

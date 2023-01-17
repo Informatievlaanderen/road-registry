@@ -1,3 +1,17 @@
+## [3.32.3](https://github.com/informatievlaanderen/road-registry/compare/v3.32.2...v3.32.3) (2023-01-17)
+
+
+### Bug Fixes
+
+* make ApiKeyAuthAttribute internal ([#799](https://github.com/informatievlaanderen/road-registry/issues/799)) ([918748e](https://github.com/informatievlaanderen/road-registry/commit/918748e299609eb392b2d1e33afbd277f72b1c6a))
+
+## [3.32.2](https://github.com/informatievlaanderen/road-registry/compare/v3.32.1...v3.32.2) (2023-01-17)
+
+
+### Bug Fixes
+
+* random failures of ArchiveIdTests ([#798](https://github.com/informatievlaanderen/road-registry/issues/798)) ([735b06c](https://github.com/informatievlaanderen/road-registry/commit/735b06c12007380197e776425b696dfa031795aa))
+
 ## [3.32.1](https://github.com/informatievlaanderen/road-registry/compare/v3.32.0...v3.32.1) (2023-01-17)
 
 

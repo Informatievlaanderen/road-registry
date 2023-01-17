@@ -23,6 +23,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>$(AssemblyName).Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
