@@ -44,7 +44,7 @@ public static class GeometryTranslator
 
     public static MultiLineString ToGeometryMultiLineString(PolyLineM polyLineM)
     {
-        if (!polyLineM.Measures.Any() || polyLineM.Measures.All(x => double.IsNaN(x) || double.IsInfinity(x)))
+        if (polyLineM.Points.Any() && (!polyLineM.Measures.Any() || polyLineM.Measures.All(x => double.IsNaN(x) || double.IsInfinity(x))))
         {
             var measures = new double[polyLineM.Points.Length];
             measures[0] = 0;
