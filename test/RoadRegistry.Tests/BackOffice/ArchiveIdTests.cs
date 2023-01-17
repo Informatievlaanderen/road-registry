@@ -4,15 +4,12 @@ using Albedo;
 using AutoFixture;
 using AutoFixture.Idioms;
 using AutoFixture.Kernel;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework.Assertions;
-using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using Xunit;
 
 public class ArchiveIdTests
 {
-    private static readonly JsonSerializerSettings _serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
     private readonly Fixture _fixture;
 
     public ArchiveIdTests()
@@ -82,17 +79,17 @@ public class ArchiveIdTests
     [Fact]
     public void VerifyBehavior()
     {
-        var customizedString = new Fixture();
-        customizedString.Customize<string>(customization =>
-            customization.FromFactory(generator =>
-                new string(
-                    (char)new Random().Next(97, 123), // a-z
-                    generator.Next(1, ArchiveId.MaxLength + 1)
-                )
-            ));
-        new CompositeIdiomaticAssertion(
-            new ImplicitConversionOperatorAssertion<string>(
-                new CompositeSpecimenBuilder(customizedString, _fixture)),
+        var fixture = new Fixture();
+
+        fixture.Customize<string>(customization =>
+            customization.FromFactory(_ =>
+                Guid.NewGuid().ToString("N")
+            )
+        );
+        
+        var assertions = new IIdiomaticAssertion[]
+        {
+            new ImplicitConversionOperatorAssertion<string>(new CompositeSpecimenBuilder(fixture, _fixture)),
             new EquatableEqualsSelfAssertion(_fixture),
             new EquatableEqualsOtherAssertion(_fixture),
             new EqualityOperatorEqualsSelfAssertion(_fixture),
@@ -105,7 +102,25 @@ public class ArchiveIdTests
             new EqualsOtherAssertion(_fixture),
             new EqualsSuccessiveAssertion(_fixture),
             new GetHashCodeSuccessiveAssertion(_fixture)
-        ).Verify(typeof(ArchiveId));
+        };
+
+        foreach (var assertion in assertions)
+        {
+            if (assertion is ImplicitConversionOperatorAssertion<string>)
+            {
+                _fixture.CustomizeArchiveId();
+            }
+            else
+            {
+                _fixture.Customize<ArchiveId>(composer =>
+                    composer.FromFactory(_ =>
+                        new ArchiveId(Guid.NewGuid().ToString("N"))
+                    )
+                );
+            }
+
+            assertion.Verify(typeof(ArchiveId));
+        }
     }
 
     //[Fact]
