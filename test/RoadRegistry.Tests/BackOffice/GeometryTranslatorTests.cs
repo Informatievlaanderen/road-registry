@@ -1,18 +1,25 @@
 namespace RoadRegistry.Tests.BackOffice;
 
+using AutoFixture;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice;
 using Xunit;
+using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
 
 public class GeometryTranslatorTests
 {
     private readonly WKTReader _reader;
+    private readonly Fixture _fixture;
 
     public GeometryTranslatorTests()
     {
         _reader = new WKTReader();
+
+        _fixture = new Fixture();
+        _fixture.CustomizePolylineM();
     }
 
     [Theory]
@@ -42,4 +49,23 @@ public class GeometryTranslatorTests
 
     //    Assert.Equal(wkt, resultWkt);
     //}
+
+    [Fact]
+    public void MissingMeasuresAreFilledInCorrectly()
+    {
+        var points = new[] { new Point(0, 0), new Point(0, 3), new Point(0, 10) };
+        var polylineWithoutMeasures = new PolyLineM(
+            new BoundingBox2D(points.Min(p => p.X), points.Min(p => p.Y), points.Max(p => p.X), points.Max(p => p.Y)),
+            new[] { 0 },
+            points,
+            points.Select(x => double.NaN).ToArray()
+        );
+        
+        var translatedLineString = GeometryTranslator.ToGeometryMultiLineString(polylineWithoutMeasures);
+
+        var actualMeasures = translatedLineString.GetOrdinates(Ordinate.M);
+        var expectedMeasures = points.Select(x => x.Y).ToArray();
+
+        Assert.Equal(expectedMeasures, actualMeasures);
+    }
 }

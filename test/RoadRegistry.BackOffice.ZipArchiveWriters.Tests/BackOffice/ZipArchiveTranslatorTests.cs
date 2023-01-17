@@ -448,28 +448,28 @@ public class ZipArchiveTranslatorTests
                             new RecordNumber(1),
                             new RoadNodeId(roadNodeChangeDbaseRecord1.WEGKNOOPID.Value),
                             RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord1.TYPE.Value]
-                        ).WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord1.Content).Shape))
+                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord1.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadNode(
                             new RecordNumber(2),
                             new RoadNodeId(roadNodeChangeDbaseRecord2.WEGKNOOPID.Value),
                             RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord2.TYPE.Value]
-                        ).WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord2.Content).Shape))
+                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord2.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadNode(
                             new RecordNumber(3),
                             new RoadNodeId(roadNodeChangeDbaseRecord3.WEGKNOOPID.Value),
                             RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord3.TYPE.Value]
-                        ).WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord3.Content).Shape))
+                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord3.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadNode(
                             new RecordNumber(4),
                             new RoadNodeId(roadNodeChangeDbaseRecord4.WEGKNOOPID.Value),
                             RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord4.TYPE.Value]
-                        ).WithGeometry(GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord4.Content).Shape))
+                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToGeometryPoint(((PointShapeContent)roadNodeShapeChangeRecord4.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadSegment(
@@ -486,7 +486,7 @@ public class ZipArchiveTranslatorTests
                                 roadSegmentChangeDbaseRecord1.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.LSTRNMID.Value.GetValueOrDefault()) : default,
                                 roadSegmentChangeDbaseRecord1.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.RSTRNMID.Value.GetValueOrDefault()) : default
                             )
-                            .WithGeometry(GeometryTranslator.ToGeometryMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord1.Content).Shape))
+                            .WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToGeometryMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord1.Content).Shape))
                             .WithLane(
                                 new RoadSegmentLaneAttribute(
                                     new AttributeId(laneChangeDbaseRecord.RS_OIDN.Value),
@@ -527,7 +527,7 @@ public class ZipArchiveTranslatorTests
                             RoadSegmentAccessRestriction.ByIdentifier[roadSegmentChangeDbaseRecord2.TGBEP.Value],
                             roadSegmentChangeDbaseRecord2.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.LSTRNMID.Value.GetValueOrDefault()) : default,
                             roadSegmentChangeDbaseRecord2.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.RSTRNMID.Value.GetValueOrDefault()) : default
-                        ).WithGeometry(GeometryTranslator.ToGeometryMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord2.Content).Shape))
+                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToGeometryMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord2.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadSegmentToEuropeanRoad

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 
 public class RoadNodeChangeShapeRecordsValidator : IZipArchiveShapeRecordsValidator
 {

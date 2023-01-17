@@ -44,6 +44,29 @@ public static class GeometryTranslator
 
     public static MultiLineString ToGeometryMultiLineString(PolyLineM polyLineM)
     {
+        if (!polyLineM.Measures.Any() || polyLineM.Measures.All(x => double.IsNaN(x) || double.IsInfinity(x)))
+        {
+            var measures = new double[polyLineM.Points.Length];
+            measures[0] = 0;
+            var currentMeasure = measures[0];
+
+            for (var i = 1; i < polyLineM.Points.Length; i++)
+            {
+                var currentPoint = polyLineM.Points[i];
+                var previousPoint = polyLineM.Points[i - 1];
+
+                var distanceToPreviousPoint = new LineString(new[]
+                {
+                    new Coordinate(previousPoint.X, previousPoint.Y),
+                    new Coordinate(currentPoint.X, currentPoint.Y)
+                }).Length;
+                currentMeasure += distanceToPreviousPoint;
+                measures[i] = currentMeasure;
+            }
+
+            polyLineM = new PolyLineM(polyLineM.BoundingBox, polyLineM.Parts, polyLineM.Points, measures);
+        }
+
         return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(polyLineM);
     }
 

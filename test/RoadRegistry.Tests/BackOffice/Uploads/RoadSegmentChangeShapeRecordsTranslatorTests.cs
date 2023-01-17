@@ -115,7 +115,7 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
 
         var expected = TranslatedChanges.Empty.AppendChange(
             segment.WithGeometry(
-                GeometryTranslator.ToGeometryMultiLineString(
+                RoadRegistry.BackOffice.GeometryTranslator.ToGeometryMultiLineString(
                     ((PolyLineMShapeContent)record.Content).Shape)
             )
         );
@@ -135,7 +135,7 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
         var result = _sut.Translate(_entry, enumerator, changes);
 
         var expected = segment.WithGeometry(
-            GeometryTranslator.ToGeometryMultiLineString(
+            RoadRegistry.BackOffice.GeometryTranslator.ToGeometryMultiLineString(
                 ((PolyLineMShapeContent)record.Content).Shape)
         );
         var expectedResult = TranslatedChanges.Empty.AppendProvisionalChange(
@@ -160,7 +160,7 @@ public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable
 
         var expected = TranslatedChanges.Empty.AppendChange(
             segment.WithGeometry(
-                GeometryTranslator.ToGeometryMultiLineString(
+                RoadRegistry.BackOffice.GeometryTranslator.ToGeometryMultiLineString(
                     ((PolyLineMShapeContent)record.Content).Shape)
             )
         );
