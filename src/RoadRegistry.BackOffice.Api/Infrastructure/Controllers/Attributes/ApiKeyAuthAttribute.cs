@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
+internal class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
 {
     private const string ApiKeyHeaderName = "x-api-key";
     private const string ApiKeyQueryName = "apikey";
