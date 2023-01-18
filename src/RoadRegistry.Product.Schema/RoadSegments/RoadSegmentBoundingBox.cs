@@ -2,7 +2,6 @@ namespace RoadRegistry.Product.Schema.RoadSegments;
 
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 
 public class RoadSegmentBoundingBox
@@ -16,14 +15,16 @@ public class RoadSegmentBoundingBox
 
     public static RoadSegmentBoundingBox From(PolyLineM shape)
     {
+        var multiLineString = BackOffice.GeometryTranslator.ToGeometryMultiLineString(shape);
+
         return new RoadSegmentBoundingBox
         {
-            MinimumX = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MinX,
-            MinimumY = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MinY,
-            MaximumX = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MaxX,
-            MaximumY = GeometryTranslator.ToGeometryMultiLineString(shape).EnvelopeInternal.MaxY,
-            MinimumM = GeometryTranslator.ToGeometryMultiLineString(shape).GetOrdinates(Ordinate.M).DefaultIfEmpty(double.NegativeInfinity).Min(),
-            MaximumM = GeometryTranslator.ToGeometryMultiLineString(shape).GetOrdinates(Ordinate.M).DefaultIfEmpty(double.PositiveInfinity).Max()
+            MinimumX = multiLineString.EnvelopeInternal.MinX,
+            MinimumY = multiLineString.EnvelopeInternal.MinY,
+            MaximumX = multiLineString.EnvelopeInternal.MaxX,
+            MaximumY = multiLineString.EnvelopeInternal.MaxY,
+            MinimumM = multiLineString.GetOrdinates(Ordinate.M).DefaultIfEmpty(double.NegativeInfinity).Min(),
+            MaximumM = multiLineString.GetOrdinates(Ordinate.M).DefaultIfEmpty(double.PositiveInfinity).Max()
         };
     }
 }

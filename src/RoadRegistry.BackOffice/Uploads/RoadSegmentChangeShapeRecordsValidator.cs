@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Core;
 using NetTopologySuite.Geometries;
 
