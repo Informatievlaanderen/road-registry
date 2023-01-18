@@ -27,10 +27,10 @@ public class RoadNetworkChangesArchives : IRoadNetworkChangesArchives
 
     public void Add(RoadNetworkChangesArchive archive)
     {
-        if (archive == null)
-            throw new ArgumentNullException(nameof(archive));
-
-        _map.Attach(new EventSourcedEntityMapEntry(archive, new StreamName(archive.Id), ExpectedVersion.NoStream));
+        ArgumentNullException.ThrowIfNull(archive);
+        
+        var expectedVersion = archive.FeatureCompareCompleted ? 0 : ExpectedVersion.NoStream;
+        _map.Attach(new EventSourcedEntityMapEntry(archive, new StreamName(archive.Id), expectedVersion));
     }
 
     public async Task<RoadNetworkChangesArchive> Get(ArchiveId id, CancellationToken ct = default)

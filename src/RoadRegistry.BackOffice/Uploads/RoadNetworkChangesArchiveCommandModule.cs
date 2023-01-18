@@ -9,6 +9,7 @@ using NodaTime;
 using SqlStreamStore;
 using System;
 using System.IO.Compression;
+using SqlStreamStore.Streams;
 
 public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 {
@@ -37,12 +38,13 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 logger.LogInformation("Download started for S3 blob {BlobName}", archiveId);
                 var archiveBlob = await blobClient.GetBlobAsync(new BlobName(archiveId), ct);
                 logger.LogInformation("Download completed for S3 blob {BlobName}", archiveId);
-
+                
                 RoadNetworkChangesArchive upload;
                 await using (var uploadBlobStream = await archiveBlob.OpenAsync(ct))
                 {
-                    upload = RoadNetworkChangesArchive.Upload(archiveId, uploadBlobStream);
+                    upload = RoadNetworkChangesArchive.Upload(archiveId, uploadBlobStream, message.Body.FeatureCompareCompleted);
                 }
+                
                 await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                 {
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))

@@ -14,6 +14,9 @@ using FluentValidation.Results;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using NodaTime;
+using SqlStreamStore;
+using SqlStreamStore.Streams;
 
 /// <summary>Upload controller, post upload</summary>
 /// <exception cref="BlobClientNotFoundException"></exception>
@@ -30,6 +33,8 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
     private readonly RoadNetworkFeatureCompareBlobClient _client;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
     private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
+    private readonly IStreamStore _store;
+    private readonly IClock _clock;
 
     public UploadExtractFeatureCompareRequestHandler(
         FeatureCompareMessagingOptions messagingOptions,
@@ -37,11 +42,15 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         RoadNetworkFeatureCompareBlobClient client,
         ISqsQueuePublisher sqsQueuePublisher,
         IZipArchiveBeforeFeatureCompareValidator validator,
+        IStreamStore store,
+        IClock clock,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
         _messagingOptions = messagingOptions;
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
+        _store = store;
+        _clock = clock;
         _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
     }
 
@@ -81,6 +90,8 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 cancellationToken
             );
 
+            await WriteRoadNetworkChangesArchiveUploadedToStore(entity, cancellationToken);
+
             var message = new UploadRoadNetworkChangesArchive
             {
                 ArchiveId = archiveId.ToString()
@@ -90,5 +101,15 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         }
 
         return new UploadExtractFeatureCompareResponse(archiveId);
+    }
+
+    private async Task WriteRoadNetworkChangesArchiveUploadedToStore(RoadNetworkChangesArchive archive, CancellationToken cancellationToken)
+    {
+        var roadNetworkEventWriter = new RoadNetworkEventWriter(_store, EnrichEvent.WithTime(_clock));
+
+        await roadNetworkEventWriter.Write(new StreamName(archive.Id), Guid.NewGuid(), ExpectedVersion.NoStream, new object[]
+        {
+            new RoadNetworkChangesArchiveUploaded { ArchiveId = archive.Id, Description = archive.Description }
+        }, cancellationToken);
     }
 }
