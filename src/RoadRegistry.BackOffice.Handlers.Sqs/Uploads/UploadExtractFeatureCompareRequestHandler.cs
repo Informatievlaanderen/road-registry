@@ -107,7 +107,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
     {
         var roadNetworkEventWriter = new RoadNetworkEventWriter(_store, EnrichEvent.WithTime(_clock));
 
-        await roadNetworkEventWriter.Write(new StreamName(archive.Id), Guid.NewGuid(), ExpectedVersion.NoStream, new object[]
+        await roadNetworkEventWriter.WriteAsync(new StreamName(archive.Id), Guid.NewGuid(), ExpectedVersion.NoStream, new object[]
         {
             new RoadNetworkChangesArchiveUploaded { ArchiveId = archive.Id, Description = archive.Description }
         }, cancellationToken);

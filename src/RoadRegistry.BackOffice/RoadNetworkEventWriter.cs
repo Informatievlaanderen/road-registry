@@ -16,7 +16,7 @@ using Claim = Framework.Claim;
 
 public interface IRoadNetworkEventWriter
 {
-    Task Write(StreamName streamName, Guid messageId, int version, object[] events, CancellationToken cancellationToken);
+    Task WriteAsync(StreamName streamName, Guid messageId, int version, object[] events, CancellationToken cancellationToken);
 }
 
 public class RoadNetworkEventWriter : IRoadNetworkEventWriter
@@ -36,7 +36,7 @@ public class RoadNetworkEventWriter : IRoadNetworkEventWriter
         _enricher = enricher;
     }
 
-    public Task Write(StreamName streamName, Guid messageId, int expectedVersion, object[] events, CancellationToken cancellationToken)
+    public Task WriteAsync(StreamName streamName, Guid messageId, int expectedVersion, object[] events, CancellationToken cancellationToken)
     {
         return Write(streamName, messageId, expectedVersion, events, null, cancellationToken);
     }

@@ -441,7 +441,7 @@ export default Vue.extend({
 
         const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
 
-		// wait a little bit to give the projection time to process the request to show in the activity feed
+        // wait a little bit to give the projection time to process the request to show in the activity feed
         await new Promise(resolve => {
           setTimeout(resolve, 1000);
         });
