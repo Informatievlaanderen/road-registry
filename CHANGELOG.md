@@ -1,3 +1,10 @@
+## [3.32.4](https://github.com/informatievlaanderen/road-registry/compare/v3.32.3...v3.32.4) (2023-01-18)
+
+
+### Bug Fixes
+
+* calculate Polyline measure values when missing ([#801](https://github.com/informatievlaanderen/road-registry/issues/801)) ([23b27e2](https://github.com/informatievlaanderen/road-registry/commit/23b27e2931fb4ff8e51f9438a907fad3a9a71d26))
+
 ## [3.32.3](https://github.com/informatievlaanderen/road-registry/compare/v3.32.2...v3.32.3) (2023-01-17)
 
 
