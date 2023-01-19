@@ -6,7 +6,7 @@ using System.Globalization;
 
 public readonly struct RoadSegmentVersion : IEquatable<RoadSegmentVersion>, IComparable<RoadSegmentVersion>
 {
-    public static RoadSegmentVersion Start => new(1);
+    public static RoadSegmentVersion Initial => new(1);
     
     private readonly int _value;
 

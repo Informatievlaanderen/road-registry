@@ -4,7 +4,7 @@ using System;
 
 public readonly struct GeometryVersion : IEquatable<GeometryVersion>, IComparable<GeometryVersion>
 {
-    public static GeometryVersion Start => new(1);
+    public static GeometryVersion Initial => new(1);
     
     private readonly int _value;
 

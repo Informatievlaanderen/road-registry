@@ -111,7 +111,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                 .Select(item => new Messages.RoadSegmentLaneAttributes
                 {
                     AttributeId = item.Id,
-                    AsOfGeometryVersion = GeometryVersion.Start,
+                    AsOfGeometryVersion = GeometryVersion.Initial,
                     Count = item.Count,
                     Direction = item.Direction,
                     FromPosition = item.From,
@@ -122,7 +122,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                 .Select(item => new Messages.RoadSegmentWidthAttributes
                 {
                     AttributeId = item.Id,
-                    AsOfGeometryVersion = GeometryVersion.Start,
+                    AsOfGeometryVersion = GeometryVersion.Initial,
                     Width = item.Width,
                     FromPosition = item.From,
                     ToPosition = item.To
@@ -132,7 +132,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                 .Select(item => new Messages.RoadSegmentSurfaceAttributes
                 {
                     AttributeId = item.Id,
-                    AsOfGeometryVersion = GeometryVersion.Start,
+                    AsOfGeometryVersion = GeometryVersion.Initial,
                     Type = item.Type,
                     FromPosition = item.From,
                     ToPosition = item.To

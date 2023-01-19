@@ -1167,8 +1167,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             command.MaintenanceAuthorityId,
             command.GeometryDrawMethod);
 
-        var version = RoadSegmentVersion.Start;
-        var geometryVersion = GeometryVersion.Start;
+        var version = RoadSegmentVersion.Initial;
+        var geometryVersion = GeometryVersion.Initial;
 
         return new ImmutableRoadNetworkView(
             _nodes
@@ -2338,8 +2338,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
         private void With(AddRoadSegment command)
         {
-            var version = RoadSegmentVersion.Start;
-            var geometryVersion = GeometryVersion.Start;
+            var version = RoadSegmentVersion.Initial;
+            var geometryVersion = GeometryVersion.Initial;
 
             var attributeHash = new AttributeHash(
                 command.AccessRestriction,
