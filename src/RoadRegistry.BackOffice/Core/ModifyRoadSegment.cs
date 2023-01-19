@@ -14,11 +14,13 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
     public ModifyRoadSegment(
         RoadSegmentId id,
+        RoadSegmentVersion version,
         RoadNodeId startNodeId,
         RoadNodeId? temporaryStartNodeId,
         RoadNodeId endNodeId,
         RoadNodeId? temporaryEndNodeId,
         MultiLineString geometry,
+        GeometryVersion geometryVersion,
         OrganizationId maintenanceAuthorityId,
         OrganizationName? maintenanceAuthorityName,
         RoadSegmentGeometryDrawMethod geometryDrawMethod,
@@ -33,11 +35,13 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces)
     {
         Id = id;
+        Version = version;
         StartNodeId = startNodeId;
         TemporaryStartNodeId = temporaryStartNodeId;
         EndNodeId = endNodeId;
         TemporaryEndNodeId = temporaryEndNodeId;
         Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
+        GeometryVersion = geometryVersion;
         MaintenanceAuthorityId = maintenanceAuthorityId;
         MaintenanceAuthorityName = maintenanceAuthorityName;
         GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
@@ -56,8 +60,10 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     public RoadSegmentCategory Category { get; }
     public RoadNodeId EndNodeId { get; }
     public MultiLineString Geometry { get; }
+    public GeometryVersion GeometryVersion { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
     public RoadSegmentId Id { get; }
+    public RoadSegmentVersion Version { get; }
     public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
     public CrabStreetnameId? LeftSideStreetNameId { get; }
     public OrganizationId MaintenanceAuthorityId { get; }
@@ -78,13 +84,15 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         message.RoadSegmentModified = new RoadSegmentModified
         {
             Id = Id,
+            Version = Version,
             StartNodeId = StartNodeId,
             EndNodeId = EndNodeId,
             Geometry = GeometryTranslator.Translate(Geometry),
+            GeometryVersion = GeometryVersion,
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = MaintenanceAuthorityId,
-                Name = MaintenanceAuthorityName ?? ""
+                Name = MaintenanceAuthorityName ?? string.Empty
             },
             GeometryDrawMethod = GeometryDrawMethod,
             Morphology = Morphology,
@@ -103,7 +111,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                 .Select(item => new Messages.RoadSegmentLaneAttributes
                 {
                     AttributeId = item.Id,
-                    AsOfGeometryVersion = 1,
+                    AsOfGeometryVersion = GeometryVersion.Start,
                     Count = item.Count,
                     Direction = item.Direction,
                     FromPosition = item.From,
@@ -114,7 +122,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                 .Select(item => new Messages.RoadSegmentWidthAttributes
                 {
                     AttributeId = item.Id,
-                    AsOfGeometryVersion = 1,
+                    AsOfGeometryVersion = GeometryVersion.Start,
                     Width = item.Width,
                     FromPosition = item.From,
                     ToPosition = item.To
@@ -124,7 +132,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                 .Select(item => new Messages.RoadSegmentSurfaceAttributes
                 {
                     AttributeId = item.Id,
-                    AsOfGeometryVersion = 1,
+                    AsOfGeometryVersion = GeometryVersion.Start,
                     Type = item.Type,
                     FromPosition = item.From,
                     ToPosition = item.To

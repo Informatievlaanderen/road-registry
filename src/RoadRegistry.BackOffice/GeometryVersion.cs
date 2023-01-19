@@ -4,11 +4,16 @@ using System;
 
 public readonly struct GeometryVersion : IEquatable<GeometryVersion>, IComparable<GeometryVersion>
 {
+    public static GeometryVersion Start => new(1);
+    
     private readonly int _value;
 
     public GeometryVersion(int value)
     {
-        if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), value, "The geometry version must be greater than or equal to zero.");
+        if (value < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), value, $"The geometry version must be greater than or equal to 0.");
+        }
 
         _value = value;
     }
@@ -16,6 +21,17 @@ public readonly struct GeometryVersion : IEquatable<GeometryVersion>, IComparabl
     public int ToInt32()
     {
         return _value;
+    }
+
+    public GeometryVersion Next()
+    {
+        if (_value == int.MaxValue)
+        {
+            throw new NotSupportedException(
+                "There is no next geometry version because the maximum of the integer data type has been reached.");
+        }
+
+        return new GeometryVersion(_value + 1);
     }
 
     public bool Equals(GeometryVersion other)

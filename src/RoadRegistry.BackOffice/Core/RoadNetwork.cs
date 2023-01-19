@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Framework;
 using Messages;
+using NetTopologySuite.Geometries;
 
 public class RoadNetwork : EventSourcedEntity
 {
@@ -24,16 +25,6 @@ public class RoadNetwork : EventSourcedEntity
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
     }
 
-    public RoadSegment FindRoadSegment(RoadSegmentId id)
-    {
-        if (_view.Segments.TryGetValue(id, out var segment))
-        {
-            return segment;
-        }
-
-        return null;
-    }
-
     public void Change(
         ChangeRequestId requestId,
         Reason reason,
@@ -48,20 +39,25 @@ public class RoadNetwork : EventSourcedEntity
 
         var beforeContext = requestedChanges.CreateBeforeVerificationContext(_view);
         foreach (var verifiableChange in verifiableChanges)
+        {
             verifiableChanges = verifiableChanges
                 .Replace(verifiableChange, verifiableChange.VerifyBefore(beforeContext));
+        }
 
         if (!verifiableChanges.Any(change => change.HasErrors))
         {
             var afterContext = beforeContext.CreateAfterVerificationContext(_view.With(requestedChanges));
             foreach (var verifiableChange in verifiableChanges)
+            {
                 verifiableChanges = verifiableChanges
                     .Replace(verifiableChange, verifiableChange.VerifyAfter(afterContext));
+            }
         }
 
         var verifiedChanges = verifiableChanges.ConvertAll(change => change.AsVerifiedChange());
 
         if (verifiedChanges.Count == 0)
+        {
             Apply(new NoRoadNetworkChanges
             {
                 RequestId = requestId,
@@ -71,7 +67,9 @@ public class RoadNetwork : EventSourcedEntity
                 Organization = organization.Name,
                 TransactionId = requestedChanges.TransactionId
             });
+        }
         else if (verifiedChanges.OfType<RejectedChange>().Any())
+        {
             Apply(new RoadNetworkChangesRejected
             {
                 RequestId = requestId,
@@ -85,7 +83,9 @@ public class RoadNetwork : EventSourcedEntity
                     .Select(change => change.Translate())
                     .ToArray()
             });
+        }
         else
+        {
             Apply(new RoadNetworkChangesAccepted
             {
                 RequestId = requestId,
@@ -99,6 +99,17 @@ public class RoadNetwork : EventSourcedEntity
                     .Select(change => change.Translate())
                     .ToArray()
             });
+        }
+    }
+
+    public RoadSegment FindRoadSegment(RoadSegmentId id)
+    {
+        if (_view.Segments.TryGetValue(id, out var segment))
+        {
+            return segment;
+        }
+
+        return null;
     }
 
     public Func<AttributeId> ProvidesNextEuropeanRoadAttributeId()
@@ -126,6 +137,24 @@ public class RoadNetwork : EventSourcedEntity
         return new NextRoadNodeIdProvider(_view.MaximumNodeId).Next;
     }
 
+    public Func<RoadSegmentId, MultiLineString, GeometryVersion> ProvidesNextRoadSegmentGeometryVersion()
+    {
+        return (id, geometry) =>
+        {
+            if (_view.Segments.TryGetValue(id, out var roadSegment) && roadSegment != null)
+            {
+                if (roadSegment.Geometry != geometry)
+                {
+                    return new NextRoadSegmentGeometryVersionProvider(roadSegment.GeometryVersion).Next();
+                }
+
+                return roadSegment.GeometryVersion;
+            }
+
+            return new NextRoadSegmentGeometryVersionProvider(0).Next();
+        };
+    }
+
     public Func<RoadSegmentId> ProvidesNextRoadSegmentId()
     {
         return new NextRoadSegmentIdProvider(_view.MaximumSegmentId).Next;
@@ -138,7 +167,10 @@ public class RoadNetwork : EventSourcedEntity
         {
             if (_view.SegmentReusableLaneAttributeIdentifiers.TryGetValue(id, out var reusableAttributeIdentifiers)
                 && reusableAttributeIdentifiers.Count != 0)
+            {
                 return new NextReusableAttributeIdProvider(provider, reusableAttributeIdentifiers).Next;
+            }
+
             return provider.Next;
         };
     }
@@ -150,9 +182,24 @@ public class RoadNetwork : EventSourcedEntity
         {
             if (_view.SegmentReusableSurfaceAttributeIdentifiers.TryGetValue(id, out var reusableAttributeIdentifiers)
                 && reusableAttributeIdentifiers.Count != 0)
+            {
                 return new NextReusableAttributeIdProvider(provider, reusableAttributeIdentifiers).Next;
+            }
 
             return provider.Next;
+        };
+    }
+
+    public Func<RoadSegmentId, RoadSegmentVersion> ProvidesNextRoadSegmentVersion()
+    {
+        return id =>
+        {
+            if (_view.Segments.TryGetValue(id, out var roadSegment) && roadSegment != null)
+            {
+                return new NextRoadSegmentVersionProvider(roadSegment.Version).Next();
+            }
+
+            return new NextRoadSegmentVersionProvider(0).Next();
         };
     }
 
@@ -163,7 +210,9 @@ public class RoadNetwork : EventSourcedEntity
         {
             if (_view.SegmentReusableWidthAttributeIdentifiers.TryGetValue(id, out var reusableAttributeIdentifiers)
                 && reusableAttributeIdentifiers.Count != 0)
+            {
                 return new NextReusableAttributeIdProvider(provider, reusableAttributeIdentifiers).Next;
+            }
 
             return provider.Next;
         };
@@ -176,7 +225,10 @@ public class RoadNetwork : EventSourcedEntity
 
     public void RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
     {
-        if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
+        if (snapshot == null)
+        {
+            throw new ArgumentNullException(nameof(snapshot));
+        }
 
         _view = ImmutableRoadNetworkView.Empty.RestoreFromSnapshot(snapshot);
     }
@@ -184,6 +236,40 @@ public class RoadNetwork : EventSourcedEntity
     public RoadNetworkSnapshot TakeSnapshot()
     {
         return _view.TakeSnapshot();
+    }
+
+    private sealed class NextRoadSegmentVersionProvider
+    {
+        private RoadSegmentVersion _current;
+
+        public NextRoadSegmentVersionProvider(int current)
+        {
+            _current = new RoadSegmentVersion(current);
+        }
+
+        public RoadSegmentVersion Next()
+        {
+            var next = _current.Next();
+            _current = next;
+            return next;
+        }
+    }
+
+    private sealed class NextRoadSegmentGeometryVersionProvider
+    {
+        private GeometryVersion _current;
+
+        public NextRoadSegmentGeometryVersionProvider(int current)
+        {
+            _current = new GeometryVersion(current);
+        }
+
+        public GeometryVersion Next()
+        {
+            var next = _current.Next();
+            _current = next;
+            return next;
+        }
     }
 
     private sealed class NextAttributeIdProvider
