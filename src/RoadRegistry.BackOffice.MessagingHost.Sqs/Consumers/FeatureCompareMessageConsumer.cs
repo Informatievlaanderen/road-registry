@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Abstractions.Configuration;
 using Abstractions.FeatureCompare;
 using Exceptions;
-using Infrastructure;
 using MediatR;
 using Messages;
 using Microsoft.Extensions.Hosting;
