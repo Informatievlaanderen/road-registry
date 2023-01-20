@@ -16,7 +16,8 @@ public class FeatureCompareProcessOutputMessageRequestHandler : SqsMessageReques
     {
         var message = new UploadRoadNetworkChangesArchive
         {
-            ArchiveId = request.ArchiveId
+            ArchiveId = request.ArchiveId,
+            FeatureCompareCompleted = true
         };
         var command = new Command(message);
         await Dispatcher(command, cancellationToken);

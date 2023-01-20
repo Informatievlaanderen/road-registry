@@ -1,18 +1,15 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.Generators.Guid;
 using Core;
 using FluentValidation;
 using Framework;
 using Messages;
 using Newtonsoft.Json;
 using SqlStreamStore;
-using SqlStreamStore.Streams;
 
 internal static class CommandHandlerModulePipelines
 {
@@ -65,26 +62,14 @@ internal static class CommandHandlerModulePipelines
 
         await next(context);
 
+        var roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
+
         foreach (var entry in map.Entries)
         {
             var events = entry.Entity.TakeEvents();
             if (events.Length != 0)
             {
-                var messageId = message.MessageId.ToString("N");
-                var version = entry.ExpectedVersion;
-                Array.ForEach(events, @event => enricher(@event));
-                var messages = Array.ConvertAll(
-                    events,
-                    @event =>
-                        new NewStreamMessage(
-                            Deterministic.Create(Deterministic.Namespaces.Events,
-                                $"{messageId}-{version++}"),
-                            EventMapping.GetEventName(@event.GetType()),
-                            JsonConvert.SerializeObject(@event, SerializerSettings),
-                            SerializeJsonMetadata(message)
-                        ));
-                
-                await store.AppendToStream(entry.Stream, entry.ExpectedVersion, messages, ct);
+                await roadNetworkEventWriter.Write(entry.Stream, message, entry.ExpectedVersion, events, ct);
             }
         }
     }
@@ -97,18 +82,5 @@ internal static class CommandHandlerModulePipelines
             await validator.ValidateAndThrowAsync(message.Body, cancellationToken: ct);
             await next(message, commandMetadata, ct);
         });
-    }
-
-    private static string SerializeJsonMetadata(IRoadRegistryMessage command)
-    {
-        var jsonMetadata = JsonConvert.SerializeObject(new MessageMetadata
-        {
-            Principal = command
-                .Principal
-                .Claims
-                .Select(claim => new Claim { Type = claim.Type, Value = claim.Value })
-                .ToArray()
-        }, SerializerSettings);
-        return jsonMetadata;
     }
 }

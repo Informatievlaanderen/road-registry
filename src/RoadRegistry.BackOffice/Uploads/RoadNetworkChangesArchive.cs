@@ -8,7 +8,6 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Framework;
 using Messages;
-using NetTopologySuite.IO;
 using Schema.V2;
 
 public class RoadNetworkChangesArchive : EventSourcedEntity
@@ -23,63 +22,50 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
             Description = !string.IsNullOrEmpty(e.Description)
                 ? new ExtractDescription(e.Description)
                 : new ExtractDescription();
+            FeatureCompareCompleted = false;
+        });
+        On<RoadNetworkChangesArchiveFeatureCompareCompleted>(e =>
+        {
+            Id = new ArchiveId(e.ArchiveId);
+            Description = !string.IsNullOrEmpty(e.Description)
+                ? new ExtractDescription(e.Description)
+                : new ExtractDescription();
+            FeatureCompareCompleted = true;
         });
     }
 
     public ArchiveId Id { get; private set; }
-
     public ExtractDescription Description { get; private set; }
+    public bool FeatureCompareCompleted { get; private set; }
 
-    public static RoadNetworkChangesArchive Upload(ArchiveId id, Stream readStream)
+    public static RoadNetworkChangesArchive Upload(ArchiveId id, Stream readStream, bool featureCompareCompleted = false)
     {
-        ExtractDescription extractDescription = new();
+        var extractDescription = ReadExtractDescriptionFromArchive(readStream);
 
-        using (var sourceStream = new MemoryStream())
-        {
-            readStream.CopyTo(sourceStream);
-
-            using (var archive = new ZipArchive(sourceStream, ZipArchiveMode.Read, true))
-            {
-                var transactionzoneFileEntry = archive.Entries.SingleOrDefault(e => e.Name.ToLowerInvariant() == "transactiezones.dbf");
-                if (transactionzoneFileEntry is not null)
-                {
-                    using var reader = new BinaryReader(transactionzoneFileEntry.Open(), Encoding.UTF8);
-                    Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader header = null;
-
-                    try
-                    {
-                        header = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
-                    }
-                    finally
-                    {
-                        if (header is not null)
-                        {
-                            using var records = header.CreateDbaseRecordEnumerator<TransactionZoneDbaseRecord>(reader);
-                            while (records.MoveNext())
-                            {
-                                extractDescription = !string.IsNullOrEmpty(records.Current.BESCHRIJV.Value)
-                                    ? new ExtractDescription(records.Current.BESCHRIJV.Value)
-                                    : new ExtractDescription();
-                            }
-                        }
-                    }
-                }
-            }
-
-            sourceStream.Position = 0;
-        }
-
-        return Upload(id, extractDescription);
+        return Upload(id, extractDescription, featureCompareCompleted);
     }
 
-    public static RoadNetworkChangesArchive Upload(ArchiveId id, ExtractDescription extractDescription)
+    public static RoadNetworkChangesArchive Upload(ArchiveId id, ExtractDescription extractDescription, bool featureCompareCompleted = false)
     {
         var instance = new RoadNetworkChangesArchive();
-        instance.Apply(new RoadNetworkChangesArchiveUploaded
+
+        if (featureCompareCompleted)
         {
-            ArchiveId = id,
-            Description = extractDescription
-        });
+            instance.Apply(new RoadNetworkChangesArchiveFeatureCompareCompleted
+            {
+                ArchiveId = id,
+                Description = extractDescription
+            });
+        }
+        else
+        {
+            instance.Apply(new RoadNetworkChangesArchiveUploaded
+            {
+                ArchiveId = id,
+                Description = extractDescription
+            });
+        }
+
         return instance;
     }
 
@@ -103,5 +89,34 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
                     Problems = problems.Select(problem => problem.Translate()).ToArray()
                 });
         return problems;
+    }
+
+    private static ExtractDescription ReadExtractDescriptionFromArchive(Stream readStream)
+    {
+        using (var sourceStream = new MemoryStream())
+        {
+            readStream.CopyTo(sourceStream);
+
+            using (var archive = new ZipArchive(sourceStream, ZipArchiveMode.Read, true))
+            {
+                var transactionZoneFileEntry = archive.Entries.SingleOrDefault(e => e.Name.ToLowerInvariant() == "transactiezones.dbf");
+                if (transactionZoneFileEntry is not null)
+                {
+                    using var reader = new BinaryReader(transactionZoneFileEntry.Open(), Encoding.UTF8);
+
+                    var header = DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
+
+                    using var records = header.CreateDbaseRecordEnumerator<TransactionZoneDbaseRecord>(reader);
+                    while (records.MoveNext())
+                    {
+                        return !string.IsNullOrEmpty(records.Current.BESCHRIJV.Value)
+                            ? new ExtractDescription(records.Current.BESCHRIJV.Value)
+                            : new ExtractDescription();
+                    }
+                }
+            }
+        }
+
+        return new ExtractDescription();
     }
 }
