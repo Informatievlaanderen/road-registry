@@ -159,7 +159,7 @@ public class RoadNetwork : EventSourcedEntity
                 return roadSegment.GeometryVersion;
             }
 
-            return new NextRoadSegmentGeometryVersionProvider(0).Next();
+            return new NextRoadSegmentGeometryVersionProvider().Next();
         };
     }
 
@@ -207,7 +207,7 @@ public class RoadNetwork : EventSourcedEntity
                 return new NextRoadSegmentVersionProvider(roadSegment.Version).Next();
             }
 
-            return new NextRoadSegmentVersionProvider(0).Next();
+            return new NextRoadSegmentVersionProvider().Next();
         };
     }
 
@@ -250,6 +250,11 @@ public class RoadNetwork : EventSourcedEntity
     {
         private RoadSegmentVersion _current;
 
+        public NextRoadSegmentVersionProvider()
+            : this(0)
+        {
+        }
+
         public NextRoadSegmentVersionProvider(int current)
         {
             _current = new RoadSegmentVersion(current);
@@ -266,6 +271,11 @@ public class RoadNetwork : EventSourcedEntity
     private sealed class NextRoadSegmentGeometryVersionProvider
     {
         private GeometryVersion _current;
+
+        public NextRoadSegmentGeometryVersionProvider()
+            : this(0)
+        {
+        }
 
         public NextRoadSegmentGeometryVersionProvider(int current)
         {
