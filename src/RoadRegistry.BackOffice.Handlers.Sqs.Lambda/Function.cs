@@ -63,6 +63,7 @@ public sealed class Function : FunctionBase
             .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
             .AddStreamStore()
             .AddRoadNetworkCommandQueue()
+            .AddEditorContext()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {

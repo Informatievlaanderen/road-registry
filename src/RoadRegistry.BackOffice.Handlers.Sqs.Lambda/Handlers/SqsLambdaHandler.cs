@@ -10,6 +10,8 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Microsoft.Extensions.Configuration;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using TicketingService.Abstractions;
 
 public abstract class SqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>
@@ -53,7 +55,14 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase
             cancellationToken);
     }
 
-    protected abstract TicketError? InnerMapDomainException(DomainException exception, TSqsLambdaRequest request);
+    protected virtual TicketError? InnerMapDomainException(DomainException exception, TSqsLambdaRequest request)
+    {
+        return exception switch
+        {
+            RoadRegistryValidationException validationException => validationException.ToTicketError(),
+            _ => null
+        };
+    }
 
     protected override TicketError? MapDomainException(DomainException exception, TSqsLambdaRequest request)
     {

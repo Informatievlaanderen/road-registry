@@ -112,6 +112,14 @@ public class RoadNetwork : EventSourcedEntity
         return null;
     }
 
+    public ICollection<RoadSegment> FindRoadSegments(IEnumerable<RoadSegmentId> ids)
+    {
+        return _view.Segments
+            .Select(x => x.Value)
+            .Where(x => ids.Contains(x.Id))
+            .ToList();
+    }
+
     public Func<AttributeId> ProvidesNextEuropeanRoadAttributeId()
     {
         return new NextAttributeIdProvider(_view.MaximumEuropeanRoadAttributeId).Next;
