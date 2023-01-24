@@ -81,14 +81,16 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         message.RoadSegmentAdded = new RoadSegmentAdded
         {
             Id = Id,
+            Version = RoadSegmentVersion.Initial,
             TemporaryId = TemporaryId,
             StartNodeId = StartNodeId,
             EndNodeId = EndNodeId,
             Geometry = GeometryTranslator.Translate(Geometry),
+            GeometryVersion = GeometryVersion.Initial,
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = MaintenanceAuthorityId,
-                Name = MaintenanceAuthorityName ?? ""
+                Name = MaintenanceAuthorityName ?? string.Empty
             },
             GeometryDrawMethod = GeometryDrawMethod,
             Morphology = Morphology,

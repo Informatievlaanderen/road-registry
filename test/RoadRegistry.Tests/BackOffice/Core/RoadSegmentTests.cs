@@ -11,7 +11,9 @@ public class RoadSegmentTests
     private readonly AttributeHash _attributeHash;
     private readonly RoadNodeId _end;
     private readonly MultiLineString _geometry;
+    private readonly GeometryVersion _geometryVersion;
     private readonly RoadSegmentId _id;
+    private readonly RoadSegmentVersion _version;
     private readonly RoadNodeId _start;
     private readonly RoadSegment _sut;
 
@@ -29,11 +31,13 @@ public class RoadSegmentTests
         fixture.CustomizeAttributeHash();
         fixture.CustomizeRoadSegmentGeometryDrawMethod();
         _id = fixture.Create<RoadSegmentId>();
+        _version = fixture.Create<RoadSegmentVersion>();
         _start = fixture.Create<RoadNodeId>();
         _end = fixture.Create<RoadNodeId>();
         _geometry = fixture.Create<MultiLineString>();
+        _geometryVersion = fixture.Create<GeometryVersion>();
         _attributeHash = fixture.Create<AttributeHash>();
-        _sut = new RoadSegment(_id, _geometry, _start, _end, _attributeHash, null);
+        _sut = new RoadSegment(_id, _version, _geometry, _geometryVersion, _start, _end, _attributeHash, null);
     }
 
     [Fact]
@@ -79,7 +83,9 @@ public class RoadSegmentTests
     {
         var sut = new RoadSegment(
             _id,
+            _version,
             _geometry,
+            _geometryVersion,
             new RoadNodeId(start),
             new RoadNodeId(end),
             _attributeHash,
@@ -100,6 +106,6 @@ public class RoadSegmentTests
     [Fact]
     public void ThrowsWhenStartIsSameAsEnd()
     {
-        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash, null));
+        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _version, _geometry, _geometryVersion, _start, _start, _attributeHash, null));
     }
 }

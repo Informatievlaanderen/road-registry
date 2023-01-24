@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
 
 using Autofac;
 using Autofac.Builder;

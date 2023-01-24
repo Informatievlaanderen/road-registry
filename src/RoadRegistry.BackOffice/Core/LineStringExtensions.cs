@@ -20,7 +20,7 @@ internal static class LineStringExtensions
     {
         if (instance.Length <= 0.0 || instance.NumPoints <= 2)
             return false;
-
+        
         var lines = new LineString[instance.NumPoints - 1];
         var fromPoint = instance.StartPoint;
         for (var index = 1; index < instance.NumPoints; index++)
@@ -31,8 +31,8 @@ internal static class LineStringExtensions
                     new CoordinateArraySequence(
                         new[]
                         {
-                            new Coordinate(Math.Round(fromPoint.X, 3), Math.Round(fromPoint.Y, 3)),
-                            new Coordinate(toPoint.X, toPoint.Y)
+                            new Coordinate(Math.Round(fromPoint.X, Precisions.MeasurementPrecision), Math.Round(fromPoint.Y, Precisions.MeasurementPrecision)),
+                            new Coordinate(Math.Round(toPoint.X, Precisions.MeasurementPrecision), Math.Round(toPoint.Y, Precisions.MeasurementPrecision))
                         })
                     , GeometryConfiguration.GeometryFactory);
             fromPoint = toPoint;

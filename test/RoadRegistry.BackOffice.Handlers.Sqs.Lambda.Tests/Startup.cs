@@ -2,8 +2,9 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
 using System.Reflection;
 using Autofac;
-using Infrastructure;
-using MediatorModule = BackOffice.MediatorModule;
+using Infrastructure.Extensions;
+using Infrastructure.Modules;
+using MediatorModule = BackOffice.Handlers.MediatorModule;
 
 public class Startup : TestStartup
 {
@@ -14,11 +15,11 @@ public class Startup : TestStartup
             .AsImplementedInterfaces();
 
         builder
-            .RegisterModule<MediatorModule>()
+            .RegisterModule<BackOffice.MediatorModule>()
             .RegisterModule<ContextModule>()
-            .RegisterModule<BackOffice.Handlers.MediatorModule>()
+            .RegisterModule<MediatorModule>()
             .RegisterModule<Sqs.MediatorModule>()
-            .RegisterModule<Sqs.Lambda.Infrastructure.Modules.SyndicationModule>()
+            .RegisterModule<SyndicationModule>()
             ;
 
         builder.RegisterIdempotentCommandHandler();

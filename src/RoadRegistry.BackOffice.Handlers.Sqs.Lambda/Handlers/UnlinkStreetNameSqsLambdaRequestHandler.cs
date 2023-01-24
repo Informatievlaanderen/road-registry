@@ -64,16 +64,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
     }
-
-    protected override TicketError? InnerMapDomainException(DomainException exception, UnlinkStreetNameSqsLambdaRequest request)
-    {
-        return exception switch
-        {
-            RoadRegistryValidationException validationException => validationException.ToTicketError(),
-            _ => null
-        };
-    }
-
+    
     private async Task<ChangeRoadNetwork> ToCommand(UnlinkStreetNameSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)
     {
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);

@@ -78,6 +78,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     network.ProvidesNextEuropeanRoadAttributeId(),
                     network.ProvidesNextNationalRoadAttributeId(),
                     network.ProvidesNextNumberedRoadAttributeId(),
+                    network.ProvidesNextRoadSegmentVersion(),
+                    network.ProvidesNextRoadSegmentGeometryVersion(),
                     network.ProvidesNextRoadSegmentLaneAttributeId(),
                     network.ProvidesNextRoadSegmentWidthAttributeId(),
                     network.ProvidesNextRoadSegmentSurfaceAttributeId()

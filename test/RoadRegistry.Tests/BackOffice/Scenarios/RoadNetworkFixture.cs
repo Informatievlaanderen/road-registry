@@ -338,11 +338,12 @@ public class RoadNetworkFixture : RoadRegistryFixture
         Segment1Added = new RoadSegmentAdded
         {
             Id = 1,
+            Version = 1,
             TemporaryId = AddSegment1.TemporaryId,
             StartNodeId = 1,
             EndNodeId = 2,
             Geometry = AddSegment1.Geometry,
-            GeometryVersion = 0,
+            GeometryVersion = 1,
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = ChangedByOrganization,
@@ -391,8 +392,7 @@ public class RoadNetworkFixture : RoadRegistryFixture
                     ToPosition = surface.ToPosition,
                     AsOfGeometryVersion = 1
                 })
-                .ToArray(),
-            Version = 0
+                .ToArray()
         };
 
         var laneCount2 = new Random().Next(1, 10);
@@ -468,11 +468,12 @@ public class RoadNetworkFixture : RoadRegistryFixture
         Segment2Added = new RoadSegmentAdded
         {
             Id = 2,
+            Version = 1,
             TemporaryId = AddSegment2.TemporaryId,
             StartNodeId = 3,
             EndNodeId = 4,
             Geometry = AddSegment2.Geometry,
-            GeometryVersion = 0,
+            GeometryVersion = 1,
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = ChangedByOrganization,
@@ -521,8 +522,7 @@ public class RoadNetworkFixture : RoadRegistryFixture
                     ToPosition = surface.ToPosition,
                     AsOfGeometryVersion = 1
                 })
-                .ToArray(),
-            Version = 0
+                .ToArray()
         };
 
         var laneCount3 = new Random().Next(1, 10);
@@ -598,11 +598,12 @@ public class RoadNetworkFixture : RoadRegistryFixture
         Segment3Added = new RoadSegmentAdded
         {
             Id = 3,
+            Version = 1,
             TemporaryId = AddSegment3.TemporaryId,
             StartNodeId = 5,
             EndNodeId = 6,
             Geometry = AddSegment3.Geometry,
-            GeometryVersion = 0,
+            GeometryVersion = 1,
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = AddSegment3.MaintenanceAuthority,
@@ -651,8 +652,7 @@ public class RoadNetworkFixture : RoadRegistryFixture
                     ToPosition = surface.ToPosition,
                     AsOfGeometryVersion = 1
                 })
-                .ToArray(),
-            Version = 0
+                .ToArray()
         };
     }
 
