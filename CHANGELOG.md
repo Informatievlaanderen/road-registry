@@ -1,3 +1,15 @@
+# [3.33.0](https://github.com/informatievlaanderen/road-registry/compare/v3.32.4...v3.33.0) (2023-01-24)
+
+
+### Bug Fixes
+
+* WR-390 increment roadsegment Version/GeometryVersion when the roadsegment changes ([#803](https://github.com/informatievlaanderen/road-registry/issues/803)) ([b50022c](https://github.com/informatievlaanderen/road-registry/commit/b50022c91e77f435f0f59243322430b855b30714))
+
+
+### Features
+
+* WR-550 show upload received message with before feature-compare immediately after upload  ([#802](https://github.com/informatievlaanderen/road-registry/issues/802)) ([2d4ed27](https://github.com/informatievlaanderen/road-registry/commit/2d4ed279e16505a029be80b3e51dcbc62035b4f1))
+
 ## [3.32.4](https://github.com/informatievlaanderen/road-registry/compare/v3.32.3...v3.32.4) (2023-01-18)
 
 
