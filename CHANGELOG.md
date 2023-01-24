@@ -1,3 +1,10 @@
+## [3.33.1](https://github.com/informatievlaanderen/road-registry/compare/v3.33.0...v3.33.1) (2023-01-24)
+
+
+### Bug Fixes
+
+* lambda deployment ([#805](https://github.com/informatievlaanderen/road-registry/issues/805)) ([8a9afa4](https://github.com/informatievlaanderen/road-registry/commit/8a9afa45bf0013420d13f471fe4450e778ee0a5e))
+
 # [3.33.0](https://github.com/informatievlaanderen/road-registry/compare/v3.32.4...v3.33.0) (2023-01-24)
 
 
