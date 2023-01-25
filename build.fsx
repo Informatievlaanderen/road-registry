@@ -70,6 +70,7 @@ Target.create "Test_Solution" (fun _ ->
     "test" @@ "RoadRegistry.Editor.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Product.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Producer.Snapshot.ProjectionHost.Tests"
+    "test" @@ "RoadRegistry.StreetNameConsumer.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Syndication.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Tests"
     "test" @@ "RoadRegistry.Wms.ProjectionHost.Tests"
@@ -92,6 +93,7 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.Product.ProjectionHost"
     "RoadRegistry.Producer.Snapshot.ProjectionHost"
     "RoadRegistry.Projector"
+    "RoadRegistry.StreetNameConsumer.ProjectionHost"
     "RoadRegistry.Syndication.ProjectionHost"
     "RoadRegistry.Wfs.ProjectionHost"
     "RoadRegistry.Wms.ProjectionHost"
@@ -150,6 +152,9 @@ Target.create "PushContainer_BackOfficeExtractHost" (fun _ -> push "backoffice-e
 Target.create "Containerize_BackOfficeCommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
 Target.create "PushContainer_BackOfficeCommandHost" (fun _ -> push "backoffice-commandhost")
 
+Target.create "Containerize_StreetNameConsumerProjectionHost" (fun _ -> containerize "RoadRegistry.StreetNameConsumer.ProjectionHost" "streetnameconsumer-projectionhost")
+Target.create "PushContainer_StreetNameConsumerProjectionHost" (fun _ -> push "streetnameconsumer-projectionhost")
+
 Target.create "Containerize_BackOfficeMessagingHostSqs" (fun _ -> containerize "RoadRegistry.BackOffice.MessagingHost.Sqs" "backoffice-messaginghost-sqs")
 Target.create "PushContainer_BackOfficeMessagingHostSqs" (fun _ -> push "backoffice-messaginghost-sqs")
 
@@ -203,6 +208,7 @@ Target.create "Push" ignore
   ==> "Containerize_ImportLegacy"
   ==> "Containerize_ExtractLegacy"
   ==> "Containerize_BackOfficeUI"
+  ==> "Containerize_StreetNameConsumerProjectionHost"
   ==> "Containerize"
 // Possibly add more projects to containerize here
 
@@ -223,6 +229,7 @@ Target.create "Push" ignore
   ==> "PushContainer_BackOfficeMessagingHostSqs"
   ==> "PushContainer_ImportLegacy"
   ==> "PushContainer_ExtractLegacy"
+  ==> "PushContainer_StreetNameConsumerProjectionHost"
   ==> "Push"
 // Possibly add more projects to push here
 
