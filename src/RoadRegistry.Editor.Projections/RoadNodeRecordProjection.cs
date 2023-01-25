@@ -137,6 +137,9 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
     {
         var roadNode = await context.RoadNodes.FindAsync(node.Id);
 
-        context.RoadNodes.Remove(roadNode);
+        if (roadNode != null)
+        {
+            context.RoadNodes.Remove(roadNode);
+        }
     }
 }

@@ -124,6 +124,11 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
 
         var roadNode = await context.RoadNodes.FindAsync(node.Id);
 
+        if (roadNode == null)
+        {
+            throw new InvalidOperationException($"{nameof(RoadNodeRecord)} with id {node.Id} is not found!");
+        }
+
         roadNode.ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding);
         roadNode.ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32();
         roadNode.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
@@ -133,7 +138,9 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
     private static async Task RemoveRoadNode(ProductContext context, RoadNodeRemoved node)
     {
         var roadNode = await context.RoadNodes.FindAsync(node.Id);
-
-        context.RoadNodes.Remove(roadNode);
+        if (roadNode != null)
+        {
+            context.RoadNodes.Remove(roadNode);
+        }
     }
 }
