@@ -1,3 +1,11 @@
+## [3.33.4](https://github.com/informatievlaanderen/road-registry/compare/v3.33.3...v3.33.4) (2023-01-25)
+
+
+### Bug Fixes
+
+* add streetnameconsumer-projectionhost to pipeline for all envs ([1aec826](https://github.com/informatievlaanderen/road-registry/commit/1aec826037519935d0ff2392ed77b779d11cb7ee))
+* WR-579 use translated messages for upload validation ([8cea4e6](https://github.com/informatievlaanderen/road-registry/commit/8cea4e6774673251db35ac512c419fa8bdff70bc))
+
 ## [3.33.3](https://github.com/informatievlaanderen/road-registry/compare/v3.33.2...v3.33.3) (2023-01-25)
 
 
