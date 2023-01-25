@@ -67,6 +67,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { orderBy } from "lodash";
 import { BackOfficeApi } from "../../../services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 import { featureToggles } from "@/environment";
@@ -203,12 +204,15 @@ export default Vue.extend({
           if (err?.response?.status === 400) {
             let validationErrors = err?.response?.data?.validationErrors;
             let fileProblems = Object.keys(validationErrors).map((key) => {
+              let problems = validationErrors[key].map((validationError: any) => ({
+                severity: validationError.code.startsWith("Warning") ? "Warning" : "Error",
+                text: validationError.reason,
+              }));
+              problems = orderBy(problems, "severity");
+
               return {
                 file: key,
-                problems: validationErrors[key].map((validationError: any) => ({
-                  severity: "Error",
-                  text: validationError.reason,
-                })),
+                problems,
               };
             });
             this.uploadResult = { uploadResponseCode: 400, fileProblems };

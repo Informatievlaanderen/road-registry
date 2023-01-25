@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
@@ -11,6 +12,8 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Editor.Projections.DutchTranslations;
+using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using Framework;
@@ -54,12 +57,12 @@ public class UploadController : ControllerBase
     {
         if (archive == null)
         {
-            throw new ValidationException("Archive is missing", new []
+            throw new ValidationException("Archive is missing", new[]
             {
                 new ValidationFailure(nameof(archive), ValidationErrors.Common.NotFound.Message)
             });
         }
-        
+
         try
         {
             return await callback.Invoke();
@@ -81,6 +84,18 @@ public class UploadController : ControllerBase
                 "Can not upload roadnetwork extract changes archive for same download more than once",
                 409,
                 new ExceptionProblemDetails(exception), exception);
+        }
+        catch (ZipArchiveValidationException ex)
+        {
+            var validationFailures = ex.Problems
+                .Select(problem => problem.Translate())
+                .Select(problem =>
+                    new ValidationFailure(problem.File, ProblemWithZipArchive.Translator(problem))
+                    {
+                        ErrorCode = $"{problem.Severity}{problem.Reason}"
+                    })
+                .ToList();
+            throw new ValidationException(validationFailures);
         }
     }
 
@@ -116,4 +131,4 @@ public class UploadController : ControllerBase
     }
 }
 
-public sealed record UploadExtractFeatureCompareResponseBody(string ArchiveId){ }
+public sealed record UploadExtractFeatureCompareResponseBody(string ArchiveId) { }

@@ -77,8 +77,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
             var fileProblems = problems.OfType<FileError>();
             if (fileProblems.Any())
             {
-                var translatedProblems = problems.Select(problem => problem.Translate()).ToArray();
-                throw new ValidationException(translatedProblems.Select(s => new ValidationFailure(s.File, $"{s.Reason} - {s.File}")));
+                throw new ZipArchiveValidationException(problems);
             }
 
             readStream.Position = 0;
