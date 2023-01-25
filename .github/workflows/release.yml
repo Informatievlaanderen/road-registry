@@ -606,11 +606,11 @@ jobs:
           name: extract-legacy
           path: ~/
 
-      # - name: Download streetnameconsumer-projectionhost
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: streetnameconsumer-projectionhost
-      #     path: ~/
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
       
       #
       # Load artifacts
@@ -775,11 +775,11 @@ jobs:
           name: extract-legacy
           path: ~/
 
-      # - name: Download streetnameconsumer-projectionhost
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: streetnameconsumer-projectionhost
-      #     path: ~/
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
       
       #
       # Load artifacts
@@ -803,7 +803,7 @@ jobs:
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
-          #docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
+          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
       - name: Push artifacts to ECR Staging
         if: env.RELEASE_VERSION != 'none'
@@ -854,8 +854,8 @@ jobs:
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
       
-          #docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/streetnameconsumer-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
-          #docker push $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/streetnameconsumer-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
 
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
@@ -975,11 +975,11 @@ jobs:
           name: extract-legacy
           path: ~/
 
-      # - name: Download streetnameconsumer-projectionhost
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: streetnameconsumer-projectionhost
-      #     path: ~/
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
       
       #
       # Load artifacts
@@ -1003,7 +1003,7 @@ jobs:
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
-          #docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
+          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
 
       - name: Push artifacts to ECR Production
@@ -1055,8 +1055,8 @@ jobs:
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
   
-          #docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/streetnameconsumer-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/streetnameconsumer-projectionhost:$SEMVER
-          #docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/streetnameconsumer-projectionhost:$SEMVER
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/streetnameconsumer-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/streetnameconsumer-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/streetnameconsumer-projectionhost:$SEMVER
   
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
@@ -1205,8 +1205,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost']
-#road-registry-streetnameconsumer-projectionhost
+        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
 
     steps:
     - name: CD services
@@ -1316,8 +1315,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
        matrix: 
-         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost']
-#road-registry-streetnameconsumer-projectionhost
+         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
 
     steps:
     - name: CD services
