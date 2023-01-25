@@ -1,3 +1,12 @@
+## [3.33.2](https://github.com/informatievlaanderen/road-registry/compare/v3.33.1...v3.33.2) (2023-01-25)
+
+
+### Bug Fixes
+
+* kafka producer snapshot projections ([4163111](https://github.com/informatievlaanderen/road-registry/commit/416311170836e51c4d91d1455d34c3bf874c80d2))
+* WR-397 add streetnameconsumer-projectionhost to pipelines ([#806](https://github.com/informatievlaanderen/road-registry/issues/806)) ([a058dac](https://github.com/informatievlaanderen/road-registry/commit/a058dac1fafbe829cf3e14192597aa5ce9c8bc84))
+* WR-578 remove "gevalideerd" message in activity feed + lambda pipelines + add missing translation for problem `IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction` ([#810](https://github.com/informatievlaanderen/road-registry/issues/810)) ([44f21ea](https://github.com/informatievlaanderen/road-registry/commit/44f21ea4116c7dd7ba1d01232d5360898e5d361c))
+
 ## [3.33.1](https://github.com/informatievlaanderen/road-registry/compare/v3.33.0...v3.33.1) (2023-01-24)
 
 
