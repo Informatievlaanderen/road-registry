@@ -20,7 +20,7 @@ internal static class LineStringExtensions
     {
         if (instance.Length <= 0.0 || instance.NumPoints <= 2)
             return false;
-        
+
         var lines = new LineString[instance.NumPoints - 1];
         var fromPoint = instance.StartPoint;
         for (var index = 1; index < instance.NumPoints; index++)
@@ -38,13 +38,23 @@ internal static class LineStringExtensions
             fromPoint = toPoint;
         }
 
-        return
-        (
-            from left in lines
-            from right in lines
-            where !ReferenceEquals(left, right)
-            select left.Overlaps(right) || left.Covers(right)
-        ).Any(overlaps => overlaps);
+        var overlappings =
+            (
+                from left in lines
+                from right in lines
+                where !ReferenceEquals(left, right)
+                select new
+                {
+                    Left = left,
+                    Right = right,
+                    LeftOverlapsRight = left.Overlaps(right),
+                    LeftCoversRight = left.Covers(right)
+                }
+            )
+            .Where(x => x.LeftOverlapsRight || x.LeftCoversRight)
+            .ToArray();
+
+        return overlappings.Any();
     }
 
     public static bool HasInvalidMeasureOrdinates(this LineString instance)
