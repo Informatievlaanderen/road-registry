@@ -142,6 +142,9 @@ public static class ProblemWithChange
                 case nameof(RoadSegmentEndNodeRefersToRemovedNode):
                     translation = $"De eind knoop van wegsegment {problem.Parameters[0].Value} verwijst naar een verwijderde knoop {problem.Parameters[1].Value}.";
                     break;
+                case nameof(IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction):
+                    translation = $"Het wegsegment {problem.Parameters[0].Value} mag niet kruisen met wegsegment {problem.Parameters[1].Value}.";
+                    break;
                 default:
                     translation = $"'{problem.Reason}' has no translation. Please fix it.";
                     break;

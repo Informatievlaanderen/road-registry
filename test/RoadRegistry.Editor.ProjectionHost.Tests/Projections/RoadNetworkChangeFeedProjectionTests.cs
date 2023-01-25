@@ -97,30 +97,6 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 {
                     Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
                 })
-            }, new RoadNetworkChange
-            {
-                Id = 1,
-                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": gevalideerd",
-                Type = nameof(RoadNetworkExtractChangesArchiveAccepted),
-                Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
-                {
-                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename },
-                    Files = new[]
-                    {
-                        new FileProblems
-                        {
-                            File = file,
-                            Problems = new[]
-                            {
-                                new ProblemWithFile
-                                {
-                                    Severity = "Error",
-                                    Text = "De shape record 1 geometrie is ongeldig."
-                                }
-                            }
-                        }
-                    }
-                })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {
                 ChangeRequestId = changeRequestId.ToBytes().ToArray(),
@@ -288,31 +264,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                         Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
                     })
                 },
-                new RoadNetworkChange
-                {
-                    Id = 1,
-                    Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": gevalideerd",
-                    Type = nameof(RoadNetworkChangesArchiveAccepted),
-                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
-                    {
-                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename },
-                        Files = new[]
-                        {
-                            new FileProblems
-                            {
-                                File = file,
-                                Problems = new[]
-                                {
-                                    new ProblemWithFile
-                                    {
-                                        Severity = "Error",
-                                        Text = "De shape record 1 geometrie is ongeldig."
-                                    }
-                                }
-                            }
-                        }
-                    })
-                }, new RoadNetworkChangeRequestBasedOnArchive
+                new RoadNetworkChangeRequestBasedOnArchive
                 {
                     ChangeRequestId = changeRequestId.ToBytes().ToArray(),
                     ArchiveId = archiveId
