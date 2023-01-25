@@ -606,11 +606,11 @@ jobs:
           name: extract-legacy
           path: ~/
 
-      - name: Download streetnameconsumer-projectionhost
-        uses: actions/download-artifact@v3
-        with:
-          name: streetnameconsumer-projectionhost
-          path: ~/
+      # - name: Download streetnameconsumer-projectionhost
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: streetnameconsumer-projectionhost
+      #     path: ~/
       
       #
       # Load artifacts
