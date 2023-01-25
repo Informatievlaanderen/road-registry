@@ -1,3 +1,12 @@
+## [3.33.3](https://github.com/informatievlaanderen/road-registry/compare/v3.33.2...v3.33.3) (2023-01-25)
+
+
+### Bug Fixes
+
+* add road-registry-backoffice-messaginghost-sqs to PRD deployment ([b2d1f23](https://github.com/informatievlaanderen/road-registry/commit/b2d1f23bb44df22f2ebafc998160c0265db0cdda))
+* remove streetnameconsumer-projectionhost from PRD image push ([dee511f](https://github.com/informatievlaanderen/road-registry/commit/dee511fcee57f4a07b7b4abf8073e34244bf5d84))
+* remove streetnameconsumer-projectionhost from Push to TST ([b04abac](https://github.com/informatievlaanderen/road-registry/commit/b04abacb4777f2eeaa1577d713d6b9341b28730e))
+
 ## [3.33.2](https://github.com/informatievlaanderen/road-registry/compare/v3.33.1...v3.33.2) (2023-01-25)
 
 
