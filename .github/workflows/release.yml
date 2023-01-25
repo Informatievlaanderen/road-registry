@@ -1003,7 +1003,7 @@ jobs:
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
-          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
+          #docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
 
       - name: Push artifacts to ECR Production
