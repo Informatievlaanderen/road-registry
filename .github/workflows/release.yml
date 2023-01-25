@@ -606,11 +606,11 @@ jobs:
           name: extract-legacy
           path: ~/
 
-      - name: Download streetnameconsumer-projectionhost
-        uses: actions/download-artifact@v3
-        with:
-          name: streetnameconsumer-projectionhost
-          path: ~/
+      # - name: Download streetnameconsumer-projectionhost
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: streetnameconsumer-projectionhost
+      #     path: ~/
       
       #
       # Load artifacts
@@ -1003,7 +1003,7 @@ jobs:
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
-          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
+          #docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
 
       - name: Push artifacts to ECR Production
@@ -1316,8 +1316,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
        matrix: 
-         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost']
-#road-registry-backoffice-messaginghost-sqs
+         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost']
 #road-registry-streetnameconsumer-projectionhost
 
     steps:
