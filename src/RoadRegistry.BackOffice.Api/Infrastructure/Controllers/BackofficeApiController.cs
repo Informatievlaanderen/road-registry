@@ -14,7 +14,7 @@ public abstract class BackofficeApiController : ApiController
             SystemClock.Instance.GetCurrentInstant(),
             Application.RoadRegistry,
             new Reason(string.Empty),
-            new Operator(string.Empty),
+            new Operator(OperatorName.Unknown),
             Modification.Insert,
             Organisation.Agiv
         );
