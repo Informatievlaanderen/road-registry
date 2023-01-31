@@ -1,3 +1,11 @@
+## [3.33.6](https://github.com/informatievlaanderen/road-registry/compare/v3.33.5...v3.33.6) (2023-01-31)
+
+
+### Bug Fixes
+
+* generate RoadSegmentNotFoundResponseExamples correctly ([#816](https://github.com/informatievlaanderen/road-registry/issues/816)) ([fe72954](https://github.com/informatievlaanderen/road-registry/commit/fe729541b8b2910b91ecd79eebd58c816cc96c4f))
+* load roadsegments in pages ([#815](https://github.com/informatievlaanderen/road-registry/issues/815)) ([1cb9cc3](https://github.com/informatievlaanderen/road-registry/commit/1cb9cc3c078b96beb32aac9b9b941b21ed2084dd))
+
 ## [3.33.5](https://github.com/informatievlaanderen/road-registry/compare/v3.33.4...v3.33.5) (2023-01-30)
 
 
