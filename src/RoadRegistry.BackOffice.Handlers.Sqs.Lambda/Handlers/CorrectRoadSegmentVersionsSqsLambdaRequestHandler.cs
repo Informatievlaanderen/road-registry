@@ -51,14 +51,31 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
     {
         await using var context = _editorContextFactory();
 
-        return (
-                await context.RoadSegments
-                    .ToListAsync()
-            )
+        var roadSegmentIds = new List<int>();
+        const int pageSize = 1000;
+        var pageIndex = 0;
+
+        while (await FillInvalidRoadSegmentIds(context, pageIndex++, pageSize, roadSegmentIds))
+        {
+        }
+
+        return roadSegmentIds;
+    }
+
+    private async Task<bool> FillInvalidRoadSegmentIds(EditorContext context, int pageIndex, int pageSize, List<int> roadSegmentIds)
+    {
+        var roadSegments = await context.RoadSegments
+            .OrderBy(x => x.Id)
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        roadSegmentIds.AddRange(roadSegments
             .Select(x => new RoadSegmentDbaseRecord().FromBytes(x.DbaseRecord, _manager, WellKnownEncodings.WindowsAnsi))
             .Where(x => x.WS_GIDN.Value.EndsWith("_0") || x.WS_UIDN.Value.EndsWith("_0"))
-            .Select(x => x.WS_OIDN.Value)
-            .ToList();
+            .Select(x => x.WS_OIDN.Value));
+
+        return roadSegments.Any();
     }
 
     protected override async Task<ETagResponse> InnerHandle(CorrectRoadSegmentVersionsSqsLambdaRequest request, CancellationToken cancellationToken)
