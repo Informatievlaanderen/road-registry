@@ -1,3 +1,10 @@
+## [3.33.5](https://github.com/informatievlaanderen/road-registry/compare/v3.33.4...v3.33.5) (2023-01-30)
+
+
+### Bug Fixes
+
+* use Unknown operator as default ([#814](https://github.com/informatievlaanderen/road-registry/issues/814)) ([0191909](https://github.com/informatievlaanderen/road-registry/commit/01919098dbce39b3c02939761b293ef4ad6db853))
+
 ## [3.33.4](https://github.com/informatievlaanderen/road-registry/compare/v3.33.3...v3.33.4) (2023-01-25)
 
 
