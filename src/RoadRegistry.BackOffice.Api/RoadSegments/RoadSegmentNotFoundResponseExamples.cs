@@ -22,19 +22,13 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments
 
         public ProblemDetails GetExamples()
         {
-            var httpContext = _httpContextAccessor.HttpContext;
-            if (httpContext is null)
-            {
-                return new ProblemDetails();
-            }
-
             return new ProblemDetails
             {
-                ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:api",
+                ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadsegment:not-found",
                 HttpStatus = StatusCodes.Status404NotFound,
                 Title = ProblemDetails.DefaultTitle,
                 Detail = ValidationErrors.RoadSegment.NotFound.Message,
-                ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(httpContext)
+                ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext)
             };
         }
     }
