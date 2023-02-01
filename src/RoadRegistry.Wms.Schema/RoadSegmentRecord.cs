@@ -8,7 +8,6 @@ public class RoadSegmentRecord
     public string AccessRestrictionDutchName { get; set; }
     public int? AccessRestrictionId { get; set; }
     public string BeginApplication { get; set; }
-    public string BeginOperator { get; set; }
     public string BeginOrganizationId { get; set; }
     public string BeginOrganizationName { get; set; }
     public int? BeginRoadNodeId { get; set; }

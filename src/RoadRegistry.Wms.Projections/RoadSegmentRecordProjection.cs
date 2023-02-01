@@ -63,7 +63,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             await context.RoadSegments.AddAsync(new RoadSegmentRecord
             {
                 Id = envelope.Message.Id,
-                BeginOperator = envelope.Message.Origin.Operator,
                 BeginOrganizationId = envelope.Message.Origin.OrganizationId,
                 BeginOrganizationName = envelope.Message.Origin.Organization,
                 BeginTime = envelope.Message.Origin.Since,
@@ -157,7 +156,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         await context.RoadSegments.AddAsync(new RoadSegmentRecord
         {
             Id = roadSegmentAdded.Id,
-            BeginOperator = envelope.Message.Operator,
             BeginOrganizationId = envelope.Message.OrganizationId,
             BeginOrganizationName = envelope.Message.Organization,
             BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
@@ -232,7 +230,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id).ConfigureAwait(false);
 
         roadSegmentRecord.Id = roadSegmentModified.Id;
-        roadSegmentRecord.BeginOperator = envelope.Message.Operator;
         roadSegmentRecord.BeginOrganizationId = envelope.Message.OrganizationId;
         roadSegmentRecord.BeginOrganizationName = envelope.Message.Organization;
         roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);

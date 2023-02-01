@@ -64,7 +64,6 @@ public class RoadSegmentRecordProjectionTests
             return (object)new RoadSegmentRecord
             {
                 Id = segment.Id,
-                BeginOperator = message.Operator,
                 BeginOrganizationId = message.OrganizationId,
                 BeginOrganizationName = message.Organization,
                 BeginTime = LocalDateTimeTranslator.TranslateFromWhen(message.When),
@@ -135,7 +134,6 @@ public class RoadSegmentRecordProjectionTests
             .Expect(new RoadSegmentRecord
             {
                 Id = expectedRoadSegment.wegsegmentID,
-                BeginOperator = expectedRoadSegment.beginoperator,
                 BeginOrganizationId = expectedRoadSegment.beginorganisatie,
                 BeginTime = expectedRoadSegment.begintijd,
                 BeginApplication = expectedRoadSegment.beginapplicatie,
@@ -205,7 +203,6 @@ public class RoadSegmentRecordProjectionTests
             .Expect(new RoadSegmentRecord
             {
                 Id = expectedRoadSegment.wegsegmentID,
-                BeginOperator = expectedRoadSegment.beginoperator,
                 BeginOrganizationId = expectedRoadSegment.beginorganisatie,
                 BeginTime = expectedRoadSegment.begintijd,
                 BeginApplication = expectedRoadSegment.beginapplicatie,
@@ -273,7 +270,6 @@ public class RoadSegmentRecordProjectionTests
             return (object)new RoadSegmentRecord
             {
                 Id = segment.Id,
-                BeginOperator = acceptedRoadSegmentModified.Operator,
                 BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
                 BeginOrganizationName = acceptedRoadSegmentModified.Organization,
                 BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When),
