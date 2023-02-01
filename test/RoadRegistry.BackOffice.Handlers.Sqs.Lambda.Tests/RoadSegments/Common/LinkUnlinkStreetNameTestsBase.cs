@@ -16,8 +16,8 @@ public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
 {
     protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 
-    protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
+    protected LinkUnlinkStreetNameTestsBase(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
+        : base(testOutputHelper, loggerFactory)
     {
         StreetNameCache = new FakeStreetNameCache()
             .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))

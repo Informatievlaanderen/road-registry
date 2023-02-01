@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
+using System.Diagnostics;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Validation;
@@ -9,7 +10,9 @@ using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
+using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using TicketingService.Abstractions;
@@ -17,16 +20,20 @@ using TicketingService.Abstractions;
 public abstract class SqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>
     where TSqsLambdaRequest : SqsLambdaRequest
 {
+    protected ILogger Logger { get; init; }
+
     protected SqsLambdaHandler(
         IConfiguration configuration,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
-        IRoadRegistryContext roadRegistryContext)
+        IRoadRegistryContext roadRegistryContext,
+        ILogger logger)
         : base(retryPolicy, ticketing, idempotentCommandHandler)
     {
         RoadRegistryContext = roadRegistryContext;
         DetailUrlFormat = configuration.GetRequiredValue<string>("DetailUrl");
+        Logger = logger;
     }
 
     protected IRoadRegistryContext RoadRegistryContext { get; }
@@ -46,6 +53,17 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase
         return roadSegment.LastEventHash;
     }
 
+    protected abstract Task<ETagResponse> InnerHandleAsync(TSqsLambdaRequest request, CancellationToken cancellationToken);
+
+    protected override Task<ETagResponse> InnerHandle(TSqsLambdaRequest request, CancellationToken cancellationToken)
+    {
+        var sw = Stopwatch.StartNew();
+        Logger.LogInformation("Started InnerHandle on {HandlerType} for lambda request {RequestType}", GetType().Name, request.GetType().Name);
+        var result = InnerHandleAsync(request, cancellationToken);
+        Logger.LogInformation("Finished InnerHandle on {HandlerType} for lambda request {RequestType} in {StopwatchElapsedMilliseconds}", GetType().Name, request.GetType().Name, sw.ElapsedMilliseconds);
+        return result;
+    }
+    
     protected override async Task HandleAggregateIdIsNotFoundException(TSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         await Ticketing.Error(request.TicketId,

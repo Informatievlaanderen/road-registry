@@ -11,6 +11,7 @@ using Framework.Testing;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using NodaTime;
 using NodaTime.Testing;
@@ -52,7 +53,7 @@ public abstract class RoadRegistryFixture : AutofacBasedTest, IDisposable
         LoggerFactory = new LoggerFactory();
 
         WithStore(new InMemoryStreamStore(), comparisonConfig);
-        RoadRegistryContext = new RoadRegistryContext(EntityMapFactory(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping);
+        RoadRegistryContext = new RoadRegistryContext(EntityMapFactory(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
     }
 
     public MemoryBlobClient Client { get; }

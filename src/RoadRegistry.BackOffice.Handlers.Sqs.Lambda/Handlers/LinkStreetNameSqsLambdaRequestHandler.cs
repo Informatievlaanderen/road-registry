@@ -4,7 +4,6 @@ using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Validation;
 using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
@@ -13,9 +12,9 @@ using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Exceptions;
 using Extensions;
 using Framework;
-using Infrastructure;
 using Messages;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Requests;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
@@ -32,19 +31,21 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IStreetNameCache streetNameCache,
-        IRoadNetworkCommandQueue commandQueue)
+        IRoadNetworkCommandQueue commandQueue,
+        ILogger<LinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
             configuration,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
-            roadRegistryContext)
+            roadRegistryContext,
+            logger)
     {
         _streetNameCache = streetNameCache;
         _commandQueue = commandQueue;
     }
 
-    protected override async Task<ETagResponse> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<ETagResponse> InnerHandleAsync(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         var roadSegmentId = request.Request.WegsegmentId;
 
