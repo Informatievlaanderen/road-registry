@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
 using Messages;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
@@ -30,11 +31,13 @@ using RoadSegmentWidthAttributes = Messages.RoadSegmentWidthAttributes;
 public abstract class BackOfficeLambdaTest : RoadNetworkFixture
 {
     protected readonly IdempotencyContext IdempotencyContext;
+    protected readonly ILoggerFactory LoggerFactory;
 
-    protected BackOfficeLambdaTest(ITestOutputHelper testOutputHelper)
+    protected BackOfficeLambdaTest(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
         : base(testOutputHelper)
     {
         IdempotencyContext = new FakeIdempotencyContextFactory().CreateDbContext(Array.Empty<string>());
+        LoggerFactory = loggerFactory;
     }
     
     protected async Task AddRoadSegment(RoadSegmentId roadSegmentId)

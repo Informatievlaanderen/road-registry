@@ -13,14 +13,15 @@ using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Framework;
 using Common;
 using Messages;
+using Microsoft.Extensions.Logging;
 using Sqs.RoadSegments;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
 public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 {
-    public LinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
+    public LinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
+        : base(testOutputHelper, loggerFactory)
     {
     }
 
@@ -33,7 +34,8 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()), 
             RoadRegistryContext,
             StreetNameCache,
-            new RoadNetworkCommandQueue(Store, ApplicationMetadata)
+            new RoadNetworkCommandQueue(Store, ApplicationMetadata),
+            LoggerFactory.CreateLogger<LinkStreetNameSqsLambdaRequestHandler>()
         );
 
         await handler.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetworkInfo.Identifier.ToString(), new LinkStreetNameSqsRequest

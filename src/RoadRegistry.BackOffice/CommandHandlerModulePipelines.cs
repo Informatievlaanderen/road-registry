@@ -8,6 +8,7 @@ using Core;
 using FluentValidation;
 using Framework;
 using Messages;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
 
@@ -18,6 +19,8 @@ internal static class CommandHandlerModulePipelines
 
     private static readonly JsonSerializerSettings SerializerSettings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
+    private static readonly ILoggerFactory LoggerFactory = new LoggerFactory();
 
     public static ICommandHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
         this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, Func<EventSourcedEntityMap> entityMapFactory, IRoadNetworkSnapshotReader snapshotReader, EventEnricher enricher)
@@ -58,7 +61,7 @@ internal static class CommandHandlerModulePipelines
         where TMessage : IRoadRegistryMessage
     {
         var map = entityMapFactory();
-        var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping);
+        var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping, LoggerFactory);
 
         await next(context);
 

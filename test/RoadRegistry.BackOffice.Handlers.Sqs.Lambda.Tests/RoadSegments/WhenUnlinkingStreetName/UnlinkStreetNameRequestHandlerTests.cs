@@ -16,11 +16,12 @@ using Messages;
 using Sqs.RoadSegments;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
+using Microsoft.Extensions.Logging;
 
 public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 {
-    public UnlinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
+    public UnlinkStreetNameRequestHandlerTests(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
+        : base(testOutputHelper, loggerFactory)
     {
     }
 
@@ -32,7 +33,8 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             ticketing,
             new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()),
             RoadRegistryContext,
-            new RoadNetworkCommandQueue(Store, ApplicationMetadata)
+            new RoadNetworkCommandQueue(Store, ApplicationMetadata),
+            LoggerFactory.CreateLogger<UnlinkStreetNameSqsLambdaRequestHandler>()
         );
 
         await handler.Handle(new UnlinkStreetNameSqsLambdaRequest(RoadNetworkInfo.Identifier.ToString(), new UnlinkStreetNameSqsRequest

@@ -14,6 +14,8 @@ using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Dbase;
 using Handlers;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Requests;
 using Sqs.RoadSegments;
@@ -22,8 +24,7 @@ using Xunit.Abstractions;
 
 public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 {
-    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
+    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory) : base(testOutputHelper, loggerFactory)
     {
     }
 
@@ -46,7 +47,8 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             new FakeRetryPolicy(),
             ticketing.Object,
             idempotentCommandHandler.Object,
-            RoadRegistryContext);
+            RoadRegistryContext,
+            new NullLogger<FakeLambdaHandler>());
 
         await sut.Handle(sqsLambdaRequest, CancellationToken.None);
 
@@ -71,7 +73,8 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             new FakeRetryPolicy(),
             ticketing.Object,
             MockExceptionIdempotentCommandHandler(() => new IdempotencyException(string.Empty)).Object,
-            RoadRegistryContext);
+            RoadRegistryContext,
+            new NullLogger<FakeLambdaHandler>());
 
         // Act
         await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetworkInfo.Identifier.ToString(), new LinkStreetNameSqsRequest
@@ -109,7 +112,8 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             new FakeRetryPolicy(),
             Mock.Of<ITicketing>(),
             idempotentCommandHandler.Object,
-            RoadRegistryContext);
+            RoadRegistryContext,
+            new NullLogger<FakeLambdaHandler>());
 
         await sut.Handle(sqsLambdaRequest, CancellationToken.None);
 
@@ -138,7 +142,8 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             new FakeRetryPolicy(),
             ticketing.Object,
             MockExceptionIdempotentCommandHandler<RoadSegmentNotFoundException>().Object,
-            RoadRegistryContext);
+            RoadRegistryContext,
+            new NullLogger<FakeLambdaHandler>());
 
         await sut.Handle(sqsLambdaRequest, CancellationToken.None);
 
@@ -158,17 +163,19 @@ public sealed class FakeLambdaHandler : SqsLambdaHandler<LinkStreetNameSqsLambda
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
-        IRoadRegistryContext roadRegistryContext)
+        IRoadRegistryContext roadRegistryContext,
+        ILogger<FakeLambdaHandler> logger)
         : base(
             configuration,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
-            roadRegistryContext)
+            roadRegistryContext,
+            logger)
     {
     }
 
-    protected override Task<ETagResponse> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override Task<ETagResponse> InnerHandleAsync(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         IdempotentCommandHandler.Dispatch(
             Guid.NewGuid(),
