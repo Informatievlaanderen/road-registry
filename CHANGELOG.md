@@ -1,3 +1,11 @@
+## [3.33.7](https://github.com/informatievlaanderen/road-registry/compare/v3.33.6...v3.33.7) (2023-02-01)
+
+
+### Bug Fixes
+
+* Add loggers inside Lambda handler and RoadNetworks ([#818](https://github.com/informatievlaanderen/road-registry/issues/818)) ([e63875a](https://github.com/informatievlaanderen/road-registry/commit/e63875a3f82a70941991dfef37f16dbd2133e224))
+* Drop wms beginoperator column ([1c340f8](https://github.com/informatievlaanderen/road-registry/commit/1c340f8b8672bcbaaa3e513a5830e84b7ac78f9b))
+
 ## [3.33.6](https://github.com/informatievlaanderen/road-registry/compare/v3.33.5...v3.33.6) (2023-01-31)
 
 
