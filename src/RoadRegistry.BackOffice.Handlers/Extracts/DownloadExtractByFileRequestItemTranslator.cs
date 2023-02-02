@@ -53,7 +53,7 @@ public class DownloadExtractByFileRequestItemTranslator
                                 case PolygonShapeContent polygonShapeContent:
                                     try
                                     {
-                                        polygons.AddRange(GeometryTranslator.ToGeometryMultiPolygon(polygonShapeContent.Shape).Geometries.Cast<Polygon>());
+                                        polygons.AddRange(GeometryTranslator.ToMultiPolygon(polygonShapeContent.Shape).Geometries.Cast<Polygon>());
                                     }
                                     catch (InvalidPolygonShellOrientationException)
                                     {

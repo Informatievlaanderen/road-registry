@@ -5,6 +5,7 @@ namespace RoadRegistry.BackOffice;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentValidation.Results;
 
 public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 {
@@ -224,6 +225,9 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
     public static readonly IReadOnlyDictionary<int, RoadSegmentMorphology> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
+    public static readonly IReadOnlyDictionary<string, RoadSegmentMorphology> ByName =
+        All.ToDictionary(key => key.Translation.Name);
+
     private readonly string _value;
 
     private RoadSegmentMorphology(string value, DutchTranslation dutchTranslation)
@@ -241,9 +245,12 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public static bool CanParse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        return TryParse(value.ThrowIfNull(), out _);
+    }
 
-        return Array.Find(All, candidate => candidate._value == value) != null;
+    public static bool CanParseUsingDutchName(string value)
+    {
+        return TryParseUsingDutchName(value, out _);
     }
 
     public override bool Equals(object obj)
@@ -273,9 +280,13 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public static RoadSegmentMorphology Parse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (!TryParse(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment morphology.");
+        return parsed;
+    }
 
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment morphology.");
+    public static RoadSegmentMorphology ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment morphology.");
         return parsed;
     }
 
@@ -286,9 +297,15 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public static bool TryParse(string value, out RoadSegmentMorphology parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentMorphology parsed)
+    {
+        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 

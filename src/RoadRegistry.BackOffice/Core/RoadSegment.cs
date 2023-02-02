@@ -26,7 +26,7 @@ public class RoadSegment
     {
         ArgumentNullException.ThrowIfNull(geometry);
         
-        if (start == end)
+        if (attributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined.ToString() && start == end)
         {
             throw new ArgumentException("The start and end can not be the same road node.", nameof(start));
         }

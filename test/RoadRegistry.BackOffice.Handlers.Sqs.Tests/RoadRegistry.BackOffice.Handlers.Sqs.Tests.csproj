@@ -18,6 +18,10 @@
     <Using Include="RoadRegistry.Tests" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="RoadSegments\" />
+  </ItemGroup>
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 
 </Project>

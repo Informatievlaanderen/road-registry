@@ -39,7 +39,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             Request = new LinkStreetNameRequest(1, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         });
 
         var sut = new FakeLambdaHandler(
@@ -83,7 +83,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             Request = new LinkStreetNameRequest(roadSegmentId, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         }), CancellationToken.None);
 
         //Assert
@@ -104,7 +104,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             Request = new LinkStreetNameRequest(0, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         });
 
         var sut = new FakeLambdaHandler(
@@ -134,7 +134,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             Request = new LinkStreetNameRequest(0, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         });
 
         var sut = new FakeLambdaHandler(

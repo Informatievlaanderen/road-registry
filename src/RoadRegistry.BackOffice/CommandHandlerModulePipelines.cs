@@ -20,10 +20,8 @@ internal static class CommandHandlerModulePipelines
     private static readonly JsonSerializerSettings SerializerSettings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    private static readonly ILoggerFactory LoggerFactory = new LoggerFactory();
-
     public static ICommandHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
-        this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, Func<EventSourcedEntityMap> entityMapFactory, IRoadNetworkSnapshotReader snapshotReader, EventEnricher enricher)
+        this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, Func<EventSourcedEntityMap> entityMapFactory, IRoadNetworkSnapshotReader snapshotReader, ILoggerFactory loggerFactory, EventEnricher enricher)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
@@ -31,13 +29,13 @@ internal static class CommandHandlerModulePipelines
 
         return builder.Pipe<IRoadRegistryContext>(next => async (message, commandMetadata, ct) =>
             {
-                await HandleMessage(store, entityMapFactory, snapshotReader, enricher, context => next(context, message, commandMetadata, ct), message, ct);
+                await HandleMessage(store, entityMapFactory, snapshotReader, enricher, context => next(context, message, commandMetadata, ct), message, loggerFactory, ct);
             }
         );
     }
     
     public static IEventHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
-        this IEventHandlerBuilder<TCommand> builder, IStreamStore store, IRoadNetworkSnapshotReader snapshotReader, EventEnricher enricher)
+        this IEventHandlerBuilder<TCommand> builder, IStreamStore store, IRoadNetworkSnapshotReader snapshotReader, ILoggerFactory loggerFactory, EventEnricher enricher)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
@@ -45,7 +43,7 @@ internal static class CommandHandlerModulePipelines
 
         return builder.Pipe<IRoadRegistryContext>(next => async (message, ct) =>
             {
-                await HandleMessage(store, () => new EventSourcedEntityMap(), snapshotReader, enricher, context => next(context, message, ct), message, ct);
+                await HandleMessage(store, () => new EventSourcedEntityMap(), snapshotReader, enricher, context => next(context, message, ct), message, loggerFactory, ct);
             }
         );
     }
@@ -57,11 +55,12 @@ internal static class CommandHandlerModulePipelines
         EventEnricher enricher,
         Func<IRoadRegistryContext, Task> next,
         TMessage message,
+        ILoggerFactory loggerFactory,
         CancellationToken ct)
         where TMessage : IRoadRegistryMessage
     {
         var map = entityMapFactory();
-        var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping, LoggerFactory);
+        var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping, loggerFactory);
 
         await next(context);
 

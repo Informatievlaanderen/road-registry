@@ -4,6 +4,11 @@ using System;
 
 public class VerificationContextTolerances
 {
+    public static readonly VerificationContextTolerances Default = new (
+        DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance,
+        DefaultTolerances.MeasurementTolerance,
+        DefaultTolerances.GeometryTolerance);
+
     public VerificationContextTolerances(
         double dynamicRoadSegmentAttributePositionTolerance,
         double measurementTolerance,

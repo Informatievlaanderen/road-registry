@@ -15,7 +15,7 @@ using RoadRegistry.Tests.BackOffice.Scenarios;
 using Sqs.RoadSegments;
 using Xunit.Abstractions;
 
-public sealed class MessageHandlerTests : RoadRegistryFixture
+public sealed class MessageHandlerTests : RoadRegistryTestBase
 {
     public MessageHandlerTests(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
@@ -43,8 +43,8 @@ public sealed class MessageHandlerTests : RoadRegistryFixture
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
 
-        var messageData = Fixture.Create<TestSqsRequest>();
-        var messageMetadata = new MessageMetadata { MessageGroupId = Fixture.Create<string>() };
+        var messageData = ObjectProvider.Create<TestSqsRequest>();
+        var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
         var sut = new MessageHandler(container);
 
@@ -67,8 +67,8 @@ public sealed class MessageHandlerTests : RoadRegistryFixture
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
 
-        var messageData = Fixture.Create<object>();
-        var messageMetadata = new MessageMetadata { MessageGroupId = Fixture.Create<string>() };
+        var messageData = ObjectProvider.Create<object>();
+        var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
         var sut = new MessageHandler(container);
 
@@ -92,8 +92,8 @@ public sealed class MessageHandlerTests : RoadRegistryFixture
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
 
-        var messageData = Fixture.Create<TSqsRequest>();
-        var messageMetadata = new MessageMetadata { MessageGroupId = Fixture.Create<string>() };
+        var messageData = ObjectProvider.Create<TSqsRequest>();
+        var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
         var sut = new MessageHandler(container);
 

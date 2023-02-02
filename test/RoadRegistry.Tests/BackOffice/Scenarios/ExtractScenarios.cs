@@ -13,15 +13,15 @@ using RoadRegistry.BackOffice.Messages;
 using Xunit;
 using Xunit.Abstractions;
 
-public class ExtractScenarios : RoadRegistryFixture
+public class ExtractScenarios : RoadRegistryTestBase
 {
     public ExtractScenarios(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper, CreateComparisonConfig())
     {
-        Fixture.CustomizeExternalExtractRequestId();
-        Fixture.CustomizeRoadNetworkExtractGeometry();
-        Fixture.CustomizeExtractDescription();
-        Fixture.CustomizeArchiveId();
+        ObjectProvider.CustomizeExternalExtractRequestId();
+        ObjectProvider.CustomizeRoadNetworkExtractGeometry();
+        ObjectProvider.CustomizeExtractDescription();
+        ObjectProvider.CustomizeArchiveId();
     }
 
     private static ComparisonConfig CreateComparisonConfig()
@@ -87,12 +87,12 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public Task when_announcing_a_requested_road_network_extract_download_became_available()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var archiveId = Fixture.Create<ArchiveId>();
-        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         return Run(scenario => scenario
             .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
@@ -120,12 +120,12 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public Task when_announcing_an_announced_road_network_extract_download_became_available()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var archiveId = Fixture.Create<ArchiveId>();
-        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         return Run(scenario => scenario
             .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
@@ -153,12 +153,12 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public Task when_announcing_a_requested_road_network_extract_download_timeout_occurred()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var archiveId = Fixture.Create<ArchiveId>();
-        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         return Run(scenario => scenario
             .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
@@ -184,13 +184,13 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public Task when_requesting_an_extract_again_with_a_different_download_id()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var oldDownloadId = Fixture.Create<DownloadId>();
-        var newDownloadId = Fixture.Create<DownloadId>();
-        var oldContour = Fixture.Create<RoadNetworkExtractGeometry>();
-        var newContour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var oldDownloadId = ObjectProvider.Create<DownloadId>();
+        var newDownloadId = ObjectProvider.Create<DownloadId>();
+        var oldContour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
+        var newContour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         return Run(scenario => scenario
             .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
@@ -218,12 +218,12 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public Task when_requesting_an_extract_again_with_the_same_download_id()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var oldContour = Fixture.Create<RoadNetworkExtractGeometry>();
-        var newContour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var oldContour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
+        var newContour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         return Run(scenario => scenario
             .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
@@ -243,11 +243,11 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public Task when_requesting_an_extract_for_the_first_time()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         return Run(scenario => scenario
             .GivenNone()
@@ -267,13 +267,13 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public async Task when_uploading_an_archive_of_changes_a_second_time()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var uploadId = Fixture.Create<UploadId>();
-        var archiveId = Fixture.Create<ArchiveId>();
-        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var uploadId = ObjectProvider.Create<UploadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         await CreateErrorArchive(archiveId);
 
@@ -322,14 +322,14 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public async Task when_uploading_an_archive_of_changes_for_an_outdated_download()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var outdatedDownloadId = Fixture.Create<DownloadId>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var uploadId = Fixture.Create<UploadId>();
-        var archiveId = Fixture.Create<ArchiveId>();
-        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var outdatedDownloadId = ObjectProvider.Create<DownloadId>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var uploadId = ObjectProvider.Create<UploadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         await CreateEmptyArchive(archiveId);
 
@@ -368,14 +368,14 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public async Task when_uploading_an_archive_of_changes_for_an_unknown_download()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var unknownDownloadId = Fixture.Create<DownloadId>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var uploadId = Fixture.Create<UploadId>();
-        var archiveId = Fixture.Create<ArchiveId>();
-        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var unknownDownloadId = ObjectProvider.Create<DownloadId>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var uploadId = ObjectProvider.Create<UploadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         await CreateEmptyArchive(archiveId);
 
@@ -405,13 +405,13 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public async Task when_uploading_an_archive_of_changes_which_are_accepted_after_validation()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var uploadId = Fixture.Create<UploadId>();
-        var archiveId = Fixture.Create<ArchiveId>();
-        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var uploadId = ObjectProvider.Create<UploadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         await CreateEmptyArchive(archiveId);
 
@@ -462,13 +462,13 @@ public class ExtractScenarios : RoadRegistryFixture
     [Fact]
     public async Task when_uploading_an_archive_of_changes_which_are_not_accepted_after_validation()
     {
-        var externalExtractRequestId = Fixture.Create<ExternalExtractRequestId>();
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
         var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = Fixture.Create<ExtractDescription>();
-        var downloadId = Fixture.Create<DownloadId>();
-        var uploadId = Fixture.Create<UploadId>();
-        var archiveId = Fixture.Create<ArchiveId>();
-        var contour = Fixture.Create<RoadNetworkExtractGeometry>();
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var uploadId = ObjectProvider.Create<UploadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
 
         await CreateErrorArchive(archiveId);
 

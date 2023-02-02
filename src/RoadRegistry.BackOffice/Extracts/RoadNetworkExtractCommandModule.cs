@@ -20,17 +20,20 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveAfterFeatureCompareValidator validator,
         IClock clock,
-        ILogger<RoadNetworkExtractCommandModule> logger)
+        ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(validator);
         ArgumentNullException.ThrowIfNull(clock);
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+
+        var logger = loggerFactory.CreateLogger<RoadNetworkExtractCommandModule>();
 
         For<RequestRoadNetworkExtract>()
             .UseValidator(new RequestRoadNetworkExtractValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(RequestRoadNetworkExtract));
@@ -57,7 +60,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<AnnounceRoadNetworkExtractDownloadBecameAvailable>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(AnnounceRoadNetworkExtractDownloadBecameAvailable));
@@ -73,7 +76,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<AnnounceRoadNetworkExtractDownloadTimeoutOccurred>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(AnnounceRoadNetworkExtractDownloadTimeoutOccurred));
@@ -86,7 +89,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             });
 
         For<UploadRoadNetworkExtractChangesArchive>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(UploadRoadNetworkExtractChangesArchive));

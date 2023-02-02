@@ -14,15 +14,18 @@ public class RoadNetworkEventModule : EventHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
-        ILogger<RoadNetworkEventModule> logger)
+        ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(snapshotWriter);
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+
+        var logger = loggerFactory.CreateLogger<RoadNetworkEventModule>();
 
         For<CompletedRoadNetworkImport>()
-            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, ct) =>
             {
                 logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));
@@ -34,7 +37,7 @@ public class RoadNetworkEventModule : EventHandlerModule
             });
 
         For<RoadNetworkChangesAccepted>()
-            .UseRoadRegistryContext(store, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, ct) =>
             {
                 logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));

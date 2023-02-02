@@ -6,6 +6,7 @@
     <Nullable>disable</Nullable>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <NoWarn>8618,8887</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
@@ -30,6 +35,12 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

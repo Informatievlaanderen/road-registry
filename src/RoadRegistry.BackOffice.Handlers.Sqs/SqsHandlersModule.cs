@@ -29,13 +29,17 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs
                 .As<ISqsQueueConsumer>()
                 .SingleInstance();
 
-            builder.Register<ISqsQueue>(c =>
+            builder.Register(c =>
                 {
                     var configuration = c.Resolve<IConfiguration>();
-                    
-                    return new SqsQueue(c.Resolve<SqsOptions>(), configuration.GetRequiredValue<string>(SqsQueueUrlConfigKey));
+
+                    var sqsOptions = c.Resolve<SqsOptions>();
+                    var sqsQueueUrl = configuration.GetValue<string>(SqsQueueUrlConfigKey);
+                    var sqsQueue = new SqsQueue(sqsOptions, sqsQueueUrl);
+
+                    return sqsQueue;
                 })
-                .AsSelf()
+                .As<ISqsQueue>()
                 .SingleInstance();
         }
     }

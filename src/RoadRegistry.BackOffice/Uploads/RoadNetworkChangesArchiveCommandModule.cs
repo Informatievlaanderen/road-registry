@@ -20,17 +20,19 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveAfterFeatureCompareValidator validator,
         IClock clock,
-        ILogger<RoadNetworkChangesArchiveCommandModule> logger)
+        ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(blobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(validator);
         ArgumentNullException.ThrowIfNull(clock);
-        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+
+        var logger = loggerFactory.CreateLogger<RoadNetworkChangesArchiveCommandModule>();
 
         For<UploadRoadNetworkChangesArchive>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
                 var archiveId = new ArchiveId(message.Body.ArchiveId);

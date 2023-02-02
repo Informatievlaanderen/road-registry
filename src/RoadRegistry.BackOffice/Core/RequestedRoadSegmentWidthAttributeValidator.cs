@@ -15,3 +15,12 @@ public class RequestedRoadSegmentWidthAttributeValidator : AbstractValidator<Req
             .When(_ => _.Width != RoadSegmentWidth.Unknown && _.Width != RoadSegmentWidth.NotApplicable, ApplyConditionTo.CurrentValidator);
     }
 }
+
+public class RequestedRoadSegmentOutlineWidthAttributeValidator : RequestedRoadSegmentWidthAttributeValidator
+{
+    public RequestedRoadSegmentOutlineWidthAttributeValidator()
+    {
+        RuleFor(c => c.Width)
+            .GreaterThan(0);
+    }
+}

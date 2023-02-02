@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <NoWarn>CS8603</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +17,12 @@
   <ItemGroup>
     <Using Include="Xunit" />
     <Using Include="RoadRegistry.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

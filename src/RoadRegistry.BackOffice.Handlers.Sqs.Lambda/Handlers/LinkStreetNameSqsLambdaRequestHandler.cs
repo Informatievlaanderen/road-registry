@@ -3,8 +3,8 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Validation;
-using Amazon.Lambda.Core;
 using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
@@ -70,6 +70,11 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
     }
+
+    protected override TicketError? InnerMapDomainException(DomainException exception, LinkStreetNameSqsLambdaRequest request)
+    {
+        return null;
+    }
     
     private async Task<ChangeRoadNetwork> ToCommand(LinkStreetNameSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)
     {
@@ -95,8 +100,8 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
             if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId))
             {
                 throw new RoadRegistryValidationException(
-                    ValidationErrors.RoadSegment.LeftStreetNameIsNotUnlinked.Message(lambdaRequest.Request.WegsegmentId),
-                    ValidationErrors.RoadSegment.LeftStreetNameIsNotUnlinked.Code);
+                    ValidationErrors.RoadSegment.StreetName.Left.NotUnlinked.Message(lambdaRequest.Request.WegsegmentId),
+                    ValidationErrors.RoadSegment.StreetName.Left.NotUnlinked.Code);
             }
 
             await ValidateStreetName(leftStreetNameId, cancellationToken);
@@ -121,8 +126,8 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
             if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
             {
                 throw new RoadRegistryValidationException(
-                    ValidationErrors.RoadSegment.RightStreetNameIsNotUnlinked.Message(lambdaRequest.Request.WegsegmentId),
-                    ValidationErrors.RoadSegment.RightStreetNameIsNotUnlinked.Code);
+                    ValidationErrors.RoadSegment.StreetName.Right.NotUnlinked.Message(lambdaRequest.Request.WegsegmentId),
+                    ValidationErrors.RoadSegment.StreetName.Right.NotUnlinked.Code);
             }
 
             await ValidateStreetName(rightStreetNameId, cancellationToken);
@@ -186,8 +191,8 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
             && !string.Equals(streetNameStatus, "current", StringComparison.InvariantCultureIgnoreCase))
         {
             throw new RoadRegistryValidationException(
-                ValidationErrors.RoadSegment.StreetNameIsNotProposedOrCurrent.Message,
-                ValidationErrors.RoadSegment.StreetNameIsNotProposedOrCurrent.Code);
+                ValidationErrors.RoadSegment.StreetName.NotProposedOrCurrent.Message,
+                ValidationErrors.RoadSegment.StreetName.NotProposedOrCurrent.Code);
         }
     }
 }

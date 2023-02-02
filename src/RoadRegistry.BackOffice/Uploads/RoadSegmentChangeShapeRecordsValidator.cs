@@ -37,7 +37,7 @@ public class RoadSegmentChangeShapeRecordsValidator : IZipArchiveShapeRecordsVal
                         }
                         else if (record.Content is PolyLineMShapeContent content)
                         {
-                            var shape = GeometryTranslator.ToGeometryMultiLineString(content.Shape);
+                            var shape = GeometryTranslator.ToMultiLineString(content.Shape);
                             if (!shape.IsValid)
                             {
                                 problems += recordContext.ShapeRecordGeometryMismatch();

@@ -54,6 +54,9 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
     public static readonly IReadOnlyDictionary<int, RoadSegmentLaneDirection> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
+    public static readonly IReadOnlyDictionary<string, RoadSegmentLaneDirection> ByName =
+        All.ToDictionary(key => key.Translation.Name);
+
     private readonly string _value;
 
     private RoadSegmentLaneDirection(string value, DutchTranslation dutchTranslation)
@@ -75,6 +78,8 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
 
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
+
+    public static bool CanParseUsingDutchName(string value) => ParseUsingDutchName(value) is not null;
 
     public override bool Equals(object obj)
     {
@@ -107,6 +112,11 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
 
         if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known lane direction.");
         return parsed;
+    }
+
+    public static RoadSegmentLaneDirection ParseUsingDutchName(string value)
+    {
+        return value == null ? null : Array.Find(All, candidate => candidate.Translation.Name == value);
     }
 
     public override string ToString()

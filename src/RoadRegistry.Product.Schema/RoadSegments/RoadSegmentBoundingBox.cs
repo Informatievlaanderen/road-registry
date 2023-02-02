@@ -15,7 +15,7 @@ public class RoadSegmentBoundingBox
 
     public static RoadSegmentBoundingBox From(PolyLineM shape)
     {
-        var multiLineString = BackOffice.GeometryTranslator.ToGeometryMultiLineString(shape);
+        var multiLineString = BackOffice.GeometryTranslator.ToMultiLineString(shape);
 
         return new RoadSegmentBoundingBox
         {

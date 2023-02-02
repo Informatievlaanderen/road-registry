@@ -28,7 +28,7 @@ using RoadSegmentLaneAttributes = Messages.RoadSegmentLaneAttributes;
 using RoadSegmentSurfaceAttributes = Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = Messages.RoadSegmentWidthAttributes;
 
-public abstract class BackOfficeLambdaTest : RoadNetworkFixture
+public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
 {
     protected readonly IdempotencyContext IdempotencyContext;
     protected readonly ILoggerFactory LoggerFactory;
@@ -43,9 +43,9 @@ public abstract class BackOfficeLambdaTest : RoadNetworkFixture
     protected async Task AddRoadSegment(RoadSegmentId roadSegmentId)
     {
         var pointA = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeA = Fixture.Create<RoadNodeId>();
+        var nodeA = ObjectProvider.Create<RoadNodeId>();
         var pointB = new Point(new CoordinateM(10.0, 0.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeB = Fixture.Create<RoadNodeId>();
+        var nodeB = ObjectProvider.Create<RoadNodeId>();
         var segment1 = roadSegmentId;
         var line1 = new MultiLineString(
                 new[]
@@ -74,7 +74,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkFixture
                     RoadNodeAdded = new RoadNodeAdded
                     {
                         Id = nodeA,
-                        TemporaryId = Fixture.Create<RoadNodeId>(),
+                        TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                         Geometry = GeometryTranslator.Translate(pointA),
                         Type = RoadNodeType.EndNode
                     },
@@ -85,7 +85,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkFixture
                     RoadNodeAdded = new RoadNodeAdded
                     {
                         Id = nodeB,
-                        TemporaryId = Fixture.Create<RoadNodeId>(),
+                        TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                         Geometry = GeometryTranslator.Translate(pointB),
                         Type = RoadNodeType.EndNode
                     },
@@ -96,31 +96,31 @@ public abstract class BackOfficeLambdaTest : RoadNetworkFixture
                     RoadSegmentAdded = new RoadSegmentAdded
                     {
                         Id = segment1,
-                        TemporaryId = Fixture.Create<RoadSegmentId>(),
-                        Version = Fixture.Create<int>(),
+                        TemporaryId = ObjectProvider.Create<RoadSegmentId>(),
+                        Version = ObjectProvider.Create<int>(),
                         StartNodeId = nodeA,
                         EndNodeId = nodeB,
-                        AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
-                        Category = Fixture.Create<RoadSegmentCategory>(),
-                        Morphology = Fixture.Create<RoadSegmentMorphology>(),
-                        Status = Fixture.Create<RoadSegmentStatus>(),
-                        GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                        AccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>(),
+                        Category = ObjectProvider.Create<RoadSegmentCategory>(),
+                        Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
+                        Status = ObjectProvider.Create<RoadSegmentStatus>(),
+                        GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
                         Geometry = GeometryTranslator.Translate(line1),
-                        GeometryVersion = Fixture.Create<GeometryVersion>(),
+                        GeometryVersion = ObjectProvider.Create<GeometryVersion>(),
                         MaintenanceAuthority = new MaintenanceAuthority
                         {
-                            Code = Fixture.Create<OrganizationId>(),
-                            Name = Fixture.Create<OrganizationName>()
+                            Code = ObjectProvider.Create<OrganizationId>(),
+                            Name = ObjectProvider.Create<OrganizationName>()
                         },
                         LeftSide = new RoadSegmentSideAttributes
                         {
-                            StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                            StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
                         },
                         RightSide = new RoadSegmentSideAttributes
                         {
-                            StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                            StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
                         },
-                        Lanes = Fixture
+                        Lanes = ObjectProvider
                             .CreateMany<RoadSegmentLaneAttributes>(count)
                             .Select((part, index) =>
                             {
@@ -137,7 +137,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkFixture
                                 return part;
                             })
                             .ToArray(),
-                        Widths = Fixture
+                        Widths = ObjectProvider
                             .CreateMany<RoadSegmentWidthAttributes>(3)
                             .Select((part, index) =>
                             {
@@ -154,7 +154,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkFixture
                                 return part;
                             })
                             .ToArray(),
-                        Surfaces = Fixture
+                        Surfaces = ObjectProvider
                             .CreateMany<RoadSegmentSurfaceAttributes>(3)
                             .Select((part, index) =>
                             {

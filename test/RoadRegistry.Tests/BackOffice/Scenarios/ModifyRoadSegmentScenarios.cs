@@ -26,100 +26,100 @@ using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLa
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
-public class ModifyRoadSegmentScenarios : RoadRegistryFixture
+public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
 {
     public ModifyRoadSegmentScenarios(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
     {
-        Fixture.CustomizePoint();
-        Fixture.CustomizePolylineM();
+        ObjectProvider.CustomizePoint();
+        ObjectProvider.CustomizePolylineM();
 
-        Fixture.CustomizeAttributeId();
-        Fixture.CustomizeOrganizationId();
-        Fixture.CustomizeOrganizationName();
-        Fixture.CustomizeRoadNodeId();
-        Fixture.CustomizeRoadNodeType();
-        Fixture.CustomizeRoadSegmentId();
-        Fixture.CustomizeRoadSegmentCategory();
-        Fixture.CustomizeRoadSegmentMorphology();
-        Fixture.CustomizeRoadSegmentStatus();
-        Fixture.CustomizeRoadSegmentAccessRestriction();
-        Fixture.CustomizeRoadSegmentLaneCount();
-        Fixture.CustomizeRoadSegmentLaneDirection();
-        Fixture.CustomizeRoadSegmentNumberedRoadDirection();
-        Fixture.CustomizeRoadSegmentGeometryDrawMethod();
-        Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
-        Fixture.CustomizeRoadSegmentSurfaceType();
-        Fixture.CustomizeRoadSegmentWidth();
-        Fixture.CustomizeEuropeanRoadNumber();
-        Fixture.CustomizeNationalRoadNumber();
-        Fixture.CustomizeNumberedRoadNumber();
-        Fixture.CustomizeOriginProperties();
-        Fixture.CustomizeGradeSeparatedJunctionId();
-        Fixture.CustomizeGradeSeparatedJunctionType();
-        Fixture.CustomizeArchiveId();
-        Fixture.CustomizeChangeRequestId();
-        Fixture.CustomizeReason();
-        Fixture.CustomizeOperatorName();
-        Fixture.CustomizeTransactionId();
+        ObjectProvider.CustomizeAttributeId();
+        ObjectProvider.CustomizeOrganizationId();
+        ObjectProvider.CustomizeOrganizationName();
+        ObjectProvider.CustomizeRoadNodeId();
+        ObjectProvider.CustomizeRoadNodeType();
+        ObjectProvider.CustomizeRoadSegmentId();
+        ObjectProvider.CustomizeRoadSegmentCategory();
+        ObjectProvider.CustomizeRoadSegmentMorphology();
+        ObjectProvider.CustomizeRoadSegmentStatus();
+        ObjectProvider.CustomizeRoadSegmentAccessRestriction();
+        ObjectProvider.CustomizeRoadSegmentLaneCount();
+        ObjectProvider.CustomizeRoadSegmentLaneDirection();
+        ObjectProvider.CustomizeRoadSegmentNumberedRoadDirection();
+        ObjectProvider.CustomizeRoadSegmentGeometryDrawMethod();
+        ObjectProvider.CustomizeRoadSegmentNumberedRoadOrdinal();
+        ObjectProvider.CustomizeRoadSegmentSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentWidth();
+        ObjectProvider.CustomizeEuropeanRoadNumber();
+        ObjectProvider.CustomizeNationalRoadNumber();
+        ObjectProvider.CustomizeNumberedRoadNumber();
+        ObjectProvider.CustomizeOriginProperties();
+        ObjectProvider.CustomizeGradeSeparatedJunctionId();
+        ObjectProvider.CustomizeGradeSeparatedJunctionType();
+        ObjectProvider.CustomizeArchiveId();
+        ObjectProvider.CustomizeChangeRequestId();
+        ObjectProvider.CustomizeReason();
+        ObjectProvider.CustomizeOperatorName();
+        ObjectProvider.CustomizeTransactionId();
 
-        Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
             composer.Do(instance =>
                 {
-                    instance.AttributeId = Fixture.Create<AttributeId>();
-                    instance.Number = Fixture.Create<EuropeanRoadNumber>();
+                    instance.AttributeId = ObjectProvider.Create<AttributeId>();
+                    instance.Number = ObjectProvider.Create<EuropeanRoadNumber>();
                 })
                 .OmitAutoProperties());
-        Fixture.Customize<RoadSegmentNationalRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentNationalRoadAttributes>(composer =>
             composer.Do(instance =>
                 {
-                    instance.AttributeId = Fixture.Create<AttributeId>();
-                    instance.Number = Fixture.Create<NationalRoadNumber>();
+                    instance.AttributeId = ObjectProvider.Create<AttributeId>();
+                    instance.Number = ObjectProvider.Create<NationalRoadNumber>();
                 })
                 .OmitAutoProperties());
-        Fixture.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
             composer.Do(instance =>
             {
-                instance.AttributeId = Fixture.Create<AttributeId>();
-                instance.Number = Fixture.Create<NumberedRoadNumber>();
-                instance.Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>();
-                instance.Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
+                instance.AttributeId = ObjectProvider.Create<AttributeId>();
+                instance.Number = ObjectProvider.Create<NumberedRoadNumber>();
+                instance.Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>();
+                instance.Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>();
             }).OmitAutoProperties());
-        Fixture.Customize<RequestedRoadSegmentLaneAttribute>(composer =>
+        ObjectProvider.Customize<RequestedRoadSegmentLaneAttribute>(composer =>
             composer.Do(instance =>
             {
-                var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
-                instance.AttributeId = Fixture.Create<AttributeId>();
+                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
+                instance.AttributeId = ObjectProvider.Create<AttributeId>();
                 instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Count = Fixture.Create<RoadSegmentLaneCount>();
-                instance.Direction = Fixture.Create<RoadSegmentLaneDirection>();
+                instance.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                instance.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
             }).OmitAutoProperties());
-        Fixture.Customize<RequestedRoadSegmentWidthAttribute>(composer =>
+        ObjectProvider.Customize<RequestedRoadSegmentWidthAttribute>(composer =>
             composer.Do(instance =>
             {
-                var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
-                instance.AttributeId = Fixture.Create<AttributeId>();
+                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
+                instance.AttributeId = ObjectProvider.Create<AttributeId>();
                 instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Width = Fixture.Create<RoadSegmentWidth>();
+                instance.Width = ObjectProvider.Create<RoadSegmentWidth>();
             }).OmitAutoProperties());
-        Fixture.Customize<RequestedRoadSegmentSurfaceAttribute>(composer =>
+        ObjectProvider.Customize<RequestedRoadSegmentSurfaceAttribute>(composer =>
             composer.Do(instance =>
             {
-                var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
-                instance.AttributeId = Fixture.Create<AttributeId>();
+                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
+                instance.AttributeId = ObjectProvider.Create<AttributeId>();
                 instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
+                instance.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
             }).OmitAutoProperties());
 
-        ArchiveId = Fixture.Create<ArchiveId>();
+        ArchiveId = ObjectProvider.Create<ArchiveId>();
         RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
-        ReasonForChange = Fixture.Create<Reason>();
-        ChangedByOperator = Fixture.Create<OperatorName>();
-        ChangedByOrganization = Fixture.Create<OrganizationId>();
-        ChangedByOrganizationName = Fixture.Create<OrganizationName>();
+        ReasonForChange = ObjectProvider.Create<Reason>();
+        ChangedByOperator = ObjectProvider.Create<OperatorName>();
+        ChangedByOrganization = ObjectProvider.Create<OrganizationId>();
+        ChangedByOrganizationName = ObjectProvider.Create<OrganizationName>();
     }
 
     public ArchiveId ArchiveId { get; }
@@ -133,17 +133,17 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
     public Task modify_segment_that_intersects_without_grade_separated_junction()
     {
         var pointA = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeA = Fixture.Create<RoadNodeId>();
+        var nodeA = ObjectProvider.Create<RoadNodeId>();
         var pointB = new Point(new CoordinateM(10.0, 0.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeB = Fixture.Create<RoadNodeId>();
+        var nodeB = ObjectProvider.Create<RoadNodeId>();
         var pointC = new Point(new CoordinateM(0.0, 10.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeC = Fixture.Create<RoadNodeId>();
+        var nodeC = ObjectProvider.Create<RoadNodeId>();
         var pointD = new Point(new CoordinateM(10.0, 10.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeD = Fixture.Create<RoadNodeId>();
+        var nodeD = ObjectProvider.Create<RoadNodeId>();
         var pointCModified = new Point(new CoordinateM(5.0, 10.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         var pointDModified = new Point(new CoordinateM(5.0, -10.0, 20.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var segment1 = Fixture.Create<RoadSegmentId>();
-        var segment2 = Fixture.Create<RoadSegmentId>();
+        var segment1 = ObjectProvider.Create<RoadSegmentId>();
+        var segment2 = ObjectProvider.Create<RoadSegmentId>();
         var line1 = new MultiLineString(
             new[]
             {
@@ -177,15 +177,15 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
             StartNodeId = nodeC,
             EndNodeId = nodeD,
             Geometry = GeometryTranslator.Translate(line2After),
-            AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
-            Category = Fixture.Create<RoadSegmentCategory>(),
-            Morphology = Fixture.Create<RoadSegmentMorphology>(),
-            Status = Fixture.Create<RoadSegmentStatus>(),
-            GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
-            LeftSideStreetNameId = Fixture.Create<CrabStreetnameId?>(),
-            RightSideStreetNameId = Fixture.Create<CrabStreetnameId?>(),
+            AccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>(),
+            Category = ObjectProvider.Create<RoadSegmentCategory>(),
+            Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
+            Status = ObjectProvider.Create<RoadSegmentStatus>(),
+            GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
+            LeftSideStreetNameId = ObjectProvider.Create<CrabStreetnameId?>(),
+            RightSideStreetNameId = ObjectProvider.Create<CrabStreetnameId?>(),
             MaintenanceAuthority = ChangedByOrganization,
-            Lanes = Fixture
+            Lanes = ObjectProvider
                 .CreateMany<RequestedRoadSegmentLaneAttribute>(count)
                 .Select((part, index) =>
                 {
@@ -198,7 +198,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                     return part;
                 })
                 .ToArray(),
-            Widths = Fixture
+            Widths = ObjectProvider
                 .CreateMany<RequestedRoadSegmentWidthAttribute>(3)
                 .Select((part, index) =>
                 {
@@ -211,7 +211,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                     return part;
                 })
                 .ToArray(),
-            Surfaces = Fixture
+            Surfaces = ObjectProvider
                 .CreateMany<RequestedRoadSegmentSurfaceAttribute>(3)
                 .Select((part, index) =>
                 {
@@ -248,7 +248,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = nodeA,
-                                TemporaryId = Fixture.Create<RoadNodeId>(),
+                                TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointA),
                                 Type = RoadNodeType.EndNode
                             },
@@ -259,7 +259,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = nodeB,
-                                TemporaryId = Fixture.Create<RoadNodeId>(),
+                                TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointB),
                                 Type = RoadNodeType.EndNode
                             },
@@ -270,31 +270,31 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                             RoadSegmentAdded = new RoadSegmentAdded
                             {
                                 Id = segment1,
-                                TemporaryId = Fixture.Create<RoadSegmentId>(),
-                                Version = Fixture.Create<int>(),
+                                TemporaryId = ObjectProvider.Create<RoadSegmentId>(),
+                                Version = ObjectProvider.Create<int>(),
                                 StartNodeId = nodeA,
                                 EndNodeId = nodeB,
-                                AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
-                                Category = Fixture.Create<RoadSegmentCategory>(),
-                                Morphology = Fixture.Create<RoadSegmentMorphology>(),
-                                Status = Fixture.Create<RoadSegmentStatus>(),
-                                GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                                AccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>(),
+                                Category = ObjectProvider.Create<RoadSegmentCategory>(),
+                                Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
+                                Status = ObjectProvider.Create<RoadSegmentStatus>(),
+                                GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
                                 Geometry = GeometryTranslator.Translate(line1),
-                                GeometryVersion = Fixture.Create<GeometryVersion>(),
+                                GeometryVersion = ObjectProvider.Create<GeometryVersion>(),
                                 MaintenanceAuthority = new MaintenanceAuthority
                                 {
-                                    Code = Fixture.Create<OrganizationId>(),
-                                    Name = Fixture.Create<OrganizationName>()
+                                    Code = ObjectProvider.Create<OrganizationId>(),
+                                    Name = ObjectProvider.Create<OrganizationName>()
                                 },
                                 LeftSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
                                 },
                                 RightSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
                                 },
-                                Lanes = Fixture
+                                Lanes = ObjectProvider
                                     .CreateMany<RoadSegmentLaneAttributes>(count)
                                     .Select((part, index) =>
                                     {
@@ -307,7 +307,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                                         return part;
                                     })
                                     .ToArray(),
-                                Widths = Fixture
+                                Widths = ObjectProvider
                                     .CreateMany<RoadSegmentWidthAttributes>(3)
                                     .Select((part, index) =>
                                     {
@@ -320,7 +320,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                                         return part;
                                     })
                                     .ToArray(),
-                                Surfaces = Fixture
+                                Surfaces = ObjectProvider
                                     .CreateMany<RoadSegmentSurfaceAttributes>(3)
                                     .Select((part, index) =>
                                     {
@@ -341,7 +341,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = nodeC,
-                                TemporaryId = Fixture.Create<RoadNodeId>(),
+                                TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointC),
                                 Type = RoadNodeType.EndNode
                             },
@@ -352,7 +352,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = nodeD,
-                                TemporaryId = Fixture.Create<RoadNodeId>(),
+                                TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointD),
                                 Type = RoadNodeType.EndNode
                             },
@@ -363,31 +363,31 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                             RoadSegmentAdded = new RoadSegmentAdded
                             {
                                 Id = segment2,
-                                TemporaryId = Fixture.Create<RoadSegmentId>(),
-                                Version = Fixture.Create<int>(),
+                                TemporaryId = ObjectProvider.Create<RoadSegmentId>(),
+                                Version = ObjectProvider.Create<int>(),
                                 StartNodeId = nodeC,
                                 EndNodeId = nodeD,
-                                AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
-                                Category = Fixture.Create<RoadSegmentCategory>(),
-                                Morphology = Fixture.Create<RoadSegmentMorphology>(),
-                                Status = Fixture.Create<RoadSegmentStatus>(),
-                                GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                                AccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>(),
+                                Category = ObjectProvider.Create<RoadSegmentCategory>(),
+                                Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
+                                Status = ObjectProvider.Create<RoadSegmentStatus>(),
+                                GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
                                 Geometry = GeometryTranslator.Translate(line1),
-                                GeometryVersion = Fixture.Create<GeometryVersion>(),
+                                GeometryVersion = ObjectProvider.Create<GeometryVersion>(),
                                 MaintenanceAuthority = new MaintenanceAuthority
                                 {
-                                    Code = Fixture.Create<OrganizationId>(),
-                                    Name = Fixture.Create<OrganizationName>()
+                                    Code = ObjectProvider.Create<OrganizationId>(),
+                                    Name = ObjectProvider.Create<OrganizationName>()
                                 },
                                 LeftSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
                                 },
                                 RightSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
                                 },
-                                Lanes = Fixture
+                                Lanes = ObjectProvider
                                     .CreateMany<RoadSegmentLaneAttributes>(count)
                                     .Select((part, index) =>
                                     {
@@ -400,7 +400,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                                         return part;
                                     })
                                     .ToArray(),
-                                Widths = Fixture
+                                Widths = ObjectProvider
                                     .CreateMany<RoadSegmentWidthAttributes>(3)
                                     .Select((part, index) =>
                                     {
@@ -413,7 +413,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                                         return part;
                                     })
                                     .ToArray(),
-                                Surfaces = Fixture
+                                Surfaces = ObjectProvider
                                     .CreateMany<RoadSegmentSurfaceAttributes>(3)
                                     .Select((part, index) =>
                                     {
@@ -495,14 +495,14 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
     public Task move_segment()
     {
         var pointA = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeA = Fixture.Create<RoadNodeId>();
+        var nodeA = ObjectProvider.Create<RoadNodeId>();
         var pointB = new Point(new CoordinateM(10.0, 0.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeB = Fixture.Create<RoadNodeId>();
+        var nodeB = ObjectProvider.Create<RoadNodeId>();
         var pointC = new Point(new CoordinateM(0.0, 10.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeC = Fixture.Create<RoadNodeId>();
+        var nodeC = ObjectProvider.Create<RoadNodeId>();
         var pointD = new Point(new CoordinateM(10.0, 10.0, 10.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
-        var nodeD = Fixture.Create<RoadNodeId>();
-        var segment = Fixture.Create<RoadSegmentId>();
+        var nodeD = ObjectProvider.Create<RoadNodeId>();
+        var segment = ObjectProvider.Create<RoadSegmentId>();
         var lineBefore = new MultiLineString(
             new[]
             {
@@ -528,15 +528,15 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
             StartNodeId = nodeC,
             EndNodeId = nodeD,
             Geometry = GeometryTranslator.Translate(lineAfter),
-            AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
-            Category = Fixture.Create<RoadSegmentCategory>(),
-            Morphology = Fixture.Create<RoadSegmentMorphology>(),
-            Status = Fixture.Create<RoadSegmentStatus>(),
-            GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
-            LeftSideStreetNameId = Fixture.Create<CrabStreetnameId?>(),
-            RightSideStreetNameId = Fixture.Create<CrabStreetnameId?>(),
+            AccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>(),
+            Category = ObjectProvider.Create<RoadSegmentCategory>(),
+            Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
+            Status = ObjectProvider.Create<RoadSegmentStatus>(),
+            GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
+            LeftSideStreetNameId = ObjectProvider.Create<CrabStreetnameId?>(),
+            RightSideStreetNameId = ObjectProvider.Create<CrabStreetnameId?>(),
             MaintenanceAuthority = ChangedByOrganization,
-            Lanes = Fixture
+            Lanes = ObjectProvider
                 .CreateMany<RequestedRoadSegmentLaneAttribute>(count)
                 .Select((part, index) =>
                 {
@@ -549,7 +549,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                     return part;
                 })
                 .ToArray(),
-            Widths = Fixture
+            Widths = ObjectProvider
                 .CreateMany<RequestedRoadSegmentWidthAttribute>(3)
                 .Select((part, index) =>
                 {
@@ -562,7 +562,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                     return part;
                 })
                 .ToArray(),
-            Surfaces = Fixture
+            Surfaces = ObjectProvider
                 .CreateMany<RequestedRoadSegmentSurfaceAttribute>(3)
                 .Select((part, index) =>
                 {
@@ -599,7 +599,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = nodeA,
-                                TemporaryId = Fixture.Create<RoadNodeId>(),
+                                TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointA),
                                 Type = RoadNodeType.EndNode
                             },
@@ -610,7 +610,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                             RoadNodeAdded = new RoadNodeAdded
                             {
                                 Id = nodeB,
-                                TemporaryId = Fixture.Create<RoadNodeId>(),
+                                TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointB),
                                 Type = RoadNodeType.EndNode
                             },
@@ -621,31 +621,31 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                             RoadSegmentAdded = new RoadSegmentAdded
                             {
                                 Id = segment,
-                                TemporaryId = Fixture.Create<RoadSegmentId>(),
-                                Version = Fixture.Create<int>(),
+                                TemporaryId = ObjectProvider.Create<RoadSegmentId>(),
+                                Version = ObjectProvider.Create<int>(),
                                 StartNodeId = nodeA,
                                 EndNodeId = nodeB,
-                                AccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>(),
-                                Category = Fixture.Create<RoadSegmentCategory>(),
-                                Morphology = Fixture.Create<RoadSegmentMorphology>(),
-                                Status = Fixture.Create<RoadSegmentStatus>(),
-                                GeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                                AccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>(),
+                                Category = ObjectProvider.Create<RoadSegmentCategory>(),
+                                Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
+                                Status = ObjectProvider.Create<RoadSegmentStatus>(),
+                                GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
                                 Geometry = GeometryTranslator.Translate(lineBefore),
-                                GeometryVersion = Fixture.Create<GeometryVersion>(),
+                                GeometryVersion = ObjectProvider.Create<GeometryVersion>(),
                                 MaintenanceAuthority = new MaintenanceAuthority
                                 {
-                                    Code = Fixture.Create<OrganizationId>(),
-                                    Name = Fixture.Create<OrganizationName>()
+                                    Code = ObjectProvider.Create<OrganizationId>(),
+                                    Name = ObjectProvider.Create<OrganizationName>()
                                 },
                                 LeftSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
                                 },
                                 RightSide = new RoadSegmentSideAttributes
                                 {
-                                    StreetNameId = Fixture.Create<CrabStreetnameId?>()
+                                    StreetNameId = ObjectProvider.Create<CrabStreetnameId?>()
                                 },
-                                Lanes = Fixture
+                                Lanes = ObjectProvider
                                     .CreateMany<RoadSegmentLaneAttributes>(count)
                                     .Select((part, index) =>
                                     {
@@ -658,7 +658,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                                         return part;
                                     })
                                     .ToArray(),
-                                Widths = Fixture
+                                Widths = ObjectProvider
                                     .CreateMany<RoadSegmentWidthAttributes>(3)
                                     .Select((part, index) =>
                                     {
@@ -671,7 +671,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryFixture
                                         return part;
                                     })
                                     .ToArray(),
-                                Surfaces = Fixture
+                                Surfaces = ObjectProvider
                                     .CreateMany<RoadSegmentSurfaceAttributes>(3)
                                     .Select((part, index) =>
                                     {

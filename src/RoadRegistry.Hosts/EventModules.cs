@@ -16,7 +16,7 @@ public static class EventModules
             sp.GetService<IRoadNetworkSnapshotReader>(),
             sp.GetService<IRoadNetworkSnapshotWriter>(),
             sp.GetService<IClock>(),
-            sp.GetService<ILogger<RoadNetworkEventModule>>()
+            sp.GetService<ILoggerFactory>()
         );
     }
 }

@@ -2,10 +2,12 @@ namespace RoadRegistry.Tests.BackOffice;
 
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Editor.Schema;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
 using Xunit;
 using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
 
@@ -57,11 +59,21 @@ public class GeometryTranslatorTests
             points.Select(x => double.NaN).ToArray()
         );
         
-        var geometryLineString = GeometryTranslator.ToGeometryMultiLineString(polyline);
+        var geometryLineString = GeometryTranslator.ToMultiLineString(polyline);
 
         var actualMeasures = geometryLineString.GetOrdinates(Ordinate.M);
         var expectedMeasures = points.Select(x => x.Y).ToArray();
 
         Assert.Equal(expectedMeasures, actualMeasures);
+    }
+
+    [Theory]
+    [InlineData(GeometryTranslatorTestCases.ValidGmlMultiLineString)]
+    [InlineData(GeometryTranslatorTestCases.ValidGmlLineString)]
+    public void ParseGmlLineString(string gml)
+    {
+        var geometry = GeometryTranslator.ParseGmlLineString(gml);
+
+        Assert.NotNull(geometry);
     }
 }

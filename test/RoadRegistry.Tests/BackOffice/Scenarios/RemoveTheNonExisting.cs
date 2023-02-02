@@ -20,100 +20,100 @@ using RemoveRoadSegmentFromEuropeanRoad = RoadRegistry.BackOffice.Messages.Remov
 using RemoveRoadSegmentFromNationalRoad = RoadRegistry.BackOffice.Messages.RemoveRoadSegmentFromNationalRoad;
 using RemoveRoadSegmentFromNumberedRoad = RoadRegistry.BackOffice.Messages.RemoveRoadSegmentFromNumberedRoad;
 
-public class RemoveTheNonExisting : RoadRegistryFixture
+public class RemoveTheNonExisting : RoadRegistryTestBase
 {
     public RemoveTheNonExisting(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
     {
-        Fixture.CustomizePoint();
-        Fixture.CustomizePolylineM();
+        ObjectProvider.CustomizePoint();
+        ObjectProvider.CustomizePolylineM();
 
-        Fixture.CustomizeAttributeId();
-        Fixture.CustomizeOrganizationId();
-        Fixture.CustomizeOrganizationName();
-        Fixture.CustomizeRoadNodeId();
-        Fixture.CustomizeRoadNodeType();
-        Fixture.CustomizeRoadSegmentId();
-        Fixture.CustomizeRoadSegmentCategory();
-        Fixture.CustomizeRoadSegmentMorphology();
-        Fixture.CustomizeRoadSegmentStatus();
-        Fixture.CustomizeRoadSegmentAccessRestriction();
-        Fixture.CustomizeRoadSegmentLaneCount();
-        Fixture.CustomizeRoadSegmentLaneDirection();
-        Fixture.CustomizeRoadSegmentNumberedRoadDirection();
-        Fixture.CustomizeRoadSegmentGeometryDrawMethod();
-        Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
-        Fixture.CustomizeRoadSegmentSurfaceType();
-        Fixture.CustomizeRoadSegmentWidth();
-        Fixture.CustomizeEuropeanRoadNumber();
-        Fixture.CustomizeNationalRoadNumber();
-        Fixture.CustomizeNumberedRoadNumber();
-        Fixture.CustomizeOriginProperties();
-        Fixture.CustomizeGradeSeparatedJunctionId();
-        Fixture.CustomizeGradeSeparatedJunctionType();
-        Fixture.CustomizeArchiveId();
-        Fixture.CustomizeChangeRequestId();
-        Fixture.CustomizeReason();
-        Fixture.CustomizeOperatorName();
-        Fixture.CustomizeTransactionId();
+        ObjectProvider.CustomizeAttributeId();
+        ObjectProvider.CustomizeOrganizationId();
+        ObjectProvider.CustomizeOrganizationName();
+        ObjectProvider.CustomizeRoadNodeId();
+        ObjectProvider.CustomizeRoadNodeType();
+        ObjectProvider.CustomizeRoadSegmentId();
+        ObjectProvider.CustomizeRoadSegmentCategory();
+        ObjectProvider.CustomizeRoadSegmentMorphology();
+        ObjectProvider.CustomizeRoadSegmentStatus();
+        ObjectProvider.CustomizeRoadSegmentAccessRestriction();
+        ObjectProvider.CustomizeRoadSegmentLaneCount();
+        ObjectProvider.CustomizeRoadSegmentLaneDirection();
+        ObjectProvider.CustomizeRoadSegmentNumberedRoadDirection();
+        ObjectProvider.CustomizeRoadSegmentGeometryDrawMethod();
+        ObjectProvider.CustomizeRoadSegmentNumberedRoadOrdinal();
+        ObjectProvider.CustomizeRoadSegmentSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentWidth();
+        ObjectProvider.CustomizeEuropeanRoadNumber();
+        ObjectProvider.CustomizeNationalRoadNumber();
+        ObjectProvider.CustomizeNumberedRoadNumber();
+        ObjectProvider.CustomizeOriginProperties();
+        ObjectProvider.CustomizeGradeSeparatedJunctionId();
+        ObjectProvider.CustomizeGradeSeparatedJunctionType();
+        ObjectProvider.CustomizeArchiveId();
+        ObjectProvider.CustomizeChangeRequestId();
+        ObjectProvider.CustomizeReason();
+        ObjectProvider.CustomizeOperatorName();
+        ObjectProvider.CustomizeTransactionId();
 
-        Fixture.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
             composer.Do(instance =>
                 {
-                    instance.AttributeId = Fixture.Create<AttributeId>();
-                    instance.Number = Fixture.Create<EuropeanRoadNumber>();
+                    instance.AttributeId = ObjectProvider.Create<AttributeId>();
+                    instance.Number = ObjectProvider.Create<EuropeanRoadNumber>();
                 })
                 .OmitAutoProperties());
-        Fixture.Customize<RoadSegmentNationalRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentNationalRoadAttributes>(composer =>
             composer.Do(instance =>
                 {
-                    instance.AttributeId = Fixture.Create<AttributeId>();
-                    instance.Number = Fixture.Create<NationalRoadNumber>();
+                    instance.AttributeId = ObjectProvider.Create<AttributeId>();
+                    instance.Number = ObjectProvider.Create<NationalRoadNumber>();
                 })
                 .OmitAutoProperties());
-        Fixture.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
+        ObjectProvider.Customize<RoadSegmentNumberedRoadAttributes>(composer =>
             composer.Do(instance =>
             {
-                instance.AttributeId = Fixture.Create<AttributeId>();
-                instance.Number = Fixture.Create<NumberedRoadNumber>();
-                instance.Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>();
-                instance.Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>();
+                instance.AttributeId = ObjectProvider.Create<AttributeId>();
+                instance.Number = ObjectProvider.Create<NumberedRoadNumber>();
+                instance.Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>();
+                instance.Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>();
             }).OmitAutoProperties());
-        Fixture.Customize<RequestedRoadSegmentLaneAttribute>(composer =>
+        ObjectProvider.Customize<RequestedRoadSegmentLaneAttribute>(composer =>
             composer.Do(instance =>
             {
-                var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
-                instance.AttributeId = Fixture.Create<AttributeId>();
+                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
+                instance.AttributeId = ObjectProvider.Create<AttributeId>();
                 instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Count = Fixture.Create<RoadSegmentLaneCount>();
-                instance.Direction = Fixture.Create<RoadSegmentLaneDirection>();
+                instance.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                instance.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
             }).OmitAutoProperties());
-        Fixture.Customize<RequestedRoadSegmentWidthAttribute>(composer =>
+        ObjectProvider.Customize<RequestedRoadSegmentWidthAttribute>(composer =>
             composer.Do(instance =>
             {
-                var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
-                instance.AttributeId = Fixture.Create<AttributeId>();
+                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
+                instance.AttributeId = ObjectProvider.Create<AttributeId>();
                 instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Width = Fixture.Create<RoadSegmentWidth>();
+                instance.Width = ObjectProvider.Create<RoadSegmentWidth>();
             }).OmitAutoProperties());
-        Fixture.Customize<RequestedRoadSegmentSurfaceAttribute>(composer =>
+        ObjectProvider.Customize<RequestedRoadSegmentSurfaceAttribute>(composer =>
             composer.Do(instance =>
             {
-                var positionGenerator = new Generator<RoadSegmentPosition>(Fixture);
-                instance.AttributeId = Fixture.Create<AttributeId>();
+                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
+                instance.AttributeId = ObjectProvider.Create<AttributeId>();
                 instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Type = Fixture.Create<RoadSegmentSurfaceType>();
+                instance.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
             }).OmitAutoProperties());
 
-        ArchiveId = Fixture.Create<ArchiveId>();
+        ArchiveId = ObjectProvider.Create<ArchiveId>();
         RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
-        ReasonForChange = Fixture.Create<Reason>();
-        ChangedByOperator = Fixture.Create<OperatorName>();
-        ChangedByOrganization = Fixture.Create<OrganizationId>();
-        ChangedByOrganizationName = Fixture.Create<OrganizationName>();
+        ReasonForChange = ObjectProvider.Create<Reason>();
+        ChangedByOperator = ObjectProvider.Create<OperatorName>();
+        ChangedByOrganization = ObjectProvider.Create<OrganizationId>();
+        ChangedByOrganizationName = ObjectProvider.Create<OrganizationName>();
     }
 
     public ArchiveId ArchiveId { get; }
@@ -211,14 +211,14 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                 }
             };
 
-            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
-            var roadSegmentAccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>();
-            var roadSegmentCategory = Fixture.Create<RoadSegmentCategory>();
-            var roadSegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>();
-            var roadSegmentMorphology = Fixture.Create<RoadSegmentMorphology>();
-            var roadSegmentStatus = Fixture.Create<RoadSegmentStatus>();
-            var maintenanceAuthority = Fixture.Create<OrganizationId>();
-            var maintenanceAuthorityName = Fixture.Create<OrganizationName>();
+            var roadNodeType = ObjectProvider.Create<RoadNodeType>().ToString();
+            var roadSegmentAccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>();
+            var roadSegmentCategory = ObjectProvider.Create<RoadSegmentCategory>();
+            var roadSegmentGeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>();
+            var roadSegmentMorphology = ObjectProvider.Create<RoadSegmentMorphology>();
+            var roadSegmentStatus = ObjectProvider.Create<RoadSegmentStatus>();
+            var maintenanceAuthority = ObjectProvider.Create<OrganizationId>();
+            var maintenanceAuthorityName = ObjectProvider.Create<OrganizationName>();
             return scenario
                 .Given(Organizations.ToStreamName(ChangedByOrganization),
                     new ImportedOrganization
@@ -233,11 +233,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                         Id = 1, Version = 0, Geometry = startRoadNode1Geometry, Type = roadNodeType,
                         Origin = new ImportedOriginProperties
                         {
-                            Application = Fixture.Create<string>(),
-                            Operator = Fixture.Create<OperatorName>(),
-                            Organization = Fixture.Create<OrganizationName>(),
+                            Application = ObjectProvider.Create<string>(),
+                            Operator = ObjectProvider.Create<OperatorName>(),
+                            Organization = ObjectProvider.Create<OrganizationName>(),
                             OrganizationId = maintenanceAuthority,
-                            Since = Fixture.Create<DateTime>(),
+                            Since = ObjectProvider.Create<DateTime>(),
                             TransactionId = 0
                         }
                     }, new ImportedRoadNode
@@ -245,11 +245,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                         Id = 2, Version = 0, Geometry = endRoadNode1Geometry, Type = roadNodeType,
                         Origin = new ImportedOriginProperties
                         {
-                            Application = Fixture.Create<string>(),
-                            Operator = Fixture.Create<OperatorName>(),
-                            Organization = Fixture.Create<OrganizationName>(),
+                            Application = ObjectProvider.Create<string>(),
+                            Operator = ObjectProvider.Create<OperatorName>(),
+                            Organization = ObjectProvider.Create<OrganizationName>(),
                             OrganizationId = maintenanceAuthority,
-                            Since = Fixture.Create<DateTime>(),
+                            Since = ObjectProvider.Create<DateTime>(),
                             TransactionId = 0
                         }
                     },
@@ -258,11 +258,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                         Id = 3, Version = 0, Geometry = startRoadNode2Geometry, Type = roadNodeType,
                         Origin = new ImportedOriginProperties
                         {
-                            Application = Fixture.Create<string>(),
-                            Operator = Fixture.Create<OperatorName>(),
-                            Organization = Fixture.Create<OrganizationName>(),
+                            Application = ObjectProvider.Create<string>(),
+                            Operator = ObjectProvider.Create<OperatorName>(),
+                            Organization = ObjectProvider.Create<OrganizationName>(),
                             OrganizationId = maintenanceAuthority,
-                            Since = Fixture.Create<DateTime>(),
+                            Since = ObjectProvider.Create<DateTime>(),
                             TransactionId = 0
                         }
                     }, new ImportedRoadNode
@@ -270,11 +270,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                         Id = 4, Version = 0, Geometry = endRoadNode2Geometry, Type = roadNodeType,
                         Origin = new ImportedOriginProperties
                         {
-                            Application = Fixture.Create<string>(),
-                            Operator = Fixture.Create<OperatorName>(),
-                            Organization = Fixture.Create<OrganizationName>(),
+                            Application = ObjectProvider.Create<string>(),
+                            Operator = ObjectProvider.Create<OperatorName>(),
+                            Organization = ObjectProvider.Create<OrganizationName>(),
                             OrganizationId = maintenanceAuthority,
-                            Since = Fixture.Create<DateTime>(),
+                            Since = ObjectProvider.Create<DateTime>(),
                             TransactionId = 0
                         }
                     }, new ImportedRoadSegment
@@ -305,14 +305,14 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                         },
                         Origin = new ImportedOriginProperties
                         {
-                            Application = Fixture.Create<string>(),
-                            Operator = Fixture.Create<OperatorName>(),
-                            Organization = Fixture.Create<OrganizationName>(),
+                            Application = ObjectProvider.Create<string>(),
+                            Operator = ObjectProvider.Create<OperatorName>(),
+                            Organization = ObjectProvider.Create<OrganizationName>(),
                             OrganizationId = maintenanceAuthority,
-                            Since = Fixture.Create<DateTime>(),
+                            Since = ObjectProvider.Create<DateTime>(),
                             TransactionId = 0
                         },
-                        RecordingDate = Fixture.Create<DateTime>(),
+                        RecordingDate = ObjectProvider.Create<DateTime>(),
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     }, new ImportedRoadSegment
                     {
@@ -342,14 +342,14 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                         },
                         Origin = new ImportedOriginProperties
                         {
-                            Application = Fixture.Create<string>(),
-                            Operator = Fixture.Create<OperatorName>(),
-                            Organization = Fixture.Create<OrganizationName>(),
+                            Application = ObjectProvider.Create<string>(),
+                            Operator = ObjectProvider.Create<OperatorName>(),
+                            Organization = ObjectProvider.Create<OrganizationName>(),
                             OrganizationId = maintenanceAuthority,
-                            Since = Fixture.Create<DateTime>(),
+                            Since = ObjectProvider.Create<DateTime>(),
                             TransactionId = 0
                         },
-                        RecordingDate = Fixture.Create<DateTime>(),
+                        RecordingDate = ObjectProvider.Create<DateTime>(),
                         When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                     })
                 .When(
@@ -398,10 +398,10 @@ public class RemoveTheNonExisting : RoadRegistryFixture
     {
         return Run(scenario =>
         {
-            var roadNodeGeometry = Fixture.Create<RoadNodeGeometry>();
+            var roadNodeGeometry = ObjectProvider.Create<RoadNodeGeometry>();
             roadNodeGeometry.SpatialReferenceSystemIdentifier =
                 SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32();
-            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
+            var roadNodeType = ObjectProvider.Create<RoadNodeType>().ToString();
             return scenario
                 .Given(Organizations.ToStreamName(ChangedByOrganization),
                     new ImportedOrganization
@@ -499,8 +499,8 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                 }
             };
 
-            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
-            var maintenanceAuthority = Fixture.Create<OrganizationId>();
+            var roadNodeType = ObjectProvider.Create<RoadNodeType>().ToString();
+            var maintenanceAuthority = ObjectProvider.Create<OrganizationId>();
             return scenario
                 .Given(Organizations.ToStreamName(ChangedByOrganization),
                     new ImportedOrganization
@@ -515,11 +515,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     Id = 1, Version = 0, Geometry = startRoadNodeGeometry, Type = roadNodeType,
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     }
                 }, new ImportedRoadNode
@@ -527,11 +527,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     Id = 2, Version = 0, Geometry = endRoadNodeGeometry, Type = roadNodeType,
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     }
                 })
@@ -623,15 +623,15 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                 }
             };
 
-            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
-            var roadSegmentAccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>();
-            var roadSegmentCategory = Fixture.Create<RoadSegmentCategory>();
-            var roadSegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>();
-            var roadSegmentMorphology = Fixture.Create<RoadSegmentMorphology>();
-            var roadSegmentStatus = Fixture.Create<RoadSegmentStatus>();
-            var maintenanceAuthority = Fixture.Create<OrganizationId>();
-            var maintenanceAuthorityName = Fixture.Create<OrganizationName>();
-            var europeanRoadNumber = Fixture.Create<EuropeanRoadNumber>();
+            var roadNodeType = ObjectProvider.Create<RoadNodeType>().ToString();
+            var roadSegmentAccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>();
+            var roadSegmentCategory = ObjectProvider.Create<RoadSegmentCategory>();
+            var roadSegmentGeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>();
+            var roadSegmentMorphology = ObjectProvider.Create<RoadSegmentMorphology>();
+            var roadSegmentStatus = ObjectProvider.Create<RoadSegmentStatus>();
+            var maintenanceAuthority = ObjectProvider.Create<OrganizationId>();
+            var maintenanceAuthorityName = ObjectProvider.Create<OrganizationName>();
+            var europeanRoadNumber = ObjectProvider.Create<EuropeanRoadNumber>();
             return scenario
                 .Given(Organizations.ToStreamName(ChangedByOrganization),
                     new ImportedOrganization
@@ -646,11 +646,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     Id = 1, Version = 0, Geometry = startRoadNodeGeometry, Type = roadNodeType,
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     }
                 }, new ImportedRoadNode
@@ -658,11 +658,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     Id = 2, Version = 0, Geometry = endRoadNodeGeometry, Type = roadNodeType,
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     }
                 }, new ImportedRoadSegment
@@ -693,14 +693,14 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     },
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     },
-                    RecordingDate = Fixture.Create<DateTime>(),
+                    RecordingDate = ObjectProvider.Create<DateTime>(),
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(
@@ -802,15 +802,15 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                 }
             };
 
-            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
-            var roadSegmentAccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>();
-            var roadSegmentCategory = Fixture.Create<RoadSegmentCategory>();
-            var roadSegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>();
-            var roadSegmentMorphology = Fixture.Create<RoadSegmentMorphology>();
-            var roadSegmentStatus = Fixture.Create<RoadSegmentStatus>();
-            var maintenanceAuthority = Fixture.Create<OrganizationId>();
-            var maintenanceAuthorityName = Fixture.Create<OrganizationName>();
-            var nationalRoadNumber = Fixture.Create<NationalRoadNumber>();
+            var roadNodeType = ObjectProvider.Create<RoadNodeType>().ToString();
+            var roadSegmentAccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>();
+            var roadSegmentCategory = ObjectProvider.Create<RoadSegmentCategory>();
+            var roadSegmentGeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>();
+            var roadSegmentMorphology = ObjectProvider.Create<RoadSegmentMorphology>();
+            var roadSegmentStatus = ObjectProvider.Create<RoadSegmentStatus>();
+            var maintenanceAuthority = ObjectProvider.Create<OrganizationId>();
+            var maintenanceAuthorityName = ObjectProvider.Create<OrganizationName>();
+            var nationalRoadNumber = ObjectProvider.Create<NationalRoadNumber>();
             return scenario
                 .Given(Organizations.ToStreamName(ChangedByOrganization),
                     new ImportedOrganization
@@ -825,11 +825,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     Id = 1, Version = 0, Geometry = startRoadNodeGeometry, Type = roadNodeType,
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     }
                 }, new ImportedRoadNode
@@ -837,11 +837,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     Id = 2, Version = 0, Geometry = endRoadNodeGeometry, Type = roadNodeType,
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     }
                 }, new ImportedRoadSegment
@@ -872,14 +872,14 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     },
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     },
-                    RecordingDate = Fixture.Create<DateTime>(),
+                    RecordingDate = ObjectProvider.Create<DateTime>(),
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(
@@ -981,15 +981,15 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                 }
             };
 
-            var roadNodeType = Fixture.Create<RoadNodeType>().ToString();
-            var roadSegmentAccessRestriction = Fixture.Create<RoadSegmentAccessRestriction>();
-            var roadSegmentCategory = Fixture.Create<RoadSegmentCategory>();
-            var roadSegmentGeometryDrawMethod = Fixture.Create<RoadSegmentGeometryDrawMethod>();
-            var roadSegmentMorphology = Fixture.Create<RoadSegmentMorphology>();
-            var roadSegmentStatus = Fixture.Create<RoadSegmentStatus>();
-            var maintenanceAuthority = Fixture.Create<OrganizationId>();
-            var maintenanceAuthorityName = Fixture.Create<OrganizationName>();
-            var numberedRoadNumber = Fixture.Create<NumberedRoadNumber>();
+            var roadNodeType = ObjectProvider.Create<RoadNodeType>().ToString();
+            var roadSegmentAccessRestriction = ObjectProvider.Create<RoadSegmentAccessRestriction>();
+            var roadSegmentCategory = ObjectProvider.Create<RoadSegmentCategory>();
+            var roadSegmentGeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>();
+            var roadSegmentMorphology = ObjectProvider.Create<RoadSegmentMorphology>();
+            var roadSegmentStatus = ObjectProvider.Create<RoadSegmentStatus>();
+            var maintenanceAuthority = ObjectProvider.Create<OrganizationId>();
+            var maintenanceAuthorityName = ObjectProvider.Create<OrganizationName>();
+            var numberedRoadNumber = ObjectProvider.Create<NumberedRoadNumber>();
             return scenario
                 .Given(Organizations.ToStreamName(ChangedByOrganization),
                     new ImportedOrganization
@@ -1004,11 +1004,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     Id = 1, Version = 0, Geometry = startRoadNodeGeometry, Type = roadNodeType,
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     }
                 }, new ImportedRoadNode
@@ -1016,11 +1016,11 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     Id = 2, Version = 0, Geometry = endRoadNodeGeometry, Type = roadNodeType,
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     }
                 }, new ImportedRoadSegment
@@ -1051,14 +1051,14 @@ public class RemoveTheNonExisting : RoadRegistryFixture
                     },
                     Origin = new ImportedOriginProperties
                     {
-                        Application = Fixture.Create<string>(),
-                        Operator = Fixture.Create<OperatorName>(),
-                        Organization = Fixture.Create<OrganizationName>(),
+                        Application = ObjectProvider.Create<string>(),
+                        Operator = ObjectProvider.Create<OperatorName>(),
+                        Organization = ObjectProvider.Create<OrganizationName>(),
                         OrganizationId = maintenanceAuthority,
-                        Since = Fixture.Create<DateTime>(),
+                        Since = ObjectProvider.Create<DateTime>(),
                         TransactionId = 0
                     },
-                    RecordingDate = Fixture.Create<DateTime>(),
+                    RecordingDate = ObjectProvider.Create<DateTime>(),
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 })
                 .When(
