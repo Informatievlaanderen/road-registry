@@ -1,20 +1,20 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenLinkingStreetName;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName.WhenLinking;
 
 using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Dbase;
-using Framework;
-using Handlers;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Requests;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Framework;
-using Common;
-using Messages;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
+using RoadRegistry.BackOffice.Messages;
 using Microsoft.Extensions.Logging;
-using Sqs.RoadSegments;
+using RoadRegistry.Dbase;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
@@ -31,7 +31,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             Container.Resolve<IConfiguration>(),
             new FakeRetryPolicy(),
             ticketing,
-            new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()), 
+            new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()),
             RoadRegistryContext,
             StreetNameCache,
             new RoadNetworkCommandQueue(Store, ApplicationMetadata),
@@ -43,7 +43,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             Request = request,
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         }), CancellationToken.None);
     }
 
@@ -57,7 +57,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
 
         await GivenSegment1Added();
-        
+
         //Act
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, StreetNamePuri(WellKnownStreetNameIds.Proposed), null));
 
@@ -75,7 +75,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         Segment1Added.LeftSide.StreetNameId = null;
 
         await GivenSegment1Added();
-        
+
         //Act
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, StreetNamePuri(99999), null));
 

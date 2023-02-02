@@ -22,11 +22,27 @@ public class AddRoadSegment : ITranslatedChange
         RoadSegmentAccessRestriction accessRestriction,
         CrabStreetnameId? leftSideStreetNameId,
         CrabStreetnameId? rightSideStreetNameId)
+        : this(recordNumber, temporaryId, maintenanceAuthority, geometryDrawMethod, morphology, status, category, accessRestriction)
+    {
+        StartNodeId = startNodeId;
+        EndNodeId = endNodeId;
+        LeftSideStreetNameId = leftSideStreetNameId;
+        RightSideStreetNameId = rightSideStreetNameId;
+    }
+
+    public AddRoadSegment(
+        RecordNumber recordNumber,
+        RoadSegmentId temporaryId,
+        OrganizationId maintenanceAuthority,
+        RoadSegmentGeometryDrawMethod geometryDrawMethod,
+        RoadSegmentMorphology morphology,
+        RoadSegmentStatus status,
+        RoadSegmentCategory category,
+        RoadSegmentAccessRestriction accessRestriction
+    )
     {
         RecordNumber = recordNumber;
         TemporaryId = temporaryId;
-        StartNodeId = startNodeId;
-        EndNodeId = endNodeId;
         Geometry = null;
         MaintenanceAuthority = maintenanceAuthority;
         GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
@@ -34,12 +50,11 @@ public class AddRoadSegment : ITranslatedChange
         Status = status ?? throw new ArgumentNullException(nameof(status));
         Category = category ?? throw new ArgumentNullException(nameof(category));
         AccessRestriction = accessRestriction ?? throw new ArgumentNullException(nameof(accessRestriction));
-        LeftSideStreetNameId = leftSideStreetNameId;
-        RightSideStreetNameId = rightSideStreetNameId;
         Lanes = Array.Empty<RoadSegmentLaneAttribute>();
         Widths = Array.Empty<RoadSegmentWidthAttribute>();
         Surfaces = Array.Empty<RoadSegmentSurfaceAttribute>();
     }
+
 
     private AddRoadSegment(
         RecordNumber recordNumber,

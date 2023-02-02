@@ -32,7 +32,7 @@ public class RoadNodeChangeShapeRecordsValidator : IZipArchiveShapeRecordsValida
                                 ShapeType.Point,
                                 record.Content.ShapeType);
                         else if (record.Content is PointShapeContent content
-                                 && !GeometryTranslator.ToGeometryPoint(content.Shape).IsValid)
+                                 && !GeometryTranslator.ToPoint(content.Shape).IsValid)
                             problems += recordContext.ShapeRecordGeometryMismatch();
                         recordNumber = record.Header.RecordNumber.Next();
                     }

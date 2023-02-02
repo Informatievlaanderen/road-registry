@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.Common;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName;
 
 using Abstractions;
 using Autofac;
@@ -40,7 +40,7 @@ public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
                     new FakeRoadNetworkSnapshotReader(),
                     new FakeRoadNetworkSnapshotWriter(),
                     Clock,
-                    LoggerFactory.CreateLogger<RoadNetworkCommandModule>()
+                    LoggerFactory
                 )
             }), ApplicationMetadata));
     }

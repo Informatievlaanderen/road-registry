@@ -155,24 +155,9 @@ public class ScenarioRunner
     //            }
     //        }
 
-    public async Task<long> WriteGivens(RecordedEvent[] givens)
+    public Task<long> WriteGivens(RecordedEvent[] givens)
     {
-        var checkpoint = Position.Start;
-        foreach (var stream in givens.GroupBy(given => given.Stream))
-        {
-            var result = await _store.AppendToStream(
-                _converter(new StreamName(stream.Key)).ToString(),
-                ExpectedVersion.NoStream,
-                stream.Select((given, index) => new NewStreamMessage(
-                    Deterministic.Create(Deterministic.Namespaces.Events,
-                        $"{given.Stream}-{index}"),
-                    _mapping.GetEventName(given.Event.GetType()),
-                    JsonConvert.SerializeObject(given.Event, _settings)
-                )).ToArray());
-            checkpoint = result.CurrentPosition + 1;
-        }
-
-        return checkpoint;
+        return _store.Given(_mapping, _settings, _converter, givens);
     }
     
     private class ValidationFailureComparer : BaseTypeComparer

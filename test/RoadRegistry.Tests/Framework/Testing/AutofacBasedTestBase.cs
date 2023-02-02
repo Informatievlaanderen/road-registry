@@ -11,11 +11,11 @@ using Newtonsoft.Json;
 using Xunit.Abstractions;
 using LogExtensions = Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing.LogExtensions;
 
-public abstract class AutofacBasedTest
+public abstract class AutofacBasedTestBase
 {
     private readonly Lazy<IContainer> _container;
 
-    protected AutofacBasedTest(ITestOutputHelper testOutputHelper)
+    protected AutofacBasedTestBase(ITestOutputHelper testOutputHelper)
     {
         _container = new Lazy<IContainer>(() =>
         {

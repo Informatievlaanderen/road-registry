@@ -18,7 +18,7 @@ public static class CommandModules
             sp.GetService<IRoadNetworkSnapshotReader>(),
             sp.GetService<IRoadNetworkSnapshotWriter>(),
             sp.GetService<IClock>(),
-            sp.GetService<ILogger<RoadNetworkCommandModule>>()
+            sp.GetService<ILoggerFactory>()
         );
     }
 }

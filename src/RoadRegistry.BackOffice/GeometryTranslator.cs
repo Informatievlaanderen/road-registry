@@ -11,6 +11,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NetTopologySuite.IO;
+using NetTopologySuite.IO.GML2;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
@@ -42,7 +43,48 @@ public static class GeometryTranslator
         }.SingleOrDefault(value => !ReferenceEquals(value, null));
     }
 
-    public static MultiLineString ToGeometryMultiLineString(PolyLineM polyLineM)
+    public static bool GmlIsValidLineString(string gml)
+    {
+        try
+        {
+            ParseGmlLineString(gml);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public static MultiLineString ParseGmlLineString(string gml)
+    {
+        var geometry = ParseGml(gml.ThrowIfNull());
+        if (geometry == null)
+        {
+            throw new InvalidOperationException("The GML is invalid");
+        }
+        
+        if (geometry is MultiLineString multiLineString)
+        {
+            return multiLineString;
+        }
+
+        if (geometry is LineString lineString)
+        {
+            return new MultiLineString(new[] { lineString }, GeometryConfiguration.GeometryFactory);
+        }
+        
+        throw new InvalidOperationException(
+            $"The geometry must be either a linestring or a multilinestring. The geometry was a {geometry.GetType().Name}");
+    }
+
+    private static Geometry ParseGml(string gml)
+    {
+        var gmlReader = new GMLReader(GeometryConfiguration.GeometryFactory);
+        return gmlReader.Read(gml);
+    }
+
+    public static MultiLineString ToMultiLineString(PolyLineM polyLineM)
     {
         if (polyLineM.Points.Any() && (!polyLineM.Measures.Any() || polyLineM.Measures.All(x => double.IsNaN(x) || double.IsInfinity(x))))
         {
@@ -70,7 +112,7 @@ public static class GeometryTranslator
         return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(polyLineM);
     }
 
-    public static MultiPolygon ToGeometryMultiPolygon(Polygon polygon)
+    public static MultiPolygon ToMultiPolygon(Polygon polygon)
     {
         try
         {
@@ -86,12 +128,12 @@ public static class GeometryTranslator
         }
     }
 
-    public static Point ToGeometryPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
+    public static Point ToPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
     {
         return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(point);
     }
 
-    public static NetTopologySuite.Geometries.Polygon ToGeometryPolygon(Polygon polygon)
+    public static NetTopologySuite.Geometries.Polygon ToPolygon(Polygon polygon)
     {
         return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPolygon(polygon);
     }
@@ -208,7 +250,7 @@ public static class GeometryTranslator
             var geometryServices = new NtsGeometryServices(GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory, GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID);
             return (IPolygonal)new WKTReader(geometryServices).Read(geometry.WKT);
         }
-        
+
         switch (geometry.Flatten())
         {
             case Messages.Polygon[] multiPolygon:
@@ -257,16 +299,62 @@ public static class GeometryTranslator
         switch (geometryWithBuffer)
         {
             case MultiPolygon multiPolygon:
-            {
-                var polygons = new Messages.Polygon[multiPolygon.NumGeometries];
-                var polygonIndex = 0;
-                foreach (var fromPolygon in multiPolygon.Geometries.OfType<NetTopologySuite.Geometries.Polygon>())
+                {
+                    var polygons = new Messages.Polygon[multiPolygon.NumGeometries];
+                    var polygonIndex = 0;
+                    foreach (var fromPolygon in multiPolygon.Geometries.OfType<NetTopologySuite.Geometries.Polygon>())
+                    {
+                        var toShell = new Ring
+                        {
+                            Points = new Messages.Point[fromPolygon.Shell.NumPoints]
+                        };
+                        var fromShell = fromPolygon.Shell;
+                        for (var shellPointIndex = 0; shellPointIndex < fromShell.NumPoints; shellPointIndex++)
+                            toShell.Points[shellPointIndex] = new Messages.Point
+                            {
+                                X = fromShell.Coordinates[shellPointIndex].X,
+                                Y = fromShell.Coordinates[shellPointIndex].Y
+                            };
+
+                        var toHoles = new Ring[fromPolygon.Holes.Length];
+                        for (var holeIndex = 0; holeIndex < fromPolygon.Holes.Length; holeIndex++)
+                        {
+                            var fromHole = fromPolygon.Holes[holeIndex];
+                            toHoles[holeIndex] = new Ring
+                            {
+                                Points = new Messages.Point[fromHole.NumPoints]
+                            };
+                            for (var holePointIndex = 0; holePointIndex < fromHole.NumPoints; holePointIndex++)
+                                toHoles[holeIndex].Points[holePointIndex] = new Messages.Point
+                                {
+                                    X = fromHole.Coordinates[holePointIndex].X,
+                                    Y = fromHole.Coordinates[holePointIndex].Y
+                                };
+                        }
+
+                        polygons[polygonIndex] = new Messages.Polygon
+                        {
+                            Shell = toShell,
+                            Holes = toHoles
+                        };
+                        polygonIndex++;
+                    }
+
+                    return new RoadNetworkExtractGeometry
+                    {
+                        SpatialReferenceSystemIdentifier = multiPolygon.SRID,
+                        WKT = multiPolygon.ToText(),
+                        MultiPolygon = polygons,
+                        Polygon = null
+                    };
+                }
+            case NetTopologySuite.Geometries.Polygon polygon:
                 {
                     var toShell = new Ring
                     {
-                        Points = new Messages.Point[fromPolygon.Shell.NumPoints]
+                        Points = new Messages.Point[polygon.Shell.NumPoints]
                     };
-                    var fromShell = fromPolygon.Shell;
+                    var fromShell = polygon.Shell;
                     for (var shellPointIndex = 0; shellPointIndex < fromShell.NumPoints; shellPointIndex++)
                         toShell.Points[shellPointIndex] = new Messages.Point
                         {
@@ -274,10 +362,10 @@ public static class GeometryTranslator
                             Y = fromShell.Coordinates[shellPointIndex].Y
                         };
 
-                    var toHoles = new Ring[fromPolygon.Holes.Length];
-                    for (var holeIndex = 0; holeIndex < fromPolygon.Holes.Length; holeIndex++)
+                    var toHoles = new Ring[polygon.Holes.Length];
+                    for (var holeIndex = 0; holeIndex < polygon.Holes.Length; holeIndex++)
                     {
-                        var fromHole = fromPolygon.Holes[holeIndex];
+                        var fromHole = polygon.Holes[holeIndex];
                         toHoles[holeIndex] = new Ring
                         {
                             Points = new Messages.Point[fromHole.NumPoints]
@@ -290,63 +378,18 @@ public static class GeometryTranslator
                             };
                     }
 
-                    polygons[polygonIndex] = new Messages.Polygon
+                    return new RoadNetworkExtractGeometry
                     {
-                        Shell = toShell, Holes = toHoles
-                    };
-                    polygonIndex++;
-                }
-
-                return new RoadNetworkExtractGeometry
-                {
-                    SpatialReferenceSystemIdentifier = multiPolygon.SRID,
-                    WKT = multiPolygon.ToText(),
-                    MultiPolygon = polygons,
-                    Polygon = null
-                };
-            }
-            case NetTopologySuite.Geometries.Polygon polygon:
-            {
-                var toShell = new Ring
-                {
-                    Points = new Messages.Point[polygon.Shell.NumPoints]
-                };
-                var fromShell = polygon.Shell;
-                for (var shellPointIndex = 0; shellPointIndex < fromShell.NumPoints; shellPointIndex++)
-                    toShell.Points[shellPointIndex] = new Messages.Point
-                    {
-                        X = fromShell.Coordinates[shellPointIndex].X,
-                        Y = fromShell.Coordinates[shellPointIndex].Y
-                    };
-
-                var toHoles = new Ring[polygon.Holes.Length];
-                for (var holeIndex = 0; holeIndex < polygon.Holes.Length; holeIndex++)
-                {
-                    var fromHole = polygon.Holes[holeIndex];
-                    toHoles[holeIndex] = new Ring
-                    {
-                        Points = new Messages.Point[fromHole.NumPoints]
-                    };
-                    for (var holePointIndex = 0; holePointIndex < fromHole.NumPoints; holePointIndex++)
-                        toHoles[holeIndex].Points[holePointIndex] = new Messages.Point
+                        SpatialReferenceSystemIdentifier = polygon.SRID,
+                        WKT = polygon.ToText(),
+                        MultiPolygon = null,
+                        Polygon = new Messages.Polygon
                         {
-                            X = fromHole.Coordinates[holePointIndex].X,
-                            Y = fromHole.Coordinates[holePointIndex].Y
-                        };
+                            Shell = toShell,
+                            Holes = toHoles
+                        }
+                    };
                 }
-
-                return new RoadNetworkExtractGeometry
-                {
-                    SpatialReferenceSystemIdentifier = polygon.SRID,
-                    WKT = polygon.ToText(),
-                    MultiPolygon = null,
-                    Polygon = new Messages.Polygon
-                    {
-                        Shell = toShell,
-                        Holes = toHoles
-                    }
-                };
-            }
             default:
                 throw new InvalidOperationException(
                     $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");

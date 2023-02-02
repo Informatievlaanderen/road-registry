@@ -105,11 +105,11 @@ public class PostLinkStreetNameParameters
     public string RechterstraatnaamId { get; set; }
 }
 
-public class PostLinkStreetNameParametersExamples : IExamplesProvider<PostUnlinkStreetNameParameters>
+public class PostLinkStreetNameParametersExamples : IExamplesProvider<PostLinkStreetNameParameters>
 {
-    public PostUnlinkStreetNameParameters GetExamples()
+    public PostLinkStreetNameParameters GetExamples()
     {
-        return new PostUnlinkStreetNameParameters
+        return new PostLinkStreetNameParameters
         {
             LinkerstraatnaamId = "https://data.vlaanderen.be/id/straatnaam/23489"
         };

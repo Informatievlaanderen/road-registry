@@ -28,7 +28,7 @@ using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLa
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
 using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
-public class RoadNetworkScenarios : RoadNetworkFixture
+public class RoadNetworkScenarios : RoadNetworkTestBase
 {
     public RoadNetworkScenarios(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
@@ -94,10 +94,10 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     {
         var addGradeSeparatedJunction = new AddGradeSeparatedJunction
         {
-            TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
-            Type = Fixture.Create<GradeSeparatedJunctionType>(),
+            TemporaryId = ObjectProvider.Create<GradeSeparatedJunctionId>(),
+            Type = ObjectProvider.Create<GradeSeparatedJunctionType>(),
             UpperSegmentId = Segment1Added.Id,
-            LowerSegmentId = Fixture.Create<RoadSegmentId>()
+            LowerSegmentId = ObjectProvider.Create<RoadSegmentId>()
         };
         return Run(scenario => scenario
             .Given(Organizations.ToStreamName(ChangedByOrganization),
@@ -171,9 +171,9 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     {
         var addGradeSeparatedJunction = new AddGradeSeparatedJunction
         {
-            TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
-            Type = Fixture.Create<GradeSeparatedJunctionType>(),
-            UpperSegmentId = Fixture.Create<RoadSegmentId>(),
+            TemporaryId = ObjectProvider.Create<GradeSeparatedJunctionId>(),
+            Type = ObjectProvider.Create<GradeSeparatedJunctionType>(),
+            UpperSegmentId = ObjectProvider.Create<RoadSegmentId>(),
             LowerSegmentId = Segment1Added.Id
         };
         return Run(scenario => scenario
@@ -248,8 +248,8 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     {
         var addGradeSeparatedJunction = new AddGradeSeparatedJunction
         {
-            TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
-            Type = Fixture.Create<GradeSeparatedJunctionType>(),
+            TemporaryId = ObjectProvider.Create<GradeSeparatedJunctionId>(),
+            Type = ObjectProvider.Create<GradeSeparatedJunctionType>(),
             UpperSegmentId = Segment1Added.Id,
             LowerSegmentId = Segment2Added.Id
         };
@@ -361,8 +361,8 @@ public class RoadNetworkScenarios : RoadNetworkFixture
         Segment2Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
         var addGradeSeparatedJunction = new AddGradeSeparatedJunction
         {
-            TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
-            Type = Fixture.Create<GradeSeparatedJunctionType>(),
+            TemporaryId = ObjectProvider.Create<GradeSeparatedJunctionId>(),
+            Type = ObjectProvider.Create<GradeSeparatedJunctionType>(),
             UpperSegmentId = Segment1Added.Id,
             LowerSegmentId = Segment2Added.Id
         };
@@ -450,8 +450,8 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     {
         var addRoadSegmentToEuropeanRoad = new AddRoadSegmentToEuropeanRoad
         {
-            TemporaryAttributeId = Fixture.Create<AttributeId>(),
-            Number = Fixture.Create<EuropeanRoadNumber>(),
+            TemporaryAttributeId = ObjectProvider.Create<AttributeId>(),
+            Number = ObjectProvider.Create<EuropeanRoadNumber>(),
             SegmentId = AddSegment1.TemporaryId
         };
 
@@ -510,8 +510,8 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     {
         var addRoadSegmentToNationalRoad = new AddRoadSegmentToNationalRoad
         {
-            TemporaryAttributeId = Fixture.Create<AttributeId>(),
-            Number = Fixture.Create<NationalRoadNumber>(),
+            TemporaryAttributeId = ObjectProvider.Create<AttributeId>(),
+            Number = ObjectProvider.Create<NationalRoadNumber>(),
             SegmentId = AddSegment1.TemporaryId
         };
         return Run(scenario => scenario
@@ -569,10 +569,10 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     {
         var addRoadSegmentToNumberedRoad = new AddRoadSegmentToNumberedRoad
         {
-            TemporaryAttributeId = Fixture.Create<AttributeId>(),
-            Number = Fixture.Create<NumberedRoadNumber>(),
-            Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
-            Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
+            TemporaryAttributeId = ObjectProvider.Create<AttributeId>(),
+            Number = ObjectProvider.Create<NumberedRoadNumber>(),
+            Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>(),
+            Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>(),
             SegmentId = AddSegment1.TemporaryId
         };
         return Run(scenario => scenario
@@ -753,8 +753,8 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     {
         var addRoadSegmentToEuropeanRoad = new AddRoadSegmentToEuropeanRoad
         {
-            TemporaryAttributeId = Fixture.Create<AttributeId>(),
-            Number = Fixture.Create<EuropeanRoadNumber>(),
+            TemporaryAttributeId = ObjectProvider.Create<AttributeId>(),
+            Number = ObjectProvider.Create<EuropeanRoadNumber>(),
             SegmentId = AddSegment1.TemporaryId
         };
 
@@ -832,8 +832,8 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     {
         var addRoadSegmentToNationalRoad = new AddRoadSegmentToNationalRoad
         {
-            TemporaryAttributeId = Fixture.Create<AttributeId>(),
-            Number = Fixture.Create<NationalRoadNumber>(),
+            TemporaryAttributeId = ObjectProvider.Create<AttributeId>(),
+            Number = ObjectProvider.Create<NationalRoadNumber>(),
             SegmentId = AddSegment1.TemporaryId
         };
         return Run(scenario => scenario
@@ -910,10 +910,10 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     {
         var addRoadSegmentToNumberedRoad = new AddRoadSegmentToNumberedRoad
         {
-            TemporaryAttributeId = Fixture.Create<AttributeId>(),
-            Number = Fixture.Create<NumberedRoadNumber>(),
-            Direction = Fixture.Create<RoadSegmentNumberedRoadDirection>(),
-            Ordinal = Fixture.Create<RoadSegmentNumberedRoadOrdinal>(),
+            TemporaryAttributeId = ObjectProvider.Create<AttributeId>(),
+            Number = ObjectProvider.Create<NumberedRoadNumber>(),
+            Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>(),
+            Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>(),
             SegmentId = AddSegment1.TemporaryId
         };
         return Run(scenario => scenario
@@ -2652,7 +2652,7 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     [Fact]
     public Task when_adding_a_start_node_connected_to_a_single_segment_as_a_node_other_than_an_end_node()
     {
-        AddStartNode1.Type = new Generator<RoadNodeType>(Fixture)
+        AddStartNode1.Type = new Generator<RoadNodeType>(ObjectProvider)
             .First(type => type != RoadNodeType.EndNode)
             .ToString();
 
@@ -2777,7 +2777,7 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     [Fact]
     public Task when_adding_a_start_node_connecting_more_than_two_segments_as_a_node_other_than_a_real_node_or_mini_roundabout()
     {
-        AddStartNode1.Type = new Generator<RoadNodeType>(Fixture)
+        AddStartNode1.Type = new Generator<RoadNodeType>(ObjectProvider)
             .First(type => type != RoadNodeType.RealNode && type != RoadNodeType.MiniRoundabout)
             .ToString();
 
@@ -3203,8 +3203,8 @@ public class RoadNetworkScenarios : RoadNetworkFixture
 
         var addGradeSeparatedJunction = new AddGradeSeparatedJunction
         {
-            TemporaryId = Fixture.Create<GradeSeparatedJunctionId>(),
-            Type = Fixture.Create<GradeSeparatedJunctionType>(),
+            TemporaryId = ObjectProvider.Create<GradeSeparatedJunctionId>(),
+            Type = ObjectProvider.Create<GradeSeparatedJunctionType>(),
             UpperSegmentId = Segment1Added.Id,
             LowerSegmentId = Segment2Added.Id
         };
@@ -3227,42 +3227,42 @@ public class RoadNetworkScenarios : RoadNetworkFixture
         switch (testCase)
         {
             case 0:
-                AddSegment2.Status = new Generator<RoadSegmentStatus>(Fixture)
+                AddSegment2.Status = new Generator<RoadSegmentStatus>(ObjectProvider)
                     .First(candidate => candidate != AddSegment1.Status);
                 Segment2Added.Status = AddSegment2.Status;
                 break;
             case 1:
-                AddSegment2.Morphology = new Generator<RoadSegmentMorphology>(Fixture)
+                AddSegment2.Morphology = new Generator<RoadSegmentMorphology>(ObjectProvider)
                     .First(candidate => candidate != AddSegment1.Morphology);
                 Segment2Added.Morphology = AddSegment2.Morphology;
                 break;
             case 2:
-                AddSegment2.Category = new Generator<RoadSegmentCategory>(Fixture)
+                AddSegment2.Category = new Generator<RoadSegmentCategory>(ObjectProvider)
                     .First(candidate => candidate != AddSegment1.Category);
                 ;
                 Segment2Added.Category = AddSegment2.Category;
                 break;
             case 3:
-                AddSegment2.MaintenanceAuthority = new Generator<OrganizationId>(Fixture)
+                AddSegment2.MaintenanceAuthority = new Generator<OrganizationId>(ObjectProvider)
                     .First(candidate => candidate != AddSegment1.MaintenanceAuthority);
                 Segment2Added.MaintenanceAuthority.Code = AddSegment2.MaintenanceAuthority;
-                Segment2Added.MaintenanceAuthority.Name = Fixture.Create<OrganizationName>();
+                Segment2Added.MaintenanceAuthority.Name = ObjectProvider.Create<OrganizationName>();
                 //AddSegment2.MaintenanceAuthority = ChangedByOrganization;
                 //Segment2Added.MaintenanceAuthority.Code = ChangedByOrganization;
                 //Segment2Added.MaintenanceAuthority.Name = ChangedByOrganizationName;
                 break;
             case 4:
-                AddSegment2.AccessRestriction = new Generator<RoadSegmentAccessRestriction>(Fixture)
+                AddSegment2.AccessRestriction = new Generator<RoadSegmentAccessRestriction>(ObjectProvider)
                     .First(candidate => candidate != AddSegment1.AccessRestriction);
                 Segment2Added.AccessRestriction = AddSegment2.AccessRestriction;
                 break;
             case 5:
-                AddSegment2.LeftSideStreetNameId = new Generator<CrabStreetnameId?>(Fixture)
+                AddSegment2.LeftSideStreetNameId = new Generator<CrabStreetnameId?>(ObjectProvider)
                     .First(candidate => candidate != AddSegment1.LeftSideStreetNameId);
                 Segment2Added.LeftSide.StreetNameId = AddSegment2.LeftSideStreetNameId;
                 break;
             case 6:
-                AddSegment2.RightSideStreetNameId = new Generator<CrabStreetnameId?>(Fixture)
+                AddSegment2.RightSideStreetNameId = new Generator<CrabStreetnameId?>(ObjectProvider)
                     .First(candidate => candidate != AddSegment1.RightSideStreetNameId);
                 Segment2Added.RightSide.StreetNameId = AddSegment2.RightSideStreetNameId;
                 break;
@@ -3619,7 +3619,7 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     [Fact]
     public Task when_adding_a_start_node_connecting_two_segments_as_a_node_other_than_a_fake_node_or_turning_loop_node()
     {
-        AddStartNode1.Type = new Generator<RoadNodeType>(Fixture)
+        AddStartNode1.Type = new Generator<RoadNodeType>(ObjectProvider)
             .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
             .ToString();
 
@@ -4162,7 +4162,7 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     [Fact]
     public Task when_adding_an_end_node_connected_to_a_single_segment_as_a_node_other_than_an_end_node()
     {
-        AddEndNode1.Type = new Generator<RoadNodeType>(Fixture)
+        AddEndNode1.Type = new Generator<RoadNodeType>(ObjectProvider)
             .First(type => type != RoadNodeType.EndNode)
             .ToString();
 
@@ -4287,7 +4287,7 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     [Fact]
     public Task when_adding_an_end_node_connecting_more_than_two_segments_as_a_node_other_than_a_real_node_or_mini_roundabout()
     {
-        AddEndNode1.Type = new Generator<RoadNodeType>(Fixture)
+        AddEndNode1.Type = new Generator<RoadNodeType>(ObjectProvider)
             .First(type => type != RoadNodeType.RealNode && type != RoadNodeType.MiniRoundabout)
             .ToString();
 
@@ -4640,7 +4640,7 @@ public class RoadNetworkScenarios : RoadNetworkFixture
     [Fact]
     public Task when_adding_an_end_node_connecting_two_segments_as_a_node_other_than_a_fake_node_or_turning_loop_node()
     {
-        AddEndNode1.Type = new Generator<RoadNodeType>(Fixture)
+        AddEndNode1.Type = new Generator<RoadNodeType>(ObjectProvider)
             .First(type => type != RoadNodeType.FakeNode && type != RoadNodeType.TurningLoopNode)
             .ToString();
 

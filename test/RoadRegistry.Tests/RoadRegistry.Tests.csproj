@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
@@ -32,6 +33,11 @@
   <ItemGroup>
     <EmbeddedResource Include="BackOffice\ident2.txt" />
     <EmbeddedResource Include="BackOffice\ident8.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" Version="1.7.6" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy" Version="1.7.6" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

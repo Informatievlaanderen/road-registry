@@ -25,7 +25,7 @@ using RoadRegistry.BackOffice.Uploads;
 using SqlStreamStore;
 using Xunit.Abstractions;
 
-public abstract class RoadRegistryFixture : AutofacBasedTest, IDisposable
+public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 {
     protected string ConfigDetailUrl => "http://base/{0}";
 
@@ -38,14 +38,14 @@ public abstract class RoadRegistryFixture : AutofacBasedTest, IDisposable
     protected readonly Func<EventSourcedEntityMap> EntityMapFactory;
     private ScenarioRunner _runner;
 
-    protected RoadRegistryFixture(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
+    protected RoadRegistryTestBase(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
         : base(testOutputHelper)
     {
         var eventSourcedEntityMap = new EventSourcedEntityMap();
         EntityMapFactory = () => eventSourcedEntityMap;
 
-        Fixture = new Fixture();
-        Fixture.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
+        ObjectProvider = new Fixture();
+        ObjectProvider.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
 
         Client = new MemoryBlobClient();
         Clock = new FakeClock(NodaConstants.UnixEpoch);
@@ -58,7 +58,7 @@ public abstract class RoadRegistryFixture : AutofacBasedTest, IDisposable
 
     public MemoryBlobClient Client { get; }
     public FakeClock Clock { get; }
-    public Fixture Fixture { get; }
+    public Fixture ObjectProvider { get; }
     public IStreamStore Store { get; private set; }
     public IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
     protected IRoadRegistryContext RoadRegistryContext { get; }
@@ -99,15 +99,15 @@ public abstract class RoadRegistryFixture : AutofacBasedTest, IDisposable
         return builder(new Scenario()).AssertAsync(_runner);
     }
 
-    public RoadRegistryFixture WithStore(IStreamStore store, ComparisonConfig comparisonConfig = null)
+    public RoadRegistryTestBase WithStore(IStreamStore store, ComparisonConfig comparisonConfig = null)
     {
         Store = store.ThrowIfNull();
 
         _runner = new ScenarioRunner(
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
-                new RoadNetworkCommandModule(Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock, LoggerFactory.CreateLogger<RoadNetworkCommandModule>()),
-                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock, LoggerFactory.CreateLogger<RoadNetworkExtractCommandModule>())
+                new RoadNetworkCommandModule(Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), new FakeRoadNetworkSnapshotWriter(), Clock, LoggerFactory),
+                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock, LoggerFactory)
             }),
             Store,
             Settings,

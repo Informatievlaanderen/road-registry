@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using System.Linq;
 using FluentValidation;
 using Messages;
 
@@ -15,5 +16,19 @@ public class RequestedRoadSegmentSurfaceAttributeValidator : AbstractValidator<R
             .Must(RoadSegmentSurfaceType.CanParse)
             .When(c => c.Type != null, ApplyConditionTo.CurrentValidator)
             .WithMessage("The 'Type' is not a RoadSegmentSurfaceType.");
+    }
+}
+
+public class RequestedRoadSegmentOutlineSurfaceAttributeValidator : RequestedRoadSegmentSurfaceAttributeValidator
+{
+    public RequestedRoadSegmentOutlineSurfaceAttributeValidator()
+    {
+        var invalidRoadSegmentSurfaceTypes = new[] { RoadSegmentSurfaceType.Unknown, RoadSegmentSurfaceType.NotApplicable };
+
+        RuleFor(c => c.Type)
+            .NotEmpty()
+            .Must(value => RoadSegmentSurfaceType.CanParse(value) && !invalidRoadSegmentSurfaceTypes.Contains(RoadSegmentSurfaceType.Parse(value)))
+            .When(c => c.Type != null, ApplyConditionTo.CurrentValidator)
+            .WithMessage("The 'Type' is not a valid RoadSegmentSurfaceType.");
     }
 }

@@ -23,10 +23,10 @@ public class RoadNodeChangeShapeRecordsTranslator : IZipArchiveShapeRecordsTrans
                 switch (change)
                 {
                     case AddRoadNode addition:
-                        changes = changes.ReplaceChange(addition, addition.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                        changes = changes.ReplaceChange(addition, addition.WithGeometry(GeometryTranslator.ToPoint(content.Shape)));
                         break;
                     case ModifyRoadNode modification:
-                        changes = changes.ReplaceChange(modification, modification.WithGeometry(GeometryTranslator.ToGeometryPoint(content.Shape)));
+                        changes = changes.ReplaceChange(modification, modification.WithGeometry(GeometryTranslator.ToPoint(content.Shape)));
                         break;
                 }
         }

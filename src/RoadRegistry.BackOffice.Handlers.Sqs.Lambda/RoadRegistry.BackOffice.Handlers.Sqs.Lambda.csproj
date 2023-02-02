@@ -12,7 +12,7 @@
     <!-- Generate ready to run images during publishing to improve cold start time. -->
     <PublishReadyToRun>true</PublishReadyToRun>
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-    <NoWarn>CS8618;CS8602;CS8604</NoWarn>
+    <NoWarn>CS8618;CS8602;CS8604;CS8619;CS8620;CS8629</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>

@@ -17,7 +17,7 @@ public class RoadSegmentChangeShapeRecordsTranslator : IZipArchiveShapeRecordsTr
             var record = records.Current;
             if (record != null && record.Content is PolyLineMShapeContent content)
             {
-                var geometry = GeometryTranslator.ToGeometryMultiLineString(content.Shape);
+                var geometry = GeometryTranslator.ToMultiLineString(content.Shape);
                 if (changes.TryFindRoadSegmentProvisionalChange(record.Header.RecordNumber,
                         out var provisionalChange))
                     switch (provisionalChange)

@@ -16,17 +16,18 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
-        ILogger<RoadNetworkCommandModule> logger)
+        ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(clock);
-        ArgumentNullException.ThrowIfNull(logger);
-        
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+
+        var logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
         var enricher = EnrichEvent.WithTime(clock);
 
         For<RebuildRoadNetworkSnapshot>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));
@@ -57,7 +58,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(ChangeRoadNetwork));
@@ -93,7 +94,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<CreateOrganization>()
             .UseValidator(new CreateOrganizationValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(CreateOrganization));
@@ -139,7 +140,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<DeleteOrganization>()
             .UseValidator(new DeleteOrganizationValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(DeleteOrganization));
@@ -176,7 +177,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<RenameOrganization>()
             .UseValidator(new RenameOrganizationValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RenameOrganization));

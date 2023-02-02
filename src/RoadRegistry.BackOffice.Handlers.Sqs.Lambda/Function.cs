@@ -5,6 +5,7 @@ using Amazon.Lambda.Serialization.Json;
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
+using System.Diagnostics;
 using System.Reflection;
 using Abstractions;
 using Autofac;
@@ -20,7 +21,6 @@ using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
-using Infrastructure;
 using Infrastructure.Extensions;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
@@ -41,6 +41,21 @@ public sealed class Function : FunctionBase
     {
     }
 
+    private IConfiguration BuildConfiguration(IHostEnvironment hostEnvironment)
+    {
+        var configurationBuilder = new ConfigurationBuilder()
+            .UseDefaultConfiguration(hostEnvironment);
+
+        if (Debugger.IsAttached)
+        {
+            var dir = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
+            configurationBuilder
+                .SetBasePath(dir);
+        }
+
+        return configurationBuilder.Build();
+    }
+
     protected override IServiceProvider ConfigureServices(IServiceCollection services)
     {
         services.AddSingleton<IHostEnvironment>(sp => new HostingEnvironment
@@ -52,9 +67,7 @@ public sealed class Function : FunctionBase
         var tempProvider = services.BuildServiceProvider();
         var hostEnvironment = tempProvider.GetRequiredService<IHostEnvironment>();
 
-        var configuration = new ConfigurationBuilder()
-            .UseDefaultConfiguration(hostEnvironment)
-            .Build();
+        var configuration = BuildConfiguration(hostEnvironment);
 
         var eventSourcedEntityMap = new EventSourcedEntityMap();
 

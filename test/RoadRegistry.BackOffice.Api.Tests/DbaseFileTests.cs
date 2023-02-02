@@ -1,15 +1,9 @@
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Castle.Components.DictionaryAdapter.Xml;
-using NetTopologySuite.IO;
-using RoadRegistry.BackOffice.Core;
-using System.IO;
 using System.Text;
 
 namespace RoadRegistry.BackOffice.Api.Tests
 {
     using BackOffice.Uploads.Schema.V1;
-    using Polly;
-    using RoadRegistry.BackOffice.Messages;
 
     public class DbaseFileTests
     {
@@ -17,7 +11,7 @@ namespace RoadRegistry.BackOffice.Api.Tests
         [Fact]
         public async Task When_dbase_file_provided()
         {
-            ExtractDescription extractDescription;
+            ExtractDescription? extractDescription = null;
 
             using (var sourceStream = new MemoryStream())
             {

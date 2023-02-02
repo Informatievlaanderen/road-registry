@@ -19,6 +19,7 @@ using Microsoft.IO;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
+using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Abstractions.Configuration;
@@ -44,13 +45,16 @@ public abstract class TestStartup
         return default;
     }
 
+    protected virtual void ConfigureAppConfiguration(HostBuilderContext hostContext, IConfigurationBuilder builder)
+    {
+    }
     protected virtual void ConfigureContainer(ContainerBuilder builder)
     {
     }
     protected virtual void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder)
     {
     }
-
+    
     public void ConfigureHost(IHostBuilder hostBuilder)
     {
         var availableModuleAssemblyCollection = DetermineAvailableAssemblyCollection();
@@ -61,6 +65,8 @@ public abstract class TestStartup
                 configurationBuilder
                     .AddJsonFile("appsettings.json", true, true)
                     .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false);
+
+                ConfigureAppConfiguration(hostContext, configurationBuilder);
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
             .ConfigureServices((context, services) =>
@@ -80,9 +86,7 @@ public abstract class TestStartup
                     .AddSingleton(sp => new RoadNetworkSnapshotsBlobClient(sp.GetService<IBlobClient>()))
                     .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
                     .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())
-                    .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddSingleton<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter())
-                    .AddSingleton<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader())
+                    .AddSingleton<IClock>(new FakeClock(NodaConstants.UnixEpoch))
                     .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
                     .AddSingleton(ConfigureCommandHandlerDispatcher)
                     .AddSingleton(new RecyclableMemoryStreamManager())
@@ -105,10 +109,13 @@ public abstract class TestStartup
             })
             .ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
+                builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
+
+                builder.Register<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter()).SingleInstance();
+                builder.Register<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader()).SingleInstance();
+
                 ConfigureContainer(hostContext, builder);
                 ConfigureContainer(builder);
-
-                builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
 
                 builder
                     .Register(c => new SqsOptions(RegionEndpoint.EUWest1, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))

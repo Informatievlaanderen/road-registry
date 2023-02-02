@@ -20,3 +20,12 @@ public class RequestedRoadSegmentLaneAttributeValidator : AbstractValidator<Requ
             .WithMessage("The 'Direction' is not a RoadSegmentLaneDirection.");
     }
 }
+
+public class RequestedRoadSegmentOutlineLaneAttributeValidator : RequestedRoadSegmentLaneAttributeValidator
+{
+    public RequestedRoadSegmentOutlineLaneAttributeValidator()
+    {
+        RuleFor(c => c.Count)
+            .GreaterThan(0);
+    }
+}

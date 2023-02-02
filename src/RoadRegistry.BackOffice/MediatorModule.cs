@@ -21,14 +21,14 @@ public class MediatorModule : Module
         typeof(IStreamRequestHandler<,>)
     };
 
-    private static IEnumerable<Assembly> DetermineAvailableAssemblyCollection()
-    {
-        var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
-        var executorDirectoryInfo = new DirectoryInfo(executorAssemblyLocation).Parent;
-        var assemblyFileInfoCollection = executorDirectoryInfo.EnumerateFiles("RoadRegistry.*.dll");
-        var assemblyCollection = assemblyFileInfoCollection.Select(fi => Assembly.LoadFrom(fi.FullName));
-        return assemblyCollection.ToList();
-    }
+    //private static IEnumerable<Assembly> DetermineAvailableAssemblyCollection()
+    //{
+    //    var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
+    //    var executorDirectoryInfo = new DirectoryInfo(executorAssemblyLocation).Parent;
+    //    var assemblyFileInfoCollection = executorDirectoryInfo.EnumerateFiles("RoadRegistry.*.dll");
+    //    var assemblyCollection = assemblyFileInfoCollection.Select(fi => Assembly.LoadFrom(fi.FullName));
+    //    return assemblyCollection.ToList();
+    //}
 
     protected override void Load(ContainerBuilder builder)
     {
@@ -40,23 +40,23 @@ public class MediatorModule : Module
             return t => c.Resolve(t);
         });
 
-        RegisterAvailableAssemblyModules(builder);
+        //RegisterAvailableAssemblyModules(builder);
     }
 
-    private void RegisterAvailableAssemblyModules(ContainerBuilder builder)
-    {
-        var availableModuleAssemblyCollection = DetermineAvailableAssemblyCollection().ToList();
-        availableModuleAssemblyCollection.Remove(GetType().Assembly);
+    //private void RegisterAvailableAssemblyModules(ContainerBuilder builder)
+    //{
+    //    var availableModuleAssemblyCollection = DetermineAvailableAssemblyCollection().ToList();
+    //    availableModuleAssemblyCollection.Remove(GetType().Assembly);
 
-        foreach (var assembly in availableModuleAssemblyCollection)
-        {
-            foreach (var mediatrOpenType in _mediatorOpenTypes)
-            {
-                builder
-                    .RegisterAssemblyTypes(assembly)
-                    .AsClosedTypesOf(mediatrOpenType)
-                    .AsImplementedInterfaces();
-            }
-        }
-    }
+    //    foreach (var assembly in availableModuleAssemblyCollection)
+    //    {
+    //        foreach (var mediatrOpenType in _mediatorOpenTypes)
+    //        {
+    //            builder
+    //                .RegisterAssemblyTypes(assembly)
+    //                .AsClosedTypesOf(mediatrOpenType)
+    //                .AsImplementedInterfaces();
+    //        }
+    //    }
+    //}
 }

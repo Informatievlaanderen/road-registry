@@ -1,19 +1,19 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenUnlinkingStreetName;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName.WhenUnlinking;
 
 using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Dbase;
-using Framework;
-using Handlers;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Requests;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Framework;
-using Common;
-using Messages;
-using Sqs.RoadSegments;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Dbase;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Logging;
@@ -42,10 +42,10 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             Request = request,
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         }), CancellationToken.None);
     }
-    
+
     [Fact]
     public async Task UnlinkStreetNameFromRoadSegment_LeftStreetName_NotLinked()
     {
@@ -184,7 +184,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         VerifyThatTicketHasError(ticketing, "NotFound", "Onbestaand wegsegment.");
     }
 
-    private static class WellKnownStreetNameIds
+    private new static class WellKnownStreetNameIds
     {
         public const int Proposed = 1;
         public const int Current = 2;

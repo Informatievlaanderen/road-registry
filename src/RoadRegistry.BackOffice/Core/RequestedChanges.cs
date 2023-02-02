@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.BackOffice.Core;
 
 using System;
 using System.Collections;
@@ -362,10 +362,7 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
     {
         if (view == null) throw new ArgumentNullException(nameof(view));
 
-        var tolerances = new VerificationContextTolerances(
-            DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance,
-            DefaultTolerances.MeasurementTolerance,
-            DefaultTolerances.GeometryTolerance);
+        var tolerances = VerificationContextTolerances.Default;
 
         return new BeforeVerificationContext(
             view.CreateScopedView(DeriveScopeFromChanges(view)),

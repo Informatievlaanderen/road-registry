@@ -54,6 +54,9 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
     public static readonly IReadOnlyDictionary<int, RoadSegmentSurfaceType> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
+    public static readonly IReadOnlyDictionary<string, RoadSegmentSurfaceType> ByName =
+        All.ToDictionary(key => key.Translation.Name);
+
     private readonly string _value;
 
     private RoadSegmentSurfaceType(string value, DutchTranslation dutchTranslation)
@@ -71,9 +74,12 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
 
     public static bool CanParse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        return TryParse(value.ThrowIfNull(), out _);
+    }
 
-        return Array.Find(All, candidate => candidate._value == value) != null;
+    public static bool CanParseUsingDutchName(string value)
+    {
+        return TryParseUsingDutchName(value, out _);
     }
 
     public override bool Equals(object obj)
@@ -103,9 +109,13 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
 
     public static RoadSegmentSurfaceType Parse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (!TryParse(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known type of road surface.");
+        return parsed;
+    }
 
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known type of road surface.");
+    public static RoadSegmentSurfaceType ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known type of road surface.");
         return parsed;
     }
 
@@ -113,12 +123,18 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
     {
         return _value;
     }
-
+    
     public static bool TryParse(string value, out RoadSegmentSurfaceType parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentSurfaceType parsed)
+    {
+        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 

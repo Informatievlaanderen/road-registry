@@ -74,6 +74,9 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
     public static readonly IReadOnlyDictionary<int, RoadSegmentStatus> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
+    public static readonly IReadOnlyDictionary<string, RoadSegmentStatus> ByName =
+        All.ToDictionary(key => key.Translation.Name);
+
     private readonly string _value;
 
     private RoadSegmentStatus(string value, DutchTranslation dutchTranslation)
@@ -91,9 +94,12 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 
     public static bool CanParse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        return TryParse(value.ThrowIfNull(), out _);
+    }
 
-        return Array.Find(All, candidate => candidate._value == value) != null;
+    public static bool CanParseUsingDutchName(string value)
+    {
+        return TryParseUsingDutchName(value, out _);
     }
 
     public override bool Equals(object obj)
@@ -123,9 +129,13 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 
     public static RoadSegmentStatus Parse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (!TryParse(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment status.");
+        return parsed;
+    }
 
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment status.");
+    public static RoadSegmentStatus ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment status.");
         return parsed;
     }
 
@@ -136,9 +146,15 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 
     public static bool TryParse(string value, out RoadSegmentStatus parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentStatus parsed)
+    {
+        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 
