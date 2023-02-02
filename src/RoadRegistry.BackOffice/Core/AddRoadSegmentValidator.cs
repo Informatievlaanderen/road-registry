@@ -86,7 +86,7 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
         RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RequestedRoadSegmentSurfaceAttributeValidator());
     }
 
-    private class AddRoadSegmentOutlineValidator : AddRoadSegmentValidatorBase
+    private sealed class AddRoadSegmentOutlineValidator : AddRoadSegmentValidatorBase
     {
         public AddRoadSegmentOutlineValidator()
         {
