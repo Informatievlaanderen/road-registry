@@ -71,7 +71,7 @@ public sealed class Function : FunctionBase
 
         var eventSourcedEntityMap = new EventSourcedEntityMap();
 
-        services
+        services //NOSONAR logging configuration is safe
             .AddSingleton(ApplicationMetadata)
             .AddTicketing()
             .AddSingleton<IStreetNameCache, StreetNameCache>()
