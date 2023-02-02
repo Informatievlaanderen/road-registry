@@ -55,11 +55,11 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase
 
     protected abstract Task<ETagResponse> InnerHandleAsync(TSqsLambdaRequest request, CancellationToken cancellationToken);
 
-    protected override Task<ETagResponse> InnerHandle(TSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<ETagResponse> InnerHandle(TSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         var sw = Stopwatch.StartNew();
         Logger.LogInformation("Started InnerHandle on {HandlerType} for lambda request {RequestType}", GetType().Name, request.GetType().Name);
-        var result = InnerHandleAsync(request, cancellationToken);
+        var result = await InnerHandleAsync(request, cancellationToken);
         Logger.LogInformation("Finished InnerHandle on {HandlerType} for lambda request {RequestType} in {StopwatchElapsedMilliseconds}", GetType().Name, request.GetType().Name, sw.ElapsedMilliseconds);
         return result;
     }
