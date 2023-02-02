@@ -27,7 +27,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Serilog;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public sealed class Function : FunctionBase
@@ -69,6 +71,10 @@ public sealed class Function : FunctionBase
                 {
                     CommandModules.RoadNetwork(sp)
                 }))
+                .AddLogging(configure =>
+                {
+                    configure.AddRoadRegistryLambdaLogger();
+                })
             ;
 
         var builder = new ContainerBuilder();
@@ -76,7 +82,7 @@ public sealed class Function : FunctionBase
         builder.Populate(services);
 
         ConfigureContainer(builder, configuration);
-        
+
         return new AutofacServiceProvider(builder.Build());
     }
 

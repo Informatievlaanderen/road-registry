@@ -28,7 +28,7 @@ internal static class ServiceCollectionExtensions
                                 new DbContextOptionsBuilder<EditorContext>()
                                     .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                                     .UseLoggerFactory(loggerFactory)
-                                    .UseSqlServer(connectionString,options =>
+                                    .UseSqlServer(connectionString, options =>
                                         options
                                             .UseNetTopologySuite()
                                     ).Options);
