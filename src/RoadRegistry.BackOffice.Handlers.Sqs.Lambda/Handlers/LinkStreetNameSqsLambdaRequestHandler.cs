@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Validation;
+using Amazon.Lambda.Core;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
