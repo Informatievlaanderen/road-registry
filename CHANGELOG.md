@@ -1,3 +1,10 @@
+# [3.34.0](https://github.com/informatievlaanderen/road-registry/compare/v3.33.8...v3.34.0) (2023-02-02)
+
+
+### Features
+
+* WR-508 Add RoadSegmentOutline endpoint ([#821](https://github.com/informatievlaanderen/road-registry/issues/821)) ([762a95b](https://github.com/informatievlaanderen/road-registry/commit/762a95b73f438eebc114c2c3694485d21c69fb6a))
+
 ## [3.33.8](https://github.com/informatievlaanderen/road-registry/compare/v3.33.7...v3.33.8) (2023-02-02)
 
 
