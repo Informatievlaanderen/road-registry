@@ -1,3 +1,11 @@
+## [3.33.8](https://github.com/informatievlaanderen/road-registry/compare/v3.33.7...v3.33.8) (2023-02-02)
+
+
+### Bug Fixes
+
+* Add implementation for ILogger which uses LambdaLogger static class ([#819](https://github.com/informatievlaanderen/road-registry/issues/819)) ([ba51136](https://github.com/informatievlaanderen/road-registry/commit/ba51136c108e648a8d25072a59bd42c135db7fda))
+* wait for InnerHandleAsync correctly before logging the end ([#820](https://github.com/informatievlaanderen/road-registry/issues/820)) ([7f81e60](https://github.com/informatievlaanderen/road-registry/commit/7f81e601a224a1fde436eaa0cf40e71ae0f87851))
+
 ## [3.33.7](https://github.com/informatievlaanderen/road-registry/compare/v3.33.6...v3.33.7) (2023-02-01)
 
 
