@@ -31,7 +31,7 @@ public partial class RoadSegmentsOutlineController
     /// <param name="editorContext"></param>
     /// <param name="parameters"></param>
     /// <param name="cancellationToken"></param>
-    /// <response code="200">Als het wegsegment gevonden is.</response>
+    /// <response code="202">Als het wegsegment gevonden is.</response>
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost("acties/schetsen")]
