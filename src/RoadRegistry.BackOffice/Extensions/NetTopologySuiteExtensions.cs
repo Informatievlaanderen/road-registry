@@ -24,8 +24,7 @@ public static class NetTopologySuiteExtensions
     public static Problems GetProblemsForRoadSegmentGeometry(this LineString line, VerificationContextTolerances contextTolerances)
     {
         var problems = Problems.None;
-
-        //TODO-rik check geometry length min 2
+        
         if (Math.Abs(line.Length) <= contextTolerances.GeometryTolerance)
         {
             problems = problems.Add(new RoadSegmentGeometryLengthIsZero());

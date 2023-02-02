@@ -87,7 +87,7 @@ public class AddRoadSegmentOutlineValidatorTests : ValidatorTest<AddRoadSegment,
             TemporaryId = Fixture.Create<RoadSegmentId>(),
             StartNodeId = new RoadNodeId(0),
             EndNodeId = new RoadNodeId(0),
-            Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()), //TODO-rik altijd lengte > 2
+            Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
             MaintenanceAuthority = Fixture.Create<OrganizationId>(),
             GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined,
             Morphology = Fixture.Create<RoadSegmentMorphology>(),
@@ -141,37 +141,7 @@ public class AddRoadSegmentOutlineValidatorTests : ValidatorTest<AddRoadSegment,
     {
         ShouldHaveValidationErrorFor(c => c.Geometry, null);
     }
-
-    //TODO-rik test op wegsegment min 2m
-    //[Fact]
-    //public void GeometryMustHaveALengthOfAtLeast2()
-    //{
-    //    var geometry = new RoadSegmentGeometry
-    //    {
-    //        MultiLineString = new[]
-    //        {
-    //            new RoadRegistry.BackOffice.Messages.LineString
-    //            {
-    //                Points = new [] {
-    //                    new RoadRegistry.BackOffice.Messages.Point
-    //                    {
-    //                        X = 0,
-    //                        Y = 0
-    //                    },
-    //                    new RoadRegistry.BackOffice.Messages.Point
-    //                    {
-    //                        X = 0,
-    //                        Y = 1
-    //                    }
-    //                },
-    //                Measures = new [] { 0D, 1D }
-    //            }
-    //        }
-    //    };
-
-    //    ShouldHaveValidationErrorFor(c => c.Geometry, geometry);
-    //}
-
+    
     [Fact]
     public void LaneMustNotBeNull()
     {
