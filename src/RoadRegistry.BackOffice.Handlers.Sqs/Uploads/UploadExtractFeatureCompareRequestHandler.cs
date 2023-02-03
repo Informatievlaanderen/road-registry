@@ -89,14 +89,14 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
                 cancellationToken
             );
 
-            await WriteRoadNetworkChangesArchiveUploadedToStore(entity, cancellationToken);
-
             var message = new UploadRoadNetworkChangesArchive
             {
                 ArchiveId = archiveId.ToString()
             };
 
             await _sqsQueuePublisher.CopyToQueue(_messagingOptions.RequestQueueUrl, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
+
+            await WriteRoadNetworkChangesArchiveUploadedToStore(entity, cancellationToken);
         }
 
         return new UploadExtractFeatureCompareResponse(archiveId);
