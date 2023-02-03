@@ -19,8 +19,8 @@ using LineString = NetTopologySuite.Geometries.LineString;
 
 public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
 {
-    public WhenCreateOutlineWithValidRequestFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadRegistryContext roadRegistryContext, IRoadNetworkCommandQueue roadNetworkCommandQueue, IIdempotentCommandHandler idempotentCommandHandler, IClock clock)
-        : base(configuration, customRetryPolicy, streamStore, roadRegistryContext, roadNetworkCommandQueue, idempotentCommandHandler, clock)
+    public WhenCreateOutlineWithValidRequestFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock)
+        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
         ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();
