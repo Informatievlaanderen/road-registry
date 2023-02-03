@@ -4,6 +4,7 @@ using Api.RoadSegmentsOutline;
 using Dbase.Organizations;
 using Editor.Schema;
 using FeatureToggles;
+using Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +41,7 @@ public abstract class WhenCreateOutlineFixture : ApplicationFixture, IAsyncLifet
 
         await _editorContext.SaveChangesAsync(CancellationToken.None);
 
-        var controller = new RoadSegmentsOutlineController(_mediator)
+        var controller = new RoadSegmentsOutlineController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
         {
             ControllerContext = new ControllerContext
             {
