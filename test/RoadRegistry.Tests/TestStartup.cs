@@ -95,7 +95,6 @@ public abstract class TestStartup
                     .AddSingleton(new ExtractUploadsOptions())
                     .AddSingleton(new FeatureCompareMessagingOptions
                     {
-                        DockerQueueUrl = "docker.fifo",
                         RequestQueueUrl = "request.fifo",
                         ResponseQueueUrl = "response.fifo"
                     })
