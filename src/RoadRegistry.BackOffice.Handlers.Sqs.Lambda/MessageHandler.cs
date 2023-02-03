@@ -41,6 +41,7 @@ public sealed class MessageHandler : IMessageHandler
             LinkStreetNameSqsRequest request => new LinkStreetNameSqsLambdaRequest(groupId, request),
             UnlinkStreetNameSqsRequest request => new UnlinkStreetNameSqsLambdaRequest(groupId, request),
             CorrectRoadSegmentVersionsSqsRequest request => new CorrectRoadSegmentVersionsSqsLambdaRequest(groupId, request),
+            CreateRoadSegmentOutlineSqsRequest request => new CreateRoadSegmentOutlineSqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };
