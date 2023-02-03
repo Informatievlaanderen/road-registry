@@ -1,3 +1,13 @@
+## [3.34.1](https://github.com/informatievlaanderen/road-registry/compare/v3.34.0...v3.34.1) (2023-02-03)
+
+
+### Bug Fixes
+
+* change pagesize to 1000 ([#823](https://github.com/informatievlaanderen/road-registry/issues/823)) ([dfbde85](https://github.com/informatievlaanderen/road-registry/commit/dfbde85ef886227a561beeb02fb03592db9cd0cd))
+* fix sonar security warning ([bf43f86](https://github.com/informatievlaanderen/road-registry/commit/bf43f8678d47d87da1d14900f13b16515cfff82b))
+* publish uploaded message after the SQS message got published ([#824](https://github.com/informatievlaanderen/road-registry/issues/824)) ([817e352](https://github.com/informatievlaanderen/road-registry/commit/817e3524caa5fa48b88a519fe22f78fb79b61115))
+* run multiple lambda tests at once ([#825](https://github.com/informatievlaanderen/road-registry/issues/825)) ([bbb44d6](https://github.com/informatievlaanderen/road-registry/commit/bbb44d65ae339e495e3ea156df7a31cea2c75175))
+
 # [3.34.0](https://github.com/informatievlaanderen/road-registry/compare/v3.33.8...v3.34.0) (2023-02-02)
 
 
