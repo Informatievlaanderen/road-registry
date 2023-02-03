@@ -8,6 +8,8 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
 using Framework;
+using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Infrastructure;
 using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;

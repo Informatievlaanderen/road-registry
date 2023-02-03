@@ -1,7 +1,11 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
+namespace RoadRegistry.Hosts;
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
-using Framework;
 
 public class RoadRegistryIdempotentCommandHandler : IIdempotentCommandHandler
 {

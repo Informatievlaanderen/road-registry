@@ -1,8 +1,13 @@
+Be.Vlaanderen.Basisregisters.Aws.Lambda
 Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
+Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
 Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
+Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
 Be.Vlaanderen.Basisregisters.Shaperon
+Be.Vlaanderen.Basisregisters.Sqs
+Be.Vlaanderen.Basisregisters.Sqs.Lambda
 
 AWSSDK.Core
 Microsoft.Data.SqlClient

@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetN
 using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
