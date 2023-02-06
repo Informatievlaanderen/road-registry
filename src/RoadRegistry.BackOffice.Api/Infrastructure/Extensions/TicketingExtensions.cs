@@ -9,31 +9,29 @@ using TicketingService.Proxy.HttpProxy;
 
 public static class TicketingExtensions
 {
-    private static IServiceCollection AddHttpProxyTicketing(
-        this IServiceCollection services,
-        Func<IConfiguration, string> baseUrlProvider)
+    private static IServiceCollection AddHttpProxyTicketing(this IServiceCollection services)
     {
         services.AddHttpClient<ITicketing, HttpProxyTicketing>((sp, c) =>
         {
-            var configuration = sp.GetRequiredService<IConfiguration>();
-            c.BaseAddress = new Uri(baseUrlProvider(configuration).TrimEnd('/'));
+            var options = sp.GetRequiredService<TicketingOptions>();
+            c.BaseAddress = new Uri(options.InternalBaseUrl.TrimEnd('/'));
         });
 
         return services;
     }
 
     public static IServiceCollection AddTicketing(
-        this IServiceCollection services)
+        this IServiceCollection services, IConfiguration configuration)
     {
-        return services
-            .AddHttpProxyTicketing(GetBaseUrl)
-            .AddSingleton<ITicketingUrl>(sp =>
-                new TicketingUrl(GetBaseUrl(sp.GetRequiredService<IConfiguration>()))
-            );
-    }
+        var ticketingOptions = new TicketingOptions();
+        configuration.GetSection(TicketingOptions.ConfigurationKey).Bind(ticketingOptions);
 
-    private static string GetBaseUrl(IConfiguration configuration)
-    {
-        return configuration.GetSection(TicketingOptions.ConfigurationKey).GetRequiredValue<string>(nameof(TicketingOptions.InternalBaseUrl));
+        return services
+                .AddSingleton(ticketingOptions)
+                .AddHttpProxyTicketing()
+                .AddSingleton<ITicketingUrl>(sp =>
+                    new TicketingUrl(ticketingOptions.InternalBaseUrl)
+                )
+            ;
     }
 }

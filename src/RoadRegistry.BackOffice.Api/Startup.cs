@@ -164,7 +164,7 @@ public class Startup
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>()
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
-            .AddTicketing();
+            .AddTicketing(_configuration);
 
         var builder = new ContainerBuilder();
         builder.RegisterModule(new DataDogModule(_configuration));
