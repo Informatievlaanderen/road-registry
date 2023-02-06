@@ -56,7 +56,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         await using var context = _editorContextFactory();
 
         var roadSegmentIds = new List<int>();
-        const int pageSize = 1000;
+        const int pageSize = 5000;
         var pageIndex = 0;
 
         while (await FillInvalidRoadSegmentIds(context, pageIndex++, pageSize, roadSegmentIds))
