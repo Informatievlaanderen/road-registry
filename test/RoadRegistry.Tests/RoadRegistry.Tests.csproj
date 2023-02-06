@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" Version="1.7.6" />
+    <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" Version="1.8.0" />
     <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy" Version="1.7.6" />
   </ItemGroup>
 
