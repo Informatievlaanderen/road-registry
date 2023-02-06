@@ -42,6 +42,9 @@ public class RoadNetworkEventModule : EventHandlerModule
             {
                 logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));
 
+                // Get current stream version
+
+                // Send snapshot request
                 var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
                 await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
 

@@ -11,5 +11,5 @@
   "function-runtime": "dotnet6",
   "function-memory-size": 256,
   "function-timeout": 30,
-  "function-handler": "RoadRegistry.SnapshotCache.Lambda::RoadRegistry.SnapshotCache.Lambda.Function::FunctionHandler"
+  "function-handler": "RoadRegistry.Snapshot.Handlers.Sqs.Lambda::RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Function::FunctionHandler"
 }

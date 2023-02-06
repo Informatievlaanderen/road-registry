@@ -1,49 +1,25 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
 using Autofac;
-using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using MediatR;
+using Hosts;
 using Requests;
 using RoadSegments;
 
-public sealed class MessageHandler : IMessageHandler
+public sealed class MessageHandler : RoadRegistryMessageHandler
 {
-    private readonly ILifetimeScope _container;
-
-    public MessageHandler(ILifetimeScope container)
+    public MessageHandler(ILifetimeScope container) : base(container)
     {
-        _container = container;
     }
 
-    public async Task HandleMessage(object? messageData, MessageMetadata messageMetadata, CancellationToken cancellationToken)
+    protected override SqsLambdaRequest ConvertToLambdaRequest(SqsRequest sqsRequest, string groupId) => sqsRequest switch
     {
-        messageMetadata.Logger?.LogInformation($"Handling message {messageData?.GetType().Name}");
-
-        if (messageData is not SqsRequest sqsRequest)
-        {
-            messageMetadata.Logger?.LogInformation($"Unable to cast '{nameof(messageData)}' as {nameof(SqsRequest)}.");
-            return;
-        }
-
-        await using var lifetimeScope = _container.BeginLifetimeScope();
-        var mediator = lifetimeScope.Resolve<IMediator>();
-
-        var sqsLambdaRequest = ConvertToLambdaRequest(sqsRequest, messageMetadata.MessageGroupId!);
-        await mediator.Send(sqsLambdaRequest, cancellationToken);
-    }
-
-    private static SqsLambdaRequest ConvertToLambdaRequest(SqsRequest sqsRequest, string groupId)
-    {
-        return sqsRequest switch
-        {
-            LinkStreetNameSqsRequest request => new LinkStreetNameSqsLambdaRequest(groupId, request),
-            UnlinkStreetNameSqsRequest request => new UnlinkStreetNameSqsLambdaRequest(groupId, request),
-            CorrectRoadSegmentVersionsSqsRequest request => new CorrectRoadSegmentVersionsSqsLambdaRequest(groupId, request),
-            CreateRoadSegmentOutlineSqsRequest request => new CreateRoadSegmentOutlineSqsLambdaRequest(groupId, request),
-            _ => throw new NotImplementedException(
-                $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
-        };
-    }
+        LinkStreetNameSqsRequest request => new LinkStreetNameSqsLambdaRequest(groupId, request),
+        UnlinkStreetNameSqsRequest request => new UnlinkStreetNameSqsLambdaRequest(groupId, request),
+        CorrectRoadSegmentVersionsSqsRequest request => new CorrectRoadSegmentVersionsSqsLambdaRequest(groupId, request),
+        CreateRoadSegmentOutlineSqsRequest request => new CreateRoadSegmentOutlineSqsLambdaRequest(groupId, request),
+        _ => throw new NotImplementedException(
+            $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
+    };
 }

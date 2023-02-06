@@ -40,12 +40,12 @@ If already installed check if new version is available.
 
 Execute unit tests
 ```
-    cd "RoadRegistry.SnapshotCache.Lambda/test/RoadRegistry.SnapshotCache.Lambda.Tests"
+    cd "RoadRegistry.Snapshot.Handlers.Sqs.Lambda/test/RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests"
     dotnet test
 ```
 
 Deploy function to AWS Lambda
 ```
-    cd "RoadRegistry.SnapshotCache.Lambda/src/RoadRegistry.SnapshotCache.Lambda"
+    cd "RoadRegistry.Snapshot.Handlers.Sqs.Lambda/src/RoadRegistry.Snapshot.Handlers.Sqs.Lambda"
     dotnet lambda deploy-function
 ```

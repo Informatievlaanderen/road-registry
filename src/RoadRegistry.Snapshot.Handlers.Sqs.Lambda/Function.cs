@@ -1,13 +1,13 @@
+using System.Text.Json;
 using Amazon.Lambda.Core;
-using Amazon.Lambda.Serialization.Json;
 
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 
-namespace RoadRegistry.SnapshotCache.Lambda;
+namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda;
 
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
-using BackOffice.Handlers.Sqs;
+using BackOffice;
 using Hosts;
 
 public class Function : RoadRegistryLambdaFunction
@@ -16,16 +16,16 @@ public class Function : RoadRegistryLambdaFunction
     {
     }
 
-    public async Task FunctionHandler(SQSEvent evnt, ILambdaContext context)
+    public async Task FunctionHandler(SQSEvent @event, ILambdaContext context)
     {
-        foreach (var message in evnt.Records)
+        foreach (var message in @event.Records)
         {
             await ProcessMessageAsync(message, context);
         }
     }
 
     /// <summary>
-    /// Process message as an asynchronous operation.
+    ///     Process message as an asynchronous operation.
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="context">The context.</param>
