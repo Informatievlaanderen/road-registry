@@ -1,3 +1,10 @@
+## [3.34.3](https://github.com/informatievlaanderen/road-registry/compare/v3.34.2...v3.34.3) (2023-02-06)
+
+
+### Bug Fixes
+
+* bump ([#831](https://github.com/informatievlaanderen/road-registry/issues/831)) ([1b7e2e4](https://github.com/informatievlaanderen/road-registry/commit/1b7e2e4c04721e9a10ad22228b9fe81eb4194e03))
+
 ## [3.34.2](https://github.com/informatievlaanderen/road-registry/compare/v3.34.1...v3.34.2) (2023-02-06)
 
 
