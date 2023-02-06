@@ -1,3 +1,10 @@
+## [3.34.2](https://github.com/informatievlaanderen/road-registry/compare/v3.34.1...v3.34.2) (2023-02-06)
+
+
+### Bug Fixes
+
+* TicketingOptions dependency in RoadSegmentsController ([#826](https://github.com/informatievlaanderen/road-registry/issues/826)) ([c38f2dc](https://github.com/informatievlaanderen/road-registry/commit/c38f2dceb5dda8a951bbbcac6ab65e5fdbfa5d7b))
+
 ## [3.34.1](https://github.com/informatievlaanderen/road-registry/compare/v3.34.0...v3.34.1) (2023-02-03)
 
 
