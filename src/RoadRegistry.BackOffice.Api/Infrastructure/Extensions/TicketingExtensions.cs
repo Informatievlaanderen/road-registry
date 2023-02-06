@@ -9,12 +9,11 @@ using TicketingService.Proxy.HttpProxy;
 
 public static class TicketingExtensions
 {
-    private static IServiceCollection AddHttpProxyTicketing(this IServiceCollection services)
+    private static IServiceCollection AddHttpProxyTicketing(this IServiceCollection services, TicketingOptions ticketingOptions)
     {
         services.AddHttpClient<ITicketing, HttpProxyTicketing>((sp, c) =>
         {
-            var options = sp.GetRequiredService<TicketingOptions>();
-            c.BaseAddress = new Uri(options.InternalBaseUrl.TrimEnd('/'));
+            c.BaseAddress = new Uri(ticketingOptions.InternalBaseUrl.TrimEnd('/'));
         });
 
         return services;
@@ -28,7 +27,7 @@ public static class TicketingExtensions
 
         return services
                 .AddSingleton(ticketingOptions)
-                .AddHttpProxyTicketing()
+                .AddHttpProxyTicketing(ticketingOptions)
                 .AddSingleton<ITicketingUrl>(sp =>
                     new TicketingUrl(ticketingOptions.InternalBaseUrl)
                 )
