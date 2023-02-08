@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Handlers;
+using Hosts;
 using Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
