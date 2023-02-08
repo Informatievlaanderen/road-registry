@@ -10,7 +10,7 @@ public class WhenCreateOutlineWithInvalidStatus : WhenCreateOutline<WhenCreateOu
     {
     }
 
-    [Fact(Skip = "Disabled for tests with Lambda loggers")]
+    [Fact]
     public void ItShouldThrow()
     {
         if (Fixture.Exception is not null)

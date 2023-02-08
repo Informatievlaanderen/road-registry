@@ -1,6 +1,9 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 
+using Autofac;
 using BackOffice.Framework;
+using BackOffice.Infrastructure.Modules;
+using Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -10,6 +13,8 @@ using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Handlers;
 using Messages;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
 using NodaTime;
@@ -30,20 +35,21 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
+
     protected readonly IConfiguration Configuration;
     protected readonly ICustomRetryPolicy CustomRetryPolicy;
     protected readonly IIdempotentCommandHandler IdempotentCommandHandler;
     protected readonly IRoadNetworkCommandQueue RoadNetworkCommandQueue;
+    protected readonly Func<EventSourcedEntityMap> EntityMapFactory;
     protected readonly IRoadRegistryContext RoadRegistryContext;
     protected readonly IStreamStore Store;
+    protected readonly ILoggerFactory LoggerFactory;
 
     protected SqsLambdaHandlerFixture(
         IConfiguration configuration,
         ICustomRetryPolicy customRetryPolicy,
         IStreamStore streamStore,
-        IRoadRegistryContext roadRegistryContext,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
-        IIdempotentCommandHandler idempotentCommandHandler,
         IClock clock
     )
     {
@@ -57,15 +63,21 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
 
         CustomRetryPolicy = customRetryPolicy;
         Store = streamStore;
-        RoadRegistryContext = roadRegistryContext;
+        var eventSourcedEntityMap = new EventSourcedEntityMap();
+        EntityMapFactory = () => eventSourcedEntityMap;
+        RoadRegistryContext = new RoadRegistryContext(EntityMapFactory(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
         RoadNetworkCommandQueue = roadNetworkCommandQueue;
-        IdempotentCommandHandler = idempotentCommandHandler;
         Clock = clock;
+        LoggerFactory = new LoggerFactory();
 
         TicketingMock = MockTicketing();
+        
+        IdempotentCommandHandler = new RoadRegistryIdempotentCommandHandler(BuildCommandHandlerDispatcher());
 
         Exception = null;
     }
+
+    protected abstract CommandHandlerDispatcher BuildCommandHandlerDispatcher();
 
     public IClock Clock { get; }
     protected abstract TSqsLambdaRequestHandler SqsLambdaRequestHandler { get; }
@@ -74,7 +86,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     protected Mock<ITicketing> TicketingMock { get; }
     public bool Result { get; private set; }
     public Exception? Exception { get; private set; }
-
+    
     public async Task InitializeAsync()
     {
         try

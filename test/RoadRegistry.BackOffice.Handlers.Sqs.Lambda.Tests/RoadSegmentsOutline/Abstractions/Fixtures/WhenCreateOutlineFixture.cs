@@ -1,10 +1,12 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.Abstractions.Fixtures;
 
+using Autofac;
 using AutoFixture;
 using BackOffice.Abstractions.RoadSegmentsOutline;
+using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
 using Dbase;
 using Framework;
 using Handlers;
@@ -17,8 +19,10 @@ using Sqs.RoadSegments;
 
 public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateRoadSegmentOutlineSqsLambdaRequestHandler, CreateRoadSegmentOutlineSqsLambdaRequest, CreateRoadSegmentOutlineSqsRequest>
 {
-    protected WhenCreateOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadRegistryContext roadRegistryContext, IRoadNetworkCommandQueue roadNetworkCommandQueue, IIdempotentCommandHandler idempotentCommandHandler, IClock clock)
-        : base(configuration, customRetryPolicy, streamStore, roadRegistryContext, roadNetworkCommandQueue, idempotentCommandHandler, clock)
+    protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
+
+    protected WhenCreateOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock)
+        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock)
     {
         Organisation = Organisation.DigitaalVlaanderen;
 
@@ -33,7 +37,6 @@ public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateR
     }
 
     protected Organisation Organisation { get; }
-
     protected abstract CreateRoadSegmentOutlineRequest Request { get; }
 
     protected override CreateRoadSegmentOutlineSqsRequest SqsRequest => new()
@@ -55,4 +58,20 @@ public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateR
         RoadNetworkCommandQueue,
         new NullLogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler>()
     );
+
+    protected override CommandHandlerDispatcher BuildCommandHandlerDispatcher()
+    {
+        return Dispatch.Using(Resolve.WhenEqualToMessage(
+            new CommandHandlerModule[]
+            {
+                new RoadNetworkCommandModule(
+                    Store,
+                    EntityMapFactory,
+                    new FakeRoadNetworkSnapshotReader(),
+                    new FakeRoadNetworkSnapshotWriter(),
+                    Clock,
+                    LoggerFactory
+                )
+            }), ApplicationMetadata);
+    }
 }
