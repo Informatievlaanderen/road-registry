@@ -1,15 +1,18 @@
-namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.BackOffice.Handlers;
 
-using System;
-using Framework;
-using Messages;
+using Core;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
 using SqlStreamStore;
+using System;
 
-public class RoadNetworkEventModule : EventHandlerModule
+public class RoadNetworkBackOfficeEventModule : EventHandlerModule
 {
-    public RoadNetworkEventModule(
+    public RoadNetworkBackOfficeEventModule(
         IStreamStore store,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
@@ -22,7 +25,7 @@ public class RoadNetworkEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(snapshotWriter);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
-        var logger = loggerFactory.CreateLogger<RoadNetworkEventModule>();
+        var logger = loggerFactory.CreateLogger<RoadNetworkBackOfficeEventModule>();
 
         For<CompletedRoadNetworkImport>()
             .UseRoadRegistryContext(store, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
@@ -34,21 +37,6 @@ public class RoadNetworkEventModule : EventHandlerModule
                 await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
 
                 logger.LogInformation("Event handler finished for {EventName}", nameof(CompletedRoadNetworkImport));
-            });
-
-        For<RoadNetworkChangesAccepted>()
-            .UseRoadRegistryContext(store, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
-            .Handle(async (context, message, ct) =>
-            {
-                logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));
-
-                // Get current stream version
-
-                // Send snapshot request
-                var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
-                await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
-
-                logger.LogInformation("Event handler finished for {EventName}", nameof(RoadNetworkChangesAccepted));
             });
     }
 }

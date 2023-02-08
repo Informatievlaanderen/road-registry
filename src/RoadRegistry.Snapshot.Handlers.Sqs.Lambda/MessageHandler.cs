@@ -1,6 +1,7 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda;
 
 using Autofac;
+using BackOffice.Abstractions.RoadNetworks;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Hosts;

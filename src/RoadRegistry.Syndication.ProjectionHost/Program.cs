@@ -1,13 +1,6 @@
 namespace RoadRegistry.Syndication.ProjectionHost;
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
@@ -29,7 +22,14 @@ using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Schema;
 using Serilog;
 using Serilog.Debugging;
-using SqlStreamStore;
+using System;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class Program
 {

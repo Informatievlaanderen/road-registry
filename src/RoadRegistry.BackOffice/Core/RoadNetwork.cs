@@ -13,6 +13,8 @@ public class RoadNetwork : EventSourcedEntity
     public static readonly Func<IRoadNetworkView, RoadNetwork> Factory =
         view => new RoadNetwork(view);
 
+    public const int Identifier = 0;
+
     private IRoadNetworkView _view;
 
     private RoadNetwork(IRoadNetworkView view)

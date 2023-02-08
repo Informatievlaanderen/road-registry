@@ -1,4 +1,4 @@
-namespace RoadRegistry.Hosts;
+namespace RoadRegistry.BackOffice;
 
 public static class WellknownSchemas
 {

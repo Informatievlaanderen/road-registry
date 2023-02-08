@@ -1,7 +1,7 @@
 namespace RoadRegistry.Product.Schema;
 
+using BackOffice;
 using Dbase;
-using Hosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -8,6 +8,7 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using BackOffice;
 using BackOffice.Core;
 using BackOffice.Extracts;
 using BackOffice.Framework;

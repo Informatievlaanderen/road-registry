@@ -1,8 +1,8 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 {
+    using BackOffice;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
-    using Hosts;
     using Microsoft.EntityFrameworkCore;
 
     public class RoadSegmentProducerSnapshotContext : RunnerDbContext<RoadSegmentProducerSnapshotContext>

@@ -1,38 +1,32 @@
-using System.Text.Json;
-using Amazon.Lambda.Core;
-
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
-
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda;
 
-using Amazon.Lambda.Core;
-using Amazon.Lambda.SQSEvents;
-using BackOffice;
+using Autofac;
+using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Hosts;
+using Microsoft.Extensions.Configuration;
+using RoadRegistry.BackOffice;
+using RoadRegistry.Hosts.Infrastructure.Modules;
+using System.Reflection;
 
 public class Function : RoadRegistryLambdaFunction
 {
-    public Function() : base("RoadRegistry.SnapshotCache.Lambda", new[] { typeof(DomainAssemblyMarker).Assembly })
+    public Function() : base("RoadRegistry.Snapshot.Handlers.Sqs.Lambda", new[] { typeof(Sqs.DomainAssemblyMarker).Assembly })
     {
     }
 
-    public async Task FunctionHandler(SQSEvent @event, ILambdaContext context)
+    protected override void ConfigureContainer(ContainerBuilder builder, IConfiguration configuration)
     {
-        foreach (var message in @event.Records)
-        {
-            await ProcessMessageAsync(message, context);
-        }
-    }
+        base.ConfigureContainer(builder, configuration);
 
-    /// <summary>
-    ///     Process message as an asynchronous operation.
-    /// </summary>
-    /// <param name="message">The message.</param>
-    /// <param name="context">The context.</param>
-    /// <returns>A Task representing the asynchronous operation.</returns>
-    private async Task ProcessMessageAsync(SQSEvent.SQSMessage message, ILambdaContext context)
-    {
-        context.Logger.LogInformation($"Processed message {message.Body}");
-        await Task.CompletedTask;
+        builder
+            .RegisterAssemblyTypes(typeof(MessageHandler).GetTypeInfo().Assembly)
+            .AsImplementedInterfaces();
+
+        builder
+            .RegisterModule(new EventHandlingModule(typeof(Sqs.DomainAssemblyMarker).Assembly, EventSerializerSettings))
+            .RegisterModule<RoadNetworkSnapshotModule>()
+            .RegisterModule<ContextModule>()
+            ;
     }
 }

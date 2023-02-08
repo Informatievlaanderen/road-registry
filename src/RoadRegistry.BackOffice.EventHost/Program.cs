@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice.EventHost;
 
-using System;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
@@ -15,8 +11,10 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Core;
 using Extracts;
 using Framework;
+using Handlers.Uploads;
 using Hosts;
 using Hosts.Configuration;
+using MediatR;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +26,11 @@ using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Debugging;
 using SqlStreamStore;
+using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Handlers;
 using Uploads;
 
 public class Program
@@ -204,12 +207,20 @@ public class Program
                             ApplicationMetadata,
                             sp.GetService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
-                        new RoadNetworkEventModule(
+                        new RoadNetworkBackOfficeEventModule(
                             sp.GetService<IStreamStore>(),
                             sp.GetService<IRoadNetworkSnapshotReader>(),
                             sp.GetService<IRoadNetworkSnapshotWriter>(),
                             sp.GetService<IClock>(),
+                            sp.GetService<ILoggerFactory>()),
+                        new RoadNetworkSnapshotEventModule(
+                            sp.GetService<IStreamStore>(),
+                            sp.GetService<IMediator>(),
+                            sp.GetService<IRoadNetworkSnapshotReader>(),
+                            sp.GetService<IRoadNetworkSnapshotWriter>(),
+                            sp.GetService<IClock>(),
                             sp.GetService<ILoggerFactory>())
+
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));

@@ -1,11 +1,7 @@
-using Amazon.Lambda.Core;
-using Amazon.Lambda.Serialization.Json;
-
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using System.Reflection;
 using Abstractions;
 using Autofac;
 using BackOffice.Extensions;
@@ -15,15 +11,14 @@ using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
-using Infrastructure.Extensions;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using DomainAssemblyMarker = BackOffice.Handlers.DomainAssemblyMarker;
+using System.Reflection;
 
 public sealed class Function : RoadRegistryLambdaFunction
 {
-    public Function() : base("RoadRegistry.BackOffice.Handlers.Sqs.Lambda", new[] { typeof(DomainAssemblyMarker).Assembly })
+    public Function() : base("RoadRegistry.BackOffice.Handlers.Sqs.Lambda", new[] { typeof(Sqs.DomainAssemblyMarker).Assembly })
     {
     }
 
@@ -36,7 +31,7 @@ public sealed class Function : RoadRegistryLambdaFunction
             .AsImplementedInterfaces();
 
         builder
-            .RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, EventSerializerSettings))
+            .RegisterModule(new EventHandlingModule(typeof(Sqs.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<RoadNetworkSnapshotModule>()
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
@@ -49,10 +44,8 @@ public sealed class Function : RoadRegistryLambdaFunction
     protected override IServiceProvider ConfigureServices(IServiceCollection services)
     {
         services
-            .AddTicketing()
             .AddSingleton<IStreetNameCache, StreetNameCache>()
             .AddRoadNetworkCommandQueue()
-            .AddEditorContext()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {

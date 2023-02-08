@@ -4,6 +4,9 @@ using Amazon.Lambda.SQSEvents;
 
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests;
 
+using Newtonsoft.Json;
+using RoadNetworks;
+
 public class FunctionTest
 {
     [Fact]
@@ -15,7 +18,10 @@ public class FunctionTest
             {
                 new SQSEvent.SQSMessage
                 {
-                    Body = "foobar"
+                    Body = JsonConvert.SerializeObject(new CreateRoadNetworkSnapshotSqsRequest
+                    {
+                        
+                    })
                 }
             }
         };
@@ -27,7 +33,7 @@ public class FunctionTest
         };
 
         var function = new Function();
-        await function.FunctionHandler(sqsEvent, context);
+        await function.Handler(sqsEvent, context);
 
         Assert.Contains("Processed message foobar", logger.Buffer.ToString());
     }

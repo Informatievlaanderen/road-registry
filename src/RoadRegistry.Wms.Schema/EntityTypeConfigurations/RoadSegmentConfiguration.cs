@@ -1,6 +1,6 @@
 namespace RoadRegistry.Wms.Schema.EntityTypeConfigurations;
 
-using Hosts;
+using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

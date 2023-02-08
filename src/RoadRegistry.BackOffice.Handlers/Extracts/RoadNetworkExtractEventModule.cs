@@ -1,18 +1,19 @@
-namespace RoadRegistry.BackOffice.Extracts;
+namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Extracts;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core;
-using Framework;
-using Messages;
 using Microsoft.Data.SqlClient;
 using Polly;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
 using SqlStreamStore;
-using Uploads;
 
 public class RoadNetworkExtractEventModule : EventHandlerModule
 {

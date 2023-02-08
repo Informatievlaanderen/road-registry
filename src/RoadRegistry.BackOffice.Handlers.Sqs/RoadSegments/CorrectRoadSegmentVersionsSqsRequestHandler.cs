@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs;
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
-using Dbase;
+using Core;
 using TicketingService.Abstractions;
 
 public class CorrectRoadSegmentVersionsSqsRequestHandler : SqsHandler<CorrectRoadSegmentVersionsSqsRequest>
@@ -15,7 +15,7 @@ public class CorrectRoadSegmentVersionsSqsRequestHandler : SqsHandler<CorrectRoa
 
     protected override string WithAggregateId(CorrectRoadSegmentVersionsSqsRequest request)
     {
-        return RoadNetworkInfo.Identifier.ToString();
+        return RoadNetwork.Identifier.ToString();
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, CorrectRoadSegmentVersionsSqsRequest sqsRequest)

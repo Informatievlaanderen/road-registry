@@ -1,13 +1,14 @@
-namespace RoadRegistry.BackOffice.Uploads;
+namespace RoadRegistry.BackOffice.Handlers.Uploads;
 
+using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.BlobStore;
+using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
+using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
-using Be.Vlaanderen.Basisregisters.BlobStore;
-using Framework;
-using Messages;
-using Microsoft.Extensions.Logging;
-using SqlStreamStore;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 {

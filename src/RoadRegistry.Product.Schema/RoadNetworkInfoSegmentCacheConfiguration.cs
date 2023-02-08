@@ -1,6 +1,6 @@
 namespace RoadRegistry.Product.Schema;
 
-using Hosts;
+using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

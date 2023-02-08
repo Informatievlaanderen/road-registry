@@ -1,5 +1,6 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Extensions;
+namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
+using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Options;

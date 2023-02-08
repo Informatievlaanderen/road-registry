@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure.Options;
+namespace RoadRegistry.Hosts.Infrastructure.Options;
 
 public sealed class TicketingOptions
 {

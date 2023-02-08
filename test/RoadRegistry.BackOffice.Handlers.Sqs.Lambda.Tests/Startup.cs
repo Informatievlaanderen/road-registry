@@ -1,19 +1,14 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
-using System.Reflection;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
-using Infrastructure;
-using Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -22,6 +17,7 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Product.Schema;
 using SqlStreamStore;
+using System.Reflection;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup

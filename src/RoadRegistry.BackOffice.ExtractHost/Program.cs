@@ -17,6 +17,7 @@ using Core;
 using Editor.Schema;
 using Extracts;
 using Framework;
+using Handlers.Extracts;
 using Hosts;
 using Hosts.Configuration;
 using Microsoft.Data.SqlClient;

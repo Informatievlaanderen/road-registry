@@ -1,6 +1,6 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 {
-    using Hosts;
+    using BackOffice;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

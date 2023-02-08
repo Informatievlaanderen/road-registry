@@ -77,8 +77,10 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
         var eventSourcedEntityMap = new EventSourcedEntityMap();
 
         services
+            .AddTicketing()
             .AddSingleton(ApplicationMetadata)
             .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
+            .AddEditorContext()
             .AddStreamStore()
             .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })
             ;

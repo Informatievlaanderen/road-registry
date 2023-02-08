@@ -12,9 +12,13 @@ public class Event<TBody> : IRoadRegistryMessage
         MessageId = @event.MessageId;
         Body = (TBody)@event.Body;
         Principal = @event.Principal;
+        StreamId = @event.StreamId;
+        StreamVersion = @event.StreamVersion;
     }
 
     public Guid MessageId { get; }
     public TBody Body { get; }
     public ClaimsPrincipal Principal { get; }
+    public string StreamId { get; }
+    public int StreamVersion { get; }
 }
