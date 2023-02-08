@@ -12,6 +12,8 @@ using Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 using AddRoadSegment = BackOffice.Uploads.AddRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
@@ -23,7 +25,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
     private readonly IRoadNetworkCommandQueue _commandQueue;
 
     public CreateRoadSegmentOutlineSqsLambdaRequestHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
@@ -31,7 +33,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         IRoadNetworkCommandQueue commandQueue,
         ILogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,

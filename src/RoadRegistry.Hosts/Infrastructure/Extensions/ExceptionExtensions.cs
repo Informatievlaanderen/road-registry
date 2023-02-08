@@ -1,6 +1,6 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
-using RoadRegistry.BackOffice.Exceptions;
+using BackOffice.Exceptions;
 using TicketingService.Abstractions;
 
 internal static class ExceptionExtensions

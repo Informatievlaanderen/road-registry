@@ -46,6 +46,7 @@ public sealed class Function : RoadRegistryLambdaFunction
         services
             .AddSingleton<IStreetNameCache, StreetNameCache>()
             .AddRoadNetworkCommandQueue()
+            .AddSqsLambdaHandlerOptions()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {

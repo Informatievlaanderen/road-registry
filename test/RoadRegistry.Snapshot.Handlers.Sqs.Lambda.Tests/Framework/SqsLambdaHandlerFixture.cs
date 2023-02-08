@@ -1,22 +1,22 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.Framework;
 
-using BackOffice.Framework;
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Hosts;
 using Infrastructure;
-using Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
 using NodaTime;
-using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Hosts;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 
@@ -34,15 +34,15 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
+
     protected readonly IConfiguration Configuration;
-    protected readonly SqsLambdaHandlerOptions Options;
     protected readonly ICustomRetryPolicy CustomRetryPolicy;
-    protected readonly Func<EventSourcedEntityMap> EntityMapFactory;
     protected readonly IIdempotentCommandHandler IdempotentCommandHandler;
-    protected readonly ILoggerFactory LoggerFactory;
     protected readonly IRoadNetworkCommandQueue RoadNetworkCommandQueue;
+    protected readonly Func<EventSourcedEntityMap> EntityMapFactory;
     protected readonly IRoadRegistryContext RoadRegistryContext;
     protected readonly IStreamStore Store;
+    protected readonly ILoggerFactory LoggerFactory;
 
     protected SqsLambdaHandlerFixture(
         IConfiguration configuration,
@@ -60,7 +60,6 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
             })
             .Build();
 
-        Options = new FakeSqsLambdaHandlerOptions();
         CustomRetryPolicy = customRetryPolicy;
         Store = streamStore;
         var eventSourcedEntityMap = new EventSourcedEntityMap();
@@ -71,11 +70,13 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         LoggerFactory = new LoggerFactory();
 
         TicketingMock = MockTicketing();
-
+        
         IdempotentCommandHandler = new RoadRegistryIdempotentCommandHandler(BuildCommandHandlerDispatcher());
 
         Exception = null;
     }
+
+    protected abstract CommandHandlerDispatcher BuildCommandHandlerDispatcher();
 
     public IClock Clock { get; }
     protected abstract TSqsLambdaRequestHandler SqsLambdaRequestHandler { get; }
@@ -84,7 +85,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     protected Mock<ITicketing> TicketingMock { get; }
     public bool Result { get; private set; }
     public Exception? Exception { get; private set; }
-
+    
     public async Task InitializeAsync()
     {
         try
@@ -105,8 +106,6 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     {
         return Task.CompletedTask;
     }
-
-    protected abstract CommandHandlerDispatcher BuildCommandHandlerDispatcher();
 
     protected Task Given(StreamName streamName, params object[] events)
     {

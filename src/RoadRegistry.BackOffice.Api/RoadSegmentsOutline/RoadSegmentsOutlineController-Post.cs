@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegmentsOutline;
 
-using Abstractions.RoadSegments;
 using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -11,15 +10,13 @@ using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RoadRegistry.BackOffice;
-using RoadRegistry.Dbase;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadSegmentsOutline;
+using Core;
 using RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
 
 public partial class RoadSegmentsOutlineController
@@ -82,7 +79,7 @@ public partial class RoadSegmentsOutlineController
         }
         catch (AggregateIdIsNotFoundException)
         {
-            throw new ApiException(ValidationErrors.Common.IncorrectObjectId.Message(RoadNetworkInfo.Identifier), StatusCodes.Status404NotFound);
+            throw new ApiException(ValidationErrors.Common.IncorrectObjectId.Message(RoadNetwork.Identifier), StatusCodes.Status404NotFound);
         }
         catch (IdempotencyException)
         {

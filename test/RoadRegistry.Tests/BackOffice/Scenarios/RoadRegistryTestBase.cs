@@ -22,13 +22,12 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.Hosts;
 using SqlStreamStore;
 using Xunit.Abstractions;
 
 public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 {
-    protected string ConfigDetailUrl => "http://base/{0}";
-
     private static readonly EventMapping Mapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
 
@@ -127,21 +126,17 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             .AddInMemoryCollection(new Dictionary<string, string>
             {
                 { "ConnectionStrings:Events", "x" },
-                { "ConnectionStrings:Snapshots", "x" },
-                { "DetailUrl", ConfigDetailUrl }
+                { "ConnectionStrings:Snapshots", "x" }
             })
             .Build();
 
         builder.Register((a) => (IConfiguration)configuration);
+        builder.RegisterInstance<SqsLambdaHandlerOptions>(new FakeSqsLambdaHandlerOptions());
 
         builder
             .RegisterModule(new CommandHandlingModule())
             .RegisterModule(new SqlStreamStoreModule())
             .RegisterModule(new SqlSnapshotStoreModule());
-
-        //builder
-        //    .Register(c => new MunicipalityFactory(Fixture.Create<ISnapshotStrategy>()))
-        //    .As<IMunicipalityFactory>();
     }
 
     protected override void ConfigureEventHandling(ContainerBuilder builder)
@@ -149,6 +144,4 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
         builder.RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
     }
-
-    protected string FormatDetailUrl(object o) => string.Format(ConfigDetailUrl, o);
 }

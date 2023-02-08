@@ -11,13 +11,14 @@ using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Dbase;
-using Handlers;
+using Core;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
 using TicketingService.Abstractions;
@@ -44,7 +45,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
         });
 
         var sut = new FakeLambdaHandler(
-            Container.Resolve<IConfiguration>(),
+            Container.Resolve<SqsLambdaHandlerOptions>(),
             new FakeRetryPolicy(),
             ticketing.Object,
             idempotentCommandHandler.Object,
@@ -70,7 +71,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
         await AddRoadSegment(roadSegmentId);
 
         var sut = new FakeLambdaHandler(
-            Container.Resolve<IConfiguration>(),
+            Container.Resolve<SqsLambdaHandlerOptions>(),
             new FakeRetryPolicy(),
             ticketing.Object,
             MockExceptionIdempotentCommandHandler(() => new IdempotencyException(string.Empty)).Object,
@@ -78,7 +79,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             new NullLogger<FakeLambdaHandler>());
 
         // Act
-        await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetworkInfo.Identifier.ToString(), new LinkStreetNameSqsRequest
+        await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetwork.Identifier.ToString(), new LinkStreetNameSqsRequest
         {
             IfMatchHeaderValue = "Outdated",
             Request = new LinkStreetNameRequest(roadSegmentId, null, null),
@@ -109,7 +110,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
         });
 
         var sut = new FakeLambdaHandler(
-            Container.Resolve<IConfiguration>(),
+            Container.Resolve<SqsLambdaHandlerOptions>(),
             new FakeRetryPolicy(),
             Mock.Of<ITicketing>(),
             idempotentCommandHandler.Object,
@@ -139,7 +140,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
         });
 
         var sut = new FakeLambdaHandler(
-            Container.Resolve<IConfiguration>(),
+            Container.Resolve<SqsLambdaHandlerOptions>(),
             new FakeRetryPolicy(),
             ticketing.Object,
             MockExceptionIdempotentCommandHandler<RoadSegmentNotFoundException>().Object,
@@ -160,14 +161,14 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 public sealed class FakeLambdaHandler : SqsLambdaHandler<LinkStreetNameSqsLambdaRequest>
 {
     public FakeLambdaHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         ILogger<FakeLambdaHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,

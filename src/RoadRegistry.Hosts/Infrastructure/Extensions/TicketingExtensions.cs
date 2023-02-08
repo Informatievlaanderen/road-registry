@@ -25,8 +25,7 @@ public static class TicketingExtensions
     public static IServiceCollection AddTicketing(
         this IServiceCollection services)
     {
-        return AddHttpProxyTicketing(services, GetBaseUrl)
-            ;
+        return AddHttpProxyTicketing(services, GetBaseUrl);
     }
 
     private static string GetBaseUrl(IConfiguration configuration)

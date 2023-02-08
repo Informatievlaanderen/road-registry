@@ -12,12 +12,14 @@ using Dbase.RoadSegments;
 using Editor.Projections;
 using Editor.Schema;
 using Framework;
+using Hosts;
 using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = Reason;
@@ -29,7 +31,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
     private readonly RecyclableMemoryStreamManager _manager;
 
     public CorrectRoadSegmentVersionsSqsLambdaRequestHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
@@ -39,7 +41,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         RecyclableMemoryStreamManager manager,
         ILogger<CorrectRoadSegmentVersionsSqsLambdaRequestHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,

@@ -1,19 +1,18 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.Abstractions.Fixtures;
 
-using Autofac;
 using AutoFixture;
 using BackOffice.Abstractions.RoadSegmentsOutline;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
-using Dbase;
 using Framework;
 using Handlers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
 using Requests;
+using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore;
 using Sqs.RoadSegments;
 
@@ -47,10 +46,10 @@ public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateR
         ProvenanceData = ObjectProvider.Create<ProvenanceData>()
     };
 
-    protected override CreateRoadSegmentOutlineSqsLambdaRequest SqsLambdaRequest => new(RoadNetworkInfo.Identifier.ToString(), SqsRequest);
+    protected override CreateRoadSegmentOutlineSqsLambdaRequest SqsLambdaRequest => new(RoadNetwork.Identifier.ToString(), SqsRequest);
 
     protected override CreateRoadSegmentOutlineSqsLambdaRequestHandler SqsLambdaRequestHandler => new(
-        Configuration,
+        Options,
         CustomRetryPolicy,
         TicketingMock.Object,
         IdempotentCommandHandler,

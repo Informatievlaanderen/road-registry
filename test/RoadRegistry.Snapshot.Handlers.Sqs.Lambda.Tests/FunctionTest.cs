@@ -1,43 +1,44 @@
-using Amazon.Lambda.SQSEvents;
-using Amazon.Lambda.TestUtilities;
+//using Amazon.Lambda.SQSEvents;
+//using Amazon.Lambda.TestUtilities;
 
-namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests;
+//namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests;
 
-using BackOffice.Abstractions.RoadNetworks;
-using Newtonsoft.Json;
-using RoadNetworks;
+//using BackOffice.Abstractions.RoadNetworks;
+//using Newtonsoft.Json;
+//using RoadNetworks;
+//using Sqs.RoadNetworks;
 
-public class FunctionTest
-{
-    [Fact(Skip = "Incompleted setup")]
-    public async Task TestSQSEventLambdaFunction()
-    {
-        var sqsEvent = new SQSEvent
-        {
-            Records = new List<SQSEvent.SQSMessage>
-            {
-                new SQSEvent.SQSMessage
-                {
-                    Body = JsonConvert.SerializeObject(new CreateRoadNetworkSnapshotSqsRequest
-                    {
-                        Request = new CreateRoadNetworkSnapshotRequest()
-                        {
-                            StreamVersion = 1000
-                        }
-                    })
-                }
-            }
-        };
+//public class FunctionTest
+//{
+//    [Fact(Skip = "Incompleted setup")]
+//    public async Task TestSQSEventLambdaFunction()
+//    {
+//        var sqsEvent = new SQSEvent
+//        {
+//            Records = new List<SQSEvent.SQSMessage>
+//            {
+//                new SQSEvent.SQSMessage
+//                {
+//                    Body = JsonConvert.SerializeObject(new CreateRoadNetworkSnapshotSqsRequest
+//                    {
+//                        Request = new CreateRoadNetworkSnapshotRequest()
+//                        {
+//                            StreamVersion = 1000
+//                        }
+//                    })
+//                }
+//            }
+//        };
 
-        var logger = new TestLambdaLogger();
-        var context = new TestLambdaContext
-        {
-            Logger = logger
-        };
+//        var logger = new TestLambdaLogger();
+//        var context = new TestLambdaContext
+//        {
+//            Logger = logger
+//        };
 
-        var function = new Function();
-        await function.Handler(sqsEvent, context);
+//        var function = new Function();
+//        await function.Handler(sqsEvent, context);
 
-        Assert.Contains("Processed message foobar", logger.Buffer.ToString());
-    }
-}
+//        Assert.Contains("Processed message foobar", logger.Buffer.ToString());
+//    }
+//}

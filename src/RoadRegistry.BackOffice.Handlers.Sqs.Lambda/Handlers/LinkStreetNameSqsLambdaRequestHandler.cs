@@ -17,6 +17,8 @@ using Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
@@ -26,7 +28,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
     private readonly IStreetNameCache _streetNameCache;
 
     public LinkStreetNameSqsLambdaRequestHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
@@ -35,7 +37,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         IRoadNetworkCommandQueue commandQueue,
         ILogger<LinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,

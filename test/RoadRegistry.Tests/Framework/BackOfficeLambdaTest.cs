@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
+using Hosts;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NetTopologySuite.Geometries;
@@ -18,6 +19,7 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Tests.BackOffice;
 using TicketingService.Abstractions;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
@@ -32,12 +34,14 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
 {
     protected readonly IdempotencyContext IdempotencyContext;
     protected readonly ILoggerFactory LoggerFactory;
+    protected readonly SqsLambdaHandlerOptions Options;
 
     protected BackOfficeLambdaTest(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
         : base(testOutputHelper)
     {
         IdempotencyContext = new FakeIdempotencyContextFactory().CreateDbContext(Array.Empty<string>());
         LoggerFactory = loggerFactory;
+        Options = new FakeSqsLambdaHandlerOptions();
     }
     
     protected async Task AddRoadSegment(RoadSegmentId roadSegmentId)

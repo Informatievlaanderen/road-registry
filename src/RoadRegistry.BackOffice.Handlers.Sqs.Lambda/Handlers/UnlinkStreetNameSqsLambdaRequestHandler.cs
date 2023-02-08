@@ -13,9 +13,10 @@ using Exceptions;
 using Extensions;
 using Framework;
 using Messages;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
@@ -24,7 +25,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
     private readonly IRoadNetworkCommandQueue _commandQueue;
 
     public UnlinkStreetNameSqsLambdaRequestHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
@@ -32,7 +33,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
         IRoadNetworkCommandQueue commandQueue,
         ILogger<UnlinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,

@@ -8,8 +8,8 @@ using Configuration;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Requests;
-using SqlStreamStore.Streams;
 
+//TODO-rik inheriten van `SqsLambdaHandler`? dan hebben we wel de ticketing/idempotentcommandhandler nodig
 public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : IRequestHandler<CreateRoadNetworkSnapshotSqsLambdaRequest>
 {
     private readonly IRoadRegistryContext _context;
