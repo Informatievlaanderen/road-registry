@@ -5,7 +5,6 @@ using Abstractions.RoadSegments;
 using Abstractions.Validation;
 using Autofac;
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
@@ -13,7 +12,6 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
 using Hosts;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -186,10 +184,5 @@ public sealed class FakeLambdaHandler : SqsLambdaHandler<LinkStreetNameSqsLambda
             cancellationToken);
 
         return Task.FromResult(new ETagResponse("bla", "etag"));
-    }
-
-    protected override TicketError? InnerMapDomainException(DomainException exception, LinkStreetNameSqsLambdaRequest request)
-    {
-        return null;
     }
 }

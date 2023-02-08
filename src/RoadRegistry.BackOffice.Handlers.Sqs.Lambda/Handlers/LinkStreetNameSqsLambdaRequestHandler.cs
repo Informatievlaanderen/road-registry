@@ -14,7 +14,6 @@ using Exceptions;
 using Extensions;
 using Framework;
 using Messages;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Requests;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
@@ -71,11 +70,6 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
 
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
-    }
-
-    protected override TicketError? InnerMapDomainException(DomainException exception, LinkStreetNameSqsLambdaRequest request)
-    {
-        return null;
     }
     
     private async Task<ChangeRoadNetwork> ToCommand(LinkStreetNameSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)

@@ -112,9 +112,4 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         var lastHash = await GetRoadSegmentHash(roadSegmentId, cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
     }
-
-    protected override TicketError? InnerMapDomainException(DomainException exception, CreateRoadSegmentOutlineSqsLambdaRequest request)
-    {
-        return null;
-    }
 }
