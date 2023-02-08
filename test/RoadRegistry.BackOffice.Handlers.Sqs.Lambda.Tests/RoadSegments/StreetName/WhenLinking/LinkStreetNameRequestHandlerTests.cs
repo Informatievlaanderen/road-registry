@@ -50,6 +50,12 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     }
 
     [Fact]
+    public Task WhenProcessing_LinkStreetNameSqsRequest_Then_LinkStreetNameSqsLambdaRequest_IsSent()
+    {
+        return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<LinkStreetNameSqsRequest, LinkStreetNameSqsLambdaRequest, LinkStreetNameRequest>();
+    }
+
+    [Fact]
     public async Task LinkStreetNameToRoadSegment_LeftStreetName_AlreadyLinked()
     {
         //Arrange

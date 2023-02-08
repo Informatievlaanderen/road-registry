@@ -12,7 +12,7 @@ public abstract class RoadRegistryMessageHandler : IMessageHandler
 {
     private readonly ILifetimeScope _container;
 
-    public RoadRegistryMessageHandler(ILifetimeScope container)
+    protected RoadRegistryMessageHandler(ILifetimeScope container)
     {
         _container = container;
     }

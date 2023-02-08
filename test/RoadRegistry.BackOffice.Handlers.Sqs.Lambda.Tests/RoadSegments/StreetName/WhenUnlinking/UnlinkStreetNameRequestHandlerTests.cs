@@ -49,6 +49,12 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     }
 
     [Fact]
+    public Task WhenProcessing_UnlinkStreetNameSqsRequest_Then_UnlinkStreetNameSqsLambdaRequest_IsSent()
+    {
+        return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<UnlinkStreetNameSqsRequest, UnlinkStreetNameSqsLambdaRequest, UnlinkStreetNameRequest>();
+    }
+
+    [Fact]
     public async Task UnlinkStreetNameFromRoadSegment_LeftStreetName_NotLinked()
     {
         //Arrange

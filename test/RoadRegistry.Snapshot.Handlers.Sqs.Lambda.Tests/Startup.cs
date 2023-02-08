@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.Framework;
 using System.Reflection;
 using RoadRegistry.Tests.Framework;
 using MediatorModule = BackOffice.MediatorModule;
