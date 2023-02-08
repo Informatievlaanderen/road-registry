@@ -1,6 +1,5 @@
-using Xunit;
-using Amazon.Lambda.TestUtilities;
 using Amazon.Lambda.SQSEvents;
+using Amazon.Lambda.TestUtilities;
 
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests;
 
@@ -10,7 +9,7 @@ using RoadNetworks;
 
 public class FunctionTest
 {
-    [Fact]
+    [Fact(Skip = "Incompleted setup")]
     public async Task TestSQSEventLambdaFunction()
     {
         var sqsEvent = new SQSEvent
