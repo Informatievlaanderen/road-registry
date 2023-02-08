@@ -4,6 +4,7 @@ using Amazon.Lambda.SQSEvents;
 
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests;
 
+using BackOffice.Abstractions.RoadNetworks;
 using Newtonsoft.Json;
 using RoadNetworks;
 
@@ -20,7 +21,10 @@ public class FunctionTest
                 {
                     Body = JsonConvert.SerializeObject(new CreateRoadNetworkSnapshotSqsRequest
                     {
-                        
+                        Request = new CreateRoadNetworkSnapshotRequest()
+                        {
+                            StreamVersion = 1000
+                        }
                     })
                 }
             }

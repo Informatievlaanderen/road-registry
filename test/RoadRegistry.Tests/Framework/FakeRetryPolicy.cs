@@ -1,8 +1,8 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+namespace RoadRegistry.Tests.Framework;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 
-internal class FakeRetryPolicy : ICustomRetryPolicy
+public class FakeRetryPolicy : ICustomRetryPolicy
 {
     public Task Retry(Func<Task> functionToRetry)
     {

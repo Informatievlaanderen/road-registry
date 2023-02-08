@@ -16,6 +16,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Dbase;
+using RoadRegistry.Tests.Framework;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 

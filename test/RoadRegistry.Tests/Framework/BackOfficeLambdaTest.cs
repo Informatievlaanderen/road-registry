@@ -1,7 +1,8 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+namespace RoadRegistry.Tests.Framework;
 
 using Autofac;
 using AutoFixture;
+using BackOffice.Scenarios;
 using Be.Vlaanderen.Basisregisters.CommandHandling;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -9,24 +10,23 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Core;
-using Messages;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Newtonsoft.Json;
-using RoadRegistry.Tests.BackOffice.Scenarios;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 using TicketingService.Abstractions;
-using Xunit.Abstractions;
-using AcceptedChange = Messages.AcceptedChange;
-using GeometryTranslator = BackOffice.GeometryTranslator;
+using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
+using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
-using Problem = Messages.Problem;
-using RoadSegmentLaneAttributes = Messages.RoadSegmentLaneAttributes;
-using RoadSegmentSurfaceAttributes = Messages.RoadSegmentSurfaceAttributes;
-using RoadSegmentWidthAttributes = Messages.RoadSegmentWidthAttributes;
+using Problem = RoadRegistry.BackOffice.Messages.Problem;
+using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
+using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;
+using RoadSegmentWidthAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentWidthAttributes;
 
 public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
 {

@@ -1,12 +1,12 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+namespace RoadRegistry.Tests.Framework;
 
 using System.Reflection;
-using Abstractions.Exceptions;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using FluentAssertions;
 using Microsoft.Data.SqlClient;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
 
 public sealed class LambdaHandlerRetryPolicyTests
 {
