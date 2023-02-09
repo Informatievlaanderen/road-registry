@@ -4,7 +4,6 @@ using Abstractions.Exceptions;
 using Abstractions.Validation;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
@@ -19,7 +18,6 @@ using Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Requests;
-using SqlStreamStore;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 

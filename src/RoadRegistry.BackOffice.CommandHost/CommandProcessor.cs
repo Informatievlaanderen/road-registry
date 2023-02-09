@@ -68,11 +68,6 @@ public class CommandProcessor : IHostedService
             IStreamSubscription subscription = null;
             try
             {
-                var timer = new System.Timers.Timer(3000);
-                timer.Elapsed += (_, _) => throw new Exception("test");
-                timer.Start();
-                await Task.Delay(10000);
-
                 while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                 {
                     while (_messageChannel.Reader.TryRead(out var message))

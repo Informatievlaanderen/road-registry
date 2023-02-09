@@ -20,18 +20,34 @@ public class DistributedStreamStoreLock : DistributedLock<IStreamStore>
     
     public async Task RetryRunUntilLockAcquiredAsync(Func<Task> runFunc, CancellationToken cancellationToken)
     {
+        await RetryRunUntilLockAcquiredAsync(async () =>
+        {
+            await runFunc();
+            return 0;
+        }, cancellationToken);
+    }
+
+    public async Task<T> RetryRunUntilLockAcquiredAsync<T>(Func<Task<T>> runFunc, CancellationToken cancellationToken)
+    {
+        T result = default;
+
         while (!cancellationToken.IsCancellationRequested)
         {
             try
             {
-                await RunAsync(runFunc);
-                break;
+                await RunAsync(async () =>
+                {
+                    result = await runFunc();
+                });
+                return result;
             }
             catch (AcquireLockFailedException)
             {
                 await Task.Delay(TimeSpan.FromSeconds(_options.AcquireLockRetryDelaySeconds), cancellationToken);
             }
         }
+
+        throw new TaskCanceledException();
     }
 }
 
