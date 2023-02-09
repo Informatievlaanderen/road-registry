@@ -15,6 +15,7 @@ using NodaTime;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Product.Schema;
+using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using SqlStreamStore;
 using System.Reflection;
@@ -38,6 +39,7 @@ public class Startup : TestStartup
             .RegisterModule<Sqs.Lambda.Infrastructure.Modules.SyndicationModule>()
             ;
 
+        builder.Register<SqsLambdaHandlerOptions>(c => new FakeSqsLambdaHandlerOptions());
         builder.Register<IRoadNetworkCommandQueue>(c => new RoadNetworkCommandQueue(c.Resolve<IStreamStore>(), new ApplicationMetadata(RoadRegistryApplication.Lambda)));
         builder.Register<IIdempotentCommandHandler>(c => new RoadRegistryIdempotentCommandHandler(c.Resolve<CommandHandlerDispatcher>()));
         builder.Register(c => Dispatch.Using(Resolve.WhenEqualToMessage(

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
@@ -11,7 +12,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\RoadRegistry.Snapshot.Handlers.Sqs.Lambda\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.csproj" />
+		<ProjectReference
+			Include="..\..\src\RoadRegistry.Snapshot.Handlers.Sqs.Lambda\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.csproj" />
 		<ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
 		<ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
 	</ItemGroup>

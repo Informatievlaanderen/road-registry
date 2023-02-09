@@ -1,11 +1,11 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.Framework.Containers;
 
+using BackOffice.Abstractions;
+using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Abstractions;
-using RoadRegistry.Editor.Schema;
-using RoadRegistry.Product.Schema;
+using Product.Schema;
 using RoadRegistry.Tests.Framework.Containers;
 
 public class SqlServer : ISqlServerDatabase

@@ -18,6 +18,7 @@ using RoadRegistry.BackOffice.Messages;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 
 public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
@@ -30,7 +31,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     private async Task HandleRequest(ITicketing ticketing, UnlinkStreetNameRequest request)
     {
         var handler = new UnlinkStreetNameSqsLambdaRequestHandler(
-            Container.Resolve<SqsLambdaHandlerOptions>(),
+            new FakeSqsLambdaHandlerOptions(),
             new FakeRetryPolicy(),
             ticketing,
             new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()),

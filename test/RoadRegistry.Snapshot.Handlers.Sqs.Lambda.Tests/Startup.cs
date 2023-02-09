@@ -1,14 +1,14 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests;
 
+using System.Reflection;
 using Autofac;
 using BackOffice;
+using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RoadRegistry.BackOffice.Framework;
-using System.Reflection;
 using RoadRegistry.Tests.Framework;
-using MediatorModule = BackOffice.MediatorModule;
+using MediatorModule = Sqs.MediatorModule;
 
 public class Startup : TestStartup
 {
@@ -21,10 +21,10 @@ public class Startup : TestStartup
             .AsImplementedInterfaces();
 
         builder
-            .RegisterModule<MediatorModule>()
+            .RegisterModule<BackOffice.MediatorModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<BackOffice.Handlers.MediatorModule>()
-            .RegisterModule<Sqs.MediatorModule>()
+            .RegisterModule<MediatorModule>()
             ;
     }
 

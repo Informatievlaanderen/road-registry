@@ -49,18 +49,11 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         ICustomRetryPolicy customRetryPolicy,
         IStreamStore streamStore,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
-        IClock clock
+        IClock clock,
+        SqsLambdaHandlerOptions options
     )
     {
-        Configuration = new ConfigurationBuilder()
-            .AddConfiguration(configuration)
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "DetailUrl", ConfigurationDetailUrl }
-            })
-            .Build();
-
-        Options = new FakeSqsLambdaHandlerOptions();
+        Configuration = configuration;
         CustomRetryPolicy = customRetryPolicy;
         Store = streamStore;
         var eventSourcedEntityMap = new EventSourcedEntityMap();
@@ -68,6 +61,8 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         RoadRegistryContext = new RoadRegistryContext(EntityMapFactory(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
         RoadNetworkCommandQueue = roadNetworkCommandQueue;
         Clock = clock;
+        Options = options;
+
         LoggerFactory = new LoggerFactory();
 
         TicketingMock = MockTicketing();

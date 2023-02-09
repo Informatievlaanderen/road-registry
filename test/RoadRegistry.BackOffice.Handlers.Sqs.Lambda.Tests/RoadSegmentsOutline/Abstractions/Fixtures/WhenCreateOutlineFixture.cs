@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
 using Framework;
 using Handlers;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
@@ -20,8 +21,8 @@ public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateR
 {
     protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 
-    protected WhenCreateOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock)
+    protected WhenCreateOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock, SqsLambdaHandlerOptions options)
+        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
     {
         Organisation = Organisation.DigitaalVlaanderen;
 
