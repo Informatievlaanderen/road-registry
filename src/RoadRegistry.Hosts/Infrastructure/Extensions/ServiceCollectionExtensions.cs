@@ -2,7 +2,6 @@ namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
 using System;
 using Amazon;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SqlStreamStore;
@@ -39,6 +38,8 @@ public static class ServiceCollectionExtensions
                 LeasePeriod = TimeSpan.FromMinutes(config.LeasePeriodInMinutes),
                 ThrowOnFailedRenew = config.ThrowOnFailedRenew,
                 TerminateApplicationOnFailedRenew = config.TerminateApplicationOnFailedRenew,
+                ThrowOnFailedAcquire = config.ThrowOnFailedAcquire,
+                TerminateApplicationOnFailedAcquire = config.TerminateApplicationOnFailedAcquire,
                 Enabled = config.Enabled
             };
         });

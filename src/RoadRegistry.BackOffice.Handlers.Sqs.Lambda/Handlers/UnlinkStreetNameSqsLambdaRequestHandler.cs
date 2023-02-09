@@ -51,7 +51,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
 
     protected override async Task<ETagResponse> InnerHandleAsync(UnlinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        await _distributedStreamStoreLock.RunAsync(async () =>
+        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
             var command = await ToCommand(request, cancellationToken);
             var commandId = command.CreateCommandId();
@@ -65,7 +65,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
             {
                 // Idempotent: Do Nothing return last etag
             }
-        });
+        }, cancellationToken);
 
         var roadSegmentId = request.Request.WegsegmentId;
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);

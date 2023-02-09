@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Abstractions;
+using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Hosts;
@@ -67,6 +68,11 @@ public class CommandProcessor : IHostedService
             IStreamSubscription subscription = null;
             try
             {
+                var timer = new System.Timers.Timer(3000);
+                timer.Elapsed += (_, _) => throw new Exception("test");
+                timer.Start();
+                await Task.Delay(10000);
+
                 while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                 {
                     while (_messageChannel.Reader.TryRead(out var message))
@@ -117,17 +123,17 @@ public class CommandProcessor : IHostedService
                                     var messageProcessor = JsonConvert.DeserializeObject<MessageMetadata>(process.Message.JsonMetadata, SerializerSettings)?.Processor ?? RoadRegistryApplication.BackOffice;
                                     if (messageProcessor == _applicationProcessor)
                                     {
-                                        await _distributedStreamStoreLock.RunAsync(async () =>
-                                            {
-                                                var body = JsonConvert.DeserializeObject(
-                                                    await process.Message
-                                                        .GetJsonData(_messagePumpCancellation.Token)
-                                                        .ConfigureAwait(false),
-                                                    CommandMapping.GetEventType(process.Message.Type),
-                                                    SerializerSettings);
-                                                var command = new Command(body).WithMessageId(process.Message.MessageId);
-                                                await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
-                                            });
+                                        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+                                        {
+                                            var body = JsonConvert.DeserializeObject(
+                                                await process.Message
+                                                    .GetJsonData(_messagePumpCancellation.Token)
+                                                    .ConfigureAwait(false),
+                                                CommandMapping.GetEventType(process.Message.Type),
+                                                SerializerSettings);
+                                            var command = new Command(body).WithMessageId(process.Message.MessageId);
+                                            await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
+                                        }, _messagePumpCancellation.Token);
                                     }
                                     else
                                     {
