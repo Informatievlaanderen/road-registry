@@ -113,7 +113,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
             // Idempotent: Do Nothing return last etag
         }
 
-        return new ETagResponse(null, null);
+        return new ETagResponse(string.Empty, string.Empty);
     }
 
     private async Task<IHasCommandProvenance> ToCommand(CorrectRoadSegmentVersionsSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)

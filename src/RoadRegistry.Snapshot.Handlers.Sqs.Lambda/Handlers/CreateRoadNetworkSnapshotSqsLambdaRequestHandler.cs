@@ -3,13 +3,11 @@ namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Handlers;
 using System.Diagnostics;
 using BackOffice;
 using BackOffice.Core;
-using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Configuration;
 using Hosts;
 using Infrastructure;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using Requests;
 using TicketingService.Abstractions;
@@ -81,6 +79,6 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
             _stopwatch.Stop();
         }
 
-        return new ETagResponse(null, null);
+        return new ETagResponse(string.Empty, string.Empty);
     }
 }
