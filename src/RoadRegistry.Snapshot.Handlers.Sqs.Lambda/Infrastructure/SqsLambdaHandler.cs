@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Hosts;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using TicketingService.Abstractions;
 

@@ -4,37 +4,41 @@ using System.Diagnostics;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Configuration;
+using Hosts;
+using Infrastructure;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Requests;
+using TicketingService.Abstractions;
 
-//TODO-rik inheriten van `SqsLambdaHandler`? dan hebben we wel de ticketing/idempotentcommandhandler nodig
-public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : IRequestHandler<CreateRoadNetworkSnapshotSqsLambdaRequest>
+public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambdaHandler<CreateRoadNetworkSnapshotSqsLambdaRequest>
 {
-    private readonly IRoadRegistryContext _context;
     private readonly IRoadNetworkSnapshotReader _snapshotReader;
     private readonly IRoadNetworkSnapshotWriter _snapshotWriter;
     private readonly RoadNetworkSnapshotStrategyOptions _snapshotStrategyOptions;
-    private readonly ILogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler> _logger;
     private readonly Stopwatch _stopwatch;
 
     public CreateRoadNetworkSnapshotSqsLambdaRequestHandler(
+        SqsLambdaHandlerOptions options,
+        ICustomRetryPolicy retryPolicy,
+        ITicketing ticketing,
         IRoadRegistryContext context,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         RoadNetworkSnapshotStrategyOptions snapshotStrategyOptions,
         ILogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler> logger)
+        : base(options, retryPolicy, ticketing, null, context, logger)
     {
         _stopwatch = new Stopwatch();
-        _context = context;
         _snapshotReader = snapshotReader;
         _snapshotWriter = snapshotWriter;
         _snapshotStrategyOptions = snapshotStrategyOptions;
-        _logger = logger;
     }
 
-    public async Task<Unit> Handle(CreateRoadNetworkSnapshotSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<ETagResponse> InnerHandleAsync(CreateRoadNetworkSnapshotSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         _stopwatch.Restart();
 
@@ -52,31 +56,31 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : IRequestH
                 // Check if current snapshot is already further that stream version
                 if (snapshotVersion >= streamMaxVersion)
                 {
-                    _logger.LogWarning("Create snapshot skipped for new message received from SQS with snapshot version {SnapshotVersion} and stream version {StreamVersion}", snapshotVersion, streamVersion);
+                    Logger.LogWarning("Create snapshot skipped for new message received from SQS with snapshot version {SnapshotVersion} and stream version {StreamVersion}", snapshotVersion, streamVersion);
                 }
                 else
                 {
-                    _logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", snapshotVersion, snapshotVersion);
+                    Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", snapshotVersion, snapshotVersion);
                     await _snapshotWriter.WriteSnapshot(snapshot, snapshotVersion, cancellationToken);
-                    _logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", snapshotVersion, _stopwatch.Elapsed);
+                    Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", snapshotVersion, _stopwatch.Elapsed);
 
                     // TODO Signal that new version is available
                 }
             }
             else
             {
-                _logger.LogWarning("Snapshot strategy determined that the strategy limit had not been reached");
+                Logger.LogWarning("Snapshot strategy determined that the strategy limit had not been reached");
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Create snapshot failed in {TotalElapsedTimespan}", _stopwatch.Elapsed);
+            Logger.LogError(ex, "Create snapshot failed in {TotalElapsedTimespan}", _stopwatch.Elapsed);
         }
         finally
         {
             _stopwatch.Stop();
         }
 
-        return Unit.Value;
+        return new ETagResponse(null, null);
     }
 }

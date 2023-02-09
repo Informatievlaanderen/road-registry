@@ -1,5 +1,4 @@
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
-
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
 using Abstractions;
@@ -14,7 +13,6 @@ using Hosts.Infrastructure.Modules;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 public sealed class Function : RoadRegistryLambdaFunction
 {
@@ -27,7 +25,7 @@ public sealed class Function : RoadRegistryLambdaFunction
         base.ConfigureContainer(builder, configuration);
 
         builder
-            .RegisterAssemblyTypes(typeof(MessageHandler).GetTypeInfo().Assembly)
+            .RegisterAssemblyTypes(typeof(MessageHandler).Assembly)
             .AsImplementedInterfaces();
 
         builder
