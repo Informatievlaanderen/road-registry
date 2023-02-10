@@ -1,3 +1,4 @@
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.Aws.Lambda
 Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
 Be.Vlaanderen.Basisregisters.GrAr.Provenance

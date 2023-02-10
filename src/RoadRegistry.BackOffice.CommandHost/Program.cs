@@ -177,6 +177,7 @@ public class Program
                             ),
                             WellknownSchemas.CommandHostSchema))
                     .AddStreamStore()
+                    .AddDistributedStreamStoreLockOptions()
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new RecyclableMemoryStreamManager())
                     .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(

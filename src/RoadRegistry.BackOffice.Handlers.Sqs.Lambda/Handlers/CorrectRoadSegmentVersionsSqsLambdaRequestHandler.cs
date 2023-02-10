@@ -18,6 +18,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = Reason;
@@ -25,6 +27,7 @@ using Reason = Reason;
 public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambdaHandler<CorrectRoadSegmentVersionsSqsLambdaRequest>
 {
     private readonly IRoadNetworkCommandQueue _commandQueue;
+    private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
     private readonly Func<EditorContext> _editorContextFactory;
     private readonly RecyclableMemoryStreamManager _manager;
 
@@ -35,6 +38,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IRoadNetworkCommandQueue commandQueue,
+        DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         Func<EditorContext> editorContextFactory,
         RecyclableMemoryStreamManager manager,
         ILogger<CorrectRoadSegmentVersionsSqsLambdaRequestHandler> logger)
@@ -47,6 +51,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
             logger)
     {
         _commandQueue = commandQueue;
+        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
         _editorContextFactory = editorContextFactory;
         _manager = manager;
     }
@@ -93,23 +98,26 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
 
     protected override async Task<ETagResponse> InnerHandleAsync(CorrectRoadSegmentVersionsSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var command = await ToCommand(request, cancellationToken);
-
-        var commandId = command.CreateCommandId();
-        await _commandQueue.Write(new Command(command).WithMessageId(commandId), cancellationToken);
-
-        try
+        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
-            await IdempotentCommandHandler.Dispatch(
-                commandId,
-                command,
-                request.Metadata,
-                cancellationToken);
-        }
-        catch (IdempotencyException)
-        {
-            // Idempotent: Do Nothing return last etag
-        }
+            var command = await ToCommand(request, cancellationToken);
+
+            var commandId = command.CreateCommandId();
+            await _commandQueue.Write(new Command(command).WithMessageId(commandId), cancellationToken);
+
+            try
+            {
+                await IdempotentCommandHandler.Dispatch(
+                    commandId,
+                    command,
+                    request.Metadata,
+                    cancellationToken);
+            }
+            catch (IdempotencyException)
+            {
+                // Idempotent: Do Nothing return last etag
+            }
+        }, cancellationToken);
 
         return new ETagResponse(null, null);
     }

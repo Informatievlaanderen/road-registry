@@ -1,4 +1,5 @@
 Be.Vlaanderen.Basisregisters.Api
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.TicketingService.Abstractions

@@ -13,8 +13,9 @@ public class RoadNetworkCommandProcessor : CommandProcessor
         ICommandProcessorPositionStore positionStore,
         CommandHandlerDispatcher dispatcher,
         Scheduler scheduler,
+        DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<RoadNetworkCommandProcessor> logger)
-        : base(streamStore, RoadNetworkCommandQueue.Stream, positionStore, dispatcher, scheduler, RoadRegistryApplication.BackOffice, logger)
+        : base(streamStore, RoadNetworkCommandQueue.Stream, positionStore, dispatcher, scheduler, RoadRegistryApplication.BackOffice, distributedStreamStoreLockOptions, logger)
     {
     }
 }

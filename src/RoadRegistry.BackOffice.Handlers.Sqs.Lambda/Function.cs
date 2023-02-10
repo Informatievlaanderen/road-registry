@@ -77,6 +77,7 @@ public sealed class Function : FunctionBase
             .AddSingleton<IStreetNameCache, StreetNameCache>()
             .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
             .AddStreamStore()
+            .AddDistributedStreamStoreLockOptions()
             .AddRoadNetworkCommandQueue()
             .AddEditorContext()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
@@ -88,6 +89,7 @@ public sealed class Function : FunctionBase
                 {
                     configure.AddRoadRegistryLambdaLogger();
                 })
+            
             ;
 
         var builder = new ContainerBuilder();
@@ -98,7 +100,7 @@ public sealed class Function : FunctionBase
 
         return new AutofacServiceProvider(builder.Build());
     }
-
+    
     private void ConfigureContainer(ContainerBuilder builder, IConfiguration configuration)
     {
         var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
