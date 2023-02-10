@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentValidation;
+using Hosts.Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -109,6 +110,7 @@ public abstract class TestStartup
             .ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
                 builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
+                builder.RegisterModule<BlobClientModule>(); //TODO-rik kan zijn dat deze niet meer nodig is, automatisch wordt ingeladen via de vorige regel
 
                 builder.Register<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter()).SingleInstance();
                 builder.Register<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader()).SingleInstance();

@@ -1,0 +1,18 @@
+{
+  "Records": [
+    {
+      "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
+      "receiptHandle": "MessageReceiptHandle",
+      "body": "{\"type\":\"RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.CreateRoadSegmentOutlineSqsRequest\",\"data\":\"{\\\"TicketId\\\":\\\"018601ac-4de6-40be-8354-d21431cd4a6f\\\",\\\"Request\\\":{\\\"Geometry\\\":\\\"LINESTRING (160600 220100, 160600 220200, 160700 220200, 160700 220100)\\\",\\\"Status\\\":\\\"InUse\\\",\\\"Morphology\\\":\\\"PrimitiveRoad\\\",\\\"AccessRestriction\\\":\\\"PublicRoad\\\",\\\"MaintenanceAuthority\\\":\\\"AGIV\\\",\\\"SurfaceType\\\":\\\"SolidSurface\\\",\\\"Width\\\":3,\\\"LaneCount\\\":2,\\\"LaneDirection\\\":\\\"Forward\\\",},\\\"ProvenanceData\\\":{\\\"Operator\\\":\\\"RIK\\\"}}\"}",
+      "attributes": {
+        "MessageGroupId": "0"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:{partition}:sqs:euwest1:123456789012:MyQueue",
+      "awsRegion": "euwest1"
+    }
+  ]
+}
+

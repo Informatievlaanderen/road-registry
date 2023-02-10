@@ -1,10 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegmentsOutline.Fixtures;
 
-using Api.RoadSegmentsOutline;
 using Editor.Schema;
 using MediatR;
-using RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
 using RoadRegistry.BackOffice.Api.Tests.RoadSegmentsOutline.Abstractions.Fixtures;
+using RoadSegments.Parameters;
 
 public class WhenCreateOutlineWithInvalidStatusFixture : WhenCreateOutlineWithValidRequestFixture
 {

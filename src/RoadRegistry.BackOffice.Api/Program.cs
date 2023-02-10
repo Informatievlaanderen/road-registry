@@ -10,6 +10,7 @@ using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.Runtime;
 using Amazon.S3;
+using BackOffice.Configuration;
 using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
@@ -20,6 +21,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Core;
 using Editor.Schema;
@@ -37,6 +39,7 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Handlers.Sqs;
 using Serilog;
 using SqlStreamStore;
 using Syndication.Schema;
@@ -79,79 +82,6 @@ public class Program
             })
             .ConfigureServices((hostContext, builder) =>
             {
-                var blobOptions = new BlobClientOptions();
-                hostContext.Configuration.Bind(blobOptions);
-
-                switch (blobOptions.BlobClientType)
-                {
-                    case nameof(S3BlobClient):
-                        var s3Options = new S3BlobClientOptions();
-                        hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
-
-                        var s3BlobClient = GetAmazonS3Client();
-
-                        builder
-                            .AddSingleton(s3BlobClient)
-                            .AddSingleton(sp => new RoadNetworkUploadsBlobClient(new S3BlobClient(sp.GetRequiredService<AmazonS3Client>(), s3Options.Buckets[WellknownBuckets.UploadsBucket])))
-                            .AddSingleton(sp => new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(sp.GetRequiredService<AmazonS3Client>(), s3Options.Buckets[WellknownBuckets.UploadsBucket])))
-                            .AddSingleton(sp => new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(sp.GetRequiredService<AmazonS3Client>(), s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket])))
-                            .AddSingleton(sp => new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(sp.GetRequiredService<AmazonS3Client>(), s3Options.Buckets[WellknownBuckets.FeatureCompareBucket])));
-                        break;
-
-                    case nameof(FileBlobClient):
-                        var fileBlobClient = GetFileBlobClient();
-
-                        builder
-                            .AddSingleton(fileBlobClient)
-                            .AddSingleton<RoadNetworkUploadsBlobClient>()
-                            .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
-                            .AddSingleton<RoadNetworkExtractDownloadsBlobClient>()
-                            .AddSingleton<RoadNetworkFeatureCompareBlobClient>();
-                        break;
-
-                    default: throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");
-                }
-
-                AmazonS3Client GetAmazonS3Client()
-                {
-                    if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
-                    {
-                        var (accessKey, secretKey) = GetAccessKey("MINIO_ACCESS_KEY", "MINIO_SECRET_KEY");
-
-                        return new AmazonS3Client(
-                            new BasicAWSCredentials(accessKey, secretKey),
-                            new AmazonS3Config
-                            {
-                                RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                ServiceURL = hostContext.Configuration.GetValue<string>("MINIO_SERVER"),
-                                ForcePathStyle = true
-                            }
-                        );
-                    }
-                    else
-                    {
-                        return new AmazonS3Client();
-                    }
-                }
-
-                IBlobClient GetFileBlobClient()
-                {
-                    var fileOptions = new FileBlobClientOptions();
-                    hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
-                    return new FileBlobClient(new DirectoryInfo(fileOptions.Directory));
-                }
-
-                (string, string) GetAccessKey(string keyId, string keySecret)
-                {
-                    var accessKey = hostContext.Configuration.GetValue<string>(keyId);
-                    var secretKey = hostContext.Configuration.GetValue<string>(keySecret);
-
-                    ArgumentNullException.ThrowIfNull(accessKey);
-                    ArgumentNullException.ThrowIfNull(secretKey);
-
-                    return (accessKey, secretKey);
-                }
-
                 var zipArchiveWriterOptions = new ZipArchiveWriterOptions();
                 hostContext.Configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
                 var extractDownloadsOptions = new ExtractDownloadsOptions();
@@ -162,6 +92,9 @@ public class Program
                 var featureCompareMessagingOptions = new FeatureCompareMessagingOptions();
                 hostContext.Configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
 
+                var sqsQueueUrlOptions = new SqsQueueUrlOptions();
+                hostContext.Configuration.Bind(sqsQueueUrlOptions);
+
                 builder
                     .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
                     .AddSingleton<IZipArchiveBeforeFeatureCompareValidator>(new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
@@ -171,6 +104,7 @@ public class Program
                     .AddSingleton(extractDownloadsOptions)
                     .AddSingleton(extractUploadsOptions)
                     .AddSingleton(featureCompareMessagingOptions)
+                    .AddSingleton(sqsQueueUrlOptions)
                     .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton(new WKTReader(

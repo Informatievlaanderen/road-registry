@@ -1,28 +1,24 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegmentsOutline;
+namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using Abstractions.RoadSegments;
+using System.Threading;
+using System.Threading.Tasks;
+using Abstractions.RoadSegmentsOutline;
 using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
+using Dbase;
 using Editor.Schema;
 using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice;
-using RoadRegistry.Dbase;
+using Parameters;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Abstractions.RoadSegmentsOutline;
-using RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
 
-public partial class RoadSegmentsOutlineController
+public partial class RoadSegmentsController
 {
     /// <summary>
     ///     Maak een schets van een wegsegment
@@ -52,13 +48,14 @@ public partial class RoadSegmentsOutlineController
     {
         if (!featureToggle.FeatureEnabled)
         {
-            return BadRequest();
+            return NotFound();
         }
 
         try
         {
-            var validator = new PostRoadSegmentOutlineParametersValidator(editorContext);
-            await validator.ValidateAndThrowAsync(parameters, cancellationToken);
+            //TODO-rik temp comment
+            //var validator = new PostRoadSegmentOutlineParametersValidator(editorContext);
+            //await validator.ValidateAndThrowAsync(parameters, cancellationToken);
 
             var sqsRequest = new CreateRoadSegmentOutlineSqsRequest
             {

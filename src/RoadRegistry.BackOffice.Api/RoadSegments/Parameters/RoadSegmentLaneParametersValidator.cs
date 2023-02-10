@@ -1,7 +1,7 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
-using Abstractions.Validation;
 using FluentValidation;
+using RoadRegistry.BackOffice.Abstractions.Validation;
 
 public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentLaneParameters>
 {

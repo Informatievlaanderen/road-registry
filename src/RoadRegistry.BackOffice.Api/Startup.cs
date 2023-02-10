@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
 using Extensions;
 using FluentValidation;
+using Hosts.Infrastructure.Modules;
 using Infrastructure;
 using Infrastructure.Extensions;
 using Infrastructure.Options;
@@ -159,7 +160,7 @@ public class Startup
                     }
                 }
             })
-            .AddValidatorsFromAssemblyContaining<Startup>()
+            //.AddValidatorsFromAssemblyContaining<Startup>() //TODO-rik te bekijken of deze commented mag zijn
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>()
@@ -168,7 +169,8 @@ public class Startup
 
         var builder = new ContainerBuilder();
         builder.RegisterModule(new DataDogModule(_configuration));
-        
+        builder.RegisterModule<BlobClientModule>();
+
         builder.RegisterModulesFromAssemblyContaining<Startup>();
         builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
         builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();

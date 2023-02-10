@@ -123,7 +123,10 @@ public sealed class Function : FunctionBase
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<SyndicationModule>()
+            .RegisterModule<SqsHandlersModule>()
+            .RegisterModule<BlobClientModule>()
             ;
+;
 
         builder.RegisterIdempotentCommandHandler();
     }

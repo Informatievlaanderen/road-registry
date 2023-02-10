@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegmentsOutline.Abstractions.Fixtures;
 
-using Api.RoadSegmentsOutline;
 using Dbase.Organizations;
 using Editor.Schema;
 using FeatureToggles;
@@ -8,7 +7,8 @@ using Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
+using RoadSegments;
+using RoadSegments.Parameters;
 
 public abstract class WhenCreateOutlineFixture : ApplicationFixture, IAsyncLifetime
 {
@@ -41,7 +41,7 @@ public abstract class WhenCreateOutlineFixture : ApplicationFixture, IAsyncLifet
 
         await _editorContext.SaveChangesAsync(CancellationToken.None);
 
-        var controller = new RoadSegmentsOutlineController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
+        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
         {
             ControllerContext = new ControllerContext
             {
