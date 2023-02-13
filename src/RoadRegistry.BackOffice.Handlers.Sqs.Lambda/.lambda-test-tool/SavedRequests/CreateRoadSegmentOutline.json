@@ -3,7 +3,7 @@
     {
       "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
       "receiptHandle": "MessageReceiptHandle",
-      "body": "{\"type\":\"RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.CreateRoadSegmentOutlineSqsRequest\",\"data\":\"{\\\"TicketId\\\":\\\"018601ac-4de6-40be-8354-d21431cd4a6f\\\",\\\"Request\\\":{\\\"Geometry\\\":\\\"LINESTRING (160600 220100, 160600 220200, 160700 220200, 160700 220100)\\\",\\\"Status\\\":\\\"InUse\\\",\\\"Morphology\\\":\\\"PrimitiveRoad\\\",\\\"AccessRestriction\\\":\\\"PublicRoad\\\",\\\"MaintenanceAuthority\\\":\\\"AGIV\\\",\\\"SurfaceType\\\":\\\"SolidSurface\\\",\\\"Width\\\":3,\\\"LaneCount\\\":2,\\\"LaneDirection\\\":\\\"Forward\\\",},\\\"ProvenanceData\\\":{\\\"Operator\\\":\\\"RIK\\\"}}\"}",
+      "body": "{\"type\":\"RoadRegistry.BackOffice.Abstractions.BlobRequest\",\"data\":\"{\\\"BlobName\\\":\\\"cd53511f667a47d88997a3689eff2537.sqs\\\"}\"}",
       "attributes": {
         "MessageGroupId": "0"
       },
@@ -15,4 +15,3 @@
     }
   ]
 }
-

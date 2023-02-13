@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Extensions;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Infrastructure.Converters;
 
 public class RoadNetworkSqsMessagesBlobClient : IBlobClient
 {
@@ -42,16 +43,33 @@ public class RoadNetworkSqsMessagesBlobClient : IBlobClient
         return _client.GetBlobAsync(name, cancellationToken);
     }
 
-    public Task CreateBlobMessageAsync<T>(BlobName name, Metadata metadata, ContentType contentType, T message,
-        CancellationToken cancellationToken = default)
+    private JsonSerializer CreateJsonSerializer()
     {
         var serializer = JsonSerializer.CreateDefault(_sqsOptions.JsonSerializerSettings);
-        var sqsJsonMessage = SqsJsonMessage.Create(message, serializer);
+
+        serializer.Converters.Add(new MultiLineStringWktConverter());
+        serializer.Converters.Add(new RoadSegmentAccessRestrictionConverter());
+        serializer.Converters.Add(new RoadSegmentLaneCountConverter());
+        serializer.Converters.Add(new RoadSegmentLaneDirectionConverter());
+        serializer.Converters.Add(new RoadSegmentMorphologyConverter());
+        serializer.Converters.Add(new RoadSegmentStatusConverter());
+        serializer.Converters.Add(new RoadSegmentSurfaceTypeConverter());
+        serializer.Converters.Add(new RoadSegmentWidthConverter());
+
+        return serializer;
+    }
+
+    public async Task CreateBlobMessageAsync<T>(BlobName name, Metadata metadata, ContentType contentType, T message,
+        CancellationToken cancellationToken = default)
+    {
+        var serializer = CreateJsonSerializer();
+        
+        var sqsJsonMessage = RoadRegistrySqsJsonMessage.Create(message, serializer);
         var json = serializer.Serialize(sqsJsonMessage);
 
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
         {
-            return CreateBlobAsync(name, metadata, contentType, stream, cancellationToken);
+            await CreateBlobAsync(name, metadata, contentType, stream, cancellationToken);
         }
     }
 
@@ -59,17 +77,17 @@ public class RoadNetworkSqsMessagesBlobClient : IBlobClient
     {
         var blob = await GetBlobAsync(name, cancellationToken);
 
-        var serializer = new JsonSerializer();
+        var serializer = CreateJsonSerializer();
+
         using (var blobStream = await blob.OpenAsync(cancellationToken))
         using (var memoryStream = new MemoryStream())
         {
             await blobStream.CopyToAsync(memoryStream, cancellationToken);
 
             var blobJsonMessage = Encoding.UTF8.GetString(memoryStream.ToArray());
+            var sqsJsonMessage = serializer.Deserialize<RoadRegistrySqsJsonMessage>(blobJsonMessage);
 
-            var sqsJsonMessage = serializer.Deserialize<SqsJsonMessage>(blobJsonMessage);
-
-            return sqsJsonMessage?.Map();
+            return sqsJsonMessage?.Map(serializer);
         }
     }
 }

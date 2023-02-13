@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
+using Abstractions;
 using Amazon.Lambda.Serialization.Json;
 using Autofac;
 using BackOffice.Uploads;
@@ -30,7 +31,7 @@ public sealed class MessageHandler : IMessageHandler
         if (messageData is BlobRequest blobRequest)
         {
             var blobClient = lifetimeScope.Resolve<RoadNetworkSqsMessagesBlobClient>();
-            messageData = await blobClient.GetBlobMessageAsync(blobRequest.BlobName, cancellationToken);
+            messageData = await blobClient.GetBlobMessageAsync(new BlobName(blobRequest.BlobName), cancellationToken);
         }
 
         if (messageData is not SqsRequest sqsRequest)

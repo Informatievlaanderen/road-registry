@@ -56,7 +56,7 @@ public partial class RoadSegmentsController
             //TODO-rik temp comment
             //var validator = new PostRoadSegmentOutlineParametersValidator(editorContext);
             //await validator.ValidateAndThrowAsync(parameters, cancellationToken);
-
+            
             var sqsRequest = new CreateRoadSegmentOutlineSqsRequest
             {
                 Request = new CreateRoadSegmentOutlineRequest(

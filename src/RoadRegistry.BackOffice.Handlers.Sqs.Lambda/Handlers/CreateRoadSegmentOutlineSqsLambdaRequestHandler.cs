@@ -11,6 +11,7 @@ using Framework;
 using Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 using Requests;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Hosts;
@@ -61,8 +62,10 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             var r = request.Request;
             var recordNumber = RecordNumber.Initial;
 
+            var geometry = r.Geometry;
+
             var fromPosition = new RoadSegmentPosition(0);
-            var toPosition = new RoadSegmentPosition((decimal)r.Geometry.Length);
+            var toPosition = new RoadSegmentPosition((decimal)geometry.Length);
 
             translatedChanges = translatedChanges.AppendChange(
                 new AddRoadSegment(
@@ -74,7 +77,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                     r.Status,
                     RoadSegmentCategory.Unknown,
                     r.AccessRestriction)
-                    .WithGeometry(r.Geometry)
+                    .WithGeometry(geometry)
                     .WithSurface(new RoadSegmentSurfaceAttribute(network.ProvidesNextRoadSegmentSurfaceAttributeId()(roadSegmentId)(), r.SurfaceType, fromPosition, toPosition))
                     .WithWidth(new RoadSegmentWidthAttribute(network.ProvidesNextRoadSegmentWidthAttributeId()(roadSegmentId)(), r.Width, fromPosition, toPosition))
                     .WithLane(new RoadSegmentLaneAttribute(network.ProvidesNextRoadSegmentLaneAttributeId()(roadSegmentId)(), r.LaneCount, r.LaneDirection, fromPosition, toPosition))

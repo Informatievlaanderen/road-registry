@@ -2,6 +2,7 @@ using System.Reflection;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs;
+using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Configuration;
 using RoadRegistry.BackOffice.Uploads;
 using SqsQueue = Be.Vlaanderen.Basisregisters.Sqs.SqsQueue;
@@ -16,6 +17,7 @@ public class S3SqsQueue : ISqsQueue
         _sqsQueue = new SqsQueue(sqsOptions, sqsQueueUrlOptions.SqsQueueUrl);
         _blobClient = blobClient;
     }
+
     public async Task<bool> Copy<T>(T message, SqsQueueOptions queueOptions, CancellationToken cancellationToken) where T : class
     {
         if (typeof(T).GetCustomAttribute(typeof(BlobRequestAttribute)) != null)

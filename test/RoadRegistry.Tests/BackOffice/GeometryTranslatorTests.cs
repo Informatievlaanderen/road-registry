@@ -67,9 +67,8 @@ public class GeometryTranslatorTests
     }
 
     [Theory]
-    //[InlineData(GeometryTranslatorTestCases.ValidGmlMultiLineString)]
+    [InlineData(GeometryTranslatorTestCases.ValidGmlMultiLineString)]
     [InlineData(GeometryTranslatorTestCases.ValidGmlLineString)]
-    [InlineData("<gml:LineString srsName=\"urn:ogc:def:crs:EPSG::31370\" srsDimension=\"2\"><gml:posList>217368.75 181577.016 217400.11 181499.516</gml:posList></gml:LineString>")]
     public void ParseGmlLineString(string gml)
     {
         var geometry = GeometryTranslator.ParseGmlLineString(gml);
