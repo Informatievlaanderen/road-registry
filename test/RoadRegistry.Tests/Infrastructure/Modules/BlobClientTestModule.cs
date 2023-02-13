@@ -7,8 +7,10 @@ using Hosts.Infrastructure.Modules;
 
 public class BlobClientTestModule : BlobClientModule
 {
+    private readonly MemoryBlobClient _blobClient = new();
+
     protected override IBlobClient CreateBlobClient(IComponentContext c, string bucketKey)
     {
-        return new MemoryBlobClient();
+        return _blobClient;
     }
 }
