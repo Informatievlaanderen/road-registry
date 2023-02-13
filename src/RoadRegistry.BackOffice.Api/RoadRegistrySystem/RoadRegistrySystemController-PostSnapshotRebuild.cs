@@ -11,16 +11,15 @@ public partial class RoadRegistrySystemController
 {
     [HttpPost("snapshots/refresh")]
     [ApiExplorerSettings(IgnoreApi = true)]
-    public async Task<IActionResult> PostSnapshotRebuild([FromBody] RequestSnapshotRebuildParameters request,
-        [FromServices] IValidator<RebuildSnapshotParameters> validator,
-        [FromServices] UseSnapshotRebuildFeatureToggle featureToggle)
+    public async Task<IActionResult> PostSnapshotRebuild([FromBody] RebuildSnapshotParameters parameters,
+        [FromServices] UseSnapshotRebuildFeatureToggle featureToggle,
+        [FromServices] RebuildSnapshotParametersValidator validator)
     {
         if (!featureToggle.FeatureEnabled)
         {
             return NotFound();
         }
 
-        var parameters = new RebuildSnapshotParameters { StartFromVersion = request?.StartFromVersion ?? 0 };
         await validator.ValidateAndThrowAsync(parameters, HttpContext.RequestAborted);
 
         var command = new RebuildRoadNetworkSnapshot
@@ -33,5 +32,3 @@ public partial class RoadRegistrySystemController
         return Ok();
     }
 }
-
-public sealed record RequestSnapshotRebuildParameters(int StartFromVersion);

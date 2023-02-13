@@ -9,9 +9,9 @@ using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
 using Extensions;
 using FluentValidation;
-using Infrastructure;
+using Handlers.Extensions;
+using Hosts.Infrastructure.Modules;
 using Infrastructure.Extensions;
-using Infrastructure.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -23,6 +23,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using RoadRegistry.BackOffice.Api.RoadRegistrySystem;
+using RoadSegments.Parameters;
 
 public class Startup
 {
@@ -156,19 +158,24 @@ public class Startup
                                 connectionString.Value,
                                 name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
                                 tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                    },
+                    FluentValidation = configuration =>
+                    {
                     }
                 }
             })
-            .AddValidatorsFromAssemblyContaining<Startup>()
+            .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>()
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
-            .AddTicketing(_configuration);
+            .AddTicketing(_configuration)
+            ;
 
         var builder = new ContainerBuilder();
         builder.RegisterModule(new DataDogModule(_configuration));
-        
+        builder.RegisterModule<BlobClientModule>();
+
         builder.RegisterModulesFromAssemblyContaining<Startup>();
         builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
         builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();

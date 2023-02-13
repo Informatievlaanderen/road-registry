@@ -27,9 +27,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Serilog;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public sealed class Function : FunctionBase
@@ -37,7 +35,7 @@ public sealed class Function : FunctionBase
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 
     public Function()
-        : base(new List<Assembly> { typeof(BackOffice.Handlers.Sqs.DomainAssemblyMarker).Assembly })
+        : base(new List<Assembly> { typeof(BackOffice.Handlers.Sqs.DomainAssemblyMarker).Assembly, typeof(RoadRegistry.BackOffice.Abstractions.BlobRequest).Assembly })
     {
     }
 
@@ -123,7 +121,10 @@ public sealed class Function : FunctionBase
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<SyndicationModule>()
+            .RegisterModule<SqsHandlersModule>()
+            .RegisterModule<BlobClientModule>()
             ;
+;
 
         builder.RegisterIdempotentCommandHandler();
     }
