@@ -10,9 +10,7 @@ using Configuration;
 using Extensions;
 using FluentValidation;
 using Hosts.Infrastructure.Modules;
-using Infrastructure;
 using Infrastructure.Extensions;
-using Infrastructure.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -24,6 +22,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using RoadSegments.Parameters;
 
 public class Startup
 {
@@ -157,6 +156,9 @@ public class Startup
                                 connectionString.Value,
                                 name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
                                 tags: new[] { DatabaseTag, "sql", "sqlserver" });
+                    },
+                    FluentValidation = configuration =>
+                    {
                     }
                 }
             })
@@ -166,6 +168,8 @@ public class Startup
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>()
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
             .AddTicketing(_configuration);
+
+        services.AddScoped<PostRoadSegmentOutlineParametersValidator>();
 
         var builder = new ContainerBuilder();
         builder.RegisterModule(new DataDogModule(_configuration));

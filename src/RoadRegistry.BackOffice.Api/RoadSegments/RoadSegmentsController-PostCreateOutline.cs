@@ -24,7 +24,7 @@ public partial class RoadSegmentsController
     ///     Maak een schets van een wegsegment
     /// </summary>
     /// <param name="featureToggle"></param>
-    /// <param name="editorContext"></param>
+    /// <param name="validator"></param>
     /// <param name="parameters"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het wegsegment gevonden is.</response>
@@ -42,7 +42,7 @@ public partial class RoadSegmentsController
     [SwaggerOperation(Description = "Nieuw wegsegment schetsen.")]
     public async Task<IActionResult> PostCreateOutline(
         [FromServices] UseRoadSegmentOutlineFeatureToggle featureToggle,
-        [FromServices] EditorContext editorContext,
+        [FromServices] PostRoadSegmentOutlineParametersValidator validator,
         [FromBody] PostRoadSegmentOutlineParameters parameters,
         CancellationToken cancellationToken = default)
     {
@@ -53,9 +53,7 @@ public partial class RoadSegmentsController
 
         try
         {
-            //TODO-rik temp comment
-            //var validator = new PostRoadSegmentOutlineParametersValidator(editorContext);
-            //await validator.ValidateAndThrowAsync(parameters, cancellationToken);
+            await validator.ValidateAndThrowAsync(parameters, cancellationToken);
             
             var sqsRequest = new CreateRoadSegmentOutlineSqsRequest
             {
