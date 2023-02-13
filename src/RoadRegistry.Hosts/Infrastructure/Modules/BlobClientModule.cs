@@ -85,6 +85,6 @@ public class BlobClientModule : Module
         builder.Register(c => new RoadNetworkExtractUploadsBlobClient(CreateBlobClient(c, WellknownBuckets.UploadsBucket))).AsSelf().SingleInstance();
         builder.Register(c => new RoadNetworkExtractDownloadsBlobClient(CreateBlobClient(c, WellknownBuckets.ExtractDownloadsBucket))).AsSelf().SingleInstance();
         builder.Register(c => new RoadNetworkFeatureCompareBlobClient(CreateBlobClient(c, WellknownBuckets.FeatureCompareBucket))).AsSelf().SingleInstance();
-        builder.Register(c => new RoadNetworkSqsMessagesBlobClient(CreateBlobClient(c, WellknownBuckets.SqsMessagesBucket), c.Resolve<SqsOptions>())).AsSelf().SingleInstance();
+        builder.Register(c => new SqsMessagesBlobClient(CreateBlobClient(c, WellknownBuckets.SqsMessagesBucket), c.Resolve<SqsOptions>())).AsSelf().SingleInstance();
     }
 }

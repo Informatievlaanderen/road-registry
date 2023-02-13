@@ -7,12 +7,14 @@ using RoadRegistry.BackOffice.Configuration;
 using RoadRegistry.BackOffice.Uploads;
 using SqsQueue = Be.Vlaanderen.Basisregisters.Sqs.SqsQueue;
 
+namespace RoadRegistry.BackOffice.Handlers.Sqs;
+
 public class S3SqsQueue : ISqsQueue
 {
     private readonly SqsQueue _sqsQueue;
-    private readonly RoadNetworkSqsMessagesBlobClient _blobClient;
+    private readonly SqsMessagesBlobClient _blobClient;
 
-    public S3SqsQueue(SqsOptions sqsOptions, SqsQueueUrlOptions sqsQueueUrlOptions, RoadNetworkSqsMessagesBlobClient blobClient)
+    public S3SqsQueue(SqsOptions sqsOptions, SqsQueueUrlOptions sqsQueueUrlOptions, SqsMessagesBlobClient blobClient)
     {
         _sqsQueue = new SqsQueue(sqsOptions, sqsQueueUrlOptions.SqsQueueUrl);
         _blobClient = blobClient;

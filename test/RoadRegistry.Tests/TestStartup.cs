@@ -110,7 +110,6 @@ public abstract class TestStartup
             .ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
                 builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
-                builder.RegisterModule<BlobClientModule>(); //TODO-rik kan zijn dat deze niet meer nodig is, automatisch wordt ingeladen via de vorige regel
 
                 builder.Register<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter()).SingleInstance();
                 builder.Register<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader()).SingleInstance();

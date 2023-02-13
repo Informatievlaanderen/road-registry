@@ -30,7 +30,7 @@ public sealed class MessageHandler : IMessageHandler
 
         if (messageData is BlobRequest blobRequest)
         {
-            var blobClient = lifetimeScope.Resolve<RoadNetworkSqsMessagesBlobClient>();
+            var blobClient = lifetimeScope.Resolve<SqsMessagesBlobClient>();
             messageData = await blobClient.GetBlobMessageAsync(new BlobName(blobRequest.BlobName), cancellationToken);
         }
 

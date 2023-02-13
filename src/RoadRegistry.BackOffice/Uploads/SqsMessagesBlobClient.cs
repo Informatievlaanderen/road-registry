@@ -9,14 +9,14 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Extensions;
 using Newtonsoft.Json;
-using RoadRegistry.BackOffice.Infrastructure.Converters;
+using Infrastructure.Converters;
 
-public class RoadNetworkSqsMessagesBlobClient : IBlobClient
+public class SqsMessagesBlobClient : IBlobClient
 {
     private readonly IBlobClient _client;
     private readonly SqsOptions _sqsOptions;
 
-    public RoadNetworkSqsMessagesBlobClient(IBlobClient client, SqsOptions sqsOptions)
+    public SqsMessagesBlobClient(IBlobClient client, SqsOptions sqsOptions)
     {
         _client = client ?? throw new ArgumentNullException(nameof(client));
         _sqsOptions = sqsOptions;

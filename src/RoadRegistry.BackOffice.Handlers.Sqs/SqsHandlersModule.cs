@@ -28,7 +28,7 @@ public sealed class SqsHandlersModule : Module
             .SingleInstance();
 
         builder
-            .Register(c => new S3SqsQueue(c.Resolve<SqsOptions>(), c.Resolve<SqsQueueUrlOptions>(), c.Resolve<RoadNetworkSqsMessagesBlobClient>()))
+            .Register(c => new S3SqsQueue(c.Resolve<SqsOptions>(), c.Resolve<SqsQueueUrlOptions>(), c.Resolve<SqsMessagesBlobClient>()))
             .As<ISqsQueue>()
             .SingleInstance();
     }
