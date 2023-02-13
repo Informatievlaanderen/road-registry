@@ -159,8 +159,10 @@ public class Startup
                                 name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
                                 tags: new[] { DatabaseTag, "sql", "sqlserver" });
                     },
-                    FluentValidation = configuration =>
+                    FluentValidation = _ =>
                     {
+                        // Do not remove this handler!
+                        // It must be declared to avoid FluentValidation registering all validators within current assembly.
                     }
                 }
             })
