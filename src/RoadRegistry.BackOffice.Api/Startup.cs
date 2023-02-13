@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
 using Extensions;
 using FluentValidation;
+using Handlers.Extensions;
 using Hosts.Infrastructure.Modules;
 using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -22,6 +23,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using RoadRegistry.BackOffice.Api.RoadRegistrySystem;
 using RoadSegments.Parameters;
 
 public class Startup
@@ -162,14 +164,13 @@ public class Startup
                     }
                 }
             })
-            //.AddValidatorsFromAssemblyContaining<Startup>() //TODO-rik te bekijken of deze commented mag zijn
+            .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>()
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
-            .AddTicketing(_configuration);
-
-        services.AddScoped<PostRoadSegmentOutlineParametersValidator>();
+            .AddTicketing(_configuration)
+            ;
 
         var builder = new ContainerBuilder();
         builder.RegisterModule(new DataDogModule(_configuration));
