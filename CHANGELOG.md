@@ -1,3 +1,10 @@
+## [3.34.4](https://github.com/informatievlaanderen/road-registry/compare/v3.34.3...v3.34.4) (2023-02-13)
+
+
+### Bug Fixes
+
+* WR-449 lock stream when doing road network changes ([#833](https://github.com/informatievlaanderen/road-registry/issues/833)) ([b4ddaa2](https://github.com/informatievlaanderen/road-registry/commit/b4ddaa24c70b5ce1e379eb84d12098817e6c83cb))
+
 ## [3.34.3](https://github.com/informatievlaanderen/road-registry/compare/v3.34.2...v3.34.3) (2023-02-06)
 
 
