@@ -133,7 +133,7 @@ public class Program
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<Func<EventSourcedEntityMap>>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
-                                new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
+                                sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),
                                 sp.GetService<ILoggerFactory>()
                             ),
@@ -150,7 +150,7 @@ public class Program
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<Func<EventSourcedEntityMap>>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
-                                new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
+                                sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),
                                 sp.GetService<ILoggerFactory>()
                             )

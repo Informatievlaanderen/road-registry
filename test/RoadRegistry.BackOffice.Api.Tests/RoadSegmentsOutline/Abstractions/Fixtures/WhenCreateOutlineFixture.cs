@@ -51,7 +51,8 @@ public abstract class WhenCreateOutlineFixture : ApplicationFixture, IAsyncLifet
 
         try
         {
-            Result = await controller.PostCreateOutline(new UseRoadSegmentOutlineFeatureToggle(true), _editorContext, Parameters, CancellationToken.None);
+            var validator = new PostRoadSegmentOutlineParametersValidator(_editorContext);
+            Result = await controller.PostCreateOutline(new UseRoadSegmentOutlineFeatureToggle(true), validator, Parameters, CancellationToken.None);
             Exception = null;
         }
         catch (Exception ex)
