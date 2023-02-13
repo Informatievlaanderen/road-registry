@@ -64,7 +64,7 @@ public class SqsMessagesBlobClient : IBlobClient
     {
         var serializer = CreateJsonSerializer();
         
-        var sqsJsonMessage = RoadRegistrySqsJsonMessage.Create(message, serializer);
+        var sqsJsonMessage = SqsJsonMessage.Create(message, serializer);
         var json = serializer.Serialize(sqsJsonMessage);
 
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
@@ -85,7 +85,7 @@ public class SqsMessagesBlobClient : IBlobClient
             await blobStream.CopyToAsync(memoryStream, cancellationToken);
 
             var blobJsonMessage = Encoding.UTF8.GetString(memoryStream.ToArray());
-            var sqsJsonMessage = serializer.Deserialize<RoadRegistrySqsJsonMessage>(blobJsonMessage);
+            var sqsJsonMessage = serializer.Deserialize<SqsJsonMessage>(blobJsonMessage);
 
             return sqsJsonMessage?.Map(serializer);
         }
