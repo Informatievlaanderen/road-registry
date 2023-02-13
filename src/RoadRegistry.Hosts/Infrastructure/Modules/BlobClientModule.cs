@@ -66,25 +66,25 @@ public class BlobClientModule : Module
             return new AmazonS3Client();
         }).AsSelf().SingleInstance();
 
-        IBlobClient CreateBlobClient(IComponentContext c, string bucketKey)
-        {
-            var blobOptions = c.Resolve<BlobClientOptions>();
-
-            switch (blobOptions.BlobClientType)
-            {
-                case nameof(S3BlobClient):
-                    return new S3BlobClient(c.Resolve<AmazonS3Client>(), c.Resolve<S3BlobClientOptions>().Buckets[bucketKey]);
-                case nameof(FileBlobClient):
-                    return c.Resolve<FileBlobClient>();
-            }
-
-            throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");
-        }
-
         builder.Register(c => new RoadNetworkUploadsBlobClient(CreateBlobClient(c, WellknownBuckets.UploadsBucket))).AsSelf().SingleInstance();
         builder.Register(c => new RoadNetworkExtractUploadsBlobClient(CreateBlobClient(c, WellknownBuckets.UploadsBucket))).AsSelf().SingleInstance();
         builder.Register(c => new RoadNetworkExtractDownloadsBlobClient(CreateBlobClient(c, WellknownBuckets.ExtractDownloadsBucket))).AsSelf().SingleInstance();
         builder.Register(c => new RoadNetworkFeatureCompareBlobClient(CreateBlobClient(c, WellknownBuckets.FeatureCompareBucket))).AsSelf().SingleInstance();
         builder.Register(c => new SqsMessagesBlobClient(CreateBlobClient(c, WellknownBuckets.SqsMessagesBucket), c.Resolve<SqsOptions>())).AsSelf().SingleInstance();
+    }
+
+    protected virtual IBlobClient CreateBlobClient(IComponentContext c, string bucketKey)
+    {
+        var blobOptions = c.Resolve<BlobClientOptions>();
+
+        switch (blobOptions.BlobClientType)
+        {
+            case nameof(S3BlobClient):
+                return new S3BlobClient(c.Resolve<AmazonS3Client>(), c.Resolve<S3BlobClientOptions>().Buckets[bucketKey]);
+            case nameof(FileBlobClient):
+                return c.Resolve<FileBlobClient>();
+        }
+
+        throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");
     }
 }
