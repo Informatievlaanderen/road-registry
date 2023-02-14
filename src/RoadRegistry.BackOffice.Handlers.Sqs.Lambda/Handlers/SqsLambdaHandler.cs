@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
+using System.Diagnostics;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Validation;
@@ -15,7 +16,8 @@ using FluentValidation;
 using Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
+using RoadRegistry.BackOffice.Exceptions;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using TicketingService.Abstractions;
 
 public abstract class SqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>
