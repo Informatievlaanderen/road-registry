@@ -1,3 +1,18 @@
+## [3.34.6](https://github.com/informatievlaanderen/road-registry/compare/v3.34.5...v3.34.6) (2023-02-14)
+
+
+### Bug Fixes
+
+* Upload dropbox tekst naar huidige situatie ([#841](https://github.com/informatievlaanderen/road-registry/issues/841)) ([e597521](https://github.com/informatievlaanderen/road-registry/commit/e597521a5ff982ce6e683878bde5e513d4d9822b))
+
+## [3.34.5](https://github.com/informatievlaanderen/road-registry/compare/v3.34.4...v3.34.5) (2023-02-14)
+
+
+### Bug Fixes
+
+* lambda env for deployment ([#839](https://github.com/informatievlaanderen/road-registry/issues/839)) ([f78f28b](https://github.com/informatievlaanderen/road-registry/commit/f78f28b0976e348b23c08529d60f18e385abce20))
+* use S3 for big SQS messages ([#838](https://github.com/informatievlaanderen/road-registry/issues/838)) ([d6de33d](https://github.com/informatievlaanderen/road-registry/commit/d6de33d58d6cc3480043175ebbeaca915b704b94))
+
 ## [3.34.4](https://github.com/informatievlaanderen/road-registry/compare/v3.34.3...v3.34.4) (2023-02-13)
 
 
