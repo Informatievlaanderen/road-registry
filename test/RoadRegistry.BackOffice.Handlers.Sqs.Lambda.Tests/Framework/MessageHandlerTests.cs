@@ -5,12 +5,14 @@ using Abstractions.RoadSegments;
 using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using FluentAssertions;
 using MediatR;
 using Moq;
 using Requests;
+using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using Sqs.RoadSegments;
 using Xunit.Abstractions;
@@ -42,11 +44,12 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsOptions());
 
         var messageData = ObjectProvider.Create<TestSqsRequest>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
-        var sut = new MessageHandler(container);
+        var sut = new MessageHandler(container, blobClient);
 
         // Act
         var act = async () => await sut.HandleMessage(
@@ -66,11 +69,12 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsOptions());
 
         var messageData = ObjectProvider.Create<object>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
-        var sut = new MessageHandler(container);
+        var sut = new MessageHandler(container, blobClient);
 
         // Act
         await sut.HandleMessage(
@@ -91,11 +95,12 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsOptions());
 
         var messageData = ObjectProvider.Create<TSqsRequest>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
-        var sut = new MessageHandler(container);
+        var sut = new MessageHandler(container, blobClient);
 
         // Act
         await sut.HandleMessage(
