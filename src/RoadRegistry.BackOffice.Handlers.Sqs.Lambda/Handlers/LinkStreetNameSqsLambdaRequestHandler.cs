@@ -78,11 +78,6 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
     }
 
-    protected override TicketError? InnerMapDomainException(DomainException exception, LinkStreetNameSqsLambdaRequest request)
-    {
-        return null;
-    }
-    
     private async Task<ChangeRoadNetwork> ToCommand(LinkStreetNameSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)
     {
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);

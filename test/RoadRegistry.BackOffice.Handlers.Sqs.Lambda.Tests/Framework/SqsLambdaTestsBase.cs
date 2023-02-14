@@ -3,7 +3,10 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using Abstractions;
 using Autofac;
 using AutoFixture;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
+using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using MediatR;
@@ -25,14 +28,17 @@ public class SqsLambdaTestsBase : BackOfficeLambdaTest
     {
         // Arrange
         var mediator = new Mock<IMediator>();
+        var blobClient = new SqsMessagesBlobClient(Client, new());
+
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);
+        containerBuilder.RegisterInstance(blobClient);
         var container = containerBuilder.Build();
 
         var messageData = ObjectProvider.Create<TSqsRequest>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
-        var sut = new MessageHandler(container);
+        var sut = new MessageHandler(container, container.Resolve<SqsMessagesBlobClient>());
 
         // Act
         await sut.HandleMessage(
