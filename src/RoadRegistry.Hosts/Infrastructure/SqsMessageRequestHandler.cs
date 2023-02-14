@@ -7,7 +7,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-public abstract class SqsMessageRequestHandler : IRequestHandler<SqsMessageRequest>
+public abstract class SqsMessageRequestHandler : IRequestHandler<SqsMessageRequest, SqsMessageResponse>
 {
     private readonly ILogger<SqsMessageRequestHandler> _logger;
     private readonly IMediator _mediator;
@@ -18,7 +18,7 @@ public abstract class SqsMessageRequestHandler : IRequestHandler<SqsMessageReque
         _logger = logger;
     }
 
-    public async Task<Unit> Handle(SqsMessageRequest request, CancellationToken cancellationToken)
+    public async Task<SqsMessageResponse> Handle(SqsMessageRequest request, CancellationToken cancellationToken)
     {
         _logger.LogInformation($"Handler started for message {request.Data?.GetType().Name}");
 
@@ -26,7 +26,8 @@ public abstract class SqsMessageRequestHandler : IRequestHandler<SqsMessageReque
         await _mediator.Send(sqsLambdaRequest, cancellationToken);
 
         _logger.LogInformation($"Handler finished for message {request.Data?.GetType().Name}");
-        return Unit.Value;
+
+        return new();
     }
 
     public abstract SqsLambdaRequest ConvertSqsLambdaRequest(SqsRequest request, string groupId);
