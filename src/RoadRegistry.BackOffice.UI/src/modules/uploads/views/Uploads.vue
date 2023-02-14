@@ -33,7 +33,7 @@
               id="upload-component"
               name="upload-component"
               url="#"
-              upload-drag-text="Selecteer het zip‑bestand met de op te laden verschillen."
+              upload-drag-text="Selecteer het zip-bestand met bronbestanden en doelbestanden voor het extract."
               upload-label="Archief opladen"
               :auto-process="false"
               :options="options"
