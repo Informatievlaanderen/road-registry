@@ -1,3 +1,10 @@
+## [3.34.6](https://github.com/informatievlaanderen/road-registry/compare/v3.34.5...v3.34.6) (2023-02-14)
+
+
+### Bug Fixes
+
+* Upload dropbox tekst naar huidige situatie ([#841](https://github.com/informatievlaanderen/road-registry/issues/841)) ([e597521](https://github.com/informatievlaanderen/road-registry/commit/e597521a5ff982ce6e683878bde5e513d4d9822b))
+
 ## [3.34.5](https://github.com/informatievlaanderen/road-registry/compare/v3.34.4...v3.34.5) (2023-02-14)
 
 
