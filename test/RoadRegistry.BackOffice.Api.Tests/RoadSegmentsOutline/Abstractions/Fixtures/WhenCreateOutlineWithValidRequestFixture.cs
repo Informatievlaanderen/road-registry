@@ -3,8 +3,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegmentsOutline.Abstractions.Fix
 using AutoFixture;
 using Editor.Schema;
 using MediatR;
-using RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
 using RoadRegistry.Tests.BackOffice;
+using RoadSegments.Parameters;
 
 public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
 {

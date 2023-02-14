@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
 using System.Runtime.Serialization;
 using Newtonsoft.Json;

@@ -9,9 +9,11 @@ using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
+using Core;
 using Exceptions;
 using Extensions;
 using Framework;
+using Hosts;
 using Messages;
 using Microsoft.Extensions.Logging;
 using Requests;
@@ -23,6 +25,7 @@ using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<UnlinkStreetNameSqsLambdaRequest>
 {
     private readonly IRoadNetworkCommandQueue _commandQueue;
+    private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public UnlinkStreetNameSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -31,6 +34,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IRoadNetworkCommandQueue commandQueue,
+        DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<UnlinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -41,31 +45,35 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
             logger)
     {
         _commandQueue = commandQueue;
+        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
     protected override async Task<ETagResponse> InnerHandleAsync(UnlinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
+        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+        {
+            var command = await ToCommand(request, cancellationToken);
+            var commandId = command.CreateCommandId();
+            await _commandQueue.Write(new Command(command).WithMessageId(commandId), cancellationToken);
+
+            try
+            {
+                await IdempotentCommandHandler.Dispatch(commandId, command, request.Metadata, cancellationToken);
+            }
+            catch (IdempotencyException)
+            {
+                // Idempotent: Do Nothing return last etag
+            }
+        }, cancellationToken);
+
         var roadSegmentId = request.Request.WegsegmentId;
-
-        var command = await ToCommand(request, cancellationToken);
-        var commandId = command.CreateCommandId();
-        await _commandQueue.Write(new Command(command).WithMessageId(commandId), cancellationToken);
-
-        try
-        {
-            await IdempotentCommandHandler.Dispatch(
-                commandId,
-                command,
-                request.Metadata,
-                cancellationToken);
-        }
-        catch (IdempotencyException)
-        {
-            // Idempotent: Do Nothing return last etag
-        }
-
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
+    }
+
+    protected override TicketError? InnerMapDomainException(DomainException exception, UnlinkStreetNameSqsLambdaRequest request)
+    {
+        return null;
     }
     
     private async Task<ChangeRoadNetwork> ToCommand(UnlinkStreetNameSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)

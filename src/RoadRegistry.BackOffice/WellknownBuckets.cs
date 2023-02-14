@@ -6,4 +6,5 @@ public static class WellknownBuckets
     public const string FeatureCompareBucket = "FeatureCompare";
     public const string ImportLegacyBucket = "ImportLegacy";
     public const string UploadsBucket = "Uploads";
+    public const string SqsMessagesBucket = "SqsMessages";
 }

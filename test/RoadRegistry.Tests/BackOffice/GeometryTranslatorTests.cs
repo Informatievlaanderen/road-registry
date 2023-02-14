@@ -7,7 +7,6 @@ using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
 using Xunit;
 using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
 

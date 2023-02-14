@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetN
 using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
-using Core;
 using Hosts;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -37,6 +36,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()),
             RoadRegistryContext,
             new RoadNetworkCommandQueue(Store, ApplicationMetadata),
+            new FakeDistributedStreamStoreLockOptions(),
             LoggerFactory.CreateLogger<UnlinkStreetNameSqsLambdaRequestHandler>()
         );
 

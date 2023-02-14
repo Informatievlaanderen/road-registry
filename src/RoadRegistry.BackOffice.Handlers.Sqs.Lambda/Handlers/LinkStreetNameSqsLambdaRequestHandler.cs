@@ -14,9 +14,10 @@ using Exceptions;
 using Extensions;
 using Framework;
 using Messages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Requests;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
@@ -24,19 +25,21 @@ using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<LinkStreetNameSqsLambdaRequest>
 {
     private readonly IRoadNetworkCommandQueue _commandQueue;
+    private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
     private readonly IStreetNameCache _streetNameCache;
 
     public LinkStreetNameSqsLambdaRequestHandler(
-        SqsLambdaHandlerOptions options,
+        IConfiguration configuration,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IStreetNameCache streetNameCache,
         IRoadNetworkCommandQueue commandQueue,
+        DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<LinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
-            options,
+            configuration,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
@@ -45,31 +48,39 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
     {
         _streetNameCache = streetNameCache;
         _commandQueue = commandQueue;
+        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
     protected override async Task<ETagResponse> InnerHandleAsync(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
+        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+        {
+            var command = await ToCommand(request, cancellationToken);
+            var commandId = command.CreateCommandId();
+            await _commandQueue.Write(new Command(command).WithMessageId(commandId), cancellationToken);
+
+            try
+            {
+                await IdempotentCommandHandler.Dispatch(
+                    commandId,
+                    command,
+                    request.Metadata,
+                    cancellationToken);
+            }
+            catch (IdempotencyException)
+            {
+                // Idempotent: Do Nothing return last etag
+            }
+        }, cancellationToken);
+
         var roadSegmentId = request.Request.WegsegmentId;
-
-        var command = await ToCommand(request, cancellationToken);
-        var commandId = command.CreateCommandId();
-        await _commandQueue.Write(new Command(command).WithMessageId(commandId), cancellationToken);
-
-        try
-        {
-            await IdempotentCommandHandler.Dispatch(
-                commandId,
-                command,
-                request.Metadata,
-                cancellationToken);
-        }
-        catch (IdempotencyException)
-        {
-            // Idempotent: Do Nothing return last etag
-        }
-
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
+    }
+
+    protected override TicketError? InnerMapDomainException(DomainException exception, LinkStreetNameSqsLambdaRequest request)
+    {
+        return null;
     }
     
     private async Task<ChangeRoadNetwork> ToCommand(LinkStreetNameSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)

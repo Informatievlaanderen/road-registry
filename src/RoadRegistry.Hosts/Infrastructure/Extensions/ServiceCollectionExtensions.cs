@@ -1,5 +1,7 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
+using System;
+using Amazon;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Editor.Schema;
@@ -49,5 +51,30 @@ public static class ServiceCollectionExtensions
                     }
                 )
             ;
+    }
+
+    public static IServiceCollection AddDistributedStreamStoreLockOptions(this IServiceCollection services)
+    {
+        return services.AddSingleton(sp =>
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+
+            var config = new DistributedStreamStoreLockConfiguration();
+            configuration.GetSection(DistributedStreamStoreLockConfiguration.SectionName).Bind(config);
+
+            return new DistributedStreamStoreLockOptions
+            {
+                Region = RegionEndpoint.GetBySystemName(config.Region),
+                AwsAccessKeyId = config.AccessKeyId,
+                AwsSecretAccessKey = config.AccessKeySecret,
+                TableName = config.TableName,
+                LeasePeriod = TimeSpan.FromMinutes(config.LeasePeriodInMinutes),
+                ThrowOnFailedRenew = config.ThrowOnFailedRenew,
+                TerminateApplicationOnFailedRenew = config.TerminateApplicationOnFailedRenew,
+                ThrowOnFailedAcquire = config.ThrowOnFailedAcquire,
+                TerminateApplicationOnFailedAcquire = config.TerminateApplicationOnFailedAcquire,
+                Enabled = config.Enabled
+            };
+        });
     }
 }
