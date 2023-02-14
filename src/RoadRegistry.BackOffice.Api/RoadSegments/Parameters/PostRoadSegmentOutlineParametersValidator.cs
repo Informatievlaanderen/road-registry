@@ -1,12 +1,12 @@
-namespace RoadRegistry.BackOffice.Api.RoadSegmentsOutline.Parameters;
+namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Validation;
-using Editor.Schema;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.BackOffice.Abstractions.Validation;
+using RoadRegistry.Editor.Schema;
 
 public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostRoadSegmentOutlineParameters>
 {
@@ -15,7 +15,7 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
     public PostRoadSegmentOutlineParametersValidator(EditorContext editorContext)
     {
         _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
-        
+
         RuleFor(x => x.MiddellijnGeometrie)
             .NotEmpty()
             .Must(GeometryTranslator.GmlIsValidLineString);
