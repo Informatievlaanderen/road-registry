@@ -12,6 +12,7 @@ using Handlers;
 using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Moq;
 using NodaTime;
 using Requests;
 using SqlStreamStore;
@@ -20,9 +21,9 @@ using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
 
 public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFixture<CreateRoadNetworkSnapshotSqsLambdaRequestHandler, CreateRoadNetworkSnapshotSqsLambdaRequest, CreateRoadNetworkSnapshotSqsRequest>
 {
-    protected readonly IRoadNetworkSnapshotReader SnapshotReader;
+    protected readonly Mock<IRoadNetworkSnapshotReader> SnapshotReader;
+    protected readonly Mock<IRoadNetworkSnapshotWriter> SnapshotWriter;
     protected readonly RoadNetworkSnapshotStrategyOptions SnapshotStrategyOptions;
-    protected readonly IRoadNetworkSnapshotWriter SnapshotWriter;
 
     protected WhenCreateRoadNetworkSnapshotFixture(
         IConfiguration configuration,
@@ -36,8 +37,8 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
         : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
     {
         Organisation = Organisation.DigitaalVlaanderen;
-        SnapshotReader = snapshotReader;
-        SnapshotWriter = snapshotWriter;
+        SnapshotReader = CreateSnapshotReaderMock(snapshotReader);
+        SnapshotWriter = CreateSnapshotWriterMock(snapshotWriter);
         SnapshotStrategyOptions = BuildSnapshotStrategyOptions();
 
         ObjectProvider.Customize<ProvenanceData>(customization =>
@@ -49,6 +50,9 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
                 Organisation)))
         );
     }
+
+    protected abstract Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader);
+    protected abstract Mock<IRoadNetworkSnapshotWriter> CreateSnapshotWriterMock(IRoadNetworkSnapshotWriter snapshotWriter);
 
     protected Organisation Organisation { get; }
     protected abstract CreateRoadNetworkSnapshotRequest Request { get; }
@@ -68,8 +72,9 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
         CustomRetryPolicy,
         TicketingMock.Object,
         RoadRegistryContext,
-        SnapshotReader,
-        SnapshotWriter,
+        SnapshotReader.Object,
+        SnapshotWriter.Object,
+        Store,
         SnapshotStrategyOptions,
         LoggerFactory.CreateLogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler>()
     );

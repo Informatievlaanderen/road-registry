@@ -10,8 +10,7 @@ public class WhenCreateRoadNetworkSnapshotWithValidRequest : WhenCreateRoadNetwo
     {
     }
 
-    // TODO-Jan 
-    [Fact(Skip = "Setup before test run")]
+    [Fact]
     public void ItShouldSucceed()
     {
         if (Fixture.Exception is not null)

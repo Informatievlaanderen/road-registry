@@ -3,19 +3,24 @@ namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Handlers;
 using System.Diagnostics;
 using BackOffice;
 using BackOffice.Core;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Configuration;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Requests;
+using SqlStreamStore;
+using SqlStreamStore.Streams;
 using TicketingService.Abstractions;
 
 public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambdaHandler<CreateRoadNetworkSnapshotSqsLambdaRequest>
 {
     private readonly IRoadNetworkSnapshotReader _snapshotReader;
     private readonly IRoadNetworkSnapshotWriter _snapshotWriter;
+    private readonly IStreamStore _store;
     private readonly RoadNetworkSnapshotStrategyOptions _snapshotStrategyOptions;
     private readonly Stopwatch _stopwatch;
 
@@ -26,6 +31,8 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
         IRoadRegistryContext context,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
+        IStreamStore store,
+
         RoadNetworkSnapshotStrategyOptions snapshotStrategyOptions,
         ILogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler> logger)
         : base(options, retryPolicy, ticketing, null, context, logger)
@@ -33,6 +40,7 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
         _stopwatch = new Stopwatch();
         _snapshotReader = snapshotReader;
         _snapshotWriter = snapshotWriter;
+        _store = store;
         _snapshotStrategyOptions = snapshotStrategyOptions;
     }
 
@@ -46,6 +54,7 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
             var streamDifference = streamVersion % _snapshotStrategyOptions.EventCount; // Eg. 49
             var streamMaxVersion = streamVersion - streamDifference; // Eg. 18450
 
+
             // Check if snapshot should be taken
             if (streamDifference.Equals(0))
             {
@@ -58,11 +67,13 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
                 }
                 else
                 {
+                    var view = await RoadRegistryContext.RoadNetworks.Get(snapshotVersion, cancellationToken);
+                    snapshot = view.TakeSnapshot();
+                    snapshotVersion = streamMaxVersion;
+
                     Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", snapshotVersion, snapshotVersion);
                     await _snapshotWriter.WriteSnapshot(snapshot, snapshotVersion, cancellationToken);
                     Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", snapshotVersion, _stopwatch.Elapsed);
-
-                    // TODO Signal that new version is available
                 }
             }
             else
