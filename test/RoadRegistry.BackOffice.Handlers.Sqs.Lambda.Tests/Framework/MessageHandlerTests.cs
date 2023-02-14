@@ -46,7 +46,7 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var messageData = ObjectProvider.Create<TestSqsRequest>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
-        var sut = new MessageHandler(container);
+        var sut = new MessageHandler(container.Resolve<IMediator>());
 
         // Act
         var act = async () => await sut.HandleMessage(
@@ -70,7 +70,7 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var messageData = ObjectProvider.Create<object>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
-        var sut = new MessageHandler(container);
+        var sut = new MessageHandler(container.Resolve<IMediator>());
 
         // Act
         await sut.HandleMessage(
@@ -95,7 +95,7 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var messageData = ObjectProvider.Create<TSqsRequest>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
 
-        var sut = new MessageHandler(container);
+        var sut = new MessageHandler(container.Resolve<IMediator>());
 
         // Act
         await sut.HandleMessage(
