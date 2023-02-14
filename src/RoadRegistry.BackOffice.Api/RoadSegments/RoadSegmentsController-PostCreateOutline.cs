@@ -15,6 +15,7 @@ using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Parameters;
+using RoadRegistry.BackOffice.Core;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 

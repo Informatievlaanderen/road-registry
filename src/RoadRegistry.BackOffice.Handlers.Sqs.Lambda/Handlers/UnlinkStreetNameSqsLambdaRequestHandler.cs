@@ -18,7 +18,6 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using Requests;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
-using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
