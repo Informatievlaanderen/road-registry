@@ -40,24 +40,3 @@ Deploy application
     cd "RoadRegistry.BackOffice.Handlers.Sqs.Lambda/src/RoadRegistry.BackOffice.Handlers.Sqs.Lambda"
     dotnet lambda deploy-serverless
 ```
-
-# Sample request
-```
-{
-  "Records": [
-    {
-      "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
-      "receiptHandle": "MessageReceiptHandle",
-      "body": "{\"type\":\"RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.LinkStreetNameSqsRequest\",\"data\":\"{\\\"Request\\\":{\\\"wegsegmentId\\\":2,\\\"linkerstraatnaamId\\\":\\\"https://data.vlaanderen.be/id/straatnaam/36847\\\"},\\\"ProvenanceData\\\":{\\\"Operator\\\":\\\"Me\\\"}}\"}",
-      "attributes": {
-           "MessageGroupId": "5"
-      },
-      "messageAttributes": {},
-      "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
-      "eventSource": "aws:sqs",
-      "eventSourceARN": "arn:{partition}:sqs:euwest1:123456789012:MyQueue",
-      "awsRegion": "euwest1"
-    }
-  ]
-}
-```

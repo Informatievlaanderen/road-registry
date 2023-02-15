@@ -76,7 +76,7 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
             }
             else
             {
-                Logger.LogWarning("Snapshot strategy determined that the strategy limit had not been reached");
+                Logger.LogInformation("Snapshot strategy determined that the strategy limit had not been reached");
             }
         }
         catch (Exception ex)
