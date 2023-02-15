@@ -11,6 +11,7 @@ using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 using SqlStreamStore;
 using System;
 using Abstractions.RoadNetworks;
+using FeatureToggles;
 
 public class RoadNetworkSnapshotEventModule : EventHandlerModule
 {
@@ -20,7 +21,9 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory,
+        UseSnapshotSqsRequestFeatureToggle snapshotFeatureToggle
+        )
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(clock);
@@ -36,13 +39,15 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
             {
                 logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));
 
-                await mediator.Send(new CreateRoadNetworkSnapshotSqsRequest
+                if (snapshotFeatureToggle.FeatureEnabled)
                 {
-                    Request = new CreateRoadNetworkSnapshotRequest
-                    {
-                        StreamVersion = message.StreamVersion
-                    }
-                }, ct);
+                    await mediator.Send(new CreateRoadNetworkSnapshotSqsRequest { Request = new CreateRoadNetworkSnapshotRequest { StreamVersion = message.StreamVersion } }, ct);
+                }
+                else
+                {
+                    var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
+                    await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
+                }
 
                 logger.LogInformation("Event handler finished for {EventName}", nameof(RoadNetworkChangesAccepted));
             });
