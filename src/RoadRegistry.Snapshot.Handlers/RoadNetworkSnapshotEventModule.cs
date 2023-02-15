@@ -1,17 +1,17 @@
-namespace RoadRegistry.BackOffice.Handlers;
+namespace RoadRegistry.Snapshot.Handlers;
 
-using Core;
+using System;
+using BackOffice.FeatureToggles;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Abstractions.RoadNetworks;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 using SqlStreamStore;
-using System;
-using Abstractions.RoadNetworks;
-using FeatureToggles;
 
 public class RoadNetworkSnapshotEventModule : EventHandlerModule
 {
