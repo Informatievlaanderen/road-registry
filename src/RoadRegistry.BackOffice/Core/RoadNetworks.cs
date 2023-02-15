@@ -49,7 +49,7 @@ public class RoadNetworks : IRoadNetworks
         var sw = Stopwatch.StartNew();
 
         _logger.LogInformation("Read started for RoadNetwork snapshot");
-        var (snapshot, version) = await _snapshotReader.ReadSnapshot(ct);
+        var (snapshot, version) = await _snapshotReader.ReadSnapshotAsync(ct);
         _logger.LogInformation("Read finished for RoadNetwork snapshot version {SnapshotVersion} in {StopwatchElapsedMilliseconds}ms", version, sw.ElapsedMilliseconds);
 
         if (version != ExpectedVersion.NoStream)
@@ -109,7 +109,7 @@ public class RoadNetworks : IRoadNetworks
         var sw = Stopwatch.StartNew();
 
         _logger.LogInformation("Read started for RoadNetwork snapshot");
-        var (snapshot, version) = await _snapshotReader.ReadSnapshot(ct);
+        var (snapshot, version) = await _snapshotReader.ReadSnapshotAsync(ct);
         _logger.LogInformation("Read finished for RoadNetwork snapshot version {SnapshotVersion} in {StopwatchElapsedMilliseconds}ms", version, sw.ElapsedMilliseconds);
 
         if (version != ExpectedVersion.NoStream)
@@ -195,7 +195,7 @@ public class RoadNetworks : IRoadNetworks
     {
         if (_map.TryGet(Stream, out var entry)) return ((RoadNetwork)entry.Entity, entry.ExpectedVersion);
         var view = ImmutableRoadNetworkView.Empty.ToBuilder();
-        var (snapshot, version) = await _snapshotReader.ReadSnapshot(ct);
+        var (snapshot, version) = await _snapshotReader.ReadSnapshotAsync(ct);
         if (version != ExpectedVersion.NoStream)
         {
             view = view.RestoreFromSnapshot(snapshot);

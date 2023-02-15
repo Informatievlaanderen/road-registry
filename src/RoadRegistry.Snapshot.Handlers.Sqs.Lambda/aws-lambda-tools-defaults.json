@@ -5,7 +5,7 @@
     "dotnet lambda help",
     "All the command line options for the Lambda command can be specified in this file."
   ],
-  "profile": "vbr-sandbox",
+  "profile": "vbr-test",
   "region": "eu-west-1",
   "configuration": "Release",
   "function-runtime": "dotnet6",

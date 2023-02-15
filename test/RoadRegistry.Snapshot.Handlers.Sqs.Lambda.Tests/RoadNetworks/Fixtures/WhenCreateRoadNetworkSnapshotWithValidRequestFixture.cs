@@ -1,7 +1,6 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.Fixtures;
 
 using Abstractions.Fixtures;
-using AutoFixture;
 using BackOffice;
 using BackOffice.Abstractions.RoadNetworks;
 using BackOffice.Core;
@@ -9,14 +8,12 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Configuration;
 using Hosts;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 using Moq;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Tests.BackOffice.Core;
 using SqlStreamStore;
-using SqlStreamStore.Streams;
 using AcceptedChange = BackOffice.Messages.AcceptedChange;
 
 public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRoadNetworkSnapshotFixture
@@ -42,7 +39,7 @@ public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRo
     protected override Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader)
     {
         var mock = new Mock<IRoadNetworkSnapshotReader>();
-        mock.Setup(m => m.ReadSnapshot(It.IsAny<CancellationToken>()))
+        mock.Setup(m => m.ReadSnapshotAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync((new RoadNetworkSnapshot(), 0));
         return mock;
     }
@@ -120,6 +117,6 @@ public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRo
 
     protected override Task<bool> VerifyTicketAsync()
     {
-        throw new NotImplementedException();
+        return Task.FromResult(true);
     }
 }

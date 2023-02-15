@@ -58,7 +58,7 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
             // Check if snapshot should be taken
             if (streamDifference.Equals(0))
             {
-                var (snapshot, snapshotVersion) = await _snapshotReader.ReadSnapshot(cancellationToken);
+                var snapshotVersion = await _snapshotReader.ReadSnapshotVersionAsync(cancellationToken);
 
                 // Check if current snapshot is already further that stream version
                 if (snapshotVersion >= streamMaxVersion)
@@ -67,13 +67,12 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
                 }
                 else
                 {
-                    var view = await RoadRegistryContext.RoadNetworks.Get(snapshotVersion, cancellationToken);
-                    snapshot = view.TakeSnapshot();
-                    snapshotVersion = streamMaxVersion;
+                    var roadnetwork = await RoadRegistryContext.RoadNetworks.Get(streamMaxVersion, cancellationToken);
+                    var snapshot = roadnetwork.TakeSnapshot();
 
-                    Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", snapshotVersion, snapshotVersion);
-                    await _snapshotWriter.WriteSnapshot(snapshot, snapshotVersion, cancellationToken);
-                    Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", snapshotVersion, _stopwatch.Elapsed);
+                    Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", streamMaxVersion);
+                    await _snapshotWriter.WriteSnapshot(snapshot, streamMaxVersion, cancellationToken);
+                    Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", streamMaxVersion, _stopwatch.Elapsed);
                 }
             }
             else
