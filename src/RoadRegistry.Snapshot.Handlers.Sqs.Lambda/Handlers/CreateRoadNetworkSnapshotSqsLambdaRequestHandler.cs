@@ -53,8 +53,7 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
             var streamVersion = request.Request.StreamVersion; // Eg. 18499
             var streamDifference = streamVersion % _snapshotStrategyOptions.EventCount; // Eg. 49
             var streamMaxVersion = streamVersion - streamDifference; // Eg. 18450
-
-
+            
             // Check if snapshot should be taken
             if (streamDifference.Equals(0))
             {

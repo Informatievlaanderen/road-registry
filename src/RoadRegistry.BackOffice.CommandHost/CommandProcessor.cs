@@ -210,6 +210,7 @@ public class CommandProcessor : IHostedService
             catch (Exception exception)
             {
                 logger.LogError(exception, "CommandProcessor message pump is exiting due to a bug.");
+                throw;
             }
             finally
             {

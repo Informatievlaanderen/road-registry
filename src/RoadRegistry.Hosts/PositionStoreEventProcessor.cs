@@ -87,6 +87,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             catch (Exception exception)
             {
                 logger.LogError(exception, "EventProcessor message pump is exiting due to a bug.");
+                throw;
             }
             finally
             {

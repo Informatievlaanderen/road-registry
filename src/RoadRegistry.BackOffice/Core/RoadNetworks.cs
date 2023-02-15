@@ -52,8 +52,11 @@ public class RoadNetworks : IRoadNetworks
         var (snapshot, version) = await _snapshotReader.ReadSnapshotAsync(ct);
         _logger.LogInformation("Read finished for RoadNetwork snapshot version {SnapshotVersion} in {StopwatchElapsedMilliseconds}ms", version, sw.ElapsedMilliseconds);
 
+        int messagesMaxCount;
         if (version != ExpectedVersion.NoStream)
         {
+            messagesMaxCount = maxStreamVersion - version;
+
             sw.Restart();
             _logger.LogInformation("View restore started from RoadNetwork snapshot version {SnapshotVersion}", version);
             view = view.RestoreFromSnapshot(snapshot);
@@ -63,11 +66,12 @@ public class RoadNetworks : IRoadNetworks
         else
         {
             version = StreamVersion.Start;
+            messagesMaxCount = maxStreamVersion;
         }
 
         sw.Restart();
         _logger.LogInformation("Read stream forward started with {Stream}, version {SnapshotVersion} and page size {StreamPageSize}", Stream, version, StreamPageSize);
-        var page = await _store.ReadStreamForwards(Stream, version, maxStreamVersion - version, ct);
+        var page = await _store.ReadStreamForwards(Stream, version, messagesMaxCount, ct);
         _logger.LogInformation("Read stream forward finished with {Stream}, version {SnapshotVersion} and page size {StreamPageSize} in {StopwatchElapsedMilliseconds}ms", Stream, version, StreamPageSize, sw.ElapsedMilliseconds);
 
         if (page.Status == PageReadStatus.StreamNotFound)
