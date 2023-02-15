@@ -74,7 +74,6 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
         RoadRegistryContext,
         SnapshotReader.Object,
         SnapshotWriter.Object,
-        Store,
         SnapshotStrategyOptions,
         LoggerFactory.CreateLogger<CreateRoadNetworkSnapshotSqsLambdaRequestHandler>()
     );

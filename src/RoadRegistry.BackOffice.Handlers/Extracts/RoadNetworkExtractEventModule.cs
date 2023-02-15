@@ -87,7 +87,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         };
 
         var policy = Policy
-            .HandleResult<bool>(exists => exists == false)
+            .HandleResult<bool>(exists => !exists)
             .WaitAndRetryAsync(new[]
             {
                 TimeSpan.FromSeconds(1),

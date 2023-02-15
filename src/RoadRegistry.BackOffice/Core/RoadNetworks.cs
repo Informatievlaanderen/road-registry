@@ -40,7 +40,7 @@ public class RoadNetworks : IRoadNetworks
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<RoadNetwork> Get(int maxStreamVersion, CancellationToken ct = default)
+    public async Task<RoadNetwork> Get(int maximumStreamVersion, CancellationToken ct = default)
     {
         if (_map.TryGet(Stream, out var entry)) return (RoadNetwork)entry.Entity;
 
@@ -55,7 +55,7 @@ public class RoadNetworks : IRoadNetworks
         int messagesMaxCount;
         if (version != ExpectedVersion.NoStream)
         {
-            messagesMaxCount = maxStreamVersion - version;
+            messagesMaxCount = maximumStreamVersion - version;
 
             sw.Restart();
             _logger.LogInformation("View restore started from RoadNetwork snapshot version {SnapshotVersion}", version);
@@ -66,7 +66,7 @@ public class RoadNetworks : IRoadNetworks
         else
         {
             version = StreamVersion.Start;
-            messagesMaxCount = maxStreamVersion;
+            messagesMaxCount = maximumStreamVersion;
         }
 
         sw.Restart();
