@@ -30,6 +30,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Extensions;
+using FeatureToggles;
 using Handlers;
 using Snapshot.Handlers;
 using Uploads;
@@ -220,11 +222,12 @@ public class Program
                             sp.GetService<IRoadNetworkSnapshotReader>(),
                             sp.GetService<IRoadNetworkSnapshotWriter>(),
                             sp.GetService<IClock>(),
-                            sp.GetService<ILoggerFactory>())
-
+                            sp.GetService<ILoggerFactory>(),
+                            sp.GetService<UseSnapshotSqsRequestFeatureToggle>())
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
-                    .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
+                    .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())))
+                    .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration);
             })
             .Build();
 
