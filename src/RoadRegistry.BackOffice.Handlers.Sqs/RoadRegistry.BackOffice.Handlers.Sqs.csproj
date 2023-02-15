@@ -18,10 +18,6 @@
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="RoadNetworks\" />
-  </ItemGroup>
-
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 
 </Project>
