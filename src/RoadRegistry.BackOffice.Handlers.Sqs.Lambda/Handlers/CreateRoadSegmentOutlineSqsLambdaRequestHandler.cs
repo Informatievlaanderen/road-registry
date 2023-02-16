@@ -8,10 +8,9 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Framework;
+using Infrastructure;
 using Messages;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using NetTopologySuite.Geometries;
 using Requests;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Hosts;
@@ -27,7 +26,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
     private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public CreateRoadSegmentOutlineSqsLambdaRequestHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
@@ -36,7 +35,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,

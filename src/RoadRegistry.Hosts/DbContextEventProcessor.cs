@@ -342,6 +342,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
             catch (Exception exception)
             {
                 logger.LogError(exception, "EventProcessor message pump is exiting due to a bug");
+                throw;
             }
             finally
             {

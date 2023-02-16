@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
 
-internal static class CommandHandlerModulePipelines
+public static class CommandHandlerModulePipelines
 {
     private static readonly EventMapping EventMapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));

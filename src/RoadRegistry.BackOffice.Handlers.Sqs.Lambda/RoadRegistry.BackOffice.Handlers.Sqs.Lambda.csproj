@@ -17,6 +17,11 @@
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
+	<ItemGroup>
+		<Using Include="Amazon.Lambda.Core"></Using>
+		<Using Include="Amazon.Lambda.Serialization.Json"></Using>
+	</ItemGroup>
+
   <ItemGroup>
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />

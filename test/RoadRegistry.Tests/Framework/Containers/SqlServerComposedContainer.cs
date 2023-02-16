@@ -8,9 +8,9 @@ public class SqlServerComposedContainer : ISqlServerDatabase
     private readonly string _serviceName;
     private int _db;
 
-    public SqlServerComposedContainer(string serviceName)
+    public SqlServerComposedContainer(RoadRegistryAssembly serviceName)
     {
-        _serviceName = serviceName;
+        _serviceName = ((int)serviceName).ToString();
         if (Environment.GetEnvironmentVariable("SA_PASSWORD") == null) throw new Exception("The SA_PASSWORD environment variable is missing.");
 
         _builder =

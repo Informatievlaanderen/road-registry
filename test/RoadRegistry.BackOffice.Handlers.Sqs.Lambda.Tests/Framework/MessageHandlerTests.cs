@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 
 using Abstractions;
-using Abstractions.RoadSegments;
 using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
@@ -14,7 +13,6 @@ using Moq;
 using Requests;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Tests.BackOffice.Scenarios;
-using Sqs.RoadSegments;
 using Xunit.Abstractions;
 
 public sealed class MessageHandlerTests : RoadRegistryTestBase
@@ -22,18 +20,6 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
     public MessageHandlerTests(ITestOutputHelper testOutputHelper)
         : base(testOutputHelper)
     {
-    }
-
-    [Fact]
-    public Task WhenProcessing_LinkStreetNameSqsRequest_Then_LinkStreetNameSqsLambdaRequest_IsSent()
-    {
-        return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<LinkStreetNameSqsRequest, LinkStreetNameSqsLambdaRequest, LinkStreetNameRequest>();
-    }
-
-    [Fact]
-    public Task WhenProcessing_UnlinkStreetNameSqsRequest_Then_UnlinkStreetNameSqsLambdaRequest_IsSent()
-    {
-        return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<UnlinkStreetNameSqsRequest, UnlinkStreetNameSqsLambdaRequest, UnlinkStreetNameRequest>();
     }
     
     [Fact]

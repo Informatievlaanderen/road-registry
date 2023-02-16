@@ -1,0 +1,8 @@
+Be.Vlaanderen.Basisregisters.Aws.Lambda
+Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
+Be.Vlaanderen.Basisregisters.GrAr.Provenance
+Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
+
+Amazon.Lambda.Serialization.SystemTextJson
+Autofac.Extensions.DependencyInjection
+AWSSDK.Core

@@ -1,6 +1,6 @@
 namespace RoadRegistry.Editor.Schema.RoadNodes;
 
-using Hosts;
+using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

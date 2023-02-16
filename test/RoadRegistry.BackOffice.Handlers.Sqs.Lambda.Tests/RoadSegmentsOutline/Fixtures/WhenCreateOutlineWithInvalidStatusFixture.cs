@@ -1,16 +1,22 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.Fixtures;
 
 using BackOffice.Abstractions.RoadSegmentsOutline;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using NodaTime;
 using SqlStreamStore;
 
 public class WhenCreateOutlineWithInvalidStatusFixture : WhenCreateOutlineWithValidRequestFixture
 {
-    public WhenCreateOutlineWithInvalidStatusFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock)
+    public WhenCreateOutlineWithInvalidStatusFixture(
+        IConfiguration configuration,
+        ICustomRetryPolicy customRetryPolicy,
+        IStreamStore streamStore,
+        IRoadNetworkCommandQueue roadNetworkCommandQueue,
+        IClock clock,
+        SqsLambdaHandlerOptions options)
+        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
     {
     }
 

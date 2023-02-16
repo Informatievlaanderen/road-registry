@@ -4,15 +4,16 @@ using Abstractions;
 using Autofac;
 using BackOffice.Framework;
 using Core;
-using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NodaTime.Text;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+using RoadRegistry.Tests.Framework;
 using StreetNameConsumer.Schema;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
 
-public abstract class LinkUnlinkStreetNameTestsBase : BackOfficeLambdaTest
+public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
 {
     protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 

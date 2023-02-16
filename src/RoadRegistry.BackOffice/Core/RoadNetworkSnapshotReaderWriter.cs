@@ -24,7 +24,38 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
         _streamManager = streamManager ?? throw new ArgumentNullException(nameof(streamManager));
     }
 
-    public async Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
+    public async Task<int> ReadSnapshotVersionAsync(CancellationToken cancellationToken)
+    {
+        if (!await _client.BlobExistsAsync(SnapshotHead, cancellationToken))
+        {
+            return ExpectedVersion.NoStream;
+        }
+
+        var snapshotHeadBlob = await _client.GetBlobAsync(SnapshotHead, cancellationToken);
+        await using (var headStream = await snapshotHeadBlob.OpenAsync(cancellationToken))
+        {
+            var snapshotHead =
+                await MessagePackSerializer.DeserializeAsync<RoadNetworkSnapshotHead>(
+                    headStream,
+                    cancellationToken: cancellationToken
+                );
+            var snapshotBlobName = new BlobName(snapshotHead.SnapshotBlobName);
+            if (!await _client.BlobExistsAsync(snapshotBlobName, cancellationToken))
+            {
+                return ExpectedVersion.NoStream;
+            }
+
+            var snapshotBlob = await _client.GetBlobAsync(snapshotBlobName, cancellationToken);
+            if (!snapshotBlob.Metadata.TryGetAtVersion(out var version))
+            {
+                return ExpectedVersion.NoStream;
+            }
+
+            return version;
+        }
+    }
+
+    public async Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshotAsync(CancellationToken cancellationToken)
     {
         if (!await _client.BlobExistsAsync(SnapshotHead, cancellationToken))
         {

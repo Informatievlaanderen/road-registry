@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetN
 using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Core;
 using Hosts;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -15,7 +16,8 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.Dbase;
+using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
@@ -29,7 +31,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     private async Task HandleRequest(ITicketing ticketing, LinkStreetNameRequest request)
     {
         var handler = new LinkStreetNameSqsLambdaRequestHandler(
-            Container.Resolve<IConfiguration>(),
+            new FakeSqsLambdaHandlerOptions(),
             new FakeRetryPolicy(),
             ticketing,
             new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()),
@@ -40,13 +42,19 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             LoggerFactory.CreateLogger<LinkStreetNameSqsLambdaRequestHandler>()
         );
 
-        await handler.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetworkInfo.Identifier.ToString(), new LinkStreetNameSqsRequest
+        await handler.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetwork.Identifier.ToString(), new LinkStreetNameSqsRequest
         {
             Request = request,
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         }), CancellationToken.None);
+    }
+
+    [Fact]
+    public Task WhenProcessing_LinkStreetNameSqsRequest_Then_LinkStreetNameSqsLambdaRequest_IsSent()
+    {
+        return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<LinkStreetNameSqsRequest, LinkStreetNameSqsLambdaRequest, LinkStreetNameRequest>();
     }
 
     [Fact]
@@ -104,7 +112,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         //Assert
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
-        VerifyThatTicketHasCompleted(ticketing, string.Format(ConfigDetailUrl, roadSegmentId), roadSegment.LastEventHash);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         Xunit.Assert.Equal(streetNameId, command!.Changes.Single().RoadSegmentModified.LeftSide.StreetNameId);
@@ -182,7 +190,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
-        VerifyThatTicketHasCompleted(ticketing, string.Format(ConfigDetailUrl, roadSegmentId), roadSegment.LastEventHash);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         Xunit.Assert.Equal(streetNameId, command!.Changes.Single().RoadSegmentModified.RightSide.StreetNameId);

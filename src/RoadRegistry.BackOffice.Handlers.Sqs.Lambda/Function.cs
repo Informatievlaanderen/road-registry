@@ -1,12 +1,7 @@
-using Amazon.Lambda.Core;
-using Amazon.Lambda.Serialization.Json;
-
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using System.Diagnostics;
-using System.Reflection;
 using Abstractions;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -21,13 +16,14 @@ using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
-using Infrastructure.Extensions;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Newtonsoft.Json;
+using System.Diagnostics;
+using System.Reflection;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public sealed class Function : FunctionBase

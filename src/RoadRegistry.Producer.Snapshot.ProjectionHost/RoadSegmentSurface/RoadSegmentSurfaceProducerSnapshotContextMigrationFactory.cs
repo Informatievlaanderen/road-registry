@@ -1,7 +1,7 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 {
+    using BackOffice;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-    using Hosts;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Infrastructure;
 

@@ -6,6 +6,7 @@ using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Autofac;
+using BackOffice;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -13,6 +14,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Configuration;
+using Hosts.Configuration;
 using Microsoft.Extensions.Configuration;
 
 public class BlobClientModule : Module

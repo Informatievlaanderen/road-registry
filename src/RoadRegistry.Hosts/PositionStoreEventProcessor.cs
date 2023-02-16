@@ -87,6 +87,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
             catch (Exception exception)
             {
                 logger.LogError(exception, "EventProcessor message pump is exiting due to a bug.");
+                throw;
             }
             finally
             {
@@ -202,7 +203,9 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                         await process.Message.GetJsonData(_messagePumpCancellation.Token).ConfigureAwait(false),
                         EventMapping.GetEventType(process.Message.Type),
                         SerializerSettings);
-                    var @event = new Event(body).WithMessageId(process.Message.MessageId);
+                    var @event = new Event(body)
+                        .WithMessageId(process.Message.MessageId)
+                        .WithStream(process.Message.StreamId, process.Message.StreamVersion);
 
                     await dispatcher(@event, _messagePumpCancellation.Token).ConfigureAwait(false);
                     await positionStore

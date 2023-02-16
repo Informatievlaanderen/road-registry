@@ -6,5 +6,6 @@ using Messages;
 
 public interface IRoadNetworkSnapshotReader
 {
-    Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken);
+    Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshotAsync(CancellationToken cancellationToken);
+    Task<int> ReadSnapshotVersionAsync(CancellationToken cancellationToken);
 }

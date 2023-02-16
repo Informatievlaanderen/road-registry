@@ -13,8 +13,8 @@ using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Exceptions;
 using Extensions;
 using Framework;
+using Infrastructure;
 using Messages;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Requests;
 using RoadRegistry.BackOffice.Core;
@@ -29,7 +29,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
     private readonly IStreetNameCache _streetNameCache;
 
     public LinkStreetNameSqsLambdaRequestHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
@@ -39,7 +39,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<LinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
@@ -78,11 +78,6 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
     }
 
-    protected override TicketError? InnerMapDomainException(DomainException exception, LinkStreetNameSqsLambdaRequest request)
-    {
-        return null;
-    }
-    
     private async Task<ChangeRoadNetwork> ToCommand(LinkStreetNameSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)
     {
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);

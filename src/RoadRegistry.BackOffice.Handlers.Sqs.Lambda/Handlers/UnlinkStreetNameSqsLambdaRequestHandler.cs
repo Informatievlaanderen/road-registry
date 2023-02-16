@@ -15,9 +15,9 @@ using Extensions;
 using Framework;
 using Hosts;
 using Messages;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
@@ -27,7 +27,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
     private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public UnlinkStreetNameSqsLambdaRequestHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
@@ -36,7 +36,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<UnlinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
@@ -68,11 +68,6 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
         var roadSegmentId = request.Request.WegsegmentId;
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
-    }
-
-    protected override TicketError? InnerMapDomainException(DomainException exception, UnlinkStreetNameSqsLambdaRequest request)
-    {
-        return null;
     }
 
     private async Task<ChangeRoadNetwork> ToCommand(UnlinkStreetNameSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)

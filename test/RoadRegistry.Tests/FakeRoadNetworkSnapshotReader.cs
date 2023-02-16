@@ -6,8 +6,13 @@ using SqlStreamStore.Streams;
 
 public class FakeRoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
 {
-    public Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshot(CancellationToken cancellationToken)
+    public Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshotAsync(CancellationToken cancellationToken)
     {
         return Task.FromResult<(RoadNetworkSnapshot snapshot, int version)>((null, ExpectedVersion.NoStream));
+    }
+
+    public Task<int> ReadSnapshotVersionAsync(CancellationToken cancellationToken)
+    {
+        return Task.FromResult(0);
     }
 }

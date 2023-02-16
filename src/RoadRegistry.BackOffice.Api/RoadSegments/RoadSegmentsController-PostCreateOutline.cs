@@ -15,6 +15,7 @@ using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Parameters;
+using RoadRegistry.BackOffice.Core;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -77,7 +78,7 @@ public partial class RoadSegmentsController
         }
         catch (AggregateIdIsNotFoundException)
         {
-            throw new ApiException(ValidationErrors.Common.IncorrectObjectId.Message(RoadNetworkInfo.Identifier), StatusCodes.Status404NotFound);
+            throw new ApiException(ValidationErrors.Common.IncorrectObjectId.Message(RoadNetwork.Identifier), StatusCodes.Status404NotFound);
         }
         catch (IdempotencyException)
         {

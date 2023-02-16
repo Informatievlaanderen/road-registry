@@ -1,17 +1,13 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
-using System.Reflection;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
-using Framework;
-using Infrastructure;
-using Infrastructure.Extensions;
+using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,7 +15,10 @@ using NodaTime;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Product.Schema;
+using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.Framework;
 using SqlStreamStore;
+using System.Reflection;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
@@ -40,6 +39,7 @@ public class Startup : TestStartup
             .RegisterModule<Sqs.Lambda.Infrastructure.Modules.SyndicationModule>()
             ;
 
+        builder.Register<SqsLambdaHandlerOptions>(c => new FakeSqsLambdaHandlerOptions());
         builder.Register<IRoadNetworkCommandQueue>(c => new RoadNetworkCommandQueue(c.Resolve<IStreamStore>(), new ApplicationMetadata(RoadRegistryApplication.Lambda)));
         builder.Register<IIdempotentCommandHandler>(c => new RoadRegistryIdempotentCommandHandler(c.Resolve<CommandHandlerDispatcher>()));
         builder.Register(c => Dispatch.Using(Resolve.WhenEqualToMessage(

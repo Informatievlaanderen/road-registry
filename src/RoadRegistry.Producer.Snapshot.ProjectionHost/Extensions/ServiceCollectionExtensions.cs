@@ -1,7 +1,6 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Extensions;
 
-using System;
-using System.Linq;
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
@@ -10,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RoadNode;
+using System;
+using System.Linq;
 using KafkaProducer = Projections.KafkaProducer;
 
 internal static class ServiceCollectionExtensions

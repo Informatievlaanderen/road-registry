@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts.Infrastructure.Modules;
 
 using Autofac;
+using BackOffice;
 using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Microsoft.Data.SqlClient;

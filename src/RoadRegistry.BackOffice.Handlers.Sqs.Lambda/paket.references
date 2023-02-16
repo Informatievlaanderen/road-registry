@@ -2,14 +2,8 @@ Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.Aws.Lambda
 Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
-Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
-Be.Vlaanderen.Basisregisters.Sqs
-Be.Vlaanderen.Basisregisters.Sqs.Lambda
-Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
-Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy
 
 Amazon.Lambda.Serialization.SystemTextJson
 Autofac.Extensions.DependencyInjection
 AWSSDK.Core
-Microsoft.Extensions.DependencyInjection

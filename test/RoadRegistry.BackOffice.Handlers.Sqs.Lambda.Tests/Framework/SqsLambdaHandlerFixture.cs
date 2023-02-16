@@ -1,16 +1,14 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 
-using Autofac;
 using BackOffice.Framework;
-using BackOffice.Infrastructure.Modules;
-using Be.Vlaanderen.Basisregisters.AggregateSource.SqlStreamStore.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Handlers;
+using Hosts;
+using Infrastructure;
 using Messages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -18,6 +16,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
 using NodaTime;
+using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 
@@ -35,32 +34,26 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
-
     protected readonly IConfiguration Configuration;
+    protected readonly SqsLambdaHandlerOptions Options;
     protected readonly ICustomRetryPolicy CustomRetryPolicy;
-    protected readonly IIdempotentCommandHandler IdempotentCommandHandler;
-    protected readonly IRoadNetworkCommandQueue RoadNetworkCommandQueue;
     protected readonly Func<EventSourcedEntityMap> EntityMapFactory;
+    protected readonly IIdempotentCommandHandler IdempotentCommandHandler;
+    protected readonly ILoggerFactory LoggerFactory;
+    protected readonly IRoadNetworkCommandQueue RoadNetworkCommandQueue;
     protected readonly IRoadRegistryContext RoadRegistryContext;
     protected readonly IStreamStore Store;
-    protected readonly ILoggerFactory LoggerFactory;
 
     protected SqsLambdaHandlerFixture(
         IConfiguration configuration,
         ICustomRetryPolicy customRetryPolicy,
         IStreamStore streamStore,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
-        IClock clock
+        IClock clock,
+        SqsLambdaHandlerOptions options
     )
     {
-        Configuration = new ConfigurationBuilder()
-            .AddConfiguration(configuration)
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "DetailUrl", ConfigurationDetailUrl }
-            })
-            .Build();
-
+        Configuration = configuration;
         CustomRetryPolicy = customRetryPolicy;
         Store = streamStore;
         var eventSourcedEntityMap = new EventSourcedEntityMap();
@@ -68,16 +61,16 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         RoadRegistryContext = new RoadRegistryContext(EntityMapFactory(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
         RoadNetworkCommandQueue = roadNetworkCommandQueue;
         Clock = clock;
+        Options = options;
+
         LoggerFactory = new LoggerFactory();
 
         TicketingMock = MockTicketing();
-        
+
         IdempotentCommandHandler = new RoadRegistryIdempotentCommandHandler(BuildCommandHandlerDispatcher());
 
         Exception = null;
     }
-
-    protected abstract CommandHandlerDispatcher BuildCommandHandlerDispatcher();
 
     public IClock Clock { get; }
     protected abstract TSqsLambdaRequestHandler SqsLambdaRequestHandler { get; }
@@ -86,7 +79,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     protected Mock<ITicketing> TicketingMock { get; }
     public bool Result { get; private set; }
     public Exception? Exception { get; private set; }
-    
+
     public async Task InitializeAsync()
     {
         try
@@ -107,6 +100,8 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     {
         return Task.CompletedTask;
     }
+
+    protected abstract CommandHandlerDispatcher BuildCommandHandlerDispatcher();
 
     protected Task Given(StreamName streamName, params object[] events)
     {

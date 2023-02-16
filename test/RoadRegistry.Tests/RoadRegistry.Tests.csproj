@@ -19,6 +19,11 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <Using Include="Xunit" />
+	  <Using Include="Xunit.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />

@@ -1,8 +1,10 @@
+using RoadRegistry.BackOffice.Core;
+
 namespace RoadRegistry.Dbase;
 
 public class RoadNetworkInfo
 {
-    public const int Identifier = 0;
+    public const int Identifier = RoadNetwork.Identifier;
     public bool CompletedImport { get; set; }
     public int GradeSeparatedJunctionCount { get; set; }
     public int Id { get; set; } = Identifier;

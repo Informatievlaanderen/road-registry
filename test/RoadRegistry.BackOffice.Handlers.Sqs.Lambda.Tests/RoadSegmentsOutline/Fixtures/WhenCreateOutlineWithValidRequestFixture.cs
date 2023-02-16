@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
+using Hosts;
 using Messages;
 using Microsoft.Extensions.Configuration;
 using NetTopologySuite.Geometries;
@@ -19,8 +20,14 @@ using LineString = NetTopologySuite.Geometries.LineString;
 
 public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
 {
-    public WhenCreateOutlineWithValidRequestFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock)
+    public WhenCreateOutlineWithValidRequestFixture(
+        IConfiguration configuration,
+        ICustomRetryPolicy customRetryPolicy,
+        IStreamStore streamStore,
+        IRoadNetworkCommandQueue roadNetworkCommandQueue,
+        IClock clock,
+        SqsLambdaHandlerOptions options)
+        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
         ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();

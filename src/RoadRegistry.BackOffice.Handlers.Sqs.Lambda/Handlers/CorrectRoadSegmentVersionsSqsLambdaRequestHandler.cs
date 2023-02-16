@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
-using System.Diagnostics;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -12,14 +11,15 @@ using Dbase.RoadSegments;
 using Editor.Projections;
 using Editor.Schema;
 using Framework;
+using Hosts;
+using Infrastructure;
 using Messages;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
 using RoadRegistry.BackOffice.Core;
-using RoadRegistry.Hosts;
+using System.Diagnostics;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = Reason;
@@ -32,7 +32,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
     private readonly RecyclableMemoryStreamManager _manager;
 
     public CorrectRoadSegmentVersionsSqsLambdaRequestHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
@@ -43,7 +43,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         RecyclableMemoryStreamManager manager,
         ILogger<CorrectRoadSegmentVersionsSqsLambdaRequestHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
@@ -119,7 +119,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
             }
         }, cancellationToken);
 
-        return new ETagResponse(null, null);
+        return new ETagResponse(string.Empty, string.Empty);
     }
 
     private async Task<IHasCommandProvenance> ToCommand(CorrectRoadSegmentVersionsSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)
