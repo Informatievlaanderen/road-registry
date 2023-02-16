@@ -30,6 +30,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Debugging;
@@ -186,18 +187,7 @@ public class Program
                     .AddHostedService<FeatureCompareMessageConsumer>()
                     .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddSingleton(new RecyclableMemoryStreamManager())
-                    .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                        new RoadNetworkSnapshotsBlobClient(
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(
-                                    sp
-                                        .GetService<IConfiguration>()
-                                        .GetConnectionString(WellknownConnectionNames.Snapshots)),
-                                WellknownSchemas.SnapshotSchema)),
-                        sp.GetService<RecyclableMemoryStreamManager>()))
-                    .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
-                    .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                    .AddRoadRegistrySnapshot()
                     .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                         new CommandHandlerModule[]

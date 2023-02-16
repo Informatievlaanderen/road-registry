@@ -1,32 +1,21 @@
 namespace RoadRegistry.BackOffice.Api;
 
-using System;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 using Abstractions;
 using Abstractions.Configuration;
 using Amazon;
 using Amazon.DynamoDBv2;
-using Amazon.Runtime;
-using Amazon.S3;
 using BackOffice.Configuration;
 using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
-using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Core;
 using Editor.Schema;
+using Extensions;
 using Hosts;
-using Hosts.Configuration;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
@@ -34,15 +23,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using Product.Schema;
-using RoadRegistry.BackOffice.Handlers.Sqs;
 using Serilog;
 using SqlStreamStore;
 using Syndication.Schema;
+using System;
+using System.Text;
+using System.Threading.Tasks;
 using ZipArchiveWriters.Validation;
 
 public class Program
@@ -113,18 +103,7 @@ public class Program
                             GeometryConfiguration.GeometryFactory.SRID
                         )
                     ))
-                    .AddSingleton(new RecyclableMemoryStreamManager())
-                    .AddSingleton<IBlobClient>(new SqlBlobClient(
-                        new SqlConnectionStringBuilder(
-                            hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
-                        WellknownSchemas.SnapshotSchema))
-                    .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                        new RoadNetworkSnapshotsBlobClient(sp.GetService<IBlobClient>()),
-                        sp.GetService<RecyclableMemoryStreamManager>()))
-                    .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
-                        sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
-                    .AddSingleton<IRoadNetworkSnapshotWriter>(sp =>
-                        sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                    .AddRoadRegistrySnapshot()
                     .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                         new CommandHandlerModule[]

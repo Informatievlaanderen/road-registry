@@ -189,18 +189,7 @@ public class Program
                             WellknownSchemas.EventHostSchema))
                     .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddSingleton(new RecyclableMemoryStreamManager())
-                    .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                        new RoadNetworkSnapshotsBlobClient(
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(
-                                    sp
-                                        .GetService<IConfiguration>()
-                                        .GetConnectionString(WellknownConnectionNames.Snapshots)
-                                ), WellknownSchemas.SnapshotSchema)),
-                        sp.GetService<RecyclableMemoryStreamManager>()))
-                    .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
-                    .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                    .AddRoadRegistrySnapshot()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkChangesArchiveEventModule(

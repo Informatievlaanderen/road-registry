@@ -9,12 +9,12 @@ public static class MetadataExtensions
 {
     public static Metadata AtVersion(this Metadata metadata, int version)
     {
-        return metadata.Add(new KeyValuePair<MetadataKey, string>(RoadNetworkSnapshotReaderWriter.AtVersionKey, version.ToString()));
+        return metadata.Add(new KeyValuePair<MetadataKey, string>(RoadNetworkSnapshotReader.AtVersionKey, version.ToString()));
     }
 
     public static bool TryGetAtVersion(this Metadata metadata, out int version)
     {
-        var found = metadata.Where(metadatum => metadatum.Key == RoadNetworkSnapshotReaderWriter.AtVersionKey).ToArray();
+        var found = metadata.Where(metadatum => metadatum.Key == RoadNetworkSnapshotReader.AtVersionKey).ToArray();
         if (found.Length == 1)
         {
             version = int.Parse(found[0].Value);

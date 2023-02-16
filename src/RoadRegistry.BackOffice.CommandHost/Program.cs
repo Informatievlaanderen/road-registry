@@ -14,6 +14,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Core;
+using Extensions;
 using Extracts;
 using Framework;
 using Hosts;
@@ -179,18 +180,7 @@ public class Program
                     .AddStreamStore()
                     .AddDistributedStreamStoreLockOptions()
                     .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddSingleton(new RecyclableMemoryStreamManager())
-                    .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                        new RoadNetworkSnapshotsBlobClient(
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(
-                                    sp
-                                        .GetService<IConfiguration>()
-                                        .GetConnectionString(WellknownConnectionNames.Snapshots)),
-                                WellknownSchemas.SnapshotSchema)),
-                        sp.GetService<RecyclableMemoryStreamManager>()))
-                    .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
-                    .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
+                    .AddRoadRegistrySnapshot()
                     .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                         new CommandHandlerModule[]

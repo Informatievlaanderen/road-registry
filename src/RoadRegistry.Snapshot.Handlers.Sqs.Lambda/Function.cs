@@ -2,14 +2,15 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda;
 
 using Autofac;
+using BackOffice.Core;
+using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Configuration;
 using Hosts;
-using Microsoft.Extensions.Configuration;
-using RoadRegistry.BackOffice;
-using RoadRegistry.Hosts.Infrastructure.Modules;
 using Hosts.Infrastructure.Extensions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RoadRegistry.BackOffice;
 
 public class Function : RoadRegistryLambdaFunction
 {
@@ -27,7 +28,6 @@ public class Function : RoadRegistryLambdaFunction
 
         builder
             .RegisterModule(new EventHandlingModule(typeof(Sqs.DomainAssemblyMarker).Assembly, EventSerializerSettings))
-            .RegisterModule<RoadNetworkSnapshotModule>()
             .RegisterModule<ContextModule>()
             ;
     }
@@ -35,6 +35,7 @@ public class Function : RoadRegistryLambdaFunction
     protected override IServiceProvider ConfigureServices(IServiceCollection services)
     {
         services
+            .AddRoadRegistrySnapshot()
             .AddSqsLambdaHandlerOptions()
             .AddTicketing()
             .AddSingleton(sp =>

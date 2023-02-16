@@ -15,6 +15,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Core;
 using Editor.Schema;
+using Extensions;
 using Extracts;
 using Framework;
 using Handlers.Extracts;
@@ -186,16 +187,7 @@ public class Program
                             WellknownSchemas.ExtractHostSchema))
                     .AddStreamStore()
                     .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddSingleton(new RecyclableMemoryStreamManager())
-                    .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                        new RoadNetworkSnapshotsBlobClient(
-                            new SqlBlobClient(
-                                new SqlConnectionStringBuilder(
-                                    sp
-                                        .GetService<IConfiguration>()
-                                        .GetConnectionString(WellknownConnectionNames.Snapshots)
-                                ), WellknownSchemas.SnapshotSchema)),
-                        sp.GetService<RecyclableMemoryStreamManager>()))
+                    .AddRoadRegistrySnapshot()
                     .AddSingleton<IStreetNameCache, StreetNameCache>()
                     .AddSingleton<Func<SyndicationContext>>(sp =>
                         () =>

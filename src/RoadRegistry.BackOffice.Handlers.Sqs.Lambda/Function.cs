@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
+using Core;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
@@ -83,7 +84,7 @@ public sealed class Function : FunctionBase
                 {
                     configure.AddRoadRegistryLambdaLogger();
                 })
-            
+            .AddRoadRegistrySnapshot()
             ;
 
         var builder = new ContainerBuilder();
@@ -113,7 +114,6 @@ public sealed class Function : FunctionBase
             .RegisterModule(new DataDogModule(configuration))
             .RegisterModule<EnvelopeModule>()
             .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, eventSerializerSettings))
-            .RegisterModule<RoadNetworkSnapshotModule>()
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<SyndicationModule>()

@@ -1,34 +1,30 @@
 namespace RoadRegistry.Hosts;
 
-using System;
-using System.IO;
-using System.Text;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
-using BackOffice.Core;
+using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using NodaTime;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Debugging;
-using SqlStreamStore;
+using System;
+using System.IO;
+using System.Text;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
@@ -238,18 +234,8 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                 .AddSingleton<Scheduler>()
                 .AddStreamStore()
                 .AddSingleton<IClock>(SystemClock.Instance)
-                .AddSingleton(new RecyclableMemoryStreamManager())
-                .AddSingleton(sp => new RoadNetworkSnapshotReaderWriter(
-                    new RoadNetworkSnapshotsBlobClient(
-                        new SqlBlobClient(
-                            new SqlConnectionStringBuilder(
-                                sp
-                                    .GetService<IConfiguration>()
-                                    .GetConnectionString(WellknownConnectionNames.Snapshots)),
-                            WellknownSchemas.SnapshotSchema)),
-                    sp.GetService<RecyclableMemoryStreamManager>()))
-                .AddSingleton<IRoadNetworkSnapshotReader>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>())
-                .AddSingleton<IRoadNetworkSnapshotWriter>(sp => sp.GetRequiredService<RoadNetworkSnapshotReaderWriter>());
+                .AddRoadRegistrySnapshot();
+
             configureDelegate.Invoke(hostContext, services);
         });
         return this;
