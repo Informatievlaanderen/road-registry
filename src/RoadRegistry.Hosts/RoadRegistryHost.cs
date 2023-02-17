@@ -22,18 +22,18 @@ public class RoadRegistryHost<T>
     private readonly IConfiguration _configuration;
     private readonly IHost _host;
     private readonly ILogger<T> _logger;
-    private readonly ILoggerFactory _loggerFactory;
     private readonly IStreamStore _streamStore;
     private readonly List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
     private readonly List<string> _wellKnownConnectionNames = new();
+    private readonly Func<IServiceProvider, Task> _runCommandDelegate;
 
-    public RoadRegistryHost(IHost host)
+    public RoadRegistryHost(IHost host, Func<IServiceProvider, Task> runCommandDelegate)
     {
         _configuration = host.Services.GetRequiredService<IConfiguration>();
         _host = host;
         _streamStore = host.Services.GetRequiredService<IStreamStore>();
         _logger = host.Services.GetRequiredService<ILogger<T>>();
-        _loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+        _runCommandDelegate = runCommandDelegate ?? ((sp) => _host.RunAsync());
     }
 
     public string ApplicationName => typeof(T).Namespace;
@@ -54,7 +54,6 @@ public class RoadRegistryHost<T>
 
     public async Task RunAsync(Func<IServiceProvider, IHost, IConfiguration, Task> distributedLockCallback)
     {
-
         try
         {
             await WaitFor.SeqToBecomeAvailable(_configuration);
@@ -73,7 +72,7 @@ public class RoadRegistryHost<T>
                     await distributedLockCallback(_host.Services, _host, _configuration);
 
                     Console.WriteLine($"Started {ApplicationName}");
-                    await _host.RunAsync().ConfigureAwait(false);
+                    await _runCommandDelegate(_host.Services).ConfigureAwait(false);
                 },
                 DistributedLockOptions.LoadFromConfiguration(_configuration), _logger);
         }

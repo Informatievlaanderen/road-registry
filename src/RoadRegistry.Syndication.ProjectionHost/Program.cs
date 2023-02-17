@@ -97,18 +97,16 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                var migratorFactory = host.Services.GetRequiredService<IRunnerDbContextMigratorFactory>();
-                var httpClientFactory = host.Services.GetRequiredService<IHttpClientFactory>();
-                var municipalityFeedConfiguration = host.Services.GetRequiredService<MunicipalityFeedConfiguration>();
-                var streetNameFeedConfiguration = host.Services.GetRequiredService<StreetNameFeedConfiguration>();
-                var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-                var logger = host.Services.GetRequiredService<ILogger<Program>>();
+                var migratorFactory = sp.GetRequiredService<IRunnerDbContextMigratorFactory>();
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+                var logger = sp.GetRequiredService<ILogger<Program>>();
 
                 var municipalityToBecomeAvailable = WaitFor
-                    .SyndicationApiToBecomeAvailable(httpClientFactory, municipalityFeedConfiguration, logger)
+                    .SyndicationApiToBecomeAvailable(httpClientFactory, sp.GetRequiredService<MunicipalityFeedConfiguration>(), logger)
                     .ConfigureAwait(false);
                 var streetNameToBecomeAvailable = WaitFor
-                    .SyndicationApiToBecomeAvailable(httpClientFactory, streetNameFeedConfiguration, logger)
+                    .SyndicationApiToBecomeAvailable(httpClientFactory, sp.GetRequiredService<StreetNameFeedConfiguration>(), logger)
                     .ConfigureAwait(false);
 
                 await municipalityToBecomeAvailable;

@@ -73,10 +73,15 @@ public class Program
                 )
                 .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<WfsContext>[]>(), EventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory()))
+            .ConfigureRunCommand(async sp =>
+            {
+                var eventProcessor = sp.GetRequiredService<EventProcessor>();
+                await eventProcessor.Resume(CancellationToken.None);
+            })
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new []
+            .LogSqlServerConnectionStrings(new[]
             {
                 WellknownConnectionNames.Events,
                 WellknownConnectionNames.WfsProjections,
@@ -84,14 +89,11 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                var migratorFactory = host.Services.GetRequiredService<IRunnerDbContextMigratorFactory>();
-                var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-                var eventProcessor = sp.GetRequiredService<EventProcessor>();
+                var migratorFactory = sp.GetRequiredService<IRunnerDbContextMigratorFactory>();
+                var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
 
                 await migratorFactory.CreateMigrator(configuration, loggerFactory)
                     .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
-
-                await eventProcessor.Resume(CancellationToken.None);
             });
     }
 }

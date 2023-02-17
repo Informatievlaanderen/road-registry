@@ -13,11 +13,16 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Configuration;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
+using NetTopologySuite;
+using NetTopologySuite.IO;
 using NodaTime;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
@@ -25,15 +30,13 @@ using Serilog.Debugging;
 using System;
 using System.IO;
 using System.Text;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Microsoft.IO;
-using NetTopologySuite;
-using NetTopologySuite.IO;
-using Microsoft.AspNetCore.Hosting;
+using System.Threading.Tasks;
+
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
     private readonly string[] _args;
+    private Func<IServiceProvider, Task> _runCommandDelegate;
 
     private RoadRegistryHostBuilder()
     {
@@ -58,7 +61,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         UseServiceProviderFactory(new AutofacServiceProviderFactory());
         var internalHost = base.Build();
 
-        return new RoadRegistryHost<T>(internalHost);
+        return new RoadRegistryHost<T>(internalHost, _runCommandDelegate);
     }
 
     public new RoadRegistryHostBuilder<T> ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
@@ -166,73 +169,81 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
         base.ConfigureServices((hostContext, services) =>
         {
-            switch (blobClientOptions.BlobClientType)
+            if (blobClientOptions.BlobClientType is not null)
             {
-                case nameof(S3BlobClient):
-                    var s3Options = new S3BlobClientOptions();
-                    hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
+                switch (blobClientOptions.BlobClientType)
+                {
+                    case nameof(S3BlobClient):
+                        var s3Options = new S3BlobClientOptions();
+                        hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
 
-                    // Use MINIO
-                    var minioServer = hostContext.Configuration.GetValue<string>("MINIO_SERVER");
-                    if (minioServer != null)
-                        services.AddSingleton(new AmazonS3Client(
-                            new BasicAWSCredentials(
-                                hostContext.Configuration.GetRequiredValue<string>("MINIO_ACCESS_KEY"),
-                                hostContext.Configuration.GetRequiredValue<string>("MINIO_SECRET_KEY")
-                            ),
-                            new AmazonS3Config
-                            {
-                                RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                ServiceURL = minioServer,
-                                ForcePathStyle = true
-                            }
-                        ));
-                    else // Use AWS
-                        services.AddSingleton(new AmazonS3Client());
+                        // Use MINIO
+                        var minioServer = hostContext.Configuration.GetValue<string>("MINIO_SERVER");
+                        if (minioServer != null)
+                            services.AddSingleton(new AmazonS3Client(
+                                new BasicAWSCredentials(
+                                    hostContext.Configuration.GetRequiredValue<string>("MINIO_ACCESS_KEY"),
+                                    hostContext.Configuration.GetRequiredValue<string>("MINIO_SECRET_KEY")
+                                ),
+                                new AmazonS3Config
+                                {
+                                    RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
+                                    ServiceURL = minioServer,
+                                    ForcePathStyle = true
+                                }
+                            ));
+                        else // Use AWS
+                            services.AddSingleton(new AmazonS3Client());
 
-                    services
-                        .AddSingleton(sp =>
-                            new RoadNetworkUploadsBlobClient(new S3BlobClient(
-                                sp.GetRequiredService<AmazonS3Client>(),
-                                s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                            )))
-                        .AddSingleton(sp =>
-                            new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
-                                sp.GetRequiredService<AmazonS3Client>(),
-                                s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                            )))
-                        .AddSingleton(sp =>
-                            new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
-                                sp.GetRequiredService<AmazonS3Client>(),
-                                s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
-                            )))
-                        .AddSingleton(sp =>
-                            new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(
-                                sp.GetRequiredService<AmazonS3Client>(),
-                                s3Options.Buckets[WellknownBuckets.FeatureCompareBucket]
-                            )))
-                        ;
+                        services
+                            .AddSingleton<IBlobClient>(sp =>
+                                new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                )
+                            ).AddSingleton(sp =>
+                                new RoadNetworkUploadsBlobClient(new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                )))
+                            .AddSingleton(sp =>
+                                new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
+                                )))
+                            .AddSingleton(sp =>
+                                new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
+                                )))
+                            .AddSingleton(sp =>
+                                new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(
+                                    sp.GetRequiredService<AmazonS3Client>(),
+                                    s3Options.Buckets[WellknownBuckets.FeatureCompareBucket]
+                                )))
+                            ;
 
-                    break;
+                        break;
 
-                case nameof(FileBlobClient):
-                    var fileOptions = new FileBlobClientOptions();
-                    hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
+                    case nameof(FileBlobClient):
+                        var fileOptions = new FileBlobClientOptions();
+                        hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
 
-                    services
-                        .AddSingleton<IBlobClient>(sp =>
-                            new FileBlobClient(
-                                new DirectoryInfo(fileOptions.Directory)
+                        services
+                            .AddSingleton<IBlobClient>(sp =>
+                                new FileBlobClient(
+                                    new DirectoryInfo(fileOptions.Directory)
+                                )
                             )
-                        )
-                        .AddSingleton<RoadNetworkUploadsBlobClient>()
-                        .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
-                        .AddSingleton<RoadNetworkExtractDownloadsBlobClient>()
-                        .AddSingleton<RoadNetworkFeatureCompareBlobClient>();
-                    break;
+                            .AddSingleton<RoadNetworkUploadsBlobClient>()
+                            .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
+                            .AddSingleton<RoadNetworkExtractDownloadsBlobClient>()
+                            .AddSingleton<RoadNetworkFeatureCompareBlobClient>();
+                        break;
 
-                default:
-                    throw new InvalidOperationException(blobClientOptions.BlobClientType + " is not a supported blob client type.");
+                    default:
+                        throw new InvalidOperationException(blobClientOptions.BlobClientType + " is not a supported blob client type.");
+                }
             }
 
             services
@@ -251,6 +262,12 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
             configureDelegate.Invoke(hostContext, services);
         });
+        return this;
+    }
+
+    public RoadRegistryHostBuilder<T> ConfigureRunCommand(Func<IServiceProvider, Task> runCommandDelegate)
+    {
+        _runCommandDelegate = runCommandDelegate;
         return this;
     }
 }

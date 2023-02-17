@@ -95,7 +95,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                     WellknownConnectionNames.ProducerSnapshotProjections,
                     WellknownConnectionNames.ProducerSnapshotProjectionsAdmin
                 })
-                .RunAsync(async (sp, Hosts, configuration) =>
+                .RunAsync(async (sp, host, configuration) =>
                 {
                     var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
                     var migratorFactories = sp.GetRequiredService<IRunnerDbContextMigratorFactory[]>();
