@@ -2,6 +2,7 @@ namespace RoadRegistry.Hosts;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
@@ -24,6 +25,7 @@ public class RoadRegistryHost<T>
     private readonly ILoggerFactory _loggerFactory;
     private readonly IStreamStore _streamStore;
     private readonly List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
+    private readonly List<string> _wellKnownConnectionNames = new();
 
     public RoadRegistryHost(IHost host)
     {
@@ -34,22 +36,33 @@ public class RoadRegistryHost<T>
         _loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
     }
 
-    public RoadRegistryHost<T> ConfigureLogging(Action<IServiceProvider, ILogger<T>> configureDelegate)
+    public string ApplicationName => typeof(T).Namespace;
+
+    public RoadRegistryHost<T> Log(Action<IServiceProvider, ILogger<T>> configureDelegate)
     {
         _configureLoggingActions.Add(configureDelegate ?? throw new ArgumentNullException(nameof(configureDelegate)));
         return this;
     }
 
-    public async Task RunAsync()
+    public RoadRegistryHost<T> LogSqlServerConnectionStrings(string[] wellKnownConnectionNames)
     {
+        _wellKnownConnectionNames.AddRange(wellKnownConnectionNames);
+        return this;
+    }
+
+    public Task RunAsync() => RunAsync((_, _, _) => Task.CompletedTask);
+
+    public async Task RunAsync(Func<IServiceProvider, IHost, IConfiguration, Task> distributedLockCallback)
+    {
+
         try
         {
             await WaitFor.SeqToBecomeAvailable(_configuration);
 
-            _logger.LogSqlServerConnectionString(_configuration, WellknownConnectionNames.Events);
-            _logger.LogSqlServerConnectionString(_configuration, WellknownConnectionNames.CommandHost);
-            _logger.LogSqlServerConnectionString(_configuration, WellknownConnectionNames.CommandHostAdmin);
-            _logger.LogSqlServerConnectionString(_configuration, WellknownConnectionNames.Snapshots);
+            Console.WriteLine($"Starting {ApplicationName}");
+
+            foreach (var wellKnownConnectionName in _wellKnownConnectionNames)
+                _logger.LogSqlServerConnectionString(_configuration, wellKnownConnectionName);
 
             foreach (var loggingDelegate in _configureLoggingActions)
                 loggingDelegate.Invoke(_host.Services, _logger);
@@ -57,20 +70,9 @@ public class RoadRegistryHost<T>
             await DistributedLock<T>.RunAsync(async () =>
                 {
                     await WaitFor.SqlStreamStoreToBecomeAvailable(_streamStore, _logger);
-                    await
-                        new SqlCommandProcessorPositionStoreSchema(
-                            new SqlConnectionStringBuilder(_configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
-                        ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema);
+                    await distributedLockCallback(_host.Services, _host, _configuration);
 
-                    var migratorFactory = _host.Services.GetService<IRunnerDbContextMigratorFactory>();
-
-                    if (migratorFactory != null)
-                    {
-                        await migratorFactory
-                            .CreateMigrator(_configuration, _loggerFactory)
-                            .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
-                    }
-
+                    Console.WriteLine($"Started {ApplicationName}");
                     await _host.RunAsync().ConfigureAwait(false);
                 },
                 DistributedLockOptions.LoadFromConfiguration(_configuration), _logger);
@@ -81,7 +83,8 @@ public class RoadRegistryHost<T>
         }
         finally
         {
-            await Log.CloseAndFlushAsync();
+            await Serilog.Log.CloseAndFlushAsync();
         }
     }
+
 }

@@ -25,6 +25,11 @@ using Serilog.Debugging;
 using System;
 using System.IO;
 using System.Text;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Microsoft.IO;
+using NetTopologySuite;
+using NetTopologySuite.IO;
+using Microsoft.AspNetCore.Hosting;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
@@ -234,7 +239,15 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                 .AddSingleton<Scheduler>()
                 .AddStreamStore()
                 .AddSingleton<IClock>(SystemClock.Instance)
-                .AddRoadRegistrySnapshot();
+                .AddRoadRegistrySnapshot()
+                .AddSingleton(new RecyclableMemoryStreamManager())
+                .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration)
+                .AddSingleton(new WKTReader(
+                    new NtsGeometryServices(
+                        GeometryConfiguration.GeometryFactory.PrecisionModel,
+                        GeometryConfiguration.GeometryFactory.SRID
+                    )
+                ));
 
             configureDelegate.Invoke(hostContext, services);
         });
