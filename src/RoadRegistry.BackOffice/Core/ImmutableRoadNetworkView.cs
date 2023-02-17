@@ -151,22 +151,35 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         if (events == null) throw new ArgumentNullException(nameof(events));
 
         var result = this;
+        var eventIndex = 0;
+        
         foreach (var @event in events)
-            switch (@event)
+        {
+            try
             {
-                case ImportedRoadNode importedRoadNode:
-                    result = result.Given(importedRoadNode);
-                    break;
-                case ImportedRoadSegment importedRoadSegment:
-                    result = result.Given(importedRoadSegment);
-                    break;
-                case ImportedGradeSeparatedJunction importedGradeSeparatedJunction:
-                    result = result.Given(importedGradeSeparatedJunction);
-                    break;
-                case RoadNetworkChangesAccepted roadNetworkChangesAccepted:
-                    result = result.Given(roadNetworkChangesAccepted);
-                    break;
+                switch (@event)
+                {
+                    case ImportedRoadNode importedRoadNode:
+                        result = result.Given(importedRoadNode);
+                        break;
+                    case ImportedRoadSegment importedRoadSegment:
+                        result = result.Given(importedRoadSegment);
+                        break;
+                    case ImportedGradeSeparatedJunction importedGradeSeparatedJunction:
+                        result = result.Given(importedGradeSeparatedJunction);
+                        break;
+                    case RoadNetworkChangesAccepted roadNetworkChangesAccepted:
+                        result = result.Given(roadNetworkChangesAccepted);
+                        break;
+                }
             }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed trying to process the message with index {eventIndex} of type '{@event.GetType().Name}': {ex.Message}", ex);
+            }
+
+            eventIndex++;
+        }
 
         return result;
     }
