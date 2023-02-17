@@ -186,7 +186,14 @@ public class RoadNetworks : IRoadNetworks
 
             sw.Restart();
             _logger.LogInformation("View restore from events started with {MessageCount} messages", messageCountInternal);
-            view = view.RestoreFromEvents(messages.ToArray());
+            try
+            {
+                view = view.RestoreFromEvents(messages.ToArray());
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed trying to process the messages between StreamVersion {page.FromStreamVersion} and {page.LastStreamVersion}: {ex.Message}", ex);
+            }
             _logger.LogInformation("View restore from events finished with {MessageCount} messages in {StopwatchElapsedMilliseconds}ms", messageCountInternal, sw.ElapsedMilliseconds);
         }
 
