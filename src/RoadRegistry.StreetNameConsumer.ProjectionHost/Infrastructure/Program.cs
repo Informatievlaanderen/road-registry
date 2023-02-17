@@ -45,11 +45,9 @@ public class Program
                         .RegisterModule(new ProjectorModule(hostContext.Configuration));
                 }
             )
-
             .Build();
 
-
-
-        await roadRegistryHost.RunAsync();
+        await roadRegistryHost
+            .RunAsync();
     }
 }
