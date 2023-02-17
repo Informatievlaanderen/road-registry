@@ -20,6 +20,7 @@ using Microsoft.IO;
 using Requests;
 using RoadRegistry.BackOffice.Core;
 using System.Diagnostics;
+using Hosts.Infrastructure.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = Reason;
@@ -54,6 +55,50 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
         _editorContextFactory = editorContextFactory;
         _manager = manager;
+    }
+
+    protected override async Task<ETagResponse> InnerHandleAsync(CorrectRoadSegmentVersionsSqsLambdaRequest request, CancellationToken cancellationToken)
+    {
+        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+        {
+            await _commandQueue.DispatchChangeRoadNetwork(IdempotentCommandHandler, request, "Corrigeer wegsegmenten versies", async translatedChanges =>
+            {
+                var roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions();
+                
+                if (roadSegmentIdsWithGeometryVersionZero.Any())
+                {
+                    var network = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
+
+                    var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x)));
+
+                    var recordNumber = RecordNumber.Initial;
+
+                    foreach (var roadSegment in roadSegments)
+                    {
+                        translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
+                            recordNumber,
+                            roadSegment.Id,
+                            roadSegment.Start,
+                            roadSegment.End,
+                            roadSegment.AttributeHash.OrganizationId,
+                            roadSegment.AttributeHash.GeometryDrawMethod,
+                            roadSegment.AttributeHash.Morphology,
+                            roadSegment.AttributeHash.Status,
+                            roadSegment.AttributeHash.Category,
+                            roadSegment.AttributeHash.AccessRestriction,
+                            roadSegment.AttributeHash.LeftStreetNameId,
+                            roadSegment.AttributeHash.RightStreetNameId
+                        ).WithGeometry(roadSegment.Geometry));
+
+                        recordNumber = recordNumber.Next();
+                    }
+                }
+
+                return translatedChanges;
+            }, cancellationToken);
+        }, cancellationToken);
+
+        return new ETagResponse(string.Empty, string.Empty);
     }
 
     private async Task<List<int>> GetRoadSegmentIdsWithInvalidVersions()
@@ -94,88 +139,6 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         Logger.LogInformation("Add DbaseRecord temp collection finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(context.RoadSegments), sw.ElapsedMilliseconds);
 
         return roadSegments.Any();
-    }
-
-    protected override async Task<ETagResponse> InnerHandleAsync(CorrectRoadSegmentVersionsSqsLambdaRequest request, CancellationToken cancellationToken)
-    {
-        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
-        {
-            var command = await ToCommand(request, cancellationToken);
-
-            var commandId = command.CreateCommandId();
-            await _commandQueue.Write(new Command(command).WithMessageId(commandId), cancellationToken);
-
-            try
-            {
-                await IdempotentCommandHandler.Dispatch(
-                    commandId,
-                    command,
-                    request.Metadata,
-                    cancellationToken);
-            }
-            catch (IdempotencyException)
-            {
-                // Idempotent: Do Nothing return last etag
-            }
-        }, cancellationToken);
-
-        return new ETagResponse(string.Empty, string.Empty);
-    }
-
-    private async Task<IHasCommandProvenance> ToCommand(CorrectRoadSegmentVersionsSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)
-    {
-        var roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions();
-        
-        var translatedChanges = TranslatedChanges.Empty
-            .WithOrganization(new OrganizationId(lambdaRequest.Provenance.Organisation.ToString()))
-            .WithOperatorName(new OperatorName(lambdaRequest.Provenance.Operator))
-            .WithReason(new Reason("Corrigeer wegsegmenten versies"));
-
-        if (roadSegmentIdsWithGeometryVersionZero.Any())
-        {
-            var network = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
-
-            var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x)));
-
-            var recordNumber = RecordNumber.Initial;
-
-            foreach (var roadSegment in roadSegments)
-            {
-                translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
-                    recordNumber,
-                    roadSegment.Id,
-                    roadSegment.Start,
-                    roadSegment.End,
-                    roadSegment.AttributeHash.OrganizationId,
-                    roadSegment.AttributeHash.GeometryDrawMethod,
-                    roadSegment.AttributeHash.Morphology,
-                    roadSegment.AttributeHash.Status,
-                    roadSegment.AttributeHash.Category,
-                    roadSegment.AttributeHash.AccessRestriction,
-                    roadSegment.AttributeHash.LeftStreetNameId,
-                    roadSegment.AttributeHash.RightStreetNameId
-                ).WithGeometry(roadSegment.Geometry));
-
-                recordNumber = recordNumber.Next();
-            }
-        }
-
-        var requestedChanges = translatedChanges.Select(change =>
-        {
-            var requestedChange = new RequestedChange();
-            change.TranslateTo(requestedChange);
-            return requestedChange;
-        }).ToList();
-        var messageId = Guid.NewGuid();
-
-        return new ChangeRoadNetwork(lambdaRequest.Provenance)
-        {
-            RequestId = ChangeRequestId.FromUploadId(new UploadId(messageId)),
-            Changes = requestedChanges.ToArray(),
-            Reason = translatedChanges.Reason,
-            Operator = translatedChanges.Operator,
-            OrganizationId = translatedChanges.Organization
-        };
     }
 
     protected override Task ValidateIfMatchHeaderValue(CorrectRoadSegmentVersionsSqsLambdaRequest request, CancellationToken cancellationToken)

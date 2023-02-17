@@ -59,6 +59,7 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         {
             var errorMessage = string.Join(",", ex.Errors.Select(x => x.ErrorMessage));
             var errorCode = string.Join(",", ex.Errors.Select(x => x.ErrorCode));
+            Logger.LogError("InnerHandle failed with validation errors: {Message}", errorMessage);
             throw new RoadRegistryValidationException(errorMessage, errorCode);
         }
     }

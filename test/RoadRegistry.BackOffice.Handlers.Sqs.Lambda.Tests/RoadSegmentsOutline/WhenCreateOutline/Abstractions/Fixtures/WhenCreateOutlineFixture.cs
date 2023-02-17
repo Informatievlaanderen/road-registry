@@ -1,28 +1,26 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.Abstractions.Fixtures;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.WhenCreateOutline.Abstractions.Fixtures;
 
 using AutoFixture;
-using BackOffice.Abstractions.RoadSegmentsOutline;
-using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Core;
-using Framework;
-using Handlers;
-using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
-using Requests;
-using RoadRegistry.Tests.BackOffice;
-using SqlStreamStore;
-using Sqs.RoadSegments;
+using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
+using RoadRegistry.Hosts;
 
 public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateRoadSegmentOutlineSqsLambdaRequestHandler, CreateRoadSegmentOutlineSqsLambdaRequest, CreateRoadSegmentOutlineSqsRequest>
 {
     protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 
-    protected WhenCreateOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock, SqsLambdaHandlerOptions options)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
+    protected WhenCreateOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IClock clock, SqsLambdaHandlerOptions options)
+        : base(configuration, customRetryPolicy, clock, options)
     {
         Organisation = Organisation.DigitaalVlaanderen;
 

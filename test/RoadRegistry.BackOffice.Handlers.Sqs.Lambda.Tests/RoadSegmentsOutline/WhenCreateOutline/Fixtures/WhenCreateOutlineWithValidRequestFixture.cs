@@ -1,21 +1,20 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.Fixtures;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.WhenCreateOutline.Fixtures;
 
 using Abstractions.Fixtures;
 using AutoFixture;
-using BackOffice.Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Core;
-using Hosts;
-using Messages;
 using Microsoft.Extensions.Configuration;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
 using NodaTime.Text;
+using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Hosts;
 using RoadRegistry.Tests.BackOffice;
-using SqlStreamStore;
+using GeometryTranslator = BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 
 public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
@@ -23,11 +22,9 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
     public WhenCreateOutlineWithValidRequestFixture(
         IConfiguration configuration,
         ICustomRetryPolicy customRetryPolicy,
-        IStreamStore streamStore,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue,
         IClock clock,
         SqsLambdaHandlerOptions options)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
+        : base(configuration, customRetryPolicy, clock, options)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
         ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();
@@ -44,7 +41,7 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
     }
     
     protected override CreateRoadSegmentOutlineRequest Request => new(
-        ObjectProvider.Create<MultiLineString>(),
+        GeometryTranslator.Translate(ObjectProvider.Create<MultiLineString>()),
         ObjectProvider.Create<RoadSegmentStatus>(),
         ObjectProvider.Create<RoadSegmentMorphology>(),
         ObjectProvider.Create<RoadSegmentAccessRestriction>(),
