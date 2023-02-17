@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Framework;
 using Messages;
@@ -32,18 +33,20 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));
 
-                await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
-                var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
-                await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
+                //var network = await context.RoadNetworks.Get(CancellationToken.None);
 
-                var completedCommand = new RebuildRoadNetworkSnapshotCompleted
-                {
-                    StartFromVersion = command.Body.StartFromVersion,
-                    CurrentVersion = version
-                };
+                //var snapshot = network.TakeSnapshot();
+                //var snapshotVersion = store.ReadHeadPosition(CancellationToken.None);
 
-                await new RoadNetworkCommandQueue(store, commandMetadata)
-                    .Write(new Command(completedCommand), ct);
+                //await snapshotWriter.WriteSnapshot(snapshot, snapshotVersion, ct);
+
+                //var completedCommand = new RebuildRoadNetworkSnapshotCompleted
+                //{
+                //    CurrentVersion = snapshotVersion
+                //};
+
+                //await new RoadNetworkCommandQueue(store, commandMetadata)
+                //    .Write(new Command(completedCommand), ct);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
             });

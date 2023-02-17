@@ -31,7 +31,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-
+using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
@@ -166,6 +166,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
     {
         ConfigureOptions<BlobClientOptions>(out var blobClientOptions);
+        ConfigureOptions<DistributedS3CacheOptions>(out var distributedS3CacheOptions);
 
         base.ConfigureServices((hostContext, services) =>
         {
@@ -176,6 +177,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                     case nameof(S3BlobClient):
                         var s3Options = new S3BlobClientOptions();
                         hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
+                        var amazonS3Client = new AmazonS3Client();
 
                         // Use MINIO
                         var minioServer = hostContext.Configuration.GetValue<string>("MINIO_SERVER");
@@ -193,7 +195,9 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                                 }
                             ));
                         else // Use AWS
-                            services.AddSingleton(new AmazonS3Client());
+                            services
+                                .AddSingleton(amazonS3Client)
+                                .RegisterDistributedS3Cache(amazonS3Client, distributedS3CacheOptions);
 
                         services
                             .AddSingleton<IBlobClient>(sp =>

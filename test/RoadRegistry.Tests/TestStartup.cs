@@ -79,7 +79,8 @@ public abstract class TestStartup
                             GeometryConfiguration.GeometryFactory.SRID
                         )
                     ))
-                    
+                    .AddSingleton<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter())
+                    .AddSingleton<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader())
                     .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
                     .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())
                     .AddSingleton<IClock>(new FakeClock(NodaConstants.UnixEpoch))
@@ -105,9 +106,6 @@ public abstract class TestStartup
             .ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
                 builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
-
-                builder.Register<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter()).SingleInstance();
-                builder.Register<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader()).SingleInstance();
 
                 ConfigureContainer(hostContext, builder);
                 ConfigureContainer(builder);

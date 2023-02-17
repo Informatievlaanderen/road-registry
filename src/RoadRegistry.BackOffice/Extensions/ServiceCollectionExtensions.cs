@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Extensions;
 
 using System;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Core;
 using FeatureToggle;
@@ -66,10 +67,6 @@ public static class ServiceCollectionExtensions
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
                     WellknownSchemas.SnapshotSchema));
         })
-        .AddSingleton<IRoadNetworkSnapshotReader>(sp => new RoadNetworkSnapshotReader(
-            sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(),
-            sp.GetRequiredService<RecyclableMemoryStreamManager>()))
-        .AddSingleton<IRoadNetworkSnapshotWriter>(sp => new RoadNetworkSnapshotWriter(
-            sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(),
-            sp.GetRequiredService<RecyclableMemoryStreamManager>()));
+        .AddSingleton<IRoadNetworkSnapshotReader>(sp => new RoadNetworkSnapshotReader(sp.GetRequiredService<S3CacheService>()))
+        .AddSingleton<IRoadNetworkSnapshotWriter>(sp => new RoadNetworkSnapshotWriter(sp.GetRequiredService<S3CacheService>()));
 }

@@ -24,7 +24,6 @@ public partial class RoadRegistrySystemController
 
         var command = new RebuildRoadNetworkSnapshot
         {
-            StartFromVersion = parameters.StartFromVersion
         };
         await CommandQueue
             .Write(new Command(command), HttpContext.RequestAborted);
