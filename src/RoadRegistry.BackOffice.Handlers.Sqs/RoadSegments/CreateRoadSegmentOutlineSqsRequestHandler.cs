@@ -7,7 +7,7 @@ using TicketingService.Abstractions;
 
 public class CreateRoadSegmentOutlineSqsRequestHandler : SqsHandler<CreateRoadSegmentOutlineSqsRequest>
 {
-    public const string Action = "RoadSegmentOutline";
+    public const string Action = "CreateRoadSegmentOutline";
 
     public CreateRoadSegmentOutlineSqsRequestHandler(ISqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {

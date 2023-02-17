@@ -7,8 +7,6 @@ using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
-using Dbase;
-using Editor.Schema;
 using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
@@ -59,7 +57,7 @@ public partial class RoadSegmentsController
             var sqsRequest = new CreateRoadSegmentOutlineSqsRequest
             {
                 Request = new CreateRoadSegmentOutlineRequest(
-                    GeometryTranslator.ParseGmlLineString(parameters.MiddellijnGeometrie),
+                    GeometryTranslator.Translate(GeometryTranslator.ParseGmlLineString(parameters.MiddellijnGeometrie)),
                     RoadSegmentStatus.ParseUsingDutchName(parameters.Wegsegmentstatus),
                     RoadSegmentMorphology.ParseUsingDutchName(parameters.MorfologischeWegklasse),
                     RoadSegmentAccessRestriction.ParseUsingDutchName(parameters.Toegangsbeperking),
@@ -78,7 +76,7 @@ public partial class RoadSegmentsController
         }
         catch (AggregateIdIsNotFoundException)
         {
-            throw new ApiException(ValidationErrors.Common.IncorrectObjectId.Message(RoadNetwork.Identifier), StatusCodes.Status404NotFound);
+            throw new ApiException(ValidationErrors.RoadNetwork.NotFound.Message, StatusCodes.Status404NotFound);
         }
         catch (IdempotencyException)
         {

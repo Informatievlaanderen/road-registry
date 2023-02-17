@@ -7,4 +7,9 @@ using Abstractions;
 public sealed class CorrectRoadSegmentVersionsSqsRequest : SqsRequest, IHasBackOfficeRequest<CorrectRoadSegmentVersionsRequest>
 {
     public CorrectRoadSegmentVersionsRequest Request { get; init; }
+
+    public CorrectRoadSegmentVersionsSqsRequest()
+    {
+        Request = new CorrectRoadSegmentVersionsRequest();
+    }
 }

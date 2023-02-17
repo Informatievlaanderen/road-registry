@@ -7,7 +7,6 @@ using Abstractions.RoadSegments;
 using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
 using Handlers.Sqs.RoadSegments;
@@ -29,7 +28,7 @@ public partial class RoadSegmentsController
     /// <param name="id">Identificator van het wegsegment.</param>
     /// <param name="ifMatchHeaderValue"></param>
     /// <param name="cancellationToken"></param>
-    /// <response code="200">Als het wegsegment gevonden is.</response>
+    /// <response code="202">Als het wegsegment gevonden is.</response>
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="412">Als de If-Match header niet overeenkomt met de laatste ETag.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
@@ -66,19 +65,17 @@ public partial class RoadSegmentsController
                 return new PreconditionFailedResult();
             }
 
-            var result = await _mediator.Send(
+            var result = await _mediator.Send(Enrich(
                 new UnlinkStreetNameSqsRequest
                 {
-                    Request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId),
-                    Metadata = GetMetadata(),
-                    ProvenanceData = new ProvenanceData(CreateFakeProvenance())
-                }, cancellationToken);
+                    Request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId)
+                }), cancellationToken);
 
             return Accepted(result);
         }
         catch (AggregateIdIsNotFoundException)
         {
-            throw new ApiException(ValidationErrors.RoadSegment.NotFound.Message, StatusCodes.Status404NotFound);
+            throw new ApiException(ValidationErrors.RoadNetwork.NotFound.Message, StatusCodes.Status404NotFound);
         }
         catch (IdempotencyException)
         {
