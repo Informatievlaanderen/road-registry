@@ -1,0 +1,61 @@
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.WhenDeleteOutline.Fixtures;
+
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Messages;
+using Microsoft.Extensions.Configuration;
+using NodaTime;
+using NodaTime.Text;
+using RoadRegistry.Hosts;
+using SqlStreamStore;
+using AcceptedChange = Messages.AcceptedChange;
+
+public class WhenDeleteOutlineWithInvalidGeometryMethodFixture : WhenDeleteOutlineWithValidRequestFixture
+{
+    public WhenDeleteOutlineWithInvalidGeometryMethodFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock, SqsLambdaHandlerOptions options)
+        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
+    {
+    }
+
+    protected override async Task SetupAsync()
+    {
+        await Given(Organizations.ToStreamName(new OrganizationId(Organisation.ToString())), new ImportedOrganization
+        {
+            Code = Organisation.ToString(),
+            Name = Organisation.ToString(),
+            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+        });
+
+        TestData.Segment1Added.GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Measured.ToString();
+
+        await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+        {
+            RequestId = TestData.RequestId,
+            Reason = TestData.ReasonForChange,
+            Operator = TestData.ChangedByOperator,
+            OrganizationId = TestData.ChangedByOrganization,
+            Organization = TestData.ChangedByOrganizationName,
+            Changes = new[]
+            {
+                new AcceptedChange
+                {
+                    RoadNodeAdded = TestData.StartNode1Added
+                },
+                new AcceptedChange
+                {
+                    RoadNodeAdded = TestData.EndNode1Added
+                },
+                new AcceptedChange
+                {
+                    RoadSegmentAdded = TestData.Segment1Added
+                }
+            },
+            When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+        });
+    }
+
+    protected override Task<bool> VerifyTicketAsync()
+    {
+        return Task.FromResult(VerifyThatTicketHasError("NotFound", "Onbestaand wegsegment."));
+    }
+}

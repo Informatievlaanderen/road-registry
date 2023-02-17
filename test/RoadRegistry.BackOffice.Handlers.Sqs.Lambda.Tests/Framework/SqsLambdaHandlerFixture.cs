@@ -140,7 +140,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
 
-        return VerifyThatTicketHasCompleted(string.Format(ConfigurationDetailUrl, roadSegmentId), roadSegment?.LastEventHash);
+        return VerifyThatTicketHasCompleted(string.Format(ConfigurationDetailUrl, roadSegmentId), roadSegment?.LastEventHash ?? string.Empty);
     }
 
     protected bool VerifyThatTicketHasError(string code, string message)

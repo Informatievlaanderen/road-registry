@@ -1,19 +1,18 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.Fixtures;
+namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegmentsOutline.WhenCreateOutline.Fixtures;
 
 using Abstractions.Fixtures;
 using AutoFixture;
-using BackOffice.Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Core;
-using Hosts;
-using Messages;
 using Microsoft.Extensions.Configuration;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
 using NodaTime.Text;
+using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Hosts;
 using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore;
 using GeometryTranslator = BackOffice.GeometryTranslator;
