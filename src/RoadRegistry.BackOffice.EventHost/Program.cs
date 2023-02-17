@@ -1,16 +1,11 @@
 namespace RoadRegistry.BackOffice.EventHost;
 
-using Amazon;
-using Amazon.Runtime;
-using Amazon.S3;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
-using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Core;
-using Extracts;
+using FeatureToggles;
 using Framework;
+using Handlers;
 using Handlers.Uploads;
 using Hosts;
 using Hosts.Configuration;
@@ -18,22 +13,12 @@ using MediatR;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using NodaTime;
-using RoadRegistry.Hosts.Infrastructure.Extensions;
-using Serilog;
-using Serilog.Debugging;
+using Snapshot.Handlers;
 using SqlStreamStore;
-using System;
-using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Extensions;
-using FeatureToggles;
-using Handlers;
-using Snapshot.Handlers;
 using Uploads;
 
 public class Program
@@ -46,140 +31,10 @@ public class Program
 
     public static async Task Main(string[] args)
     {
-        Console.WriteLine("Starting RoadRegistry.BackOffice.EventHost");
-
-        AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
-            Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
-
-        AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
-            Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
-
-        var host = new HostBuilder()
-            .ConfigureHostConfiguration(builder =>
+        var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
+            .ConfigureServices((hostContext, services) =>
             {
-                builder
-                    .AddEnvironmentVariables("DOTNET_")
-                    .AddEnvironmentVariables("ASPNETCORE_");
-            })
-            .ConfigureAppConfiguration((hostContext, builder) =>
-            {
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-                if (hostContext.HostingEnvironment.IsProduction())
-                    builder
-                        .SetBasePath(Directory.GetCurrentDirectory());
-
-                builder
-                    .AddJsonFile("appsettings.json", true, false)
-                    .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName.ToLowerInvariant()}.json", true, false)
-                    .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
-                    .AddEnvironmentVariables()
-                    .AddCommandLine(args);
-            })
-            .ConfigureLogging((hostContext, builder) =>
-            {
-                SelfLog.Enable(Console.WriteLine);
-
-                var loggerConfiguration = new LoggerConfiguration()
-                    .ReadFrom.Configuration(hostContext.Configuration)
-                    .Enrich.FromLogContext()
-                    .Enrich.WithMachineName()
-                    .Enrich.WithThreadId()
-                    .Enrich.WithEnvironmentUserName();
-
-                Log.Logger = loggerConfiguration.CreateLogger();
-
-                builder.AddSerilog(Log.Logger);
-            })
-            .ConfigureServices((hostContext, builder) =>
-            {
-                var blobOptions = new BlobClientOptions();
-                hostContext.Configuration.Bind(blobOptions);
-
-                switch (blobOptions.BlobClientType)
-                {
-                    case nameof(S3BlobClient):
-                        var s3Options = new S3BlobClientOptions();
-                        hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
-
-                        // Use MINIO
-                        if (hostContext.Configuration.GetValue<string>("MINIO_SERVER") != null)
-                        {
-                            if (hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY") == null) throw new InvalidOperationException("The MINIO_ACCESS_KEY configuration variable was not set.");
-
-                            if (hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY") == null) throw new InvalidOperationException("The MINIO_SECRET_KEY configuration variable was not set.");
-
-                            builder.AddSingleton(new AmazonS3Client(
-                                    new BasicAWSCredentials(
-                                        hostContext.Configuration.GetValue<string>("MINIO_ACCESS_KEY"),
-                                        hostContext.Configuration.GetValue<string>("MINIO_SECRET_KEY")),
-                                    new AmazonS3Config
-                                    {
-                                        RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                        ServiceURL = hostContext.Configuration.GetValue<string>("MINIO_SERVER"),
-                                        ForcePathStyle = true
-                                    }
-                                )
-                            );
-                        }
-                        else // Use AWS
-                        {
-                            builder.AddSingleton(new AmazonS3Client());
-                        }
-
-                        builder
-                            .AddSingleton<IBlobClient>(sp =>
-                                new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )
-                            )
-                            .AddSingleton(sp =>
-                                new RoadNetworkUploadsBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )))
-                            .AddSingleton(sp =>
-                                new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )))
-                            .AddSingleton(sp =>
-                                new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
-                                )))
-                            .AddSingleton(sp =>
-                                new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.FeatureCompareBucket]
-                                )))
-                            ;
-
-                        break;
-
-                    case nameof(FileBlobClient):
-                        var fileOptions = new FileBlobClientOptions();
-                        hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
-
-                        builder
-                            .AddSingleton<IBlobClient>(sp =>
-                                new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.Directory)
-                                )
-                            )
-                            .AddSingleton<RoadNetworkUploadsBlobClient>()
-                            .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
-                            .AddSingleton<RoadNetworkExtractDownloadsBlobClient>()
-                            .AddSingleton<RoadNetworkFeatureCompareBlobClient>();
-                        break;
-
-                    default:
-                        throw new InvalidOperationException(blobOptions.BlobClientType + " is not a supported blob client type.");
-                }
-
-                builder
-                    .AddSingleton<Scheduler>()
+                services
                     .AddHostedService<EventProcessor>()
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
@@ -187,9 +42,6 @@ public class Program
                                 sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EventHost)
                             ),
                             WellknownSchemas.EventHostSchema))
-                    .AddStreamStore()
-                    .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddRoadRegistrySnapshot()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkChangesArchiveEventModule(
@@ -215,56 +67,36 @@ public class Program
                             sp.GetService<UseSnapshotSqsRequestFeatureToggle>())
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
-                    .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())))
-                    .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration);
+                    .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
             })
             .Build();
 
-        var configuration = host.Services.GetRequiredService<IConfiguration>();
-        var streamStore = host.Services.GetRequiredService<IStreamStore>();
-        var logger = host.Services.GetRequiredService<ILogger<Program>>();
-        var blobClient = host.Services.GetRequiredService<IBlobClient>();
-        var blobClientOptions = new BlobClientOptions();
-        configuration.Bind(blobClientOptions);
-
-        try
-        {
-            await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
-
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EventHost);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EventHostAdmin);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.SnapshotsAdmin);
-            logger.LogBlobClientCredentials(blobClientOptions);
-
-            await DistributedLock<Program>.RunAsync(async () =>
-                    {
-                        await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
-                        await
-                            new SqlBlobSchema(
-                                new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
-                            ).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema).ConfigureAwait(false);
-                        await
-                            new SqlEventProcessorPositionStoreSchema(
-                                new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
-                            ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema).ConfigureAwait(false);
-                        await blobClient.ProvisionResources(host).ConfigureAwait(false);
-
-                        Console.WriteLine("Started RoadRegistry.BackOffice.EventHost");
-                        await host.RunAsync().ConfigureAwait(false);
-                    },
-                    DistributedLockOptions.LoadFromConfiguration(configuration),
-                    logger)
-                .ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
-        }
-        finally
-        {
-            Log.CloseAndFlush();
-        }
+        await roadRegistryHost
+            .LogSqlServerConnectionStrings(new []
+            {
+                WellknownConnectionNames.Events,
+                WellknownConnectionNames.EventHost,
+                WellknownConnectionNames.EventHostAdmin,
+                WellknownConnectionNames.Snapshots,
+                WellknownConnectionNames.SnapshotsAdmin
+            })
+            .Log((sp, logger) =>
+            {
+                var blobClientOptions = sp.GetService<BlobClientOptions>();
+                logger.LogBlobClientCredentials(blobClientOptions);
+            })
+            .RunAsync(async (sp, host, configuration) =>
+            {
+                var blobClient = sp.GetService<IBlobClient>();
+                await
+                    new SqlBlobSchema(
+                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
+                    ).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema).ConfigureAwait(false);
+                await
+                    new SqlEventProcessorPositionStoreSchema(
+                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
+                    ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema).ConfigureAwait(false);
+                await blobClient.ProvisionResources(host).ConfigureAwait(false);
+            });
     }
 }
