@@ -5,18 +5,15 @@ using Microsoft.Extensions.Configuration;
 using NodaTime;
 using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
 using RoadRegistry.Hosts;
-using SqlStreamStore;
 
 public class WhenCreateOutlineWithInvalidStatusFixture : WhenCreateOutlineWithValidRequestFixture
 {
     public WhenCreateOutlineWithInvalidStatusFixture(
         IConfiguration configuration,
         ICustomRetryPolicy customRetryPolicy,
-        IStreamStore streamStore,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue,
         IClock clock,
         SqsLambdaHandlerOptions options)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
+        : base(configuration, customRetryPolicy, clock, options)
     {
     }
 

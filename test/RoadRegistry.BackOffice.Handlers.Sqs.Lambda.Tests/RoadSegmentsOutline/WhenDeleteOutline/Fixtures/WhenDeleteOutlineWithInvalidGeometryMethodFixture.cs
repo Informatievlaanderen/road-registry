@@ -7,13 +7,12 @@ using Microsoft.Extensions.Configuration;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.Hosts;
-using SqlStreamStore;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenDeleteOutlineWithInvalidGeometryMethodFixture : WhenDeleteOutlineWithValidRequestFixture
 {
-    public WhenDeleteOutlineWithInvalidGeometryMethodFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock, SqsLambdaHandlerOptions options)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
+    public WhenDeleteOutlineWithInvalidGeometryMethodFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IClock clock, SqsLambdaHandlerOptions options)
+        : base(configuration, customRetryPolicy, clock, options)
     {
     }
 

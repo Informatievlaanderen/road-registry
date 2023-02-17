@@ -10,7 +10,6 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Hosts;
 using RoadRegistry.Tests.BackOffice.Core;
-using SqlStreamStore;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
@@ -18,11 +17,9 @@ public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
     public WhenDeleteOutlineWithValidRequestFixture(
         IConfiguration configuration,
         ICustomRetryPolicy customRetryPolicy,
-        IStreamStore streamStore,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue,
         IClock clock,
         SqsLambdaHandlerOptions options)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
+        : base(configuration, customRetryPolicy, clock, options)
     {
         TestData = RoadNetworkTestHelpers.Create();
     }

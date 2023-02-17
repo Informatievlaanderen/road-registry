@@ -16,7 +16,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
 using NodaTime;
-using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 
@@ -47,19 +46,17 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     protected SqsLambdaHandlerFixture(
         IConfiguration configuration,
         ICustomRetryPolicy customRetryPolicy,
-        IStreamStore streamStore,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue,
         IClock clock,
         SqsLambdaHandlerOptions options
     )
     {
         Configuration = configuration;
         CustomRetryPolicy = customRetryPolicy;
-        Store = streamStore;
+        Store = new InMemoryStreamStore();
         var eventSourcedEntityMap = new EventSourcedEntityMap();
         EntityMapFactory = () => eventSourcedEntityMap;
         RoadRegistryContext = new RoadRegistryContext(EntityMapFactory(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
-        RoadNetworkCommandQueue = roadNetworkCommandQueue;
+        RoadNetworkCommandQueue = new RoadNetworkCommandQueue(Store, new ApplicationMetadata(RoadRegistryApplication.Lambda));
         Clock = clock;
         Options = options;
 

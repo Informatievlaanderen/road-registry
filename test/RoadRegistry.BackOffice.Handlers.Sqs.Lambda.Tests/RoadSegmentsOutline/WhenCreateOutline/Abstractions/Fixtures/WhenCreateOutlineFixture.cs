@@ -14,14 +14,13 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using RoadRegistry.Hosts;
-using SqlStreamStore;
 
 public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateRoadSegmentOutlineSqsLambdaRequestHandler, CreateRoadSegmentOutlineSqsLambdaRequest, CreateRoadSegmentOutlineSqsRequest>
 {
     protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 
-    protected WhenCreateOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock, SqsLambdaHandlerOptions options)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
+    protected WhenCreateOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IClock clock, SqsLambdaHandlerOptions options)
+        : base(configuration, customRetryPolicy, clock, options)
     {
         Organisation = Organisation.DigitaalVlaanderen;
 

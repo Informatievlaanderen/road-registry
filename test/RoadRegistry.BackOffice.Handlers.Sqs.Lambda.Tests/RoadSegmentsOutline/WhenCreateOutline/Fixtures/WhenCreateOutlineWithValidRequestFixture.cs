@@ -14,7 +14,6 @@ using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Hosts;
 using RoadRegistry.Tests.BackOffice;
-using SqlStreamStore;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 
@@ -23,11 +22,9 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
     public WhenCreateOutlineWithValidRequestFixture(
         IConfiguration configuration,
         ICustomRetryPolicy customRetryPolicy,
-        IStreamStore streamStore,
-        IRoadNetworkCommandQueue roadNetworkCommandQueue,
         IClock clock,
         SqsLambdaHandlerOptions options)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
+        : base(configuration, customRetryPolicy, clock, options)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
         ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();

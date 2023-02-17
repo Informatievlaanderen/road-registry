@@ -15,14 +15,13 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using RoadRegistry.Hosts;
 using RoadRegistry.Tests.BackOffice;
-using SqlStreamStore;
 
 public abstract class WhenDeleteOutlineFixture : SqsLambdaHandlerFixture<DeleteRoadSegmentOutlineSqsLambdaRequestHandler, DeleteRoadSegmentOutlineSqsLambdaRequest, DeleteRoadSegmentOutlineSqsRequest>
 {
     protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
 
-    protected WhenDeleteOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IStreamStore streamStore, IRoadNetworkCommandQueue roadNetworkCommandQueue, IClock clock, SqsLambdaHandlerOptions options)
-        : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
+    protected WhenDeleteOutlineFixture(IConfiguration configuration, ICustomRetryPolicy customRetryPolicy, IClock clock, SqsLambdaHandlerOptions options)
+        : base(configuration, customRetryPolicy, clock, options)
     {
         Organisation = Organisation.DigitaalVlaanderen;
 
