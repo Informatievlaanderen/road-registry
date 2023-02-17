@@ -1,21 +1,14 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Infrastructure;
 
-using System;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
 using Abstractions;
 using Abstractions.Configuration;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Consumers;
 using Core;
 using Extracts;
@@ -26,15 +19,13 @@ using Hosts.Configuration;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using NodaTime;
-using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.Hosts.Infrastructure.Extensions;
-using Serilog;
-using Serilog.Debugging;
 using SqlStreamStore;
+using System;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using Uploads;
 using ZipArchiveWriters.Validation;
 
@@ -120,155 +111,69 @@ public class Program
         }
     }
 
-    private static void ConfigureContainer(ContainerBuilder builder)
-    {
-        builder.RegisterModule(new MediatorModule());
-        builder.RegisterModule(new Handlers.Sqs.MediatorModule());
-        builder.RegisterModule(new SqsHandlersModule());
-    }
-
     public static async Task Main(string[] args)
     {
-        Console.WriteLine("Starting RoadRegistry.BackOffice.MessagingHost.Sqs");
+        var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
+            .ConfigureOptions<FeatureCompareMessagingOptions>(out var featureCompareMessagingOptions)
+            .ConfigureServices((hostContext, services) => services
+                .AddHostedService<FeatureCompareMessageConsumer>()
+                .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap()))
+            .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
+                new RoadNetworkChangesArchiveCommandModule(
+                    sp.GetService<RoadNetworkUploadsBlobClient>(),
+                    sp.GetService<IStreamStore>(),
+                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                    new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
+                    sp.GetService<IClock>(),
+                    sp.GetService<ILoggerFactory>()
 
-        AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
-            Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
-
-        AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
-            Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
-
-        var host = new HostBuilder()
-            .ConfigureHostConfiguration(services =>
+                ),
+                new RoadNetworkCommandModule(
+                    sp.GetService<IStreamStore>(),
+                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                    sp.GetService<IRoadNetworkSnapshotWriter>(),
+                    sp.GetService<IClock>(),
+                    sp.GetService<ILoggerFactory>()
+                ),
+                new RoadNetworkExtractCommandModule(
+                    sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
+                    sp.GetService<IStreamStore>(),
+                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                    new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
+                    sp.GetService<IClock>(),
+                    sp.GetService<ILoggerFactory>()
+                )
+            }))
+            .ConfigureContainer((hostContext, builder) =>
             {
-                services
-                    .AddEnvironmentVariables("DOTNET_")
-                    .AddEnvironmentVariables("ASPNETCORE_");
+                builder.RegisterModule(new MediatorModule());
+                builder.RegisterModule(new SqsHandlersModule());
+                builder.RegisterModule(new Handlers.Sqs.MediatorModule());
             })
-            .ConfigureAppConfiguration((hostContext, services) =>
-            {
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-                if (hostContext.HostingEnvironment.IsProduction())
-                {
-                    services
-                        .SetBasePath(Directory.GetCurrentDirectory());
-                }
-
-                services
-                    .AddJsonFile("appsettings.json", true, false)
-                    .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName.ToLowerInvariant()}.json", true, false)
-                    .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
-                    .AddEnvironmentVariables()
-                    .AddCommandLine(args);
-            })
-            .ConfigureLogging((hostContext, builder) =>
-            {
-                SelfLog.Enable(Console.WriteLine);
-
-                var loggerConfiguration = new LoggerConfiguration()
-                    .ReadFrom.Configuration(hostContext.Configuration)
-                    .Enrich.FromLogContext()
-                    .Enrich.WithMachineName()
-                    .Enrich.WithThreadId()
-                    .Enrich.WithEnvironmentUserName();
-
-                Log.Logger = loggerConfiguration.CreateLogger();
-
-                builder.AddSerilog(Log.Logger);
-            })
-            .ConfigureServices((hostContext, services) =>
-            {
-                AddBlobClients(services, hostContext.Configuration);
-
-                var featureCompareMessagingOptions = new FeatureCompareMessagingOptions();
-                hostContext.Configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
-
-                services
-                    .AddHostedService<FeatureCompareMessageConsumer>()
-                    .AddStreamStore()
-                    .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddRoadRegistrySnapshot()
-                    .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
-                    .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
-                        new CommandHandlerModule[]
-                        {
-                            new RoadNetworkChangesArchiveCommandModule(
-                                sp.GetService<RoadNetworkUploadsBlobClient>(),
-                                sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
-                                sp.GetService<IRoadNetworkSnapshotReader>(),
-                                new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
-                                sp.GetService<IClock>(),
-                                sp.GetService<ILoggerFactory>()
-
-                            ),
-                            new RoadNetworkCommandModule(
-                                sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
-                                sp.GetService<IRoadNetworkSnapshotReader>(),
-                                sp.GetService<IRoadNetworkSnapshotWriter>(),
-                                sp.GetService<IClock>(),
-                                sp.GetService<ILoggerFactory>()
-                            ),
-                            new RoadNetworkExtractCommandModule(
-                                sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
-                                sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
-                                sp.GetService<IRoadNetworkSnapshotReader>(),
-                                new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
-                                sp.GetService<IClock>(),
-                                sp.GetService<ILoggerFactory>()
-                            )
-                        })))
-                    .AddSingleton(featureCompareMessagingOptions);
-            })
-            .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-            .ConfigureContainer<ContainerBuilder>(ConfigureContainer)
             .Build();
 
-        var configuration = host.Services.GetRequiredService<IConfiguration>();
-        var streamStore = host.Services.GetRequiredService<IStreamStore>();
-        var logger = host.Services.GetRequiredService<ILogger<Program>>();
-
-        var blobClientOptions = new BlobClientOptions();
-        configuration.Bind(blobClientOptions);
-
-        var messagingOptions = new FeatureCompareMessagingOptions();
-        configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(messagingOptions);
-
-        try
-        {
-            await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
-
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.CommandHost);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.CommandHostAdmin);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
-            logger.LogBlobClientCredentials(blobClientOptions);
-
-            await DistributedLock<Program>.RunAsync(async () =>
-                    {
-                        await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
-                        await
-                            new SqlCommandProcessorPositionStoreSchema(
-                                new SqlConnectionStringBuilder(
-                                    configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
-                            ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema).ConfigureAwait(false);
-
-                        Console.WriteLine("Started RoadRegistry.BackOffice.MessagingHost.Sqs");
-                        await host.RunAsync().ConfigureAwait(false);
-                    },
-                    DistributedLockOptions.LoadFromConfiguration(configuration),
-                    logger)
-                .ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
-        }
-        finally
-        {
-            await Log.CloseAndFlushAsync().ConfigureAwait(false);
-        }
+        await roadRegistryHost
+            .LogSqlServerConnectionStrings(new[]
+            {
+                WellknownConnectionNames.Events,
+                WellknownConnectionNames.CommandHost,
+                WellknownConnectionNames.CommandHostAdmin,
+                WellknownConnectionNames.Snapshots
+            })
+            .Log((sp, logger) => {
+                var blobClientOptions = sp.GetService<BlobClientOptions>();
+                logger.LogBlobClientCredentials(blobClientOptions);
+            })
+            .RunAsync(async (sp, host, configuration) =>
+            {
+                await
+                    new SqlCommandProcessorPositionStoreSchema(
+                        new SqlConnectionStringBuilder(
+                            configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
+                    ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema).ConfigureAwait(false);
+            });
     }
 }
