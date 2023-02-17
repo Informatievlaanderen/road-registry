@@ -5,7 +5,7 @@
       "receiptHandle": "MessageReceiptHandle",
       "body": "{\"type\":\"RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.UnlinkStreetNameSqsRequest\",\"data\":\"{\\\"Request\\\":{\\\"wegsegmentId\\\":2,\\\"linkerstraatnaamId\\\":\\\"https://data.vlaanderen.be/id/straatnaam/36847\\\"},\\\"ProvenanceData\\\":{\\\"Operator\\\":\\\"DEV\\\"}}\"}",
       "attributes": {
-           "MessageGroupId": ""
+        "MessageGroupId": ""
       },
       "messageAttributes": {},
       "md5OfBody": "7b270e59b47ff90a553787216d55d91d",

@@ -46,8 +46,8 @@ public class SqsMessagesBlobClient : IBlobClient
     private JsonSerializer CreateJsonSerializer()
     {
         var serializer = JsonSerializer.CreateDefault(_sqsOptions.JsonSerializerSettings);
-
-        serializer.Converters.Add(new MultiLineStringWktConverter());
+        
+        serializer.Converters.Add(new OrganizationIdConverter());
         serializer.Converters.Add(new RoadSegmentAccessRestrictionConverter());
         serializer.Converters.Add(new RoadSegmentLaneCountConverter());
         serializer.Converters.Add(new RoadSegmentLaneDirectionConverter());

@@ -182,7 +182,7 @@ public class Startup
         builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
         builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
         builder.RegisterModulesFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>();
-
+        
         builder.Populate(services);
 
         _applicationContainer = builder.Build();

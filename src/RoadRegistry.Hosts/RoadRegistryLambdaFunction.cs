@@ -83,6 +83,7 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
             .AddEditorContext()
             .AddStreamStore()
             .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })
+            .AddSqsLambdaHandlerOptions()
             ;
 
         var builder = new ContainerBuilder();

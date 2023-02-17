@@ -24,13 +24,9 @@ public partial class RoadSegmentsController
 
         try
         {
-            var result = await _mediator.Send(
-                new CorrectRoadSegmentVersionsSqsRequest
-                {
-                    Request = new CorrectRoadSegmentVersionsRequest(),
-                    Metadata = GetMetadata(),
-                    ProvenanceData = new ProvenanceData(CreateFakeProvenance())
-                }, cancellationToken);
+            var result = await _mediator.Send(Enrich(
+                    new CorrectRoadSegmentVersionsSqsRequest()
+                ), cancellationToken);
 
             return Accepted(result);
         }

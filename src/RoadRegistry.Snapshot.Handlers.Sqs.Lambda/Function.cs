@@ -35,7 +35,6 @@ public class Function : RoadRegistryLambdaFunction
     protected override IServiceProvider ConfigureServices(IServiceCollection services)
     {
         services
-            .AddSqsLambdaHandlerOptions()
             .AddTicketing()
             .AddSingleton(sp =>
             {

@@ -46,7 +46,15 @@ public abstract class BackofficeApiController : ApiController
         };
     }
 
-    public IActionResult Accepted(LocationResult locationResult)
+    protected TRequest Enrich<TRequest>(TRequest request)
+        where TRequest : SqsRequest
+    {
+        request.Metadata = GetMetadata();
+        request.ProvenanceData = new ProvenanceData(CreateFakeProvenance());
+        return request;
+    }
+
+    protected IActionResult Accepted(LocationResult locationResult)
     {
         return Accepted(locationResult
             .Location

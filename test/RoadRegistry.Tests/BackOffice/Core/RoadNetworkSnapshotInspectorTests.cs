@@ -72,7 +72,7 @@ public class RoadNetworkSnapshotInspectorTests
                 var jsonData = reader.GetString(0);
                 Assert.NotNull(jsonData);
 
-                await File.WriteAllTextAsync(messageFilePath, reader.GetString(0));
+                await File.WriteAllTextAsync(messageFilePath, jsonData);
             }
         }
     }
@@ -81,7 +81,7 @@ public class RoadNetworkSnapshotInspectorTests
     //[Fact]
     public async Task UpdateMessage()
     {
-        const int position = 0; // 1825727 1825873
+        const int position = 0;
         var connectionString = GetEventsConnectionString(DbEnvironment.TST);
         var messageFilePath = $"message-{position}.json";
 

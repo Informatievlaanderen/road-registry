@@ -16,6 +16,7 @@ using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore;
+using GeometryTranslator = BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
 
 public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
@@ -44,7 +45,7 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
     }
     
     protected override CreateRoadSegmentOutlineRequest Request => new(
-        ObjectProvider.Create<MultiLineString>(),
+        GeometryTranslator.Translate(ObjectProvider.Create<MultiLineString>()),
         ObjectProvider.Create<RoadSegmentStatus>(),
         ObjectProvider.Create<RoadSegmentMorphology>(),
         ObjectProvider.Create<RoadSegmentAccessRestriction>(),

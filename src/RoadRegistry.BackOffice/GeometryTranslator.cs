@@ -66,16 +66,53 @@ public static class GeometryTranslator
         
         if (geometry is MultiLineString multiLineString)
         {
-            return multiLineString;
+            return WithMeasureOrdinates(multiLineString);
         }
 
         if (geometry is LineString lineString)
         {
-            return new MultiLineString(new[] { lineString }, GeometryConfiguration.GeometryFactory);
+            return WithMeasureOrdinates(new MultiLineString(new[] { lineString }, GeometryConfiguration.GeometryFactory));
         }
         
         throw new InvalidOperationException(
             $"The geometry must be either a linestring or a multilinestring. The geometry was a {geometry.GetType().Name}");
+    }
+
+    private static MultiLineString WithMeasureOrdinates(MultiLineString multiLineString)
+    {
+        var lineStrings = multiLineString.Geometries
+            .Cast<LineString>()
+            .Select(lineString =>
+            {
+                var measures = lineString.GetOrdinates(Ordinate.M);
+                if (!measures.Any() || measures.All(x => double.IsNaN(x) || double.IsInfinity(x)))
+                {
+                    var coordinates = new Coordinate[lineString.Count];
+                    coordinates[0] = new CoordinateM(lineString.StartPoint.X, lineString.StartPoint.Y, 0);
+                    
+                    var currentMeasure = coordinates[0].M;
+
+                    for (var i = 1; i < lineString.Count; i++)
+                    {
+                        var currentPoint = lineString[i];
+                        var previousPoint = lineString[i - 1];
+
+                        var distanceToPreviousPoint = new LineString(new[]
+                        {
+                            new Coordinate(previousPoint.X, previousPoint.Y),
+                            new Coordinate(currentPoint.X, currentPoint.Y)
+                        }).Length;
+                        currentMeasure += distanceToPreviousPoint;
+                        coordinates[i] = new CoordinateM(currentPoint.X, currentPoint.Y, currentMeasure);
+                    }
+
+                    lineString = new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory);
+                }
+
+                return lineString;
+            })
+            .ToArray();
+        return new MultiLineString(lineStrings, multiLineString.Factory);
     }
 
     private static Geometry ParseGml(string gml)
@@ -86,30 +123,7 @@ public static class GeometryTranslator
 
     public static MultiLineString ToMultiLineString(PolyLineM polyLineM)
     {
-        if (polyLineM.Points.Any() && (!polyLineM.Measures.Any() || polyLineM.Measures.All(x => double.IsNaN(x) || double.IsInfinity(x))))
-        {
-            var measures = new double[polyLineM.Points.Length];
-            measures[0] = 0;
-            var currentMeasure = measures[0];
-
-            for (var i = 1; i < polyLineM.Points.Length; i++)
-            {
-                var currentPoint = polyLineM.Points[i];
-                var previousPoint = polyLineM.Points[i - 1];
-
-                var distanceToPreviousPoint = new LineString(new[]
-                {
-                    new Coordinate(previousPoint.X, previousPoint.Y),
-                    new Coordinate(currentPoint.X, currentPoint.Y)
-                }).Length;
-                currentMeasure += distanceToPreviousPoint;
-                measures[i] = currentMeasure;
-            }
-
-            polyLineM = new PolyLineM(polyLineM.BoundingBox, polyLineM.Parts, polyLineM.Points, measures);
-        }
-
-        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(polyLineM);
+        return WithMeasureOrdinates(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(polyLineM));
     }
 
     public static MultiPolygon ToMultiPolygon(Polygon polygon)
