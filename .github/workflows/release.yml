@@ -27,6 +27,10 @@ jobs:
       with:
           persist-credentials: false
 
+    - name: Set the correct Node version using nvm
+      shell: bash 
+      run: nvm install
+
     - name: Cache NPM
       uses: actions/cache@v3
       env:
@@ -58,11 +62,6 @@ jobs:
     - name: Parse repository name
       run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
       shell: bash
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v3.5.1
-      with:
-          node-version: 18.12.1
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
