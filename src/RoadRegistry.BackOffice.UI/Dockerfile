@@ -1,4 +1,4 @@
-FROM nginx:stable-alpine as production-stage
+FROM nginx:1.23.3-alpine as production-stage
 
 LABEL maintainer "Digitaal Vlaanderen <digitaal.vlaanderen@vlaanderen.be>"
 
