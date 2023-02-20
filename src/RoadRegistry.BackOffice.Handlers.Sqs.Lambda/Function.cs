@@ -17,6 +17,7 @@ using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 
 public sealed class Function : RoadRegistryLambdaFunction
 {
@@ -62,7 +63,7 @@ public sealed class Function : RoadRegistryLambdaFunction
         builder
             .RegisterModule(new DataDogModule(configuration))
             .RegisterModule<EnvelopeModule>()
-            .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, eventSerializerSettings))
+            .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<SyndicationModule>()

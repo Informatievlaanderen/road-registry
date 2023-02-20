@@ -42,7 +42,6 @@ public class Startup : TestStartup
                     sp.GetService<IStreamStore>(),
                     sp.GetService<Func<EventSourcedEntityMap>>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IRoadNetworkSnapshotWriter>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 ),

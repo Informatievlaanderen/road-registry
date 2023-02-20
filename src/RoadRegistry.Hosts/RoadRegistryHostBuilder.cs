@@ -177,27 +177,25 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                     case nameof(S3BlobClient):
                         var s3Options = new S3BlobClientOptions();
                         hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
-                        var amazonS3Client = new AmazonS3Client();
 
-                        // Use MINIO
                         var minioServer = hostContext.Configuration.GetValue<string>("MINIO_SERVER");
-                        if (minioServer != null)
-                            services.AddSingleton(new AmazonS3Client(
-                                new BasicAWSCredentials(
-                                    hostContext.Configuration.GetRequiredValue<string>("MINIO_ACCESS_KEY"),
-                                    hostContext.Configuration.GetRequiredValue<string>("MINIO_SECRET_KEY")
-                                ),
-                                new AmazonS3Config
-                                {
-                                    RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                    ServiceURL = minioServer,
-                                    ForcePathStyle = true
-                                }
-                            ));
-                        else // Use AWS
-                            services
-                                .AddSingleton(amazonS3Client)
-                                .RegisterDistributedS3Cache(amazonS3Client, distributedS3CacheOptions);
+
+                        var amazonS3Client = minioServer != null ? new AmazonS3Client(
+                            new BasicAWSCredentials(
+                                hostContext.Configuration.GetRequiredValue<string>("MINIO_ACCESS_KEY"),
+                                hostContext.Configuration.GetRequiredValue<string>("MINIO_SECRET_KEY")
+                            ),
+                            new AmazonS3Config
+                            {
+                                RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
+                                ServiceURL = minioServer,
+                                ForcePathStyle = true
+                            }
+                        ) : new AmazonS3Client();
+                        
+                        services
+                            .AddSingleton(amazonS3Client)
+                            .RegisterDistributedS3Cache(amazonS3Client, distributedS3CacheOptions);
 
                         services
                             .AddSingleton<IBlobClient>(sp =>

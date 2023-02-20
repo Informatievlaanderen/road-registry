@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.RoadRegistrySystem;
 
-using System.Threading.Tasks;
 using BackOffice.Framework;
 using FeatureToggles;
 using FluentValidation;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 public partial class RoadRegistrySystemController
 {
@@ -22,9 +22,7 @@ public partial class RoadRegistrySystemController
 
         await validator.ValidateAndThrowAsync(parameters, HttpContext.RequestAborted);
 
-        var command = new RebuildRoadNetworkSnapshot
-        {
-        };
+        var command = new RebuildRoadNetworkSnapshot();
         await CommandQueue
             .Write(new Command(command), HttpContext.RequestAborted);
 

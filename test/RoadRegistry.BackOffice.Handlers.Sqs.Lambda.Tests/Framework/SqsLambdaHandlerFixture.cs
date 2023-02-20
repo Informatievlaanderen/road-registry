@@ -134,7 +134,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
 
     protected async Task<bool> VerifyThatTicketHasCompleted(RoadSegmentId roadSegmentId)
     {
-        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
 
         return VerifyThatTicketHasCompleted(string.Format(ConfigurationDetailUrl, roadSegmentId), roadSegment?.LastEventHash ?? string.Empty);

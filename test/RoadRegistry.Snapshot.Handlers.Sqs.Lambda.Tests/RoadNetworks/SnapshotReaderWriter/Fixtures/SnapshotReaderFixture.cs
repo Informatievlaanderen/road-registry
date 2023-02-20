@@ -1,4 +1,4 @@
-namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.Fixtures;
+namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.SnapshotReaderWriter.Fixtures;
 
 using BackOffice.Core;
 using BackOffice.Messages;

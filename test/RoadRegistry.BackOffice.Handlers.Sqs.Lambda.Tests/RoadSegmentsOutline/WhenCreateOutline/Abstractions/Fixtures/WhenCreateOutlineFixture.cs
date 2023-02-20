@@ -67,7 +67,6 @@ public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateR
                     Store,
                     EntityMapFactory,
                     new FakeRoadNetworkSnapshotReader(),
-                    new FakeRoadNetworkSnapshotWriter(),
                     Clock,
                     LoggerFactory
                 )

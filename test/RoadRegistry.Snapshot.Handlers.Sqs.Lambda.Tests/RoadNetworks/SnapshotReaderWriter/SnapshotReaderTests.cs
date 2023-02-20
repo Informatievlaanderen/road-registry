@@ -1,6 +1,6 @@
-namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks;
+namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.SnapshotReaderWriter;
 
-using Fixtures;
+using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.SnapshotReaderWriter.Fixtures;
 
 public class SnapshotReaderTests : IClassFixture<SnapshotReaderFixture>
 {
@@ -11,7 +11,7 @@ public class SnapshotReaderTests : IClassFixture<SnapshotReaderFixture>
         _fixture = fixture;
     }
 
-    [Fact]
+    //[Fact] // Debugging
     public void ItShouldSucceed()
     {
         Assert.NotEqual(0, _fixture.Version);

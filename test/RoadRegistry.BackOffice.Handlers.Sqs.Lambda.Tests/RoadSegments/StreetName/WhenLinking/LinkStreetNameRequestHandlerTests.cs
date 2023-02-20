@@ -110,7 +110,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, StreetNamePuri(streetNameId), null));
 
         //Assert
-        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
         VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
@@ -188,7 +188,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         //Act
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, null, StreetNamePuri(streetNameId)));
 
-        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get();
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
         VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 

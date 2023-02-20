@@ -19,6 +19,7 @@ using Snapshot.Handlers;
 using SqlStreamStore;
 using System.Text;
 using System.Threading.Tasks;
+using Extensions;
 using Uploads;
 
 public class Program
@@ -45,26 +46,27 @@ public class Program
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkChangesArchiveEventModule(
-                            sp.GetService<RoadNetworkUploadsBlobClient>(),
+                            sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                             new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
-                            sp.GetService<IStreamStore>(),
+                            sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
-                            sp.GetService<ILogger<RoadNetworkChangesArchiveEventModule>>()
+                            sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
                         new RoadNetworkBackOfficeEventModule(
-                            sp.GetService<IStreamStore>(),
-                            sp.GetService<IRoadNetworkSnapshotReader>(),
-                            sp.GetService<IRoadNetworkSnapshotWriter>(),
-                            sp.GetService<IClock>(),
-                            sp.GetService<ILoggerFactory>()),
+                            sp.GetRequiredService<IStreamStore>(),
+                            sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
+                            sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
+                            sp.GetRequiredService<IClock>(),
+                            sp.GetRequiredService<ILoggerFactory>()),
                         new RoadNetworkSnapshotEventModule(
-                            sp.GetService<IStreamStore>(),
-                            sp.GetService<IMediator>(),
-                            sp.GetService<IRoadNetworkSnapshotReader>(),
-                            sp.GetService<IRoadNetworkSnapshotWriter>(),
-                            sp.GetService<IClock>(),
-                            sp.GetService<ILoggerFactory>(),
-                            sp.GetService<UseSnapshotSqsRequestFeatureToggle>())
+                            sp.GetRequiredService<IStreamStore>(),
+                            sp.GetRequiredService<IMediator>(),
+                            sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
+                            sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
+                            sp.GetRequiredService<IClock>(),
+                            sp.GetRequiredService<ILoggerFactory>(),
+                            sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>(),
+                            ApplicationMetadata)
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
