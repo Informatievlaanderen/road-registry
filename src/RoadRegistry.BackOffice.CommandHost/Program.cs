@@ -11,10 +11,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
+using RoadRegistry.Snapshot.Handlers;
 using SqlStreamStore;
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Autofac;
+using FeatureToggles;
+using Handlers.Sqs;
+using MediatR;
 using Uploads;
 using ZipArchiveWriters.Validation;
 
@@ -30,6 +35,7 @@ public class Program
             .ConfigureServices((hostContext, services) => services
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
+                .AddTicketing()
                 .AddSingleton<ICommandProcessorPositionStore>(sp =>
                     new SqlCommandProcessorPositionStore(
                         new SqlConnectionStringBuilder(
@@ -40,31 +46,47 @@ public class Program
                 .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap()))
             .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
                 new RoadNetworkChangesArchiveCommandModule(
-                    sp.GetService<RoadNetworkUploadsBlobClient>(),
-                    sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
-                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                    sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
+                    sp.GetRequiredService<IStreamStore>(),
+                    sp.GetRequiredService<Func<EventSourcedEntityMap>>(),
+                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
-                    sp.GetService<IClock>(),
-                    sp.GetService<ILoggerFactory>()
+                    sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<ILoggerFactory>()
                 ),
                 new RoadNetworkCommandModule(
-                    sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
-                    sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IClock>(),
-                    sp.GetService<ILoggerFactory>()
+                    sp.GetRequiredService<IStreamStore>(),
+                    sp.GetRequiredService<Func<EventSourcedEntityMap>>(),
+                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
+                    sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(
-                    sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
-                    sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
-                    sp.GetService<IRoadNetworkSnapshotReader>(),
+                    sp.GetRequiredService<RoadNetworkExtractUploadsBlobClient>(),
+                    sp.GetRequiredService<IStreamStore>(),
+                    sp.GetRequiredService<Func<EventSourcedEntityMap>>(),
+                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
-                    sp.GetService<IClock>(),
-                    sp.GetService<ILoggerFactory>()
+                    sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<ILoggerFactory>()
+                ),
+                new RoadNetworkSnapshotCommandModule(
+                    sp.GetRequiredService<IStreamStore>(),
+                    sp.GetRequiredService<IMediator>(),
+                    sp.GetRequiredService<Func<EventSourcedEntityMap>>(),
+                    sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
+                    sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
+                    sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<ILoggerFactory>(),
+                    sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>()
                 )
             }))
+            .ConfigureContainer((context, builder) =>
+            {
+                builder
+                    .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
+                    .RegisterModule<SqsHandlersModule>();
+            })
             .Build();
 
         await roadRegistryHost

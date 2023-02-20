@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using RoadRegistry.Hosts.Infrastructure.Extensions;
 using SqlStreamStore;
 using Syndication.Schema;
 using System;

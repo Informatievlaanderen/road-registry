@@ -85,5 +85,4 @@ public class RoadRegistryHost<T>
             await Serilog.Log.CloseAndFlushAsync();
         }
     }
-
 }

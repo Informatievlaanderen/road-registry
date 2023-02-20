@@ -22,8 +22,7 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
         ILoggerFactory loggerFactory,
-        UseSnapshotSqsRequestFeatureToggle snapshotFeatureToggle,
-        ApplicationMetadata applicationMetadata
+        UseSnapshotSqsRequestFeatureToggle snapshotFeatureToggle
         )
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -52,41 +51,6 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
                 }
 
                 logger.LogInformation("Event handler finished for {EventName}", nameof(RoadNetworkChangesAccepted));
-            });
-
-        For<RebuildRoadNetworkSnapshot>()
-            .UseRoadRegistryContext(store, snapshotReader, loggerFactory, enricher)
-            .Handle(async (context, _, ct) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));
-
-                if (snapshotFeatureToggle.FeatureEnabled)
-                {
-                    await mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest { Request = new RebuildRoadNetworkSnapshotRequest() }, ct);
-                }
-                else
-                {
-                    var (network, version) = await context.RoadNetworks.GetWithVersion(false, ct);
-                    await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
-
-                    var completedCommand = new RebuildRoadNetworkSnapshotCompleted
-                    {
-                        CurrentVersion = version
-                    };
-
-                    await new RoadNetworkCommandQueue(store, applicationMetadata)
-                        .Write(new Command(completedCommand), ct);
-                }
-
-                logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
-            });
-
-        For<RebuildRoadNetworkSnapshotCompleted>()
-            .Handle((_, _) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshotCompleted));
-                logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshotCompleted));
-                return Task.CompletedTask;
             });
     }
 }

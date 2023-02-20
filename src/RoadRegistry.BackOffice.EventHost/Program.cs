@@ -19,7 +19,10 @@ using Snapshot.Handlers;
 using SqlStreamStore;
 using System.Text;
 using System.Threading.Tasks;
+using Autofac;
 using Extensions;
+using Handlers.Sqs;
+using Hosts.Infrastructure.Extensions;
 using Uploads;
 
 public class Program
@@ -37,6 +40,7 @@ public class Program
             {
                 services
                     .AddHostedService<EventProcessor>()
+                    .AddTicketing()
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
@@ -65,11 +69,16 @@ public class Program
                             sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
                             sp.GetRequiredService<IClock>(),
                             sp.GetRequiredService<ILoggerFactory>(),
-                            sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>(),
-                            ApplicationMetadata)
+                            sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>())
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
+            })
+            .ConfigureContainer((context, builder) =>
+            {
+                builder
+                    .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
+                    .RegisterModule<SqsHandlersModule>();
             })
             .Build();
 

@@ -114,7 +114,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
-            .ConfigureOptions<FeatureCompareMessagingOptions>(out var featureCompareMessagingOptions)
+            .ConfigureOptions<FeatureCompareMessagingOptions>(FeatureCompareMessagingOptions.ConfigurationKey, out var featureCompareMessagingOptions)
             .ConfigureServices((hostContext, services) => services
                 .AddHostedService<FeatureCompareMessageConsumer>()
                 .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap()))

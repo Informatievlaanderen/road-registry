@@ -48,7 +48,9 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
         ConfigureHostConfiguration(builder => { })
             .ConfigureAppConfiguration((hostContext, builder) => { })
-            .ConfigureLogging((hostContext, builder) => { });
+            .ConfigureLogging((hostContext, builder) => { })
+            .ConfigureServicesDefault()
+            .ConfigureContainerDefault();
     }
 
     public RoadRegistryHostBuilder(string[] args) : this()
@@ -140,7 +142,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
     public RoadRegistryHostBuilder<T> ConfigureOptions<TOptions>(out TOptions configuredOptions) where TOptions : class, new()
     {
-        return ConfigureOptions(typeof(TOptions).Name, out configuredOptions);
+        return ConfigureOptions(null, out configuredOptions);
     }
 
     public RoadRegistryHostBuilder<T> ConfigureOptions<TOptions>(string configurationSectionName, out TOptions configuredOptions) where TOptions : class, new()
@@ -149,12 +151,15 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
         base.ConfigureServices((hostContext, services) =>
         {
-            var configurationSection = hostContext.Configuration.GetSection(configurationSectionName);
-
-            if (string.IsNullOrEmpty(configurationSection.Value))
+            if (string.IsNullOrEmpty(configurationSectionName))
+            {
                 hostContext.Configuration.Bind(internallyConfiguredOptions);
+            }
             else
+            {
+                var configurationSection = hostContext.Configuration.GetSection(configurationSectionName);
                 configurationSection.Bind(internallyConfiguredOptions);
+            }
 
             services.AddSingleton(internallyConfiguredOptions);
         });
@@ -165,10 +170,16 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
     public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
     {
-        ConfigureOptions<BlobClientOptions>(out var blobClientOptions);
-        ConfigureOptions<DistributedS3CacheOptions>(out var distributedS3CacheOptions);
+        base.ConfigureServices(configureDelegate);
+        return this;
+    }
 
-        base.ConfigureServices((hostContext, services) =>
+    private RoadRegistryHostBuilder<T> ConfigureServicesDefault()
+    {
+        ConfigureOptions<BlobClientOptions>(out var blobClientOptions);
+        ConfigureOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions), out var distributedS3CacheOptions);
+
+        ConfigureServices((hostContext, services) =>
         {
             if (blobClientOptions.BlobClientType is not null)
             {
@@ -261,8 +272,16 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                         GeometryConfiguration.GeometryFactory.SRID
                     )
                 ));
+        });
+        return this;
+    }
 
-            configureDelegate.Invoke(hostContext, services);
+    private RoadRegistryHostBuilder<T> ConfigureContainerDefault()
+    {
+        ConfigureContainer((context, builder) =>
+        {
+            builder
+                .RegisterMediator();
         });
         return this;
     }
