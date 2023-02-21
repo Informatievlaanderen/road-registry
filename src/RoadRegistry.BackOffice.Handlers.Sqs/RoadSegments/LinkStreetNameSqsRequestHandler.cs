@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
-using Be.Vlaanderen.Basisregisters.Sqs;
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
 using Core;
 using TicketingService.Abstractions;
@@ -9,7 +8,7 @@ public class LinkStreetNameSqsRequestHandler : SqsHandler<LinkStreetNameSqsReque
 {
     public const string Action = "LinkStreetName";
 
-    public LinkStreetNameSqsRequestHandler(ISqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public LinkStreetNameSqsRequestHandler(BackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 

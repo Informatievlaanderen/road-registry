@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Core;
 using FeatureToggle;
+using FeatureToggles;
 using Framework;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -67,6 +68,18 @@ public static class ServiceCollectionExtensions
                     new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
                     WellknownSchemas.SnapshotSchema));
         })
-        .AddSingleton<IRoadNetworkSnapshotReader>(sp => new RoadNetworkSnapshotReader(sp.GetRequiredService<S3CacheService>()))
-        .AddSingleton<IRoadNetworkSnapshotWriter>(sp => new RoadNetworkSnapshotWriter(sp.GetRequiredService<S3CacheService>()));
+        .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
+        {
+            var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
+            return featureToggle.FeatureEnabled
+                ? new RoadNetworkSnapshotReader(sp.GetRequiredService<S3CacheService>())
+                : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
+        })
+        .AddSingleton<IRoadNetworkSnapshotWriter>(sp =>
+        {
+            var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
+            return featureToggle.FeatureEnabled
+                ? new RoadNetworkSnapshotWriter(sp.GetRequiredService<S3CacheService>())
+                : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
+        });
 }
