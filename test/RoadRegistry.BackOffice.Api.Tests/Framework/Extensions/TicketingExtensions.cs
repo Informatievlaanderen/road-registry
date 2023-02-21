@@ -1,10 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Framework.Extensions;
-
-using Hosts.Infrastructure.Extensions;
-using Hosts.Infrastructure.Options;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using TicketingService.Abstractions;
 
 public class FakeHttpProxyTicketing : ITicketing
@@ -38,14 +33,6 @@ public static class TicketingExtensions
     public static IServiceCollection AddFakeTicketing(this IServiceCollection services)
     {
         return services
-                    //TODO-rik cleanup
-                //.RegisterOptions<TicketingOptions>()
-                //.AddSingleton<ITicketingUrl>(sp =>
-                //    {
-                //        var ticketingOptions = sp.GetRequiredService<TicketingOptions>();
-                //        return new TicketingUrl(ticketingOptions.InternalBaseUrl);
-                //    }
-                //)
                 .AddHttpProxyTicketing()
             ;
     }
