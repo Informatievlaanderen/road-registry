@@ -8,7 +8,7 @@ public class LinkStreetNameSqsRequestHandler : SqsHandler<LinkStreetNameSqsReque
 {
     public const string Action = "LinkStreetName";
 
-    public LinkStreetNameSqsRequestHandler(BackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public LinkStreetNameSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 

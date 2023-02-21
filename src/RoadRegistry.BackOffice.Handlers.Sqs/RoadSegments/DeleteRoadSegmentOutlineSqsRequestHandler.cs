@@ -8,7 +8,7 @@ public class DeleteRoadSegmentOutlineSqsRequestHandler : SqsHandler<DeleteRoadSe
 {
     public const string Action = "DeleteRoadSegmentOutline";
 
-    public DeleteRoadSegmentOutlineSqsRequestHandler(BackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public DeleteRoadSegmentOutlineSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 

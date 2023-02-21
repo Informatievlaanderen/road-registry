@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs;
 using Amazon;
 using Autofac;
 using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Configuration;
@@ -32,12 +31,12 @@ public sealed class SqsHandlersModule : Module
             .RegisterOptions<SqsQueueUrlOptions>();
 
         builder
-            .Register(c => new SqsMessagesBlobClient(c.Resolve<Func<string, IBlobClient>>()(WellknownBuckets.SqsMessagesBucket), c.Resolve<SqsOptions>()))
-            .AsSelf()
+            .Register(c => new SqsMessagesBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.SqsMessagesBucket), c.Resolve<SqsOptions>()))
             .SingleInstance();
 
         builder
             .Register(c => new BackOfficeS3SqsQueue(c.Resolve<SqsOptions>(), c.Resolve<SqsQueueUrlOptions>(), c.Resolve<SqsMessagesBlobClient>()))
+            .As<IBackOfficeS3SqsQueue>()
             .SingleInstance();
     }
 }

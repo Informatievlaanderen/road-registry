@@ -1,4 +1,4 @@
-namespace RoadRegistry.Hosts.Configuration;
+namespace RoadRegistry.BackOffice.Configuration;
 
 public class FileBlobClientOptions
 {

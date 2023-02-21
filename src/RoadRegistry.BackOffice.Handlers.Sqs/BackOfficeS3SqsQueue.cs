@@ -9,7 +9,11 @@ using SqsQueue = Be.Vlaanderen.Basisregisters.Sqs.SqsQueue;
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs;
 
-public class BackOfficeS3SqsQueue : ISqsQueue
+public interface IBackOfficeS3SqsQueue : ISqsQueue
+{
+}
+
+internal class BackOfficeS3SqsQueue : IBackOfficeS3SqsQueue
 {
     private readonly SqsQueue _sqsQueue;
     private readonly SqsMessagesBlobClient _blobClient;

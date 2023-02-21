@@ -1,8 +1,8 @@
-namespace RoadRegistry.Hosts.Configuration;
+namespace RoadRegistry.BackOffice.Configuration;
 
 using System;
 using System.Collections.Generic;
-using BackOffice;
+using RoadRegistry.BackOffice;
 
 public class S3BlobClientOptions: IHasConfigurationKey
 {

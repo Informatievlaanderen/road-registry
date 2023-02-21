@@ -8,7 +8,7 @@ public class CreateRoadSegmentOutlineSqsRequestHandler : SqsHandler<CreateRoadSe
 {
     public const string Action = "CreateRoadSegmentOutline";
 
-    public CreateRoadSegmentOutlineSqsRequestHandler(BackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public CreateRoadSegmentOutlineSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 

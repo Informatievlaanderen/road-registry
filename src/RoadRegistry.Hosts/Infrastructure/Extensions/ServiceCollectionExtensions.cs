@@ -108,7 +108,6 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDistributedS3Cache(this IServiceCollection services)
     {
-        //TODO-rik send to yusuf
         return services
             .RegisterOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions))
             .AddSingleton<DistributedS3Cache>()

@@ -8,7 +8,7 @@ public class CorrectRoadSegmentVersionsSqsRequestHandler : SqsHandler<CorrectRoa
 {
     public const string Action = "CorrectRoadSegmentVersions";
 
-    public CorrectRoadSegmentVersionsSqsRequestHandler(BackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public CorrectRoadSegmentVersionsSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 

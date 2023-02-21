@@ -9,10 +9,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Readers;
-using RoadRegistry.Hosts.Configuration;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Configuration;
 
 public class Program
 {

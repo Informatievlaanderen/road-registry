@@ -7,7 +7,6 @@ using Extracts;
 using Framework;
 using Handlers.Extracts;
 using Hosts;
-using Hosts.Configuration;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +19,7 @@ using Syndication.Schema;
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using Configuration;
 using Uploads;
 using ZipArchiveWriters.ExtractHost;
 

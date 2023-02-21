@@ -8,7 +8,7 @@ public class UnlinkStreetNameSqsRequestHandler : SqsHandler<UnlinkStreetNameSqsR
 {
     public const string Action = "UnlinkStreetName";
 
-    public UnlinkStreetNameSqsRequestHandler(BackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public UnlinkStreetNameSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 

@@ -5,7 +5,6 @@ using BackOffice;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-using Hosts.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +12,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Configuration;
 
 internal static class BlobClientExtensions
 {
