@@ -14,29 +14,14 @@ public static class ContainerBuilderExtensions
     public static ContainerBuilder RegisterOptions<TOptions>(this ContainerBuilder builder)
         where TOptions : class, new()
     {
-        var configurationSectionName = new TOptions() is IHasConfigurationKey hasConfigurationKey ? hasConfigurationKey.GetConfigurationKey() : null;
-        return RegisterOptions<TOptions>(builder, configurationSectionName);
+        builder.Register(c => c.Resolve<IConfiguration>().GetOptions<TOptions>()).AsSelf().SingleInstance();
+        return builder;
     }
 
     public static ContainerBuilder RegisterOptions<TOptions>(this ContainerBuilder builder, string configurationSectionKey)
         where TOptions : class, new()
     {
-        builder.Register(c =>
-        {
-            var configuration = c.Resolve<IConfiguration>();
-            var options = new TOptions();
-
-            if (configurationSectionKey != null)
-            {
-                configuration.GetSection(configurationSectionKey).Bind(options);
-            }
-            else
-            {
-                configuration.Bind(options);
-            }
-
-            return options;
-        }).AsSelf().SingleInstance();
+        builder.Register(c => c.Resolve<IConfiguration>().GetOptions<TOptions>(configurationSectionKey)).AsSelf().SingleInstance();
         return builder;
     }
 }

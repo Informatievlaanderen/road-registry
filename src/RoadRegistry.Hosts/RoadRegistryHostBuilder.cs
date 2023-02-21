@@ -15,6 +15,7 @@ using Microsoft.IO;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
+using RoadRegistry.BackOffice.Configuration;
 using Serilog;
 using Serilog.Debugging;
 using System;
@@ -54,7 +55,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
         return new RoadRegistryHost<T>(internalHost, _runCommandDelegate);
     }
-    
+
     public new RoadRegistryHostBuilder<T> ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
     {
         base.ConfigureAppConfiguration(configureDelegate.Invoke);
@@ -92,7 +93,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         HostingHostBuilderExtensions.ConfigureLogging(this, configureDelegate.Invoke);
         return this;
     }
-    
+
     public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
     {
         base.ConfigureServices(configureDelegate);
@@ -146,7 +147,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
             builder.AddSerilog(Log.Logger);
         });
     }
-    
+
     private RoadRegistryHostBuilder<T> ConfigureDefaultServices()
     {
         return ConfigureServices((hostContext, services) =>
@@ -175,7 +176,11 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
             builder
                 .RegisterMediator();
 
-            builder.RegisterModule<BlobClientModule>();
+            var blobClientOptions = context.Configuration.GetOptions<BlobClientOptions>();
+            if (blobClientOptions.BlobClientType is not null)
+            {
+                builder.RegisterModule<BlobClientModule>();
+            }
         });
     }
 

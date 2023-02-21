@@ -11,7 +11,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
-using Amazon.S3;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 
 public static class ServiceCollectionExtensions
@@ -19,28 +18,13 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services)
         where TOptions : class, new()
     {
-        var configurationSectionName = new TOptions() is IHasConfigurationKey hasConfigurationKey ? hasConfigurationKey.GetConfigurationKey() : null;
-        return RegisterOptions<TOptions>(services, configurationSectionName);
+        return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>());
     }
 
     public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services, string configurationSectionKey)
         where TOptions : class, new()
     {
-        return services.AddSingleton(sp =>
-        {
-            var configuration = sp.GetRequiredService<IConfiguration>();
-            var options = new TOptions();
-            if (configurationSectionKey != null)
-            {
-                configuration.GetSection(configurationSectionKey).Bind(options);
-            }
-            else
-            {
-                configuration.Bind(options);
-            }
-
-            return options;
-        });
+        return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>(configurationSectionKey));
     }
 
     public static IServiceCollection AddStreamStore(this IServiceCollection services)

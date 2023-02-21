@@ -18,8 +18,8 @@ public class BlobClientModule : Module
     protected override void Load(ContainerBuilder builder)
     {
         builder.RegisterOptions<BlobClientOptions>();
-        builder.RegisterOptions<S3BlobClientOptions>(nameof(S3BlobClientOptions));
-        builder.RegisterOptions<FileBlobClientOptions>(nameof(FileBlobClientOptions));
+        builder.RegisterOptions<S3BlobClientOptions>();
+        builder.RegisterOptions<FileBlobClientOptions>();
 
         builder.Register(c =>
         {
@@ -54,7 +54,9 @@ public class BlobClientModule : Module
             .Register(c => c.Resolve<AmazonS3Client>())
             .As<IAmazonS3>().SingleInstance();
 
-        builder.RegisterType<BlobClientFactory>().As<IBlobClientFactory>().SingleInstance();
+        builder
+            .RegisterType<BlobClientFactory>()
+            .As<IBlobClientFactory>().SingleInstance();
             
         builder.Register(c => new RoadNetworkUploadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.UploadsBucket))).SingleInstance();
         builder.Register(c => new RoadNetworkExtractUploadsBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.UploadsBucket))).SingleInstance();
