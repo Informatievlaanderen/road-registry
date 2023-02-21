@@ -1,12 +1,17 @@
 namespace RoadRegistry.Legacy.Import;
 
+using Amazon.S3;
+using Autofac;
 using BackOffice;
+using BackOffice.Configuration;
+using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Hosts;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.BlobStore;
 
 public class Program
 {
@@ -34,6 +39,12 @@ public class Program
                     }
                 ))
                 .AddSingleton<LegacyStreamEventsWriter>())
+            .ConfigureContainer((context, builder) =>
+            {
+                builder
+                    .Register(c => new S3BlobClient(c.Resolve<AmazonS3Client>(), c.Resolve<S3BlobClientOptions>().Buckets[WellknownBuckets.ImportLegacyBucket]))
+                    .As<IBlobClient>().SingleInstance();
+            })
             .Build();
 
         await roadRegistryHost.RunAsync();

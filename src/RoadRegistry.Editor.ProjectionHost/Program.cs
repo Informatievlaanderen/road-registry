@@ -19,12 +19,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using BackOffice.Configuration;
+using BackOffice.Uploads;
 
 public class Program
 {
-    private static readonly Encoding WindowsAnsiEncoding = Encoding.GetEncoding(1252);
-
     protected Program()
     {
     }
@@ -51,19 +51,19 @@ public class Program
                 )
                 .AddSingleton(sp => new ConnectedProjection<EditorContext>[]
                 {
-                    new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
+                    new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
                     new MunicipalityGeometryProjection(),
-                    new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
+                    new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
                     new RoadNetworkChangeFeedProjection(sp.GetRequiredService<IBlobClient>()),
                     new RoadNetworkInfoProjection(),
-                    new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                    new RoadSegmentEuropeanRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                    new RoadSegmentLaneAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                    new RoadSegmentNationalRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                    new RoadSegmentNumberedRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                    new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                    new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
-                    new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WindowsAnsiEncoding),
+                    new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
+                    new RoadSegmentEuropeanRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
+                    new RoadSegmentLaneAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
+                    new RoadSegmentNationalRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
+                    new RoadSegmentNumberedRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
+                    new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
+                    new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
+                    new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), WellKnownEncodings.WindowsAnsi),
                     new ExtractDownloadRecordProjection(),
                     new ExtractUploadRecordProjection()
                 })
@@ -73,6 +73,12 @@ public class Program
                         .ToArray()))
                 .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<EditorContext>[]>(), EventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new EditorContextMigrationFactory()))
+            .ConfigureContainer((context, builder) =>
+            {
+                builder
+                    .Register(c => c.Resolve<RoadNetworkUploadsBlobClient>())
+                    .As<IBlobClient>().SingleInstance();
+            })
             .Build();
 
         await roadRegistryHost
@@ -84,13 +90,13 @@ public class Program
             })
             .Log((sp, logger) =>
             {
-                var blobClientOptions = sp.GetService<BlobClientOptions>();
+                var blobClientOptions = sp.GetRequiredService<BlobClientOptions>();
                 logger.LogBlobClientCredentials(blobClientOptions);
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                var loggerFactory = sp.GetService<ILoggerFactory>();
-                var migratorFactory = sp.GetService<IRunnerDbContextMigratorFactory>();
+                var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+                var migratorFactory = sp.GetRequiredService<IRunnerDbContextMigratorFactory>();
 
                 await migratorFactory.CreateMigrator(configuration, loggerFactory)
                     .MigrateAsync(CancellationToken.None).ConfigureAwait(false);

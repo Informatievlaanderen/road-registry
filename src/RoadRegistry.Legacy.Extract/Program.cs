@@ -12,7 +12,10 @@ using Readers;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon.S3;
+using Autofac;
 using BackOffice.Configuration;
+using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 
 public class Program
 {
@@ -32,6 +35,12 @@ public class Program
                         hostContext.Configuration.GetConnectionString(WellknownConnectionNames.Legacy)
                     )
                 ))
+            .ConfigureContainer((context, builder) =>
+            {
+                builder
+                    .Register(c => new S3BlobClient(c.Resolve<AmazonS3Client>(), c.Resolve<S3BlobClientOptions>().Buckets[WellknownBuckets.ImportLegacyBucket]))
+                    .As<IBlobClient>().SingleInstance();
+            })
             .Build();
 
         await roadRegistryHost

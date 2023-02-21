@@ -1,13 +1,17 @@
 namespace RoadRegistry.BackOffice.EventHost;
 
+using Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
+using Configuration;
 using Core;
 using FeatureToggles;
 using Framework;
 using Handlers;
+using Handlers.Sqs;
 using Handlers.Uploads;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
 using MediatR;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -15,15 +19,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Snapshot.Handlers;
+using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Text;
 using System.Threading.Tasks;
-using Autofac;
-using Configuration;
-using Extensions;
-using Handlers.Sqs;
-using Hosts.Infrastructure.Extensions;
-using Snapshot.Handlers.Sqs;
 using Uploads;
 
 public class Program
@@ -81,6 +80,10 @@ public class Program
                     .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();
+
+                builder
+                    .Register(c => c.Resolve<RoadNetworkUploadsBlobClient>())
+                    .As<IBlobClient>().SingleInstance();
             })
             .Build();
 
@@ -100,7 +103,7 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                var blobClient = sp.GetService<IBlobClient>();
+                var blobClient = sp.GetRequiredService<IBlobClient>();
                 await
                     new SqlBlobSchema(
                         new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
