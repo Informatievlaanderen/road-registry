@@ -12,6 +12,7 @@ using Castle.Core.Logging;
 using Core;
 using Editor.Schema;
 using Framework.Extensions;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -76,6 +77,7 @@ public class Startup : TestStartup
     {
         services
             .AddTicketing()
+            .AddFakeTicketing()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

@@ -1,7 +1,6 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 
 using BackOffice.Core;
-using Be.Vlaanderen.Basisregisters.Sqs;
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
 using TicketingService.Abstractions;
 
@@ -9,7 +8,7 @@ public class RebuildRoadNetworkSnapshotSqsRequestHandler : SqsHandler<RebuildRoa
 {
     public const string Action = "RebuildRoadNetworkSnapshot";
 
-    public RebuildRoadNetworkSnapshotSqsRequestHandler(ISqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public RebuildRoadNetworkSnapshotSqsRequestHandler(SnapshotSqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 

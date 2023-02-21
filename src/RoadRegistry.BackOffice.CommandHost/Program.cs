@@ -20,6 +20,7 @@ using Autofac;
 using FeatureToggles;
 using Handlers.Sqs;
 using MediatR;
+using Snapshot.Handlers.Sqs;
 using Uploads;
 using ZipArchiveWriters.Validation;
 
@@ -85,7 +86,8 @@ public class Program
             {
                 builder
                     .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
-                    .RegisterModule<SqsHandlersModule>();
+                    .RegisterModule<SqsHandlersModule>()
+                    .RegisterModule<SnapshotSqsHandlersModule>();
             })
             .Build();
 

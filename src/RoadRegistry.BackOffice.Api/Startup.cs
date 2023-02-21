@@ -141,19 +141,6 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        var zipArchiveWriterOptions = new ZipArchiveWriterOptions();
-        _configuration.GetSection(nameof(ZipArchiveWriterOptions)).Bind(zipArchiveWriterOptions);
-        var extractDownloadsOptions = new ExtractDownloadsOptions();
-        _configuration.GetSection(nameof(ExtractDownloadsOptions)).Bind(extractDownloadsOptions);
-        var extractUploadsOptions = new ExtractUploadsOptions();
-        _configuration.GetSection(nameof(ExtractUploadsOptions)).Bind(extractDownloadsOptions);
-
-        var featureCompareMessagingOptions = new FeatureCompareMessagingOptions();
-        _configuration.GetSection(FeatureCompareMessagingOptions.ConfigurationKey).Bind(featureCompareMessagingOptions);
-
-        var sqsQueueUrlOptions = new SqsQueueUrlOptions();
-        _configuration.Bind(sqsQueueUrlOptions);
-
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
             {
@@ -206,11 +193,10 @@ public class Startup
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator>(new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
             .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
             .AddSingleton<ProblemDetailsHelper>()
-            .AddSingleton(zipArchiveWriterOptions)
-            .AddSingleton(extractDownloadsOptions)
-            .AddSingleton(extractUploadsOptions)
-            .AddSingleton(featureCompareMessagingOptions)
-            .AddSingleton(sqsQueueUrlOptions)
+            .RegisterOptions<ZipArchiveWriterOptions>()
+            .RegisterOptions<ExtractDownloadsOptions>()
+            .RegisterOptions<ExtractUploadsOptions>()
+            .RegisterOptions<FeatureCompareMessagingOptions>()
             .AddStreamStore()
             .AddSingleton<IClock>(SystemClock.Instance)
             .AddSingleton(new WKTReader(
@@ -295,7 +281,7 @@ public class Startup
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>()
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
-            .AddTicketing(_configuration)
+            .AddTicketing()
             ;
     }
 

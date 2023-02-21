@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Framework.Extensions;
 
-using Infrastructure.Options;
+using Hosts.Infrastructure.Extensions;
+using Hosts.Infrastructure.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using TicketingService.Abstractions;
-using TicketingService.Proxy.HttpProxy;
 
 public class FakeHttpProxyTicketing : ITicketing
 {
@@ -35,27 +35,24 @@ public class FakeHttpProxyTicketing : ITicketing
 
 public static class TicketingExtensions
 {
-    private static IServiceCollection AddHttpProxyTicketing(
-        this IServiceCollection services,
-        Func<IConfiguration, string> baseUrlProvider)
-    {
-        services.AddHttpClient<ITicketing, FakeHttpProxyTicketing>(_ => new FakeHttpProxyTicketing());
-
-        return services;
-    }
-
-    public static IServiceCollection AddTicketing(
-        this IServiceCollection services)
+    public static IServiceCollection AddFakeTicketing(this IServiceCollection services)
     {
         return services
-            .AddHttpProxyTicketing(GetBaseUrl)
-            .AddSingleton<ITicketingUrl>(sp =>
-                new TicketingUrl(GetBaseUrl(sp.GetRequiredService<IConfiguration>()))
-            );
+                    //TODO-rik cleanup
+                //.RegisterOptions<TicketingOptions>()
+                //.AddSingleton<ITicketingUrl>(sp =>
+                //    {
+                //        var ticketingOptions = sp.GetRequiredService<TicketingOptions>();
+                //        return new TicketingUrl(ticketingOptions.InternalBaseUrl);
+                //    }
+                //)
+                .AddHttpProxyTicketing()
+            ;
     }
 
-    private static string GetBaseUrl(IConfiguration configuration)
+    private static IServiceCollection AddHttpProxyTicketing(this IServiceCollection services)
     {
-        return configuration.GetSection(TicketingOptions.ConfigurationKey).GetRequiredValue<string>(nameof(TicketingOptions.InternalBaseUrl));
+        services.AddHttpClient<ITicketing, FakeHttpProxyTicketing>(_ => new FakeHttpProxyTicketing());
+        return services;
     }
 }

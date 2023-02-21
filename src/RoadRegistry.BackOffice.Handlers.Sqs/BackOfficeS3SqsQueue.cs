@@ -9,14 +9,14 @@ using SqsQueue = Be.Vlaanderen.Basisregisters.Sqs.SqsQueue;
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs;
 
-public class S3SqsQueue : ISqsQueue
+public class BackOfficeS3SqsQueue : ISqsQueue
 {
     private readonly SqsQueue _sqsQueue;
     private readonly SqsMessagesBlobClient _blobClient;
 
-    public S3SqsQueue(SqsOptions sqsOptions, SqsQueueUrlOptions sqsQueueUrlOptions, SqsMessagesBlobClient blobClient)
+    public BackOfficeS3SqsQueue(SqsOptions sqsOptions, SqsQueueUrlOptions sqsQueueUrlOptions, SqsMessagesBlobClient blobClient)
     {
-        _sqsQueue = new SqsQueue(sqsOptions, sqsQueueUrlOptions.SqsQueueUrl);
+        _sqsQueue = new SqsQueue(sqsOptions, sqsQueueUrlOptions.BackOffice);
         _blobClient = blobClient;
     }
 

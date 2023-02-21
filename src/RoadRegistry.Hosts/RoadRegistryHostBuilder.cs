@@ -1,21 +1,12 @@
 namespace RoadRegistry.Hosts;
-
-using Amazon;
-using Amazon.Runtime;
-using Amazon.S3;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
 using BackOffice.Extensions;
-using BackOffice.Extracts;
 using BackOffice.Framework;
-using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
-using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Configuration;
-using Microsoft.AspNetCore.Hosting;
+using Infrastructure.Extensions;
+using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,14 +15,12 @@ using Microsoft.IO;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
-using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Serilog;
 using Serilog.Debugging;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
@@ -46,11 +35,11 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
             Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
 
-        ConfigureHostConfiguration(builder => { })
-            .ConfigureAppConfiguration((hostContext, builder) => { })
-            .ConfigureLogging((hostContext, builder) => { })
-            .ConfigureServicesDefault()
-            .ConfigureContainerDefault();
+        ConfigureDefaultHostConfiguration()
+            .ConfigureDefaultAppConfiguration()
+            .ConfigureDefaultLogging()
+            .ConfigureDefaultServices()
+            .ConfigureDefaultContainer();
     }
 
     public RoadRegistryHostBuilder(string[] args) : this()
@@ -65,25 +54,10 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
         return new RoadRegistryHost<T>(internalHost, _runCommandDelegate);
     }
-
+    
     public new RoadRegistryHostBuilder<T> ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
     {
-        base.ConfigureAppConfiguration((hostContext, services) =>
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-            if (hostContext.HostingEnvironment.IsProduction())
-                services
-                    .SetBasePath(Directory.GetCurrentDirectory());
-
-            services
-                .AddJsonFile("appsettings.json", true, false)
-                .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName.ToLowerInvariant()}.json", true, false)
-                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
-                .AddEnvironmentVariables()
-                .AddCommandLine(_args);
-            configureDelegate.Invoke(hostContext, services);
-        });
+        base.ConfigureAppConfiguration(configureDelegate.Invoke);
         return this;
     }
 
@@ -109,19 +83,54 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
     public new RoadRegistryHostBuilder<T> ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
     {
-        base.ConfigureHostConfiguration(services =>
-        {
-            services
-                .AddEnvironmentVariables("DOTNET_")
-                .AddEnvironmentVariables("ASPNETCORE_");
-            configureDelegate.Invoke(services);
-        });
+        base.ConfigureHostConfiguration(configureDelegate.Invoke);
         return this;
     }
 
     public RoadRegistryHostBuilder<T> ConfigureLogging(Action<HostBuilderContext, ILoggingBuilder> configureDelegate)
     {
-        HostingHostBuilderExtensions.ConfigureLogging(this, (hostContext, builder) =>
+        HostingHostBuilderExtensions.ConfigureLogging(this, configureDelegate.Invoke);
+        return this;
+    }
+    
+    public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+    {
+        base.ConfigureServices(configureDelegate);
+        return this;
+    }
+
+    private RoadRegistryHostBuilder<T> ConfigureDefaultHostConfiguration()
+    {
+        return ConfigureHostConfiguration(services =>
+        {
+            services
+                .AddEnvironmentVariables("DOTNET_")
+                .AddEnvironmentVariables("ASPNETCORE_");
+        });
+    }
+
+    private RoadRegistryHostBuilder<T> ConfigureDefaultAppConfiguration()
+    {
+        return ConfigureAppConfiguration((hostContext, services) =>
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            if (hostContext.HostingEnvironment.IsProduction())
+                services
+                    .SetBasePath(Directory.GetCurrentDirectory());
+
+            services
+                .AddJsonFile("appsettings.json", true, false)
+                .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName.ToLowerInvariant()}.json", true, false)
+                .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
+                .AddEnvironmentVariables()
+                .AddCommandLine(_args);
+        });
+    }
+
+    private RoadRegistryHostBuilder<T> ConfigureDefaultLogging()
+    {
+        return ConfigureLogging((hostContext, builder) =>
         {
             SelfLog.Enable(Console.WriteLine);
 
@@ -135,131 +144,15 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
             Log.Logger = loggerConfiguration.CreateLogger();
 
             builder.AddSerilog(Log.Logger);
-            configureDelegate.Invoke(hostContext, builder);
         });
-        return this;
     }
-
-    public RoadRegistryHostBuilder<T> ConfigureOptions<TOptions>(out TOptions configuredOptions) where TOptions : class, new()
+    
+    private RoadRegistryHostBuilder<T> ConfigureDefaultServices()
     {
-        return ConfigureOptions(null, out configuredOptions);
-    }
-
-    public RoadRegistryHostBuilder<T> ConfigureOptions<TOptions>(string configurationSectionName, out TOptions configuredOptions) where TOptions : class, new()
-    {
-        var internallyConfiguredOptions = new TOptions();
-
-        base.ConfigureServices((hostContext, services) =>
+        return ConfigureServices((hostContext, services) =>
         {
-            if (string.IsNullOrEmpty(configurationSectionName))
-            {
-                hostContext.Configuration.Bind(internallyConfiguredOptions);
-            }
-            else
-            {
-                var configurationSection = hostContext.Configuration.GetSection(configurationSectionName);
-                configurationSection.Bind(internallyConfiguredOptions);
-            }
-
-            services.AddSingleton(internallyConfiguredOptions);
-        });
-
-        configuredOptions = internallyConfiguredOptions;
-        return this;
-    }
-
-    public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
-    {
-        base.ConfigureServices(configureDelegate);
-        return this;
-    }
-
-    private RoadRegistryHostBuilder<T> ConfigureServicesDefault()
-    {
-        ConfigureOptions<BlobClientOptions>(out var blobClientOptions);
-        ConfigureOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions), out var distributedS3CacheOptions);
-
-        ConfigureServices((hostContext, services) =>
-        {
-            if (blobClientOptions.BlobClientType is not null)
-            {
-                switch (blobClientOptions.BlobClientType)
-                {
-                    case nameof(S3BlobClient):
-                        var s3Options = new S3BlobClientOptions();
-                        hostContext.Configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
-
-                        var minioServer = hostContext.Configuration.GetValue<string>("MINIO_SERVER");
-
-                        var amazonS3Client = minioServer != null ? new AmazonS3Client(
-                            new BasicAWSCredentials(
-                                hostContext.Configuration.GetRequiredValue<string>("MINIO_ACCESS_KEY"),
-                                hostContext.Configuration.GetRequiredValue<string>("MINIO_SECRET_KEY")
-                            ),
-                            new AmazonS3Config
-                            {
-                                RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                                ServiceURL = minioServer,
-                                ForcePathStyle = true
-                            }
-                        ) : new AmazonS3Client();
-                        
-                        services
-                            .AddSingleton(amazonS3Client)
-                            .RegisterDistributedS3Cache(amazonS3Client, distributedS3CacheOptions);
-
-                        services
-                            .AddSingleton<IBlobClient>(sp =>
-                                new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )
-                            ).AddSingleton(sp =>
-                                new RoadNetworkUploadsBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )))
-                            .AddSingleton(sp =>
-                                new RoadNetworkExtractUploadsBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.UploadsBucket]
-                                )))
-                            .AddSingleton(sp =>
-                                new RoadNetworkExtractDownloadsBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.ExtractDownloadsBucket]
-                                )))
-                            .AddSingleton(sp =>
-                                new RoadNetworkFeatureCompareBlobClient(new S3BlobClient(
-                                    sp.GetRequiredService<AmazonS3Client>(),
-                                    s3Options.Buckets[WellknownBuckets.FeatureCompareBucket]
-                                )))
-                            ;
-
-                        break;
-
-                    case nameof(FileBlobClient):
-                        var fileOptions = new FileBlobClientOptions();
-                        hostContext.Configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
-
-                        services
-                            .AddSingleton<IBlobClient>(sp =>
-                                new FileBlobClient(
-                                    new DirectoryInfo(fileOptions.Directory)
-                                )
-                            )
-                            .AddSingleton<RoadNetworkUploadsBlobClient>()
-                            .AddSingleton<RoadNetworkExtractUploadsBlobClient>()
-                            .AddSingleton<RoadNetworkExtractDownloadsBlobClient>()
-                            .AddSingleton<RoadNetworkFeatureCompareBlobClient>();
-                        break;
-
-                    default:
-                        throw new InvalidOperationException(blobClientOptions.BlobClientType + " is not a supported blob client type.");
-                }
-            }
-
             services
+                .AddDistributedS3Cache()
                 .AddSingleton<Scheduler>()
                 .AddStreamStore()
                 .AddSingleton<IClock>(SystemClock.Instance)
@@ -273,17 +166,17 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                     )
                 ));
         });
-        return this;
     }
 
-    private RoadRegistryHostBuilder<T> ConfigureContainerDefault()
+    private RoadRegistryHostBuilder<T> ConfigureDefaultContainer()
     {
-        ConfigureContainer((context, builder) =>
+        return ConfigureContainer((context, builder) =>
         {
             builder
                 .RegisterMediator();
+
+            builder.RegisterModule<BlobClientModule>();
         });
-        return this;
     }
 
     public RoadRegistryHostBuilder<T> ConfigureRunCommand(Func<IServiceProvider, Task> runCommandDelegate)

@@ -39,7 +39,7 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
             .Handle(async (context, _, applicationMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));
-                //TODO-rik test via SQS
+                
                 if (snapshotFeatureToggle.FeatureEnabled)
                 {
                     await mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest { Request = new RebuildRoadNetworkSnapshotRequest() }, ct);

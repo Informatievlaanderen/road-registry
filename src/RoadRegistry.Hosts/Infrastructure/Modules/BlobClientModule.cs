@@ -7,13 +7,13 @@ using Amazon.Runtime;
 using Amazon.S3;
 using Autofac;
 using BackOffice;
+using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Configuration;
+using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Hosts.Configuration;
 using Microsoft.Extensions.Configuration;
 
@@ -21,27 +21,13 @@ public class BlobClientModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
-        builder.Register(c =>
-        {
-            var configuration = c.Resolve<IConfiguration>();
-            var blobOptions = new BlobClientOptions();
-            configuration.Bind(blobOptions);
-            return blobOptions;
-        }).AsSelf().SingleInstance();
+        builder.RegisterOptions<BlobClientOptions>();
+        builder.RegisterOptions<S3BlobClientOptions>(nameof(S3BlobClientOptions));
+        builder.RegisterOptions<FileBlobClientOptions>(nameof(FileBlobClientOptions));
 
         builder.Register(c =>
         {
-            var configuration = c.Resolve<IConfiguration>();
-            var s3Options = new S3BlobClientOptions();
-            configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
-            return s3Options;
-        }).AsSelf().SingleInstance();
-
-        builder.Register(c =>
-        {
-            var configuration = c.Resolve<IConfiguration>();
-            var fileOptions = new FileBlobClientOptions();
-            configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
+            var fileOptions = c.Resolve<FileBlobClientOptions>();
             return new FileBlobClient(new DirectoryInfo(fileOptions.Directory));
         }).AsSelf().SingleInstance();
 
@@ -68,16 +54,29 @@ public class BlobClientModule : Module
             return new AmazonS3Client();
         }).AsSelf().SingleInstance();
 
+        builder
+            .Register(c => c.Resolve<AmazonS3Client>())
+            .As<IAmazonS3>().SingleInstance();
+
+        builder.Register<Func<string, IBlobClient>>(c =>
+        {
+            return bucketKey => CreateBlobClient(c, bucketKey);
+        }).SingleInstance();
+        
         builder.Register(c => new RoadNetworkUploadsBlobClient(CreateBlobClient(c, WellknownBuckets.UploadsBucket))).AsSelf().SingleInstance();
         builder.Register(c => new RoadNetworkExtractUploadsBlobClient(CreateBlobClient(c, WellknownBuckets.UploadsBucket))).AsSelf().SingleInstance();
         builder.Register(c => new RoadNetworkExtractDownloadsBlobClient(CreateBlobClient(c, WellknownBuckets.ExtractDownloadsBucket))).AsSelf().SingleInstance();
         builder.Register(c => new RoadNetworkFeatureCompareBlobClient(CreateBlobClient(c, WellknownBuckets.FeatureCompareBucket))).AsSelf().SingleInstance();
-        builder.Register(c => new SqsMessagesBlobClient(CreateBlobClient(c, WellknownBuckets.SqsMessagesBucket), c.Resolve<SqsOptions>())).AsSelf().SingleInstance();
     }
 
     protected virtual IBlobClient CreateBlobClient(IComponentContext c, string bucketKey)
     {
         var blobOptions = c.Resolve<BlobClientOptions>();
+
+        if (blobOptions.BlobClientType == null)
+        {
+            return new MemoryBlobClient();
+        }
 
         switch (blobOptions.BlobClientType)
         {

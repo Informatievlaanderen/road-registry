@@ -23,6 +23,7 @@ using Autofac;
 using Extensions;
 using Handlers.Sqs;
 using Hosts.Infrastructure.Extensions;
+using Snapshot.Handlers.Sqs;
 using Uploads;
 
 public class Program
@@ -78,7 +79,8 @@ public class Program
             {
                 builder
                     .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
-                    .RegisterModule<SqsHandlersModule>();
+                    .RegisterModule<SqsHandlersModule>()
+                    .RegisterModule<SnapshotSqsHandlersModule>();
             })
             .Build();
 

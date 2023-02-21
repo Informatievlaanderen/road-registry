@@ -1,8 +1,14 @@
 namespace RoadRegistry.Hosts.Infrastructure.Configuration;
 
-public sealed class RetryPolicyOptions
+using BackOffice;
+
+public sealed class RetryPolicyOptions: IHasConfigurationKey
 {
-    public const string ConfigurationKey = "RetryPolicy";
     public int MaxRetryCount { get; set; }
     public int StartingRetryDelaySeconds { get; set; }
+
+    public string GetConfigurationKey()
+    {
+        return "RetryPolicy";
+    }
 }

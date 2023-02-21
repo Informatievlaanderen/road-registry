@@ -52,11 +52,8 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
         JsonConvert.DefaultSettings = () => EventSerializerSettings;
 
         builder
-            .RegisterMediator();
-
-        builder.RegisterRetryPolicy(configuration);
-
-        builder
+            .RegisterMediator()
+            .RegisterRetryPolicy()
             .RegisterModule(new DataDogModule(configuration))
             .RegisterModule<EnvelopeModule>();
     }

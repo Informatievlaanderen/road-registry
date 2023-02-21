@@ -34,11 +34,11 @@ public class Program
     public static async Task Main(string[] args)
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
-            .ConfigureOptions<ZipArchiveWriterOptions>(out var zipArchiveWriterOptions)
             .ConfigureServices((hostContext, services) =>
             {
                 services
                     .AddHostedService<EventProcessor>()
+                    .RegisterOptions<ZipArchiveWriterOptions>()
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
