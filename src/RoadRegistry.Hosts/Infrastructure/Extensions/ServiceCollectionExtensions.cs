@@ -108,9 +108,10 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDistributedS3Cache(this IServiceCollection services)
     {
-        services.AddOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions));
-        services.AddSingleton(sp => new DistributedS3Cache(sp.GetRequiredService<IAmazonS3>(), sp.GetRequiredService<DistributedS3CacheOptions>()));
-        services.AddTransient<S3CacheService>();
-        return services;
+        //TODO-rik send to yusuf
+        return services
+            .RegisterOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions))
+            .AddSingleton<DistributedS3Cache>()
+            .AddTransient<S3CacheService>();
     }
 }
