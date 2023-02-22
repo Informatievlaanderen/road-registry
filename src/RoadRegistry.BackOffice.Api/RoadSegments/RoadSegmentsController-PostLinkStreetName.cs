@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
+using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,7 @@ public partial class RoadSegmentsController
     /// </summary>
     /// <param name="featureToggle"></param>
     /// <param name="ifMatchHeaderValidator"></param>
+    /// <param name="validator"></param>
     /// <param name="parameters"></param>
     /// <param name="id">Identificator van het wegsegment.</param>
     /// <param name="ifMatchHeaderValue"></param>
@@ -48,6 +50,7 @@ public partial class RoadSegmentsController
     public async Task<IActionResult> PostLinkStreetName(
         [FromServices] UseRoadSegmentLinkStreetNameFeatureToggle featureToggle,
         [FromServices] IIfMatchHeaderValidator ifMatchHeaderValidator,
+        [FromServices] IValidator<LinkStreetNameRequest> validator,
         [FromBody] PostLinkStreetNameParameters parameters,
         [FromRoute] int id,
         [FromHeader(Name = "If-Match")] string? ifMatchHeaderValue,
@@ -60,6 +63,9 @@ public partial class RoadSegmentsController
 
         try
         {
+            var request = new LinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
+            await validator.ValidateAndThrowAsync(request, cancellationToken);
+
             if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, new RoadSegmentId(id), cancellationToken))
             {
                 return new PreconditionFailedResult();
@@ -68,7 +74,7 @@ public partial class RoadSegmentsController
             var result = await _mediator.Send(Enrich(
                 new LinkStreetNameSqsRequest
                 {
-                    Request = new LinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId)
+                    Request = request
                 }), cancellationToken);
 
             return Accepted(result);

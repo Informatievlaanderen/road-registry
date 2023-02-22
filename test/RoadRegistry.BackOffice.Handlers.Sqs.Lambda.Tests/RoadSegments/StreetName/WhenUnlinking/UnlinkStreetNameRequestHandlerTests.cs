@@ -194,6 +194,32 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         VerifyThatTicketHasError(ticketing, "NotFound", "Onbestaand wegsegment.");
     }
 
+    [Fact]
+    public async Task UnlinkStreetNameFromRoadSegment_LeftAndRightStreetName_Succeeded()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = new RoadSegmentId(Segment1Added.Id);
+
+        Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+        Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+
+        await GivenSegment1Added();
+
+        //Act
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, StreetNamePuri(WellKnownStreetNameIds.Proposed), StreetNamePuri(WellKnownStreetNameIds.Proposed)));
+
+        //Assert
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
+        var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
+
+        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var roadSegmentModified = command!.Changes.Single().RoadSegmentModified;
+        Xunit.Assert.Equal(0, roadSegmentModified.LeftSide.StreetNameId);
+        Xunit.Assert.Equal(0, roadSegmentModified.RightSide.StreetNameId);
+    }
+
     private new static class WellKnownStreetNameIds
     {
         public const int Proposed = 1;
