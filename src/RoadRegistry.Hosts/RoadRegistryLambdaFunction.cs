@@ -7,6 +7,8 @@ using System.IO;
 using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using BackOffice;
+using BackOffice.Extensions;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
@@ -81,6 +83,7 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
             .AddStreamStore()
             .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })
             .AddSqsLambdaHandlerOptions()
+            .AddFeatureToggles<ApplicationFeatureToggle>(configuration)
             ;
 
         var builder = new ContainerBuilder();
