@@ -59,29 +59,30 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                 var recordNumber = RecordNumber.Initial;
 
                 var leftStreetNameId = request.Request.LinkerstraatnaamId.GetIdentifierFromPuri();
-                if (leftStreetNameId > 0)
-                {
-                    if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
-                    {
-                        throw new RoadRegistryValidationException(
-                            ValidationErrors.RoadSegment.StreetName.Left.NotLinked.Message(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId!),
-                            ValidationErrors.RoadSegment.StreetName.Left.NotLinked.Code);
-                    }
-                }
-
                 var rightStreetNameId = request.Request.RechterstraatnaamId.GetIdentifierFromPuri();
-                if (rightStreetNameId > 0)
-                {
-                    if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
-                    {
-                        throw new RoadRegistryValidationException(
-                            ValidationErrors.RoadSegment.StreetName.Right.NotLinked.Message(request.Request.WegsegmentId, request.Request.RechterstraatnaamId!),
-                            ValidationErrors.RoadSegment.StreetName.Right.NotLinked.Code);
-                    }
-                }
 
                 if (leftStreetNameId > 0 || rightStreetNameId > 0)
                 {
+                    if (leftStreetNameId > 0)
+                    {
+                        if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
+                        {
+                            throw new RoadRegistryValidationException(
+                                ValidationErrors.RoadSegment.StreetName.Left.NotLinked.Message(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId!),
+                                ValidationErrors.RoadSegment.StreetName.Left.NotLinked.Code);
+                        }
+                    }
+
+                    if (rightStreetNameId > 0)
+                    {
+                        if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
+                        {
+                            throw new RoadRegistryValidationException(
+                                ValidationErrors.RoadSegment.StreetName.Right.NotLinked.Message(request.Request.WegsegmentId, request.Request.RechterstraatnaamId!),
+                                ValidationErrors.RoadSegment.StreetName.Right.NotLinked.Code);
+                        }
+                    }
+
                     translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                         recordNumber,
                         roadSegment.Id,
