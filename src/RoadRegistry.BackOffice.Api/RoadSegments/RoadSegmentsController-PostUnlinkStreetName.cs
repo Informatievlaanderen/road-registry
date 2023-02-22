@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
+using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -48,6 +49,7 @@ public partial class RoadSegmentsController
     public async Task<IActionResult> PostUnlinkStreetName(
         [FromServices] UseRoadSegmentUnlinkStreetNameFeatureToggle featureToggle,
         [FromServices] IIfMatchHeaderValidator ifMatchHeaderValidator,
+        [FromServices] IValidator<UnlinkStreetNameRequest> validator,
         [FromBody] PostUnlinkStreetNameParameters parameters,
         [FromRoute] int id,
         [FromHeader(Name = "If-Match")] string? ifMatchHeaderValue,
@@ -60,6 +62,9 @@ public partial class RoadSegmentsController
 
         try
         {
+            var request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
+            await validator.ValidateAndThrowAsync(request, cancellationToken);
+
             if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, new RoadSegmentId(id), cancellationToken))
             {
                 return new PreconditionFailedResult();
@@ -68,7 +73,7 @@ public partial class RoadSegmentsController
             var result = await _mediator.Send(Enrich(
                 new UnlinkStreetNameSqsRequest
                 {
-                    Request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId)
+                    Request = request
                 }), cancellationToken);
 
             return Accepted(result);

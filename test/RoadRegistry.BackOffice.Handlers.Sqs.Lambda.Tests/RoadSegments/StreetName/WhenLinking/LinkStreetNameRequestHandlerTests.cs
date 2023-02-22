@@ -5,17 +5,15 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Core;
 using Hosts;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Moq;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
-using Microsoft.Extensions.Logging;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using TicketingService.Abstractions;
@@ -228,5 +226,34 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         //Assert
         VerifyThatTicketHasError(ticketing, "NotFound", "Onbestaand wegsegment.");
+    }
+
+
+    [InlineData(WellKnownStreetNameIds.Proposed)]
+    [InlineData(WellKnownStreetNameIds.Current)]
+    [Theory]
+    public async Task LinkStreetNameToRoadSegment_LeftAndRightStreetName_Proposed_Current(int streetNameId)
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = new RoadSegmentId(Segment1Added.Id);
+
+        Segment1Added.LeftSide.StreetNameId = null;
+        Segment1Added.RightSide.StreetNameId = null;
+
+        await GivenSegment1Added();
+
+        //Act
+        await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, StreetNamePuri(streetNameId), StreetNamePuri(streetNameId)));
+
+        //Assert
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
+        var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
+
+        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var roadSegmentModified = command!.Changes.Single().RoadSegmentModified;
+        Xunit.Assert.Equal(streetNameId, roadSegmentModified.LeftSide.StreetNameId);
+        Xunit.Assert.Equal(streetNameId, roadSegmentModified.RightSide.StreetNameId);
     }
 }

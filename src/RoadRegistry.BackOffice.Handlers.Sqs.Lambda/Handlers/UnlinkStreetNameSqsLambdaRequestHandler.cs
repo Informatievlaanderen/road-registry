@@ -59,8 +59,6 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                 var recordNumber = RecordNumber.Initial;
 
                 var leftStreetNameId = request.Request.LinkerstraatnaamId.GetIdentifierFromPuri();
-                var rightStreetNameId = request.Request.RechterstraatnaamId.GetIdentifierFromPuri();
-
                 if (leftStreetNameId > 0)
                 {
                     if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
@@ -69,23 +67,10 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                             ValidationErrors.RoadSegment.StreetName.Left.NotLinked.Message(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId!),
                             ValidationErrors.RoadSegment.StreetName.Left.NotLinked.Code);
                     }
-
-                    translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
-                        recordNumber,
-                        roadSegment.Id,
-                        roadSegment.Start,
-                        roadSegment.End,
-                        roadSegment.AttributeHash.OrganizationId,
-                        roadSegment.AttributeHash.GeometryDrawMethod,
-                        roadSegment.AttributeHash.Morphology,
-                        roadSegment.AttributeHash.Status,
-                        roadSegment.AttributeHash.Category,
-                        roadSegment.AttributeHash.AccessRestriction,
-                        null,
-                        roadSegment.AttributeHash.RightStreetNameId
-                    ).WithGeometry(roadSegment.Geometry));
                 }
-                else if (rightStreetNameId > 0)
+
+                var rightStreetNameId = request.Request.RechterstraatnaamId.GetIdentifierFromPuri();
+                if (rightStreetNameId > 0)
                 {
                     if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
                     {
@@ -93,7 +78,10 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                             ValidationErrors.RoadSegment.StreetName.Right.NotLinked.Message(request.Request.WegsegmentId, request.Request.RechterstraatnaamId!),
                             ValidationErrors.RoadSegment.StreetName.Right.NotLinked.Code);
                     }
+                }
 
+                if (leftStreetNameId > 0 || rightStreetNameId > 0)
+                {
                     translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                         recordNumber,
                         roadSegment.Id,
@@ -105,15 +93,9 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,
                         roadSegment.AttributeHash.AccessRestriction,
-                        roadSegment.AttributeHash.LeftStreetNameId,
-                        null
+                        leftStreetNameId > 0 ? null : roadSegment.AttributeHash.LeftStreetNameId,
+                        rightStreetNameId > 0 ? null : roadSegment.AttributeHash.RightStreetNameId
                     ).WithGeometry(roadSegment.Geometry));
-                }
-                else
-                {
-                    throw new RoadRegistryValidationException(
-                        ValidationErrors.Common.IncorrectObjectId.Message(request.Request.LinkerstraatnaamId),
-                        ValidationErrors.Common.IncorrectObjectId.Code);
                 }
 
                 return translatedChanges;

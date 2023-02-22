@@ -63,8 +63,6 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                 var recordNumber = RecordNumber.Initial;
 
                 var leftStreetNameId = request.Request.LinkerstraatnaamId.GetIdentifierFromPuri();
-                var rightStreetNameId = request.Request.RechterstraatnaamId.GetIdentifierFromPuri();
-
                 if (leftStreetNameId > 0)
                 {
                     if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId))
@@ -75,23 +73,10 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                     }
 
                     await ValidateStreetName(leftStreetNameId, cancellationToken);
-
-                    translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
-                        recordNumber,
-                        roadSegment.Id,
-                        roadSegment.Start,
-                        roadSegment.End,
-                        roadSegment.AttributeHash.OrganizationId,
-                        roadSegment.AttributeHash.GeometryDrawMethod,
-                        roadSegment.AttributeHash.Morphology,
-                        roadSegment.AttributeHash.Status,
-                        roadSegment.AttributeHash.Category,
-                        roadSegment.AttributeHash.AccessRestriction,
-                        new CrabStreetnameId(leftStreetNameId),
-                        roadSegment.AttributeHash.RightStreetNameId
-                    ).WithGeometry(roadSegment.Geometry));
                 }
-                else if (rightStreetNameId > 0)
+
+                var rightStreetNameId = request.Request.RechterstraatnaamId.GetIdentifierFromPuri();
+                if (rightStreetNameId > 0)
                 {
                     if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
                     {
@@ -101,7 +86,10 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                     }
 
                     await ValidateStreetName(rightStreetNameId, cancellationToken);
+                }
 
+                if (leftStreetNameId > 0 || rightStreetNameId > 0)
+                {
                     translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                         recordNumber,
                         roadSegment.Id,
@@ -113,15 +101,9 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,
                         roadSegment.AttributeHash.AccessRestriction,
-                        roadSegment.AttributeHash.LeftStreetNameId,
-                        new CrabStreetnameId(rightStreetNameId)
+                        leftStreetNameId > 0 ? new CrabStreetnameId(leftStreetNameId) : roadSegment.AttributeHash.LeftStreetNameId,
+                        rightStreetNameId > 0 ? new CrabStreetnameId(rightStreetNameId) : roadSegment.AttributeHash.RightStreetNameId
                     ).WithGeometry(roadSegment.Geometry));
-                }
-                else
-                {
-                    throw new RoadRegistryValidationException(
-                        ValidationErrors.Common.IncorrectObjectId.Message(request.Request.LinkerstraatnaamId),
-                        ValidationErrors.Common.IncorrectObjectId.Code);
                 }
 
                 return translatedChanges;
