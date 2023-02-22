@@ -5419,4 +5419,79 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }));
     }
+
+    [Fact]
+    public Task when_modifying_a_segment_attribute()
+    {
+        var roadSegmentMorphology = ObjectProvider.Create<RoadSegmentMorphology>();
+        while (roadSegmentMorphology == Segment1Added.Morphology)
+        {
+            roadSegmentMorphology = ObjectProvider.Create<RoadSegmentMorphology>();
+        }
+
+        ModifySegment1.Morphology = roadSegmentMorphology;
+        Segment1Modified.Morphology = roadSegmentMorphology;
+
+        Segment1Added.Version = 3;
+        Segment1Modified.Version = 4;
+
+        return Run(scenario => scenario
+            .Given(Organizations.ToStreamName(ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = ChangedByOrganization,
+                    Name = ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = StartNode1Added
+                    },
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = EndNode1Added
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = Segment1Added
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .When(TheOperator.ChangesTheRoadNetwork(
+                RequestId, ReasonForChange, ChangedByOperator, ChangedByOrganization,
+                new RequestedChange
+                {
+                    ModifyRoadSegment = ModifySegment1
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = RequestId,
+                Reason = ReasonForChange,
+                Operator = ChangedByOperator,
+                OrganizationId = ChangedByOrganization,
+                Organization = ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadSegmentModified = Segment1Modified,
+                        Problems = Array.Empty<Problem>()
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            }));
+    }
 }

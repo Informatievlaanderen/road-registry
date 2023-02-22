@@ -394,6 +394,65 @@ public class RoadNetworkTestBase : RoadRegistryTestBase
                 })
                 .ToArray()
         };
+        
+        ModifySegment1 = new ModifyRoadSegment
+        {
+            AccessRestriction = Segment1Added.AccessRestriction,
+            Category = Segment1Added.Category,
+            EndNodeId = Segment1Added.EndNodeId,
+            Geometry = Segment1Added.Geometry,
+            GeometryDrawMethod = Segment1Added.GeometryDrawMethod,
+            Id = Segment1Added.Id,
+            Lanes = Segment1Added.Lanes.Select(lane => new RequestedRoadSegmentLaneAttribute
+            {
+                AttributeId = lane.AttributeId,
+                Count = lane.Count,
+                Direction = lane.Direction,
+                FromPosition = lane.FromPosition,
+                ToPosition = lane.ToPosition
+            }).ToArray(),
+            LeftSideStreetNameId = Segment1Added.LeftSide.StreetNameId,
+            MaintenanceAuthority = Segment1Added.MaintenanceAuthority.Code,
+            Morphology = Segment1Added.Morphology,
+            RightSideStreetNameId = Segment1Added.RightSide.StreetNameId,
+            StartNodeId = Segment1Added.StartNodeId,
+            Status = Segment1Added.Status,
+            Surfaces = Segment1Added.Surfaces.Select(surface => new RequestedRoadSegmentSurfaceAttribute
+            {
+                AttributeId = surface.AttributeId,
+                FromPosition = surface.FromPosition,
+                ToPosition = surface.ToPosition,
+                Type = surface.Type
+            }).ToArray(),
+            Widths = Segment1Added.Widths.Select(width => new RequestedRoadSegmentWidthAttribute
+            {
+                AttributeId = width.AttributeId,
+                FromPosition = width.FromPosition,
+                ToPosition = width.ToPosition,
+                Width = width.Width
+            }).ToArray()
+        };
+
+        Segment1Modified = new RoadSegmentModified
+        {
+            Version = 2,
+            GeometryVersion = 1,
+            AccessRestriction = Segment1Added.AccessRestriction,
+            Category = Segment1Added.Category,
+            EndNodeId = Segment1Added.EndNodeId,
+            Geometry = Segment1Added.Geometry,
+            GeometryDrawMethod = Segment1Added.GeometryDrawMethod,
+            Id = Segment1Added.Id,
+            Lanes = Segment1Added.Lanes,
+            LeftSide = Segment1Added.LeftSide,
+            MaintenanceAuthority = Segment1Added.MaintenanceAuthority,
+            Morphology = Segment1Added.Morphology,
+            RightSide = Segment1Added.RightSide,
+            StartNodeId = Segment1Added.StartNodeId,
+            Status = Segment1Added.Status,
+            Surfaces = Segment1Added.Surfaces,
+            Widths = Segment1Added.Widths
+        };
 
         var laneCount2 = new Random().Next(1, 10);
         var widthCount2 = new Random().Next(1, 10);
@@ -681,6 +740,8 @@ public class RoadNetworkTestBase : RoadRegistryTestBase
     public Point MiddlePoint3 { get; }
     public ModifyRoadNode ModifyEndNode1 { get; }
     public ModifyRoadNode ModifyStartNode1 { get; }
+    public ModifyRoadSegment ModifySegment1 { get; }
+    public RoadSegmentModified Segment1Modified { get; }
     public MultiLineString MultiLineString1 { get; }
     public MultiLineString MultiLineString2 { get; }
     public MultiLineString MultiLineString3 { get; }
