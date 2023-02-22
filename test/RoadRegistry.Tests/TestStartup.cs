@@ -32,6 +32,7 @@ using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
+using RoadRegistry.Tests.Infrastructure.Modules;
 using SqlStreamStore;
 using Xunit.DependencyInjection;
 using Xunit.DependencyInjection.Logging;
@@ -111,6 +112,8 @@ public abstract class TestStartup
 
                 ConfigureContainer(hostContext, builder);
                 ConfigureContainer(builder);
+
+                builder.RegisterModule<BlobClientTestModule>();
 
                 builder
                     .Register(c => new SqsOptions(RegionEndpoint.EUWest1, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
