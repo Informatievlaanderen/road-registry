@@ -1,4 +1,4 @@
-namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks;
+namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenCreateRoadNetworkSnapshot;
 
 using Abstractions;
 using Fixtures;

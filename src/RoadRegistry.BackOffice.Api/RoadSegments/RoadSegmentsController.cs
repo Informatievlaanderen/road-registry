@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Api;
+using Hosts.Infrastructure.Options;
 using Infrastructure;
 using Infrastructure.Controllers;
 using Infrastructure.Controllers.Attributes;
-using Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

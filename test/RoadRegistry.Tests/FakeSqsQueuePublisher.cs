@@ -10,7 +10,7 @@ public class FakeSqsQueuePublisher : ISqsQueuePublisher
     {
         var sqsJsonMessage = SqsJsonMessage.Create(message, new JsonSerializer());
 
-        FakeSqsQueue.Publish(queueUrl, sqsJsonMessage);
+        MemorySqsQueue.Publish(queueUrl, sqsJsonMessage);
 
         return await Task.FromResult(true);
     }

@@ -7,6 +7,8 @@ using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Infrastructure.Modules;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
+using Core;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
@@ -15,6 +17,7 @@ using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 
 public sealed class Function : RoadRegistryLambdaFunction
 {
@@ -39,6 +42,11 @@ public sealed class Function : RoadRegistryLambdaFunction
                 {
                     CommandModules.RoadNetwork(sp)
                 }))
+                .AddLogging(configure =>
+                {
+                    configure.AddRoadRegistryLambdaLogger();
+                })
+            .AddRoadRegistrySnapshot()
             ;
 
         return base.ConfigureServices(services);
@@ -53,8 +61,9 @@ public sealed class Function : RoadRegistryLambdaFunction
             .AsImplementedInterfaces();
 
         builder
+            .RegisterModule(new DataDogModule(configuration))
+            .RegisterModule<EnvelopeModule>()
             .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, EventSerializerSettings))
-            .RegisterModule<RoadNetworkSnapshotModule>()
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<SyndicationModule>()

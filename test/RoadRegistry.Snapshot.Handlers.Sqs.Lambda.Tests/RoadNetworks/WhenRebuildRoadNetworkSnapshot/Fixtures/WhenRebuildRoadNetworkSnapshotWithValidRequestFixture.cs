@@ -1,24 +1,23 @@
-namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.Fixtures;
+namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenRebuildRoadNetworkSnapshot.Fixtures;
 
 using Abstractions.Fixtures;
-using BackOffice;
-using BackOffice.Abstractions.RoadNetworks;
-using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Configuration;
-using Hosts;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NodaTime;
 using NodaTime.Text;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Abstractions.RoadNetworks;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.Hosts;
 using RoadRegistry.Tests.BackOffice.Core;
 using SqlStreamStore;
 using AcceptedChange = BackOffice.Messages.AcceptedChange;
 
-public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRoadNetworkSnapshotFixture
+public class WhenRebuildRoadNetworkSnapshotWithValidRequestFixture : WhenRebuildRoadNetworkSnapshotFixture
 {
-    public WhenCreateRoadNetworkSnapshotWithValidRequestFixture(
+    public WhenRebuildRoadNetworkSnapshotWithValidRequestFixture(
         IConfiguration configuration,
         ICustomRetryPolicy customRetryPolicy,
         IStreamStore streamStore,
@@ -31,16 +30,13 @@ public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRo
     {
     }
 
-    protected override CreateRoadNetworkSnapshotRequest Request => new()
-    {
-        StreamVersion = 3
-    };
+    protected override RebuildRoadNetworkSnapshotRequest Request => new();
 
     protected override Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader)
     {
         var mock = new Mock<IRoadNetworkSnapshotReader>();
-        mock.Setup(m => m.ReadSnapshotAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync((new RoadNetworkSnapshot(), 0));
+        mock.Setup(m => m.ReadSnapshotVersionAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(2);
         return mock;
     }
 
@@ -49,12 +45,7 @@ public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRo
         var mock = new Mock<IRoadNetworkSnapshotWriter>();
         return mock;
     }
-
-    protected override RoadNetworkSnapshotStrategyOptions BuildSnapshotStrategyOptions()
-    {
-        return new() { EventCount = 3 };
-    }
-
+    
     protected override async Task SetupAsync()
     {
         var x = RoadNetworkTestHelpers.Create();

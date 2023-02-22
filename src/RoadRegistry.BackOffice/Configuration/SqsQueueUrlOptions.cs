@@ -1,6 +1,12 @@
 namespace RoadRegistry.BackOffice.Configuration;
 
-public class SqsQueueUrlOptions
+public class SqsQueueUrlOptions: IHasConfigurationKey
 {
-    public string SqsQueueUrl { get; set; }
+    public string BackOffice { get; set; }
+    public string Snapshot { get; set; }
+
+    public string GetConfigurationKey()
+    {
+        return "SqsQueueUrlOptions";
+    }
 }

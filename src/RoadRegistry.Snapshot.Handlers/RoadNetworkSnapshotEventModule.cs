@@ -32,9 +32,10 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         var logger = loggerFactory.CreateLogger<RoadNetworkSnapshotEventModule>();
+        var enricher = EnrichEvent.WithTime(clock);
 
         For<RoadNetworkChangesAccepted>()
-            .UseRoadRegistryContext(store, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, message, ct) =>
             {
                 logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));

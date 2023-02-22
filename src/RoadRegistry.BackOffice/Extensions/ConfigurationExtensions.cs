@@ -1,6 +1,7 @@
 namespace Microsoft.Extensions.Configuration;
 
 using System.Configuration;
+using RoadRegistry.BackOffice;
 
 public static class ConfigurationExtensions
 {
@@ -9,11 +10,26 @@ public static class ConfigurationExtensions
         return configuration.GetValue<T>(key) ?? throw new ConfigurationErrorsException($"The '{key}' configuration variable was not set.");
     }
 
-    public static T GetSection<T>(this IConfiguration configuration, string key)
-        where T: new()
+    public static TOptions GetOptions<TOptions>(this IConfiguration configuration)
+        where TOptions : class, new()
     {
-        var section = new T();
-        configuration.GetSection(key).Bind(section);
-        return section;
+        var configurationSectionName = new TOptions() is IHasConfigurationKey hasConfigurationKey ? hasConfigurationKey.GetConfigurationKey() : null;
+        return GetOptions<TOptions>(configuration, configurationSectionName);
+    }
+
+    public static TOptions GetOptions<TOptions>(this IConfiguration configuration, string configurationSectionKey)
+        where TOptions : class, new()
+    {
+        var options = new TOptions();
+        if (configurationSectionKey != null)
+        {
+            configuration.GetSection(configurationSectionKey).Bind(options);
+        }
+        else
+        {
+            configuration.Bind(options);
+        }
+
+        return options;
     }
 }

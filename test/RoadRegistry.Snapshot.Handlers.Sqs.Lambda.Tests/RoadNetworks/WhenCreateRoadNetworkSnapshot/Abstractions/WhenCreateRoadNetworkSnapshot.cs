@@ -1,4 +1,4 @@
-namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.Abstractions;
+namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenCreateRoadNetworkSnapshot.Abstractions;
 
 using Fixtures;
 using Xunit.Abstractions;

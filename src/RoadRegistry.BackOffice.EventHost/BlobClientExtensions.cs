@@ -9,9 +9,7 @@ using Amazon.S3;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
-using Hosts;
-using Hosts.Configuration;
-using Microsoft.Extensions.Configuration;
+using Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -19,16 +17,13 @@ internal static class BlobClientExtensions
 {
     public static async Task ProvisionResources(this IBlobClient client, IHost host, CancellationToken token = default)
     {
-        var configuration = host.Services.GetRequiredService<IConfiguration>();
-
         switch (client)
         {
             case S3BlobClient _:
                 if (Environment.GetEnvironmentVariable("MINIO_SERVER") != null)
                 {
                     var s3Client = host.Services.GetRequiredService<AmazonS3Client>();
-                    var s3Options = new S3BlobClientOptions();
-                    configuration.GetSection(nameof(S3BlobClientOptions)).Bind(s3Options);
+                    var s3Options = host.Services.GetRequiredService<S3BlobClientOptions>();
 
                     var buckets = await s3Client.ListBucketsAsync(token);
                     var bucketNames = typeof(WellknownBuckets)
@@ -43,8 +38,7 @@ internal static class BlobClientExtensions
 
                 break;
             case FileBlobClient _:
-                var fileOptions = new FileBlobClientOptions();
-                configuration.GetSection(nameof(FileBlobClientOptions)).Bind(fileOptions);
+                var fileOptions = host.Services.GetRequiredService<FileBlobClientOptions>();
 
                 Directory.CreateDirectory(fileOptions.Directory);
                 break;

@@ -1,7 +1,6 @@
 namespace RoadRegistry.Wfs.ProjectionHost;
 
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
@@ -11,24 +10,14 @@ using Hosts.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using Newtonsoft.Json;
-using NodaTime;
 using Projections;
-using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Schema;
-using Serilog;
-using Serilog.Debugging;
-using SqlStreamStore;
 using Syndication.Schema;
-using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 public class Program
 {
@@ -38,143 +27,73 @@ public class Program
 
     public static async Task Main(string[] args)
     {
-        Console.WriteLine("Starting RoadRegistry.Wfs.ProjectionHost");
-
-        AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
-            Log.Debug(eventArgs.Exception, "FirstChanceException event raised in {AppDomain}.", AppDomain.CurrentDomain.FriendlyName);
-
-        AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
-            Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
-
-        var host = new HostBuilder()
-            .ConfigureHostConfiguration(builder =>
+        var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
+            .ConfigureServices((hostContext, services) => services
+                .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
+                .AddTransient<EventProcessor>()
+                .AddSingleton<IStreetNameCache, StreetNameCache>()
+                .AddScoped<IMetadataUpdater, MetadataUpdater>()
+                .AddSingleton(new EnvelopeFactory(
+                    EventProcessor.EventMapping,
+                    new EventDeserializer((eventData, eventType) =>
+                        JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
+                )
+                .AddSingleton(
+                    () =>
+                        new WfsContext(
+                            new DbContextOptionsBuilder<WfsContext>()
+                                .UseSqlServer(
+                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.WfsProjections),
+                                    options => options
+                                        .EnableRetryOnFailure()
+                                        .UseNetTopologySuite()
+                                ).Options)
+                )
+                .AddSingleton(
+                    () =>
+                        new SyndicationContext(
+                            new DbContextOptionsBuilder<SyndicationContext>()
+                                .UseSqlServer(
+                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                    options => options
+                                        .EnableRetryOnFailure()
+                                ).Options)
+                )
+                .AddSingleton(sp => new ConnectedProjection<WfsContext>[]
+                {
+                    // new GradeSeparatedJunctionRecordProjection(),
+                    new RoadNodeRecordProjection(),
+                    new RoadSegmentRecordProjection(
+                        sp.GetRequiredService<IStreetNameCache>())
+                })
+                .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp
+                    .GetRequiredService<ConnectedProjection<WfsContext>[]>()
+                    .SelectMany(projection => projection.Handlers)
+                    .ToArray())
+                )
+                .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<WfsContext>[]>(), EventProcessor.EventMapping))
+                .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory()))
+            .ConfigureRunCommand(async sp =>
             {
-                builder
-                    .AddEnvironmentVariables("DOTNET_")
-                    .AddEnvironmentVariables("ASPNETCORE_");
-            })
-            .ConfigureAppConfiguration((hostContext, builder) =>
-            {
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
-                if (hostContext.HostingEnvironment.IsProduction())
-                    builder
-                        .SetBasePath(Directory.GetCurrentDirectory());
-
-                builder
-                    .AddJsonFile("appsettings.json", true, false)
-                    .AddJsonFile($"appsettings.{hostContext.HostingEnvironment.EnvironmentName.ToLowerInvariant()}.json", true, false)
-                    .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false)
-                    .AddEnvironmentVariables()
-                    .AddCommandLine(args);
-            })
-            .ConfigureLogging((hostContext, builder) =>
-            {
-                SelfLog.Enable(Console.WriteLine);
-
-                var loggerConfiguration = new LoggerConfiguration()
-                    .ReadFrom.Configuration(hostContext.Configuration)
-                    .Enrich.FromLogContext()
-                    .Enrich.WithMachineName()
-                    .Enrich.WithThreadId()
-                    .Enrich.WithEnvironmentUserName();
-
-                Log.Logger = loggerConfiguration.CreateLogger();
-
-                builder.AddSerilog(Log.Logger);
-            })
-            .ConfigureServices((hostContext, builder) =>
-            {
-                builder
-                    .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
-                    .AddSingleton<IClock>(SystemClock.Instance)
-                    .AddSingleton<Scheduler>()
-                    .AddTransient<EventProcessor>()
-                    .AddSingleton<IStreetNameCache, StreetNameCache>()
-                    .AddScoped<IMetadataUpdater, MetadataUpdater>()
-                    .AddSingleton(new RecyclableMemoryStreamManager())
-                    .AddSingleton(new EnvelopeFactory(
-                        EventProcessor.EventMapping,
-                        new EventDeserializer((eventData, eventType) =>
-                            JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
-                    )
-                    .AddSingleton(
-                        () =>
-                            new WfsContext(
-                                new DbContextOptionsBuilder<WfsContext>()
-                                    .UseSqlServer(
-                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.WfsProjections),
-                                        options => options
-                                            .EnableRetryOnFailure()
-                                            .UseNetTopologySuite()
-                                    ).Options)
-                    )
-                    .AddSingleton(
-                        () =>
-                            new SyndicationContext(
-                                new DbContextOptionsBuilder<SyndicationContext>()
-                                    .UseSqlServer(
-                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
-                                        options => options
-                                            .EnableRetryOnFailure()
-                                    ).Options)
-                    )
-                    .AddSingleton(sp => new ConnectedProjection<WfsContext>[]
-                    {
-                        // new GradeSeparatedJunctionRecordProjection(),
-                        new RoadNodeRecordProjection(),
-                        new RoadSegmentRecordProjection(
-                            sp.GetRequiredService<IStreetNameCache>())
-                    })
-                    .AddSingleton(sp =>
-                        Resolve
-                            .WhenEqualToHandlerMessageType(
-                                sp.GetRequiredService<ConnectedProjection<WfsContext>[]>()
-                                    .SelectMany(projection => projection.Handlers)
-                                    .ToArray()
-                            )
-                    )
-                    .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<WfsContext>[]>(), EventProcessor.EventMapping))
-                    .AddStreamStore()
-                    .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory());
+                var eventProcessor = sp.GetRequiredService<EventProcessor>();
+                await eventProcessor.Resume(CancellationToken.None);
             })
             .Build();
 
-        var migratorFactory = host.Services.GetRequiredService<IRunnerDbContextMigratorFactory>();
-        var configuration = host.Services.GetRequiredService<IConfiguration>();
-        var streamStore = host.Services.GetRequiredService<IStreamStore>();
-        var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
-        var logger = host.Services.GetRequiredService<ILogger<Program>>();
-        var eventProcessor = host.Services.GetRequiredService<EventProcessor>();
+        await roadRegistryHost
+            .LogSqlServerConnectionStrings(new[]
+            {
+                WellknownConnectionNames.Events,
+                WellknownConnectionNames.WfsProjections,
+                WellknownConnectionNames.WfsProjectionsAdmin
+            })
+            .RunAsync(async (sp, host, configuration) =>
+            {
+                var migratorFactory = sp.GetRequiredService<IRunnerDbContextMigratorFactory>();
+                var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
 
-        try
-        {
-            await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
-
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.WfsProjections);
-            logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.WfsProjectionsAdmin);
-
-            await DistributedLock<Program>.RunAsync(async () =>
-                    {
-                        await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
-                        await migratorFactory.CreateMigrator(configuration, loggerFactory)
-                            .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
-
-                        Console.WriteLine("Started RoadRegistry.Wfs.ProjectionHost");
-                        await eventProcessor.Resume(CancellationToken.None);
-                    },
-                    DistributedLockOptions.LoadFromConfiguration(configuration),
-                    logger)
-                .ConfigureAwait(false);
-        }
-        catch (Exception e)
-        {
-            logger.LogCritical(e, "Encountered a fatal exception, exiting program.");
-        }
-        finally
-        {
-            Log.CloseAndFlush();
-        }
+                await migratorFactory.CreateMigrator(configuration, loggerFactory)
+                    .MigrateAsync(CancellationToken.None).ConfigureAwait(false);
+            });
     }
 }

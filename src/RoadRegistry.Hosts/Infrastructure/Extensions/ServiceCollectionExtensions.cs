@@ -11,10 +11,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
-using System;
+using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services)
+        where TOptions : class, new()
+    {
+        return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>());
+    }
+
+    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services, string configurationSectionKey)
+        where TOptions : class, new()
+    {
+        return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>(configurationSectionKey));
+    }
+
     public static IServiceCollection AddStreamStore(this IServiceCollection services)
     {
         return services
@@ -76,5 +88,13 @@ public static class ServiceCollectionExtensions
                 Enabled = config.Enabled
             };
         });
+    }
+
+    public static IServiceCollection AddDistributedS3Cache(this IServiceCollection services)
+    {
+        return services
+            .RegisterOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions))
+            .AddSingleton<DistributedS3Cache>()
+            .AddTransient<S3CacheService>();
     }
 }

@@ -14,7 +14,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IStreamStore store,
         Func<EventSourcedEntityMap> entityMapFactory,
         IRoadNetworkSnapshotReader snapshotReader,
-        IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
         ILoggerFactory loggerFactory)
     {
@@ -25,36 +24,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
         var enricher = EnrichEvent.WithTime(clock);
-
-        For<RebuildRoadNetworkSnapshot>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
-            .Handle(async (context, command, commandMetadata, ct) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));
-
-                await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
-                var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
-                await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
-
-                var completedCommand = new RebuildRoadNetworkSnapshotCompleted
-                {
-                    StartFromVersion = command.Body.StartFromVersion,
-                    CurrentVersion = version
-                };
-
-                await new RoadNetworkCommandQueue(store, commandMetadata)
-                    .Write(new Command(completedCommand), ct);
-
-                logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
-            });
-
-        For<RebuildRoadNetworkSnapshotCompleted>()
-            .Handle((_, _, _) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshotCompleted));
-                logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshotCompleted));
-                return Task.CompletedTask;
-            });
         
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())

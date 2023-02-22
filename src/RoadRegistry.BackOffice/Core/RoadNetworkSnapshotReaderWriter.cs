@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -9,7 +11,8 @@ using Messages;
 using Microsoft.IO;
 using SqlStreamStore.Streams;
 
-public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoadNetworkSnapshotWriter
+[Obsolete("Use RoadNetworkSnapshotReader and RoadNetworkSnapshotWriter instead")]
+internal class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoadNetworkSnapshotWriter
 {
     public static readonly MetadataKey AtVersionKey = new("at-version");
     private static readonly ContentType MessagePackContentType = ContentType.Parse("application/msgpack");
@@ -169,5 +172,26 @@ public class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRoad
                     cancellationToken);
             }
         }
+    }
+}
+
+internal static class MetadataExtensions
+{
+    public static Metadata AtVersion(this Metadata metadata, int version)
+    {
+        return metadata.Add(new KeyValuePair<MetadataKey, string>(RoadNetworkSnapshotReaderWriter.AtVersionKey, version.ToString()));
+    }
+
+    public static bool TryGetAtVersion(this Metadata metadata, out int version)
+    {
+        var found = metadata.Where(metadatum => metadatum.Key == RoadNetworkSnapshotReaderWriter.AtVersionKey).ToArray();
+        if (found.Length == 1)
+        {
+            version = int.Parse(found[0].Value);
+            return true;
+        }
+
+        version = ExpectedVersion.NoStream;
+        return false;
     }
 }

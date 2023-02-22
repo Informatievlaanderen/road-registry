@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
-using Be.Vlaanderen.Basisregisters.Sqs;
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
 using Core;
 using TicketingService.Abstractions;
@@ -9,7 +8,7 @@ public class CorrectRoadSegmentVersionsSqsRequestHandler : SqsHandler<CorrectRoa
 {
     public const string Action = "CorrectRoadSegmentVersions";
 
-    public CorrectRoadSegmentVersionsSqsRequestHandler(ISqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public CorrectRoadSegmentVersionsSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 

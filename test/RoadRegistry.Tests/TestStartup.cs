@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentValidation;
+using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,12 +25,14 @@ using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Abstractions.Configuration;
+using RoadRegistry.BackOffice.Configuration;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
+using RoadRegistry.Tests.Infrastructure.Modules;
 using SqlStreamStore;
 using Xunit.DependencyInjection;
 using Xunit.DependencyInjection.Logging;
@@ -79,7 +82,8 @@ public abstract class TestStartup
                             GeometryConfiguration.GeometryFactory.SRID
                         )
                     ))
-                    
+                    .AddSingleton<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter())
+                    .AddSingleton<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader())
                     .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
                     .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())
                     .AddSingleton<IClock>(new FakeClock(NodaConstants.UnixEpoch))
@@ -106,16 +110,15 @@ public abstract class TestStartup
             {
                 builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
 
-                builder.Register<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter()).SingleInstance();
-                builder.Register<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader()).SingleInstance();
-
                 ConfigureContainer(hostContext, builder);
                 ConfigureContainer(builder);
+
+                builder.RegisterModule<BlobClientTestModule>();
 
                 builder
                     .Register(c => new SqsOptions(RegionEndpoint.EUWest1, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
                     .SingleInstance();
-
+                
                 builder
                     .Register(c => new FakeSqsQueuePublisher())
                     .As<ISqsQueuePublisher>()

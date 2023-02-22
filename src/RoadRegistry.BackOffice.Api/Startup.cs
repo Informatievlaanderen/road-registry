@@ -1,15 +1,20 @@
 namespace RoadRegistry.BackOffice.Api;
 
-using System;
-using System.Linq;
+using Amazon;
+using Amazon.DynamoDBv2;
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.BlobStore;
+using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Configuration;
 using Extensions;
 using FluentValidation;
 using Handlers.Extensions;
+using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
@@ -17,20 +22,38 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 using Microsoft.OpenApi.Models;
-using RoadRegistry.BackOffice.Api.RoadRegistrySystem;
-using RoadSegments.Parameters;
+using NetTopologySuite;
+using NetTopologySuite.IO;
+using NodaTime;
+using RoadRegistry.BackOffice.Abstractions;
+using RoadRegistry.BackOffice.Abstractions.Configuration;
+using RoadRegistry.BackOffice.Configuration;
+using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Extracts;
+using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
+using RoadRegistry.Editor.Schema;
+using RoadRegistry.Product.Schema;
+using RoadRegistry.Syndication.Schema;
+using SqlStreamStore;
+using System;
+using System.Linq;
+using System.Text;
 
 public class Startup
 {
     private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
-    private IContainer _applicationContainer;
 
     public Startup(IConfiguration configuration)
     {
@@ -72,7 +95,7 @@ public class Startup
             {
                 Common =
                 {
-                    ApplicationContainer = _applicationContainer,
+                    ApplicationContainer = new ContainerBuilder().Build(),
                     ServiceProvider = serviceProvider,
                     HostingEnvironment = env,
                     ApplicationLifetime = appLifetime,
@@ -116,7 +139,7 @@ public class Startup
             });
     }
 
-    public IServiceProvider ConfigureServices(IServiceCollection services)
+    public void ConfigureServices(IServiceCollection services)
     {
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
@@ -166,28 +189,111 @@ public class Startup
                     }
                 }
             })
+            .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
+            .AddSingleton<IZipArchiveBeforeFeatureCompareValidator>(new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
+            .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
+            .AddSingleton<ProblemDetailsHelper>()
+            .RegisterOptions<ZipArchiveWriterOptions>()
+            .RegisterOptions<ExtractDownloadsOptions>()
+            .RegisterOptions<ExtractUploadsOptions>()
+            .RegisterOptions<FeatureCompareMessagingOptions>()
+            .AddStreamStore()
+            .AddSingleton<IClock>(SystemClock.Instance)
+            .AddSingleton(new WKTReader(
+                new NtsGeometryServices(
+                    GeometryConfiguration.GeometryFactory.PrecisionModel,
+                    GeometryConfiguration.GeometryFactory.SRID
+                )
+            ))
+            .AddSingleton(new RecyclableMemoryStreamManager())
+            .AddSingleton<IBlobClient>(new SqlBlobClient(
+                new SqlConnectionStringBuilder(
+                    _configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
+                WellknownSchemas.SnapshotSchema))
+            .AddRoadRegistrySnapshot()
+            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
+            .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
+                new CommandHandlerModule[]
+                {
+                            new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
+                                sp.GetService<IStreamStore>(),
+                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<IRoadNetworkSnapshotReader>(),
+                                sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
+                                sp.GetService<IClock>(),
+                                sp.GetService<ILoggerFactory>()
+                            ),
+                            new RoadNetworkCommandModule(
+                                sp.GetService<IStreamStore>(),
+                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<IRoadNetworkSnapshotReader>(),
+                                sp.GetService<IClock>(),
+                                sp.GetService<ILoggerFactory>()
+                            ),
+                            new RoadNetworkExtractCommandModule(
+                                sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
+                                sp.GetService<IStreamStore>(),
+                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<IRoadNetworkSnapshotReader>(),
+                                sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
+                                sp.GetService<IClock>(),
+                                sp.GetService<ILoggerFactory>()
+                            )
+                })))
+            .AddScoped(sp => new TraceDbConnection<EditorContext>(
+                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EditorProjections)),
+                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddScoped(sp => new TraceDbConnection<SyndicationContext>(
+                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections)),
+                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddSingleton<IStreetNameCache, StreetNameCache>()
+            .AddSingleton<Func<SyndicationContext>>(sp =>
+                () =>
+                    new SyndicationContext(
+                        new DbContextOptionsBuilder<SyndicationContext>()
+                            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                            .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                            .UseSqlServer(
+                                _configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
+                                options => options
+                                    .EnableRetryOnFailure()
+                            )
+                            .Options)
+            )
+            .AddDbContext<EditorContext>((sp, options) => options
+                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .UseSqlServer(
+                    sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
+                    sqlOptions => sqlOptions
+                        .UseNetTopologySuite())
+            )
+            .AddScoped(sp => new TraceDbConnection<ProductContext>(
+                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ProductProjections)),
+                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddDbContext<ProductContext>((sp, options) => options
+                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .UseSqlServer(
+                    sp.GetRequiredService<TraceDbConnection<ProductContext>>()))
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>()
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
-            .AddTicketing(_configuration)
+            .AddTicketing()
+            .AddDistributedS3Cache()
             ;
+    }
 
-        var builder = new ContainerBuilder();
+    public void ConfigureContainer(ContainerBuilder builder)
+    {
         builder.RegisterModule(new DataDogModule(_configuration));
         builder.RegisterModule<BlobClientModule>();
-
         builder.RegisterModulesFromAssemblyContaining<Startup>();
         builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
         builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
         builder.RegisterModulesFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>();
-        
-        builder.Populate(services);
-
-        _applicationContainer = builder.Build();
-
-        return new AutofacServiceProvider(_applicationContainer);
     }
 
     private static string GetApiLeadingText(ApiVersionDescription description)

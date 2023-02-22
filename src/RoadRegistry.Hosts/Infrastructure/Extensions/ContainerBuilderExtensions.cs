@@ -1,7 +1,9 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
+using Amazon.S3;
 using Autofac;
 using Autofac.Builder;
+using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Configuration;
@@ -28,7 +30,7 @@ public static class ContainerBuilderExtensions
             .InstancePerLifetimeScope();
     }
 
-    public static IRegistrationBuilder<ServiceFactory, SimpleActivatorData, SingleRegistrationStyle> RegisterMediator(this ContainerBuilder builder)
+    public static ContainerBuilder RegisterMediator(this ContainerBuilder builder)
     {
         builder
             .RegisterType<Mediator>()
@@ -36,22 +38,28 @@ public static class ContainerBuilderExtensions
             .InstancePerLifetimeScope();
 
         // request & notification handlers
-        return builder.Register<ServiceFactory>(context =>
+        builder.Register<ServiceFactory>(context =>
         {
             var ctx = context.Resolve<IComponentContext>();
             return type => ctx.Resolve(type);
         });
+
+        return builder;
     }
 
-    public static IRegistrationBuilder<ICustomRetryPolicy, SimpleActivatorData, SingleRegistrationStyle> RegisterRetryPolicy(this ContainerBuilder builder, IConfiguration configuration)
+    public static ContainerBuilder RegisterRetryPolicy(this ContainerBuilder builder)
     {
-        var retryPolicyOptions = configuration.GetSection<RetryPolicyOptions>(RetryPolicyOptions.ConfigurationKey);
-        var maxRetryCount = retryPolicyOptions.MaxRetryCount;
-        var startingDelaySeconds = retryPolicyOptions.StartingRetryDelaySeconds;
-
-        return builder.Register(_ => new LambdaHandlerRetryPolicy(maxRetryCount, startingDelaySeconds))
+        builder.RegisterOptions<RetryPolicyOptions>();
+        
+        builder.Register(c =>
+            {
+                var retryPolicyOptions = c.Resolve<RetryPolicyOptions>();
+                return new LambdaHandlerRetryPolicy(retryPolicyOptions.MaxRetryCount, retryPolicyOptions.StartingRetryDelaySeconds);
+            })
             .As<ICustomRetryPolicy>()
             .AsSelf()
             .SingleInstance();
+
+        return builder;
     }
 }

@@ -12,8 +12,17 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference
-			Include="..\..\src\RoadRegistry.Snapshot.Handlers.Sqs.Lambda\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.csproj" />
+	  <None Remove="appsettings.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="appsettings.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\RoadRegistry.Snapshot.Handlers.Sqs.Lambda\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.csproj" />
 		<ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
 		<ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
 	</ItemGroup>
