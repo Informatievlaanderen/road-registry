@@ -5423,12 +5423,8 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
     [Fact]
     public Task when_modifying_a_segment_attribute()
     {
-        var roadSegmentMorphology = ObjectProvider.Create<RoadSegmentMorphology>();
-        while (roadSegmentMorphology == Segment1Added.Morphology)
-        {
-            roadSegmentMorphology = ObjectProvider.Create<RoadSegmentMorphology>();
-        }
-
+        var roadSegmentMorphology = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentMorphology.Parse(Segment1Added.Morphology));
+        
         ModifySegment1.Morphology = roadSegmentMorphology;
         Segment1Modified.Morphology = roadSegmentMorphology;
 
