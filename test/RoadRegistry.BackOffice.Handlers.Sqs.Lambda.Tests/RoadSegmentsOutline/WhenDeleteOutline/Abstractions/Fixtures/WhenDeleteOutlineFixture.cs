@@ -74,7 +74,6 @@ public abstract class WhenDeleteOutlineFixture : SqsLambdaHandlerFixture<DeleteR
                     Store,
                     EntityMapFactory,
                     new FakeRoadNetworkSnapshotReader(),
-                    new FakeRoadNetworkSnapshotWriter(),
                     Clock,
                     LoggerFactory
                 )

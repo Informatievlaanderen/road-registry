@@ -2,10 +2,16 @@ namespace RoadRegistry.BackOffice.Extensions;
 
 using System;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
+using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
+using Core;
 using FeatureToggle;
+using FeatureToggles;
 using Framework;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IO;
 
 public static class ServiceCollectionExtensions
 {
@@ -51,4 +57,29 @@ public static class ServiceCollectionExtensions
         return services
                 .AddSingleton(sp => Dispatch.Using(commandHandlerResolverBuilder(sp), sp.GetRequiredService<ApplicationMetadata>()));
     }
+
+    public static IServiceCollection AddRoadRegistrySnapshot(this IServiceCollection services) => services
+        .AddSingleton(new RecyclableMemoryStreamManager())
+        .AddSingleton(sp =>
+        {
+            var configuration = sp.GetRequiredService<IConfiguration>();
+            return new RoadNetworkSnapshotsBlobClient(
+                new SqlBlobClient(
+                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
+                    WellknownSchemas.SnapshotSchema));
+        })
+        .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
+        {
+            var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
+            return featureToggle.FeatureEnabled
+                ? new RoadNetworkSnapshotReader(sp.GetRequiredService<S3CacheService>())
+                : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
+        })
+        .AddSingleton<IRoadNetworkSnapshotWriter>(sp =>
+        {
+            var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
+            return featureToggle.FeatureEnabled
+                ? new RoadNetworkSnapshotWriter(sp.GetRequiredService<S3CacheService>())
+                : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
+        });
 }

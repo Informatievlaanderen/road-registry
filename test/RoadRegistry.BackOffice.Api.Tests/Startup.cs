@@ -12,6 +12,8 @@ using Castle.Core.Logging;
 using Core;
 using Editor.Schema;
 using Framework.Extensions;
+using Handlers.Sqs;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +24,7 @@ using NodaTime;
 using Product.Schema;
 using SqlStreamStore;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
+using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
 {
@@ -43,7 +46,6 @@ public class Startup : TestStartup
                     sp.GetService<IStreamStore>(),
                     sp.GetService<Func<EventSourcedEntityMap>>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IRoadNetworkSnapshotWriter>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 ),
@@ -58,25 +60,30 @@ public class Startup : TestStartup
                 )
             }));
     }
-
+    
     protected override void ConfigureContainer(ContainerBuilder builder)
     {
         builder.RegisterModule<MediatorModule>();
         builder.RegisterModule<Handlers.MediatorModule>();
         builder.RegisterModule<Handlers.Sqs.MediatorModule>();
-        builder.Register<ISqsQueue>((c, p) =>
-        {
-            var sqsQueueMock = new Mock<ISqsQueue>();
-            sqsQueueMock.Setup(x => x.Copy(It.IsAny<SqsRequest>(), It.IsAny<SqsQueueOptions>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(() => true);
-            return sqsQueueMock.Object;
-        });
+
+        builder
+            .Register(_ =>
+            {
+                var sqsQueueMock = new Mock<IBackOfficeS3SqsQueue>();
+                sqsQueueMock
+                    .Setup(x => x.Copy(It.IsAny<SqsRequest>(), It.IsAny<SqsQueueOptions>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => true);
+                return sqsQueueMock.Object;
+            })
+            .SingleInstance();
     }
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
         services
             .AddTicketing()
+            .AddFakeTicketing()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

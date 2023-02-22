@@ -429,7 +429,6 @@ services:
       CONNECTIONSTRINGS__COMMANDHOSTADMIN: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       CONNECTIONSTRINGS__EVENTS: Data Source=tcp:mssql,1433;Initial Catalog=road-registry-events;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
       FEATURECOMPAREMESSAGINGOPTIONS__REQUESTQUEUEURL: "https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-request.fifo"
-      FEATURECOMPAREMESSAGINGOPTIONS__DOCKERQUEUEURL: "https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-docker.fifo"
       FEATURECOMPAREMESSAGINGOPTIONS__RESPONSEQUEUEURL: "https://sqs.eu-west-1.amazonaws.com/830031229216/sqs-road-registry-feature-compare-response.fifo"
       FEATURECOMPAREMESSAGINGOPTIONS__CONSUMERDELAYSECONDS: 30
 

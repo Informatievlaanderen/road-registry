@@ -1,7 +1,6 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 
 using BackOffice.Core;
-using Be.Vlaanderen.Basisregisters.Sqs;
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
 using TicketingService.Abstractions;
 
@@ -9,7 +8,7 @@ public class CreateRoadNetworkSnapshotSqsRequestHandler : SqsHandler<CreateRoadN
 {
     public const string Action = "CreateRoadNetworkSnapshot";
 
-    public CreateRoadNetworkSnapshotSqsRequestHandler(ISqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public CreateRoadNetworkSnapshotSqsRequestHandler(SnapshotSqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 

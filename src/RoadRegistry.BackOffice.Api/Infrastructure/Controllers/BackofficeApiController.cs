@@ -5,9 +5,9 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Hosts.Infrastructure.Options;
 using Microsoft.AspNetCore.Mvc;
 using NodaTime;
-using Options;
 
 public abstract class BackofficeApiController : ApiController
 {

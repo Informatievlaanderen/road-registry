@@ -6,5 +6,4 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 [EventDescription("Indicates that a rebuild of the road network snapshot got requested")]
 public class RebuildRoadNetworkSnapshot : IMessage
 {
-    public int StartFromVersion { get; set; }
 }

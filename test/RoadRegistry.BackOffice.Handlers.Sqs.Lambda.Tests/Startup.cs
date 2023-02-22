@@ -49,7 +49,6 @@ public class Startup : TestStartup
                     c.Resolve<IStreamStore>(),
                     c.Resolve<Func<EventSourcedEntityMap>>(),
                     new FakeRoadNetworkSnapshotReader(),
-                    new FakeRoadNetworkSnapshotWriter(),
                     c.Resolve<IClock>(),
                     c.Resolve<ILoggerFactory>()
                 )

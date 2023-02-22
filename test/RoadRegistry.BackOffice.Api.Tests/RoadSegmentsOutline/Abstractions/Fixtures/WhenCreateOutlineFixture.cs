@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegmentsOutline.Abstractions.Fix
 using Dbase.Organizations;
 using Editor.Schema;
 using FeatureToggles;
-using Infrastructure.Options;
+using Hosts.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

@@ -3,7 +3,7 @@ namespace RoadRegistry.Tests;
 using System.Collections.Concurrent;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 
-internal class FakeSqsQueue
+internal class MemorySqsQueue
 {
     private static readonly ConcurrentDictionary<string, Queue<SqsJsonMessage>> Queues = new();
 

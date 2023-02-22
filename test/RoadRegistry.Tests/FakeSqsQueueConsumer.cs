@@ -8,7 +8,7 @@ public class FakeSqsQueueConsumer : ISqsQueueConsumer
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            var messages = FakeSqsQueue.GetMessages(queueUrl);
+            var messages = MemorySqsQueue.GetMessages(queueUrl);
             if (messages.Length == 0) break;
 
             var sqsJsonMessage = messages[0];
@@ -16,7 +16,7 @@ public class FakeSqsQueueConsumer : ISqsQueueConsumer
 
             await messageHandler(messageData);
 
-            FakeSqsQueue.Consume(queueUrl);
+            MemorySqsQueue.Consume(queueUrl);
         }
     }
 }

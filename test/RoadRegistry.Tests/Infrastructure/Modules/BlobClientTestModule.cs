@@ -1,16 +1,15 @@
 namespace RoadRegistry.Tests.Infrastructure.Modules;
 
 using Autofac;
-using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
-using Hosts.Infrastructure.Modules;
+using RoadRegistry.BackOffice;
 
-public class BlobClientTestModule : BlobClientModule
+public class BlobClientTestModule : Module
 {
-    private readonly MemoryBlobClient _blobClient = new();
-
-    protected override IBlobClient CreateBlobClient(IComponentContext c, string bucketKey)
+    protected override void Load(ContainerBuilder builder)
     {
-        return _blobClient;
+        builder
+            .RegisterType<MemoryBlobClientFactory>()
+            .As<IBlobClientFactory>()
+            .SingleInstance();
     }
 }

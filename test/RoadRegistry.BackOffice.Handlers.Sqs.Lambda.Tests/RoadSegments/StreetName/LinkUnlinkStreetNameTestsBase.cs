@@ -39,7 +39,6 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
                     Store,
                     EntityMapFactory,
                     new FakeRoadNetworkSnapshotReader(),
-                    new FakeRoadNetworkSnapshotWriter(),
                     Clock,
                     LoggerFactory
                 )
