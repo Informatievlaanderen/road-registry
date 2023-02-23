@@ -1,17 +1,17 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
-using System;
 using Amazon;
 using BackOffice;
+using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Editor.Schema;
 using SqlStreamStore;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
+using System;
 
 public static class ServiceCollectionExtensions
 {

@@ -8,6 +8,9 @@
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <AnalysisLevel>latest</AnalysisLevel>
+	  <PublishReadyToRun>false</PublishReadyToRun>
+	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
+	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
