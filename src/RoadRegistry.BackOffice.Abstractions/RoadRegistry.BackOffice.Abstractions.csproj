@@ -7,10 +7,12 @@
     <Nullable>enable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <NoWarn>1701;1702;1705;1591;8618</NoWarn>
-    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <PackageProjectUrl>https://github.com/informatievlaanderen/road-registry.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/informatievlaanderen/road-registry.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+	  <PublishReadyToRun>false</PublishReadyToRun>
+	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
+	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -27,16 +29,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="paket.template" />
-    <Content Include="paket.template" CopyToOutputDirectory="Always" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <Project Sdk="Microsoft.NET.Sdk.Worker">
 	<Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.App.props" />
 
@@ -9,8 +8,8 @@
 		<ServerGarbageCollection>true</ServerGarbageCollection>
 		<Nullable>disable</Nullable>
 		<Platforms>AnyCPU;x64;x86</Platforms>
-		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<NoWarn>CS8618</NoWarn>
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	</PropertyGroup>
 

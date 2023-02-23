@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
@@ -7,11 +7,13 @@
 		<IsPackable>false</IsPackable>
 		<Platforms>AnyCPU;x64;x86</Platforms>
     <NoWarn>CS8602;CS8618;CS8625</NoWarn>
+		<EnableDefaultContentItems>false</EnableDefaultContentItems>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference
-			Include="..\..\src\RoadRegistry.BackOffice.Handlers.Kafka\RoadRegistry.BackOffice.Handlers.Kafka.csproj" />
+		<ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers.Kafka\RoadRegistry.BackOffice.Handlers.Kafka.csproj" />
+		<ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.csproj" />
 		<ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
 	</ItemGroup>
 
