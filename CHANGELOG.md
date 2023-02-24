@@ -1,3 +1,22 @@
+# [3.35.0](https://github.com/informatievlaanderen/road-registry/compare/v3.34.6...v3.35.0) (2023-02-24)
+
+
+### Bug Fixes
+
+* extra info in exceptions when replaying store messages fails ([#844](https://github.com/informatievlaanderen/road-registry/issues/844)) ([add21b6](https://github.com/informatievlaanderen/road-registry/commit/add21b6abf165eb3ef1d44e80ac15f102d6f2e74))
+* Paket template fixes ([#859](https://github.com/informatievlaanderen/road-registry/issues/859)) ([a574306](https://github.com/informatievlaanderen/road-registry/commit/a574306eb5b3d019beea0c6d8e09c3accb46dee0))
+* Publish output files should not throw an error ([#857](https://github.com/informatievlaanderen/road-registry/issues/857)) ([3f4bbe6](https://github.com/informatievlaanderen/road-registry/commit/3f4bbe63a0f3467f67e9c81e57902fecac485b26))
+* WR-508 delete S3 item after SQS message processed ([#842](https://github.com/informatievlaanderen/road-registry/issues/842)) ([372750e](https://github.com/informatievlaanderen/road-registry/commit/372750ed39ef83967e1dd37e9e160c4082a819bc))
+* WR-600 streetname link/unlink ability to do both left and right in 1 request ([#856](https://github.com/informatievlaanderen/road-registry/issues/856)) ([8983606](https://github.com/informatievlaanderen/road-registry/commit/898360606f96b6ac2886212a5cdaf9530e3fd525))
+* WR-607 updating roadsegment start/end node must happen at once to avoid them being the same ([#858](https://github.com/informatievlaanderen/road-registry/issues/858)) ([9cadbb2](https://github.com/informatievlaanderen/road-registry/commit/9cadbb2607229908887deee774fa181635cef199))
+
+
+### Features
+
+* WR-529 delete road segment outline ([#845](https://github.com/informatievlaanderen/road-registry/issues/845)) ([4f61feb](https://github.com/informatievlaanderen/road-registry/commit/4f61feb7422743a02ed5f895669e3bfe6fa3afaf))
+* WR-560 add snapshot lambda function ([#843](https://github.com/informatievlaanderen/road-registry/issues/843)) ([de3968e](https://github.com/informatievlaanderen/road-registry/commit/de3968ec8639fc9a3ce563d017038475381659a3))
+* WR-585 Snapshot reader and writer use of distributed S3 cache ([#855](https://github.com/informatievlaanderen/road-registry/issues/855)) ([769ff17](https://github.com/informatievlaanderen/road-registry/commit/769ff173ee8f7512ff78f2cd430effea91a3afa3))
+
 ## [3.34.6](https://github.com/informatievlaanderen/road-registry/compare/v3.34.5...v3.34.6) (2023-02-14)
 
 
