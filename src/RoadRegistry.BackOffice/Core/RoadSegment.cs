@@ -113,11 +113,6 @@ public class RoadSegment
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, hash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
     }
 
-    public RoadSegment WithEnd(RoadNodeId end)
-    {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, end, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
-    }
-
     public RoadSegment WithGeometry(MultiLineString geometry)
     {
         ArgumentNullException.ThrowIfNull(geometry);
@@ -134,11 +129,11 @@ public class RoadSegment
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, lastEventHash);
     }
 
-    public RoadSegment WithStart(RoadNodeId start)
+    public RoadSegment WithStartAndEnd(RoadNodeId start, RoadNodeId end)
     {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
+        return new RoadSegment(Id, Version, Geometry, GeometryVersion, start, end, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
     }
-
+    
     public RoadSegment WithVersion(RoadSegmentVersion version)
     {
         return new RoadSegment(Id, version, Geometry, GeometryVersion, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
