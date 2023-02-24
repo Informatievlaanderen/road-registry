@@ -38,8 +38,5 @@ files
   RoadRegistry.Editor.Schema.dll => lib\net6.0
   RoadRegistry.Editor.Schema.pdb => lib\net6.0
 
-  RoadRegistry.Hosts.dll => lib\net6.0
-  RoadRegistry.Hosts.pdb => lib\net6.0
-
   RoadRegistry.Product.Schema.dll => lib\net6.0
   RoadRegistry.Product.Schema.pdb => lib\net6.0
