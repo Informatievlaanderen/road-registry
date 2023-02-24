@@ -1,3 +1,12 @@
+## [3.35.1](https://github.com/informatievlaanderen/road-registry/compare/v3.35.0...v3.35.1) (2023-02-24)
+
+
+### Bug Fixes
+
+* remove dev config from production Lambdas appsettings ([#863](https://github.com/informatievlaanderen/road-registry/issues/863)) ([b4a9dba](https://github.com/informatievlaanderen/road-registry/commit/b4a9dba4c9c8845aa5bc603be0e3e8f1d6f05599))
+* stop autorefresh when switching page ([#861](https://github.com/informatievlaanderen/road-registry/issues/861)) ([33f67f4](https://github.com/informatievlaanderen/road-registry/commit/33f67f41586a6b2a0d628f4b458adc818f936e4a))
+* streetname consumer set to app instead of library ([73cf09d](https://github.com/informatievlaanderen/road-registry/commit/73cf09db99a0a2324d2f860ca41ea6561eabd7ea))
+
 # [3.35.0](https://github.com/informatievlaanderen/road-registry/compare/v3.34.6...v3.35.0) (2023-02-24)
 
 
