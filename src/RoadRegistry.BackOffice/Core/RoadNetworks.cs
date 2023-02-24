@@ -15,7 +15,7 @@ using SqlStreamStore.Streams;
 
 public class RoadNetworks : IRoadNetworks
 {
-    private const int StreamPageSize = 100;
+    private const int StreamPageSize = 1000; //TODO-rik temp
     public static readonly StreamName Stream = new("roadnetwork");
     private readonly EventSourcedEntityMap _map;
     private readonly EventMapping _mapping;
@@ -45,6 +45,9 @@ public class RoadNetworks : IRoadNetworks
         if (_map.TryGet(Stream, out var entry)) return (RoadNetwork)entry.Entity;
 
         var (view, version) = await BuildInitialRoadNetworkView(restoreSnapshot, cancellationToken);
+
+        //TODO-rik temp
+        var invalidRoadSegment = view.Segments[new RoadSegmentId(1083949)];
 
         var messagesMaxCount = version == StreamVersion.Start ? maximumStreamVersion : maximumStreamVersion - version;
 
@@ -174,6 +177,14 @@ public class RoadNetworks : IRoadNetworks
 
         if (restoreSnapshot)
         {
+            /*
+             TODO maandag
+             nodeid 2043016
+linked to roadsegment 1154613 = OK 	Id = {1154613}
+linked to roadsegment 1083949 = NOK
+	startnodeid 2043015
+	endnodeid	2094294*/
+
             _logger.LogInformation("Read started for RoadNetwork snapshot");
             var (snapshot, snapshotVersion) = await _snapshotReader.ReadSnapshotAsync(cancellationToken);
             version = snapshotVersion;

@@ -188,6 +188,10 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     {
         ArgumentNullException.ThrowIfNull(snapshot);
 
+
+        //TODO-rik temp
+        var invalidRoadSegment = snapshot.Segments.Single(x => x.Id == new RoadSegmentId(1083949));
+
         return new ImmutableRoadNetworkView(
             snapshot.Nodes.ToImmutableDictionary(node => new RoadNodeId(node.Id),
                 node =>
@@ -1704,6 +1708,13 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         public IRoadNetworkView RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
         {
             ArgumentNullException.ThrowIfNull(snapshot);
+
+            //TODO-rik
+            //var validSegment = snapshot.Segments.Single(x => x.Id == 1154613); 
+            //var invalidSegment = snapshot.Segments.Single(x => x.Id == 1083949);
+            //var nodeIds = new[] { 2043016, invalidSegment.StartNodeId, invalidSegment.EndNodeId, validSegment.StartNodeId, validSegment.EndNodeId }.Distinct().ToArray();
+            //var nodes = snapshot.Nodes.Where(node => nodeIds.Contains(node.Id)).ToArray();
+            //var invalidNodes = snapshot.Nodes.Where(node => node.Type == "EndNode" && node.Segments.Length != 1).ToArray();
 
             return new Builder(
                 snapshot.Nodes.ToImmutableDictionary(
