@@ -1,21 +1,19 @@
 namespace RoadRegistry.Hosts;
 
+using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
+using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Configuration;
+using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice;
-using BackOffice.Abstractions;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Serilog;
-using SqlStreamStore;
+using Amazon.S3;
 
 public class RoadRegistryHost<T>
 {
@@ -66,6 +64,12 @@ public class RoadRegistryHost<T>
             foreach (var loggingDelegate in _configureLoggingActions)
                 loggingDelegate.Invoke(_host.Services, _logger);
 
+            var environment = _host.Services.GetRequiredService<IHostEnvironment>();
+            if (environment.IsDevelopment())
+            {
+                await CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false);
+            }
+
             await DistributedLock<T>.RunAsync(async () =>
                 {
                     await WaitFor.SqlStreamStoreToBecomeAvailable(_streamStore, _logger);
@@ -83,6 +87,37 @@ public class RoadRegistryHost<T>
         finally
         {
             await Serilog.Log.CloseAndFlushAsync();
+        }
+    }
+
+    private async Task CreateMissingBucketsAsync(CancellationToken cancellationToken)
+    {
+        var blobClientOptions = _host.Services.GetService<BlobClientOptions>();
+        if (blobClientOptions?.BlobClientType == nameof(S3BlobClient))
+        {
+            var s3BlobClientOptions = _host.Services.GetRequiredService<S3BlobClientOptions>();
+            if (s3BlobClientOptions.Buckets?.Any() == true)
+            {
+                var amazonS3Client = _host.Services.GetRequiredService<AmazonS3Client>();
+                var buckets = await amazonS3Client.ListBucketsAsync(cancellationToken);
+                var existingBucketNames = buckets.Buckets.Select(x => x.BucketName).ToArray();
+                var missingBucketNames = s3BlobClientOptions.Buckets
+                    .Where(x => !existingBucketNames.Contains(x.Value))
+                    .Select(x => x.Value)
+                    .ToArray();
+
+                foreach (var bucketName in missingBucketNames)
+                {
+                    try
+                    {
+                        await amazonS3Client.PutBucketAsync(bucketName, cancellationToken);
+                    }
+                    catch (AmazonS3Exception)
+                    {
+                        // ignore if bucket already was created by a different host
+                    }
+                }
+            }
         }
     }
 }

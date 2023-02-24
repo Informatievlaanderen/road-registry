@@ -148,11 +148,11 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
     public IRoadNetworkView RestoreFromEvents(IReadOnlyCollection<object> events)
     {
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        ArgumentNullException.ThrowIfNull(events);
 
         var result = this;
         var eventIndex = 0;
-        
+
         foreach (var @event in events)
         {
             try
@@ -778,7 +778,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             CrabStreetnameId.FromValue(@event.RightSide.StreetNameId),
             new OrganizationId(@event.MaintenanceAuthority.Code),
             RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
-        
+
         return new ImmutableRoadNetworkView(
             _nodes
                 .TryReplace(start, node => node.ConnectWith(id))
@@ -788,8 +788,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(version)
                     .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                     .WithGeometryVersion(geometryVersion)
-                    .WithStart(start)
-                    .WithEnd(end)
+                    .WithStartAndEnd(start, end)
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(@event.GetHash())
                 ),
@@ -1235,8 +1234,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(command.Version)
                     .WithGeometry(command.Geometry)
                     .WithGeometryVersion(command.GeometryVersion)
-                    .WithStart(command.StartNodeId)
-                    .WithEnd(command.EndNodeId)
+                    .WithStartAndEnd(command.StartNodeId, command.EndNodeId)
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(command.GetHash())
                 ),
@@ -1668,24 +1666,37 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
         public IRoadNetworkView RestoreFromEvents(IReadOnlyCollection<object> events)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
+            ArgumentNullException.ThrowIfNull(events);
+
+            var eventIndex = 0;
 
             foreach (var @event in events)
-                switch (@event)
+            {
+                try
                 {
-                    case ImportedRoadNode importedRoadNode:
-                        Given(importedRoadNode);
-                        break;
-                    case ImportedRoadSegment importedRoadSegment:
-                        Given(importedRoadSegment);
-                        break;
-                    case ImportedGradeSeparatedJunction importedGradeSeparatedJunction:
-                        Given(importedGradeSeparatedJunction);
-                        break;
-                    case RoadNetworkChangesAccepted roadNetworkChangesAccepted:
-                        Given(roadNetworkChangesAccepted);
-                        break;
+                    switch (@event)
+                    {
+                        case ImportedRoadNode importedRoadNode:
+                            Given(importedRoadNode);
+                            break;
+                        case ImportedRoadSegment importedRoadSegment:
+                            Given(importedRoadSegment);
+                            break;
+                        case ImportedGradeSeparatedJunction importedGradeSeparatedJunction:
+                            Given(importedGradeSeparatedJunction);
+                            break;
+                        case RoadNetworkChangesAccepted roadNetworkChangesAccepted:
+                            Given(roadNetworkChangesAccepted);
+                            break;
+                    }
                 }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Failed trying to process the message with index {eventIndex} of type '{@event.GetType().Name}': {ex.Message}", ex);
+                }
+
+                eventIndex++;
+            }
 
             return this;
         }
@@ -2200,8 +2211,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(version)
                     .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                     .WithGeometryVersion(geometryVersion)
-                    .WithStart(start)
-                    .WithEnd(end)
+                    .WithStartAndEnd(start, end)
                     .WithAttributeHash(attributeHash));
             _maximumLaneAttributeId =
                 @event.Lanes.Length != 0
@@ -2403,8 +2413,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(command.Version)
                     .WithGeometry(command.Geometry)
                     .WithGeometryVersion(command.GeometryVersion)
-                    .WithStart(command.StartNodeId)
-                    .WithEnd(command.EndNodeId)
+                    .WithStartAndEnd(command.StartNodeId, command.EndNodeId)
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(command.GetHash())
                 );
