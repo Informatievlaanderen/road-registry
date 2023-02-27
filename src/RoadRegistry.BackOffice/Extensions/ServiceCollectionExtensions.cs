@@ -58,7 +58,16 @@ public static class ServiceCollectionExtensions
                 .AddSingleton(sp => Dispatch.Using(commandHandlerResolverBuilder(sp), sp.GetRequiredService<ApplicationMetadata>()));
     }
 
+    public static IServiceCollection AddDistributedS3Cache(this IServiceCollection services)
+    {
+        return services
+            .RegisterOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions))
+            .AddSingleton<DistributedS3Cache>()
+            .AddTransient<S3CacheService>();
+    }
+
     public static IServiceCollection AddRoadRegistrySnapshot(this IServiceCollection services) => services
+        .AddDistributedS3Cache()
         .AddSingleton(new RecyclableMemoryStreamManager())
         .AddSingleton(sp =>
         {
@@ -82,4 +91,16 @@ public static class ServiceCollectionExtensions
                 ? new RoadNetworkSnapshotWriter(sp.GetRequiredService<S3CacheService>())
                 : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
         });
+
+    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services)
+        where TOptions : class, new()
+    {
+        return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>());
+    }
+
+    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services, string configurationSectionKey)
+        where TOptions : class, new()
+    {
+        return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>(configurationSectionKey));
+    }
 }
