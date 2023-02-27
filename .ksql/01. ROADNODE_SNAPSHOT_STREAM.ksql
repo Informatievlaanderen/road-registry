@@ -1,0 +1,13 @@
+CREATE OR REPLACE STREAM IF NOT EXISTS roadnode_snapshot_stream (
+  type varchar,
+  data STRUCT<
+    id int,
+    type varchar,
+    extendedWkbGeometryAsHex varchar,
+    wktGeometry varchar,
+    geometrySrid int,
+    beginTime varchar,
+	  organization varchar,
+    lastChangedTimestamp varchar,
+    isRemoved boolean>)
+WITH (KAFKA_TOPIC='road.roadnode.snapshot', VALUE_FORMAT='JSON');

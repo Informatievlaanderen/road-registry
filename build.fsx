@@ -116,7 +116,13 @@ Target.create "Pack_Solution" (fun _ ->
     "RoadRegistry.BackOffice.Api"
     "RoadRegistry.BackOffice.Abstractions"
     "RoadRegistry.BackOffice.ZipArchiveWriters"
-  ] |> List.iter pack)
+  ] |> List.map (fun projectName ->
+      Shell.copyFile (buildDir @@ projectName @@ "linux") ("src" @@ projectName @@ "paket.template")
+      Shell.copyFile (buildDir @@ projectName @@ "msil") ("src" @@ projectName @@ "paket.template")
+      projectName
+    )
+    |> List.iter pack
+)
 
 Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
 Target.create "PushContainer_Projector" (fun _ -> push "projector")

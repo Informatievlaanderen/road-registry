@@ -148,11 +148,11 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
     public IRoadNetworkView RestoreFromEvents(IReadOnlyCollection<object> events)
     {
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        ArgumentNullException.ThrowIfNull(events);
 
         var result = this;
         var eventIndex = 0;
-        
+
         foreach (var @event in events)
         {
             try
@@ -187,7 +187,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     public IRoadNetworkView RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
     {
         ArgumentNullException.ThrowIfNull(snapshot);
-
+        
         return new ImmutableRoadNetworkView(
             snapshot.Nodes.ToImmutableDictionary(node => new RoadNodeId(node.Id),
                 node =>
@@ -778,9 +778,13 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             CrabStreetnameId.FromValue(@event.RightSide.StreetNameId),
             new OrganizationId(@event.MaintenanceAuthority.Code),
             RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
+
+        var segmentBefore = _segments[id];
         
         return new ImmutableRoadNetworkView(
             _nodes
+                .TryReplaceIf(segmentBefore.Start, node => node.Id != start, node => node.DisconnectFrom(id))
+                .TryReplaceIf(segmentBefore.End, node => node.Id != end, node => node.DisconnectFrom(id))
                 .TryReplace(start, node => node.ConnectWith(id))
                 .TryReplace(end, node => node.ConnectWith(id)),
             _segments
@@ -788,8 +792,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(version)
                     .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                     .WithGeometryVersion(geometryVersion)
-                    .WithStart(start)
-                    .WithEnd(end)
+                    .WithStartAndEnd(start, end)
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(@event.GetHash())
                 ),
@@ -1235,8 +1238,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(command.Version)
                     .WithGeometry(command.Geometry)
                     .WithGeometryVersion(command.GeometryVersion)
-                    .WithStart(command.StartNodeId)
-                    .WithEnd(command.EndNodeId)
+                    .WithStartAndEnd(command.StartNodeId, command.EndNodeId)
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(command.GetHash())
                 ),
@@ -1668,24 +1670,37 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
         public IRoadNetworkView RestoreFromEvents(IReadOnlyCollection<object> events)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
+            ArgumentNullException.ThrowIfNull(events);
+
+            var eventIndex = 0;
 
             foreach (var @event in events)
-                switch (@event)
+            {
+                try
                 {
-                    case ImportedRoadNode importedRoadNode:
-                        Given(importedRoadNode);
-                        break;
-                    case ImportedRoadSegment importedRoadSegment:
-                        Given(importedRoadSegment);
-                        break;
-                    case ImportedGradeSeparatedJunction importedGradeSeparatedJunction:
-                        Given(importedGradeSeparatedJunction);
-                        break;
-                    case RoadNetworkChangesAccepted roadNetworkChangesAccepted:
-                        Given(roadNetworkChangesAccepted);
-                        break;
+                    switch (@event)
+                    {
+                        case ImportedRoadNode importedRoadNode:
+                            Given(importedRoadNode);
+                            break;
+                        case ImportedRoadSegment importedRoadSegment:
+                            Given(importedRoadSegment);
+                            break;
+                        case ImportedGradeSeparatedJunction importedGradeSeparatedJunction:
+                            Given(importedGradeSeparatedJunction);
+                            break;
+                        case RoadNetworkChangesAccepted roadNetworkChangesAccepted:
+                            Given(roadNetworkChangesAccepted);
+                            break;
+                    }
                 }
+                catch (Exception ex)
+                {
+                    throw new InvalidOperationException($"Failed trying to process the message with index {eventIndex} of type '{@event.GetType().Name}': {ex.Message}", ex);
+                }
+
+                eventIndex++;
+            }
 
             return this;
         }
@@ -1693,7 +1708,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         public IRoadNetworkView RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
         {
             ArgumentNullException.ThrowIfNull(snapshot);
-
+            
             return new Builder(
                 snapshot.Nodes.ToImmutableDictionary(
                     node => new RoadNodeId(node.Id),
@@ -2191,18 +2206,22 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 new OrganizationId(@event.MaintenanceAuthority.Code),
                 RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
 
+            var segmentBefore = _segments[id];
+
             _nodes
+                .TryReplaceIf(segmentBefore.Start, node => node.Id != start, node => node.DisconnectFrom(id))
+                .TryReplaceIf(segmentBefore.End, node => node.Id != end, node => node.DisconnectFrom(id))
                 .TryReplace(start, node => node.ConnectWith(id))
                 .TryReplace(end, node => node.ConnectWith(id));
             _segments
-                .TryReplace(id, segment =>
-                segment
+                .TryReplace(id, segment => segment
                     .WithVersion(version)
                     .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                     .WithGeometryVersion(geometryVersion)
-                    .WithStart(start)
-                    .WithEnd(end)
-                    .WithAttributeHash(attributeHash));
+                    .WithStartAndEnd(start, end)
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(@event.GetHash())
+                );
             _maximumLaneAttributeId =
                 @event.Lanes.Length != 0
                     ? AttributeId.Max(
@@ -2403,8 +2422,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(command.Version)
                     .WithGeometry(command.Geometry)
                     .WithGeometryVersion(command.GeometryVersion)
-                    .WithStart(command.StartNodeId)
-                    .WithEnd(command.EndNodeId)
+                    .WithStartAndEnd(command.StartNodeId, command.EndNodeId)
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(command.GetHash())
                 );

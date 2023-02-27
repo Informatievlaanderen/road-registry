@@ -5,22 +5,8 @@ DB_DIR_NAME=road-registry-db
 DOCKER_NAME_FILTER=road-registry
 
 DB_DIR=../road-registry-db
-# find parent dir `road-registry-db`
-#dbDirPath=$DB_DIR_NAME
 
-# path=$(pwd)
-# shift 1
-# while [[ $path != / ]];
-# do
-#     find "$path" -maxdepth 1 -mindepth 1 "$DB_DIR_NAME"
-#     path="$(readlink -f "$path"/..)"
-# done
-
-# printf "Path found: $path"
-# exit 0
-
-
-archiveFiles=("road-registry-db.zip" "legacy_db_filled.tar.gz" "municipality_syndication.tar.gz" "streetname_syndication.tar.gz")
+archiveFiles=("road-registry.bak" "road-registry-events.bak" "legacy_db_filled.tar.gz" "municipality_syndication.tar.gz" "streetname_syndication.tar.gz")
 for filename in "${archiveFiles[@]}"
 do
     archivePath="$DB_DIR/${filename}"
@@ -31,7 +17,26 @@ do
 done
 
 printf '%s\n' "Clearing docker containers..."
+printf '%s' "$DOCKER_NAME_FILTER..."
 containerIds=$(docker ps -q -a -f name=$DOCKER_NAME_FILTER)
+if [[ ! -z "$containerIds" ]]; then
+    docker rm -f $containerIds
+    printf '%s\n' "  Done"
+else
+    printf '%s\n' "  No containers found"
+fi
+
+printf '%s' "seq..."
+containerIds=$(docker ps -q -a -f name=seq)
+if [[ ! -z "$containerIds" ]]; then
+    docker rm -f $containerIds
+    printf '%s\n' "  Done"
+else
+    printf '%s\n' "  No containers found"
+fi
+
+printf '%s' "minio..."
+containerIds=$(docker ps -q -a -f name=minio)
 if [[ ! -z "$containerIds" ]]; then
     docker rm -f $containerIds
     printf '%s\n' "  Done"
@@ -49,7 +54,9 @@ else
 fi
 
 printf '%s\n' "Extracting road-registry-db.zip..."
-unzip -o -qq "$DB_DIR/road-registry-db.zip" -d src/RoadRegistry.BackupDatabase/filled
+#unzip -o -qq "$DB_DIR/road-registry-db.zip" -d src/RoadRegistry.BackupDatabase/filled
+cp "$DB_DIR/road-registry.bak" src/RoadRegistry.BackupDatabase/filled/road-registry.bak
+cp "$DB_DIR/road-registry-events.bak" src/RoadRegistry.BackupDatabase/filled/road-registry-events.bak
 printf '%s\n' "  Done"
 
 printf '%s\n' "Extracting legacy_db_filled.tar.gz..."

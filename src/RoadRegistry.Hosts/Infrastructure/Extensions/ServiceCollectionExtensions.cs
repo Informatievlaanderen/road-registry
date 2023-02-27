@@ -1,32 +1,19 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
-using System;
 using Amazon;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Editor.Schema;
 using SqlStreamStore;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
+using System;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services)
-        where TOptions : class, new()
-    {
-        return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>());
-    }
-
-    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services, string configurationSectionKey)
-        where TOptions : class, new()
-    {
-        return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>(configurationSectionKey));
-    }
-
     public static IServiceCollection AddStreamStore(this IServiceCollection services)
     {
         return services
@@ -88,13 +75,5 @@ public static class ServiceCollectionExtensions
                 Enabled = config.Enabled
             };
         });
-    }
-
-    public static IServiceCollection AddDistributedS3Cache(this IServiceCollection services)
-    {
-        return services
-            .RegisterOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions))
-            .AddSingleton<DistributedS3Cache>()
-            .AddTransient<S3CacheService>();
     }
 }

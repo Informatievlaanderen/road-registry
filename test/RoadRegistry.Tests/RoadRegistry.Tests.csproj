@@ -11,6 +11,8 @@
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <NoWarn>CS0618;1822</NoWarn>
+	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
+	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>

@@ -6,15 +6,16 @@
     <RootNamespace>RoadRegistry.BackOffice.Api</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice.Api</AssemblyName>
     <ServerGarbageCollection>true</ServerGarbageCollection>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <Nullable>disable</Nullable>
     <DocumentationFile>RoadRegistry.BackOffice.Api.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;1591;8632</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
     <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.BackOffice.CommandHost\RoadRegistry.BackOffice.CommandHost.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
@@ -29,8 +30,11 @@
     <Content Include="Dockerfile" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.json" CopyToOutputDirectory="Always" />
     <Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
-    <Content Include="paket.template" CopyToOutputDirectory="Always" />
     <Content Include="init.sh" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Infrastructure\Options\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Infrastructure\Options\" />
+    <None Update="paket.template" CopyToOutputDirectory="Never" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />
