@@ -1,3 +1,10 @@
+## [3.35.2](https://github.com/informatievlaanderen/road-registry/compare/v3.35.1...v3.35.2) (2023-02-27)
+
+
+### Bug Fixes
+
+* Missing registration for distributed S3 cache ([#864](https://github.com/informatievlaanderen/road-registry/issues/864)) ([82868bf](https://github.com/informatievlaanderen/road-registry/commit/82868bf550e658412be9ec6ae62400039d8853b5))
+
 ## [3.35.1](https://github.com/informatievlaanderen/road-registry/compare/v3.35.0...v3.35.1) (2023-02-24)
 
 
