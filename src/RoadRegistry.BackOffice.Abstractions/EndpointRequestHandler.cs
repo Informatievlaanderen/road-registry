@@ -7,10 +7,9 @@ using Microsoft.Extensions.Logging;
 public abstract class EndpointRequestHandler<TRequest> : IRequestHandler<TRequest>
     where TRequest : IRequest
 {
-    public async Task<Unit> Handle(TRequest request, CancellationToken cancellationToken)
+    public async Task Handle(TRequest request, CancellationToken cancellationToken)
     {
         await HandleAsync(request, cancellationToken);
-        return Unit.Value;
     }
 
     public abstract Task HandleAsync(TRequest request, CancellationToken cancellationToken);

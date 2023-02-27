@@ -4,6 +4,7 @@ Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
 
 AWSSDK.SQS
 MediatR
+MediatR.Contracts
 Microsoft.Extensions.DependencyInjection
 Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens

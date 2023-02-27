@@ -2,3 +2,5 @@ Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 
 AWSSDK.Core
 MediatR
+MediatR.Contracts
+Microsoft.Extensions.DependencyInjection.Abstractions

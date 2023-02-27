@@ -4,6 +4,7 @@ Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication
 
 AWSSDK.Core
+Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
 Microsoft.Extensions.Http.Polly
 Serilog.Enrichers.Environment

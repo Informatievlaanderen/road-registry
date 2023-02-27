@@ -2,6 +2,7 @@ Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 
 AWSSDK.Core
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
 Serilog.Enrichers.Environment
 Serilog.Enrichers.Thread

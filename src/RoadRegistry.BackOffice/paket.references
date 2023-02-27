@@ -13,7 +13,7 @@ AWSSDK.DynamoDBv2
 DotSpatial.Projections
 FeatureToggle.Common
 FluentValidation
-MediatR.Extensions.Autofac.DependencyInjection
+MediatR
 MessagePack
 Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.Abstractions

@@ -5,7 +5,7 @@ Be.Vlaanderen.Basisregisters.Shaperon
 
 AspNetCore.HealthChecks.SqlServer
 AWSSDK.Core
-MediatR.Extensions.Autofac.DependencyInjection
+MediatR
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 RestSharp
 Serilog.Sinks.Seq
