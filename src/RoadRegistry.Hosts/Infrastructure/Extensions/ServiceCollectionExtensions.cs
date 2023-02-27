@@ -2,7 +2,6 @@ namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
 using Amazon;
 using BackOffice;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
