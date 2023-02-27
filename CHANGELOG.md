@@ -1,3 +1,10 @@
+## [3.35.3](https://github.com/informatievlaanderen/road-registry/compare/v3.35.2...v3.35.3) (2023-02-27)
+
+
+### Bug Fixes
+
+* WR-608 disconnect nodes from segment (in the event) when start/end node changed ([#865](https://github.com/informatievlaanderen/road-registry/issues/865)) ([ff05fe4](https://github.com/informatievlaanderen/road-registry/commit/ff05fe40a43e7fd5169f70016e2c11baa7313de2))
+
 ## [3.35.2](https://github.com/informatievlaanderen/road-registry/compare/v3.35.1...v3.35.2) (2023-02-27)
 
 
