@@ -59,6 +59,9 @@ public static class ServiceCollectionExtensions
     }
 
     public static IServiceCollection AddRoadRegistrySnapshot(this IServiceCollection services) => services
+        .AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions)))
+        .AddSingleton<DistributedS3Cache>()
+        .AddTransient<S3CacheService>()
         .AddSingleton(new RecyclableMemoryStreamManager())
         .AddSingleton(sp =>
         {
