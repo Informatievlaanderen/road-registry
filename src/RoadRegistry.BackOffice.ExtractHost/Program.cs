@@ -2,7 +2,9 @@ namespace RoadRegistry.BackOffice.ExtractHost;
 
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
+using Configuration;
 using Editor.Schema;
+using Extensions;
 using Extracts;
 using Framework;
 using Handlers.Extracts;
@@ -13,13 +15,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
-using RoadRegistry.Hosts.Infrastructure.Extensions;
 using SqlStreamStore;
 using Syndication.Schema;
 using System;
 using System.Text;
 using System.Threading.Tasks;
-using Configuration;
 using Uploads;
 using ZipArchiveWriters.ExtractHost;
 
