@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
 using System;
+using BackOffice.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Options;
 using TicketingService.Abstractions;

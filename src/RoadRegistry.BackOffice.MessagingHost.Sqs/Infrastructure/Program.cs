@@ -26,6 +26,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Configuration;
+using Extensions;
 using Hosts.Infrastructure.Extensions;
 using Uploads;
 using ZipArchiveWriters.Validation;
