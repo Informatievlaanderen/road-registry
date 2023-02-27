@@ -6,6 +6,7 @@ MediatR.Contracts
 Microsoft.Extensions.Logging
 Microsoft.Net.Http.Headers
 Microsoft.Extensions.DependencyInjection
+Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens
 Microsoft.IdentityModel.Logging

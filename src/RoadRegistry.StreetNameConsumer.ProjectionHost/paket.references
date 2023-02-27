@@ -31,5 +31,6 @@ Microsoft.Extensions.Configuration.CommandLine
 Microsoft.Extensions.Configuration.FileExtensions
 Microsoft.Extensions.Configuration.EnvironmentVariables
 Microsoft.Extensions.Configuration.Json
+Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting

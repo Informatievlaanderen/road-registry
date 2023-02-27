@@ -8,6 +8,7 @@ Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 
 AWSSDK.Core
+Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
 Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens

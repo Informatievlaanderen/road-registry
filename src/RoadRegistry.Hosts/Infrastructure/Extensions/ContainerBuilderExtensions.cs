@@ -37,13 +37,6 @@ public static class ContainerBuilderExtensions
             .As<IMediator>()
             .InstancePerLifetimeScope();
 
-        // request & notification handlers
-        builder.Register<ServiceFactory>(context =>
-        {
-            var ctx = context.Resolve<IComponentContext>();
-            return type => ctx.Resolve(type);
-        });
-
         return builder;
     }
 

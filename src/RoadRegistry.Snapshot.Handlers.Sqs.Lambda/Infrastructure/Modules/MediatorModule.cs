@@ -24,17 +24,13 @@ public class MediatorModule : Module
     {
         builder.RegisterAssemblyTypes(typeof(IMediator).GetTypeInfo().Assembly).AsImplementedInterfaces();
         builder.RegisterGeneric(typeof(ValidationPipelineBehavior<,>)).As(typeof(IPipelineBehavior<,>));
-        builder.Register<ServiceFactory>(ctx =>
-        {
-            var c = ctx.Resolve<IComponentContext>();
-            return t => c.Resolve(t);
-        });
 
         foreach (var mediatrOpenType in _mediatorOpenTypes)
+        {
             builder
                 .RegisterAssemblyTypes(GetType().Assembly)
                 .AsClosedTypesOf(mediatrOpenType)
                 .AsImplementedInterfaces();
-
+        }
     }
 }
