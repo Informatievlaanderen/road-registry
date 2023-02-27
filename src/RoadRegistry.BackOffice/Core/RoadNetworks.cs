@@ -103,6 +103,7 @@ public class RoadNetworks : IRoadNetworks
 
         var roadNetwork = RoadNetwork.Factory(view.ToImmutable());
         _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, page.LastStreamVersion));
+        
         return (roadNetwork, page.LastStreamVersion);
     }
 
