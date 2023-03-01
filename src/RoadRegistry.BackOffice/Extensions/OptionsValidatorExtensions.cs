@@ -12,11 +12,11 @@ public static class OptionsValidatorExtensions
             .AddSingleton(new GenericOptionsValidator<TOptions>(validateAndThrow));
     }
 
-    public static IServiceCollection AddOptionsValidatorsFromAssemblyContaining<TOptions>(this IServiceCollection services)
-    {
-        //TODO-rik find all IOptionsValidator types within assembly and register
-        return services;
-    }
+    //public static IServiceCollection AddOptionsValidatorsFromAssemblyContaining<TOptions>(this IServiceCollection services)
+    //{
+    //    //TODO-rik find all IOptionsValidator types within assembly and register
+    //    throw new NotImplementedException();
+    //}
 
     public static ContainerBuilder AddOptionsValidator<TOptions>(this ContainerBuilder builder, Action<TOptions> validateAndThrow)
     {

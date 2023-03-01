@@ -109,7 +109,7 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
         var environment = sp.GetRequiredService<IHostEnvironment>();
         if (environment.IsDevelopment())
         {
-            CreateMissingBucketsAsync(sp, CancellationToken.None).ConfigureAwait(false);
+            CreateMissingBucketsAsync(sp, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         using (var scope = sp.CreateScope())
