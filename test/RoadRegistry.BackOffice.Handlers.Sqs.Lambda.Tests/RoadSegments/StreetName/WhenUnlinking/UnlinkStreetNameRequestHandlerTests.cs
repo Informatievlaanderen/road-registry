@@ -50,7 +50,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         }), CancellationToken.None);
     }
 
-    [Fact(Skip = "Not working for some reason")]
+    [Fact]
     public Task WhenProcessing_UnlinkStreetNameSqsRequest_Then_UnlinkStreetNameSqsLambdaRequest_IsSent()
     {
         return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<UnlinkStreetNameSqsRequest, UnlinkStreetNameSqsLambdaRequest, UnlinkStreetNameRequest>();
@@ -114,7 +114,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
-        Xunit.Assert.Equal(0, command!.Changes.Single().RoadSegmentModified.LeftSide.StreetNameId);
+        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, command!.Changes.Single().RoadSegmentModified.LeftSide.StreetNameId);
     }
 
     [Fact]
@@ -175,7 +175,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
-        Xunit.Assert.Equal(0, command!.Changes.Single().RoadSegmentModified.RightSide.StreetNameId);
+        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, command!.Changes.Single().RoadSegmentModified.RightSide.StreetNameId);
     }
 
     [Fact]
@@ -216,8 +216,8 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         var roadSegmentModified = command!.Changes.Single().RoadSegmentModified;
-        Xunit.Assert.Equal(0, roadSegmentModified.LeftSide.StreetNameId);
-        Xunit.Assert.Equal(0, roadSegmentModified.RightSide.StreetNameId);
+        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.LeftSide.StreetNameId);
+        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.RightSide.StreetNameId);
     }
 
     private new static class WellKnownStreetNameIds

@@ -94,8 +94,8 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                         roadSegment.AttributeHash.Status,
                         roadSegment.AttributeHash.Category,
                         roadSegment.AttributeHash.AccessRestriction,
-                        leftStreetNameId > 0 ? null : roadSegment.AttributeHash.LeftStreetNameId,
-                        rightStreetNameId > 0 ? null : roadSegment.AttributeHash.RightStreetNameId
+                        leftStreetNameId > 0 ? CrabStreetnameId.NotApplicable : roadSegment.AttributeHash.LeftStreetNameId,
+                        rightStreetNameId > 0 ? CrabStreetnameId.NotApplicable : roadSegment.AttributeHash.RightStreetNameId
                     ).WithGeometry(roadSegment.Geometry));
                 }
 
