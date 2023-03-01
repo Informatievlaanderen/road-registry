@@ -136,7 +136,7 @@ public static class GeometryTranslator
         {
             if (ex.Message == "The shell of a polygon must have a clockwise orientation.")
             {
-                throw new InvalidPolygonShellOrientationException();
+                return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiPolygon(new Polygon(polygon.BoundingBox, polygon.Parts, polygon.Points.Reverse().ToArray()));
             }
             throw;
         }

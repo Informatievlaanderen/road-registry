@@ -16,8 +16,6 @@ description Road Registry.
 
 dependencies
   framework: net6.0
-    Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions >= LOCKEDVERSION
-    Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.Api >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.Aws.DistributedMutex >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.GrAr.Provenance >= LOCKEDVERSION
@@ -35,11 +33,20 @@ files
   RoadRegistry.BackOffice.Api.xml => lib\net6.0
   RoadRegistry.BackOffice.Api.xml => content
 
+  RoadRegistry.BackOffice.dll => lib\net6.0
+  RoadRegistry.BackOffice.pdb => lib\net6.0
+
+  RoadRegistry.BackOffice.Abstractions.dll => lib\net6.0
+  RoadRegistry.BackOffice.Abstractions.pdb => lib\net6.0
+
   RoadRegistry.BackOffice.Handlers.dll => lib\net6.0
   RoadRegistry.BackOffice.Handlers.pdb => lib\net6.0
 
   RoadRegistry.BackOffice.Handlers.Sqs.dll => lib\net6.0
   RoadRegistry.BackOffice.Handlers.Sqs.pdb => lib\net6.0
+
+  RoadRegistry.BackOffice.ZipArchiveWriters.dll => lib\net6.0
+  RoadRegistry.BackOffice.ZipArchiveWriters.pdb => lib\net6.0
 
   RoadRegistry.Editor.Schema.dll => lib\net6.0
   RoadRegistry.Editor.Schema.pdb => lib\net6.0

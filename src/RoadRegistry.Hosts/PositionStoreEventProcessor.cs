@@ -170,7 +170,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                         }
                     },
                     prefetchJsonData: false,
-                    name: "RoadRegistry.BackOffice.ExtractHost.EventProcessor");
+                    name: GetType().FullName);
                 break;
 
             case RecordPosition record:
