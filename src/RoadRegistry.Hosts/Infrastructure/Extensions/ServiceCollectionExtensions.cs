@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.Editor.Schema;
 using SqlStreamStore;
 using System;
+using FluentValidation;
+using FluentValidation.Results;
 
 public static class ServiceCollectionExtensions
 {
@@ -54,6 +56,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddDistributedStreamStoreLockOptions(this IServiceCollection services)
     {
+        services.AddSingleton<DistributedStreamStoreLockOptionsValidator>();
+
         return services.AddSingleton(sp =>
         {
             var configuration = sp.GetRequiredService<IConfiguration>();
@@ -75,5 +79,13 @@ public static class ServiceCollectionExtensions
                 Enabled = config.Enabled
             };
         });
+    }
+}
+
+
+public class DistributedStreamStoreLockOptionsValidator : OptionsValidator<DistributedStreamStoreLockOptions>
+{
+    protected override void ValidateAndThrowOptions(DistributedStreamStoreLockOptions options)
+    {
     }
 }

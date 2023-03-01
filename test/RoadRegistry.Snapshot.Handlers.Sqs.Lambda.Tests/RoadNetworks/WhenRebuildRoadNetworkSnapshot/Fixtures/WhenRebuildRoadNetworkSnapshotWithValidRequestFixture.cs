@@ -2,6 +2,7 @@ namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenRebui
 
 using Abstractions.Fixtures;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Configuration;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NodaTime;
@@ -46,6 +47,11 @@ public class WhenRebuildRoadNetworkSnapshotWithValidRequestFixture : WhenRebuild
         return mock;
     }
     
+    protected override RoadNetworkSnapshotStrategyOptions BuildSnapshotStrategyOptions()
+    {
+        return new() { EventCount = 3 };
+    }
+
     protected override async Task SetupAsync()
     {
         var x = RoadNetworkTestHelpers.Create();

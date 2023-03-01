@@ -282,7 +282,7 @@ public class Startup
             .AddValidatorsFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>()
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
             .AddTicketing()
-            .AddDistributedS3Cache()
+            .AddRoadRegistrySnapshot()
             ;
     }
 

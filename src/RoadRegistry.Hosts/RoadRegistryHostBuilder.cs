@@ -94,6 +94,15 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         return this;
     }
 
+    public RoadRegistryHostBuilder<T> ConfigureValidateOptions<TOptions>(Action<TOptions> validateOptions)
+    {
+        base.ConfigureServices((_, services) =>
+        {
+            services.AddOptionsValidator(validateOptions);
+        });
+        return this;
+    }
+
     public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
     {
         base.ConfigureServices(configureDelegate);
@@ -153,11 +162,9 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         return ConfigureServices((hostContext, services) =>
         {
             services
-                .AddDistributedS3Cache()
                 .AddSingleton<Scheduler>()
                 .AddStreamStore()
                 .AddSingleton<IClock>(SystemClock.Instance)
-                .AddRoadRegistrySnapshot()
                 .AddSingleton(new RecyclableMemoryStreamManager())
                 .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration)
                 .AddSingleton(new WKTReader(
@@ -174,7 +181,8 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         return ConfigureContainer((context, builder) =>
         {
             builder
-                .RegisterMediator();
+                .RegisterMediator()
+                .RegisterType<OptionsValidator>();
 
             var blobClientOptions = context.Configuration.GetOptions<BlobClientOptions>();
             if (blobClientOptions.BlobClientType is not null)

@@ -8,11 +8,9 @@ using BackOffice.Extensions;
 using BackOffice.Infrastructure.Modules;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
-using Core;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
-using Hosts.Infrastructure.Modules;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +44,6 @@ public sealed class Function : RoadRegistryLambdaFunction
                 {
                     configure.AddRoadRegistryLambdaLogger();
                 })
-            .AddRoadRegistrySnapshot()
             ;
 
         return base.ConfigureServices(services);
@@ -68,7 +65,6 @@ public sealed class Function : RoadRegistryLambdaFunction
             .RegisterModule<ContextModule>()
             .RegisterModule<SyndicationModule>()
             .RegisterModule<SqsHandlersModule>()
-            .RegisterModule<BlobClientModule>()
             ;
 
         builder.RegisterIdempotentCommandHandler();

@@ -12,7 +12,7 @@ public class SnapshotReaderFixture : IAsyncLifetime
         _reader = reader;
     }
 
-    public int Version { get; private set; }
+    public int? Version { get; private set; }
     public RoadNetworkSnapshot Snapshot { get; private set; }
 
     public async Task InitializeAsync()

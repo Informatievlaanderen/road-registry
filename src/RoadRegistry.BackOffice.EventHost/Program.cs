@@ -23,6 +23,7 @@ using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Text;
 using System.Threading.Tasks;
+using Extensions;
 using Uploads;
 
 public class Program
@@ -41,6 +42,7 @@ public class Program
                 services
                     .AddHostedService<EventProcessor>()
                     .AddTicketing()
+                    .AddRoadRegistrySnapshot()
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(

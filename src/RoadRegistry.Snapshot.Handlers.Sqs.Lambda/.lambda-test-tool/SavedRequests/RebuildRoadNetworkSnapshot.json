@@ -1,9 +1,9 @@
 {
   "Records": [
     {
-      "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
+      "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb79",
       "receiptHandle": "MessageReceiptHandle",
-      "body": "{\"type\":\"RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks.CreateRoadNetworkSnapshotSqsRequest\",\"data\":\"{\\\"Request\\\":{\\\"StreamVersion\\\":10},\\\"ProvenanceData\\\":{\\\"Operator\\\":\\\"DEV\\\"}}\"}",
+      "body": "{\"type\":\"RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks.RebuildRoadNetworkSnapshotSqsRequest\",\"data\":\"{\\\"Request\\\":{},\\\"ProvenanceData\\\":{\\\"Operator\\\":\\\"DEV\\\"}}\"}",
       "attributes": {
         "MessageGroupId": "0"
       },

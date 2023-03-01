@@ -35,19 +35,18 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
         _snapshotWriter = snapshotWriter;
         _snapshotStrategyOptions = snapshotStrategyOptions;
     }
-
+    
     protected override async Task<ETagResponse> InnerHandleAsync(CreateRoadNetworkSnapshotSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         _stopwatch.Restart();
 
         try
         {
-            var streamVersion = request.Request.StreamVersion; // Eg. 18499
-            var streamDifference = streamVersion % _snapshotStrategyOptions.EventCount; // Eg. 49
-            var streamMaxVersion = streamVersion - streamDifference; // Eg. 18450
-            
+            var streamVersion = request.Request.StreamVersion;
+            var streamMaxVersion = _snapshotStrategyOptions.GetLastAllowedStreamVersionToTakeSnapshot(streamVersion);
+
             // Check if snapshot should be taken
-            if (streamDifference.Equals(0))
+            if (streamVersion.Equals(streamMaxVersion))
             {
                 var snapshotVersion = await _snapshotReader.ReadSnapshotVersionAsync(cancellationToken);
 
@@ -58,12 +57,12 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
                 }
                 else
                 {
-                    var roadnetwork = await RoadRegistryContext.RoadNetworks.Get(true, streamMaxVersion, cancellationToken);
+                    var (roadnetwork, roadnetworkVersion) = await RoadRegistryContext.RoadNetworks.GetWithVersion(true, (messageStreamVersion, _) => messageStreamVersion > streamMaxVersion, cancellationToken);
                     var snapshot = roadnetwork.TakeSnapshot();
 
-                    Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", streamMaxVersion);
-                    await _snapshotWriter.WriteSnapshot(snapshot, streamMaxVersion, cancellationToken);
-                    Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", streamMaxVersion, _stopwatch.Elapsed);
+                    Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", roadnetworkVersion);
+                    await _snapshotWriter.WriteSnapshot(snapshot, roadnetworkVersion, cancellationToken);
+                    Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", roadnetworkVersion, _stopwatch.Elapsed);
                 }
             }
             else
