@@ -16,8 +16,18 @@ description Road Registry.
 
 dependencies
   framework: net6.0
-    Be.Vlaanderen.Basisregisters.BlobStore >= LOCKEDVERSION
-    Microsoft.IO.RecyclableMemoryStream >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.Api >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.Aws.DistributedMutex >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.GrAr.Provenance >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.Shaperon >= LOCKEDVERSION
+    AspNetCore.HealthChecks.SqlServer >= LOCKEDVERSION
+    AWSSDK.Core >= LOCKEDVERSION
+    MediatR >= LOCKEDVERSION
+    Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite >= LOCKEDVERSION
+    RestSharp >= LOCKEDVERSION
+    Serilog.Sinks.Seq >= LOCKEDVERSION
 
 files
   RoadRegistry.BackOffice.Api.dll => lib\net6.0
@@ -25,14 +35,26 @@ files
   RoadRegistry.BackOffice.Api.xml => lib\net6.0
   RoadRegistry.BackOffice.Api.xml => content
 
-  RoadRegistry.Product.Schema.dll => lib\net6.0
-  RoadRegistry.Product.Schema.pdb => lib\net6.0
+  RoadRegistry.BackOffice.Handlers.dll => lib\net6.0
+  RoadRegistry.BackOffice.Handlers.pdb => lib\net6.0
+
+  RoadRegistry.BackOffice.Handlers.Sqs.dll => lib\net6.0
+  RoadRegistry.BackOffice.Handlers.Sqs.pdb => lib\net6.0
 
   RoadRegistry.Editor.Schema.dll => lib\net6.0
   RoadRegistry.Editor.Schema.pdb => lib\net6.0
 
-  RoadRegistry.BackOffice.dll => lib\net6.0
-  RoadRegistry.BackOffice.pdb => lib\net6.0
+  RoadRegistry.Hosts.dll => lib\net6.0
+  RoadRegistry.Hosts.pdb => lib\net6.0
+
+  RoadRegistry.Product.Schema.dll => lib\net6.0
+  RoadRegistry.Product.Schema.pdb => lib\net6.0
+
+  RoadRegistry.StreetNameConsumer.Schema.dll => lib\net6.0
+  RoadRegistry.StreetNameConsumer.Schema.pdb => lib\net6.0
+
+  RoadRegistry.Syndication.Schema.dll => lib\net6.0
+  RoadRegistry.Syndication.Schema.pdb => lib\net6.0
 
   RoadRegistry.Dbase.dll => lib\net6.0
   RoadRegistry.Dbase.pdb => lib\net6.0
