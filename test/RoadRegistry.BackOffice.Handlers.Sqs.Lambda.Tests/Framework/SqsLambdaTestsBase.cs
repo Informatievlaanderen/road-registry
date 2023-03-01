@@ -5,8 +5,6 @@ using Autofac;
 using AutoFixture;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
-using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using MediatR;
@@ -48,7 +46,7 @@ public class SqsLambdaTestsBase : BackOfficeLambdaTest
 
         // Assert
         mediator
-            .Verify(x => x.Send(It.Is<TSqsLambdaRequest>(request =>
+            .Verify(x => x.Send<SqsLambdaRequest>(It.Is<TSqsLambdaRequest>(request =>
                 request.TicketId == messageData.TicketId &&
                 request.MessageGroupId == messageMetadata.MessageGroupId &&
                 Equals(request.Request, messageData.Request) &&
