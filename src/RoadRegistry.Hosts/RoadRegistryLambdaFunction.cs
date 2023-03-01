@@ -4,17 +4,25 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Amazon.S3;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
+using BackOffice.Configuration;
 using BackOffice.Extensions;
 using BackOffice.Framework;
+using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
+using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
 using Infrastructure.Extensions;
+using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -57,7 +65,10 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
             .RegisterMediator()
             .RegisterRetryPolicy()
             .RegisterModule(new DataDogModule(configuration))
-            .RegisterModule<EnvelopeModule>();
+            .RegisterModule<EnvelopeModule>()
+            .RegisterModule<BlobClientModule>();
+
+        builder.RegisterType<OptionsValidator>();
     }
 
     protected override IServiceProvider ConfigureServices(IServiceCollection services)
@@ -65,7 +76,7 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
         services.AddSingleton<IHostEnvironment>(sp => new HostingEnvironment
         {
             ApplicationName = ApplicationName,
-            EnvironmentName = Environments.Production
+            EnvironmentName = Debugger.IsAttached ? "Development" : Environments.Production
         });
 
         var tempProvider = services.BuildServiceProvider();
@@ -83,6 +94,7 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
             .AddStreamStore()
             .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })
             .AddSqsLambdaHandlerOptions()
+            .AddRoadRegistrySnapshot()
             .AddFeatureToggles<ApplicationFeatureToggle>(configuration)
             ;
 
@@ -92,6 +104,52 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
 
         ConfigureContainer(builder, configuration);
 
-        return new AutofacServiceProvider(builder.Build());
+        var sp = new AutofacServiceProvider(builder.Build());
+
+        var environment = sp.GetRequiredService<IHostEnvironment>();
+        if (environment.IsDevelopment())
+        {
+            CreateMissingBucketsAsync(sp, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
+
+        using (var scope = sp.CreateScope())
+        {
+            var optionsValidator = scope.ServiceProvider.GetRequiredService<OptionsValidator>();
+            optionsValidator.ValidateAndThrow();
+        }
+
+        return sp;
+    }
+    
+    private IEnumerable<string> GetRequiredBucketNames(IServiceProvider sp)
+    {
+        var blobClientOptions = sp.GetRequiredService<BlobClientOptions>();
+        if (blobClientOptions?.BlobClientType == nameof(S3BlobClient))
+        {
+            var s3BlobClientOptions = sp.GetRequiredService<S3BlobClientOptions>();
+            if (s3BlobClientOptions.Buckets != null)
+            {
+                foreach (var bucket in s3BlobClientOptions.Buckets)
+                {
+                    yield return bucket.Value;
+                }
+            }
+        }
+
+        var distributedS3CacheOptions = sp.GetRequiredService<DistributedS3CacheOptions>();
+        if (!string.IsNullOrEmpty(distributedS3CacheOptions?.Bucket))
+        {
+            yield return distributedS3CacheOptions.Bucket;
+        }
+    }
+
+    private async Task CreateMissingBucketsAsync(IServiceProvider sp, CancellationToken cancellationToken)
+    {
+        var bucketNames = GetRequiredBucketNames(sp).ToArray();
+        if (bucketNames.Any())
+        {
+            var amazonS3Client = sp.GetRequiredService<AmazonS3Client>();
+            await amazonS3Client.CreateMissingBucketsAsync(bucketNames, cancellationToken);
+        }
     }
 }

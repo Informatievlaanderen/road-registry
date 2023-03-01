@@ -23,6 +23,7 @@ public abstract class WhenRebuildRoadNetworkSnapshotFixture : SqsLambdaHandlerFi
 {
     protected readonly Mock<IRoadNetworkSnapshotReader> SnapshotReader;
     protected readonly Mock<IRoadNetworkSnapshotWriter> SnapshotWriter;
+    protected readonly RoadNetworkSnapshotStrategyOptions SnapshotStrategyOptions;
 
     protected WhenRebuildRoadNetworkSnapshotFixture(
         IConfiguration configuration,
@@ -38,6 +39,7 @@ public abstract class WhenRebuildRoadNetworkSnapshotFixture : SqsLambdaHandlerFi
         Organisation = Organisation.DigitaalVlaanderen;
         SnapshotReader = CreateSnapshotReaderMock(snapshotReader);
         SnapshotWriter = CreateSnapshotWriterMock(snapshotWriter);
+        SnapshotStrategyOptions = BuildSnapshotStrategyOptions();
 
         ObjectProvider.Customize<ProvenanceData>(customization =>
             customization.FromSeed(generator => new ProvenanceData(new Provenance(Clock.GetCurrentInstant(),
@@ -70,8 +72,10 @@ public abstract class WhenRebuildRoadNetworkSnapshotFixture : SqsLambdaHandlerFi
         CustomRetryPolicy,
         TicketingMock.Object,
         RoadRegistryContext,
-        SnapshotReader.Object,
         SnapshotWriter.Object,
+        SnapshotStrategyOptions,
         LoggerFactory.CreateLogger<RebuildRoadNetworkSnapshotSqsLambdaRequestHandler>()
     );
+
+    protected abstract RoadNetworkSnapshotStrategyOptions BuildSnapshotStrategyOptions();
 }

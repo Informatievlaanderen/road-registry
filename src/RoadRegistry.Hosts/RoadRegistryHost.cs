@@ -14,6 +14,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.S3;
+using BackOffice;
+using Infrastructure.Extensions;
 
 public class RoadRegistryHost<T>
 {
@@ -69,7 +71,13 @@ public class RoadRegistryHost<T>
             {
                 await CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false);
             }
-
+            
+            using (var scope = _host.Services.CreateScope())
+            {
+                var optionsValidator = scope.ServiceProvider.GetRequiredService<OptionsValidator>();
+                optionsValidator.ValidateAndThrow();
+            }
+            
             await DistributedLock<T>.RunAsync(async () =>
                 {
                     await WaitFor.SqlStreamStoreToBecomeAvailable(_streamStore, _logger);
@@ -99,24 +107,7 @@ public class RoadRegistryHost<T>
             if (s3BlobClientOptions.Buckets?.Any() == true)
             {
                 var amazonS3Client = _host.Services.GetRequiredService<AmazonS3Client>();
-                var buckets = await amazonS3Client.ListBucketsAsync(cancellationToken);
-                var existingBucketNames = buckets.Buckets.Select(x => x.BucketName).ToArray();
-                var missingBucketNames = s3BlobClientOptions.Buckets
-                    .Where(x => !existingBucketNames.Contains(x.Value))
-                    .Select(x => x.Value)
-                    .ToArray();
-
-                foreach (var bucketName in missingBucketNames)
-                {
-                    try
-                    {
-                        await amazonS3Client.PutBucketAsync(bucketName, cancellationToken);
-                    }
-                    catch (AmazonS3Exception)
-                    {
-                        // ignore if bucket already was created by a different host
-                    }
-                }
+                await amazonS3Client.CreateMissingBucketsAsync(s3BlobClientOptions.Buckets.Select(x => x.Value).ToArray(), cancellationToken);
             }
         }
     }

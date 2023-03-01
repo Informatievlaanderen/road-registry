@@ -46,7 +46,7 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
                 }
                 else
                 {
-                    var (network, version) = await context.RoadNetworks.GetWithVersion(false, ct);
+                    var (network, version) = await context.RoadNetworks.GetWithVersion(false, null, ct);
                     await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
 
                     var completedCommand = new RebuildRoadNetworkSnapshotCompleted

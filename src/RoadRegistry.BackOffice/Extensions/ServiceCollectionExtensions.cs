@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Extensions;
 
 using System;
+using System.Configuration;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
@@ -61,46 +62,69 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDistributedS3Cache(this IServiceCollection services)
     {
         return services
-            .RegisterOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions))
+            .RegisterOptions<DistributedS3CacheOptions>(nameof(DistributedS3CacheOptions), options =>
+            {
+                if (string.IsNullOrEmpty(options.Bucket))
+                {
+                    throw new ConfigurationErrorsException($"'{nameof(options.Bucket)}' is required");
+                }
+                if (string.IsNullOrEmpty(options.RootDir))
+                {
+                    throw new ConfigurationErrorsException($"'{nameof(options.RootDir)}' is required");
+                }
+            })
             .AddSingleton<DistributedS3Cache>()
             .AddTransient<S3CacheService>();
     }
 
-    public static IServiceCollection AddRoadRegistrySnapshot(this IServiceCollection services) => services
-        .AddDistributedS3Cache()
-        .AddSingleton(new RecyclableMemoryStreamManager())
-        .AddSingleton(sp =>
-        {
-            var configuration = sp.GetRequiredService<IConfiguration>();
-            return new RoadNetworkSnapshotsBlobClient(
-                new SqlBlobClient(
-                    new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
-                    WellknownSchemas.SnapshotSchema));
-        })
-        .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
-        {
-            var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
-            return featureToggle.FeatureEnabled
-                ? new RoadNetworkSnapshotReader(sp.GetRequiredService<S3CacheService>())
-                : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
-        })
-        .AddSingleton<IRoadNetworkSnapshotWriter>(sp =>
-        {
-            var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
-            return featureToggle.FeatureEnabled
-                ? new RoadNetworkSnapshotWriter(sp.GetRequiredService<S3CacheService>())
-                : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
-        });
+    public static IServiceCollection AddRoadRegistrySnapshot(this IServiceCollection services)
+    {
+        return services
+            .AddDistributedS3Cache()
+            .AddSingleton(new RecyclableMemoryStreamManager())
+            .AddSingleton(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                return new RoadNetworkSnapshotsBlobClient(
+                    new SqlBlobClient(
+                        new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
+                        WellknownSchemas.SnapshotSchema));
+            })
+            .AddSingleton<IRoadNetworkSnapshotReader>(sp =>
+            {
+                var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
+                return featureToggle.FeatureEnabled
+                    ? new RoadNetworkSnapshotReader(sp.GetRequiredService<S3CacheService>())
+                    : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
+            })
+            .AddSingleton<IRoadNetworkSnapshotWriter>(sp =>
+            {
+                var featureToggle = sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>();
+                return featureToggle.FeatureEnabled
+                    ? new RoadNetworkSnapshotWriter(sp.GetRequiredService<S3CacheService>())
+                    : new RoadNetworkSnapshotReaderWriter(sp.GetRequiredService<RoadNetworkSnapshotsBlobClient>(), sp.GetRequiredService<RecyclableMemoryStreamManager>());
+            });
+    }
 
-    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services)
+    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services, Action<TOptions> validateOptions = null)
         where TOptions : class, new()
     {
+        if (validateOptions != null)
+        {
+            services.AddOptionsValidator(validateOptions);
+        }
+
         return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>());
     }
 
-    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services, string configurationSectionKey)
+    public static IServiceCollection RegisterOptions<TOptions>(this IServiceCollection services, string configurationSectionKey, Action<TOptions> validateOptions = null)
         where TOptions : class, new()
     {
+        if (validateOptions != null)
+        {
+            services.AddOptionsValidator(validateOptions);
+        }
+
         return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>(configurationSectionKey));
     }
 }

@@ -39,6 +39,7 @@ public class Program
                 services
                     .AddHostedService<EventProcessor>()
                     .RegisterOptions<ZipArchiveWriterOptions>()
+                    .AddRoadRegistrySnapshot()
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
