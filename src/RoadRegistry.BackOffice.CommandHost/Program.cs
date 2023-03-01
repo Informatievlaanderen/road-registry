@@ -17,6 +17,7 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using Extensions;
 using FeatureToggles;
 using Handlers.Sqs;
 using MediatR;
@@ -37,6 +38,7 @@ public class Program
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
                 .AddTicketing()
+                .AddRoadRegistrySnapshot()
                 .AddSingleton<ICommandProcessorPositionStore>(sp =>
                     new SqlCommandProcessorPositionStore(
                         new SqlConnectionStringBuilder(

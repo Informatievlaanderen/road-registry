@@ -15,7 +15,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.BackOffice.CommandHost\RoadRegistry.BackOffice.CommandHost.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers.Sqs\RoadRegistry.BackOffice.Handlers.Sqs.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.Handlers\RoadRegistry.BackOffice.Handlers.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />

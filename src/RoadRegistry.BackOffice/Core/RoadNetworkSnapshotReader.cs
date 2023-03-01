@@ -15,15 +15,20 @@ internal class RoadNetworkSnapshotReader : IRoadNetworkSnapshotReader
         _cacheService = cacheService ?? throw new ArgumentNullException(nameof(cacheService));
     }
 
-    public async Task<int> ReadSnapshotVersionAsync(CancellationToken cancellationToken)
+    public async Task<int?> ReadSnapshotVersionAsync(CancellationToken cancellationToken)
     {
         var version = await _cacheService.GetHeadKey();
-        return int.Parse(version ?? "0");
+        return version != null ? int.Parse(version) : null;
     }
 
-    public async Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshotAsync(CancellationToken cancellationToken)
+    public async Task<(RoadNetworkSnapshot snapshot, int? version)> ReadSnapshotAsync(CancellationToken cancellationToken)
     {
         var version = await ReadSnapshotVersionAsync(cancellationToken);
+        if (version == null)
+        {
+            return (null, version);
+        }
+
         var snapshot = await _cacheService.GetHeadValue<RoadNetworkSnapshot>(cancellationToken);
 
         return (snapshot, version);

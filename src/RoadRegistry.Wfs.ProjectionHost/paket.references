@@ -3,6 +3,7 @@ Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 
 AWSSDK.Core
+Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
 Polly
 Serilog.Enrichers.Environment

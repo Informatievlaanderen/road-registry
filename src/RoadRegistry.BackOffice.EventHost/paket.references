@@ -1,7 +1,7 @@
 Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 
 AWSSDK.Core
-MediatR.Extensions.Autofac.DependencyInjection
+MediatR
 Microsoft.Extensions.Hosting
 Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens

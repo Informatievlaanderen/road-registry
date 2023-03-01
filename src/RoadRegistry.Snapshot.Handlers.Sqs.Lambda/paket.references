@@ -6,3 +6,4 @@ Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
 Amazon.Lambda.Serialization.SystemTextJson
 Autofac.Extensions.DependencyInjection
 AWSSDK.Core
+Microsoft.Extensions.DependencyInjection.Abstractions

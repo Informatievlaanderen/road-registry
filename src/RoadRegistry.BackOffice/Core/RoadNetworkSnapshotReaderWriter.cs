@@ -27,7 +27,7 @@ internal class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRo
         _streamManager = streamManager ?? throw new ArgumentNullException(nameof(streamManager));
     }
 
-    public async Task<int> ReadSnapshotVersionAsync(CancellationToken cancellationToken)
+    public async Task<int?> ReadSnapshotVersionAsync(CancellationToken cancellationToken)
     {
         if (!await _client.BlobExistsAsync(SnapshotHead, cancellationToken))
         {
@@ -58,7 +58,7 @@ internal class RoadNetworkSnapshotReaderWriter : IRoadNetworkSnapshotReader, IRo
         }
     }
 
-    public async Task<(RoadNetworkSnapshot snapshot, int version)> ReadSnapshotAsync(CancellationToken cancellationToken)
+    public async Task<(RoadNetworkSnapshot snapshot, int? version)> ReadSnapshotAsync(CancellationToken cancellationToken)
     {
         if (!await _client.BlobExistsAsync(SnapshotHead, cancellationToken))
         {

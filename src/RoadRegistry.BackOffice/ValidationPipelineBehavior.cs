@@ -31,7 +31,9 @@ public sealed class ValidationPipelineBehavior<TRequest, TResponse> : IPipelineB
             .ToList();
 
         if (failures.Count != 0)
+        {
             throw new ValidationException(failures);
+        }
 
         return await next();
     }

@@ -2,6 +2,7 @@ Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
 
 AWSSDK.Core
+Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Hosting
 Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens
