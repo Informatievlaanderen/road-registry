@@ -42,7 +42,7 @@ public class RoadNetworks : IRoadNetworks
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    private class ProcessSnapshotContext
+    private sealed class ProcessSnapshotContext
     {
         private int? _version;
         public int? Version
