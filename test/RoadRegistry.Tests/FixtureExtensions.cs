@@ -11,6 +11,18 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public static class Customizations
 {
+    public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, T illegalValue)
+    {
+        var value = fixture.Create<T>();
+
+        while (Equals(value, illegalValue))
+        {
+            value = fixture.Create<T>();
+        }
+
+        return value;
+    }
+
     public static void CustomizeGradeSeparatedJunctionAdded(this IFixture fixture)
     {
         fixture.Customize<GradeSeparatedJunctionAdded>(customization =>
