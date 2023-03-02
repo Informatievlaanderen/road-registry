@@ -16,7 +16,6 @@ description Road Registry.
 
 dependencies
   framework: net6.0
-    RoadRegistry.BackOffice.Abstractions >= LOCKEDVERSION
     AWSSDK.Core
     Microsoft.IdentityModel.Abstractions >= LOCKEDVERSION
     Microsoft.IdentityModel.JsonWebTokens >= LOCKEDVERSION
@@ -30,6 +29,12 @@ files
   RoadRegistry.BackOffice.ZipArchiveWriters.pdb => lib\net6.0
   RoadRegistry.BackOffice.ZipArchiveWriters.xml => lib\net6.0
   RoadRegistry.BackOffice.ZipArchiveWriters.xml => content
+
+  RoadRegistry.BackOffice.dll => lib\net6.0
+  RoadRegistry.BackOffice.pdb => lib\net6.0
+
+  RoadRegistry.BackOffice.Abstractions.dll => lib\net6.0
+  RoadRegistry.BackOffice.Abstractions.pdb => lib\net6.0
 
   RoadRegistry.Editor.Schema.dll => lib\net6.0
   RoadRegistry.Editor.Schema.pdb => lib\net6.0
