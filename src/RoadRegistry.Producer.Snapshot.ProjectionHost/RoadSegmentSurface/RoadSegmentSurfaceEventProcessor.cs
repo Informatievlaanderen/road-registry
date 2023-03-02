@@ -4,6 +4,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Hosts;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using SqlStreamStore;
 
@@ -13,16 +14,16 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 
         public RoadSegmentSurfaceEventProcessor(
             IStreamStore streamStore,
-            AcceptStreamMessageFilter filter,
+            AcceptStreamMessage<RoadSegmentSurfaceProducerSnapshotContext> acceptStreamMessage,
             EnvelopeFactory envelopeFactory,
             ConnectedProjectionHandlerResolver<RoadSegmentSurfaceProducerSnapshotContext> resolver,
-            Func<RoadSegmentSurfaceProducerSnapshotContext> dbContextFactory,
+            IDbContextFactory<RoadSegmentSurfaceProducerSnapshotContext> dbContextFactory,
             Scheduler scheduler,
             ILogger<DbContextEventProcessor<RoadSegmentSurfaceProducerSnapshotContext>> logger)
             : base(
                 QueueName,
                 streamStore,
-                filter,
+                acceptStreamMessage,
                 envelopeFactory,
                 resolver,
                 dbContextFactory,
