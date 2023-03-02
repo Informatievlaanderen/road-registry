@@ -1,3 +1,10 @@
+## [3.35.5](https://github.com/informatievlaanderen/road-registry/compare/v3.35.4...v3.35.5) (2023-03-02)
+
+
+### Bug Fixes
+
+* messaginghost-sqs only register command to store, do not handle message ([#875](https://github.com/informatievlaanderen/road-registry/issues/875)) ([04f0b95](https://github.com/informatievlaanderen/road-registry/commit/04f0b95528935eddf6879803140e958c318006cf))
+
 ## [3.35.4](https://github.com/informatievlaanderen/road-registry/compare/v3.35.3...v3.35.4) (2023-03-02)
 
 
