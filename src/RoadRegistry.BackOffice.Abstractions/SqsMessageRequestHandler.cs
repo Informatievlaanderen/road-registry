@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Abstractions;
 
-using Framework;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -19,16 +18,13 @@ public abstract class SqsMessageRequestHandler<TRequest, TResponse> : IRequestHa
     where TRequest : SqsMessageRequest<TResponse>
     where TResponse : SqsMessageResponse
 {
-    protected readonly ILogger _logger;
+    protected readonly ILogger Logger;
 
-    protected SqsMessageRequestHandler(CommandHandlerDispatcher dispatcher, ILogger logger)
+    protected SqsMessageRequestHandler(ILogger logger)
     {
-        Dispatcher = dispatcher;
-        _logger = logger;
+        Logger = logger;
     }
-
-    protected CommandHandlerDispatcher Dispatcher { get; init; }
-
+    
     public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken)
     {
         var response = await HandleAsync(request, cancellationToken);
