@@ -42,7 +42,6 @@ public class FeatureCompareMessageConsumer : BackgroundService
                 {
                     _logger.LogInformation("SQS message from feature compare received!");
                     await HandleMessageAsync(message, stoppingToken);
-
                 }, stoppingToken);
             }
             catch (TaskCanceledException ex)
