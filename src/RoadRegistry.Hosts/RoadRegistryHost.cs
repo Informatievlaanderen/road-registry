@@ -10,11 +10,13 @@ using RoadRegistry.BackOffice.Configuration;
 using SqlStreamStore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.S3;
 using BackOffice;
+using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Infrastructure.Extensions;
 
 public class RoadRegistryHost<T>
@@ -101,14 +103,23 @@ public class RoadRegistryHost<T>
     private async Task CreateMissingBucketsAsync(CancellationToken cancellationToken)
     {
         var blobClientOptions = _host.Services.GetService<BlobClientOptions>();
-        if (blobClientOptions?.BlobClientType == nameof(S3BlobClient))
+        switch (blobClientOptions?.BlobClientType)
         {
-            var s3BlobClientOptions = _host.Services.GetRequiredService<S3BlobClientOptions>();
-            if (s3BlobClientOptions.Buckets?.Any() == true)
+            case nameof(S3BlobClient):
             {
-                var amazonS3Client = _host.Services.GetRequiredService<AmazonS3Client>();
-                await amazonS3Client.CreateMissingBucketsAsync(s3BlobClientOptions.Buckets.Select(x => x.Value).ToArray(), cancellationToken);
+                var s3BlobClientOptions = _host.Services.GetRequiredService<S3BlobClientOptions>();
+                if (s3BlobClientOptions.Buckets?.Any() == true)
+                {
+                    var amazonS3Client = _host.Services.GetRequiredService<AmazonS3Client>();
+                    await amazonS3Client.CreateMissingBucketsAsync(s3BlobClientOptions.Buckets.Select(x => x.Value).ToArray(), cancellationToken);
+                }
+                break;
             }
+            case nameof(FileBlobClient):
+                var fileOptions = _host.Services.GetRequiredService<FileBlobClientOptions>();
+
+                Directory.CreateDirectory(fileOptions.Directory);
+                break;
         }
     }
 }

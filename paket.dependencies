@@ -91,8 +91,8 @@ nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.2.2
 nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 17.41.6
 nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 17.41.6
 nuget Be.Vlaanderen.Basisregisters.GrAr.Provenance 17.41.6
-nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.7.1
-nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.7.1
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.8.0
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.8.0
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 11.0.2
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 11.0.2
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 11.0.2

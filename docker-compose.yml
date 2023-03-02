@@ -491,6 +491,20 @@ services:
     ports:
       - 8080:8080
 
+  localstack:
+    container_name: localstack
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"  # external services port range
+    environment:
+      - DEBUG=1
+      - SERVICES=s3,sqs
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - ./.localstack:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   mssql-data:
   municipality-mssql-data:
