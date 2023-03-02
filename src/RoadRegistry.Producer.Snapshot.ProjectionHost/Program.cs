@@ -52,33 +52,28 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                     )
                     .AddSnapshotProducer<RoadNodeProducerSnapshotContext, RoadNodeRecordProjection, RoadNodeEventProcessor>(
                         "RoadNode",
-                        dbContextOptionsBuilder => new RoadNodeProducerSnapshotContext(dbContextOptionsBuilder.Options),
                         (_, kafkaProducer) => new RoadNodeRecordProjection(kafkaProducer),
-                        connectedProjection => RoadNodeAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadNodeEventProcessor.EventMapping)
+                        connectedProjection => new AcceptStreamMessage<RoadNodeProducerSnapshotContext>(connectedProjection, RoadNodeEventProcessor.EventMapping)
                     )
                     .AddSnapshotProducer<RoadSegmentProducerSnapshotContext, RoadSegmentRecordProjection, RoadSegmentEventProcessor>(
                         "RoadSegment",
-                        dbContextOptionsBuilder => new RoadSegmentProducerSnapshotContext(dbContextOptionsBuilder.Options),
                         (sp, kafkaProducer) => new RoadSegmentRecordProjection(kafkaProducer, sp.GetRequiredService<IStreetNameCache>()),
-                        connectedProjection => RoadSegmentAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadSegmentEventProcessor.EventMapping)
+                        connectedProjection => new AcceptStreamMessage<RoadSegmentProducerSnapshotContext>(connectedProjection, RoadSegmentEventProcessor.EventMapping)
                     )
                     .AddSnapshotProducer<NationalRoadProducerSnapshotContext, NationalRoadRecordProjection, NationalRoadEventProcessor>(
                         "NationalRoad",
-                        dbContextOptionsBuilder => new NationalRoadProducerSnapshotContext(dbContextOptionsBuilder.Options),
                         (_, kafkaProducer) => new NationalRoadRecordProjection(kafkaProducer),
-                        connectedProjection => NationalRoadAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, NationalRoadEventProcessor.EventMapping)
+                        connectedProjection => new AcceptStreamMessage<NationalRoadProducerSnapshotContext>(connectedProjection, NationalRoadEventProcessor.EventMapping)
                     )
                     .AddSnapshotProducer<GradeSeparatedJunctionProducerSnapshotContext, GradeSeparatedJunctionRecordProjection, GradeSeparatedJunctionEventProcessor>(
                         "GradeSeparatedJunction",
-                        dbContextOptionsBuilder => new GradeSeparatedJunctionProducerSnapshotContext(dbContextOptionsBuilder.Options),
                         (_, kafkaProducer) => new GradeSeparatedJunctionRecordProjection(kafkaProducer),
-                        connectedProjection => GradeSeparatedJunctionAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, GradeSeparatedJunctionEventProcessor.EventMapping)
+                        connectedProjection => new AcceptStreamMessage<GradeSeparatedJunctionProducerSnapshotContext>(connectedProjection, GradeSeparatedJunctionEventProcessor.EventMapping)
                     )
                     .AddSnapshotProducer<RoadSegmentSurfaceProducerSnapshotContext, RoadSegmentSurfaceRecordProjection, RoadSegmentSurfaceEventProcessor>(
                         "RoadSegmentSurface",
-                        dbContextOptionsBuilder => new RoadSegmentSurfaceProducerSnapshotContext(dbContextOptionsBuilder.Options),
                         (_, kafkaProducer) => new RoadSegmentSurfaceRecordProjection(kafkaProducer),
-                        connectedProjection => RoadSegmentSurfaceAcceptStreamMessage.WhenEqualToMessageType(connectedProjection, RoadSegmentSurfaceEventProcessor.EventMapping)
+                        connectedProjection => new AcceptStreamMessage<RoadSegmentSurfaceProducerSnapshotContext>(connectedProjection, RoadSegmentSurfaceEventProcessor.EventMapping)
                     )
                     .AddSingleton(typeof(Program).Assembly
                         .GetTypes()

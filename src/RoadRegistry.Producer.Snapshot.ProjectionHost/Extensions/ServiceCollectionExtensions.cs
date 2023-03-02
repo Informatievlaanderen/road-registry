@@ -17,31 +17,23 @@ internal static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddSnapshotProducer<TSnapshotContext, TProjection, TEventProcessor>(this IServiceCollection services,
         string entityName,
-        Func<DbContextOptionsBuilder<TSnapshotContext>, TSnapshotContext> resolveContext,
         Func<IServiceProvider, KafkaProducer, TProjection> resolveProjection,
-        Func<ConnectedProjection<TSnapshotContext>[], AcceptStreamMessageFilter> buildAcceptStreamMessageFilter
+        Func<ConnectedProjection<TSnapshotContext>[], AcceptStreamMessage<TSnapshotContext>> buildAcceptStreamMessage
     )
         where TSnapshotContext : RunnerDbContext<TSnapshotContext>
         where TEventProcessor : DbContextEventProcessor<TSnapshotContext>
         where TProjection : ConnectedProjection<TSnapshotContext>
     {
         return services
-                .AddSingleton<Func<TSnapshotContext>>(sp =>
+                .AddDbContextFactory<TSnapshotContext>((sp, options) =>
                 {
-                    return () =>
-                    {
-                        var configuration = sp.GetRequiredService<IConfiguration>();
-
-                        var dbContextOptionsBuilder = new DbContextOptionsBuilder<TSnapshotContext>()
-                            .UseSqlServer(
-                                configuration.GetConnectionString(WellknownConnectionNames.ProducerSnapshotProjections),
-                                options => options
-                                    .EnableRetryOnFailure()
-                                    .UseNetTopologySuite()
-                            );
-
-                        return resolveContext(dbContextOptionsBuilder);
-                    };
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ProducerSnapshotProjections);
+                    options
+                        .UseSqlServer(connectionString,
+                        o => o
+                            .EnableRetryOnFailure()
+                            .UseNetTopologySuite()
+                    );
                 })
                 .AddSingleton(sp =>
                 {
@@ -67,7 +59,7 @@ internal static class ServiceCollectionExtensions
                                 .ToArray()
                         )
                 )
-                .AddSingleton(sp => buildAcceptStreamMessageFilter(sp.GetRequiredService<ConnectedProjection<TSnapshotContext>[]>()))
+                .AddSingleton(sp => buildAcceptStreamMessage(sp.GetRequiredService<ConnectedProjection<TSnapshotContext>[]>()))
                 .AddHostedService<TEventProcessor>()
             ;
     }
