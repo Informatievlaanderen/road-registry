@@ -10,7 +10,7 @@ public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentL
         RuleFor(x => x.Aantal)
             .Cascade(CascadeMode.Stop)
             .GreaterThan(0)
-            .WithErrorCode(ValidationErrors.RoadSegmentOutline.Lane.GreaterThanZero.Code)
-            .WithMessage(ValidationErrors.RoadSegmentOutline.Lane.GreaterThanZero.Message);
+            .WithErrorCode(ValidationErrors.RoadSegment.Lane.GreaterThanZero.Code)
+            .WithMessage(ValidationErrors.RoadSegment.Lane.GreaterThanZero.Message);
     }
 }
