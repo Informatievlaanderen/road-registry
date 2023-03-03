@@ -17,6 +17,7 @@ description Road Registry Projector API.
 dependencies
   framework: net6.0
     Be.Vlaanderen.Basisregisters.Api >= LOCKEDVERSION
+    Be.Vlaanderen.Basisregisters.Aws.DistributedMutex >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.EventHandling.Autofac >= LOCKEDVERSION
     Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac >= LOCKEDVERSION
 

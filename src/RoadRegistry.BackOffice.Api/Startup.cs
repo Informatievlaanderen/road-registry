@@ -16,7 +16,6 @@ using FluentValidation;
 using Handlers.Extensions;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
-using Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -36,7 +35,6 @@ using NetTopologySuite.IO;
 using NodaTime;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Abstractions.Configuration;
-using RoadRegistry.BackOffice.Configuration;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
@@ -83,8 +81,8 @@ public class Startup
                 },
                 Toggles =
                 {
-                    Enable = datadogToggle,
-                    Debug = debugDataDogToggle
+                    Enable = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDataDogToggle(datadogToggle.FeatureEnabled),
+                    Debug = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDebugDataDogToggle(debugDataDogToggle.FeatureEnabled)
                 },
                 Tracing =
                 {
