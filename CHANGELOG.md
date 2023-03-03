@@ -1,3 +1,16 @@
+# [3.36.0](https://github.com/informatievlaanderen/road-registry/compare/v3.35.5...v3.36.0) (2023-03-03)
+
+
+### Bug Fixes
+
+* add localstack for SQS local development ([#876](https://github.com/informatievlaanderen/road-registry/issues/876)) ([daea055](https://github.com/informatievlaanderen/road-registry/commit/daea05503dc61666ac8981925d396af6df32f95e))
+* enable/disable projections in projector ([#870](https://github.com/informatievlaanderen/road-registry/issues/870)) ([f752a37](https://github.com/informatievlaanderen/road-registry/commit/f752a37f45b22d050c5c2d1229c147eb1b15621d))
+
+
+### Features
+
+* Paket reference & template update ([#877](https://github.com/informatievlaanderen/road-registry/issues/877)) ([e51f64d](https://github.com/informatievlaanderen/road-registry/commit/e51f64d7e18cf7eb5cc8e679e3fc5f0446cee4a6))
+
 ## [3.35.5](https://github.com/informatievlaanderen/road-registry/compare/v3.35.4...v3.35.5) (2023-03-02)
 
 
