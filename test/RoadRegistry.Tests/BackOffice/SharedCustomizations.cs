@@ -1,6 +1,5 @@
 namespace RoadRegistry.Tests.BackOffice;
 
-using Amazon.DynamoDBv2;
 using AutoFixture;
 using AutoFixture.Dsl;
 using Be.Vlaanderen.Basisregisters.Shaperon;

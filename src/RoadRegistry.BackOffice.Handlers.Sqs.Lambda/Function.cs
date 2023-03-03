@@ -39,11 +39,12 @@ public sealed class Function : RoadRegistryLambdaFunction
                 new CommandHandlerModule[]
                 {
                     CommandModules.RoadNetwork(sp)
-                }))
-                .AddLogging(configure =>
-                {
-                    configure.AddRoadRegistryLambdaLogger();
                 })
+            )
+            .AddLogging(configure =>
+            {
+                configure.AddRoadRegistryLambdaLogger();
+            })
             ;
 
         return base.ConfigureServices(services);

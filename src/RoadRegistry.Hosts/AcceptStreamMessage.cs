@@ -25,23 +25,35 @@ public static class AcceptStreamMessage
 
 public class AcceptStreamMessage<TDbContext>
 {
+    private readonly ConnectedProjection<TDbContext>[] _projections;
+    private readonly EventMapping _mapping;
+
     protected AcceptStreamMessage()
     {
     }
 
-    public static AcceptStreamMessageFilter WhenEqualToMessageType(ConnectedProjection<TDbContext>[] projections, EventMapping mapping)
+    public AcceptStreamMessage(ConnectedProjection<TDbContext>[] projections, EventMapping mapping)
+    {
+        _projections = projections;
+        _mapping = mapping;
+    }
+
+    public AcceptStreamMessageFilter CreateFilter()
     {
         var acceptableEventNames = new HashSet<string>(
-            projections
+            _projections
                 .SelectMany(module => module.Handlers)
                 .Select(handler => handler.Message)
                 .Distinct()
                 .Where(envelope => envelope.IsGenericType && envelope.GetGenericTypeDefinition() == typeof(Envelope<>))
                 .Select(envelope => envelope.GenericTypeArguments[0])
                 .Distinct()
-                .Where(mapping.HasEventName)
-                .Select(mapping.GetEventName)
+                .Where(_mapping.HasEventName)
+                .Select(_mapping.GetEventName)
         );
-        return message => mapping.HasEventType(message.Type) && acceptableEventNames.Contains(message.Type);
+        return message => _mapping.HasEventType(message.Type) && acceptableEventNames.Contains(message.Type);
     }
+
+    public static AcceptStreamMessageFilter WhenEqualToMessageType(ConnectedProjection<TDbContext>[] projections, EventMapping mapping)
+        => new AcceptStreamMessage<TDbContext>(projections, mapping).CreateFilter();
 }

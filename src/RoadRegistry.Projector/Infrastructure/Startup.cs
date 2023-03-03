@@ -61,8 +61,8 @@ public class Startup
                 },
                 Toggles =
                 {
-                    Enable = datadogToggle,
-                    Debug = debugDataDogToggle
+                    Enable = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDataDogToggle(datadogToggle.FeatureEnabled),
+                    Debug = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDebugDataDogToggle(debugDataDogToggle.FeatureEnabled)
                 },
                 Tracing =
                 {

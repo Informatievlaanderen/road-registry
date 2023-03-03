@@ -1,3 +1,25 @@
+## [3.35.5](https://github.com/informatievlaanderen/road-registry/compare/v3.35.4...v3.35.5) (2023-03-02)
+
+
+### Bug Fixes
+
+* messaginghost-sqs only register command to store, do not handle message ([#875](https://github.com/informatievlaanderen/road-registry/issues/875)) ([04f0b95](https://github.com/informatievlaanderen/road-registry/commit/04f0b95528935eddf6879803140e958c318006cf))
+
+## [3.35.4](https://github.com/informatievlaanderen/road-registry/compare/v3.35.3...v3.35.4) (2023-03-02)
+
+
+### Bug Fixes
+
+* bump mediatr ([0f6c75f](https://github.com/informatievlaanderen/road-registry/commit/0f6c75fcf93e6e0d4ff4f107722711cf2217ec46))
+* kafka producer snapshot bugfix ([#873](https://github.com/informatievlaanderen/road-registry/issues/873)) ([b75c1db](https://github.com/informatievlaanderen/road-registry/commit/b75c1db2f1ff9a13605dae09cda747c25596b4f8))
+* Paket template update ([#871](https://github.com/informatievlaanderen/road-registry/issues/871)) ([097e46b](https://github.com/informatievlaanderen/road-registry/commit/097e46b21bf5c36805a963b11bf2976070eead2e))
+* paket.template API include dlls ([#872](https://github.com/informatievlaanderen/road-registry/issues/872)) ([c70f00c](https://github.com/informatievlaanderen/road-registry/commit/c70f00c4d9f66ddfd901e5509b43dd4bbdf82221))
+* skip 2 tests ([53f19c4](https://github.com/informatievlaanderen/road-registry/commit/53f19c45fc1193b5d8562f9502060eaf4d53be09))
+* skip test ([feb0027](https://github.com/informatievlaanderen/road-registry/commit/feb0027f93e8f313b741d163222e7371d7a3e18d))
+* Updated paket.template file for ZipArchiveWriters ([#874](https://github.com/informatievlaanderen/road-registry/issues/874)) ([36e4bd2](https://github.com/informatievlaanderen/road-registry/commit/36e4bd2295dec48b9df1579b3e5ad152849e7a25))
+* WR-560 snapshot s3 + rebuild snapshot ([#868](https://github.com/informatievlaanderen/road-registry/issues/868)) ([fdcbb4f](https://github.com/informatievlaanderen/road-registry/commit/fdcbb4fb55412034e0c01daf077d6746a6f9b830))
+* WR-609 set streetnameid to NotApplicable when unlinking + fix disabled tests ([#869](https://github.com/informatievlaanderen/road-registry/issues/869)) ([5a3ccad](https://github.com/informatievlaanderen/road-registry/commit/5a3ccad4ee60d1970db784930e54b9e84014e292))
+
 ## [3.35.3](https://github.com/informatievlaanderen/road-registry/compare/v3.35.2...v3.35.3) (2023-02-27)
 
 

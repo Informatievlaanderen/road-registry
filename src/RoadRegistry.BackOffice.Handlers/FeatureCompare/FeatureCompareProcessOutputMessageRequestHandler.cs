@@ -8,8 +8,12 @@ using Microsoft.Extensions.Logging;
 
 public class FeatureCompareProcessOutputMessageRequestHandler : SqsMessageRequestHandler<FeatureCompareProcessOutputMessageRequest, FeatureCompareProcessOutputMessageResponse>
 {
-    public FeatureCompareProcessOutputMessageRequestHandler(CommandHandlerDispatcher dispatcher, ILogger<FeatureCompareProcessOutputMessageRequestHandler> logger) : base(dispatcher, logger)
+    private readonly IRoadNetworkCommandQueue _commandQueue;
+
+    public FeatureCompareProcessOutputMessageRequestHandler(IRoadNetworkCommandQueue commandQueue, ILogger<FeatureCompareProcessOutputMessageRequestHandler> logger)
+        : base(logger)
     {
+        _commandQueue = commandQueue;
     }
 
     public override async Task<FeatureCompareProcessOutputMessageResponse> HandleAsync(FeatureCompareProcessOutputMessageRequest request, CancellationToken cancellationToken)
@@ -19,10 +23,11 @@ public class FeatureCompareProcessOutputMessageRequestHandler : SqsMessageReques
             ArchiveId = request.ArchiveId,
             FeatureCompareCompleted = true
         };
-        var command = new Command(message);
-        await Dispatcher(command, cancellationToken);
 
-        _logger.LogInformation("Dispatched command {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), request.ArchiveId);
+        var command = new Command(message);
+        await _commandQueue.Write(command, cancellationToken);
+        
+        Logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), request.ArchiveId);
 
         return new FeatureCompareProcessOutputMessageResponse(new ArchiveId(message.ArchiveId));
     }
