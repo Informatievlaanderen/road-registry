@@ -49,6 +49,7 @@ using SqlStreamStore;
 using System;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 public class Startup
 {
@@ -72,6 +73,13 @@ public class Startup
         HealthCheckService healthCheckService)
     {
         StartupHelpers.CheckDatabases(healthCheckService, DatabaseTag, loggerFactory).GetAwaiter().GetResult();
+
+        var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
+        if (environment.IsDevelopment())
+        {
+            serviceProvider.CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            serviceProvider.CreateMissingQueuesAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+        }
 
         app
             .UseDataDog<Startup>(new DataDogOptions

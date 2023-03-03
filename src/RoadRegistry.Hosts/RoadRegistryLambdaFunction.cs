@@ -109,7 +109,7 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
         var environment = sp.GetRequiredService<IHostEnvironment>();
         if (environment.IsDevelopment())
         {
-            CreateMissingBucketsAsync(sp, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            sp.CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
         using (var scope = sp.CreateScope())
@@ -119,37 +119,5 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
         }
 
         return sp;
-    }
-    
-    private IEnumerable<string> GetRequiredBucketNames(IServiceProvider sp)
-    {
-        var blobClientOptions = sp.GetRequiredService<BlobClientOptions>();
-        if (blobClientOptions?.BlobClientType == nameof(S3BlobClient))
-        {
-            var s3BlobClientOptions = sp.GetRequiredService<S3BlobClientOptions>();
-            if (s3BlobClientOptions.Buckets != null)
-            {
-                foreach (var bucket in s3BlobClientOptions.Buckets)
-                {
-                    yield return bucket.Value;
-                }
-            }
-        }
-
-        var distributedS3CacheOptions = sp.GetRequiredService<DistributedS3CacheOptions>();
-        if (!string.IsNullOrEmpty(distributedS3CacheOptions?.Bucket))
-        {
-            yield return distributedS3CacheOptions.Bucket;
-        }
-    }
-
-    private async Task CreateMissingBucketsAsync(IServiceProvider sp, CancellationToken cancellationToken)
-    {
-        var bucketNames = GetRequiredBucketNames(sp).ToArray();
-        if (bucketNames.Any())
-        {
-            var amazonS3Client = sp.GetRequiredService<AmazonS3Client>();
-            await amazonS3Client.CreateMissingBucketsAsync(bucketNames, cancellationToken);
-        }
     }
 }
