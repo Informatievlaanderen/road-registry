@@ -42,10 +42,5 @@
     <EmbeddedResource Include="BackOffice\ident8.txt" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Abstractions" Version="1.7.6" />
-    <PackageReference Include="Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy" Version="1.7.6" />
-  </ItemGroup>
-
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
