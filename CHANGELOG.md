@@ -1,3 +1,10 @@
+## [3.36.1](https://github.com/informatievlaanderen/road-registry/compare/v3.36.0...v3.36.1) (2023-03-03)
+
+
+### Bug Fixes
+
+* unescape data property in KafkaJsonMessage ([8017768](https://github.com/informatievlaanderen/road-registry/commit/8017768f53ff5135a60b2844e7545f8c8887f0d3))
+
 # [3.36.0](https://github.com/informatievlaanderen/road-registry/compare/v3.35.5...v3.36.0) (2023-03-03)
 
 
