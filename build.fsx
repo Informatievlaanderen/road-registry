@@ -113,6 +113,7 @@ Target.create "Publish_Solution" (fun _ ->
 Target.create "Pack_Solution" (fun _ ->
   [
     "RoadRegistry.Projector"
+    "RoadRegistry.BackOffice"
     "RoadRegistry.BackOffice.Api"
     "RoadRegistry.BackOffice.Abstractions"
     "RoadRegistry.BackOffice.ZipArchiveWriters"
@@ -126,6 +127,9 @@ Target.create "Pack_Solution" (fun _ ->
 
 Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
 Target.create "PushContainer_Projector" (fun _ -> push "projector")
+
+Target.create "Containerize_BackOffice" (fun _ -> containerize "RoadRegistry.BackOffice" "backoffice")
+Target.create "PushContainer_BackOffice" (fun _ -> push "backoffice")
 
 Target.create "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
 Target.create "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
@@ -202,6 +206,7 @@ Target.create "Push" ignore
 
 "Pack"
   ==> "Containerize_Projector"
+  ==> "Containerize_BackOffice"
   ==> "Containerize_BackOfficeApi"
   ==> "Containerize_EditorProjectionHost"
   ==> "Containerize_ProductProjectionHost"
@@ -223,6 +228,7 @@ Target.create "Push" ignore
 "Containerize"
   ==> "DockerLogin"
   ==> "PushContainer_Projector"
+  ==> "PushContainer_BackOffice"
   ==> "PushContainer_BackOfficeApi"
   ==> "PushContainer_BackOfficeUI"
   ==> "PushContainer_EditorProjectionHost"
