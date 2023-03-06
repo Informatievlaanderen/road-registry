@@ -903,7 +903,7 @@ jobs:
 
       - name: Login to Amazon ECR (Production)
         if: needs.build.outputs.version != 'none'
-        uses: aws-actions/amazon-ecr-login@v1.5.1
+        uses: aws-actions/amazon-ecr-login@v1.5.3
 
       #
       # Download artifacts
