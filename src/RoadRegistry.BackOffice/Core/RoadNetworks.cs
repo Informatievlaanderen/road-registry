@@ -198,7 +198,6 @@ public class RoadNetworks : IRoadNetworks
                 _logger.LogInformation("View restore started from RoadNetwork snapshot version {SnapshotVersion}", version);
                 view = view.RestoreFromSnapshot(snapshot);
                 _logger.LogInformation("View restore finished for RoadNetwork snapshot version {SnapshotVersion} in {StopwatchElapsedMilliseconds}ms", version, sw.ElapsedMilliseconds);
-                version += 1;
             }
             else
             {
