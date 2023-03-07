@@ -68,7 +68,7 @@ public partial class RoadSegmentsController
                     RoadSegmentLaneDirection.ParseUsingDutchName(parameters.AantalRijstroken.Richting)
                 ),
                 Metadata = GetMetadata(),
-                ProvenanceData = new ProvenanceData(CreateFakeProvenance())
+                ProvenanceData = CreateFakeProvenanceData()
             };
             var result = await _mediator.Send(sqsRequest, cancellationToken);
 

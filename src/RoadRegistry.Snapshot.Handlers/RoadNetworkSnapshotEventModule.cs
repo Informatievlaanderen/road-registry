@@ -46,15 +46,8 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
                 {
                     await mediator.Send(new CreateRoadNetworkSnapshotSqsRequest
                     {
-                        ProvenanceData = new ProvenanceData(new Provenance(
-                            SystemClock.Instance.GetCurrentInstant(),
-                            Application.RoadRegistry,
-                            new Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason(string.Empty),
-                            new Operator(OperatorName.Unknown),
-                            Modification.Unknown,
-                            Organisation.Agiv
-                        )),
-                        Metadata = new Dictionary<string, object?>()
+                        ProvenanceData = new RoadRegistryProvenanceData(),
+                        Metadata = new Dictionary<string, object?>
                         {
                             { "CorrelationId", message.MessageId }
                         },

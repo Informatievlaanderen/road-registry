@@ -46,15 +46,8 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
                 {
                     await mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
                     {
-                        ProvenanceData = new ProvenanceData(new Provenance(
-                            SystemClock.Instance.GetCurrentInstant(),
-                            Application.RoadRegistry,
-                            new Reason(string.Empty),
-                            new Operator(OperatorName.Unknown),
-                            Modification.Unknown,
-                            Organisation.Agiv
-                        )),
-                        Metadata = new Dictionary<string, object?>()
+                        ProvenanceData = new RoadRegistryProvenanceData(),
+                        Metadata = new Dictionary<string, object?>
                         {
                             { "CorrelationId", command.MessageId }
                         },
