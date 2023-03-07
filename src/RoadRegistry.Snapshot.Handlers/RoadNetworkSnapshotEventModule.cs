@@ -2,6 +2,7 @@ namespace RoadRegistry.Snapshot.Handlers;
 
 using System;
 using BackOffice.FeatureToggles;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NodaTime;
@@ -12,6 +13,7 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 using SqlStreamStore;
+using Reason = BackOffice.Reason;
 
 public class RoadNetworkSnapshotEventModule : EventHandlerModule
 {
@@ -42,7 +44,22 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
 
                 if (snapshotFeatureToggle.FeatureEnabled)
                 {
-                    await mediator.Send(new CreateRoadNetworkSnapshotSqsRequest { Request = new CreateRoadNetworkSnapshotRequest { StreamVersion = message.StreamVersion } }, ct);
+                    await mediator.Send(new CreateRoadNetworkSnapshotSqsRequest
+                    {
+                        ProvenanceData = new ProvenanceData(new Provenance(
+                            SystemClock.Instance.GetCurrentInstant(),
+                            Application.RoadRegistry,
+                            new Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason(string.Empty),
+                            new Operator(OperatorName.Unknown),
+                            Modification.Unknown,
+                            Organisation.Agiv
+                        )),
+                        Metadata = new Dictionary<string, object?>()
+                        {
+                            { "CorrelationId", message.MessageId }
+                        },
+                        Request = new CreateRoadNetworkSnapshotRequest { StreamVersion = message.StreamVersion }
+                    }, ct);
                 }
                 else
                 {
