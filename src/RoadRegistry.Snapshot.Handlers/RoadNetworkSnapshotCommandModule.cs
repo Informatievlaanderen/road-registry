@@ -2,7 +2,6 @@ namespace RoadRegistry.Snapshot.Handlers;
 
 using System;
 using BackOffice.FeatureToggles;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NodaTime;
@@ -13,7 +12,6 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 using SqlStreamStore;
-using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
 
 public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
 {

@@ -33,7 +33,7 @@ public static class CommandHandlerModulePipelines
             }
         );
     }
-    
+
     public static IEventHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
         this IEventHandlerBuilder<TCommand> builder, IStreamStore store, IRoadNetworkSnapshotReader snapshotReader, ILoggerFactory loggerFactory, EventEnricher enricher)
     {
@@ -59,19 +59,21 @@ public static class CommandHandlerModulePipelines
         CancellationToken ct)
         where TMessage : IRoadRegistryMessage
     {
-        var map = entityMapFactory();
-        var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping, loggerFactory);
-
-        await next(context);
-
-        var roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
-
-        foreach (var entry in map.Entries)
+        using (var map = entityMapFactory())
         {
-            var events = entry.Entity.TakeEvents();
-            if (events.Length != 0)
+            var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping, loggerFactory);
+
+            await next(context);
+
+            var roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
+
+            foreach (var entry in map.Entries)
             {
-                await roadNetworkEventWriter.Write(entry.Stream, message, entry.ExpectedVersion, events, ct);
+                var events = entry.Entity.TakeEvents();
+                if (events.Length != 0)
+                {
+                    await roadNetworkEventWriter.Write(entry.Stream, message, entry.ExpectedVersion, events, ct);
+                }
             }
         }
     }
