@@ -1,3 +1,10 @@
+## [3.36.3](https://github.com/informatievlaanderen/road-registry/compare/v3.36.2...v3.36.3) (2023-03-07)
+
+
+### Bug Fixes
+
+* release pipeline - add step upload NuGet package BackOffice ([87e8ca5](https://github.com/informatievlaanderen/road-registry/commit/87e8ca5a418f76863d0d662031d6dad8402b132e))
+
 ## [3.36.2](https://github.com/informatievlaanderen/road-registry/compare/v3.36.1...v3.36.2) (2023-03-07)
 
 
