@@ -1,3 +1,10 @@
+## [3.36.4](https://github.com/informatievlaanderen/road-registry/compare/v3.36.3...v3.36.4) (2023-03-07)
+
+
+### Bug Fixes
+
+* cleanup unused roadnetwork data in memory ([#885](https://github.com/informatievlaanderen/road-registry/issues/885)) ([8e6b196](https://github.com/informatievlaanderen/road-registry/commit/8e6b196982596279d6f2f1a73aa1b53d3e5e99ca))
+
 ## [3.36.3](https://github.com/informatievlaanderen/road-registry/compare/v3.36.2...v3.36.3) (2023-03-07)
 
 
