@@ -155,6 +155,15 @@ jobs:
     # Upload NuGet packages
     #
     
+    - name: Upload NuGet package BackOffice
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: nuget-backoffice
+        path: dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.*.nupkg
+      env:
+        SEMVER: ${{ env.RELEASE_VERSION }}
+    
     - name: Upload NuGet package BackOffice.Api
       if: env.RELEASE_VERSION != 'none'
       uses: actions/upload-artifact@v3
