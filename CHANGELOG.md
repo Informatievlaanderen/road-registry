@@ -1,3 +1,13 @@
+## [3.36.2](https://github.com/informatievlaanderen/road-registry/compare/v3.36.1...v3.36.2) (2023-03-07)
+
+
+### Bug Fixes
+
+* add Backoffice lib to build.fsx ([#880](https://github.com/informatievlaanderen/road-registry/issues/880)) ([eebd22d](https://github.com/informatievlaanderen/road-registry/commit/eebd22def2ff5d76b0330486fad241e5fa2971d9))
+* add paket.template for RoadRegistry.BackOffice ([#879](https://github.com/informatievlaanderen/road-registry/issues/879)) ([2f8cc65](https://github.com/informatievlaanderen/road-registry/commit/2f8cc65a4156f7dbd075825f9696cf3c76186d0a))
+* build backoffice nuget ([#881](https://github.com/informatievlaanderen/road-registry/issues/881)) ([447e86e](https://github.com/informatievlaanderen/road-registry/commit/447e86e29a1b949e25cbe30dc40afd936295092d))
+* don't increment streamversion when loading snapshot ([#882](https://github.com/informatievlaanderen/road-registry/issues/882)) ([77b418d](https://github.com/informatievlaanderen/road-registry/commit/77b418da31e18c2491329ae7dc15fe79e4600483))
+
 ## [3.36.1](https://github.com/informatievlaanderen/road-registry/compare/v3.36.0...v3.36.1) (2023-03-03)
 
 
