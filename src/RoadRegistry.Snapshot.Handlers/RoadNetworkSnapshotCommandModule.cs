@@ -2,6 +2,7 @@ namespace RoadRegistry.Snapshot.Handlers;
 
 using System;
 using BackOffice.FeatureToggles;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NodaTime;
@@ -12,6 +13,7 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 using SqlStreamStore;
+using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
 
 public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
 {
@@ -36,13 +38,21 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
         
         For<RebuildRoadNetworkSnapshot>()
             .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
-            .Handle(async (context, _, applicationMetadata, ct) =>
+            .Handle(async (context, command, applicationMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));
                 
                 if (snapshotFeatureToggle.FeatureEnabled)
                 {
-                    await mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest { Request = new RebuildRoadNetworkSnapshotRequest() }, ct);
+                    await mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
+                    {
+                        ProvenanceData = new RoadRegistryProvenanceData(),
+                        Metadata = new Dictionary<string, object?>
+                        {
+                            { "CorrelationId", command.MessageId }
+                        },
+                        Request = new RebuildRoadNetworkSnapshotRequest()
+                    }, ct);
                 }
                 else
                 {
