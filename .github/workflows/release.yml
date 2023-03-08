@@ -155,6 +155,15 @@ jobs:
     # Upload NuGet packages
     #
     
+    - name: Upload NuGet package BackOffice
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: nuget-backoffice
+        path: dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.*.nupkg
+      env:
+        SEMVER: ${{ env.RELEASE_VERSION }}
+    
     - name: Upload NuGet package BackOffice.Api
       if: env.RELEASE_VERSION != 'none'
       uses: actions/upload-artifact@v3
@@ -486,6 +495,13 @@ jobs:
       shell: bash
       run: dotnet --info
 
+    - name: Download NuGet package BackOffice
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/download-artifact@v3
+      with:
+        name: nuget-backoffice
+        path: ~/
+
     - name: Download NuGet package BackOffice.Api
       if: env.RELEASE_VERSION != 'none'
       uses: actions/download-artifact@v3
@@ -510,6 +526,7 @@ jobs:
     - name: Publish packages to NuGet
       shell: bash
       run: |
+        dotnet nuget push ~/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.$SEMVER.nupkg --source nuget.org --api-key $NUGET_API_KEY
         dotnet nuget push ~/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api.$SEMVER.nupkg --source nuget.org --api-key $NUGET_API_KEY
         dotnet nuget push ~/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions.$SEMVER.nupkg --source nuget.org --api-key $NUGET_API_KEY
         dotnet nuget push ~/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters.$SEMVER.nupkg --source nuget.org --api-key $NUGET_API_KEY

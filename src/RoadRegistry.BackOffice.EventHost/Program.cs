@@ -105,7 +105,6 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                var blobClient = sp.GetRequiredService<IBlobClient>();
                 await
                     new SqlBlobSchema(
                         new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))
@@ -114,7 +113,6 @@ public class Program
                     new SqlEventProcessorPositionStoreSchema(
                         new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.EventHostAdmin))
                     ).CreateSchemaIfNotExists(WellknownSchemas.EventHostSchema).ConfigureAwait(false);
-                await blobClient.ProvisionResources(host).ConfigureAwait(false);
             });
     }
 }

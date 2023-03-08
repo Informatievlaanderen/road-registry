@@ -67,7 +67,9 @@ public partial class RoadSegmentsController
                     new RoadSegmentWidth(parameters.Wegbreedte),
                     new RoadSegmentLaneCount(parameters.AantalRijstroken.Aantal),
                     RoadSegmentLaneDirection.ParseUsingDutchName(parameters.AantalRijstroken.Richting)
-                )
+                ),
+                Metadata = GetMetadata(),
+                ProvenanceData = CreateFakeProvenanceData()
             };
             var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
 

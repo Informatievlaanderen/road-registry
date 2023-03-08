@@ -1,3 +1,54 @@
+## [3.36.5](https://github.com/informatievlaanderen/road-registry/compare/v3.36.4...v3.36.5) (2023-03-08)
+
+
+### Bug Fixes
+
+* nuget download/upload ([#886](https://github.com/informatievlaanderen/road-registry/issues/886)) ([e95ad8e](https://github.com/informatievlaanderen/road-registry/commit/e95ad8ea511e041f9c398afa3efeaf8e9259a548))
+
+## [3.36.4](https://github.com/informatievlaanderen/road-registry/compare/v3.36.3...v3.36.4) (2023-03-07)
+
+
+### Bug Fixes
+
+* cleanup unused roadnetwork data in memory ([#885](https://github.com/informatievlaanderen/road-registry/issues/885)) ([8e6b196](https://github.com/informatievlaanderen/road-registry/commit/8e6b196982596279d6f2f1a73aa1b53d3e5e99ca))
+
+## [3.36.3](https://github.com/informatievlaanderen/road-registry/compare/v3.36.2...v3.36.3) (2023-03-07)
+
+
+### Bug Fixes
+
+* release pipeline - add step upload NuGet package BackOffice ([87e8ca5](https://github.com/informatievlaanderen/road-registry/commit/87e8ca5a418f76863d0d662031d6dad8402b132e))
+
+## [3.36.2](https://github.com/informatievlaanderen/road-registry/compare/v3.36.1...v3.36.2) (2023-03-07)
+
+
+### Bug Fixes
+
+* add Backoffice lib to build.fsx ([#880](https://github.com/informatievlaanderen/road-registry/issues/880)) ([eebd22d](https://github.com/informatievlaanderen/road-registry/commit/eebd22def2ff5d76b0330486fad241e5fa2971d9))
+* add paket.template for RoadRegistry.BackOffice ([#879](https://github.com/informatievlaanderen/road-registry/issues/879)) ([2f8cc65](https://github.com/informatievlaanderen/road-registry/commit/2f8cc65a4156f7dbd075825f9696cf3c76186d0a))
+* build backoffice nuget ([#881](https://github.com/informatievlaanderen/road-registry/issues/881)) ([447e86e](https://github.com/informatievlaanderen/road-registry/commit/447e86e29a1b949e25cbe30dc40afd936295092d))
+* don't increment streamversion when loading snapshot ([#882](https://github.com/informatievlaanderen/road-registry/issues/882)) ([77b418d](https://github.com/informatievlaanderen/road-registry/commit/77b418da31e18c2491329ae7dc15fe79e4600483))
+
+## [3.36.1](https://github.com/informatievlaanderen/road-registry/compare/v3.36.0...v3.36.1) (2023-03-03)
+
+
+### Bug Fixes
+
+* unescape data property in KafkaJsonMessage ([8017768](https://github.com/informatievlaanderen/road-registry/commit/8017768f53ff5135a60b2844e7545f8c8887f0d3))
+
+# [3.36.0](https://github.com/informatievlaanderen/road-registry/compare/v3.35.5...v3.36.0) (2023-03-03)
+
+
+### Bug Fixes
+
+* add localstack for SQS local development ([#876](https://github.com/informatievlaanderen/road-registry/issues/876)) ([daea055](https://github.com/informatievlaanderen/road-registry/commit/daea05503dc61666ac8981925d396af6df32f95e))
+* enable/disable projections in projector ([#870](https://github.com/informatievlaanderen/road-registry/issues/870)) ([f752a37](https://github.com/informatievlaanderen/road-registry/commit/f752a37f45b22d050c5c2d1229c147eb1b15621d))
+
+
+### Features
+
+* Paket reference & template update ([#877](https://github.com/informatievlaanderen/road-registry/issues/877)) ([e51f64d](https://github.com/informatievlaanderen/road-registry/commit/e51f64d7e18cf7eb5cc8e679e3fc5f0446cee4a6))
+
 ## [3.35.5](https://github.com/informatievlaanderen/road-registry/compare/v3.35.4...v3.35.5) (2023-03-02)
 
 

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-public class EventSourcedEntityMap
+public class EventSourcedEntityMap: IDisposable
 {
     private readonly ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry> _entries;
 
@@ -25,5 +25,12 @@ public class EventSourcedEntityMap
     public bool TryGet(StreamName stream, out EventSourcedEntityMapEntry entry)
     {
         return _entries.TryGetValue(stream, out entry);
+    }
+
+    public void Dispose()
+    {
+        _entries.Clear();
+
+        GC.Collect();
     }
 }

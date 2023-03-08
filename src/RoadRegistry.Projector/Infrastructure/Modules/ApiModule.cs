@@ -14,6 +14,7 @@ using RoadRegistry.Hosts.Infrastructure.Extensions;
 using Syndication.Schema;
 using System;
 using System.Collections.Generic;
+using Options;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -43,22 +44,42 @@ public class ApiModule : Module
         builder.Populate(_services);
     }
 
-    private void RegisterProjection<TContext>(ProjectionDetail projectionDetail) where TContext : DbContext
+    private void RegisterProjections()
     {
-        var connection = _configuration.GetConnectionString(projectionDetail.WellKnownConnectionName);
-        var dbContextOptions = new DbContextOptionsBuilder<TContext>()
-            .UseSqlServer(connection, o => o
-                .EnableRetryOnFailure()
-                .UseNetTopologySuite())
-            .Options;
+        var projectionOptions = _configuration.GetOptions<ProjectionOptions>("Projections");
 
-        var ctxFactory = (Func<DbContext>)(() =>
-            (DbContext)Activator.CreateInstance(typeof(TContext), dbContextOptions)!);
+        if (projectionOptions.ProducerSnapshot.Enabled)
+        {
+            RegisterProducerSnapshotProjection();
+        }
 
-        _listOfProjections.Add(projectionDetail, ctxFactory);
+        if (projectionOptions.Product.Enabled)
+        {
+            RegisterProductProjection();
+        }
+
+        if (projectionOptions.Editor.Enabled)
+        {
+            RegisterEditorProjections();
+        }
+
+        if (projectionOptions.Syndication.Enabled)
+        {
+            RegisterSyndicationProjections();
+        }
+
+        if (projectionOptions.Wms.Enabled)
+        {
+            RegisterWmsProjections();
+        }
+
+        if (projectionOptions.Wfs.Enabled)
+        {
+            RegisterWfsProjections();
+        }
     }
 
-    private void RegisterProjections()
+    private void RegisterProducerSnapshotProjection()
     {
         RegisterProjection<Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeProducerSnapshotContext>(new ProjectionDetail
         {
@@ -109,7 +130,10 @@ public class ApiModule : Module
             FallbackDesiredState = "subscribed",
             IsSyndication = false
         });
+    }
 
+    private void RegisterProductProjection()
+    {
         RegisterProjection<ProductContext>(new ProjectionDetail
         {
             Id = "roadregistry-product-projectionhost",
@@ -119,6 +143,11 @@ public class ApiModule : Module
             FallbackDesiredState = "subscribed",
             IsSyndication = false
         });
+    }
+
+    private void RegisterEditorProjections()
+    {
+
         RegisterProjection<EditorContext>(new ProjectionDetail
         {
             Id = "roadregistry-editor-projectionhost",
@@ -128,6 +157,10 @@ public class ApiModule : Module
             FallbackDesiredState = "subscribed",
             IsSyndication = false
         });
+    }
+
+    private void RegisterWmsProjections()
+    {
         RegisterProjection<WmsContext>(new ProjectionDetail
         {
             Id = "roadregistry-wms-projectionhost",
@@ -137,6 +170,10 @@ public class ApiModule : Module
             FallbackDesiredState = "subscribed",
             IsSyndication = false
         });
+    }
+
+    private void RegisterWfsProjections()
+    {
         RegisterProjection<WfsContext>(new ProjectionDetail
         {
             Id = "roadregistry-wfs-projectionhost",
@@ -146,7 +183,10 @@ public class ApiModule : Module
             FallbackDesiredState = "subscribed",
             IsSyndication = false
         });
+    }
 
+    private void RegisterSyndicationProjections()
+    {
         RegisterProjection<SyndicationContext>(new ProjectionDetail
         {
             Id = "roadregistry-syndication-projectionhost-Gemeente",
@@ -163,4 +203,20 @@ public class ApiModule : Module
             IsSyndication = true
         });
     }
+
+    private void RegisterProjection<TContext>(ProjectionDetail projectionDetail) where TContext : DbContext
+    {
+        var connection = _configuration.GetConnectionString(projectionDetail.WellKnownConnectionName);
+        var dbContextOptions = new DbContextOptionsBuilder<TContext>()
+            .UseSqlServer(connection, o => o
+                .EnableRetryOnFailure()
+                .UseNetTopologySuite())
+            .Options;
+
+        var ctxFactory = (Func<DbContext>)(() =>
+            (DbContext)Activator.CreateInstance(typeof(TContext), dbContextOptions)!);
+
+        _listOfProjections.Add(projectionDetail, ctxFactory);
+    }
+
 }

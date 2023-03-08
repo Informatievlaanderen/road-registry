@@ -36,13 +36,21 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
         
         For<RebuildRoadNetworkSnapshot>()
             .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
-            .Handle(async (context, _, applicationMetadata, ct) =>
+            .Handle(async (context, command, applicationMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));
                 
                 if (snapshotFeatureToggle.FeatureEnabled)
                 {
-                    await mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest { Request = new RebuildRoadNetworkSnapshotRequest() }, ct);
+                    await mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
+                    {
+                        ProvenanceData = new RoadRegistryProvenanceData(),
+                        Metadata = new Dictionary<string, object?>
+                        {
+                            { "CorrelationId", command.MessageId }
+                        },
+                        Request = new RebuildRoadNetworkSnapshotRequest()
+                    }, ct);
                 }
                 else
                 {

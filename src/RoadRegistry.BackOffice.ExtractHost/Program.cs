@@ -114,11 +114,8 @@ public class Program
             })
             .RunAsync(async (sp, host, configuration) =>
             {
-                var blobClient = sp.GetService<RoadNetworkExtractDownloadsBlobClient>();
-
                 await new SqlBlobSchema(new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.SnapshotsAdmin))).CreateSchemaIfNotExists(WellknownSchemas.SnapshotSchema).ConfigureAwait(false);
                 await new SqlEventProcessorPositionStoreSchema(new SqlConnectionStringBuilder(configuration.GetConnectionString(WellknownConnectionNames.ExtractHostAdmin))).CreateSchemaIfNotExists(WellknownSchemas.ExtractHostSchema).ConfigureAwait(false);
-                await blobClient.ProvisionResources(host).ConfigureAwait(false);
             });
     }
 }

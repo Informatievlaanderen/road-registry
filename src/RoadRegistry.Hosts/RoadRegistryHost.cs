@@ -10,11 +10,14 @@ using RoadRegistry.BackOffice.Configuration;
 using SqlStreamStore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.S3;
-using BackOffice;
+using Amazon.SQS;
+using Be.Vlaanderen.Basisregisters.BlobStore.IO;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Infrastructure.Extensions;
 
 public class RoadRegistryHost<T>
@@ -69,7 +72,8 @@ public class RoadRegistryHost<T>
             var environment = _host.Services.GetRequiredService<IHostEnvironment>();
             if (environment.IsDevelopment())
             {
-                await CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false);
+                await _host.Services.CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false);
+                await _host.Services.CreateMissingQueuesAsync(CancellationToken.None).ConfigureAwait(false);
             }
             
             using (var scope = _host.Services.CreateScope())
@@ -95,20 +99,6 @@ public class RoadRegistryHost<T>
         finally
         {
             await Serilog.Log.CloseAndFlushAsync();
-        }
-    }
-
-    private async Task CreateMissingBucketsAsync(CancellationToken cancellationToken)
-    {
-        var blobClientOptions = _host.Services.GetService<BlobClientOptions>();
-        if (blobClientOptions?.BlobClientType == nameof(S3BlobClient))
-        {
-            var s3BlobClientOptions = _host.Services.GetRequiredService<S3BlobClientOptions>();
-            if (s3BlobClientOptions.Buckets?.Any() == true)
-            {
-                var amazonS3Client = _host.Services.GetRequiredService<AmazonS3Client>();
-                await amazonS3Client.CreateMissingBucketsAsync(s3BlobClientOptions.Buckets.Select(x => x.Value).ToArray(), cancellationToken);
-            }
         }
     }
 }
