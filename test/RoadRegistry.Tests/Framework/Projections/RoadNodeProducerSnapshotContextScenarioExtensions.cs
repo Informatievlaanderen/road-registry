@@ -271,6 +271,10 @@ public static class RoadSegmentProducerSnapshotContextScenarioExtensions
                     new GeometryPolygonComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryMultiLineStringComparer(RootComparerFactory.GetRootComparer()),
                     new GeometryLineStringComparer(RootComparerFactory.GetRootComparer())
+                },
+                MembersToIgnore = new List<string>
+                {
+                    "Version"
                 }
             };
             var comparer = new CompareLogic(comparisonConfig);

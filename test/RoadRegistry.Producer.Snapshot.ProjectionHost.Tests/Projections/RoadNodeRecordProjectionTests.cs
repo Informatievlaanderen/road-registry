@@ -60,6 +60,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
 
             return (object)new RoadNodeRecord(
                 roadNodeAdded.Id,
+                roadNodeAdded.Version,
                 typeTranslation.Identifier,
                 typeTranslation.Name,
                 point,
@@ -111,6 +112,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
 
             return (object)new RoadNodeRecord(
                 roadNodeModified.Id,
+                roadNodeModified.Version,
                 typeTranslation.Identifier,
                 typeTranslation.Name,
                 point,
@@ -162,6 +164,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
 
             return (object)new RoadNodeRecord(
                 roadNodeAdded.Id,
+                roadNodeAdded.Version,
                 typeTranslation.Identifier,
                 typeTranslation.Name,
                 point,
@@ -218,6 +221,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
 
                 var expectedRecord = new RoadNodeRecord(
                     @event.Id,
+                    @event.Version,
                     typeTranslation.Identifier,
                     typeTranslation.Name,
                     point,
