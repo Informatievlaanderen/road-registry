@@ -73,6 +73,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             var roadSegmentRecord = new RoadSegmentRecord
             {
                 Id = roadSegmentAdded.Id,
+                Version = roadSegmentAdded.Version,
 
                 MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
                 MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
@@ -174,6 +175,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             var roadSegmentRecord = new RoadSegmentRecord
             {
                 Id = roadSegmentModified.Id,
+                Version = roadSegmentModified.Version,
 
                 MaintainerId = roadSegmentModified.MaintenanceAuthority.Code,
                 MaintainerName = roadSegmentModified.MaintenanceAuthority.Name,
@@ -275,6 +277,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             return (object)new RoadSegmentRecord
             {
                 Id = roadSegmentAdded.Id,
+                Version = roadSegmentAdded.Version,
                 
                 MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
                 MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
