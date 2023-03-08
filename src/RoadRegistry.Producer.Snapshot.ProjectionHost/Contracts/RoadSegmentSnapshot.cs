@@ -19,6 +19,7 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
         public int GeometrySrid { get; }
         public int? GeometryVersion { get; }
         public int Id { get; }
+        public int Version { get; }
         public int? LeftSideMunicipalityId { get; }
         public string LeftSideMunicipalityNisCode { get; }
         public string LeftSideStreetName { get; }
@@ -54,6 +55,7 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
             Geometry geometry,
             int? geometryVersion,
             int id,
+            int version,
             int? leftSideMunicipalityId,
             string leftSideMunicipalityNisCode,
             string leftSideStreetName,
@@ -89,6 +91,7 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
             GeometrySrid = geometry.SRID;
             GeometryVersion = geometryVersion;
             Id = id;
+            Version = version;
             LeftSideMunicipalityId = leftSideMunicipalityId;
             LeftSideMunicipalityNisCode = leftSideMunicipalityNisCode;
             LeftSideStreetName = leftSideStreetName;

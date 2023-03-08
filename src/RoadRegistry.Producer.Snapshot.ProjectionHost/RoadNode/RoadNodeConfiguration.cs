@@ -19,6 +19,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
                 .ValueGeneratedNever()
                 .IsRequired();
 
+            builder.Property(p => p.Version);
+
             builder
                 .Property(p => p.Geometry)
                 .HasColumnType("Geometry")

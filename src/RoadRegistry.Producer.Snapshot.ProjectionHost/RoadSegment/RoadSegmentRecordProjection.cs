@@ -37,6 +37,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                     new RoadSegmentRecord
                     {
                         Id = envelope.Message.Id,
+                        Version = envelope.Message.Version,
                         
                         MaintainerId = envelope.Message.MaintenanceAuthority.Code,
                         MaintainerName = envelope.Message.MaintenanceAuthority.Name,
@@ -133,6 +134,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var roadSegmentRecord = new RoadSegmentRecord
             {
                 Id = roadSegmentAdded.Id,
+                Version = roadSegmentAdded.Version,
 
                 MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
                 MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
@@ -211,7 +213,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             {
                 throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentModified.Id} is not found!");
             }
-            
+
+            roadSegmentRecord.Version = roadSegmentModified.Version;
             roadSegmentRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
             roadSegmentRecord.MaintainerName = roadSegmentModified.MaintenanceAuthority.Name;
 
@@ -265,7 +268,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             {
                 throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentRemoved.Id} is not found!");
             }
-            
+
+            roadSegmentRecord.Version = envelope.Message.Version;
             roadSegmentRecord.Origin = envelope.Message.ToOrigin();
             roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
             roadSegmentRecord.IsRemoved = true;
@@ -273,10 +277,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
         }
 
-        private async Task Produce(int roadNodeId, RoadSegmentSnapshot snapshot, CancellationToken cancellationToken)
+        private async Task Produce(int roadSegmentId, RoadSegmentSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                roadNodeId.ToString(CultureInfo.InvariantCulture),
+                roadSegmentId.ToString(CultureInfo.InvariantCulture),
                 snapshot,
                 cancellationToken);
 
