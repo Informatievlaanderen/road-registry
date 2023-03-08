@@ -8,6 +8,7 @@ public static partial class ValidationErrors
         {
             public const string Code = Common.NotFound.Code;
             public const string Message = "Onbestaand wegsegment.";
+            public static string FormattedMessage(IEnumerable<int> value) => $"Onbestaande of verwijderde wegsegmenten gevonden '{string.Join(", ", value)}'.";
         }
 
         public static class ChangeAttributesRequestNull

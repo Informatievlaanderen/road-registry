@@ -1,90 +1,41 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
+using System.Linq;
+using Abstractions.Validation;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.Abstractions.Validation;
-using RoadRegistry.Editor.Schema;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class ChangeRoadSegmentAttributesParametersValidator : AbstractValidator<ChangeRoadSegmentAttributesParameters>
 {
-    private readonly EditorContext _editorContext;
-
-    public ChangeRoadSegmentAttributesParametersValidator(EditorContext editorContext)
-    {
-        _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
-
-        When(wegsegment => wegsegment.Wegsegmentstatus is not null, () =>
-        {
-            RuleFor(x => x.Wegsegmentstatus).Cascade(CascadeMode.Stop)
-                .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value) != RoadSegmentStatus.Unknown)
-                .WithErrorCode(ValidationErrors.RoadSegment.Status.NotParsed.Code)
-                .WithMessage(x => ValidationErrors.RoadSegment.Status.NotParsed.Message(x.Wegsegmentstatus));
-        });
-
-        When(wegsegment => wegsegment.MorfologischeWegklasse is not null, () =>
-        {
-            RuleFor(x => x.MorfologischeWegklasse).Cascade(CascadeMode.Stop)
-                .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value) != RoadSegmentMorphology.Unknown)
-                .WithErrorCode(ValidationErrors.RoadSegment.Morphology.NotParsed.Code)
-                .WithMessage(x => ValidationErrors.RoadSegment.Morphology.NotParsed.Message(x.MorfologischeWegklasse));
-        });
-
-        When(wegsegment => wegsegment.Toegangsbeperking is not null, () =>
-        {
-            RuleFor(x => x.Toegangsbeperking).Cascade(CascadeMode.Stop)
-                .Must(RoadSegmentAccessRestriction.CanParseUsingDutchName)
-                .WithErrorCode(ValidationErrors.RoadSegment.AccessRestriction.NotParsed.Code)
-                .WithMessage(x => ValidationErrors.RoadSegment.AccessRestriction.NotParsed.Message(x.Toegangsbeperking));
-        });
-
-        When(wegsegment => wegsegment.Wegbeheerder is not null, () =>
-        {
-            RuleFor(x => x.Wegbeheerder)
-                .Cascade(CascadeMode.Stop)
-                .MustAsync(BeKnownOrganization)
-                .WithErrorCode(ValidationErrors.RoadSegment.Organization.NotFound.Code)
-                .WithMessage(x => ValidationErrors.RoadSegment.Organization.NotFound.Message(x.Wegbeheerder));
-        });
-
-        When(wegsegment => wegsegment.Wegcategorie is not null, () =>
-        {
-            RuleFor(x => x.Wegcategorie)
-                .Cascade(CascadeMode.Stop)
-                .Must(RoadSegmentCategory.CanParseUsingDutchName)
-                .WithErrorCode(ValidationErrors.RoadSegment.Category.NotParsed.Code)
-                .WithMessage(x => ValidationErrors.RoadSegment.Category.NotParsed.Message(x.Wegcategorie));
-        });
-    }
-
+    /// <summary>
+    /// Determines if validation should occtur and provides a means to modify the context and ValidationResult prior to execution.
+    /// If this method returns false, then the ValidationResult is immediately returned from Validate/ValidateAsync.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    /// <param name="result">The result.</param>
+    /// <remarks>
+    /// The output for validation errors will not be correct if you do not fill in the property name!
+    /// You should not use the format noted inside the code below.
+    /// It's a valid exception but does not format correctly.
+    /// </remarks>
+    /// <code>
+    /// context.AddFailure(new ValidationFailure
+    /// {
+    ///     ErrorCode = ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Code,
+    ///     ErrorMessage = ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Message
+    /// });
+    /// </code>
+    /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
     protected override bool PreValidate(ValidationContext<ChangeRoadSegmentAttributesParameters> context, ValidationResult result)
     {
-        var wegsegment = context.InstanceToValidate;
-
-        if (wegsegment.Wegsegmentstatus is not null ||
-            wegsegment.MorfologischeWegklasse is not null ||
-            wegsegment.Toegangsbeperking is not null ||
-            wegsegment.Wegbeheerder is not null ||
-            wegsegment.Wegcategorie is not null)
-        {
+        if (context.InstanceToValidate is not null && context.InstanceToValidate.Any())
             return true;
-        }
 
-        context.AddFailure(new ValidationFailure
+        context.AddFailure(new ValidationFailure("request", ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Message)
         {
-            ErrorCode = ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Code,
-            ErrorMessage = ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Message
+            ErrorCode = ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Code
         });
 
         return false;
-
-    }
-
-    private Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
-    {
-        return _editorContext.Organizations.AnyAsync(x => x.Code == code, cancellationToken);
     }
 }

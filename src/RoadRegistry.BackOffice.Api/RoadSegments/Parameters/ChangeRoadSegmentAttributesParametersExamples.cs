@@ -8,11 +8,30 @@ public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<C
     {
         return new ChangeRoadSegmentAttributesParameters
         {
-            Wegsegmentstatus = RoadSegmentStatus.InUse.Translation.Name,
-            MorfologischeWegklasse = RoadSegmentMorphology.PrimitiveRoad.Translation.Name,
-            Toegangsbeperking = RoadSegmentAccessRestriction.PublicRoad.Translation.Name,
-            Wegbeheerder = "44021",
-            Wegcategorie = RoadSegmentCategory.LocalRoad.Translation.Name,
+            new()
+            {
+                Attribuut = "wegbeheerder",
+                Attribuutwaarde = "AWV112",
+                Wegsegmenten = new[] { 481110,481112 }
+            },
+            new()
+            {
+                Attribuut = "wegbeheerder",
+                Attribuutwaarde = "AWV114",
+                Wegsegmenten = new[] { 481111 }
+            },
+            new()
+            {
+                Attribuut = "wegsegmentstatus",
+                Attribuutwaarde = "buiten gebruik",
+                Wegsegmenten = new[] { 481111 }
+            },
+            new()
+            {
+                Attribuut = "morfologischeWegklasse",
+                Attribuutwaarde = "aardeweg",
+                Wegsegmenten = new[] { 481111 }
+            }
         };
     }
 }

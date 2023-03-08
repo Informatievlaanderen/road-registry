@@ -53,9 +53,11 @@ else
     printf '%s\n' "  No volumes found"
 fi
 
-printf '%s\n' "Extracting road-registry-db.zip..."
-#unzip -o -qq "$DB_DIR/road-registry-db.zip" -d src/RoadRegistry.BackupDatabase/filled
+printf '%s\n' "Copy file road-registry.bak..."
 cp "$DB_DIR/road-registry.bak" src/RoadRegistry.BackupDatabase/filled/road-registry.bak
+printf '%s\n' "  Done"
+
+printf '%s\n' "Copy file road-registry-events.bak..."
 cp "$DB_DIR/road-registry-events.bak" src/RoadRegistry.BackupDatabase/filled/road-registry-events.bak
 printf '%s\n' "  Done"
 
@@ -72,7 +74,7 @@ tar -xf "$DB_DIR/streetname_syndication.tar.gz" --overwrite --directory src/Road
 printf '%s\n' "  Done"
 
 printf '%s\n' "Building database..."
-docker-compose up --build import-backup filled-municipality-mssql-seed filled-streetname-mssql-seed
+docker compose up --build import-backup filled-municipality-mssql-seed filled-streetname-mssql-seed
 printf '%s\n' "  Done"
 
 printf '%s\n' "Removing backup database files..."

@@ -1,5 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadSegments;
@@ -10,6 +13,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
 using FluentValidation;
+using FluentValidation.Results;
 using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +27,6 @@ public partial class RoadSegmentsController
     ///     Attribuutwaarde van status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie van wegsegmenten wijzigen.
     /// </summary>
     /// <param name="featureToggle">Ingeschakelde functionaliteit of niet</param>
-    /// <param name="id">Identificator van het wegsegment.</param>
     /// <param name="parameters">Bevat de attributen die gewijzigd moeten worden</param>
     /// <param name="validator"></param>
     /// <param name="cancellationToken"></param>
@@ -31,7 +34,7 @@ public partial class RoadSegmentsController
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
-    [HttpPost("{id}/acties/attribuutwijzigen")]
+    [HttpPost("acties/attributenwijzigen")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -42,12 +45,12 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerRequestExample(typeof(ChangeRoadSegmentAttributesParameters), typeof(ChangeRoadSegmentAttributesParametersExamples))]
-    [SwaggerOperation(Description = "Attribuutwaarde van status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie van wegsegmenten wijzigen.")]
+    [SwaggerOperation(Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie.")]
     public async Task<IActionResult> PostChangeAttributes(
         [FromServices] UseRoadSegmentChangeAttributesFeatureToggle featureToggle,
-        [FromRoute] int id,
         [FromBody] ChangeRoadSegmentAttributesParameters parameters,
         [FromServices] ChangeRoadSegmentAttributesParametersValidator validator,
+        [FromServices] ChangeRoadSegmentAttributesParametersWrapperValidator wrappedValidator,
         CancellationToken cancellationToken)
     {
         if (!featureToggle.FeatureEnabled)
@@ -58,22 +61,16 @@ public partial class RoadSegmentsController
         try
         {
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);
+            await wrappedValidator.ValidateAndThrowAsync((ChangeRoadSegmentAttributesParametersWrapper)parameters, cancellationToken);
 
-            var sqsRequest = new ChangeRoadSegmentAttributesSqsRequest
-                {
-                    Request = new ChangeRoadSegmentAttributesRequest(
-                        id,
-                        parameters.Wegsegmentstatus is not null ? RoadSegmentStatus.ParseUsingDutchName(parameters.Wegsegmentstatus) : null,
-                        parameters.MorfologischeWegklasse is not null ? RoadSegmentMorphology.ParseUsingDutchName(parameters.MorfologischeWegklasse) : null,
-                        parameters.Toegangsbeperking is not null ? RoadSegmentAccessRestriction.ParseUsingDutchName(parameters.Toegangsbeperking) : null,
-                        parameters.Wegbeheerder is not null ? new OrganizationId(parameters.Wegbeheerder) : null,
-                        parameters.Wegcategorie is not null ? RoadSegmentCategory.ParseUsingDutchName(parameters.Wegcategorie) : null
-                    )
-            };
+            //var sqsRequest = new ChangeRoadSegmentAttributesSqsRequest
+            //{
+            //    Request = request
+            //};
 
-            var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
+            //var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
 
-            return Accepted(result);
+            return Accepted();
         }
         catch (AggregateIdIsNotFoundException)
         {
@@ -84,4 +81,29 @@ public partial class RoadSegmentsController
             return Accepted();
         }
     }
+
+    //private static async IAsyncEnumerable<ChangeRoadSegmentAttributesRequest> ConvertRequestAsync(ChangeRoadSegmentAttributesParameters parameters)
+    //{
+    //    foreach (var attributesChange in parameters)
+    //    {
+    //        var attributeEnum = Enum.Parse<ChangeRoadSegmentAttributesEnum>(attributesChange.Attribuut, true);
+
+    //        ChangeRoadSegmentAttributesRequest request = 
+
+    //        switch (attributeEnum)
+    //        {
+    //            case ChangeRoadSegmentAttributesEnum.Wegbeheerder:
+    //                break;
+    //            case ChangeRoadSegmentAttributesEnum.WegsegmentStatus:
+    //                break;
+    //            case ChangeRoadSegmentAttributesEnum.MorfologischeWegklasse:
+    //                break;
+    //            case ChangeRoadSegmentAttributesEnum.Toegangsbeperking:
+    //                break;
+    //            case ChangeRoadSegmentAttributesEnum.Wegcategorie:
+    //                break;
+    //        }
+    //        yield return request;
+    //    }
+    //}
 }
