@@ -1,3 +1,10 @@
+## [3.36.5](https://github.com/informatievlaanderen/road-registry/compare/v3.36.4...v3.36.5) (2023-03-08)
+
+
+### Bug Fixes
+
+* nuget download/upload ([#886](https://github.com/informatievlaanderen/road-registry/issues/886)) ([e95ad8e](https://github.com/informatievlaanderen/road-registry/commit/e95ad8ea511e041f9c398afa3efeaf8e9259a548))
+
 ## [3.36.4](https://github.com/informatievlaanderen/road-registry/compare/v3.36.3...v3.36.4) (2023-03-07)
 
 
