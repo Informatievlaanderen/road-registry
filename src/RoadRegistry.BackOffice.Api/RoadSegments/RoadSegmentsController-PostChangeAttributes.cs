@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Abstractions.RoadSegments;
 using Abstractions.RoadSegmentsOutline;
 using Abstractions.Validation;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
@@ -63,12 +64,14 @@ public partial class RoadSegmentsController
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);
             await wrappedValidator.ValidateAndThrowAsync((ChangeRoadSegmentAttributesParametersWrapper)parameters, cancellationToken);
 
-            //var sqsRequest = new ChangeRoadSegmentAttributesSqsRequest
-            //{
-            //    Request = request
-            //};
+            var request = TranslateParametersIntoTypedBackOfficeRequest(parameters);
 
-            //var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
+            var sqsRequest = new ChangeRoadSegmentAttributesSqsRequest
+            {
+                Request = request
+            };
+
+            var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
 
             return Accepted();
         }
@@ -80,30 +83,43 @@ public partial class RoadSegmentsController
         {
             return Accepted();
         }
+
+        ChangeRoadSegmentAttributesRequest TranslateParametersIntoTypedBackOfficeRequest(ChangeRoadSegmentAttributesParameters changeRoadSegmentAttributesParameters)
+        {
+            ChangeRoadSegmentAttributesRequest attributesRequest = new();
+
+            foreach (var attributesChange in parameters)
+            {
+                var attributeEnum = Enum.Parse<ChangeRoadSegmentAttributesEnum>(attributesChange.Attribuut, true);
+
+                switch (attributeEnum)
+                {
+                    case ChangeRoadSegmentAttributesEnum.Wegbeheerder:
+                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
+                            attributesRequest.Add(new ChangeRoadSegmentMaintenanceAuthorityAttributeRequest(new RoadSegmentId(roadSegmentId), new OrganizationId(attributesChange.Attribuutwaarde)));
+                        break;
+                    case ChangeRoadSegmentAttributesEnum.WegsegmentStatus:
+                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
+                            attributesRequest.Add(new ChangeRoadSegmentStatusAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentStatus.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
+                        break;
+                    case ChangeRoadSegmentAttributesEnum.MorfologischeWegklasse:
+                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
+                            attributesRequest.Add(new ChangeRoadSegmentMorphologyAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentMorphology.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
+                        break;
+                    case ChangeRoadSegmentAttributesEnum.Toegangsbeperking:
+                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
+                            attributesRequest.Add(new ChangeRoadSegmentAccessRestrictionAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentAccessRestriction.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
+                        break;
+                    case ChangeRoadSegmentAttributesEnum.Wegcategorie:
+                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
+                            attributesRequest.Add(new ChangeRoadSegmentCategoryAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentCategory.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
+                        break;
+                    default:
+                        throw new ValidationException("request", new[] { new ValidationFailure("request", "Onbehandelde waarde voor attribuut") });
+                }
+            }
+
+            return attributesRequest;
+        }
     }
-
-    //private static async IAsyncEnumerable<ChangeRoadSegmentAttributesRequest> ConvertRequestAsync(ChangeRoadSegmentAttributesParameters parameters)
-    //{
-    //    foreach (var attributesChange in parameters)
-    //    {
-    //        var attributeEnum = Enum.Parse<ChangeRoadSegmentAttributesEnum>(attributesChange.Attribuut, true);
-
-    //        ChangeRoadSegmentAttributesRequest request = 
-
-    //        switch (attributeEnum)
-    //        {
-    //            case ChangeRoadSegmentAttributesEnum.Wegbeheerder:
-    //                break;
-    //            case ChangeRoadSegmentAttributesEnum.WegsegmentStatus:
-    //                break;
-    //            case ChangeRoadSegmentAttributesEnum.MorfologischeWegklasse:
-    //                break;
-    //            case ChangeRoadSegmentAttributesEnum.Toegangsbeperking:
-    //                break;
-    //            case ChangeRoadSegmentAttributesEnum.Wegcategorie:
-    //                break;
-    //        }
-    //        yield return request;
-    //    }
-    //}
 }
