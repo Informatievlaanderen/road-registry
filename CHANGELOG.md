@@ -1,3 +1,10 @@
+## [3.36.6](https://github.com/informatievlaanderen/road-registry/compare/v3.36.5...v3.36.6) (2023-03-08)
+
+
+### Bug Fixes
+
+* add version property to RoadNode & RoadSegment Kafka projections ([#887](https://github.com/informatievlaanderen/road-registry/issues/887)) ([d85b56b](https://github.com/informatievlaanderen/road-registry/commit/d85b56bf021acad011db54162cae4d56d41396a8))
+
 ## [3.36.5](https://github.com/informatievlaanderen/road-registry/compare/v3.36.4...v3.36.5) (2023-03-08)
 
 
