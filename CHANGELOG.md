@@ -1,3 +1,10 @@
+## [3.36.7](https://github.com/informatievlaanderen/road-registry/compare/v3.36.6...v3.36.7) (2023-03-09)
+
+
+### Bug Fixes
+
+* WR-623 link/unlink streetname must have at least left or right streetnameid filled in ([#888](https://github.com/informatievlaanderen/road-registry/issues/888)) ([4301b79](https://github.com/informatievlaanderen/road-registry/commit/4301b79c5c02b42b48941601c8f83798649f8063))
+
 ## [3.36.6](https://github.com/informatievlaanderen/road-registry/compare/v3.36.5...v3.36.6) (2023-03-08)
 
 
