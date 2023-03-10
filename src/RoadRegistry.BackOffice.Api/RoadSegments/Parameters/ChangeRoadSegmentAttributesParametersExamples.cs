@@ -12,7 +12,7 @@ public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<C
             {
                 Attribuut = "wegbeheerder",
                 Attribuutwaarde = "AWV112",
-                Wegsegmenten = new[] { 481110,481112 }
+                Wegsegmenten = new[] { 481110,481111 }
             },
             new()
             {

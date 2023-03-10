@@ -12,6 +12,7 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore.IO;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 
 public class BlobClientModule : Module
 {
@@ -27,28 +28,21 @@ public class BlobClientModule : Module
             return new FileBlobClient(new DirectoryInfo(fileOptions.Directory));
         }).AsSelf().SingleInstance();
 
-        builder.Register(c =>
-        {
-            var configuration = c.Resolve<IConfiguration>();
-            var minioServer = configuration.GetValue<string>("MINIO_SERVER");
-            if (minioServer != null)
+        builder
+            .Register(c =>
             {
-                var accessKey = configuration.GetRequiredValue<string>("MINIO_ACCESS_KEY");
-                var secretKey = configuration.GetRequiredValue<string>("MINIO_SECRET_KEY");
+                var configuration = c.Resolve<IConfiguration>();
 
-                return new AmazonS3Client(
-                    new BasicAWSCredentials(accessKey, secretKey),
-                    new AmazonS3Config
-                    {
-                        RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                        ServiceURL = minioServer,
-                        ForcePathStyle = true
-                    }
-                );
-            }
+                var s3Configuration = configuration.GetOptions<S3Options>();
 
-            return new AmazonS3Client();
-        }).AsSelf().SingleInstance();
+                return s3Configuration?.ServiceUrl != null
+                    ? new DevelopmentS3Options(EventsJsonSerializerSettingsProvider.CreateSerializerSettings(), s3Configuration.ServiceUrl)
+                    : new S3Options(EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+            })
+            .As<S3Options>()
+            .SingleInstance();
+
+        builder.Register(c => c.Resolve<S3Options>().CreateS3Client()).AsSelf().SingleInstance();
 
         builder
             .Register(c => c.Resolve<AmazonS3Client>())

@@ -1,6 +1,9 @@
 namespace RoadRegistry.Legacy.Extract;
 
+using Amazon.S3;
+using Autofac;
 using BackOffice;
+using BackOffice.Configuration;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Hosts;
@@ -12,10 +15,7 @@ using Readers;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.S3;
-using Autofac;
-using BackOffice.Configuration;
-using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
+using BackOffice.Infrastructure;
 
 public class Program
 {

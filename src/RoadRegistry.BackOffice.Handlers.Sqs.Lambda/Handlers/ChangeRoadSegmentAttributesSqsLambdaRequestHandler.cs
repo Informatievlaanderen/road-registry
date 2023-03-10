@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
-using Abstractions.Exceptions;
-using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
+using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Hosts;
@@ -34,14 +33,42 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
     protected override async Task<ETagResponse> InnerHandleAsync(ChangeRoadSegmentAttributesSqsLambdaRequest request, CancellationToken cancellationToken)
     {
+        var changes = request.Request.ChangeRequests;
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
-        var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.Request.WegsegmentId));
-        if (roadSegment == null)
+
+        var roadSegmentIds = changes.Select(s => s.Id).Distinct();
+        var roadSegments = roadNetwork.FindRoadSegments(roadSegmentIds);
+
+        foreach (var roadSegment in roadSegments)
         {
-            throw new RoadSegmentNotFoundException();
+            var attributeChanges = changes.Where(w => w.Id.Equals(roadSegment.Id));
+
+            foreach (var attributeChange in attributeChanges)
+            {
+                switch (attributeChange)
+                {
+                    case ChangeRoadSegmentMaintenanceAuthorityAttributeRequest maintenanceAuthority:
+                        roadSegment.WithMaintenanceAuthorityAttribute(maintenanceAuthority.MaintenanceAuthority);
+                        break;
+
+                    case ChangeRoadSegmentStatusAttributeRequest status:
+                        roadSegment.WithStatusAttribute(status.Status);
+                        break;
+
+                    case ChangeRoadSegmentMorphologyAttributeRequest morphology:
+                        roadSegment.WithMorphologyAttribute(morphology.Morphology);
+                        break;
+
+                    case ChangeRoadSegmentAccessRestrictionAttributeRequest accessRestriction:
+                        roadSegment.WithAccessRestrictionAttribute(accessRestriction.AccessRestriction);
+                        break;
+
+                    case ChangeRoadSegmentCategoryAttributeRequest category:
+                        roadSegment.WithCategoryAttribute(category.Category);
+                        break;
+                }
+            }
         }
-
-
 
         var roadSegmentId = request.Request.WegsegmentId;
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);

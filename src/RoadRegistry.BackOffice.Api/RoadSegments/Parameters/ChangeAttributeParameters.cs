@@ -22,7 +22,7 @@ public record ChangeAttributeParameters
     /// <summary>
     ///     Lijst van identificatoren van wegsegmenten waarvoor het attribuut moet gewijzigd worden.
     /// </summary>
-    [DataMember(Name = "wegsegmentstatus", Order = 3)]
+    [DataMember(Name = "wegsegmenten", Order = 3)]
     [JsonProperty("wegsegmenten")]
     public int[] Wegsegmenten { get; set; }
 }

@@ -73,7 +73,7 @@ public partial class RoadSegmentsController
 
             var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
 
-            return Accepted();
+            return Accepted(result);
         }
         catch (AggregateIdIsNotFoundException)
         {

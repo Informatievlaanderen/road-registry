@@ -21,22 +21,12 @@ public static class ProgramConfigurationLogExtensions
         {
             case nameof(S3BlobClient):
             {
-                // Use MINIO
-                if (Environment.GetEnvironmentVariable("MINIO_SERVER") != null)
+                var s3ServiceUrl = Environment.GetEnvironmentVariable("S3__SERVICEURL");
+
+                if (s3ServiceUrl is not null)
                 {
-                    logger.LogInformation("MINIO_SERVER set to: {MINIO_SERVER}",
-                        Environment.GetEnvironmentVariable("MINIO_SERVER"));
-                    logger.LogInformation("MINIO_ACCESS_KEY set to: {MINIO_ACCESS_KEY}",
-                        Environment.GetEnvironmentVariable("MINIO_ACCESS_KEY") ?? "<null>");
-                    var minioSecretKey = Environment.GetEnvironmentVariable("MINIO_SECRET_KEY");
-                    if (minioSecretKey is { Length: >= revealCharacterCount })
-                        logger.LogInformation(
-                            "MINIO_SECRET_KEY set to: {MINIO_SECRET_KEY_START}...{MINIO_SECRET_KEY_END}",
-                            minioSecretKey.Substring(0, revealCharacterCount),
-                            minioSecretKey.Substring(minioSecretKey.Length - revealCharacterCount,
-                                revealCharacterCount));
+                    logger.LogInformation("LOCALSTACK set to: {LOCALSTACK_GATEWAY}", s3ServiceUrl);
                 }
- 
                 break;
             }
         }

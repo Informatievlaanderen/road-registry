@@ -8,7 +8,11 @@ public sealed record ChangeRoadSegmentAttributesRequest() : IRequest<ETagRespons
 {
     private readonly List<ChangeRoadSegmentAttributeRequest> _changeRequests = new();
 
-    public IReadOnlyCollection<ChangeRoadSegmentAttributeRequest> ChangeRequests => _changeRequests.ToArray();
+    public IReadOnlyCollection<ChangeRoadSegmentAttributeRequest> ChangeRequests
+    {
+        get => _changeRequests.ToArray();
+        init => _changeRequests = value.ToList();
+    }
 
     public void Add(ChangeRoadSegmentAttributeRequest request) => _changeRequests.Add(request);
 }
