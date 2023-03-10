@@ -23,7 +23,6 @@ using System.Diagnostics;
 using Hosts.Infrastructure.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
-using Reason = Reason;
 
 public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambdaHandler<CorrectRoadSegmentVersionsSqsLambdaRequest>
 {
@@ -75,6 +74,8 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
 
                     foreach (var roadSegment in roadSegments)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                             recordNumber,
                             roadSegment.Id,
