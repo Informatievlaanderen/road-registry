@@ -7,11 +7,10 @@ namespace RoadRegistry.Tests.Infrastructure
     public class LocalStackTests : IClassFixture<LocalStackFixture>
     {
         private readonly LocalStackFixture _fixture;
-        private static readonly ByteRange NoData = new(0L, 0L);
 
         public LocalStackTests(LocalStackFixture fixture) => _fixture = fixture;
 
-        [Fact]
+        [Fact(Skip = "Localhost only test")]
         public async Task ItShouldBeAbleToListBuckets()
         {
             var buckets = await _fixture.AmazonS3Client.ListBucketsAsync(CancellationToken.None);
@@ -19,7 +18,7 @@ namespace RoadRegistry.Tests.Infrastructure
             Assert.NotEmpty(buckets.Buckets);
         }
 
-        [Fact]
+        [Fact(Skip = "Localhost only test")]
         public async Task ItShouldPutObjectWithAmazonS3Client()
         {
             var filename = "s3-bucket-tester.zip";
@@ -51,13 +50,13 @@ namespace RoadRegistry.Tests.Infrastructure
             var getObjectResponse = await _fixture.AmazonS3Client.GetObjectAsync(getObjectRequest);
         }
 
-        [Fact]
+        [Fact(Skip = "Localhost only test")]
         public async Task ItShouldHaveBlobExists()
         {
             var filename = "s3-bucket-testeroo.zip";
         }
 
-        [Fact]
+        [Fact(Skip = "Localhost only test")]
         public async Task ItShouldPutObjectWithS3BlobClient()
         {
             var filename = "s3-bucket-tester.zip";
