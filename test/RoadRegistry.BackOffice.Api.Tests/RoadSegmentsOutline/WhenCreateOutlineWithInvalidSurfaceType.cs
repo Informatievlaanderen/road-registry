@@ -10,5 +10,6 @@ public class WhenCreateOutlineWithInvalidSurfaceType : WhenCreateOutlineWithInva
     {
     }
 
-    protected override string ExpectedErrorMessage => "Wegverharding is foutief";
+    protected override string ExpectedErrorCode => "WegverhardingNietCorrect";
+    protected override string ExpectedErrorMessagePrefix => "Wegverharding is foutief";
 }
