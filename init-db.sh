@@ -35,8 +35,8 @@ else
     printf '%s\n' "  No containers found"
 fi
 
-printf '%s' "minio..."
-containerIds=$(docker ps -q -a -f name=minio)
+printf '%s' "localstack..."
+containerIds=$(docker ps -q -a -f name=localstack)
 if [[ ! -z "$containerIds" ]]; then
     docker rm -f $containerIds
     printf '%s\n' "  Done"

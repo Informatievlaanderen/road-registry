@@ -188,7 +188,7 @@ services:
       SERILOG__WRITETO__1__NAME: Console
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
       BLOBCLIENTTYPE: S3BlobClient
-      S3__SERVICEURL: http://localstack
+      S3__SERVICEURL: http://localstack:4566
       S3BLOBCLIENTOPTIONS__BUCKETS__IMPORTLEGACY: road-registry-import-legacy
       CONNECTIONSTRINGS__LEGACY: Data Source=tcp:legacy-mssql,1433;Initial Catalog=LegacyRoadRegistry;Integrated Security=False;User ID=sa;Password=E@syP@ssw0rd;TrustServerCertificate=True
     volumes:
