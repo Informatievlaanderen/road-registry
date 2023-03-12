@@ -175,6 +175,12 @@ Target.create "PushContainer_ImportLegacy" (fun _ -> push "import-legacy")
 Target.create "Containerize_ExtractLegacy" (fun _ -> containerize "RoadRegistry.Legacy.Extract" "extract-legacy")
 Target.create "PushContainer_ExtractLegacy" (fun _ -> push "extract-legacy")
 
+Target.create "Containerize_BackOffice_Lambda" (fun _ -> containerize "RoadRegistry.BackOffice.Handlers.Sqs.Lambda" "backoffice-lambda")
+Target.create "PushContainer_BackOffice_Lambda" (fun _ -> push "backoffice-lambda")
+
+Target.create "Containerize_Snapshot_Lambda" (fun _ -> containerize "RoadRegistry.Snapshot.Handlers.Sqs.Lambda" "snapshot-lambda")
+Target.create "PushContainer_Snapshot_Lambda" (fun _ -> push "snapshot-lambda")
+
 // --------------------------------------------------------------------------------
 
 Target.create "Build" ignore
@@ -220,6 +226,8 @@ Target.create "Push" ignore
   ==> "Containerize_ExtractLegacy"
   ==> "Containerize_BackOfficeUI"
   ==> "Containerize_StreetNameConsumerProjectionHost"
+  ==> "Containerize_BackOffice_Lambda"
+  ==> "Containerize_Snapshot_Lambda"
   ==> "Containerize"
 // Possibly add more projects to containerize here
 
@@ -241,6 +249,8 @@ Target.create "Push" ignore
   ==> "PushContainer_ImportLegacy"
   ==> "PushContainer_ExtractLegacy"
   ==> "PushContainer_StreetNameConsumerProjectionHost"
+  ==> "PushContainer_BackOffice_Lambda"
+  ==> "PushContainer_Snapshot_Lambda"
   ==> "Push"
 // Possibly add more projects to push here
 

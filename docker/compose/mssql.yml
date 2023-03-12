@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: mssql
+    extends:
+      file: base.yml
+      service: mssql
+    volumes:
+      - mssql-data:/var/opt/mssql
+      - ../../src/RoadRegistry.BackupDatabase/filled:/var/lib/backup
+
+volumes:
+  mssql-data:
+    name: mssql-data
+    external: true
+
+networks:
+  default:
+    name: road-registry-network
+    external: true

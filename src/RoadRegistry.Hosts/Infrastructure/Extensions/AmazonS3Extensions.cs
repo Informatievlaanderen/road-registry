@@ -29,7 +29,6 @@ public static class AmazonS3Extensions
             }
             catch (AmazonS3Exception ex)
             {
-                throw;
                 // ignore if bucket already was created by a different host
             }
         }
