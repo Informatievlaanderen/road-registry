@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Configuration;
 
+using Amazon;
 using Amazon.Runtime;
 using Amazon.SQS;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;

@@ -3,7 +3,7 @@ Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
 
-Amazon.Lambda.Serialization.SystemTextJson
+Amazon.Lambda.Serialization.Json
 Autofac.Extensions.DependencyInjection
 AWSSDK.Core
 Microsoft.Extensions.DependencyInjection.Abstractions

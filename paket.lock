@@ -32,6 +32,8 @@ NUGET
     AWSSDK.Core (3.7.100)
     AWSSDK.DynamoDBv2 (3.7.100)
       AWSSDK.Core (>= 3.7.100 < 4.0)
+    AWSSDK.Lambda (3.7.100)
+      AWSSDK.Core (>= 3.7.100 < 4.0)
     AWSSDK.S3 (3.7.100)
       AWSSDK.Core (>= 3.7.100 < 4.0)
     AWSSDK.SQS (3.7.100)

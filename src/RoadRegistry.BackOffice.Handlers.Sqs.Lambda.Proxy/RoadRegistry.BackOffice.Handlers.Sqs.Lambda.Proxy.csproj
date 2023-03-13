@@ -8,22 +8,19 @@
 		<Nullable>enable</Nullable>
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 		<AWSProjectType>Lambda</AWSProjectType>
+		<!-- This property makes the build directory similar to a publish directory and helps the AWS .NET Lambda Mock Test Tool find project dependencies. -->
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+		<!-- Generate ready to run images during publishing to improve cold start time. -->
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<NoWarn>CS8618;CS8602;CS8604;CS8619;CS8620;CS8629</NoWarn>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
-  </PropertyGroup>
-
-  <ItemGroup>
-	  <Using Include="Amazon.Lambda.Core"></Using>
-	  <Using Include="Amazon.Lambda.Serialization.Json"></Using>
-  </ItemGroup>
+	</PropertyGroup>
 
 	<ItemGroup>
-		<Content Include="appsettings.json" CopyToOutputDirectory="Always" />
-		<Content Include="appsettings.*.json" CopyToOutputDirectory="Always" />
+		<Using Include="Amazon.Lambda.Core"></Using>
+		<Using Include="Amazon.Lambda.Serialization.Json"></Using>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -32,10 +29,13 @@
 		</AssemblyAttribute>
 	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
-    <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs\RoadRegistry.Snapshot.Handlers.Sqs.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+	</ItemGroup>
 
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+	<Target Name="ZipOutput" AfterTargets="Build">
+		<ZipDirectory SourceDirectory="$(OutputPath)" DestinationFile="..\..\.localstack\lambda\backoffice.zip" Overwrite="true"></ZipDirectory>
+	</Target>
+
+	<Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

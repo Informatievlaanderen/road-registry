@@ -8,10 +8,7 @@
     <Nullable>enable</Nullable>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <AWSProjectType>Lambda</AWSProjectType>
-    <!-- This property makes the build directory similar to a publish directory and helps the AWS .NET Lambda Mock Test Tool find project dependencies. -->
-    <!--<RuntimeIdentifier>linux-x64</RuntimeIdentifier>-->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <!-- Generate ready to run images during publishing to improve cold start time. -->
     <NoWarn>CS8618;CS8602;CS8604;CS8619;CS8620;CS8629</NoWarn>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <PublishReadyToRun>true</PublishReadyToRun>
@@ -49,5 +46,5 @@
     <ProjectReference Include="..\RoadRegistry.Syndication.Schema\RoadRegistry.Syndication.Schema.csproj" />
   </ItemGroup>
 
-  <Import Project="..\..\.paket\Paket.Restore.targets" />
+	<Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

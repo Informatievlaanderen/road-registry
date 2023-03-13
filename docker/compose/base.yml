@@ -5,7 +5,7 @@ services:
   base-service:
     environment:
       SERILOG__WRITETO__0__NAME: Seq
-      SERILOG__WRITETO__0__ARGS__SERVERURL: http://seq:80
+      SERILOG__WRITETO__0__ARGS__SERVERURL: http://localhost:5341
       SERILOG__WRITETO__1__NAME: Console
       SERILOG__MINIMUMLEVEL__OVERRIDE__ROADREGISTRY: Debug
 

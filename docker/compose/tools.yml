@@ -12,12 +12,12 @@ services:
     environment:
       SERVICES: s3,sqs,lambda,dynamodb,logs
       DOCKER_HOST: unix:///var/run/docker.sock
-      DEFAULT_REGION: eu-west-1
       LAMBDA_EXECUTOR: docker
-      LAMBDA_REMOTE_DOCKER: true
-      LAMBDA_REMOVE_CONTAINERS: true
+      LAMBDA_REMOTE_DOCKER: 0
+      LAMBDA_DOCKER_FLAGS: "-p 19891:19891"
+      LAMBDA_REMOVE_CONTAINERS: false
       DEBUG: 1
-      PORT_WEB_UI: 8080
+      PORT_WEB_UI: 8081
     volumes:
       - localstack-data:/var/lib/localstack
       - ../../.localstack/init:/etc/localstack/init
@@ -94,9 +94,9 @@ services:
       - postgresql-admin
     environment:
       BASEURL: http://localhost:9100
-      # CONNECTIONSTRINGS__MARTEN: Server=postgresql;Port=5432;Database=ticketing;Userid=sa;Password=E@syP@ssw0rd;Trust Server Certificate=true;Timeout=120
-      # CORS__0: http://localhost:3000
-      # CORS__1: http://localhost:5000
+      CONNECTIONSTRINGS__MARTEN: Server=postgresql;Port=5432;Database=ticketing;Userid=sa;Password=E@syP@ssw0rd;Trust Server Certificate=true;Timeout=120
+      CORS__0: http://localhost:3000
+      CORS__1: http://localhost:5000
     ports:
       - 9100:9000
 

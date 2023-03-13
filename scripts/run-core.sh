@@ -8,4 +8,4 @@ docker-compose --project-name road-registry \
     -f ../docker/compose/streetname.yml --build streetname-api \
     -f ../docker/compose/streetname.yml --build streetname-api \
     -f ../docker/compose/mssql-seed.yml --build mssql-seed \
-    up
+    up    

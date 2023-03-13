@@ -46,7 +46,7 @@ services:
       - ../../src/RoadRegistry.LegacyDatabase/empty:/var/lib/backup/empty
       - ../../src/RoadRegistry.LegacyDatabase/filled:/var/lib/backup/filled
     profiles:
-      - legacy
+      - seed
 
   legacy-mssql-seed-empty:
     build: ../../src/RoadRegistry.LegacyDatabase/empty

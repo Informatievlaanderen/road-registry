@@ -15,6 +15,7 @@ nuget AWSSDK.Core 3.7.100
 nuget AWSSDK.DynamoDBv2 3.7.100
 nuget AWSSDK.S3 3.7.100
 nuget AWSSDK.SQS 3.7.100
+nuget AWSSDK.Lambda 3.7.100
 nuget CompareNETObjects 4.78.0
 nuget CsvHelper 29.0.0
 nuget Docker.DotNet 3.125.12
