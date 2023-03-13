@@ -10,5 +10,6 @@ public class WhenCreateOutlineWithInvalidAccessRestriction : WhenCreateOutlineWi
     {
     }
 
-    protected override string ExpectedErrorMessage => "Toegangsbeperking is foutief";
+    protected override string ExpectedErrorCode => "ToegangsbeperkingNietCorrect";
+    protected override string ExpectedErrorMessagePrefix => "Toegangsbeperking is foutief";
 }
