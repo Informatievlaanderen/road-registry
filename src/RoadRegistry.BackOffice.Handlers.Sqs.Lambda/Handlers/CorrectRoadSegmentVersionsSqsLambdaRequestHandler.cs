@@ -62,7 +62,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         {
             await _commandQueue.DispatchChangeRoadNetwork(IdempotentCommandHandler, request, "Corrigeer wegsegmenten versies", async translatedChanges =>
             {
-                var roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions();
+                var roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
                 
                 if (roadSegmentIdsWithGeometryVersionZero.Any())
                 {
@@ -102,7 +102,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         return new ETagResponse(string.Empty, string.Empty);
     }
 
-    private async Task<List<int>> GetRoadSegmentIdsWithInvalidVersions()
+    private async Task<List<int>> GetRoadSegmentIdsWithInvalidVersions(CancellationToken cancellationToken)
     {
         await using var context = _editorContextFactory();
 
@@ -110,14 +110,15 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         const int pageSize = 5000;
         var pageIndex = 0;
 
-        while (await FillInvalidRoadSegmentIds(context, pageIndex++, pageSize, roadSegmentIds))
+        while (await FillInvalidRoadSegmentIds(context, pageIndex++, pageSize, roadSegmentIds, cancellationToken))
         {
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
         return roadSegmentIds;
     }
 
-    private async Task<bool> FillInvalidRoadSegmentIds(EditorContext context, int pageIndex, int pageSize, List<int> roadSegmentIds)
+    private async Task<bool> FillInvalidRoadSegmentIds(EditorContext context, int pageIndex, int pageSize, List<int> roadSegmentIds, CancellationToken cancellationToken)
     {
         var sw = Stopwatch.StartNew();
 
@@ -126,7 +127,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
             .OrderBy(x => x.Id)
             .Skip(pageIndex * pageSize)
             .Take(pageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         Logger.LogInformation("Read finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(context.RoadSegments), sw.ElapsedMilliseconds);
 
         sw.Restart();
