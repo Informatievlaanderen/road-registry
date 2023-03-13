@@ -144,6 +144,8 @@ public class RoadNetworks : IRoadNetworks
         
         foreach (var message in page.Messages)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (processMessage != null && processMessage(message.StreamVersion, page.LastStreamVersion))
             {
                 snapshotContext.ProcessingCancelled = true;
