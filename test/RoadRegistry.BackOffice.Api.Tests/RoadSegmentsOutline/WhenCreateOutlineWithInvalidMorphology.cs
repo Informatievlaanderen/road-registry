@@ -10,5 +10,6 @@ public class WhenCreateOutlineWithInvalidMorphology : WhenCreateOutlineWithInval
     {
     }
 
-    protected override string ExpectedErrorMessage => "Morfologische wegklasse is foutief";
+    protected override string ExpectedErrorCode => "MorfologischeWegklasseNietCorrect";
+    protected override string ExpectedErrorMessagePrefix => "Morfologische wegklasse is foutief";
 }
