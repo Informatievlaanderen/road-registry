@@ -11,7 +11,10 @@ public class DevelopmentSqsOptions : SqsOptions
     private readonly string _serviceUrl;
 
     public DevelopmentSqsOptions(JsonSerializerSettings jsonSerializerSettings, string serviceUrl)
-        : base(jsonSerializerSettings)
+        : base(
+            regionEndpoint: RegionEndpoint.EUWest1,
+            jsonSerializerSettings: jsonSerializerSettings
+        )
     {
         _serviceUrl = serviceUrl;
     }

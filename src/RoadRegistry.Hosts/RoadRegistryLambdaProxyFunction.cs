@@ -1,12 +1,12 @@
 namespace RoadRegistry.Hosts;
 
-using System.Net.Http;
-using System.Threading.Tasks;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
-using Azure.Core;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Newtonsoft.Json;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 public abstract class RoadRegistryLambdaProxyFunction
 {
@@ -23,19 +23,19 @@ public abstract class RoadRegistryLambdaProxyFunction
 
     public async Task FunctionHandler(SQSEvent @event, ILambdaContext context)
     {
-        using (var client = new HttpClient())
+        using (var httpClient = new HttpClient { BaseAddress = new Uri(_serviceUrl) })
         {
-            var requestUriBuilder = new RequestUriBuilder();
-            requestUriBuilder.AppendPath($"{_serviceUrl.TrimEnd('/')}/runtime/invoke-event");
-            requestUriBuilder.AppendQuery("configfile", _configFile);
-            requestUriBuilder.AppendQuery("functionhandler", _functionHandler);
-
-            var request = new HttpRequestMessage(HttpMethod.Post, requestUriBuilder.ToString())
+            var serializedEvent = JsonConvert.SerializeObject(@event, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+            var requestUri = $"{_serviceUrl.TrimEnd('/')}/runtime/invoke-event?configfile={_configFile}&functionhandler={_functionHandler}";
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(@event, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
+                Content = new StringContent(serializedEvent),
             };
 
-            await client.SendAsync(request);
+            context.Logger.LogInformation("### Execute Lambda Proxy ###");
+            context.Logger.LogInformation(JsonConvert.SerializeObject(request, new JsonSerializerSettings { Formatting = Formatting.Indented }));
+            var response = await httpClient.SendAsync(request);
+            context.Logger.LogInformation(JsonConvert.SerializeObject(response, new JsonSerializerSettings { Formatting = Formatting.Indented }));
         }
     }
 }

@@ -116,6 +116,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
             services
                 .AddEnvironmentVariables("DOTNET_")
                 .AddEnvironmentVariables("ASPNETCORE_");
+            Environment.SetEnvironmentVariable("AWS_REGION", "eu-west-1");
         });
     }
 

@@ -12,16 +12,20 @@ services:
     environment:
       SERVICES: s3,sqs,lambda,dynamodb,logs
       DOCKER_HOST: unix:///var/run/docker.sock
-      LAMBDA_EXECUTOR: docker
-      LAMBDA_REMOTE_DOCKER: 0
+      LAMBDA_EXECUTOR: docker-reuse
+      LAMBDA_REMOTE_DOCKER: true
+      LAMBDA_REMOVE_CONTAINERS: true
       LAMBDA_DOCKER_FLAGS: "-p 19891:19891"
-      LAMBDA_REMOVE_CONTAINERS: false
-      DEBUG: 1
+      DEBUG: true
       PORT_WEB_UI: 8081
+      SQS_ENDPOINT_STRATEGY: path
+      AWS_REGION: eu-west-1
     volumes:
-      - localstack-data:/var/lib/localstack
+      - type: bind
+        source: ../../.localstack/data
+        target: /var/lib/localstack
       - ../../.localstack/init:/etc/localstack/init
-      - ../../.localstack/lambda:/var/lib/localstack/lambda
+      - ../../.localstack/lambda:/etc/localstack/lambda
       - /var/run/docker.sock:/var/run/docker.sock
 
   seq:
@@ -101,9 +105,6 @@ services:
       - 9100:9000
 
 volumes:
-  localstack-data:
-    name: localstack-data
-    external: true    
   seq-data:
     name: seq-data
     external: true
