@@ -6,9 +6,7 @@ using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Editor.Projections.DutchTranslations;
-using FluentValidation;
-using FluentValidation.Results;
+using Exceptions;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -92,9 +90,9 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
             var fileProblems = problems.OfType<FileError>().ToArray();
             if (fileProblems.Any())
-                throw new ValidationException(fileProblems
-                    .Select(problem => problem.Translate())
-                    .Select(fileProblem => new ValidationFailure(fileProblem.File, ProblemWithZipArchive.Translator(fileProblem))));
+            {
+                throw new ZipArchiveValidationException(problems);
+            }
 
             await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
         }
