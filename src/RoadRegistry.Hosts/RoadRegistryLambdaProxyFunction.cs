@@ -1,51 +1,41 @@
+namespace RoadRegistry.Hosts;
+
+using System.Net.Http;
+using System.Threading.Tasks;
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
-using Amazon.Runtime;
+using Azure.Core;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Newtonsoft.Json;
-using System.Threading.Tasks;
 
-namespace RoadRegistry.Hosts
+public abstract class RoadRegistryLambdaProxyFunction
 {
-    using System;
-    using Amazon.Lambda;
-    using Amazon.Lambda.Model;
+    private readonly string _configFile;
+    private readonly string _functionHandler;
+    private readonly string _serviceUrl;
 
-    public abstract class RoadRegistryLambdaProxyFunction
+    protected RoadRegistryLambdaProxyFunction(string serviceUrl, string functionHandler, string configFile)
     {
-        private readonly AmazonLambdaClient _lambdaClient;
+        _serviceUrl = serviceUrl;
+        _functionHandler = functionHandler;
+        _configFile = configFile;
+    }
 
-        protected RoadRegistryLambdaProxyFunction(string serviceUrl)
+    public async Task FunctionHandler(SQSEvent @event, ILambdaContext context)
+    {
+        using (var client = new HttpClient())
         {
-            _lambdaClient = new AmazonLambdaClient(
-                new BasicAWSCredentials("dummy", "dummy"),
-                new AmazonLambdaConfig()
-                {
-                    ServiceURL = serviceUrl,
-                    
-                }
-            );
-        }
+            var requestUriBuilder = new RequestUriBuilder();
+            requestUriBuilder.AppendPath($"{_serviceUrl.TrimEnd('/')}/runtime/invoke-event");
+            requestUriBuilder.AppendQuery("configfile", _configFile);
+            requestUriBuilder.AppendQuery("functionhandler", _functionHandler);
 
-        public async Task FunctionHandler(SQSEvent @event, ILambdaContext context)
-        {
-            try
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUriBuilder.ToString())
             {
-                var functions = await _lambdaClient.ListFunctionsAsync();
+                Content = new StringContent(JsonConvert.SerializeObject(@event, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
+            };
 
-                var request = new InvokeRequest
-                {
-                    FunctionName = "FunctionHandler",
-                    InvocationType = InvocationType.RequestResponse,
-                    LogType = LogType.Tail,
-                    Payload = JsonConvert.SerializeObject(@event, EventsJsonSerializerSettingsProvider.CreateSerializerSettings())
-                };
-                await _lambdaClient.InvokeAsync(request);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            await client.SendAsync(request);
         }
     }
 }

@@ -34,7 +34,8 @@
 	</ItemGroup>
 
 	<Target Name="ZipOutput" AfterTargets="Build">
-		<ZipDirectory SourceDirectory="$(OutputPath)" DestinationFile="..\..\.localstack\lambda\snapshot.zip" Overwrite="true"></ZipDirectory>
+      <MakeDir Directories="..\..\.localstack\lambda"/>
+      <ZipDirectory SourceDirectory="$(OutputPath)" DestinationFile="..\..\.localstack\lambda\snapshot.zip" Overwrite="true"></ZipDirectory>
 	</Target>
 
 	<Import Project="..\..\.paket\Paket.Restore.targets" />

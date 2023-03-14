@@ -4,7 +4,7 @@
       "commandName": "Executable",
       "commandLineArgs": "--port 5051",
       "workingDirectory": ".\\bin\\$(Configuration)\\net6.0",
-      "executablePath": "%USERPROFILE%\\.dotnet\\tools\\dotnet-lambda-test-tool-6.0.exe"
+      "executablePath": "%USERPROFILE%\\.dv\\tools\\lambda-test-tool-6.0\\Amazon.Lambda.TestTool.BlazorTester.exe"
     }
   }
 }
