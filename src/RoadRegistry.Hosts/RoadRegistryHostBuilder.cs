@@ -116,7 +116,6 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
             services
                 .AddEnvironmentVariables("DOTNET_")
                 .AddEnvironmentVariables("ASPNETCORE_");
-            Environment.SetEnvironmentVariable("AWS_REGION", "eu-west-1");
         });
     }
 
@@ -127,8 +126,15 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             if (hostContext.HostingEnvironment.IsProduction())
+            {
                 services
                     .SetBasePath(Directory.GetCurrentDirectory());
+            }
+
+            if (hostContext.HostingEnvironment.IsDevelopment())
+            {
+                Environment.SetEnvironmentVariable("AWS_REGION", "eu-west-1");
+            }
 
             services
                 .AddJsonFile("appsettings.json", true, false)
