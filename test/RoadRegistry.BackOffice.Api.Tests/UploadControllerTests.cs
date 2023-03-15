@@ -82,7 +82,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
                          typeof(UploadControllerTests).Assembly.GetManifestResourceStream(typeof(UploadControllerTests),
                              "valid-after.zip"))
             {
-                embeddedStream.CopyTo(sourceStream);
+                await embeddedStream!.CopyToAsync(sourceStream);
             }
 
             sourceStream.Position = 0;
@@ -109,7 +109,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             await using (var openStream = await blob.OpenAsync())
             {
                 var resultStream = new MemoryStream();
-                openStream.CopyTo(resultStream);
+                await openStream.CopyToAsync(resultStream);
                 resultStream.Position = 0;
                 sourceStream.Position = 0;
 

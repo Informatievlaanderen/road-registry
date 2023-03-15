@@ -25,6 +25,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     private readonly RoadNetworkUploadsBlobClient _client;
     private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
+    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
     private readonly IZipArchiveAfterFeatureCompareValidator _validator;
 
     public UploadExtractRequestHandler(
@@ -32,11 +33,13 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         RoadNetworkUploadsBlobClient client,
         IZipArchiveAfterFeatureCompareValidator validator,
         UseUploadZipArchiveValidationFeatureToggle uploadZipArchiveValidationFeatureToggle,
+        IRoadNetworkCommandQueue roadNetworkCommandQueue,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
         _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle ?? throw new ArgumentNullException(nameof(uploadZipArchiveValidationFeatureToggle));
+        _roadNetworkCommandQueue = roadNetworkCommandQueue;
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -73,11 +76,13 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             cancellationToken
         );
 
-        var message = new Command(new UploadRoadNetworkChangesArchive
+        var command = new Command(new UploadRoadNetworkChangesArchive
         {
             ArchiveId = archiveId.ToString()
         });
-        await Dispatcher(message, cancellationToken);
+        await _roadNetworkCommandQueue.Write(command, cancellationToken);
+
+        _logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), archiveId);
     }
 
     private async Task ValidateAndUploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
