@@ -1,3 +1,12 @@
+## [3.36.9](https://github.com/informatievlaanderen/road-registry/compare/v3.36.8...v3.36.9) (2023-03-15)
+
+
+### Bug Fixes
+
+* lambda graceful shutdown to avoid open locks ([#890](https://github.com/informatievlaanderen/road-registry/issues/890)) ([f8b8ac8](https://github.com/informatievlaanderen/road-registry/commit/f8b8ac8d442f5e4400cd97b179769ef6bbcf1b71))
+* return upload validation as consistent response (including error codes) ([#893](https://github.com/informatievlaanderen/road-registry/issues/893)) ([c2ceb7a](https://github.com/informatievlaanderen/road-registry/commit/c2ceb7afc7e3963e9a007afafe8a79910172e480))
+* WR-640 handle upload after FC by commandhost instead of API ([#895](https://github.com/informatievlaanderen/road-registry/issues/895)) ([7ea194f](https://github.com/informatievlaanderen/road-registry/commit/7ea194f8aba9634e68a6efe63e1dd2a71ce840e1))
+
 ## [3.36.8](https://github.com/informatievlaanderen/road-registry/compare/v3.36.7...v3.36.8) (2023-03-13)
 
 
