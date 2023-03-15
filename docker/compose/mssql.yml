@@ -4,19 +4,19 @@ services:
 
   mssql:
     image: mcr.microsoft.com/mssql/server:2019-latest
-    container_name: mssql
+    container_name: road-mssql
     extends:
       file: base.yml
       service: mssql
     ports:
       - 21433:1433
     volumes:
-      - mssql-data:/var/opt/mssql
+      - road-mssql-data:/var/opt/mssql
       - ../../src/RoadRegistry.BackupDatabase/filled:/var/lib/backup
 
   mssql-seed:
     build: ../../src/RoadRegistry.Database
-    container_name: mssql-seed
+    container_name: road-mssql-seed
     depends_on:
       - mssql
     profiles:
@@ -24,7 +24,7 @@ services:
 
   import-backup:
     build: ../../src/RoadRegistry.BackupDatabase/filled
-    container_name: import-backup
+    container_name: road-mssql-import-backup
     depends_on:
       - mssql-seed
     volumes:
@@ -47,8 +47,8 @@ services:
       - seed
 
 volumes:
-  mssql-data:
-    name: mssql-data
+  road-mssql-data:
+    name: road-mssql-data
     external: true
 
 networks:

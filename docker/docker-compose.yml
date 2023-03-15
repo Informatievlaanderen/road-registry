@@ -56,7 +56,7 @@ services:
 
   backoffice-extract-host:
     build: dist/RoadRegistry.BackOffice.ExtractHost/linux
-    container-container_name: backoffice-extract-host
+    container_name: backoffice-extract-host
     depends_on:
       - mssql-seed
       - localstack
@@ -223,7 +223,7 @@ services:
     ports:
       - 21433:1433
     volumes:
-      - mssql-data:/var/opt/mssql
+      - road-mssql-data:/var/opt/mssql
       - ./src/RoadRegistry.BackupDatabase/filled:/var/lib/backup
 
   mssql-seed:
@@ -558,7 +558,7 @@ services:
       - 8080:8080
 
 volumes:
-  mssql-data:
+  road-mssql-data:
   municipality-mssql-data:
   streetname-mssql-data:
   legacy-mssql-data:

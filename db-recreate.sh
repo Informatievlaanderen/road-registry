@@ -13,7 +13,12 @@ compose_service_down () {
     docker compose --project-name road-registry-seed down
 }
 
-compose_service_up ./docker/compose/mssql.yml import-backup mssql-data
+containerIds=$(docker ps -q -a -f name=road-mssql)
+if [[ ! -z "$containerIds" ]]; then
+    docker rm -f $containerIds
+fi
+
+compose_service_up ./docker/compose/mssql.yml import-backup road-mssql-data
 compose_service_up ./docker/compose/municipality.yml municipality-mssql-seed-filled municipality-mssql-data
 compose_service_up ./docker/compose/streetname.yml streetname-mssql-seed-filled streetname-mssql-data
 compose_service_up ./docker/compose/legacy.yml legacy-mssql-seed-filled legacy-mssql-data
