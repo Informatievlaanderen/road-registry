@@ -6,9 +6,7 @@ using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Editor.Projections.DutchTranslations;
-using FluentValidation;
-using FluentValidation.Results;
+using Exceptions;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -27,6 +25,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     private readonly RoadNetworkUploadsBlobClient _client;
     private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
+    private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
     private readonly IZipArchiveAfterFeatureCompareValidator _validator;
 
     public UploadExtractRequestHandler(
@@ -34,11 +33,13 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         RoadNetworkUploadsBlobClient client,
         IZipArchiveAfterFeatureCompareValidator validator,
         UseUploadZipArchiveValidationFeatureToggle uploadZipArchiveValidationFeatureToggle,
+        IRoadNetworkCommandQueue roadNetworkCommandQueue,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
         _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle ?? throw new ArgumentNullException(nameof(uploadZipArchiveValidationFeatureToggle));
+        _roadNetworkCommandQueue = roadNetworkCommandQueue;
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -75,11 +76,13 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             cancellationToken
         );
 
-        var message = new Command(new UploadRoadNetworkChangesArchive
+        var command = new Command(new UploadRoadNetworkChangesArchive
         {
             ArchiveId = archiveId.ToString()
         });
-        await Dispatcher(message, cancellationToken);
+        await _roadNetworkCommandQueue.Write(command, cancellationToken);
+
+        _logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), archiveId);
     }
 
     private async Task ValidateAndUploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
@@ -92,9 +95,9 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
             var fileProblems = problems.OfType<FileError>().ToArray();
             if (fileProblems.Any())
-                throw new ValidationException(fileProblems
-                    .Select(problem => problem.Translate())
-                    .Select(fileProblem => new ValidationFailure(fileProblem.File, ProblemWithZipArchive.Translator(fileProblem))));
+            {
+                throw new ZipArchiveValidationException(problems);
+            }
 
             await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
         }

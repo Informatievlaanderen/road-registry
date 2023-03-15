@@ -10,5 +10,6 @@ public class WhenCreateOutlineWithInvalidStatus : WhenCreateOutlineWithInvalidRe
     {
     }
 
-    protected override string ExpectedErrorMessage => "Wegsegment status is foutief";
+    protected override string ExpectedErrorCode => "WegsegmentStatusNietCorrect";
+    protected override string ExpectedErrorMessagePrefix => "Wegsegment status is foutief";
 }

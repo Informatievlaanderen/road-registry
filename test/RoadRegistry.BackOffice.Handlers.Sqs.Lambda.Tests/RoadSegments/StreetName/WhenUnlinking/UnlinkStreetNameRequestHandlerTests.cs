@@ -2,16 +2,15 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetN
 
 using Autofac;
 using AutoFixture;
+using BackOffice.Handlers.RoadSegments;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Core;
 using Hosts;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
@@ -54,6 +53,19 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     public Task WhenProcessing_UnlinkStreetNameSqsRequest_Then_UnlinkStreetNameSqsLambdaRequest_IsSent()
     {
         return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<UnlinkStreetNameSqsRequest, UnlinkStreetNameSqsLambdaRequest, UnlinkStreetNameRequest>();
+    }
+    
+    [Fact]
+    public void UnlinkStreetNameFromRoadSegment_LeftOrRightStreetName_IsRequired()
+    {
+        var validator = new UnlinkStreetNameRequestValidator();
+
+        var validationResult = validator.Validate(new UnlinkStreetNameRequest(new RoadSegmentId(1), null, null));
+
+        var error = validationResult.Errors.Single();
+        Xunit.Assert.Equal("request", error.PropertyName);
+        Xunit.Assert.Equal("JsonInvalid", error.ErrorCode);
+        Xunit.Assert.Equal("Json is not valid.", error.ErrorMessage);
     }
 
     [Fact]

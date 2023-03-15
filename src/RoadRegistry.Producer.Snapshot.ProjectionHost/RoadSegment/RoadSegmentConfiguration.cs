@@ -18,6 +18,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 .ValueGeneratedNever()
                 .IsRequired();
 
+            builder.Property(p => p.Version);
+
             builder.Property(p => p.RoadSegmentVersion);
             builder.Property(p => p.Geometry).HasColumnType("Geometry");
             builder.Property(p => p.GeometryVersion);

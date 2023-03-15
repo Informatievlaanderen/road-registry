@@ -161,5 +161,20 @@ public static partial class ValidationErrors
                 public const string Message = "Aantal rijstroken moet groter dan nul zijn.";
             }
         }
+        
+        public static class LaneDirection
+        {
+            public static class NotParsed
+            {
+                public const string Code = "AantalRijstrokenRichtingNietCorrect";
+                public static string Message(string value) => $"Aantal rijstroken richting is foutief. '{value}' is geen geldige waarde.";
+            }
+
+            public static class IsRequired
+            {
+                public const string Code = "AantalRijstrokenRichtingVerplicht";
+                public const string Message = "Aantal rijstroken richting is verplicht.";
+            }
+        }
     }
 }

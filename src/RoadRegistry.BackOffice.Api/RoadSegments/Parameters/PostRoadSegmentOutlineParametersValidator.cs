@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -56,12 +57,14 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .WithErrorCode(ValidationErrors.RoadSegment.Organization.NotFound.Code)
             .WithMessage(x => ValidationErrors.RoadSegment.Organization.NotFound.Message(x.Wegbeheerder));
 
+        var validSurfaceTypes = new[] { RoadSegmentSurfaceType.LooseSurface, RoadSegmentSurfaceType.SolidSurface };
+
         RuleFor(x => x.Wegverharding)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithErrorCode(ValidationErrors.RoadSegment.SurfaceType.IsRequired.Code)
             .WithMessage(ValidationErrors.RoadSegment.SurfaceType.IsRequired.Message)
-            .Must(RoadSegmentSurfaceType.CanParseUsingDutchName)
+            .Must(x => RoadSegmentSurfaceType.CanParseUsingDutchName(x) && validSurfaceTypes.Contains(RoadSegmentSurfaceType.ParseUsingDutchName(x)))
             .WithErrorCode(ValidationErrors.RoadSegment.SurfaceType.NotParsed.Code)
             .WithMessage(x => ValidationErrors.RoadSegment.SurfaceType.NotParsed.Message(x.Wegverharding));
 

@@ -26,6 +26,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
                 var roadNode = await context.RoadNodes.AddAsync(
                     new RoadNodeRecord(
                         envelope.Message.Id,
+                        envelope.Message.Version,
                         typeTranslation.Identifier,
                         typeTranslation.Name,
                         geometry,
@@ -64,6 +65,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 
             var roadNode = await context.RoadNodes.AddAsync(new RoadNodeRecord(
                 roadNodeAdded.Id,
+                roadNodeAdded.Version,
                 typeTranslation.Identifier,
                 typeTranslation.Name,
                 GeometryTranslator.Translate(roadNodeAdded.Geometry),
@@ -89,6 +91,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             var typeTranslation = RoadNodeType.Parse(roadNodeModified.Type).Translation;
 
             roadNodeRecord.Id = roadNodeModified.Id;
+            roadNodeRecord.Version = roadNodeModified.Version;
             roadNodeRecord.TypeId = typeTranslation.Identifier;
             roadNodeRecord.TypeDutchName = typeTranslation.Name;
             roadNodeRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
@@ -111,6 +114,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
                 return;
             }
 
+            roadNodeRecord.Version = envelope.Message.Version;
             roadNodeRecord.Origin = envelope.Message.ToOrigin();
             roadNodeRecord.LastChangedTimestamp = envelope.CreatedUtc;
             roadNodeRecord.IsRemoved = true;

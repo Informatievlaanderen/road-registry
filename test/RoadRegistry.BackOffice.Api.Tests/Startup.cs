@@ -1,27 +1,23 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
-using Amazon;
 using Autofac;
 using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Be.Vlaanderen.Basisregisters.Sqs;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Castle.Core.Logging;
 using Core;
 using Editor.Schema;
 using Framework.Extensions;
 using Handlers.Sqs;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Extensions;
 using SqlStreamStore;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using MediatorModule = BackOffice.MediatorModule;
@@ -84,6 +80,8 @@ public class Startup : TestStartup
         services
             .AddTicketing()
             .AddFakeTicketing()
+            .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
+            .AddRoadNetworkCommandQueue()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

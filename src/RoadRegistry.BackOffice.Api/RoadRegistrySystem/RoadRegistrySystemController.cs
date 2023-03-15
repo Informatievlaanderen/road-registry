@@ -20,10 +20,11 @@ public partial class RoadRegistrySystemController : ControllerBase
 
     public RoadRegistrySystemController(
         IStreamStore store,
-        IMediator mediator)
+        IMediator mediator,
+        IRoadNetworkCommandQueue commandQueue)
     {
         Store = store;
         Mediator = mediator;
-        CommandQueue = new RoadNetworkCommandQueue(Store, new ApplicationMetadata(RoadRegistryApplication.BackOffice));
+        CommandQueue = commandQueue;
     }
 }

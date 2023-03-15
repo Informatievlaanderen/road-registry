@@ -1,0 +1,12 @@
+CREATE OR REPLACE STREAM IF NOT EXISTS ROAD_ROADNODE_SNAPSHOT_STREAM_FLATTEN_GRB
+WITH (KAFKA_TOPIC='road.roadnode.snapshot.stream.flatten.grb', PARTITIONS=1, VALUE_FORMAT='JSON_SR', KEY_FORMAT='JSON_SR')
+AS SELECT
+	data->id Objectid,
+    AS_VALUE(data->id) Wk_Oidn,
+    CONCAT(CAST(AS_VALUE(data->id) AS VARCHAR), '_', CAST(data->version AS VARCHAR)) Wk_Uidn,
+    data->origin->`timestamp` Begintijd,
+	data->typeId `Type`,
+	data->wktGeometry Geometrie,
+	data->isRemoved Removed
+FROM ROAD_ROADNODE_SNAPSHOT_STREAM
+PARTITION BY data->id;
