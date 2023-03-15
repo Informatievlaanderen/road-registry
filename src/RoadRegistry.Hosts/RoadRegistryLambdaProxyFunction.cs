@@ -32,9 +32,15 @@ public abstract class RoadRegistryLambdaProxyFunction
                 Content = new StringContent(serializedEvent),
             };
 
-            context.Logger.LogInformation("### Execute Lambda Proxy ###");
+            context.Logger.LogInformation("### LAMBDA PROXY REQUEST ###");
             context.Logger.LogInformation(JsonConvert.SerializeObject(request, new JsonSerializerSettings { Formatting = Formatting.Indented }));
+
+            context.Logger.LogInformation("### LAMBDA PROXY SERIALIZED EVENT ###");
+            context.Logger.LogInformation(JsonConvert.SerializeObject(@event, new JsonSerializerSettings { Formatting = Formatting.Indented }));
+
             var response = await httpClient.SendAsync(request);
+
+            context.Logger.LogInformation("### LAMBDA PROXY RESPONSE ###");
             context.Logger.LogInformation(JsonConvert.SerializeObject(response, new JsonSerializerSettings { Formatting = Formatting.Indented }));
         }
     }
