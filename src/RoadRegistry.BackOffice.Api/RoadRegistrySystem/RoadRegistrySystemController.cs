@@ -17,9 +17,10 @@ public partial class RoadRegistrySystemController : ControllerBase
     protected IRoadNetworkCommandQueue CommandQueue { get; }
 
     public RoadRegistrySystemController(
-        IStreamStore store)
+        IStreamStore store,
+        IRoadNetworkCommandQueue commandQueue)
     {
         Store = store;
-        CommandQueue = new RoadNetworkCommandQueue(Store, new ApplicationMetadata(RoadRegistryApplication.BackOffice));
+        CommandQueue = commandQueue;
     }
 }

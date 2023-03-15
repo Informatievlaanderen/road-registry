@@ -289,6 +289,8 @@ public class Startup
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
             .AddTicketing()
             .AddRoadRegistrySnapshot()
+            .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
+            .AddRoadNetworkCommandQueue()
             ;
     }
 
