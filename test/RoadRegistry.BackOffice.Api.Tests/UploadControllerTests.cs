@@ -82,7 +82,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
                          typeof(UploadControllerTests).Assembly.GetManifestResourceStream(typeof(UploadControllerTests),
                              "valid-after.zip"))
             {
-                embeddedStream.CopyTo(sourceStream);
+                await embeddedStream!.CopyToAsync(sourceStream);
             }
 
             sourceStream.Position = 0;
@@ -100,16 +100,16 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             var page = await StreamStore.ReadAllBackwards(Position.End, 1);
             var message = page.Messages.Single();
-            Assert.Equal(nameof(RoadNetworkChangesArchiveAccepted), message.Type);
+            Assert.Equal(nameof(UploadRoadNetworkChangesArchive), message.Type);
+            
+            var changesArchiveMessage = JsonConvert.DeserializeObject<UploadRoadNetworkChangesArchive>(await message.GetJsonData());
 
-            var archiveAcceptedMessage = JsonConvert.DeserializeObject<RoadNetworkChangesArchiveAccepted>(await message.GetJsonData());
-
-            Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(archiveAcceptedMessage!.ArchiveId)));
-            var blob = await UploadBlobClient.GetBlobAsync(new BlobName(archiveAcceptedMessage.ArchiveId));
+            Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(changesArchiveMessage!.ArchiveId)));
+            var blob = await UploadBlobClient.GetBlobAsync(new BlobName(changesArchiveMessage.ArchiveId));
             await using (var openStream = await blob.OpenAsync())
             {
                 var resultStream = new MemoryStream();
-                openStream.CopyTo(resultStream);
+                await openStream.CopyToAsync(resultStream);
                 resultStream.Position = 0;
                 sourceStream.Position = 0;
 

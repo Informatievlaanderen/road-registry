@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Framework;
+using RoadRegistry.BackOffice.Handlers.RoadSegments;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName;
@@ -53,6 +54,19 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     public Task WhenProcessing_LinkStreetNameSqsRequest_Then_LinkStreetNameSqsLambdaRequest_IsSent()
     {
         return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<LinkStreetNameSqsRequest, LinkStreetNameSqsLambdaRequest, LinkStreetNameRequest>();
+    }
+
+    [Fact]
+    public void LinkStreetNameToRoadSegment_LeftOrRightStreetName_IsRequired()
+    {
+        var validator = new LinkStreetNameRequestValidator();
+
+        var validationResult = validator.Validate(new LinkStreetNameRequest(new RoadSegmentId(1), null, null));
+
+        var error = validationResult.Errors.Single();
+        Xunit.Assert.Equal("request", error.PropertyName);
+        Xunit.Assert.Equal("JsonInvalid", error.ErrorCode);
+        Xunit.Assert.Equal("Json is not valid.", error.ErrorMessage);
     }
 
     [Fact]

@@ -70,8 +70,8 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             }
         }
 
-        var roadSegmentId = request.Request.WegsegmentId;
-        var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
-        return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
+        //var roadSegmentId = request.Request;
+        //var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
+        return new ETagResponse(string.Empty, string.Empty);
     }
 }

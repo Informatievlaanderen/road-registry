@@ -142,6 +142,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadSegmentPr
                     b.Property<int?>("TransactionId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));

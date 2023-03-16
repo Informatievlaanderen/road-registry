@@ -8,7 +8,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
     public class RoadNodeRecord
     {
         public int Id { get; set; }
-
+        public int Version { get; set; }
         public int TypeId { get; set; }
         public string TypeDutchName { get; set; }
         public Geometry Geometry { get; set; }
@@ -22,6 +22,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 
         public RoadNodeRecord(
             int id,
+            int version,
             int typeId,
             string typeDutchName,
             Point point,
@@ -29,6 +30,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             DateTimeOffset lastChangedTimestamp)
         {
             Id = id;
+            Version = version;
             Origin = origin;
             TypeId = typeId;
             TypeDutchName = typeDutchName;
@@ -41,6 +43,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
         {
             return new RoadNodeSnapshot(
                 Id,
+                Version,
                 TypeId,
                 TypeDutchName,
                 Geometry.ToBinary(),

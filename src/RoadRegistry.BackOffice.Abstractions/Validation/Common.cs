@@ -17,6 +17,12 @@ namespace RoadRegistry.BackOffice.Abstractions.Validation
                 public const string Code = "IncorrectObjectId";
                 public static string Message(object? value) => string.Format(CultureInfo.InvariantCulture, "De waarde '{0}' is ongeldig.", value);
             }
+
+            public static class JsonInvalid
+            {
+                public const string Code = "JsonInvalid";
+                public const string Message = "Json is not valid.";
+            }
         }
     }
 }

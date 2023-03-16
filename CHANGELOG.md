@@ -1,3 +1,33 @@
+## [3.36.9](https://github.com/informatievlaanderen/road-registry/compare/v3.36.8...v3.36.9) (2023-03-15)
+
+
+### Bug Fixes
+
+* lambda graceful shutdown to avoid open locks ([#890](https://github.com/informatievlaanderen/road-registry/issues/890)) ([f8b8ac8](https://github.com/informatievlaanderen/road-registry/commit/f8b8ac8d442f5e4400cd97b179769ef6bbcf1b71))
+* return upload validation as consistent response (including error codes) ([#893](https://github.com/informatievlaanderen/road-registry/issues/893)) ([c2ceb7a](https://github.com/informatievlaanderen/road-registry/commit/c2ceb7afc7e3963e9a007afafe8a79910172e480))
+* WR-640 handle upload after FC by commandhost instead of API ([#895](https://github.com/informatievlaanderen/road-registry/issues/895)) ([7ea194f](https://github.com/informatievlaanderen/road-registry/commit/7ea194f8aba9634e68a6efe63e1dd2a71ce840e1))
+
+## [3.36.8](https://github.com/informatievlaanderen/road-registry/compare/v3.36.7...v3.36.8) (2023-03-13)
+
+
+### Bug Fixes
+
+* WR-509 add missing validation road segment lane direction ([#889](https://github.com/informatievlaanderen/road-registry/issues/889)) ([f20bf5a](https://github.com/informatievlaanderen/road-registry/commit/f20bf5a0759c0cbf5bfc30a8de4133862e57b0dd))
+
+## [3.36.7](https://github.com/informatievlaanderen/road-registry/compare/v3.36.6...v3.36.7) (2023-03-09)
+
+
+### Bug Fixes
+
+* WR-623 link/unlink streetname must have at least left or right streetnameid filled in ([#888](https://github.com/informatievlaanderen/road-registry/issues/888)) ([4301b79](https://github.com/informatievlaanderen/road-registry/commit/4301b79c5c02b42b48941601c8f83798649f8063))
+
+## [3.36.6](https://github.com/informatievlaanderen/road-registry/compare/v3.36.5...v3.36.6) (2023-03-08)
+
+
+### Bug Fixes
+
+* add version property to RoadNode & RoadSegment Kafka projections ([#887](https://github.com/informatievlaanderen/road-registry/issues/887)) ([d85b56b](https://github.com/informatievlaanderen/road-registry/commit/d85b56bf021acad011db54162cae4d56d41396a8))
+
 ## [3.36.5](https://github.com/informatievlaanderen/road-registry/compare/v3.36.4...v3.36.5) (2023-03-08)
 
 

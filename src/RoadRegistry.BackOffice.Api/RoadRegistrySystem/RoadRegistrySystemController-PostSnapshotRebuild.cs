@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Framework;
+using Messages;
 
 public partial class RoadRegistrySystemController
 {
@@ -17,6 +19,7 @@ public partial class RoadRegistrySystemController
     public async Task<IActionResult> PostSnapshotRebuild([FromBody] RebuildSnapshotParameters parameters,
         [FromServices] UseSnapshotRebuildFeatureToggle featureToggle,
         [FromServices] RebuildSnapshotParametersValidator validator,
+        [FromServices] UseSnapshotSqsRequestFeatureToggle snapshotFeatureToggle,
         CancellationToken cancellationToken)
     {
         if (!featureToggle.FeatureEnabled)
@@ -26,19 +29,25 @@ public partial class RoadRegistrySystemController
 
         await validator.ValidateAndThrowAsync(parameters, HttpContext.RequestAborted);
 
-        await Mediator.Send(new CreateRoadNetworkSnapshotSqsRequest
+        if (snapshotFeatureToggle.FeatureEnabled)
         {
-            ProvenanceData = new RoadRegistryProvenanceData(),
-            Metadata = new Dictionary<string, object?>
+            await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
             {
-                { "CorrelationId", Guid.NewGuid() }
-            },
-            Request = new CreateRoadNetworkSnapshotRequest { StreamVersion = parameters.StartFromVersion }
-        }, cancellationToken);
+                ProvenanceData = new RoadRegistryProvenanceData(),
+                Metadata = new Dictionary<string, object?>
+                {
+                    { "CorrelationId", Guid.NewGuid() }
+                },
+                Request = new RebuildRoadNetworkSnapshotRequest()
+            }, cancellationToken);
+        }
+        else
+        {
+            var command = new RebuildRoadNetworkSnapshot();
+            await CommandQueue
+                .Write(new Command(command), HttpContext.RequestAborted);
 
-        //var command = new RebuildRoadNetworkSnapshot();
-        //await CommandQueue
-        //    .Write(new Command(command), HttpContext.RequestAborted);
+        }
 
         return Ok();
     }

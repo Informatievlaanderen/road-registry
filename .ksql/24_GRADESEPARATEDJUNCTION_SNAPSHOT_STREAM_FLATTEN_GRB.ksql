@@ -1,0 +1,12 @@
+CREATE OR REPLACE STREAM IF NOT EXISTS ROAD_GRADESEPARATEDJUNCTION_SNAPSHOT_STREAM_FLATTEN_GRB
+WITH (KAFKA_TOPIC='road.gradeseparatedjunction.snapshot.stream.flatten.grb', PARTITIONS=1, VALUE_FORMAT='JSON_SR', KEY_FORMAT='JSON_SR')
+AS SELECT
+	data->id Objectid,
+    AS_VALUE(data->id) Ok_Oidn,
+    data->upperRoadSegmentId Bo_Ws_Oidn,
+    data->lowerRoadSegmentId On_Ws_Oidn,
+    data->origin->`timestamp` Begintijd,
+    data->typeId `Type`,
+	data->isRemoved Removed
+FROM ROAD_GRADESEPARATEDJUNCTION_SNAPSHOT_STREAM
+PARTITION BY data->id;

@@ -12,11 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="RoadSegments\TranslateChangeRoadSegmentAttributesRequest.cs" />
-    <Compile Remove="RoadSegments\TranslateChangeRoadSegmentAttributesRequestHandler.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.Editor.Projections\RoadRegistry.Editor.Projections.csproj" />

@@ -16,7 +16,8 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
         _outputHelper = outputHelper;
     }
 
-    protected abstract string ExpectedErrorMessage { get; }
+    protected abstract string ExpectedErrorCode { get; }
+    protected abstract string ExpectedErrorMessagePrefix { get; }
 
     [Fact]
     public void ItShouldHaveExpectedMessage()
@@ -24,7 +25,17 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
         var err = ItShouldHaveValidationException();
         var errMessage = err.Single().ErrorMessage;
 
-        Assert.StartsWith(ExpectedErrorMessage, errMessage);
+        Assert.StartsWith(ExpectedErrorMessagePrefix, errMessage);
+    }
+
+
+    [Fact]
+    public void ItShouldHaveExpectedCode()
+    {
+        var err = ItShouldHaveValidationException();
+        var errMessage = err.Single().ErrorCode;
+
+        Assert.Equal(ExpectedErrorCode, errMessage);
     }
 
     [Fact]

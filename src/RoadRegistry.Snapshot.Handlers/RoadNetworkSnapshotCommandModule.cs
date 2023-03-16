@@ -1,17 +1,14 @@
 namespace RoadRegistry.Snapshot.Handlers;
 
-using System;
-using BackOffice.FeatureToggles;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Abstractions.RoadNetworks;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 using SqlStreamStore;
+using System;
 
 public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
 {
@@ -22,8 +19,7 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
-        ILoggerFactory loggerFactory,
-        UseSnapshotSqsRequestFeatureToggle snapshotFeatureToggle)
+        ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(clock);
@@ -33,38 +29,23 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
 
         var logger = loggerFactory.CreateLogger<RoadNetworkSnapshotEventModule>();
         var enricher = EnrichEvent.WithTime(clock);
-        
+
         For<RebuildRoadNetworkSnapshot>()
             .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, applicationMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));
-                
-                if (snapshotFeatureToggle.FeatureEnabled)
-                {
-                    await mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
-                    {
-                        ProvenanceData = new RoadRegistryProvenanceData(),
-                        Metadata = new Dictionary<string, object?>
-                        {
-                            { "CorrelationId", command.MessageId }
-                        },
-                        Request = new RebuildRoadNetworkSnapshotRequest()
-                    }, ct);
-                }
-                else
-                {
-                    var (network, version) = await context.RoadNetworks.GetWithVersion(false, null, ct);
-                    await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
 
-                    var completedCommand = new RebuildRoadNetworkSnapshotCompleted
-                    {
-                        CurrentVersion = version
-                    };
+                var (network, version) = await context.RoadNetworks.GetWithVersion(false, null, ct);
+                await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
 
-                    await new RoadNetworkCommandQueue(store, applicationMetadata)
-                        .Write(new Command(completedCommand), ct);
-                }
+                var completedCommand = new RebuildRoadNetworkSnapshotCompleted
+                {
+                    CurrentVersion = version
+                };
+
+                await new RoadNetworkCommandQueue(store, applicationMetadata)
+                    .Write(new Command(completedCommand), ct);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
             });
