@@ -16,11 +16,6 @@ awslocal lambda create-function \
     --region eu-west-1 \
     --publish
 
-# awslocal lambda create-function-url-config \
-#     --function-name backoffice-lambda-proxy \
-#     --auth-type NONE \
-#      --region eu-west-1 
-
 awslocal lambda create-event-source-mapping \
     --function-name backoffice-lambda-proxy \
     --event-source-arn arn:aws:sqs:eu-west-1:000000000000:road-registry-backoffice.fifo \
