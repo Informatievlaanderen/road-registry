@@ -29,7 +29,7 @@ public abstract class RoadRegistryLambdaProxyFunction
             var requestUri = $"{_serviceUrl.TrimEnd('/')}/runtime/invoke-event?configfile={_configFile}&functionhandler={_functionHandler}";
             var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
             {
-                Content = new StringContent(serializedEvent),
+                Content = new StringContent(serializedEvent)
             };
 
             context.Logger.LogInformation("### LAMBDA PROXY REQUEST ###");
