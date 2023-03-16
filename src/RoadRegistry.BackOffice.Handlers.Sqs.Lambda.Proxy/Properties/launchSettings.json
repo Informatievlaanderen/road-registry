@@ -8,7 +8,7 @@
     },
     "Mock Lambda API Test Tool": {
       "commandName": "Executable",
-      "commandLineArgs": "--port 5551",
+      "commandLineArgs": "--port 5550",
       "workingDirectory": ".\\bin\\$(Configuration)\\net6.0",
       "executablePath": "%USERPROFILE%\\.dv\\tools\\lambda-test-tool-6.0\\Amazon.Lambda.TestTool.BlazorTester.exe"
     }
