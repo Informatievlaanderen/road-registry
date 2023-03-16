@@ -44,9 +44,8 @@ public partial class RoadRegistrySystemController
         else
         {
             var command = new RebuildRoadNetworkSnapshot();
-            await CommandQueue
+            await RoadNetworkCommandQueue
                 .Write(new Command(command), HttpContext.RequestAborted);
-
         }
 
         return Ok();

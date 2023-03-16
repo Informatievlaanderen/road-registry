@@ -16,15 +16,15 @@ public partial class RoadRegistrySystemController : ControllerBase
 {
     protected IStreamStore Store { get; }
     protected IMediator Mediator { get; }
-    protected IRoadNetworkCommandQueue CommandQueue { get; }
+    protected IRoadNetworkCommandQueue RoadNetworkCommandQueue { get; }
 
     public RoadRegistrySystemController(
         IStreamStore store,
         IMediator mediator,
-        IRoadNetworkCommandQueue commandQueue)
+        IRoadNetworkCommandQueue roadNetworkCommandQueue)
     {
         Store = store;
         Mediator = mediator;
-        CommandQueue = commandQueue;
+        RoadNetworkCommandQueue = roadNetworkCommandQueue;
     }
 }
