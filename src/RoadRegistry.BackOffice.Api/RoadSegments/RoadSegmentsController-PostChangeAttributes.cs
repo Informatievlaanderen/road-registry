@@ -85,27 +85,27 @@ public partial class RoadSegmentsController
 
             foreach (var attributesChange in parameters)
             {
-                var attributeEnum = Enum.Parse<ChangeRoadSegmentAttributesEnum>(attributesChange.Attribuut, true);
+                var attributeEnum = Enum.Parse<ChangeRoadSegmentAttribute>(attributesChange.Attribuut, true);
 
                 switch (attributeEnum)
                 {
-                    case ChangeRoadSegmentAttributesEnum.Wegbeheerder:
+                    case ChangeRoadSegmentAttribute.Wegbeheerder:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
                             attributesRequest.Add(new ChangeRoadSegmentMaintenanceAuthorityAttributeRequest(new RoadSegmentId(roadSegmentId), new OrganizationId(attributesChange.Attribuutwaarde)));
                         break;
-                    case ChangeRoadSegmentAttributesEnum.WegsegmentStatus:
+                    case ChangeRoadSegmentAttribute.WegsegmentStatus:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
                             attributesRequest.Add(new ChangeRoadSegmentStatusAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentStatus.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
                         break;
-                    case ChangeRoadSegmentAttributesEnum.MorfologischeWegklasse:
+                    case ChangeRoadSegmentAttribute.MorfologischeWegklasse:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
                             attributesRequest.Add(new ChangeRoadSegmentMorphologyAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentMorphology.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
                         break;
-                    case ChangeRoadSegmentAttributesEnum.Toegangsbeperking:
+                    case ChangeRoadSegmentAttribute.Toegangsbeperking:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
                             attributesRequest.Add(new ChangeRoadSegmentAccessRestrictionAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentAccessRestriction.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
                         break;
-                    case ChangeRoadSegmentAttributesEnum.Wegcategorie:
+                    case ChangeRoadSegmentAttribute.Wegcategorie:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
                             attributesRequest.Add(new ChangeRoadSegmentCategoryAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentCategory.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
                         break;

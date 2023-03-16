@@ -51,11 +51,11 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
         RuleFor(x => x.Wegbeheerder)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode(ValidationErrors.RoadSegment.Organization.IsRequired.Code)
-            .WithMessage(ValidationErrors.RoadSegment.Organization.IsRequired.Message)
+            .WithErrorCode(ValidationErrors.Organization.IsRequired.Code)
+            .WithMessage(ValidationErrors.Organization.IsRequired.Message)
             .MustAsync(BeKnownOrganization)
-            .WithErrorCode(ValidationErrors.RoadSegment.Organization.NotFound.Code)
-            .WithMessage(x => ValidationErrors.RoadSegment.Organization.NotFound.Message(x.Wegbeheerder));
+            .WithErrorCode(ValidationErrors.Organization.NotFound.Code)
+            .WithMessage(x => ValidationErrors.Organization.NotFound.Message(x.Wegbeheerder));
 
         var validSurfaceTypes = new[] { RoadSegmentSurfaceType.LooseSurface, RoadSegmentSurfaceType.SolidSurface };
 

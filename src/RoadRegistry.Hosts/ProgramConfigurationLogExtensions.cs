@@ -12,9 +12,7 @@ public static class ProgramConfigurationLogExtensions
     public static void LogBlobClientCredentials<T>(this ILogger<T> logger, BlobClientOptions blobClientOptions)
     {
         if (blobClientOptions == null) throw new ArgumentNullException(nameof(blobClientOptions));
-
-        const int revealCharacterCount = 4;
-
+        
         logger.LogInformation("BlobClientType set to: {BlobClientType}", blobClientOptions.BlobClientType);
 
         switch (blobClientOptions.BlobClientType)

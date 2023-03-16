@@ -97,21 +97,7 @@ public static partial class ValidationErrors
                 public const string Message = "Toegangsbeperking is verplicht.";
             }
         }
-
-        public static class Organization
-        {
-            public static class NotFound
-            {
-                public const string Code = "WegbeheerderNietCorrect";
-                public static string Message(string value) => $"Wegbeheerder is foutief. '{value}' is geen geldige waarde.";
-            }
-            public static class IsRequired
-            {
-                public const string Code = "WegbeheerderVerplicht";
-                public const string Message = "Wegbeheerder is verplicht.";
-            }
-        }
-
+        
         public static class SurfaceType
         {
             public static class NotParsed
