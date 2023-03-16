@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.Aws.Lambda.Extensions;
 
 public abstract class RoadRegistryLambdaProxyFunction
 {
@@ -25,7 +26,8 @@ public abstract class RoadRegistryLambdaProxyFunction
     {
         using (var httpClient = new HttpClient { BaseAddress = new Uri(_serviceUrl) })
         {
-            var serializedEvent = JsonConvert.SerializeObject(@event, EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+            var serializer = new Amazon.Lambda.Serialization.Json.JsonSerializer();
+            var serializedEvent = serializer.Serialize(@event);
             var requestUri = $"{_serviceUrl.TrimEnd('/')}/runtime/invoke-event?configfile={_configFile}&functionhandler={_functionHandler}";
             var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
             {
@@ -33,15 +35,15 @@ public abstract class RoadRegistryLambdaProxyFunction
             };
 
             context.Logger.LogInformation("### LAMBDA PROXY REQUEST ###");
-            context.Logger.LogInformation(JsonConvert.SerializeObject(request, new JsonSerializerSettings { Formatting = Formatting.Indented }));
+            context.Logger.LogInformation(serializer.Serialize(request));
 
             context.Logger.LogInformation("### LAMBDA PROXY SERIALIZED EVENT ###");
-            context.Logger.LogInformation(JsonConvert.SerializeObject(@event, new JsonSerializerSettings { Formatting = Formatting.Indented }));
-
+            context.Logger.LogInformation(serializer.Serialize(@event));
+            
             var response = await httpClient.SendAsync(request);
 
             context.Logger.LogInformation("### LAMBDA PROXY RESPONSE ###");
-            context.Logger.LogInformation(JsonConvert.SerializeObject(response, new JsonSerializerSettings { Formatting = Formatting.Indented }));
+            context.Logger.LogInformation(serializer.Serialize(response));
         }
     }
 }
