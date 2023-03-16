@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Abstractions.RoadSegments;
 
-public enum ChangeRoadSegmentAttributesEnum
+public enum ChangeRoadSegmentAttribute
 {
     Wegbeheerder,
     WegsegmentStatus,

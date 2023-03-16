@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.Configuration;
 
-using System;
-using System.Collections.Generic;
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
@@ -22,7 +20,7 @@ public class S3Options : IHasConfigurationKey
     {
     }
 
-    public S3Options(RegionEndpoint? regionEndpoint = null, JsonSerializerSettings? jsonSerializerSettings = null)
+    public S3Options(RegionEndpoint? regionEndpoint, JsonSerializerSettings? jsonSerializerSettings = null)
     {
         RegionEndpoint = regionEndpoint ?? RegionEndpoint.EUWest1;
         JsonSerializerSettings = jsonSerializerSettings ?? new JsonSerializerSettings();
