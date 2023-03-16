@@ -48,6 +48,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Snapshot.Handlers.Sqs;
 
 public class Startup
 {
@@ -296,12 +297,16 @@ public class Startup
 
     public void ConfigureContainer(ContainerBuilder builder)
     {
-        builder.RegisterModule(new DataDogModule(_configuration));
-        builder.RegisterModule<BlobClientModule>();
-        builder.RegisterModulesFromAssemblyContaining<Startup>();
-        builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
-        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
-        builder.RegisterModulesFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>();
+        builder
+            .RegisterModule(new DataDogModule(_configuration))
+            .RegisterModule<BlobClientModule>()
+            .RegisterModule<SnapshotSqsHandlersModule>();
+
+        builder
+            .RegisterModulesFromAssemblyContaining<Startup>()
+            .RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>()
+            .RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
+            .RegisterModulesFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>();
     }
 
     private static string GetApiLeadingText(ApiVersionDescription description)
