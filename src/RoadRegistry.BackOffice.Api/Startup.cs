@@ -48,7 +48,6 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using Snapshot.Handlers.Sqs;
 
 public class Startup
 {
@@ -300,7 +299,7 @@ public class Startup
         builder
             .RegisterModule(new DataDogModule(_configuration))
             .RegisterModule<BlobClientModule>()
-            .RegisterModule<SnapshotSqsHandlersModule>();
+            .RegisterModule<Snapshot.Handlers.Sqs.SnapshotSqsHandlersModule>();
 
         builder
             .RegisterModulesFromAssemblyContaining<Startup>()
