@@ -72,7 +72,8 @@ src/RoadRegistry.BackOffice.UI/.env.development
 src/RoadRegistry.BackOffice.UI/.env.test
 *.sln.startup.json
 
-.localstack
+.localstack/data
+.localstack/lambda
 
 .terraformrc
 terraform.rc
