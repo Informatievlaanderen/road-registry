@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using RoadRegistry.BackOffice;
 using System.Configuration;
-using Amazon.Lambda.SQSEvents;
 
 public class Function : RoadRegistryLambdaFunction
 {
@@ -45,10 +44,5 @@ public class Function : RoadRegistryLambdaFunction
             ;
 
         return base.ConfigureServices(services);
-    }
-
-    public async Task Handler2(SQSEvent sqsEvent, ILambdaContext context)
-    {
-        await base.Handler(sqsEvent, context);
     }
 }
