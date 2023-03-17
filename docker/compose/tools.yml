@@ -24,6 +24,7 @@ services:
       - type: bind
         source: ../../.localstack/data
         target: /var/lib/localstack
+      - ../../.localstack/s3data:/usr/local/lib/localstack
       - ../../.localstack/init:/etc/localstack/init
       - ../../.localstack/lambda:/etc/localstack/lambda
       - /var/run/docker.sock:/var/run/docker.sock
