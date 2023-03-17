@@ -29,7 +29,7 @@ public partial class RoadRegistrySystemController
         };
         await validator.ValidateAndThrowAsync(command, cancellationToken);
 
-        await CommandQueue
+        await RoadNetworkCommandQueue
             .Write(new Command(command), HttpContext.RequestAborted);
 
         return Ok();

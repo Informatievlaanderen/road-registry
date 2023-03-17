@@ -10,16 +10,16 @@ public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentL
         RuleFor(x => x.Aantal)
             .Cascade(CascadeMode.Stop)
             .GreaterThan(0)
-            .WithErrorCode(ValidationErrors.RoadSegmentOutline.Lane.GreaterThanZero.Code)
-            .WithMessage(ValidationErrors.RoadSegmentOutline.Lane.GreaterThanZero.Message);
+            .WithErrorCode(ValidationErrors.RoadSegment.Lane.GreaterThanZero.Code)
+            .WithMessage(ValidationErrors.RoadSegment.Lane.GreaterThanZero.Message);
 
         RuleFor(x => x.Richting)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode(ValidationErrors.RoadSegmentOutline.LaneDirection.IsRequired.Code)
-            .WithMessage(ValidationErrors.RoadSegmentOutline.LaneDirection.IsRequired.Message)
+            .WithErrorCode(ValidationErrors.RoadSegment.LaneDirection.IsRequired.Code)
+            .WithMessage(ValidationErrors.RoadSegment.LaneDirection.IsRequired.Message)
             .Must(RoadSegmentLaneDirection.CanParseUsingDutchName)
-            .WithErrorCode(ValidationErrors.RoadSegmentOutline.LaneDirection.NotParsed.Code)
-            .WithMessage(x => ValidationErrors.RoadSegmentOutline.LaneDirection.NotParsed.Message(x.Richting));
+            .WithErrorCode(ValidationErrors.RoadSegment.LaneDirection.NotParsed.Code)
+            .WithMessage(x => ValidationErrors.RoadSegment.LaneDirection.NotParsed.Message(x.Richting));
     }
 }

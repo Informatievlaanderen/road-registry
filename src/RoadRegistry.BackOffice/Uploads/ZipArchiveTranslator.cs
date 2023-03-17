@@ -2,15 +2,19 @@ namespace RoadRegistry.BackOffice.Uploads;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Microsoft.Extensions.Logging;
 using Schema;
 using Schema.V1;
 
 public class ZipArchiveTranslator : IZipArchiveTranslator
 {
+    private readonly ILogger _logger;
+
     private static readonly string[] TranslationOrder =
     {
         // MC Hammer Style
@@ -30,9 +34,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
 
     private readonly Dictionary<string, IZipArchiveEntryTranslator> _translators;
 
-    public ZipArchiveTranslator(Encoding encoding)
+    public ZipArchiveTranslator(Encoding encoding, ILogger logger = null)
     {
         if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        _logger = logger;
 
         _translators =
             new Dictionary<string, IZipArchiveEntryTranslator>(StringComparer.InvariantCultureIgnoreCase)
@@ -141,12 +146,24 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
         if (archive == null)
             throw new ArgumentNullException(nameof(archive));
 
-        return archive
+        var entries = archive
             .Entries
             .Where(entry => Array.IndexOf(TranslationOrder, entry.FullName.ToUpperInvariant()) != -1)
             .OrderBy(entry => Array.IndexOf(TranslationOrder, entry.FullName.ToUpperInvariant()))
+            .ToArray();
+
+        _logger?.LogInformation("Translating {Count} entries", entries.Length);
+
+        return entries
             .Aggregate(
                 TranslatedChanges.Empty,
-                (changes, entry) => _translators[entry.FullName].Translate(entry, changes));
+                (changes, entry) =>
+                {
+                    var sw = Stopwatch.StartNew();
+                    _logger?.LogInformation("Translating entry {Entry}...", entry.FullName);
+                    var result = _translators[entry.FullName].Translate(entry, changes);
+                    _logger?.LogInformation("Translating entry {Entry} completed in {Elapsed}", entry.FullName, sw.Elapsed);
+                    return result;
+                });
     }
 }

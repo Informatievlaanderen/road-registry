@@ -2,17 +2,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
-  <PropertyGroup>
+	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
 		<AWSProjectType>Lambda</AWSProjectType>
-		<!-- This property makes the build directory similar to a publish directory and helps the AWS .NET Lambda Mock Test Tool find project dependencies. -->
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<!-- Generate ready to run images during publishing to improve cold start time. -->
 		<PublishReadyToRun>true</PublishReadyToRun>
-		<!--<RuntimeIdentifier>linux-x64</RuntimeIdentifier>-->
 		<NoWarn>CS8618;CS8602;CS8604;CS8619;CS8620;CS8629</NoWarn>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
@@ -40,6 +37,5 @@
     <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs\RoadRegistry.Snapshot.Handlers.Sqs.csproj" />
   </ItemGroup>
 
-	<Import Project="..\..\.paket\Paket.Restore.targets" />
-
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

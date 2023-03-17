@@ -4,6 +4,7 @@ using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
 using Infrastructure.Controllers.Attributes;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SqlStreamStore;
 
@@ -14,13 +15,16 @@ using SqlStreamStore;
 public partial class RoadRegistrySystemController : ControllerBase
 {
     protected IStreamStore Store { get; }
-    protected IRoadNetworkCommandQueue CommandQueue { get; }
+    protected IMediator Mediator { get; }
+    protected IRoadNetworkCommandQueue RoadNetworkCommandQueue { get; }
 
     public RoadRegistrySystemController(
         IStreamStore store,
-        IRoadNetworkCommandQueue commandQueue)
+        IMediator mediator,
+        IRoadNetworkCommandQueue roadNetworkCommandQueue)
     {
         Store = store;
-        CommandQueue = commandQueue;
+        Mediator = mediator;
+        RoadNetworkCommandQueue = roadNetworkCommandQueue;
     }
 }

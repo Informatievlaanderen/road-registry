@@ -1,5 +1,6 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs;
+namespace RoadRegistry.BackOffice.Configuration;
 
+using Amazon;
 using Amazon.Runtime;
 using Amazon.SQS;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
@@ -10,7 +11,10 @@ public class DevelopmentSqsOptions : SqsOptions
     private readonly string _serviceUrl;
 
     public DevelopmentSqsOptions(JsonSerializerSettings jsonSerializerSettings, string serviceUrl)
-        : base(jsonSerializerSettings)
+        : base(
+            regionEndpoint: RegionEndpoint.EUWest1,
+            jsonSerializerSettings: jsonSerializerSettings
+        )
     {
         _serviceUrl = serviceUrl;
     }

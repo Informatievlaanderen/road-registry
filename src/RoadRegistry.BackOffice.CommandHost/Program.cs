@@ -80,8 +80,7 @@ public class Program
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
                     sp.GetRequiredService<IClock>(),
-                    sp.GetRequiredService<ILoggerFactory>(),
-                    sp.GetRequiredService<UseSnapshotSqsRequestFeatureToggle>()
+                    sp.GetRequiredService<ILoggerFactory>()
                 )
             }))
             .ConfigureContainer((context, builder) =>

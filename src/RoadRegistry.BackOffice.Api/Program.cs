@@ -66,6 +66,7 @@ public class Program
         {
             await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);
             await WaitFor.SqlStreamStoreToBecomeAvailable(streamStore, logger).ConfigureAwait(false);
+
             logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Events);
             logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.Snapshots);
             logger.LogSqlServerConnectionString(configuration, WellknownConnectionNames.EditorProjections);

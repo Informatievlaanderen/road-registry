@@ -2,14 +2,14 @@ namespace RoadRegistry.BackOffice.Extensions;
 
 using System;
 using Autofac;
-using Autofac.Core.Registration;
 using Microsoft.Extensions.Configuration;
 
 public static class ContainerBuilderExtensions
 {
-    public static IModuleRegistrar RegisterModulesFromAssemblyContaining<T>(this ContainerBuilder builder)
+    public static ContainerBuilder RegisterModulesFromAssemblyContaining<T>(this ContainerBuilder builder)
     {
-        return builder.RegisterAssemblyModules(typeof(T).Assembly);
+        builder.RegisterAssemblyModules(typeof(T).Assembly);
+        return builder;
     }
 
     public static ContainerBuilder RegisterOptions<TOptions>(this ContainerBuilder builder, Action<TOptions> validateOptions = null)
