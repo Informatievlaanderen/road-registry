@@ -4,7 +4,7 @@ CREATE SINK CONNECTOR `RoadSegmentGrbConnector` with (
     "input.key.format"= 'JSON_SR',
     "delete.enabled"= false,
     "connector.class"= 'MicrosoftSqlServerSink',
-    "name"= 'RoadSegmentConnector',
+    "name"= 'RoadSegmentGrbConnector',
     "kafka.auth.mode"= 'KAFKA_API_KEY',
     "kafka.api.key"= 'DZKR6A5UYAZDBARE',
     "kafka.api.secret"= '***',

@@ -4,7 +4,7 @@ CREATE SINK CONNECTOR `RoadNodeGrbConnector` with (
     "input.key.format"= 'JSON_SR',
     "delete.enabled"= false,
     "connector.class"= 'MicrosoftSqlServerSink',
-    "name"= 'RoadNodeConnector',
+    "name"= 'RoadNodeGrbConnector',
     "kafka.auth.mode"= 'KAFKA_API_KEY',
     "kafka.api.key"= 'DZKR6A5UYAZDBARE',
     "kafka.api.secret"= '***',
