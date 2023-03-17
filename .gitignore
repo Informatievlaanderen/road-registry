@@ -74,6 +74,7 @@ src/RoadRegistry.BackOffice.UI/.env.test
 
 .localstack/data
 .localstack/lambda
+.localstack/s3data
 
 scripts/backoffice/
 scripts/snapshot/
