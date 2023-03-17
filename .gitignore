@@ -75,6 +75,9 @@ src/RoadRegistry.BackOffice.UI/.env.test
 .localstack/data
 .localstack/lambda
 
+scripts/backoffice/
+scripts/snapshot/
+
 .terraformrc
 terraform.rc
 terraform
