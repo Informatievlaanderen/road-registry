@@ -10,13 +10,13 @@ public class RoadSegmentSurfaceChangeDbaseSchema : DbaseSchema
         {
             DbaseField.CreateNumberField(
                 new DbaseFieldName(nameof(WV_OIDN)),
-                new DbaseFieldLength(10),
+                new DbaseFieldLength(15),
                 new DbaseDecimalCount(0)),
 
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(WS_OIDN)),
-                    new DbaseFieldLength(10),
+                    new DbaseFieldLength(15),
                     new DbaseDecimalCount(0)),
 
             DbaseField

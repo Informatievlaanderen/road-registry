@@ -10,13 +10,13 @@ public class NationalRoadChangeDbaseSchema : DbaseSchema
         {
             DbaseField.CreateNumberField(
                 new DbaseFieldName(nameof(NW_OIDN)),
-                new DbaseFieldLength(10),
+                new DbaseFieldLength(15),
                 new DbaseDecimalCount(0)),
 
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(WS_OIDN)),
-                    new DbaseFieldLength(10),
+                    new DbaseFieldLength(15),
                     new DbaseDecimalCount(0)),
 
             DbaseField

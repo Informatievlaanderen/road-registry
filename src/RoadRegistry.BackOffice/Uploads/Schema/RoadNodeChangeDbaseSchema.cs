@@ -10,7 +10,7 @@ public class RoadNodeChangeDbaseSchema : DbaseSchema
         {
             DbaseField.CreateNumberField(
                 new DbaseFieldName(nameof(WEGKNOOPID)),
-                new DbaseFieldLength(10),
+                new DbaseFieldLength(15),
                 new DbaseDecimalCount(0)),
 
             DbaseField

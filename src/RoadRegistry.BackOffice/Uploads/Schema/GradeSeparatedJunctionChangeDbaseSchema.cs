@@ -10,7 +10,7 @@ public class GradeSeparatedJunctionChangeDbaseSchema : DbaseSchema
         {
             DbaseField.CreateNumberField(
                 new DbaseFieldName(nameof(OK_OIDN)),
-                new DbaseFieldLength(10),
+                new DbaseFieldLength(15),
                 new DbaseDecimalCount(0)),
 
             DbaseField
@@ -22,13 +22,13 @@ public class GradeSeparatedJunctionChangeDbaseSchema : DbaseSchema
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(BO_WS_OIDN)),
-                    new DbaseFieldLength(10),
+                    new DbaseFieldLength(15),
                     new DbaseDecimalCount(0)),
 
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(ON_WS_OIDN)),
-                    new DbaseFieldLength(10),
+                    new DbaseFieldLength(15),
                     new DbaseDecimalCount(0)),
 
             DbaseField

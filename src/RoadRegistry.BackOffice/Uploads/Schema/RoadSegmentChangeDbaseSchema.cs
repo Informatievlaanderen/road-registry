@@ -10,7 +10,7 @@ public class RoadSegmentChangeDbaseSchema : DbaseSchema
         {
             DbaseField.CreateNumberField(
                 new DbaseFieldName(nameof(WS_OIDN)),
-                new DbaseFieldLength(10),
+                new DbaseFieldLength(15),
                 new DbaseDecimalCount(0)),
 
             DbaseField
@@ -44,25 +44,25 @@ public class RoadSegmentChangeDbaseSchema : DbaseSchema
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(B_WK_OIDN)),
-                    new DbaseFieldLength(10),
+                    new DbaseFieldLength(15),
                     new DbaseDecimalCount(0)),
 
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(E_WK_OIDN)),
-                    new DbaseFieldLength(10),
+                    new DbaseFieldLength(15),
                     new DbaseDecimalCount(0)),
 
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(LSTRNMID)),
-                    new DbaseFieldLength(10),
+                    new DbaseFieldLength(15),
                     new DbaseDecimalCount(0)),
 
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(RSTRNMID)),
-                    new DbaseFieldLength(10),
+                    new DbaseFieldLength(15),
                     new DbaseDecimalCount(0)),
 
             DbaseField
@@ -86,7 +86,7 @@ public class RoadSegmentChangeDbaseSchema : DbaseSchema
             DbaseField
                 .CreateNumberField(
                     new DbaseFieldName(nameof(EVENTIDN)),
-                    new DbaseFieldLength(10),
+                    new DbaseFieldLength(15),
                     new DbaseDecimalCount(0))
         };
     }
