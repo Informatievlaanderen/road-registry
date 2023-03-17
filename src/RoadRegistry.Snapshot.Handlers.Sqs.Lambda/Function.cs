@@ -1,23 +1,15 @@
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda;
 
-using System.Configuration;
-using Amazon.S3;
 using Autofac;
-using BackOffice.Configuration;
-using BackOffice.Core;
 using BackOffice.Extensions;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
-using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Configuration;
 using Hosts;
-using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.IdentityModel.Tokens;
 using RoadRegistry.BackOffice;
+using System.Configuration;
 
 public class Function : RoadRegistryLambdaFunction
 {

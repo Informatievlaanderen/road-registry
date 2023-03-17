@@ -590,6 +590,21 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 case RoadSegmentModified roadSegmentModified:
                     result = result.Given(roadSegmentModified);
                     break;
+                case RoadSegmentMaintenanceAuthorityAttributeModified roadSegmentMaintenanceAuthorityAttributeModified:
+                    result = result.Given(roadSegmentMaintenanceAuthorityAttributeModified);
+                    break;
+                case RoadSegmentStatusAttributeModified roadSegmentStatusAttributeModified:
+                    result = result.Given(roadSegmentStatusAttributeModified);
+                    break;
+                case RoadSegmentMorphologyAttributeModified roadSegmentMorphologyAttributeModified:
+                    result = result.Given(roadSegmentMorphologyAttributeModified);
+                    break;
+                case RoadSegmentAccessRestrictionAttributeModified roadSegmentAccessRestrictionAttributeModified:
+                    result = result.Given(roadSegmentAccessRestrictionAttributeModified);
+                    break;
+                case RoadSegmentCategoryAttributeModified roadSegmentCategoryAttributeModified:
+                    result = result.Given(roadSegmentCategoryAttributeModified);
+                    break;
                 case RoadSegmentRemoved roadSegmentRemoved:
                     result = result.Given(roadSegmentRemoved);
                     break;
@@ -826,6 +841,141 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableSurfaceAttributeIdentifiers.Merge(id,
                 @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
         );
+    }
+
+    private ImmutableRoadNetworkView Given(RoadSegmentMaintenanceAuthorityAttributeModified @event)
+    {
+        var id = new RoadSegmentId(@event.Id);
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(new RoadSegmentVersion(segment.Version + 1))
+                    .WithMaintenanceAuthorityAttribute(new OrganizationId(@event.CurrentValue))
+                    .WithLastEventHash(@event.GetHash())
+                ),
+            _gradeSeparatedJunctions,
+            _maximumTransactionId,
+            _maximumNodeId,
+            _maximumSegmentId,
+            _maximumGradeSeparatedJunctionId,
+            _maximumEuropeanRoadAttributeId,
+            _maximumNationalRoadAttributeId,
+            _maximumNumberedRoadAttributeId,
+            _maximumLaneAttributeId,
+            _maximumWidthAttributeId,
+            _maximumSurfaceAttributeId,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers);
+    }
+
+    private ImmutableRoadNetworkView Given(RoadSegmentStatusAttributeModified @event)
+    {
+        var id = new RoadSegmentId(@event.Id);
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(new RoadSegmentVersion(segment.Version + 1))
+                    .WithStatusAttribute(RoadSegmentStatus.ParseUsingDutchName(@event.CurrentValue))
+                    .WithLastEventHash(@event.GetHash())
+                ),
+            _gradeSeparatedJunctions,
+            _maximumTransactionId,
+            _maximumNodeId,
+            _maximumSegmentId,
+            _maximumGradeSeparatedJunctionId,
+            _maximumEuropeanRoadAttributeId,
+            _maximumNationalRoadAttributeId,
+            _maximumNumberedRoadAttributeId,
+            _maximumLaneAttributeId,
+            _maximumWidthAttributeId,
+            _maximumSurfaceAttributeId,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers);
+    }
+
+    private ImmutableRoadNetworkView Given(RoadSegmentMorphologyAttributeModified @event)
+    {
+        var id = new RoadSegmentId(@event.Id);
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(new RoadSegmentVersion(segment.Version + 1))
+                    .WithMorphologyAttribute(RoadSegmentMorphology.ParseUsingDutchName(@event.CurrentValue))
+                    .WithLastEventHash(@event.GetHash())
+                ),
+            _gradeSeparatedJunctions,
+            _maximumTransactionId,
+            _maximumNodeId,
+            _maximumSegmentId,
+            _maximumGradeSeparatedJunctionId,
+            _maximumEuropeanRoadAttributeId,
+            _maximumNationalRoadAttributeId,
+            _maximumNumberedRoadAttributeId,
+            _maximumLaneAttributeId,
+            _maximumWidthAttributeId,
+            _maximumSurfaceAttributeId,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers);
+    }
+
+    private ImmutableRoadNetworkView Given(RoadSegmentAccessRestrictionAttributeModified @event)
+    {
+        var id = new RoadSegmentId(@event.Id);
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(new RoadSegmentVersion(segment.Version + 1))
+                    .WithAccessRestrictionAttribute(RoadSegmentAccessRestriction.ParseUsingDutchName(@event.CurrentValue))
+                    .WithLastEventHash(@event.GetHash())
+                ),
+            _gradeSeparatedJunctions,
+            _maximumTransactionId,
+            _maximumNodeId,
+            _maximumSegmentId,
+            _maximumGradeSeparatedJunctionId,
+            _maximumEuropeanRoadAttributeId,
+            _maximumNationalRoadAttributeId,
+            _maximumNumberedRoadAttributeId,
+            _maximumLaneAttributeId,
+            _maximumWidthAttributeId,
+            _maximumSurfaceAttributeId,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers);
+    }
+
+    private ImmutableRoadNetworkView Given(RoadSegmentCategoryAttributeModified @event)
+    {
+        var id = new RoadSegmentId(@event.Id);
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(new RoadSegmentVersion(segment.Version + 1))
+                    .WithCategoryAttribute(RoadSegmentCategory.ParseUsingDutchName(@event.CurrentValue))
+                    .WithLastEventHash(@event.GetHash())
+                ),
+            _gradeSeparatedJunctions,
+            _maximumTransactionId,
+            _maximumNodeId,
+            _maximumSegmentId,
+            _maximumGradeSeparatedJunctionId,
+            _maximumEuropeanRoadAttributeId,
+            _maximumNationalRoadAttributeId,
+            _maximumNumberedRoadAttributeId,
+            _maximumLaneAttributeId,
+            _maximumWidthAttributeId,
+            _maximumSurfaceAttributeId,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers);
     }
 
     private ImmutableRoadNetworkView Given(RoadSegmentRemoved @event)

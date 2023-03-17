@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Handlers.Sqs;
+namespace RoadRegistry.BackOffice.Configuration;
 
 public class SqsConfiguration: IHasConfigurationKey
 {

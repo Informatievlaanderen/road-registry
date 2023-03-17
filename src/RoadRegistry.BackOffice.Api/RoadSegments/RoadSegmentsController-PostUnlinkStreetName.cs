@@ -30,6 +30,7 @@ public partial class RoadSegmentsController
     /// <param name="ifMatchHeaderValue"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het wegsegment gevonden is.</response>
+    /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="412">Als de If-Match header niet overeenkomt met de laatste ETag.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>

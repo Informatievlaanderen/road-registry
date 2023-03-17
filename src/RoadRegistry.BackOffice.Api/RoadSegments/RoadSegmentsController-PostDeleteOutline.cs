@@ -22,6 +22,7 @@ public partial class RoadSegmentsController
     /// <param name="id">Identificator van het ingeschetst wegsegment.</param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het ingeschetst wegsegment gevonden is.</response>
+    /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="404">Als het ingeschetst wegsegment niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost("{id}/acties/verwijderen/schets")]

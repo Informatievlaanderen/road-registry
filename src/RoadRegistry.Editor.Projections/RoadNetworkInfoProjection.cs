@@ -1,5 +1,6 @@
 namespace RoadRegistry.Editor.Projections;
 
+using System;
 using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -98,6 +99,26 @@ public class RoadNetworkInfoProjection : ConnectedProjection<EditorContext>
                         await OnRoadSegmentModified(context, m, info);
                         break;
 
+                    case RoadSegmentMaintenanceAuthorityAttributeModified m:
+                        await OnRoadSegmentMaintenanceAuthorityModified(context, m, info);
+                        break;
+
+                    case RoadSegmentStatusAttributeModified m:
+                        await OnRoadSegmentStatusModified(context, m, info);
+                        break;
+
+                    case RoadSegmentMorphologyAttributeModified m:
+                        await OnRoadSegmentMorphologyModified(context, m, info);
+                        break;
+
+                    case RoadSegmentAccessRestrictionAttributeModified m:
+                        await OnRoadSegmentAccessRestrictionModified(context, m, info);
+                        break;
+
+                    case RoadSegmentCategoryAttributeModified m:
+                        await OnRoadSegmentCategoryModified(context, m, info);
+                        break;
+
                     case RoadSegmentRemoved m:
                         await OnRoadSegmentRemoved(context, m, info);
                         break;
@@ -186,6 +207,31 @@ public class RoadNetworkInfoProjection : ConnectedProjection<EditorContext>
         oldSegmentCache.SurfacesLength = newSegmentCache.SurfacesLength;
         oldSegmentCache.LanesLength = newSegmentCache.LanesLength;
         oldSegmentCache.WidthsLength = newSegmentCache.WidthsLength;
+    }
+
+    private static Task OnRoadSegmentMaintenanceAuthorityModified(EditorContext context, RoadSegmentMaintenanceAuthorityAttributeModified m, RoadNetworkInfo info)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static Task OnRoadSegmentStatusModified(EditorContext context, RoadSegmentStatusAttributeModified m, RoadNetworkInfo info)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static Task OnRoadSegmentMorphologyModified(EditorContext context, RoadSegmentMorphologyAttributeModified m, RoadNetworkInfo info)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static Task OnRoadSegmentAccessRestrictionModified(EditorContext context, RoadSegmentAccessRestrictionAttributeModified m, RoadNetworkInfo info)
+    {
+        throw new NotImplementedException();
+    }
+
+    private static Task OnRoadSegmentCategoryModified(EditorContext context, RoadSegmentCategoryAttributeModified m, RoadNetworkInfo info)
+    {
+        throw new NotImplementedException();
     }
 
     private static async Task OnRoadSegmentRemoved(EditorContext context, RoadSegmentRemoved m, RoadNetworkInfo info)
