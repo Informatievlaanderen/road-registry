@@ -8,8 +8,6 @@ using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
-using Schema;
-using Schema.V1;
 
 public class ZipArchiveTranslator : IZipArchiveTranslator
 {
@@ -39,14 +37,15 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
         if (encoding == null) throw new ArgumentNullException(nameof(encoding));
         _logger = logger;
 
+        //TODO-rik add V2
         _translators =
             new Dictionary<string, IZipArchiveEntryTranslator>(StringComparer.InvariantCultureIgnoreCase)
             {
                 {
                     "WEGKNOOP_ALL.DBF",
-                    new ZipArchiveDbaseEntryTranslator<RoadNodeChangeDbaseRecord>(
+                    new ZipArchiveDbaseEntryTranslator<Schema.V1.RoadNodeChangeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
-                        new RoadNodeChangeDbaseRecordsTranslator()
+                        new Schema.V1.RoadNodeChangeDbaseRecordsTranslator()
                     )
                 },
                 {
@@ -58,9 +57,9 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                 },
                 {
                     "WEGSEGMENT_ALL.DBF",
-                    new ZipArchiveDbaseEntryTranslator<RoadSegmentChangeDbaseRecord>(
+                    new ZipArchiveDbaseEntryTranslator<Schema.V1.RoadSegmentChangeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
-                        new RoadSegmentChangeDbaseRecordsTranslator()
+                        new Schema.V1.RoadSegmentChangeDbaseRecordsTranslator()
                     )
                 },
                 {
@@ -72,51 +71,51 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                 },
                 {
                     "ATTEUROPWEG_ALL.DBF",
-                    new ZipArchiveDbaseEntryTranslator<EuropeanRoadChangeDbaseRecord>(
+                    new ZipArchiveDbaseEntryTranslator<Schema.V1.EuropeanRoadChangeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
-                        new EuropeanRoadChangeDbaseRecordsTranslator()
+                        new Schema.V1.EuropeanRoadChangeDbaseRecordsTranslator()
                     )
                 },
                 {
                     "ATTNATIONWEG_ALL.DBF",
-                    new ZipArchiveDbaseEntryTranslator<NationalRoadChangeDbaseRecord>(
+                    new ZipArchiveDbaseEntryTranslator<Schema.V1.NationalRoadChangeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
-                        new NationalRoadChangeDbaseRecordsTranslator()
+                        new Schema.V1.NationalRoadChangeDbaseRecordsTranslator()
                     )
                 },
                 {
                     "ATTGENUMWEG_ALL.DBF",
-                    new ZipArchiveDbaseEntryTranslator<NumberedRoadChangeDbaseRecord>(
+                    new ZipArchiveDbaseEntryTranslator<Schema.V1.NumberedRoadChangeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
-                        new NumberedRoadChangeDbaseRecordsTranslator()
+                        new Schema.V1.NumberedRoadChangeDbaseRecordsTranslator()
                     )
                 },
                 {
                     "ATTRIJSTROKEN_ALL.DBF",
-                    new ZipArchiveDbaseEntryTranslator<RoadSegmentLaneChangeDbaseRecord>(
+                    new ZipArchiveDbaseEntryTranslator<Schema.V1.RoadSegmentLaneChangeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
-                        new RoadSegmentLaneChangeDbaseRecordsTranslator()
+                        new Schema.V1.RoadSegmentLaneChangeDbaseRecordsTranslator()
                     )
                 },
                 {
                     "ATTWEGBREEDTE_ALL.DBF",
-                    new ZipArchiveDbaseEntryTranslator<RoadSegmentWidthChangeDbaseRecord>(
+                    new ZipArchiveDbaseEntryTranslator<Schema.V1.RoadSegmentWidthChangeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
-                        new RoadSegmentWidthChangeDbaseRecordsTranslator()
+                        new Schema.V1.RoadSegmentWidthChangeDbaseRecordsTranslator()
                     )
                 },
                 {
                     "ATTWEGVERHARDING_ALL.DBF",
-                    new ZipArchiveDbaseEntryTranslator<RoadSegmentSurfaceChangeDbaseRecord>(
+                    new ZipArchiveDbaseEntryTranslator<Schema.V1.RoadSegmentSurfaceChangeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
-                        new RoadSegmentSurfaceChangeDbaseRecordsTranslator()
+                        new Schema.V1.RoadSegmentSurfaceChangeDbaseRecordsTranslator()
                     )
                 },
                 {
                     "RLTOGKRUISING_ALL.DBF",
-                    new ZipArchiveDbaseEntryTranslator<GradeSeparatedJunctionChangeDbaseRecord>(
+                    new ZipArchiveDbaseEntryTranslator<Schema.V1.GradeSeparatedJunctionChangeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
-                        new GradeSeparatedJunctionChangeDbaseRecordsTranslator()
+                        new Schema.V1.GradeSeparatedJunctionChangeDbaseRecordsTranslator()
                     )
                 },
                 {
@@ -125,10 +124,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                         encoding, new DbaseFileHeaderReadBehavior(true), new Dictionary<DbaseSchema, IZipArchiveEntryTranslator>
                         {
                             {
-                                TransactionZoneDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<TransactionZoneDbaseRecord>(
+                                Schema.V1.TransactionZoneDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Schema.V1.TransactionZoneDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new TransactionZoneDbaseRecordsTranslator())
+                                    new Schema.V1.TransactionZoneDbaseRecordsTranslator())
                             },
                             {
                                 Schema.V2.TransactionZoneDbaseRecord.Schema,
