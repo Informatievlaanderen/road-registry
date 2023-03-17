@@ -5,7 +5,7 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.Schema;
+using RoadRegistry.BackOffice.Uploads.Schema.V1;
 using Xunit;
 
 public class NumberedRoadChangeDbaseRecordsValidatorTests : IDisposable
