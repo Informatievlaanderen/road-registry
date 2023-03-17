@@ -4,7 +4,7 @@ AS SELECT
 	data->id Objectid,
     AS_VALUE(data->id) Ws_Oidn,
     CONCAT(CAST(AS_VALUE(data->id) AS VARCHAR), '_', CAST(data->version AS VARCHAR)) Ws_Uidn,
-    data->lastChangedTimestamp Begintijd,
+    data->origin->`timestamp` Begintijd,
 	data->leftSideStreetNameId Lstrnmid,
 	data->rightSideStreetNameId Rstrnmid,
 	data->morphologyId Morf,
@@ -12,7 +12,7 @@ AS SELECT
 	data->maintainerId Beheer,
 	data->methodId Methode,
 	data->accessRestrictionId Tgbep,
-	data->origin->`timestamp` Opndatum,
+	data->recordingDate Opndatum,
 	data->statusId Status,
 	data->geometryAsWkt Geometrie,
 	data->isRemoved Removed
