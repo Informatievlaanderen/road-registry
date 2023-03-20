@@ -71,7 +71,7 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
 
         return true;
     }
-    
+
     public AddRoadSegmentValidator()
     {
         RuleFor(c => c.StartNodeId)
@@ -91,20 +91,20 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
         public AddRoadSegmentOutlineValidator()
         {
             RuleFor(c => c.StartNodeId)
-                .Equal(0);
+                .Must(value => value.IsValidStartRoadNodeIdForRoadSegmentOutline());
 
             RuleFor(c => c.EndNodeId)
-                .Equal(0);
-            
+                .Must(value => value.IsValidEndRoadNodeIdForRoadSegmentOutline());
+
             RuleFor(c => c.Status)
                 .NotEmpty()
-                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value) != RoadSegmentStatus.Unknown)
+                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForRoadSegmentOutline())
                 .WithErrorCode("InvalidStatus")
                 .WithMessage("The 'Status' is not a valid RoadSegmentStatus.");
 
             RuleFor(c => c.Morphology)
                 .NotEmpty()
-                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value) != RoadSegmentMorphology.Unknown)
+                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentOutline())
                 .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
                 .WithMessage("The 'Morphology' is not a valid RoadSegmentMorphology.");
 

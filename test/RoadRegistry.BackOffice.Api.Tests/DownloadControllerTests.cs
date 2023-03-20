@@ -5,7 +5,6 @@ using Api.Downloads;
 using Api.Framework;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
-using Dbase;
 using Editor.Schema;
 using Framework.Containers;
 using MediatR;

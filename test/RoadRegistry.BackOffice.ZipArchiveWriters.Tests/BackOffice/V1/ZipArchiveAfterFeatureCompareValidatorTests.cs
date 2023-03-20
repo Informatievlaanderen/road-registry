@@ -10,9 +10,9 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
+using Uploads.Dbase.AfterFeatureCompare.V1.Schema;
 using Validation;
 using Point = NetTopologySuite.Geometries.Point;
-using Uploads.V1.Schema;
 
 public class ZipArchiveAfterFeatureCompareValidatorTests
 {

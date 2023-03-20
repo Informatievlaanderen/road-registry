@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
+using System.Threading.Channels;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class ZipArchiveShapeEntryValidator : IZipArchiveEntryValidator
@@ -19,8 +20,8 @@ public class ZipArchiveShapeEntryValidator : IZipArchiveEntryValidator
 
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
         using (var stream = entry.Open())

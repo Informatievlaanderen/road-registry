@@ -9,7 +9,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Uploads;
-using Uploads.V2.Schema;
+using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
 
 public class Program

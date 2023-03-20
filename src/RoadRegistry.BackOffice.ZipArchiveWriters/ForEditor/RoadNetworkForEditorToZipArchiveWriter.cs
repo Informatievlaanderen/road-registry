@@ -3,8 +3,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForEditor;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
-using Dbase.Lists;
 using Editor.Schema;
+using Extracts.Dbase.Lists;
 using Microsoft.IO;
 
 public class RoadNetworkForEditorToZipArchiveWriter : IZipArchiveWriter<EditorContext>

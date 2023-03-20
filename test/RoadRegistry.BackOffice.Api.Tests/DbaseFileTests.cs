@@ -3,7 +3,7 @@ using System.Text;
 
 namespace RoadRegistry.BackOffice.Api.Tests
 {
-    using BackOffice.Uploads.V1.Schema;
+    using BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
 
     public class DbaseFileTests
     {

@@ -9,9 +9,10 @@ public class RoadSegmentChangeShapeRecordsTranslator : IZipArchiveShapeRecordsTr
 {
     public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-        if (records == null) throw new ArgumentNullException(nameof(records));
-        if (changes == null) throw new ArgumentNullException(nameof(changes));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(records);
+        ArgumentNullException.ThrowIfNull(changes);
+
         while (records.MoveNext())
         {
             var record = records.Current;

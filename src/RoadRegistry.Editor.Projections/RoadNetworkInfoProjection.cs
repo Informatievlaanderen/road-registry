@@ -6,9 +6,9 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Dbase;
+using RoadRegistry.BackOffice;
 using Schema;
+using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public class RoadNetworkInfoProjection : ConnectedProjection<EditorContext>
 {

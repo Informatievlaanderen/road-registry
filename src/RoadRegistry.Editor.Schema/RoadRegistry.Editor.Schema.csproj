@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.Dbase\RoadRegistry.Dbase.csproj" />
+    <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
   </ItemGroup>
 
   <ItemGroup>

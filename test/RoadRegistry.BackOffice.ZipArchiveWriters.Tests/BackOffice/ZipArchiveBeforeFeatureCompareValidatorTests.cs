@@ -5,12 +5,15 @@ using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Extracts.Dbase.GradeSeparatedJuntions;
+using Extracts.Dbase.RoadNodes;
+using Extracts.Dbase.RoadSegments;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
-using Uploads.V2.Schema;
+using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using Validation;
 using Point = NetTopologySuite.Geometries.Point;
 
@@ -24,29 +27,29 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
 
             var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFileWithOneRecord();
             var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-            var roadSegmentChangeDbaseRecord = fixture.Create<Dbase.RoadSegments.RoadSegmentDbaseRecord>();
-            var roadSegmentDbaseChangeStream = fixture.CreateDbfFileWithOneRecord(Dbase.RoadSegments.RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
+            var roadSegmentChangeDbaseRecord = fixture.Create<RoadSegmentDbaseRecord>();
+            var roadSegmentDbaseChangeStream = fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
 
-            var europeanRoadChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>(
-                Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
-            var nationalRoadChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord>(
-                Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
-            var numberedRoadChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord>(
-                Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
-            var laneChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord>(
-                Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord.Schema,
+            var europeanRoadChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
+                RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
+            var nationalRoadChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentNationalRoadAttributeDbaseRecord>(
+                RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
+            var numberedRoadChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentNumberedRoadAttributeDbaseRecord>(
+                RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
+            var laneChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentLaneAttributeDbaseRecord>(
+                RoadSegmentLaneAttributeDbaseRecord.Schema,
                 record =>
                 {
                     record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
                 });
-            var widthChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord>(
-                Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord.Schema,
+            var widthChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentWidthAttributeDbaseRecord>(
+                RoadSegmentWidthAttributeDbaseRecord.Schema,
                 record =>
                 {
                     record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
                 });
-            var surfaceChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord>(
-                Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord.Schema,
+            var surfaceChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentSurfaceAttributeDbaseRecord>(
+                RoadSegmentSurfaceAttributeDbaseRecord.Schema,
                 record =>
                 {
                     record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
@@ -54,11 +57,11 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
 
             var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFileWithOneRecord();
             var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-            var roadNodeDbaseChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.RoadNodes.RoadNodeDbaseRecord>(
-                Dbase.RoadNodes.RoadNodeDbaseRecord.Schema);
+            var roadNodeDbaseChangeStream = fixture.CreateDbfFileWithOneRecord<RoadNodeDbaseRecord>(
+                RoadNodeDbaseRecord.Schema);
 
-            var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFileWithOneRecord<Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord>(
-                Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord.Schema);
+            var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFileWithOneRecord<GradeSeparatedJunctionDbaseRecord>(
+                GradeSeparatedJunctionDbaseRecord.Schema);
 
             var transactionZoneStream = fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
 
@@ -194,28 +197,28 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
 
         var roadSegmentShapeChangeStream = fixture.CreateEmptyRoadSegmentShapeFile();
         var roadSegmentProjectionFormatStream = fixture.CreateEmptyProjectionFormatFile();
-        var roadSegmentDbaseChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentDbaseRecord>(Dbase.RoadSegments.RoadSegmentDbaseRecord.Schema);
+        var roadSegmentDbaseChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema);
 
-        var europeanRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>(
-            Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
-        var nationalRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord>(
-            Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
-        var numberedRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord>(
-            Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
-        var laneChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord>(
-            Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord.Schema);
-        var widthChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord>(
-            Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord.Schema);
-        var surfaceChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord>(
-            Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord.Schema);
+        var europeanRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
+            RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
+        var nationalRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(
+            RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
+        var numberedRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentNumberedRoadAttributeDbaseRecord>(
+            RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
+        var laneChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentLaneAttributeDbaseRecord>(
+            RoadSegmentLaneAttributeDbaseRecord.Schema);
+        var widthChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentWidthAttributeDbaseRecord>(
+            RoadSegmentWidthAttributeDbaseRecord.Schema);
+        var surfaceChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentSurfaceAttributeDbaseRecord>(
+            RoadSegmentSurfaceAttributeDbaseRecord.Schema);
 
         var roadNodeShapeChangeStream = fixture.CreateEmptyRoadNodeShapeFile();
         var roadNodeProjectionFormatStream = fixture.CreateEmptyProjectionFormatFile();
-        var roadNodeDbaseChangeStream = fixture.CreateEmptyDbfFile<Dbase.RoadNodes.RoadNodeDbaseRecord>(
-            Dbase.RoadNodes.RoadNodeDbaseRecord.Schema);
+        var roadNodeDbaseChangeStream = fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(
+            RoadNodeDbaseRecord.Schema);
 
-        var gradeSeparatedJunctionChangeStream = fixture.CreateEmptyDbfFile<Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord>(
-            Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord.Schema);
+        var gradeSeparatedJunctionChangeStream = fixture.CreateEmptyDbfFile<GradeSeparatedJunctionDbaseRecord>(
+            GradeSeparatedJunctionDbaseRecord.Schema);
 
         var transactionZoneStream = fixture.CreateEmptyDbfFile<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
 
@@ -298,9 +301,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
         fixture.CustomizeOperatorName();
         fixture.CustomizeReason();
 
-        fixture.Customize<Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord>(
+        fixture.Customize<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeDbaseRecord
+                .FromFactory(random => new RoadSegmentEuropeanRoadAttributeDbaseRecord
                 {
                     EU_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
                     WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
@@ -308,9 +311,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                 })
                 .OmitAutoProperties());
 
-        fixture.Customize<Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord>(
+        fixture.Customize<GradeSeparatedJunctionDbaseRecord>(
             composer => composer
-                .FromFactory(random => new Dbase.GradeSeparatedJuntions.GradeSeparatedJunctionDbaseRecord
+                .FromFactory(random => new GradeSeparatedJunctionDbaseRecord
                 {
                     OK_OIDN = { Value = new GradeSeparatedJunctionId(random.Next(1, int.MaxValue)) },
                     TYPE =
@@ -320,9 +323,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                 })
                 .OmitAutoProperties());
 
-        fixture.Customize<Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord>(
+        fixture.Customize<RoadSegmentNationalRoadAttributeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new Dbase.RoadSegments.RoadSegmentNationalRoadAttributeDbaseRecord
+                .FromFactory(random => new RoadSegmentNationalRoadAttributeDbaseRecord
                 {
                     NW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
                     WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
@@ -330,9 +333,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                 })
                 .OmitAutoProperties());
 
-        fixture.Customize<Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord>(
+        fixture.Customize<RoadSegmentNumberedRoadAttributeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeDbaseRecord
+                .FromFactory(random => new RoadSegmentNumberedRoadAttributeDbaseRecord
                 {
                     GW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
                     WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
@@ -346,9 +349,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                 })
                 .OmitAutoProperties());
 
-        fixture.Customize<Dbase.RoadNodes.RoadNodeDbaseRecord>(
+        fixture.Customize<RoadNodeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new Dbase.RoadNodes.RoadNodeDbaseRecord
+                .FromFactory(random => new RoadNodeDbaseRecord
                 {
                     WK_OIDN = { Value = new RoadNodeId(random.Next(1, int.MaxValue)) },
                     TYPE = { Value = (short)fixture.Create<RoadNodeType>().Translation.Identifier }
@@ -401,9 +404,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                 .OmitAutoProperties()
         );
 
-        fixture.Customize<Dbase.RoadSegments.RoadSegmentDbaseRecord>(
+        fixture.Customize<RoadSegmentDbaseRecord>(
             composer => composer
-                .FromFactory(random => new Dbase.RoadSegments.RoadSegmentDbaseRecord
+                .FromFactory(random => new RoadSegmentDbaseRecord
                 {
                     WS_OIDN = { Value = new RoadSegmentId(random.Next(1, int.MaxValue)) },
                     METHODE =
@@ -426,9 +429,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                 })
                 .OmitAutoProperties());
 
-        fixture.Customize<Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord>(
+        fixture.Customize<RoadSegmentLaneAttributeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new Dbase.RoadSegments.RoadSegmentLaneAttributeDbaseRecord
+                .FromFactory(random => new RoadSegmentLaneAttributeDbaseRecord
                 {
                     RS_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
                     WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
@@ -442,9 +445,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                 })
                 .OmitAutoProperties());
 
-        fixture.Customize<Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord>(
+        fixture.Customize<RoadSegmentSurfaceAttributeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new Dbase.RoadSegments.RoadSegmentSurfaceAttributeDbaseRecord
+                .FromFactory(random => new RoadSegmentSurfaceAttributeDbaseRecord
                 {
                     WV_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
                     WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
@@ -453,9 +456,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                     TYPE = { Value = (short)fixture.Create<RoadSegmentSurfaceType>().Translation.Identifier }
                 })
                 .OmitAutoProperties());
-        fixture.Customize<Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord>(
+        fixture.Customize<RoadSegmentWidthAttributeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new Dbase.RoadSegments.RoadSegmentWidthAttributeDbaseRecord
+                .FromFactory(random => new RoadSegmentWidthAttributeDbaseRecord
                 {
                     WB_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
                     WS_OIDN = { Value = fixture.Create<RoadSegmentId>().ToInt32() },
