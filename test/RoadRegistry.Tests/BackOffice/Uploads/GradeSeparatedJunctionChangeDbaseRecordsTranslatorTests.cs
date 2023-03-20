@@ -5,7 +5,8 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.Schema.V1;
+using RoadRegistry.BackOffice.Uploads.V1.Schema;
+using RoadRegistry.BackOffice.Uploads.V1.Validation;
 using Xunit;
 
 public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposable

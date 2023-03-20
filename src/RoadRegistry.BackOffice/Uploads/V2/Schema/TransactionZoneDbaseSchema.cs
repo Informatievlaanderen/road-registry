@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Uploads.Schema.V2;
+namespace RoadRegistry.BackOffice.Uploads.V2.Schema;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 

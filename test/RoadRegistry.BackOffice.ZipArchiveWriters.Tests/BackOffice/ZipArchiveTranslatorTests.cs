@@ -10,7 +10,7 @@ using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Uploads;
-using Uploads.Schema.V1;
+using Uploads.V1.Schema;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveTranslatorTests

@@ -2,10 +2,8 @@ namespace RoadRegistry.Editor.Projections.DutchTranslations;
 
 using System;
 using BackOffice.Uploads;
-using BackOffice.Uploads.Schema.V1;
-using BackOffice.Uploads.Schema.V2;
 using FileProblem = BackOffice.Messages.FileProblem;
-using TransactionZoneDbaseRecord = BackOffice.Uploads.Schema.V2.TransactionZoneDbaseRecord;
+using TransactionZoneDbaseRecord = BackOffice.Uploads.V2.Schema.TransactionZoneDbaseRecord;
 
 public static class ProblemWithZipArchive
 {

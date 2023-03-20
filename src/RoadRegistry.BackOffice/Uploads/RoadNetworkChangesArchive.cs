@@ -8,7 +8,7 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Framework;
 using Messages;
-using Schema.V2;
+using V2.Schema;
 
 public class RoadNetworkChangesArchive : EventSourcedEntity
 {

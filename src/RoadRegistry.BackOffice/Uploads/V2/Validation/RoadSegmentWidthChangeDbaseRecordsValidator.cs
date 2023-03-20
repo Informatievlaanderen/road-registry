@@ -1,10 +1,11 @@
-namespace RoadRegistry.BackOffice.Uploads.Schema.V2;
+namespace RoadRegistry.BackOffice.Uploads.V2.Validation;
 
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Schema;
 
 public class RoadSegmentWidthChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<RoadSegmentWidthChangeDbaseRecord>
 {
