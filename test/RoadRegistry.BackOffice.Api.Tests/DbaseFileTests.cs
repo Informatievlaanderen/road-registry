@@ -3,7 +3,7 @@ using System.Text;
 
 namespace RoadRegistry.BackOffice.Api.Tests
 {
-    using BackOffice.Uploads.Schema.V1;
+    using BackOffice.Uploads.V1.Schema;
 
     public class DbaseFileTests
     {
@@ -19,20 +19,18 @@ namespace RoadRegistry.BackOffice.Api.Tests
                              typeof(DbaseFileTests).Assembly.GetManifestResourceStream(typeof(DbaseFileTests),
                                  "Transactiezones.dbf"))
                 {
-                    embeddedStream.CopyTo(sourceStream);
+                    await embeddedStream!.CopyToAsync(sourceStream);
                 }
 
                 sourceStream.Position = 0;
                 using (var reader = new BinaryReader(sourceStream, Encoding.UTF8))
                 {
-                    var header = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
-                    if (header is not null)
+                    var header = DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
+
+                    using var records = header.CreateDbaseRecordEnumerator<TransactionZoneDbaseRecord>(reader);
+                    while (records.MoveNext())
                     {
-                        using var records = header.CreateDbaseRecordEnumerator<TransactionZoneDbaseRecord>(reader);
-                        while (records.MoveNext())
-                        {
-                            extractDescription = new ExtractDescription(records.Current.BESCHRIJV.Value);
-                        }
+                        extractDescription = new ExtractDescription(records.Current!.BESCHRIJV.Value);
                     }
                 }
             }

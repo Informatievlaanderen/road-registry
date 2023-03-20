@@ -11,7 +11,7 @@ using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
 using Uploads.Basic.Schema;
-using Uploads.Schema.V2;
+using Uploads.V2.Schema;
 using Validation;
 using Point = NetTopologySuite.Geometries.Point;
 
