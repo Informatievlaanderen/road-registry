@@ -1,24 +1,25 @@
 namespace RoadRegistry.BackOffice.Uploads.V1.Schema;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase.RoadSegments;
 
-public class RoadSegmentChangeDbaseRecord : DbaseRecord
+public class RoadSegmentChangeDbaseRecord : DbaseRecord, IRoadSegmentDbaseRecord
 {
     public static readonly RoadSegmentChangeDbaseSchema Schema = new();
 
     public RoadSegmentChangeDbaseRecord()
     {
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
-        METHODE = new DbaseInt16(Schema.METHODE);
+        METHODE = new DbaseInt32(Schema.METHODE);
         BEHEERDER = new DbaseString(Schema.BEHEERDER);
-        MORFOLOGIE = new DbaseInt16(Schema.MORFOLOGIE);
+        MORFOLOGIE = new DbaseInt32(Schema.MORFOLOGIE);
         STATUS = new DbaseInt32(Schema.STATUS);
         CATEGORIE = new DbaseString(Schema.CATEGORIE);
         B_WK_OIDN = new DbaseInt32(Schema.B_WK_OIDN);
         E_WK_OIDN = new DbaseInt32(Schema.E_WK_OIDN);
         LSTRNMID = new DbaseNullableInt32(Schema.LSTRNMID);
         RSTRNMID = new DbaseNullableInt32(Schema.RSTRNMID);
-        TGBEP = new DbaseInt16(Schema.TGBEP);
+        TGBEP = new DbaseInt32(Schema.TGBEP);
         TRANSACTID = new DbaseInt16(Schema.TRANSACTID);
         RECORDTYPE = new DbaseInt16(Schema.RECORDTYPE);
         EVENTIDN = new DbaseInt32(Schema.EVENTIDN);
@@ -48,12 +49,12 @@ public class RoadSegmentChangeDbaseRecord : DbaseRecord
     public DbaseInt32 E_WK_OIDN { get; }
     public DbaseInt32 EVENTIDN { get; }
     public DbaseNullableInt32 LSTRNMID { get; }
-    public DbaseInt16 METHODE { get; }
-    public DbaseInt16 MORFOLOGIE { get; }
+    public DbaseInt32 METHODE { get; }
+    public DbaseInt32 MORFOLOGIE { get; }
     public DbaseInt16 RECORDTYPE { get; }
     public DbaseNullableInt32 RSTRNMID { get; }
     public DbaseInt32 STATUS { get; }
-    public DbaseInt16 TGBEP { get; }
+    public DbaseInt32 TGBEP { get; }
     public DbaseInt16 TRANSACTID { get; }
     public DbaseInt32 WS_OIDN { get; }
 }

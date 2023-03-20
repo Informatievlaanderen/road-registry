@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Threading.Channels;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class ZipArchiveVersionedDbaseEntryValidator : IZipArchiveEntryValidator
@@ -18,9 +19,8 @@ public class ZipArchiveVersionedDbaseEntryValidator : IZipArchiveEntryValidator
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry,
         ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(context);
 
         IZipArchiveDbaseEntryValidator validator = null;
 

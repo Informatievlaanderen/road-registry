@@ -11,20 +11,9 @@ public class
     public TranslatedChanges Translate(ZipArchiveEntry entry,
         IDbaseRecordEnumerator<RoadSegmentChangeDbaseRecord> records, TranslatedChanges changes)
     {
-        if (entry == null)
-        {
-            throw new ArgumentNullException(nameof(entry));
-        }
-
-        if (records == null)
-        {
-            throw new ArgumentNullException(nameof(records));
-        }
-
-        if (changes == null)
-        {
-            throw new ArgumentNullException(nameof(changes));
-        }
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(records);
+        ArgumentNullException.ThrowIfNull(changes);
 
         while (records.MoveNext())
         {

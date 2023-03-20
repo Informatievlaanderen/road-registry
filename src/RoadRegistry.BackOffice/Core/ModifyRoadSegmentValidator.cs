@@ -1,16 +1,13 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using FluentValidation;
+using FluentValidation.Results;
 
-public class ModifyRoadSegmentValidator : AbstractValidator<Messages.ModifyRoadSegment>
+public abstract class ModifyRoadSegmentValidatorBase : AbstractValidator<Messages.ModifyRoadSegment>
 {
-    public ModifyRoadSegmentValidator()
+    protected ModifyRoadSegmentValidatorBase()
     {
         RuleFor(c => c.Id).GreaterThanOrEqualTo(0);
-        RuleFor(c => c.StartNodeId).GreaterThanOrEqualTo(0);
-        RuleFor(c => c.EndNodeId)
-            .GreaterThanOrEqualTo(0)
-            .NotEqual(c => c.StartNodeId);
         RuleFor(c => c.Geometry).NotNull().SetValidator(new RoadSegmentGeometryValidator());
         RuleFor(c => c.MaintenanceAuthority).NotEmpty();
         RuleFor(c => c.GeometryDrawMethod)
@@ -38,11 +35,71 @@ public class ModifyRoadSegmentValidator : AbstractValidator<Messages.ModifyRoadS
             .Must(RoadSegmentAccessRestriction.CanParse)
             .When(c => c.AccessRestriction != null, ApplyConditionTo.CurrentValidator)
             .WithMessage("The 'AccessRestriction' is not a RoadSegmentAccessRestriction.");
+
         RuleFor(c => c.Lanes).NotNull();
-        RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentLaneAttributeValidator());
         RuleFor(c => c.Widths).NotNull();
-        RuleForEach(c => c.Widths).NotNull().SetValidator(new RequestedRoadSegmentWidthAttributeValidator());
         RuleFor(c => c.Surfaces).NotNull();
+    }
+}
+
+public class ModifyRoadSegmentValidator : ModifyRoadSegmentValidatorBase
+{
+    protected override bool PreValidate(ValidationContext<Messages.ModifyRoadSegment> context, ValidationResult result)
+    {
+        if (context.InstanceToValidate.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined.ToString())
+        {
+            var validator = new ModifyRoadSegmentOutlineValidator();
+            var outlineValidationResult = validator.Validate(context.InstanceToValidate);
+            foreach (var failure in outlineValidationResult.Errors)
+            {
+                context.AddFailure(failure);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public ModifyRoadSegmentValidator()
+    {
+        RuleFor(c => c.StartNodeId)
+            .GreaterThanOrEqualTo(0);
+
+        RuleFor(c => c.EndNodeId)
+            .GreaterThanOrEqualTo(0)
+            .NotEqual(c => c.StartNodeId);
+
+        RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentLaneAttributeValidator());
+        RuleForEach(c => c.Widths).NotNull().SetValidator(new RequestedRoadSegmentWidthAttributeValidator());
         RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RequestedRoadSegmentSurfaceAttributeValidator());
+    }
+
+    private sealed class ModifyRoadSegmentOutlineValidator : ModifyRoadSegmentValidatorBase
+    {
+        public ModifyRoadSegmentOutlineValidator()
+        {
+            RuleFor(c => c.StartNodeId)
+                .Must(value => value.IsValidStartRoadNodeIdForRoadSegmentOutline());
+
+            RuleFor(c => c.EndNodeId)
+                .Must(value => value.IsValidEndRoadNodeIdForRoadSegmentOutline());
+
+            RuleFor(c => c.Status)
+                .NotEmpty()
+                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForRoadSegmentOutline())
+                .WithErrorCode("InvalidStatus")
+                .WithMessage("The 'Status' is not a valid RoadSegmentStatus.");
+
+            RuleFor(c => c.Morphology)
+                .NotEmpty()
+                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentOutline())
+                .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
+                .WithMessage("The 'Morphology' is not a valid RoadSegmentMorphology.");
+
+            RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentOutlineLaneAttributeValidator());
+            RuleForEach(c => c.Widths).NotNull().SetValidator(new RequestedRoadSegmentOutlineWidthAttributeValidator());
+            RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RequestedRoadSegmentOutlineSurfaceAttributeValidator());
+        }
     }
 }

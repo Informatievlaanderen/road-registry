@@ -4,7 +4,7 @@ namespace RoadRegistry.Dbase.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
-public class RoadSegmentDbaseRecord : DbaseRecord
+public class RoadSegmentDbaseRecord : DbaseRecord, IRoadSegmentDbaseRecord
 {
     public static readonly RoadSegmentDbaseSchema Schema = new();
 
@@ -91,4 +91,8 @@ public class RoadSegmentDbaseRecord : DbaseRecord
     public DbaseString WS_GIDN { get; }
     public DbaseInt32 WS_OIDN { get; }
     public DbaseString WS_UIDN { get; }
+
+    public DbaseString BEHEERDER => BEHEER;
+    public DbaseInt32 MORFOLOGIE => MORF;
+    public DbaseString CATEGORIE => WEGCAT;
 }
