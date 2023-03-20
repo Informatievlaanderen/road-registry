@@ -9,10 +9,8 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Uploads;
-using Uploads.Schema.V1;
 using Uploads.Schema.V2;
 using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
-using TransactionZoneDbaseRecord = Uploads.Schema.V2.TransactionZoneDbaseRecord;
 
 public class Program
 {
