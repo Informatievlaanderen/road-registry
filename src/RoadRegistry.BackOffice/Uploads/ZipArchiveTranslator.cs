@@ -42,7 +42,6 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
 
         _logger = logger;
 
-        //TODO-rik copy v1 tests to v2: search ".Schema.V1;"
         _translators =
             new Dictionary<string, IZipArchiveEntryTranslator>(StringComparer.InvariantCultureIgnoreCase)
             {
