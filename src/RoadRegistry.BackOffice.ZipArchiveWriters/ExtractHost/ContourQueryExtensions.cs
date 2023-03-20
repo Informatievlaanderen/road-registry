@@ -2,10 +2,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
 using System.Data;
 using System.Data.SqlTypes;
-using Dbase.Extracts.RoadSegments;
 using Editor.Schema.GradeSeparatedJunctions;
 using Editor.Schema.RoadNodes;
 using Editor.Schema.RoadSegments;
+using Extracts.Dbase.RoadSegments;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;

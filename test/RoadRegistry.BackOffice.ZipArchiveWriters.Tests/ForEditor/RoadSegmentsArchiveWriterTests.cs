@@ -4,9 +4,8 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase;
-using Dbase.Extracts.RoadSegments;
 using Editor.Schema;
+using Extracts.Dbase.RoadSegments;
 using Framework.Containers;
 using ZipArchiveWriters.ForEditor;
 

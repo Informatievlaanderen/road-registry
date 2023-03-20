@@ -19,7 +19,7 @@ using Microsoft.IO;
 using Requests;
 using RoadRegistry.BackOffice.Core;
 using System.Diagnostics;
-using Dbase.Extracts.RoadSegments;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using Hosts.Infrastructure.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;

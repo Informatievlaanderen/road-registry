@@ -3,9 +3,9 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
-using Dbase.Extracts.Lists;
 using Editor.Schema;
 using Extracts;
+using Extracts.Dbase.Lists;
 using Microsoft.IO;
 
 public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorContext>

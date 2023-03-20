@@ -4,10 +4,10 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.Extracts.RoadSegments;
 using Editor.Schema;
 using Extensions;
 using Extracts;
+using Extracts.Dbase.RoadSegments;
 using Microsoft.IO;
 
 public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<EditorContext>

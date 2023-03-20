@@ -2,7 +2,6 @@ namespace RoadRegistry.Product.ProjectionHost.Tests.Projections;
 
 using AutoFixture;
 using BackOffice;
-using BackOffice.Dbase;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using NetTopologySuite.Geometries;

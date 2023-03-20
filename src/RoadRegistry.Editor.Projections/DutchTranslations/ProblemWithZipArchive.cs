@@ -1,8 +1,8 @@
 namespace RoadRegistry.Editor.Projections.DutchTranslations;
 
 using System;
-using BackOffice.Dbase.UploadsAfterFeatureCompare.V2.Schema;
 using BackOffice.Uploads;
+using BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using FileProblem = BackOffice.Messages.FileProblem;
 
 public static class ProblemWithZipArchive

@@ -7,8 +7,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.UploadsAfterFeatureCompare.V2.Schema;
-using Dbase.UploadsAfterFeatureCompare.V2.Validation;
+using Dbase.AfterFeatureCompare.V2.Schema;
+using Dbase.AfterFeatureCompare.V2.Validation;
 using Microsoft.Extensions.Logging;
 
 public class ZipArchiveTranslator : IZipArchiveTranslator
@@ -57,10 +57,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                 )
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadNodeChangeDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadNodeChangeDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.RoadNodeChangeDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.RoadNodeChangeDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadNodeChangeDbaseRecordsTranslator()
+                                    new Dbase.AfterFeatureCompare.V1.Validation.RoadNodeChangeDbaseRecordsTranslator()
                                 )
                             }
                         })
@@ -84,10 +84,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                 )
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentChangeDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentChangeDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.RoadSegmentChangeDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.RoadSegmentChangeDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadSegmentChangeDbaseRecordsTranslator()
+                                    new Dbase.AfterFeatureCompare.V1.Validation.RoadSegmentChangeDbaseRecordsTranslator()
                                 )
                             }
                         })
@@ -111,10 +111,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                 )
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.EuropeanRoadChangeDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.EuropeanRoadChangeDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.EuropeanRoadChangeDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.EuropeanRoadChangeDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.EuropeanRoadChangeDbaseRecordsTranslator()
+                                    new Dbase.AfterFeatureCompare.V1.Validation.EuropeanRoadChangeDbaseRecordsTranslator()
                                 )
                             }
                         })
@@ -131,10 +131,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                 )
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.NationalRoadChangeDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.NationalRoadChangeDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.NationalRoadChangeDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.NationalRoadChangeDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.NationalRoadChangeDbaseRecordsTranslator()
+                                    new Dbase.AfterFeatureCompare.V1.Validation.NationalRoadChangeDbaseRecordsTranslator()
                                 )
                             }
                         })
@@ -151,10 +151,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                 )
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.NumberedRoadChangeDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.NumberedRoadChangeDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.NumberedRoadChangeDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.NumberedRoadChangeDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.NumberedRoadChangeDbaseRecordsTranslator()
+                                    new Dbase.AfterFeatureCompare.V1.Validation.NumberedRoadChangeDbaseRecordsTranslator()
                                 )
                             }
                         })
@@ -171,10 +171,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                 )
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentLaneChangeDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentLaneChangeDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.RoadSegmentLaneChangeDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.RoadSegmentLaneChangeDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadSegmentLaneChangeDbaseRecordsTranslator()
+                                    new Dbase.AfterFeatureCompare.V1.Validation.RoadSegmentLaneChangeDbaseRecordsTranslator()
                                 )
                             }
                         })
@@ -191,10 +191,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                 )
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentWidthChangeDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentWidthChangeDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.RoadSegmentWidthChangeDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.RoadSegmentWidthChangeDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadSegmentWidthChangeDbaseRecordsTranslator()
+                                    new Dbase.AfterFeatureCompare.V1.Validation.RoadSegmentWidthChangeDbaseRecordsTranslator()
                                 )
                             }
                         })
@@ -211,10 +211,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                 )
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadSegmentSurfaceChangeDbaseRecordsTranslator()
+                                    new Dbase.AfterFeatureCompare.V1.Validation.RoadSegmentSurfaceChangeDbaseRecordsTranslator()
                                 )
                             }
                         })
@@ -231,10 +231,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                 )
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.GradeSeparatedJunctionChangeDbaseRecordsTranslator()
+                                    new Dbase.AfterFeatureCompare.V1.Validation.GradeSeparatedJunctionChangeDbaseRecordsTranslator()
                                 )
                             }
                         })
@@ -251,10 +251,10 @@ public class ZipArchiveTranslator : IZipArchiveTranslator
                                     new TransactionZoneDbaseRecordsTranslator())
                             },
                             {
-                                Dbase.UploadsAfterFeatureCompare.V1.Schema.TransactionZoneDbaseRecord.Schema,
-                                new ZipArchiveDbaseEntryTranslator<Dbase.UploadsAfterFeatureCompare.V1.Schema.TransactionZoneDbaseRecord>(
+                                Dbase.AfterFeatureCompare.V1.Schema.TransactionZoneDbaseRecord.Schema,
+                                new ZipArchiveDbaseEntryTranslator<Dbase.AfterFeatureCompare.V1.Schema.TransactionZoneDbaseRecord>(
                                     encoding, new DbaseFileHeaderReadBehavior(true),
-                                    new Dbase.UploadsAfterFeatureCompare.V1.Validation.TransactionZoneDbaseRecordsTranslator())
+                                    new Dbase.AfterFeatureCompare.V1.Validation.TransactionZoneDbaseRecordsTranslator())
                             }
                         })
                 }

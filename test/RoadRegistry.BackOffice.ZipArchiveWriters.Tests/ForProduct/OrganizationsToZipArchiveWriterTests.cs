@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
-using Dbase.Extracts.Organizations;
+using Extracts.Dbase.Organizations;
 using Framework.Containers;
 using Product.Schema;
 using ZipArchiveWriters.ForProduct;

@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.Extracts.RoadSegments;
+using Extracts.Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;

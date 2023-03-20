@@ -5,12 +5,12 @@ using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Dbase.UploadsAfterFeatureCompare.V2.Schema;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Uploads;
+using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveTranslatorTests

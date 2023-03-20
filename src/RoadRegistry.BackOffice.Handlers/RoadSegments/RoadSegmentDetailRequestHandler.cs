@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
-using Dbase.Extracts.RoadSegments;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using Editor.Projections;
 using Editor.Schema;
 using Framework;

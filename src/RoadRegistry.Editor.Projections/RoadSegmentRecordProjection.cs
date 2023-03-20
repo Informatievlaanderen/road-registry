@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Dbase.Extracts.RoadSegments;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;

@@ -5,15 +5,15 @@ using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Dbase.Extracts.GradeSeparatedJuntions;
-using Dbase.Extracts.RoadNodes;
-using Dbase.Extracts.RoadSegments;
-using Dbase.UploadsAfterFeatureCompare.V2.Schema;
+using Extracts.Dbase.GradeSeparatedJuntions;
+using Extracts.Dbase.RoadNodes;
+using Extracts.Dbase.RoadSegments;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
+using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using Validation;
 using Point = NetTopologySuite.Geometries.Point;
 
@@ -196,28 +196,28 @@ public class ZipArchiveBeforeFeatureCompareValidatorWithBasicStructureTests
         var extractRoadSegmentDbaseChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema);
         var roadSegmentShapeChangeStream = fixture.CreateEmptyRoadSegmentShapeFile();
         var roadSegmentProjectionFormatStream = fixture.CreateEmptyProjectionFormatFile();
-        var roadSegmentDbaseChangeStream = fixture.CreateEmptyDbfFile<Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentDbaseRecord>(Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentDbaseRecord.Schema);
+        var roadSegmentDbaseChangeStream = fixture.CreateEmptyDbfFile<Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentDbaseRecord>(Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentDbaseRecord.Schema);
 
         var extractEuropeanRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentEuropeanRoadAttributeDbaseRecord>(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
-        var europeanRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord>(Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
+        var europeanRoadChangeStream = fixture.CreateEmptyDbfFile<Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord>(Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
         var extractNationalRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentNationalRoadAttributeDbaseRecord>(RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
-        var nationalRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentNationalRoadAttributeDbaseRecord>(Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
+        var nationalRoadChangeStream = fixture.CreateEmptyDbfFile<Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentNationalRoadAttributeDbaseRecord>(Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
         var extractNumberedRoadChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentNumberedRoadAttributeDbaseRecord>(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
-        var numberedRoadChangeStream = fixture.CreateEmptyDbfFile<Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord>(Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
+        var numberedRoadChangeStream = fixture.CreateEmptyDbfFile<Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord>(Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
         var extractLaneChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentLaneAttributeDbaseRecord>(RoadSegmentLaneAttributeDbaseRecord.Schema);
-        var laneChangeStream = fixture.CreateEmptyDbfFile<Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentLaneAttributeDbaseRecord>(Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema);
+        var laneChangeStream = fixture.CreateEmptyDbfFile<Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentLaneAttributeDbaseRecord>(Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema);
         var extractWidthChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentWidthAttributeDbaseRecord>(RoadSegmentWidthAttributeDbaseRecord.Schema);
-        var widthChangeStream = fixture.CreateEmptyDbfFile<Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentWidthAttributeDbaseRecord>(Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentWidthAttributeDbaseRecord.Schema);
+        var widthChangeStream = fixture.CreateEmptyDbfFile<Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentWidthAttributeDbaseRecord>(Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentWidthAttributeDbaseRecord.Schema);
         var extractSurfaceChangeStream = fixture.CreateEmptyDbfFile<RoadSegmentSurfaceAttributeDbaseRecord>(RoadSegmentSurfaceAttributeDbaseRecord.Schema);
-        var surfaceChangeStream = fixture.CreateEmptyDbfFile<Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentSurfaceAttributeDbaseRecord>(Dbase.UploadsBeforeFeatureCompare.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema);
+        var surfaceChangeStream = fixture.CreateEmptyDbfFile<Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentSurfaceAttributeDbaseRecord>(Uploads.Dbase.BeforeFeatureCompare.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema);
 
         var extractRoadNodeDbaseChangeStream = fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema);
         var roadNodeShapeChangeStream = fixture.CreateEmptyRoadNodeShapeFile();
         var roadNodeProjectionFormatStream = fixture.CreateEmptyProjectionFormatFile();
-        var roadNodeDbaseChangeStream = fixture.CreateEmptyDbfFile<Dbase.UploadsBeforeFeatureCompare.Schema.RoadNodeDbaseRecord>(Dbase.UploadsBeforeFeatureCompare.Schema.RoadNodeDbaseRecord.Schema);
+        var roadNodeDbaseChangeStream = fixture.CreateEmptyDbfFile<Uploads.Dbase.BeforeFeatureCompare.Schema.RoadNodeDbaseRecord>(Uploads.Dbase.BeforeFeatureCompare.Schema.RoadNodeDbaseRecord.Schema);
 
         var extractGradeSeparatedJunctionChangeStream = fixture.CreateEmptyDbfFile<GradeSeparatedJunctionDbaseRecord>(GradeSeparatedJunctionDbaseRecord.Schema);
-        var gradeSeparatedJunctionChangeStream = fixture.CreateEmptyDbfFile<Dbase.UploadsBeforeFeatureCompare.Schema.GradeSeparatedJunctionDbaseRecord>(Dbase.UploadsBeforeFeatureCompare.Schema.GradeSeparatedJunctionDbaseRecord.Schema);
+        var gradeSeparatedJunctionChangeStream = fixture.CreateEmptyDbfFile<Uploads.Dbase.BeforeFeatureCompare.Schema.GradeSeparatedJunctionDbaseRecord>(Uploads.Dbase.BeforeFeatureCompare.Schema.GradeSeparatedJunctionDbaseRecord.Schema);
 
         var transactionZoneStream = fixture.CreateEmptyDbfFile<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
         

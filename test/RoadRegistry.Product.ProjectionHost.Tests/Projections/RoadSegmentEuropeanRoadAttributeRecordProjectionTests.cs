@@ -3,7 +3,7 @@ namespace RoadRegistry.Product.ProjectionHost.Tests.Projections;
 using System.Text;
 using AutoFixture;
 using BackOffice;
-using BackOffice.Dbase.Extracts.RoadSegments;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Microsoft.IO;
 using Product.Projections;

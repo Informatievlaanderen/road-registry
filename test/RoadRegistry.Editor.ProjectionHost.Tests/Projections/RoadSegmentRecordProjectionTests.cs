@@ -3,7 +3,7 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 using System.Text;
 using AutoFixture;
 using BackOffice;
-using BackOffice.Dbase.Extracts.RoadSegments;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Projections;

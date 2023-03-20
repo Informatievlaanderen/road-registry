@@ -1,7 +1,7 @@
 namespace RoadRegistry.Editor.Schema.Organizations;
 
 using BackOffice;
-using BackOffice.Dbase.Extracts.Organizations;
+using BackOffice.Extracts.Dbase.Organizations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

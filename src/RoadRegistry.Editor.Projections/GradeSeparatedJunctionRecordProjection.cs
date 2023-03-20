@@ -3,7 +3,7 @@ namespace RoadRegistry.Editor.Projections;
 using System;
 using System.Text;
 using BackOffice;
-using BackOffice.Dbase.Extracts.GradeSeparatedJuntions;
+using BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;

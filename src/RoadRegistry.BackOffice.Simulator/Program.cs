@@ -6,10 +6,10 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Dbase.UploadsAfterFeatureCompare.V2.Schema;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using Uploads;
+using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
 
 public class Program

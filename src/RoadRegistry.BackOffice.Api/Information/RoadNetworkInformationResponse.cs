@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Information;
 
 using System;
-using Dbase;
+using RoadRegistry.BackOffice;
 
 public class RoadNetworkInformationResponse
 {
