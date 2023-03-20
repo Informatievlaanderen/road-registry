@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads.V1;
 
 using System.IO.Compression;
 using AutoFixture;
@@ -9,16 +9,16 @@ using RoadRegistry.BackOffice.Uploads.V1.Schema;
 using RoadRegistry.BackOffice.Uploads.V1.Validation;
 using Xunit;
 
-public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
+public class RoadSegmentSurfaceChangeDbaseRecordsTranslatorTests : IDisposable
 {
     private readonly ZipArchive _archive;
     private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<RoadSegmentLaneChangeDbaseRecord> _enumerator;
+    private readonly IDbaseRecordEnumerator<RoadSegmentSurfaceChangeDbaseRecord> _enumerator;
     private readonly Fixture _fixture;
     private readonly MemoryStream _stream;
-    private readonly RoadSegmentLaneChangeDbaseRecordsTranslator _sut;
+    private readonly RoadSegmentSurfaceChangeDbaseRecordsTranslator _sut;
 
-    public RoadSegmentLaneChangeDbaseRecordsTranslatorTests()
+    public RoadSegmentSurfaceChangeDbaseRecordsTranslatorTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeRecordType();
@@ -31,29 +31,28 @@ public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
         _fixture.CustomizeRoadSegmentCategory();
         _fixture.CustomizeRoadSegmentAccessRestriction();
         _fixture.CustomizeAttributeId();
-        _fixture.CustomizeRoadSegmentLaneCount();
-        _fixture.CustomizeRoadSegmentLaneDirection();
+        _fixture.CustomizeRoadSegmentId();
+        _fixture.CustomizeRoadSegmentSurfaceType();
         _fixture.CustomizeRoadSegmentPosition();
-        _fixture.Customize<RoadSegmentLaneChangeDbaseRecord>(
+        _fixture.Customize<RoadSegmentSurfaceChangeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new RoadSegmentLaneChangeDbaseRecord
+                .FromFactory(random => new RoadSegmentSurfaceChangeDbaseRecord
                 {
                     RECORDTYPE = { Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                     TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    RS_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                    WV_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
                     WS_OIDN = { Value = _fixture.Create<RoadSegmentId>().ToInt32() },
                     VANPOSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
                     TOTPOSITIE = { Value = _fixture.Create<RoadSegmentPosition>().ToDouble() },
-                    AANTAL = { Value = (short)_fixture.Create<RoadSegmentLaneCount>().ToInt32() },
-                    RICHTING = { Value = (short)_fixture.Create<RoadSegmentLaneDirection>().Translation.Identifier }
+                    TYPE = { Value = (short)_fixture.Create<RoadSegmentSurfaceType>().Translation.Identifier }
                 })
                 .OmitAutoProperties());
 
-        _sut = new RoadSegmentLaneChangeDbaseRecordsTranslator();
-        _enumerator = new List<RoadSegmentLaneChangeDbaseRecord>().ToDbaseRecordEnumerator();
+        _sut = new RoadSegmentSurfaceChangeDbaseRecordsTranslator();
+        _enumerator = new List<RoadSegmentSurfaceChangeDbaseRecord>().ToDbaseRecordEnumerator();
         _stream = new MemoryStream();
         _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
-        _entry = _archive.CreateEntry("attrijstroken_all.dbf");
+        _entry = _archive.CreateEntry("attwegverharding_all.dbf");
     }
 
     public void Dispose()
@@ -65,7 +64,7 @@ public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
     [Fact]
     public void IsZipArchiveDbaseRecordsTranslator()
     {
-        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsTranslator<RoadSegmentLaneChangeDbaseRecord>>(_sut);
+        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsTranslator<RoadSegmentSurfaceChangeDbaseRecord>>(_sut);
     }
 
     [Fact]
@@ -91,10 +90,10 @@ public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
     {
         var segment = _fixture.Create<ModifyRoadSegment>();
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(new Random().Next(1, 5))
+            .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(new Random().Next(1, 5))
             .Select((record, index) =>
             {
-                record.RS_OIDN.Value = index + 1;
+                record.WV_OIDN.Value = index + 1;
                 record.WS_OIDN.Value = segment.Id;
                 record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
                 if (index == 0) // force at least one lane change to promote the provisional change to an actual change
@@ -114,11 +113,10 @@ public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
                     .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
                     .Aggregate(
                         segment,
-                        (current, record) => current.WithLane(
-                            new RoadSegmentLaneAttribute(
-                                new AttributeId(record.RS_OIDN.Value),
-                                new RoadSegmentLaneCount(record.AANTAL.Value),
-                                RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value],
+                        (current, record) => current.WithSurface(
+                            new RoadSegmentSurfaceAttribute(
+                                new AttributeId(record.WV_OIDN.Value),
+                                RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value],
                                 new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
                                 new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
                         )
@@ -133,10 +131,10 @@ public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
     {
         var segment = _fixture.Create<ModifyRoadSegment>();
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(new Random().Next(1, 5))
+            .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(new Random().Next(1, 5))
             .Select((record, index) =>
             {
-                record.RS_OIDN.Value = index + 1;
+                record.WV_OIDN.Value = index + 1;
                 record.WS_OIDN.Value = segment.Id;
                 record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
                 record.RECORDTYPE.Value = RecordType.IdenticalIdentifier;
@@ -152,11 +150,10 @@ public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
             .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
             .Aggregate(
                 segment,
-                (current, record) => current.WithLane(
-                    new RoadSegmentLaneAttribute(
-                        new AttributeId(record.RS_OIDN.Value),
-                        new RoadSegmentLaneCount(record.AANTAL.Value),
-                        RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value],
+                (current, record) => current.WithSurface(
+                    new RoadSegmentSurfaceAttribute(
+                        new AttributeId(record.WV_OIDN.Value),
+                        RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value],
                         new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
                         new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
                 )
@@ -184,10 +181,10 @@ public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
     {
         var segment = _fixture.Create<AddRoadSegment>();
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(new Random().Next(1, 5))
+            .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(new Random().Next(1, 5))
             .Select((record, index) =>
             {
-                record.RS_OIDN.Value = index + 1;
+                record.WV_OIDN.Value = index + 1;
                 record.WS_OIDN.Value = segment.TemporaryId;
                 record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
                 return record;
@@ -204,11 +201,10 @@ public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
                     .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
                     .Aggregate(
                         segment,
-                        (current, record) => current.WithLane(
-                            new RoadSegmentLaneAttribute(
-                                new AttributeId(record.RS_OIDN.Value),
-                                new RoadSegmentLaneCount(record.AANTAL.Value),
-                                RoadSegmentLaneDirection.ByIdentifier[record.RICHTING.Value],
+                        (current, record) => current.WithSurface(
+                            new RoadSegmentSurfaceAttribute(
+                                new AttributeId(record.WV_OIDN.Value),
+                                RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value],
                                 new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
                                 new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
                         )
@@ -219,14 +215,52 @@ public class RoadSegmentLaneChangeDbaseRecordsTranslatorTests : IDisposable
     }
 
     [Fact]
-    public void TranslateWithRecordsForRemovedRoadSegmentReturnsExpectedResult()
+    public void TranslateWithRecordsForModifyRoadSegmentReturnsExpectedResult()
+    {
+        var segment = _fixture.Create<ModifyRoadSegment>();
+        var records = _fixture
+            .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(new Random().Next(1, 5))
+            .Select((record, index) =>
+            {
+                record.WV_OIDN.Value = index + 1;
+                record.WS_OIDN.Value = segment.Id;
+                record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
+                return record;
+            })
+            .ToArray();
+        var enumerator = records.ToDbaseRecordEnumerator();
+        var changes = TranslatedChanges.Empty.AppendChange(segment);
+
+        var result = _sut.Translate(_entry, enumerator, changes);
+
+        var expected =
+            TranslatedChanges.Empty.AppendChange(
+                records
+                    .Where(record => record.RECORDTYPE.Value != (short)RecordType.Removed.Translation.Identifier)
+                    .Aggregate(
+                        segment,
+                        (current, record) => current.WithSurface(
+                            new RoadSegmentSurfaceAttribute(
+                                new AttributeId(record.WV_OIDN.Value),
+                                RoadSegmentSurfaceType.ByIdentifier[record.TYPE.Value],
+                                new RoadSegmentPosition(Convert.ToDecimal(record.VANPOSITIE.Value)),
+                                new RoadSegmentPosition(Convert.ToDecimal(record.TOTPOSITIE.Value)))
+                        )
+                    )
+            );
+
+        Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
+    }
+
+    [Fact]
+    public void TranslateWithRecordsForRemoveRoadSegmentReturnsExpectedResult()
     {
         var segment = _fixture.Create<RemoveRoadSegment>();
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(new Random().Next(1, 5))
+            .CreateMany<RoadSegmentSurfaceChangeDbaseRecord>(new Random().Next(1, 5))
             .Select((record, index) =>
             {
-                record.RS_OIDN.Value = index + 1;
+                record.WV_OIDN.Value = index + 1;
                 record.WS_OIDN.Value = segment.Id;
                 record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
                 return record;

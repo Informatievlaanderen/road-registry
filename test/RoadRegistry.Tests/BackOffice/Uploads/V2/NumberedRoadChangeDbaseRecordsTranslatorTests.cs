@@ -1,48 +1,51 @@
-namespace RoadRegistry.Tests.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads.V2;
 
 using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.V1.Schema;
-using RoadRegistry.BackOffice.Uploads.V1.Validation;
+using RoadRegistry.BackOffice.Uploads.V2.Schema;
+using RoadRegistry.BackOffice.Uploads.V2.Validation;
 using Xunit;
 
-public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposable
+public class NumberedRoadChangeDbaseRecordsTranslatorTests : IDisposable
 {
     private readonly ZipArchive _archive;
     private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<GradeSeparatedJunctionChangeDbaseRecord> _enumerator;
+    private readonly IDbaseRecordEnumerator<NumberedRoadChangeDbaseRecord> _enumerator;
     private readonly Fixture _fixture;
     private readonly MemoryStream _stream;
-    private readonly GradeSeparatedJunctionChangeDbaseRecordsTranslator _sut;
+    private readonly NumberedRoadChangeDbaseRecordsTranslator _sut;
 
-    public GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests()
+    public NumberedRoadChangeDbaseRecordsTranslatorTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeRecordType();
+        _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();
-        _fixture.CustomizeGradeSeparatedJunctionId();
-        _fixture.CustomizeGradeSeparatedJunctionType();
-        _fixture.Customize<GradeSeparatedJunctionChangeDbaseRecord>(
+        _fixture.CustomizeNumberedRoadNumber();
+        _fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
+        _fixture.CustomizeRoadSegmentNumberedRoadDirection();
+        _fixture.Customize<NumberedRoadChangeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new GradeSeparatedJunctionChangeDbaseRecord
+                .FromFactory(random => new NumberedRoadChangeDbaseRecord
                 {
                     RECORDTYPE = { Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                     TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    OK_OIDN = { Value = new GradeSeparatedJunctionId(random.Next(1, int.MaxValue)) },
-                    TYPE = { Value = (short)_fixture.Create<GradeSeparatedJunctionType>().Translation.Identifier },
-                    BO_WS_OIDN = { Value = _fixture.Create<RoadSegmentId>().ToInt32() },
-                    ON_WS_OIDN = { Value = _fixture.Create<RoadSegmentId>().ToInt32() }
+                    GW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                    WS_OIDN = { Value = _fixture.Create<RoadSegmentId>().ToInt32() },
+                    IDENT8 = { Value = _fixture.Create<NumberedRoadNumber>().ToString() },
+                    RICHTING = { Value = (short)_fixture.Create<RoadSegmentNumberedRoadDirection>().Translation.Identifier },
+                    VOLGNUMMER = { Value = _fixture.Create<RoadSegmentNumberedRoadOrdinal>().ToInt32() }
                 })
                 .OmitAutoProperties());
 
-        _sut = new GradeSeparatedJunctionChangeDbaseRecordsTranslator();
-        _enumerator = new List<GradeSeparatedJunctionChangeDbaseRecord>().ToDbaseRecordEnumerator();
+        _sut = new NumberedRoadChangeDbaseRecordsTranslator();
+        _enumerator = new List<NumberedRoadChangeDbaseRecord>().ToDbaseRecordEnumerator();
         _stream = new MemoryStream();
         _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
-        _entry = _archive.CreateEntry("rltogkruising_all.dbf");
+        _entry = _archive.CreateEntry("attgenumweg_all.dbf");
     }
 
     public void Dispose()
@@ -54,7 +57,7 @@ public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposab
     [Fact]
     public void IsZipArchiveDbaseRecordsTranslator()
     {
-        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsTranslator<GradeSeparatedJunctionChangeDbaseRecord>>(_sut);
+        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsTranslator<NumberedRoadChangeDbaseRecord>>(_sut);
     }
 
     [Fact]
@@ -89,10 +92,10 @@ public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposab
     public void TranslateWithRecordsReturnsExpectedResult()
     {
         var records = _fixture
-            .CreateMany<GradeSeparatedJunctionChangeDbaseRecord>(new Random().Next(1, 4))
+            .CreateMany<NumberedRoadChangeDbaseRecord>(new Random().Next(1, 5))
             .Select((record, index) =>
             {
-                record.OK_OIDN.Value = index + 1;
+                record.GW_OIDN.Value = index + 1;
                 switch (index % 2)
                 {
                     case 0:
@@ -119,22 +122,21 @@ public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposab
                 {
                     case RecordType.AddedIdentifier:
                         nextChanges = previousChanges.AppendChange(
-                            new AddGradeSeparatedJunction(
+                            new AddRoadSegmentToNumberedRoad(
                                 new RecordNumber(Array.IndexOf(records, current) + 1),
-                                new GradeSeparatedJunctionId(current.OK_OIDN.Value),
-                                GradeSeparatedJunctionType.ByIdentifier[current.TYPE.Value],
-                                new RoadSegmentId(current.BO_WS_OIDN.Value),
-                                new RoadSegmentId(current.ON_WS_OIDN.Value)
-                            )
-                        );
+                                new AttributeId(current.GW_OIDN.Value),
+                                new RoadSegmentId(current.WS_OIDN.Value),
+                                NumberedRoadNumber.Parse(current.IDENT8.Value),
+                                RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value],
+                                new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value)));
                         break;
                     case RecordType.RemovedIdentifier:
                         nextChanges = previousChanges.AppendChange(
-                            new RemoveGradeSeparatedJunction(
+                            new RemoveRoadSegmentFromNumberedRoad(
                                 new RecordNumber(Array.IndexOf(records, current) + 1),
-                                new GradeSeparatedJunctionId(current.OK_OIDN.Value)
-                            )
-                        );
+                                new AttributeId(current.GW_OIDN.Value),
+                                new RoadSegmentId(current.WS_OIDN.Value),
+                                NumberedRoadNumber.Parse(current.IDENT8.Value)));
                         break;
                 }
 

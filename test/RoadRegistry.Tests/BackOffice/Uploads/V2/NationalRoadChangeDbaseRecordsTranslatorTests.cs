@@ -1,51 +1,47 @@
-namespace RoadRegistry.Tests.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads.V2;
 
 using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.V1.Schema;
-using RoadRegistry.BackOffice.Uploads.V1.Validation;
+using RoadRegistry.BackOffice.Uploads.V2.Schema;
+using RoadRegistry.BackOffice.Uploads.V2.Validation;
 using Xunit;
 
-public class NumberedRoadChangeDbaseRecordsTranslatorTests : IDisposable
+public class NationalRoadChangeDbaseRecordsTranslatorTests : IDisposable
 {
     private readonly ZipArchive _archive;
     private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<NumberedRoadChangeDbaseRecord> _enumerator;
+    private readonly IDbaseRecordEnumerator<NationalRoadChangeDbaseRecord> _enumerator;
     private readonly Fixture _fixture;
     private readonly MemoryStream _stream;
-    private readonly NumberedRoadChangeDbaseRecordsTranslator _sut;
+    private readonly NationalRoadChangeDbaseRecordsTranslator _sut;
 
-    public NumberedRoadChangeDbaseRecordsTranslatorTests()
+    public NationalRoadChangeDbaseRecordsTranslatorTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeRecordType();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();
-        _fixture.CustomizeNumberedRoadNumber();
-        _fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
-        _fixture.CustomizeRoadSegmentNumberedRoadDirection();
-        _fixture.Customize<NumberedRoadChangeDbaseRecord>(
+        _fixture.CustomizeNationalRoadNumber();
+        _fixture.Customize<NationalRoadChangeDbaseRecord>(
             composer => composer
-                .FromFactory(random => new NumberedRoadChangeDbaseRecord
+                .FromFactory(random => new NationalRoadChangeDbaseRecord
                 {
                     RECORDTYPE = { Value = (short)new Generator<RecordType>(_fixture).First(candidate => candidate.IsAnyOf(RecordType.Added, RecordType.Identical, RecordType.Removed)).Translation.Identifier },
                     TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                    GW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                    NW_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
                     WS_OIDN = { Value = _fixture.Create<RoadSegmentId>().ToInt32() },
-                    IDENT8 = { Value = _fixture.Create<NumberedRoadNumber>().ToString() },
-                    RICHTING = { Value = (short)_fixture.Create<RoadSegmentNumberedRoadDirection>().Translation.Identifier },
-                    VOLGNUMMER = { Value = _fixture.Create<RoadSegmentNumberedRoadOrdinal>().ToInt32() }
+                    IDENT2 = { Value = _fixture.Create<NationalRoadNumber>().ToString() }
                 })
                 .OmitAutoProperties());
 
-        _sut = new NumberedRoadChangeDbaseRecordsTranslator();
-        _enumerator = new List<NumberedRoadChangeDbaseRecord>().ToDbaseRecordEnumerator();
+        _sut = new NationalRoadChangeDbaseRecordsTranslator();
+        _enumerator = new List<NationalRoadChangeDbaseRecord>().ToDbaseRecordEnumerator();
         _stream = new MemoryStream();
         _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
-        _entry = _archive.CreateEntry("attgenumweg_all.dbf");
+        _entry = _archive.CreateEntry("attnationweg_all.dbf");
     }
 
     public void Dispose()
@@ -57,7 +53,7 @@ public class NumberedRoadChangeDbaseRecordsTranslatorTests : IDisposable
     [Fact]
     public void IsZipArchiveDbaseRecordsTranslator()
     {
-        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsTranslator<NumberedRoadChangeDbaseRecord>>(_sut);
+        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsTranslator<NationalRoadChangeDbaseRecord>>(_sut);
     }
 
     [Fact]
@@ -92,10 +88,10 @@ public class NumberedRoadChangeDbaseRecordsTranslatorTests : IDisposable
     public void TranslateWithRecordsReturnsExpectedResult()
     {
         var records = _fixture
-            .CreateMany<NumberedRoadChangeDbaseRecord>(new Random().Next(1, 5))
+            .CreateMany<NationalRoadChangeDbaseRecord>(new Random().Next(1, 4))
             .Select((record, index) =>
             {
-                record.GW_OIDN.Value = index + 1;
+                record.NW_OIDN.Value = index + 1;
                 switch (index % 2)
                 {
                     case 0:
@@ -122,21 +118,19 @@ public class NumberedRoadChangeDbaseRecordsTranslatorTests : IDisposable
                 {
                     case RecordType.AddedIdentifier:
                         nextChanges = previousChanges.AppendChange(
-                            new AddRoadSegmentToNumberedRoad(
+                            new AddRoadSegmentToNationalRoad(
                                 new RecordNumber(Array.IndexOf(records, current) + 1),
-                                new AttributeId(current.GW_OIDN.Value),
+                                new AttributeId(current.NW_OIDN.Value),
                                 new RoadSegmentId(current.WS_OIDN.Value),
-                                NumberedRoadNumber.Parse(current.IDENT8.Value),
-                                RoadSegmentNumberedRoadDirection.ByIdentifier[current.RICHTING.Value],
-                                new RoadSegmentNumberedRoadOrdinal(current.VOLGNUMMER.Value)));
+                                NationalRoadNumber.Parse(current.IDENT2.Value)));
                         break;
                     case RecordType.RemovedIdentifier:
                         nextChanges = previousChanges.AppendChange(
-                            new RemoveRoadSegmentFromNumberedRoad(
+                            new RemoveRoadSegmentFromNationalRoad(
                                 new RecordNumber(Array.IndexOf(records, current) + 1),
-                                new AttributeId(current.GW_OIDN.Value),
+                                new AttributeId(current.NW_OIDN.Value),
                                 new RoadSegmentId(current.WS_OIDN.Value),
-                                NumberedRoadNumber.Parse(current.IDENT8.Value)));
+                                NationalRoadNumber.Parse(current.IDENT2.Value)));
                         break;
                 }
 

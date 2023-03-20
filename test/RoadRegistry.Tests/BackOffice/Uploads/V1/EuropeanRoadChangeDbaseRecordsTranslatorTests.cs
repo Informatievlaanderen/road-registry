@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads.V1;
 
 using System.IO.Compression;
 using AutoFixture;

@@ -1,4 +1,4 @@
-namespace RoadRegistry.Tests.BackOffice.Uploads;
+namespace RoadRegistry.Tests.BackOffice.Uploads.V1;
 
 using System.IO.Compression;
 using AutoFixture;
@@ -9,31 +9,30 @@ using RoadRegistry.BackOffice.Uploads.V1.Schema;
 using RoadRegistry.BackOffice.Uploads.V1.Validation;
 using Xunit;
 
-public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
+public class RoadSegmentWidthChangeDbaseRecordsValidatorTests : IDisposable
 {
     private readonly ZipArchive _archive;
     private readonly ZipArchiveValidationContext _context;
     private readonly ZipArchiveEntry _entry;
-    private readonly IDbaseRecordEnumerator<RoadSegmentLaneChangeDbaseRecord> _enumerator;
+    private readonly IDbaseRecordEnumerator<RoadSegmentWidthChangeDbaseRecord> _enumerator;
     private readonly Fixture _fixture;
     private readonly MemoryStream _stream;
-    private readonly RoadSegmentLaneChangeDbaseRecordsValidator _sut;
+    private readonly RoadSegmentWidthChangeDbaseRecordsValidator _sut;
 
-    public RoadSegmentLaneChangeDbaseRecordsValidatorTests()
+    public RoadSegmentWidthChangeDbaseRecordsValidatorTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeRecordType();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentId();
-        _fixture.CustomizeRoadSegmentLaneCount();
-        _fixture.CustomizeRoadSegmentLaneDirection();
+        _fixture.CustomizeRoadSegmentWidth();
         _fixture.CustomizeRoadSegmentPosition();
-        _fixture.Customize<RoadSegmentLaneChangeDbaseRecord>(
+        _fixture.Customize<RoadSegmentWidthChangeDbaseRecord>(
             composer => composer
                 .FromFactory(random =>
                 {
                     var fromPosition = _fixture.Create<RoadSegmentPosition>().ToDouble();
-                    return new RoadSegmentLaneChangeDbaseRecord
+                    return new RoadSegmentWidthChangeDbaseRecord
                     {
                         RECORDTYPE =
                         {
@@ -42,24 +41,20 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
                                 .Translation.Identifier
                         },
                         TRANSACTID = { Value = (short)random.Next(1, 9999) },
-                        RS_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
+                        WB_OIDN = { Value = new AttributeId(random.Next(1, int.MaxValue)) },
                         WS_OIDN = { Value = _fixture.Create<RoadSegmentId>().ToInt32() },
                         VANPOSITIE = { Value = fromPosition },
                         TOTPOSITIE = { Value = fromPosition + _fixture.Create<RoadSegmentPosition>().ToDouble() },
-                        AANTAL = { Value = (short)_fixture.Create<RoadSegmentLaneCount>().ToInt32() },
-                        RICHTING =
-                        {
-                            Value = (short)_fixture.Create<RoadSegmentLaneDirection>().Translation.Identifier
-                        }
+                        BREEDTE = { Value = (short)_fixture.Create<RoadSegmentWidth>().ToInt32() }
                     };
                 })
                 .OmitAutoProperties());
 
-        _sut = new RoadSegmentLaneChangeDbaseRecordsValidator();
-        _enumerator = new List<RoadSegmentLaneChangeDbaseRecord>().ToDbaseRecordEnumerator();
+        _sut = new RoadSegmentWidthChangeDbaseRecordsValidator();
+        _enumerator = new List<RoadSegmentWidthChangeDbaseRecord>().ToDbaseRecordEnumerator();
         _stream = new MemoryStream();
         _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
-        _entry = _archive.CreateEntry("attrijstroken_all.dbf");
+        _entry = _archive.CreateEntry("attwegbreedte_all.dbf");
         _context = ZipArchiveValidationContext.Empty;
     }
 
@@ -69,44 +64,38 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
         {
             yield return new object[]
             {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.WS_OIDN
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.WS_OIDN.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.WS_OIDN
             };
 
             yield return new object[]
             {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.RECORDTYPE
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.RECORDTYPE.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.RECORDTYPE
             };
 
             yield return new object[]
             {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RS_OIDN.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.RS_OIDN
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.WB_OIDN.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.WB_OIDN
             };
 
             yield return new object[]
             {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.AANTAL.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.AANTAL
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.BREEDTE.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.BREEDTE
             };
 
             yield return new object[]
             {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.RICHTING.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.RICHTING
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.VANPOSITIE
             };
 
             yield return new object[]
             {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.VANPOSITIE.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.VANPOSITIE
-            };
-
-            yield return new object[]
-            {
-                new Action<RoadSegmentLaneChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
-                RoadSegmentLaneChangeDbaseRecord.Schema.TOTPOSITIE
+                new Action<RoadSegmentWidthChangeDbaseRecord>(r => r.TOTPOSITIE.Reset()),
+                RoadSegmentWidthChangeDbaseRecord.Schema.TOTPOSITIE
             };
         }
     }
@@ -120,7 +109,7 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     [Fact]
     public void IsZipArchiveDbaseRecordsValidator()
     {
-        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<RoadSegmentLaneChangeDbaseRecord>>(_sut);
+        Assert.IsAssignableFrom<IZipArchiveDbaseRecordsValidator<RoadSegmentWidthChangeDbaseRecord>>(_sut);
     }
 
     [Fact]
@@ -157,7 +146,7 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     {
         var initialContext = ZipArchiveValidationContext.Empty;
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(2)
+            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
             .Select(record =>
             {
                 initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
@@ -165,14 +154,12 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
             })
             .ToArray();
         var exception = new Exception("problem");
-        var enumerator = new ProblematicDbaseRecordEnumerator<RoadSegmentLaneChangeDbaseRecord>(records, 1, exception);
+        var enumerator = new ProblematicDbaseRecordEnumerator<RoadSegmentWidthChangeDbaseRecord>(records, 1, exception);
 
         var (result, context) = _sut.Validate(_entry, enumerator, initialContext);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(
-                _entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)
-            ),
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(2)).HasDbaseRecordFormatError(exception)),
             result,
             new FileProblemComparer());
         Assert.Same(initialContext, context);
@@ -181,13 +168,12 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     [Theory]
     [MemberData(nameof(ValidateWithRecordsThatHaveNullAsRequiredFieldValueCases))]
     public void ValidateWithRecordsThatHaveNullAsRequiredFieldValueReturnsExpectedResult(
-        Action<RoadSegmentLaneChangeDbaseRecord> modifier, DbaseField field)
+        Action<RoadSegmentWidthChangeDbaseRecord> modifier, DbaseField field)
     {
         var initialContext = ZipArchiveValidationContext.Empty;
-        var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+        var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
         modifier(record);
         if (record.WS_OIDN.HasValue) initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
-
         var records = new[] { record }.ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, initialContext);
@@ -201,10 +187,10 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     {
         var initialContext = ZipArchiveValidationContext.Empty;
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(2)
+            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
             .Select((record, index) =>
             {
-                record.RS_OIDN.Value = index + 1;
+                record.WB_OIDN.Value = index + 1;
                 record.RECORDTYPE.Value = -1;
                 initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                 return record;
@@ -232,10 +218,10 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     {
         var initialContext = ZipArchiveValidationContext.Empty;
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(2)
+            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
             .Select((record, index) =>
             {
-                record.RS_OIDN.Value = 1;
+                record.WB_OIDN.Value = 1;
                 if (index == 0)
                     record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
                 else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
@@ -258,15 +244,14 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     {
         var initialContext = ZipArchiveValidationContext.Empty;
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(2)
+            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
             .Select((record, index) =>
             {
-                record.RS_OIDN.Value = 1;
+                record.WB_OIDN.Value = 1;
                 if (index == 0)
                     record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
                 else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
                 initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
-
                 return record;
             })
             .ToArray()
@@ -289,10 +274,10 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     {
         var initialContext = ZipArchiveValidationContext.Empty;
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(2)
+            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(2)
             .Select(record =>
             {
-                record.RS_OIDN.Value = 0;
+                record.WB_OIDN.Value = 0;
                 initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                 return record;
             })
@@ -314,7 +299,7 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     public void ValidateWithRecordThatHasFromAfterToPositionExpectedResult()
     {
         var initialContext = ZipArchiveValidationContext.Empty;
-        var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+        var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
         record.VANPOSITIE.Value = record.TOTPOSITIE.Value + 1;
         initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
         var records = new[] { record }.ToDbaseRecordEnumerator();
@@ -329,44 +314,10 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithRecordThatHasInvalidCountReturnsExpectedResult()
-    {
-        var initialContext = ZipArchiveValidationContext.Empty;
-        var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
-        record.AANTAL.Value = -1;
-        initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
-        var records = new[] { record }.ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, initialContext);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).LaneCountOutOfRange(-1)),
-            result);
-        Assert.Same(initialContext, context);
-    }
-
-    [Fact]
-    public void ValidateWithRecordThatHasInvalidDirectionReturnsExpectedResult()
-    {
-        var initialContext = ZipArchiveValidationContext.Empty;
-        var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
-        record.RICHTING.Value = -1;
-        initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
-        var records = new[] { record }.ToDbaseRecordEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, initialContext);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).LaneDirectionMismatch(-1)),
-            result);
-        Assert.Same(initialContext, context);
-    }
-
-    [Fact]
     public void ValidateWithRecordThatHasInvalidRoadSegmentIdReturnsExpectedResult()
     {
         var initialContext = ZipArchiveValidationContext.Empty;
-        var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+        var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
         record.WS_OIDN.Value = -1;
         var records = new[] { record }.ToDbaseRecordEnumerator();
 
@@ -379,10 +330,27 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     }
 
     [Fact]
+    public void ValidateWithRecordThatHasInvalidWidthReturnsExpectedResult()
+    {
+        var initialContext = ZipArchiveValidationContext.Empty;
+        var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
+        record.BREEDTE.Value = -1;
+        initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+        var records = new[] { record }.ToDbaseRecordEnumerator();
+
+        var (result, context) = _sut.Validate(_entry, records, initialContext);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).WidthOutOfRange(-1)),
+            result);
+        Assert.Same(initialContext, context);
+    }
+
+    [Fact]
     public void ValidateWithRecordThatHasSameFromAsToPositionExpectedResult()
     {
         var initialContext = ZipArchiveValidationContext.Empty;
-        var record = _fixture.Create<RoadSegmentLaneChangeDbaseRecord>();
+        var record = _fixture.Create<RoadSegmentWidthChangeDbaseRecord>();
         record.VANPOSITIE.Value = record.TOTPOSITIE.Value;
         initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
         var records = new[] { record }.ToDbaseRecordEnumerator();
@@ -401,10 +369,10 @@ public class RoadSegmentLaneChangeDbaseRecordsValidatorTests : IDisposable
     {
         var initialContext = ZipArchiveValidationContext.Empty;
         var records = _fixture
-            .CreateMany<RoadSegmentLaneChangeDbaseRecord>(new Random().Next(1, 5))
+            .CreateMany<RoadSegmentWidthChangeDbaseRecord>(new Random().Next(1, 5))
             .Select((record, index) =>
             {
-                record.RS_OIDN.Value = index + 1;
+                record.WB_OIDN.Value = index + 1;
                 initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                 return record;
             })

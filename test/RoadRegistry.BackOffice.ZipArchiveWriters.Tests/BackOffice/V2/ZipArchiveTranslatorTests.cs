@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.V2;
 
 using System.IO.Compression;
 using System.Text;
@@ -10,7 +10,7 @@ using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Uploads;
-using Uploads.V1.Schema;
+using Uploads.V2.Schema;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveTranslatorTests

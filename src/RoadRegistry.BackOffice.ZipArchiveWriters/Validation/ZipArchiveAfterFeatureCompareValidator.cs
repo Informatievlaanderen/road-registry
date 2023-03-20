@@ -4,6 +4,8 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Uploads;
+using Uploads.V2.Schema;
+using Uploads.V2.Validation;
 
 /// <summary>
 ///     POST FEATURE COMPARE
@@ -53,15 +55,15 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                 {
                     "WEGKNOOP_ALL.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.RoadNodeChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<RoadNodeChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.RoadNodeChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V2.RoadNodeChangeDbaseRecordsValidator()
+                            RoadNodeChangeDbaseRecord.Schema,
+                            new RoadNodeChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.RoadNodeChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadNodeChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.RoadNodeChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V1.RoadNodeChangeDbaseRecordsValidator()
+                            Uploads.V1.Schema.RoadNodeChangeDbaseRecord.Schema,
+                            new Uploads.V1.Validation.RoadNodeChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -81,135 +83,135 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                 {
                     "WEGSEGMENT_ALL.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.RoadSegmentChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<RoadSegmentChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.RoadSegmentChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V2.RoadSegmentChangeDbaseRecordsValidator()
+                            RoadSegmentChangeDbaseRecord.Schema,
+                            new RoadSegmentChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.RoadSegmentChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadSegmentChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.RoadSegmentChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V1.RoadSegmentChangeDbaseRecordsValidator()
+                            Uploads.V1.Schema.RoadSegmentChangeDbaseRecord.Schema,
+                            new Uploads.V1.Validation.RoadSegmentChangeDbaseRecordsValidator()
                         )
                     )
                 },
                 {
                     "ATTEUROPWEG_ALL.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.EuropeanRoadChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<EuropeanRoadChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.EuropeanRoadChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V2.EuropeanRoadChangeDbaseRecordsValidator()
+                            EuropeanRoadChangeDbaseRecord.Schema,
+                            new EuropeanRoadChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.EuropeanRoadChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.EuropeanRoadChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.EuropeanRoadChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V1.EuropeanRoadChangeDbaseRecordsValidator()
+                            Uploads.V1.Schema.EuropeanRoadChangeDbaseRecord.Schema,
+                            new Uploads.V1.Validation.EuropeanRoadChangeDbaseRecordsValidator()
                         )
                     )
                 },
                 {
                     "ATTNATIONWEG_ALL.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.NationalRoadChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<NationalRoadChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.NationalRoadChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V2.NationalRoadChangeDbaseRecordsValidator()
+                            NationalRoadChangeDbaseRecord.Schema,
+                            new NationalRoadChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.NationalRoadChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.NationalRoadChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.NationalRoadChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V1.NationalRoadChangeDbaseRecordsValidator()
+                            Uploads.V1.Schema.NationalRoadChangeDbaseRecord.Schema,
+                            new Uploads.V1.Validation.NationalRoadChangeDbaseRecordsValidator()
                         )
                     )
                 },
                 {
                     "ATTGENUMWEG_ALL.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.NumberedRoadChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<NumberedRoadChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.NumberedRoadChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V2.NumberedRoadChangeDbaseRecordsValidator()
+                            NumberedRoadChangeDbaseRecord.Schema,
+                            new NumberedRoadChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.NumberedRoadChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.NumberedRoadChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.NumberedRoadChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V1.NumberedRoadChangeDbaseRecordsValidator()
+                            Uploads.V1.Schema.NumberedRoadChangeDbaseRecord.Schema,
+                            new Uploads.V1.Validation.NumberedRoadChangeDbaseRecordsValidator()
                         )
                     )
                 },
                 {
                     "ATTRIJSTROKEN_ALL.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.RoadSegmentLaneChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<RoadSegmentLaneChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.RoadSegmentLaneChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V2.RoadSegmentLaneChangeDbaseRecordsValidator()
+                            RoadSegmentLaneChangeDbaseRecord.Schema,
+                            new RoadSegmentLaneChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.RoadSegmentLaneChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadSegmentLaneChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.RoadSegmentLaneChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V1.RoadSegmentLaneChangeDbaseRecordsValidator()
+                            Uploads.V1.Schema.RoadSegmentLaneChangeDbaseRecord.Schema,
+                            new Uploads.V1.Validation.RoadSegmentLaneChangeDbaseRecordsValidator()
                         )
                     )
                 },
                 {
                     "ATTWEGBREEDTE_ALL.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.RoadSegmentWidthChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<RoadSegmentWidthChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.RoadSegmentWidthChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V2.RoadSegmentWidthChangeDbaseRecordsValidator()
+                            RoadSegmentWidthChangeDbaseRecord.Schema,
+                            new RoadSegmentWidthChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.RoadSegmentWidthChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadSegmentWidthChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.RoadSegmentWidthChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V1.RoadSegmentWidthChangeDbaseRecordsValidator()
+                            Uploads.V1.Schema.RoadSegmentWidthChangeDbaseRecord.Schema,
+                            new Uploads.V1.Validation.RoadSegmentWidthChangeDbaseRecordsValidator()
                         )
                     )
                 },
                 {
                     "ATTWEGVERHARDING_ALL.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.RoadSegmentSurfaceChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<RoadSegmentSurfaceChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.RoadSegmentSurfaceChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V2.RoadSegmentSurfaceChangeDbaseRecordsValidator()
+                            RoadSegmentSurfaceChangeDbaseRecord.Schema,
+                            new RoadSegmentSurfaceChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.RoadSegmentSurfaceChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.RoadSegmentSurfaceChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V1.RoadSegmentSurfaceChangeDbaseRecordsValidator()
+                            Uploads.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord.Schema,
+                            new Uploads.V1.Validation.RoadSegmentSurfaceChangeDbaseRecordsValidator()
                         )
                     )
                 },
                 {
                     "RLTOGKRUISING_ALL.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.GradeSeparatedJunctionChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<GradeSeparatedJunctionChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.GradeSeparatedJunctionChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V2.GradeSeparatedJunctionChangeDbaseRecordsValidator()
+                            GradeSeparatedJunctionChangeDbaseRecord.Schema,
+                            new GradeSeparatedJunctionChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.GradeSeparatedJunctionChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.GradeSeparatedJunctionChangeDbaseRecord.Schema,
-                            new Uploads.Schema.V1.GradeSeparatedJunctionChangeDbaseRecordsValidator()
+                            Uploads.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord.Schema,
+                            new Uploads.V1.Validation.GradeSeparatedJunctionChangeDbaseRecordsValidator()
                         )
                     )
                 },
                 {
                     "TRANSACTIEZONES.DBF",
                     new ZipArchiveVersionedDbaseEntryValidator(
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V2.TransactionZoneDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<TransactionZoneDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V2.TransactionZoneDbaseRecord.Schema,
-                            new Uploads.Schema.V2.TransactionZoneDbaseRecordsValidator()
+                            TransactionZoneDbaseRecord.Schema,
+                            new Uploads.V2.Validation.TransactionZoneDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.Schema.V1.TransactionZoneDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.TransactionZoneDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.Schema.V1.TransactionZoneDbaseRecord.Schema,
-                            new Uploads.Schema.V1.TransactionZoneDbaseRecordsValidator()
+                            Uploads.V1.Schema.TransactionZoneDbaseRecord.Schema,
+                            new Uploads.V1.Validation.TransactionZoneDbaseRecordsValidator()
                         )
                     )
                 }

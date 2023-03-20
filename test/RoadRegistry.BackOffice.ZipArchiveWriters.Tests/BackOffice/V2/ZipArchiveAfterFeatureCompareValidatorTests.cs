@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.V2;
 
 using System.IO.Compression;
 using System.Text;
@@ -12,7 +12,7 @@ using RoadRegistry.Tests.BackOffice;
 using Uploads;
 using Validation;
 using Point = NetTopologySuite.Geometries.Point;
-using TransactionZoneDbaseRecord = Uploads.V2.Schema.TransactionZoneDbaseRecord;
+using Uploads.V2.Schema;
 
 public class ZipArchiveAfterFeatureCompareValidatorTests
 {
@@ -1053,7 +1053,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8);
-            
+
             var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
 
             var expected = ZipArchiveProblems.Many(
@@ -1074,7 +1074,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
                     return null;
                 })
             );
-            
+
             var files = archive.Entries.Select(x => x.Name).ToArray();
 
             foreach (var file in files)
