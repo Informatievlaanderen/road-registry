@@ -1,3 +1,15 @@
+# [3.37.0](https://github.com/informatievlaanderen/road-registry/compare/v3.36.9...v3.37.0) (2023-03-20)
+
+
+### Bug Fixes
+
+* WR-644 correct field sizes after FC changes ([#900](https://github.com/informatievlaanderen/road-registry/issues/900)) ([59462d8](https://github.com/informatievlaanderen/road-registry/commit/59462d8edf8eb8c1178e817fd522ebb6f5bf1d79))
+
+
+### Features
+
+* WR-586 roadsegment edit attributes endpoint ([#898](https://github.com/informatievlaanderen/road-registry/issues/898)) ([a71985b](https://github.com/informatievlaanderen/road-registry/commit/a71985b3247a6a7e442130a9c8a66074dd6d7991))
+
 ## [3.36.9](https://github.com/informatievlaanderen/road-registry/compare/v3.36.8...v3.36.9) (2023-03-15)
 
 
