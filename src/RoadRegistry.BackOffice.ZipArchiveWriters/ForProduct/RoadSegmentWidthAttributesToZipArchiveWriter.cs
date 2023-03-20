@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.RoadSegments;
+using Dbase.Extracts.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;

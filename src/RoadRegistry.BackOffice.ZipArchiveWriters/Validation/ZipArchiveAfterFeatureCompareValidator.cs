@@ -3,9 +3,9 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase.UploadsAfterFeatureCompare.V2.Schema;
+using Dbase.UploadsAfterFeatureCompare.V2.Validation;
 using Uploads;
-using Uploads.V2.Schema;
-using Uploads.V2.Validation;
 
 /// <summary>
 ///     POST FEATURE COMPARE
@@ -60,10 +60,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                             RoadNodeChangeDbaseRecord.Schema,
                             new RoadNodeChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadNodeChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadNodeChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.RoadNodeChangeDbaseRecord.Schema,
-                            new Uploads.V1.Validation.RoadNodeChangeDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadNodeChangeDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadNodeChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -88,10 +88,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                             RoadSegmentChangeDbaseRecord.Schema,
                             new RoadSegmentChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadSegmentChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.RoadSegmentChangeDbaseRecord.Schema,
-                            new Uploads.V1.Validation.RoadSegmentChangeDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentChangeDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadSegmentChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -103,10 +103,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                             EuropeanRoadChangeDbaseRecord.Schema,
                             new EuropeanRoadChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.EuropeanRoadChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.EuropeanRoadChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.EuropeanRoadChangeDbaseRecord.Schema,
-                            new Uploads.V1.Validation.EuropeanRoadChangeDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.EuropeanRoadChangeDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.EuropeanRoadChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -118,10 +118,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                             NationalRoadChangeDbaseRecord.Schema,
                             new NationalRoadChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.NationalRoadChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.NationalRoadChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.NationalRoadChangeDbaseRecord.Schema,
-                            new Uploads.V1.Validation.NationalRoadChangeDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.NationalRoadChangeDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.NationalRoadChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -133,10 +133,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                             NumberedRoadChangeDbaseRecord.Schema,
                             new NumberedRoadChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.NumberedRoadChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.NumberedRoadChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.NumberedRoadChangeDbaseRecord.Schema,
-                            new Uploads.V1.Validation.NumberedRoadChangeDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.NumberedRoadChangeDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.NumberedRoadChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -148,10 +148,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                             RoadSegmentLaneChangeDbaseRecord.Schema,
                             new RoadSegmentLaneChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadSegmentLaneChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentLaneChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.RoadSegmentLaneChangeDbaseRecord.Schema,
-                            new Uploads.V1.Validation.RoadSegmentLaneChangeDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentLaneChangeDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadSegmentLaneChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -163,10 +163,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                             RoadSegmentWidthChangeDbaseRecord.Schema,
                             new RoadSegmentWidthChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadSegmentWidthChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentWidthChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.RoadSegmentWidthChangeDbaseRecord.Schema,
-                            new Uploads.V1.Validation.RoadSegmentWidthChangeDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentWidthChangeDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadSegmentWidthChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -178,10 +178,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                             RoadSegmentSurfaceChangeDbaseRecord.Schema,
                             new RoadSegmentSurfaceChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord.Schema,
-                            new Uploads.V1.Validation.RoadSegmentSurfaceChangeDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.RoadSegmentSurfaceChangeDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.RoadSegmentSurfaceChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -193,10 +193,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                             GradeSeparatedJunctionChangeDbaseRecord.Schema,
                             new GradeSeparatedJunctionChangeDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord.Schema,
-                            new Uploads.V1.Validation.GradeSeparatedJunctionChangeDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.GradeSeparatedJunctionChangeDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.GradeSeparatedJunctionChangeDbaseRecordsValidator()
                         )
                     )
                 },
@@ -206,12 +206,12 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                         new ZipArchiveDbaseEntryValidator<TransactionZoneDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
                             TransactionZoneDbaseRecord.Schema,
-                            new Uploads.V2.Validation.TransactionZoneDbaseRecordsValidator()
+                            new Dbase.UploadsAfterFeatureCompare.V2.Validation.TransactionZoneDbaseRecordsValidator()
                         ),
-                        new ZipArchiveDbaseEntryValidator<Uploads.V1.Schema.TransactionZoneDbaseRecord>(
+                        new ZipArchiveDbaseEntryValidator<Dbase.UploadsAfterFeatureCompare.V1.Schema.TransactionZoneDbaseRecord>(
                             encoding, new DbaseFileHeaderReadBehavior(true),
-                            Uploads.V1.Schema.TransactionZoneDbaseRecord.Schema,
-                            new Uploads.V1.Validation.TransactionZoneDbaseRecordsValidator()
+                            Dbase.UploadsAfterFeatureCompare.V1.Schema.TransactionZoneDbaseRecord.Schema,
+                            new Dbase.UploadsAfterFeatureCompare.V1.Validation.TransactionZoneDbaseRecordsValidator()
                         )
                     )
                 }

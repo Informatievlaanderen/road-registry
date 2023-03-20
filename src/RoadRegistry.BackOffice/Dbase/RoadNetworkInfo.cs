@@ -1,6 +1,6 @@
-using RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.BackOffice.Dbase;
 
-namespace RoadRegistry.Dbase;
+using RoadRegistry.BackOffice.Core;
 
 public class RoadNetworkInfo
 {

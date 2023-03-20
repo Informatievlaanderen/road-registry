@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Dbase.Extracts.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Dbase.RoadSegments;
 using Microsoft.IO;
 using Schema;
 

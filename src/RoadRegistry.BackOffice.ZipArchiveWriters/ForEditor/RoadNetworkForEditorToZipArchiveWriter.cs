@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForEditor;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
-using Dbase.Lists;
+using Dbase.Extracts.Lists;
 using Editor.Schema;
 using Microsoft.IO;
 

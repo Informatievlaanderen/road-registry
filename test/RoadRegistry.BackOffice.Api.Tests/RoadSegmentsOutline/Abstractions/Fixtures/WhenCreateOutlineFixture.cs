@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegmentsOutline.Abstractions.Fixtures;
 
-using Dbase.Organizations;
+using Dbase.Extracts.Organizations;
 using Editor.Schema;
 using FeatureToggles;
 using Hosts.Infrastructure.Options;

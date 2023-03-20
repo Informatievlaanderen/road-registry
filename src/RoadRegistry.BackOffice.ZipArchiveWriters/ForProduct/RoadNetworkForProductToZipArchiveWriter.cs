@@ -4,7 +4,7 @@ using System.Globalization;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
-using Dbase.Lists;
+using Dbase.Extracts.Lists;
 using Microsoft.IO;
 using NodaTime;
 using Product.Schema;

@@ -4,9 +4,9 @@ using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Dbase.UploadsAfterFeatureCompare.V1.Schema;
+using RoadRegistry.BackOffice.Dbase.UploadsAfterFeatureCompare.V1.Validation;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.V1.Schema;
-using RoadRegistry.BackOffice.Uploads.V1.Validation;
 using Xunit;
 
 public class NationalRoadChangeDbaseRecordsTranslatorTests : IDisposable

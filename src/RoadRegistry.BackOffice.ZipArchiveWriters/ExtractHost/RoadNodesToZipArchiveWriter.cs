@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.RoadNodes;
+using Dbase.Extracts.RoadNodes;
 using Editor.Schema;
 using Extensions;
 using Extracts;

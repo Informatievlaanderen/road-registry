@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Downloads.ForEditor;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.Lists;
+using Dbase.Extracts.Lists;
 using RoadRegistry.Tests.Framework.Containers;
 
 public class ListsTests

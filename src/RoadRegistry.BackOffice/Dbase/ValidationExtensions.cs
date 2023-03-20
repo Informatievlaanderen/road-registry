@@ -1,9 +1,8 @@
-using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice;
-using RoadRegistry.Dbase.RoadSegments;
-
-namespace RoadRegistry.Dbase
+namespace RoadRegistry.BackOffice.Dbase
 {
+    using RoadRegistry.BackOffice;
+    using RoadRegistry.BackOffice.Uploads;
+
     public static class ValidationExtensions
     {
         public static ZipArchiveProblems Validate<T>(this IDbaseFileRecordProblemBuilder recordContext, T record)

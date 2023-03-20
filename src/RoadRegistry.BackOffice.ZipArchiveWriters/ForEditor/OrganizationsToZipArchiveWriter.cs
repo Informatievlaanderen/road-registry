@@ -4,7 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
-using Dbase.Organizations;
+using Dbase.Extracts.Organizations;
 using Editor.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
