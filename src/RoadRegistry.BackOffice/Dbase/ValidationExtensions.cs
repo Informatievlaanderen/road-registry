@@ -52,7 +52,7 @@ namespace RoadRegistry.BackOffice.Dbase
                 problems += recordContext.RequiredFieldIsNull(record.BEHEERDER.Field);
             }
 
-            if (RoadSegmentGeometryDrawMethod.ByIdentifier.TryGetValue(record.METHODE.Value, out var geometryDrawMethod) && geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+            if (record.METHODE.HasValue && RoadSegmentGeometryDrawMethod.ByIdentifier.TryGetValue(record.METHODE.Value, out var geometryDrawMethod) && geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
             {
                 problems += ValidateRoadSegmentOutlined(recordContext, record);
             }
