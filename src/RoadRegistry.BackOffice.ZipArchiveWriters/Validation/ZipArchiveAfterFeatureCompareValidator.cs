@@ -220,10 +220,8 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
 
     public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
     {
-        if (archive == null)
-            throw new ArgumentNullException(nameof(archive));
-        if (metadata == null)
-            throw new ArgumentNullException(nameof(metadata));
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(metadata);
 
         var problems = ZipArchiveProblems.None;
 
