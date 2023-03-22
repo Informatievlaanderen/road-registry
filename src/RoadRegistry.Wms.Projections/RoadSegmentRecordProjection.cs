@@ -256,7 +256,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
         roadSegmentRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
 
-        roadSegmentRecord.RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
 
         roadSegmentRecord.LeftSideMunicipalityId = null;
