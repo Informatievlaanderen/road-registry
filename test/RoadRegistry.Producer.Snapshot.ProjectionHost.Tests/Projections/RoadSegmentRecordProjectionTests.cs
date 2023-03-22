@@ -198,7 +198,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 AccessRestrictionId = accessRestriction.Translation.Identifier,
                 AccessRestrictionDutchName = accessRestriction.Translation.Name,
 
-                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When),
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
                 TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
 
                 LeftSideMunicipalityId = null,
