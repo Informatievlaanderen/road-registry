@@ -1,3 +1,11 @@
+## [3.37.1](https://github.com/informatievlaanderen/road-registry/compare/v3.37.0...v3.37.1) (2023-03-22)
+
+
+### Bug Fixes
+
+* don't update RecordingDate with ModifyRoadSegment ([#902](https://github.com/informatievlaanderen/road-registry/issues/902)) ([843f1ab](https://github.com/informatievlaanderen/road-registry/commit/843f1abd5089130b69d66ec72479857a3fea9ed0))
+* WR-645 add Outlined validation rules to file upload ([#901](https://github.com/informatievlaanderen/road-registry/issues/901)) ([a420315](https://github.com/informatievlaanderen/road-registry/commit/a420315bce87195e3081831731373b5c3f0fb7e0))
+
 # [3.37.0](https://github.com/informatievlaanderen/road-registry/compare/v3.36.9...v3.37.0) (2023-03-20)
 
 
