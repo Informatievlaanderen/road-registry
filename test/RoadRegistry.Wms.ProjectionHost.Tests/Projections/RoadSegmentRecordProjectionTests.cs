@@ -296,7 +296,7 @@ public class RoadSegmentRecordProjectionTests
                 AccessRestrictionId = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier,
                 AccessRestrictionDutchName = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name,
 
-                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When),
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
 
                 TransactionId = acceptedRoadSegmentModified.TransactionId,
 
