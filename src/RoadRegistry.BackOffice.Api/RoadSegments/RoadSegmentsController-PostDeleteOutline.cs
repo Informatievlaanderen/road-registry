@@ -48,7 +48,7 @@ public partial class RoadSegmentsController
         {
             return NotFound();
         }
-
+        //TODO-rik WR-650 add unit test for API call to test ID validation, after WR-647 is merged
         try
         {
             await validator.ValidateAndThrowAsync(new PostDeleteOutlineParameters
