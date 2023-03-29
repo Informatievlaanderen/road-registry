@@ -27,7 +27,7 @@ public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
     protected RoadNetworkTestHelpers TestData { get; }
 
     protected override DeleteRoadSegmentOutlineRequest Request => new(
-        TestData.Segment1Added.Id
+        new RoadSegmentId(TestData.Segment1Added.Id)
     );
 
     protected override async Task SetupAsync()

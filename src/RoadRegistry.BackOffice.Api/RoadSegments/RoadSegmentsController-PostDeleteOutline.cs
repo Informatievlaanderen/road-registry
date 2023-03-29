@@ -10,6 +10,7 @@ using FeatureToggles;
 using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Parameters;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -19,6 +20,7 @@ public partial class RoadSegmentsController
     ///     Verwijder een ingeschetst wegsegment
     /// </summary>
     /// <param name="featureToggle"></param>
+    /// <param name="validator"></param>
     /// <param name="id">Identificator van het ingeschetst wegsegment.</param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het ingeschetst wegsegment gevonden is.</response>
@@ -38,7 +40,8 @@ public partial class RoadSegmentsController
     [SwaggerOperation(Description = "Verwijder een ingeschetst wegsegment.")]
     public async Task<IActionResult> PostDeleteOutline(
         [FromServices] UseRoadSegmentOutlineDeleteFeatureToggle featureToggle,
-        [FromRoute] int id,
+        [FromServices] PostDeleteOutlineParametersValidator validator,
+        [FromRoute] string id,
         CancellationToken cancellationToken)
     {
         if (!featureToggle.FeatureEnabled)
@@ -48,10 +51,17 @@ public partial class RoadSegmentsController
 
         try
         {
+            await validator.ValidateAndThrowAsync(new PostDeleteOutlineParameters
+            {
+                WegsegmentId = id
+            }, cancellationToken: cancellationToken);
+
+            var roadSegmentId = new RoadSegmentId(int.Parse(id));
+
             var result = await _mediator.Send(Enrich(
                 new DeleteRoadSegmentOutlineSqsRequest
                 {
-                    Request = new DeleteRoadSegmentOutlineRequest(id)
+                    Request = new DeleteRoadSegmentOutlineRequest(roadSegmentId)
                 }
             ), cancellationToken);
 
