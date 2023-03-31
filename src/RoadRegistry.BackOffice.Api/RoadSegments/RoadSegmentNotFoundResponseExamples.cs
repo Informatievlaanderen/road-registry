@@ -4,8 +4,9 @@ using Swashbuckle.AspNetCore.Filters;
 
 namespace RoadRegistry.BackOffice.Api.RoadSegments
 {
-    using Abstractions.Validation;
     using Be.Vlaanderen.Basisregisters.BasicApiProblem;
+    using Core;
+    using Extensions;
 
     public class RoadSegmentNotFoundResponseExamples : IExamplesProvider<ProblemDetails>
     {
@@ -27,7 +28,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments
                 ProblemTypeUri = "urn:be.vlaanderen.basisregisters.api:roadsegment:not-found",
                 HttpStatus = StatusCodes.Status404NotFound,
                 Title = ProblemDetails.DefaultTitle,
-                Detail = ValidationErrors.RoadSegment.NotFound.Message,
+                Detail = new RoadSegmentNotFound().TranslateToDutch().Message,
                 ProblemInstanceUri = _problemDetailsHelper.GetInstanceUri(_httpContextAccessor.HttpContext)
             };
         }

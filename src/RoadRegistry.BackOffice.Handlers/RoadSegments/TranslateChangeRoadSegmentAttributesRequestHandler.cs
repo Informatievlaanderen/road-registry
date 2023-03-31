@@ -23,13 +23,13 @@ namespace RoadRegistry.BackOffice.Handlers.RoadSegments
         public Task<ChangeRoadSegmentAttributesRequest> Handle(TranslateChangeRoadSegmentAttributesRequest request, CancellationToken cancellationToken)
         {
 
-            //var roadSegmentIdentifiers = request.ChangeRequests.SelectMany(s => s.Wegsegmenten).Distinct().ToList();
+            //var roadSegmentIdentifiers = request.Changes.SelectMany(s => s.Wegsegmenten).Distinct().ToList();
 
             //var request = new ChangeRoadSegmentAttributesRequest();
 
             //foreach (var roadSegmentId in roadSegmentIdentifiers)
             //{
-            //    //request.ChangeRequests.Append(new ChangeRoadSegmentStatusAttributeRequest(new RoadSegmentId(roadSegmentId)))
+            //    //request.Changes.Append(new ChangeRoadSegmentStatusAttributeRequest(new RoadSegmentId(roadSegmentId)))
             //}
 
             throw new NotImplementedException();

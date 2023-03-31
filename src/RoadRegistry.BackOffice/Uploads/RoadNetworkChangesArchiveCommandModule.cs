@@ -9,14 +9,14 @@ using NodaTime;
 using SqlStreamStore;
 using System;
 using System.IO.Compression;
-using SqlStreamStore.Streams;
+using Autofac;
 
 public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 {
     public RoadNetworkChangesArchiveCommandModule(
         RoadNetworkUploadsBlobClient blobClient,
         IStreamStore store,
-        Func<EventSourcedEntityMap> entityMapFactory,
+        ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         IZipArchiveAfterFeatureCompareValidator validator,
         IClock clock,
@@ -32,7 +32,7 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
         var logger = loggerFactory.CreateLogger<RoadNetworkChangesArchiveCommandModule>();
 
         For<UploadRoadNetworkChangesArchive>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
                 var archiveId = new ArchiveId(message.Body.ArchiveId);

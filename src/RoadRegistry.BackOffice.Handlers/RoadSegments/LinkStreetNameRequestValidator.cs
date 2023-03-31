@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
 using Abstractions.RoadSegments;
-using Abstractions.Validation;
+using BackOffice.Extensions;
+using Core;
+using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
@@ -13,9 +15,10 @@ public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRe
         if (context.InstanceToValidate.LinkerstraatnaamId.GetIdentifierFromPuri() <= 0
             && context.InstanceToValidate.RechterstraatnaamId.GetIdentifierFromPuri() <= 0)
         {
-            context.AddFailure(new ValidationFailure("request", ValidationErrors.Common.JsonInvalid.Message)
+            context.AddFailure(new ValidationFailure
             {
-                ErrorCode = ValidationErrors.Common.JsonInvalid.Code
+                PropertyName = "request",
+                ErrorCode = ProblemCode.Common.JsonInvalid
             });
 
             return false;
@@ -28,17 +31,14 @@ public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRe
     {
         RuleFor(x => x.WegsegmentId)
             .GreaterThan(0)
-            .WithErrorCode(ValidationErrors.Common.IncorrectObjectId.Code)
-            .WithMessage(request => ValidationErrors.Common.IncorrectObjectId.Message(request.WegsegmentId));
+            .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
 
         RuleFor(x => x.LinkerstraatnaamId)
             .MustBeValidStreetNamePuri()
-            .WithErrorCode(ValidationErrors.Common.IncorrectObjectId.Code)
-            .WithMessage(request => ValidationErrors.Common.IncorrectObjectId.Message(request.LinkerstraatnaamId));
+            .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
 
         RuleFor(x => x.RechterstraatnaamId)
             .MustBeValidStreetNamePuri()
-            .WithErrorCode(ValidationErrors.Common.IncorrectObjectId.Code)
-            .WithMessage(request => ValidationErrors.Common.IncorrectObjectId.Message(request.RechterstraatnaamId));
+            .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
     }
 }

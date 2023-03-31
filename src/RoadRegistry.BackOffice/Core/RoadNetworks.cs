@@ -103,7 +103,7 @@ public class RoadNetworks : IRoadNetworks
         view = await ProcessPages(view, snapshotContext, page, processMessage, cancellationToken);
         
         var roadNetwork = RoadNetwork.Factory(view.ToImmutable());
-        _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, snapshotContext.Version.Value));
+        _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, ExpectedVersion.Any));
         
         return (roadNetwork, snapshotContext.Version.Value);
     }

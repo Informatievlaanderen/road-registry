@@ -98,16 +98,9 @@ public class ExtractsController : ControllerBase
     [HttpPost("downloadrequests/bycontour")]
     public async Task<ActionResult> PostDownloadRequestByContour([FromBody] DownloadExtractByContourRequestBody body, CancellationToken cancellationToken)
     {
-        try
-        {
-            var request = new DownloadExtractByContourRequest(body.Contour, body.Buffer, body.Description);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
-        }
-        catch (DownloadExtractByNisCodeNotFoundException)
-        {
-            return NotFound();
-        }
+        var request = new DownloadExtractByContourRequest(body.Contour, body.Buffer, body.Description);
+        var response = await _mediator.Send(request, cancellationToken);
+        return Accepted(new DownloadExtractResponseBody { DownloadId = response.DownloadId.ToString() });
     }
 
     [HttpPost("downloadrequests/byfile")]

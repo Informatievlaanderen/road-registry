@@ -99,7 +99,7 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
 
     public static implicit operator string(RoadSegmentSurfaceType instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentSurfaceType left, RoadSegmentSurfaceType right)

@@ -17,6 +17,7 @@ using Claim = Framework.Claim;
 public interface IRoadNetworkEventWriter
 {
     Task WriteAsync(StreamName streamName, Guid messageId, int version, object[] events, CancellationToken cancellationToken);
+    Task WriteAsync(StreamName streamName, IRoadRegistryMessage message, int expectedVersion, object[] events, CancellationToken cancellationToken);
 }
 
 public class RoadNetworkEventWriter : IRoadNetworkEventWriter
@@ -41,6 +42,11 @@ public class RoadNetworkEventWriter : IRoadNetworkEventWriter
         return Write(streamName, messageId, expectedVersion, events, null, cancellationToken);
     }
 
+    public Task WriteAsync(StreamName streamName, IRoadRegistryMessage message, int expectedVersion, object[] events, CancellationToken cancellationToken)
+    {
+        return Write(streamName, message.MessageId, expectedVersion, events, message.Principal, cancellationToken);
+    }
+
     private static string SerializeJsonMetadata(ClaimsPrincipal principal)
     {
         var jsonMetadata = JsonConvert.SerializeObject(new MessageMetadata
@@ -51,11 +57,6 @@ public class RoadNetworkEventWriter : IRoadNetworkEventWriter
                 .ToArray()
         }, SerializerSettings);
         return jsonMetadata;
-    }
-
-    public Task Write(StreamName streamName, IRoadRegistryMessage message, int expectedVersion, object[] events, CancellationToken cancellationToken)
-    {
-        return Write(streamName, message.MessageId, expectedVersion, events, message.Principal, cancellationToken);
     }
 
     private async Task Write(StreamName streamName, Guid messageId, int expectedVersion, object[] events, ClaimsPrincipal principal, CancellationToken cancellationToken)

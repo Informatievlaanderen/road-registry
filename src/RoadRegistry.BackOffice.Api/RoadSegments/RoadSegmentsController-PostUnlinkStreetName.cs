@@ -1,10 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.RoadSegments;
-using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
@@ -17,6 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {
@@ -78,10 +77,6 @@ public partial class RoadSegmentsController
                 }), cancellationToken);
 
             return Accepted(result);
-        }
-        catch (AggregateIdIsNotFoundException)
-        {
-            throw new ApiException(ValidationErrors.RoadNetwork.NotFound.Message, StatusCodes.Status404NotFound);
         }
         catch (IdempotencyException)
         {

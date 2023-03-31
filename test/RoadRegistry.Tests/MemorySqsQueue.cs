@@ -3,7 +3,7 @@ namespace RoadRegistry.Tests;
 using System.Collections.Concurrent;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 
-internal class MemorySqsQueue
+internal static class MemorySqsQueue
 {
     private static readonly ConcurrentDictionary<string, Queue<SqsJsonMessage>> Queues = new();
 
@@ -11,7 +11,10 @@ internal class MemorySqsQueue
     {
         var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
 
-        if (Queues.TryGetValue(queueName, out var queue)) return queue.Dequeue();
+        if (Queues.TryGetValue(queueName, out var queue))
+        {
+            return queue.Dequeue();
+        }
 
         return default;
     }
@@ -20,7 +23,10 @@ internal class MemorySqsQueue
     {
         var queueName = SqsQueue.ParseQueueNameFromQueueUrl(queueUrl);
 
-        if (Queues.TryGetValue(queueName, out var queue)) return queue.ToArray();
+        if (Queues.TryGetValue(queueName, out var queue))
+        {
+            return queue.ToArray();
+        }
 
         return Array.Empty<SqsJsonMessage>();
     }

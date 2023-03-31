@@ -21,7 +21,7 @@ public class ContextModule : Module
             var store = context.Resolve<IStreamStore>();
             var snapshotReader = context.Resolve<IRoadNetworkSnapshotReader>();
             var serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            var map = context.Resolve<Func<EventSourcedEntityMap>>()();
+            var map = context.Resolve<EventSourcedEntityMap>();
             var loggerFactory = context.Resolve<ILoggerFactory>();
 
             return new RoadRegistryContext(map, store, snapshotReader, serializerSettings, RoadNetworkEventsEventMapping, loggerFactory);

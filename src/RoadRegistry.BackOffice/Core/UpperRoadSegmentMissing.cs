@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using ProblemCodes;
+
 public class UpperRoadSegmentMissing : Error
 {
     public UpperRoadSegmentMissing()
-        : base(nameof(UpperRoadSegmentMissing))
+        : base(ProblemCode.RoadSegment.UpperMissing)
     {
     }
 }

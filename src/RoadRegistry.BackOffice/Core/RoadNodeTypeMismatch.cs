@@ -4,10 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using ProblemCodes;
 
 public class RoadNodeTypeMismatch : Error
 {
-    private RoadNodeTypeMismatch(IReadOnlyCollection<ProblemParameter> parameters) : base(nameof(RoadNodeTypeMismatch), parameters)
+    private RoadNodeTypeMismatch(IReadOnlyCollection<ProblemParameter> parameters)
+        : base(ProblemCode.RoadNode.TypeMismatch, parameters)
     {
     }
 
