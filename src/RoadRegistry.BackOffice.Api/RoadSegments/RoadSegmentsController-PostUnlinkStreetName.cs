@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadSegments;
 using Abstractions.Validation;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
@@ -12,6 +13,8 @@ using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -35,6 +38,7 @@ public partial class RoadSegmentsController
     /// <response code="412">Als de If-Match header niet overeenkomt met de laatste ETag.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost("{id}/acties/straatnaamontkoppelen")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.IngemetenWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]

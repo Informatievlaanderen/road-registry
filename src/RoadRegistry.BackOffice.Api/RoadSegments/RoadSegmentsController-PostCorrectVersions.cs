@@ -1,17 +1,17 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System.Threading;
-using System.Threading.Tasks;
-using Abstractions.RoadSegments;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
 using Handlers.Sqs.RoadSegments;
+using Infrastructure.Controllers.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {
     [HttpPost("corrigeer/versies")]
+    [ApiKeyAuth(WellKnownAuthRoles.Road)]
     [ApiExplorerSettings(IgnoreApi = true)]
     public async Task<IActionResult> PostCorrectVersions(
         [FromServices] UseRoadSegmentCorrectVersionsFeatureToggle featureToggle,

@@ -4,7 +4,6 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Hosts.Infrastructure.Options;
 using Infrastructure;
 using Infrastructure.Controllers;
-using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("wegsegmenten")]
 [ApiExplorerSettings(GroupName = "Wegsegmenten")]
-[ApiKeyAuth(WellKnownAuthRoles.Road)]
 public partial class RoadSegmentsController : BackofficeApiController
 {
     private readonly IMediator _mediator;
