@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ExtractHost.Tests.ZipArchiveWriters.Fixtures;
 
 using System.Diagnostics;
 using System.Text;
+using Abstractions;
 using BackOffice.ZipArchiveWriters.ExtractHost;
 using Editor.Schema;
 using Extracts;
@@ -9,17 +10,17 @@ using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
-public class IntegrationRoadNodesToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyncLifetime
+public class IntegrationToZipArchiveWriterFixture : ZipArchiveWriterFixture, IAsyncLifetime
 {
     private readonly IRoadNetworkExtractArchiveAssembler _assembler;
 
-    public IntegrationRoadNodesToZipArchiveWriterFixture(WKTReader wktReader, RecyclableMemoryStreamManager memoryStreamManager, Func<EditorContext> contextFactory)
+    public IntegrationToZipArchiveWriterFixture(WKTReader wktReader, RecyclableMemoryStreamManager memoryStreamManager, Func<EditorContext> contextFactory, IStreetNameCache streetNameCache)
         : base(wktReader)
     {
         _assembler = new RoadNetworkExtractArchiveAssembler(
             memoryStreamManager,
             contextFactory,
-            new IntegrationRoadNodesToZipArchiveWriter(memoryStreamManager, Encoding.UTF8));
+            new IntegrationToZipArchiveWriter(new ZipArchiveWriterOptions(), streetNameCache, memoryStreamManager, Encoding.UTF8));
     }
 
     public TimeSpan ElapsedTimeSpan { get; private set; }
