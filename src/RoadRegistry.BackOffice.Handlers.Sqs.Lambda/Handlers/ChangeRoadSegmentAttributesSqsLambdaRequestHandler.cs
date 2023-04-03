@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
-
-using Abstractions.RoadSegments;
+using Be.Vlaanderen.Basisregisters.Shaperon;
+using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Hosts;
@@ -8,70 +8,65 @@ using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
 using TicketingService.Abstractions;
+using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
 public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadSegmentAttributesSqsLambdaRequest>
 {
-    private readonly IRoadNetworkEventWriter _eventWriter;
+    private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
 
     public ChangeRoadSegmentAttributesSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
+        IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IRoadNetworkEventWriter eventWriter,
+        IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         ILogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler> logger)
         : base(
             options,
             retryPolicy,
             ticketing,
-            null,
+            idempotentCommandHandler,
             roadRegistryContext,
             logger)
     {
-        _eventWriter = eventWriter;
+        _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
     }
 
     protected override async Task<ETagResponse> InnerHandleAsync(ChangeRoadSegmentAttributesSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        var changes = request.Request.ChangeRequests;
-        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
+        // Do NOT lock the stream store for stream RoadNetworks.Stream
 
-        var roadSegmentIds = changes.Select(s => s.Id).Distinct();
-        var roadSegments = roadNetwork.FindRoadSegments(roadSegmentIds);
-
-        foreach (var roadSegment in roadSegments)
+        await _changeRoadNetworkDispatcher.DispatchAsync(request, "Attributen wijzigen", async translatedChanges =>
         {
-            var attributeChanges = changes.Where(w => w.Id.Equals(roadSegment.Id));
+            var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
 
-            foreach (var attributeChange in attributeChanges)
+            var recordNumber = RecordNumber.Initial;
+
+            foreach (var change in request.Request.ChangeRequests)
             {
-                switch (attributeChange)
-                {
-                    case ChangeRoadSegmentMaintenanceAuthorityAttributeRequest maintenanceAuthority:
-                        roadSegment.WithMaintenanceAuthorityAttribute(maintenanceAuthority.MaintenanceAuthority);
-                        break;
+                var roadSegmentId = new RoadSegmentId(change.Id);
+                var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
 
-                    case ChangeRoadSegmentStatusAttributeRequest status:
-                        roadSegment.WithStatusAttribute(status.Status);
-                        break;
+                var geometryDrawMethod = roadSegment?.AttributeHash.GeometryDrawMethod;
 
-                    case ChangeRoadSegmentMorphologyAttributeRequest morphology:
-                        roadSegment.WithMorphologyAttribute(morphology.Morphology);
-                        break;
+                translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(
+                    recordNumber,
+                    roadSegmentId,
+                    geometryDrawMethod,
+                    change.MaintenanceAuthority is not null ? new OrganizationId(change.MaintenanceAuthority) : null,
+                    change.Morphology is not null ? RoadSegmentMorphology.Parse(change.Morphology) : null,
+                    change.Status is not null ? RoadSegmentStatus.Parse(change.Status) : null,
+                    change.Category is not null ? RoadSegmentCategory.Parse(change.Category) : null,
+                    change.AccessRestriction is not null ? RoadSegmentAccessRestriction.Parse(change.AccessRestriction) : null
+                ));
 
-                    case ChangeRoadSegmentAccessRestrictionAttributeRequest accessRestriction:
-                        roadSegment.WithAccessRestrictionAttribute(accessRestriction.AccessRestriction);
-                        break;
-
-                    case ChangeRoadSegmentCategoryAttributeRequest category:
-                        roadSegment.WithCategoryAttribute(category.Category);
-                        break;
-                }
+                recordNumber = recordNumber.Next();
             }
-        }
 
-        //var roadSegmentId = request.Request;
-        //var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
+            return translatedChanges;
+        }, cancellationToken);
+
         return new ETagResponse(string.Empty, string.Empty);
     }
 }

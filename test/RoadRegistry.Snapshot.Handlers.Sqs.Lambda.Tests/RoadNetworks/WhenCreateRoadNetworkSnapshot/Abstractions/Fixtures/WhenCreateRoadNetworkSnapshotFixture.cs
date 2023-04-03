@@ -36,19 +36,10 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
         SqsLambdaHandlerOptions options)
         : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
     {
-        Organisation = Organisation.DigitaalVlaanderen;
+        Organisation = ObjectProvider.Create<Organisation>();
         SnapshotReader = CreateSnapshotReaderMock(snapshotReader);
         SnapshotWriter = CreateSnapshotWriterMock(snapshotWriter);
         SnapshotStrategyOptions = BuildSnapshotStrategyOptions();
-
-        ObjectProvider.Customize<ProvenanceData>(customization =>
-            customization.FromSeed(generator => new ProvenanceData(new Provenance(Clock.GetCurrentInstant(),
-                Application.RoadRegistry,
-                new Reason("TEST"),
-                new Operator("TEST"),
-                Modification.Unknown,
-                Organisation)))
-        );
     }
 
     protected abstract Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader);

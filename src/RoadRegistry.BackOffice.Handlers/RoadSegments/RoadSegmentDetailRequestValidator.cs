@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
 using Abstractions.RoadSegments;
-using Abstractions.Validation;
+using BackOffice.Extensions;
+using Core;
+using Core.ProblemCodes;
 using FluentValidation;
 
 public class RoadSegmentDetailRequestValidator : AbstractValidator<RoadSegmentDetailRequest>
@@ -10,7 +12,7 @@ public class RoadSegmentDetailRequestValidator : AbstractValidator<RoadSegmentDe
     {
         RuleFor(x => x.WegsegmentId)
             .GreaterThan(0)
-            .WithErrorCode(ValidationErrors.Common.IncorrectObjectId.Code)
-            .WithMessage(request => ValidationErrors.Common.IncorrectObjectId.Message(request.WegsegmentId));
+            .WithProblemCode(ProblemCode.Common.IncorrectObjectId)
+            ;
     }
 }

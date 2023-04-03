@@ -17,7 +17,6 @@ using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Requests;
 using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 using SqlStreamStore;
-using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
 
 public abstract class WhenRebuildRoadNetworkSnapshotFixture : SqsLambdaHandlerFixture<RebuildRoadNetworkSnapshotSqsLambdaRequestHandler, RebuildRoadNetworkSnapshotSqsLambdaRequest, RebuildRoadNetworkSnapshotSqsRequest>
 {
@@ -36,19 +35,10 @@ public abstract class WhenRebuildRoadNetworkSnapshotFixture : SqsLambdaHandlerFi
         SqsLambdaHandlerOptions options)
         : base(configuration, customRetryPolicy, streamStore, roadNetworkCommandQueue, clock, options)
     {
-        Organisation = Organisation.DigitaalVlaanderen;
+        Organisation = ObjectProvider.Create<Organisation>();
         SnapshotReader = CreateSnapshotReaderMock(snapshotReader);
         SnapshotWriter = CreateSnapshotWriterMock(snapshotWriter);
         SnapshotStrategyOptions = BuildSnapshotStrategyOptions();
-
-        ObjectProvider.Customize<ProvenanceData>(customization =>
-            customization.FromSeed(generator => new ProvenanceData(new Provenance(Clock.GetCurrentInstant(),
-                Application.RoadRegistry,
-                new Reason("TEST"),
-                new Operator("TEST"),
-                Modification.Unknown,
-                Organisation)))
-        );
     }
 
     protected abstract Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader);

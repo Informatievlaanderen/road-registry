@@ -135,32 +135,12 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
 
     public RequestedChanges Append(ModifyRoadNode change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(RemoveRoadNode change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(AddRoadSegment change)
@@ -180,137 +160,52 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
 
     public RequestedChanges Append(ModifyRoadSegment change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
+        return AppendChange(change);
+    }
 
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+    public RequestedChanges Append(ModifyRoadSegmentAttributes change)
+    {
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(RemoveRoadSegment change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(AddRoadSegmentToEuropeanRoad change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(RemoveRoadSegmentFromEuropeanRoad change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(AddRoadSegmentToNationalRoad change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(RemoveRoadSegmentFromNationalRoad change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(AddRoadSegmentToNumberedRoad change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(ModifyRoadSegmentOnNumberedRoad change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(RemoveRoadSegmentFromNumberedRoad change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(AddGradeSeparatedJunction change)
@@ -330,32 +225,12 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
 
     public RequestedChanges Append(ModifyGradeSeparatedJunction change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public RequestedChanges Append(RemoveGradeSeparatedJunction change)
     {
-        if (change == null)
-            throw new ArgumentNullException(nameof(change));
-
-        return new RequestedChanges(TransactionId,
-            _changes.Add(change),
-            _mapToPermanentNodeIdentifiers,
-            _mapToTemporaryNodeIdentifiers,
-            _mapToPermanentSegmentIdentifiers,
-            _mapToTemporarySegmentIdentifiers,
-            _mapToPermanentGradeSeparatedJunctionIdentifiers,
-            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
+        return AppendChange(change);
     }
 
     public BeforeVerificationContext CreateBeforeVerificationContext(IRoadNetworkView view)
@@ -402,6 +277,11 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
                     envelope.ExpandToInclude(modifyRoadSegment.Geometry.EnvelopeInternal);
                     // if we still know this segment, include the geometry as we know it now
                     if (view.Segments.TryGetValue(modifyRoadSegment.Id, out var segmentToModify)) envelope.ExpandToInclude(segmentToModify.Geometry.EnvelopeInternal);
+
+                    break;
+                case ModifyRoadSegmentAttributes modifyRoadSegmentAttributes:
+                    // if we still know this segment, include the geometry as we know it now
+                    if (view.Segments.TryGetValue(modifyRoadSegmentAttributes.Id, out var segmentAttributesToModify)) envelope.ExpandToInclude(segmentAttributesToModify.Geometry.EnvelopeInternal);
 
                     break;
                 case RemoveRoadSegment removeRoadSegment:
@@ -518,5 +398,19 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
             ImmutableDictionary<RoadSegmentId, RoadSegmentId>.Empty,
             ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty,
             ImmutableDictionary<GradeSeparatedJunctionId, GradeSeparatedJunctionId>.Empty);
+    }
+
+    private RequestedChanges AppendChange(IRequestedChange change)
+    {
+        ArgumentNullException.ThrowIfNull(change);
+
+        return new RequestedChanges(TransactionId,
+            _changes.Add(change),
+            _mapToPermanentNodeIdentifiers,
+            _mapToTemporaryNodeIdentifiers,
+            _mapToPermanentSegmentIdentifiers,
+            _mapToTemporarySegmentIdentifiers,
+            _mapToPermanentGradeSeparatedJunctionIdentifiers,
+            _mapToTemporaryGradeSeparatedJunctionIdentifiers);
     }
 }

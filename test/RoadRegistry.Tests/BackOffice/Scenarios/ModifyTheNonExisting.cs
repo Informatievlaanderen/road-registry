@@ -16,6 +16,7 @@ using ModifyRoadSegmentOnNumberedRoad = RoadRegistry.BackOffice.Messages.ModifyR
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Problem = RoadRegistry.BackOffice.Messages.Problem;
 using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
+using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
 
 public class ModifyTheNonExisting : RoadRegistryTestBase

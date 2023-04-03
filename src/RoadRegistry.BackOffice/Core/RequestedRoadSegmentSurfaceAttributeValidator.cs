@@ -21,7 +21,6 @@ public class RequestedRoadSegmentSurfaceAttributeValidator : AbstractValidator<R
 
 public class RequestedRoadSegmentOutlineSurfaceAttributeValidator : RequestedRoadSegmentSurfaceAttributeValidator
 {
-    //TODO-rik apply outline validation in dbase
     public RequestedRoadSegmentOutlineSurfaceAttributeValidator()
     {
         var invalidRoadSegmentSurfaceTypes = new[] { RoadSegmentSurfaceType.Unknown, RoadSegmentSurfaceType.NotApplicable };

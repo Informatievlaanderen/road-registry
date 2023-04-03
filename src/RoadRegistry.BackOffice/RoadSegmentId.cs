@@ -19,6 +19,12 @@ public readonly struct RoadSegmentId : IEquatable<RoadSegmentId>, IComparable<Ro
         return value >= 0;
     }
 
+    //TODO-rik te bekijken of Accepts aangepast kan worden om 0 niet als geldig te beschouwen, zodat IsValid weg mag
+    public static bool IsValid(int value)
+    {
+        return value > 0;
+    }
+
     public RoadSegmentId Next()
     {
         if (_value == int.MaxValue)

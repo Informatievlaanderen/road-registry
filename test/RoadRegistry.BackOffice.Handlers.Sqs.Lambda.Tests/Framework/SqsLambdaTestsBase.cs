@@ -5,6 +5,7 @@ using Autofac;
 using AutoFixture;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using MediatR;
@@ -26,7 +27,7 @@ public class SqsLambdaTestsBase : BackOfficeLambdaTest
     {
         // Arrange
         var mediator = new Mock<IMediator>();
-        var blobClient = new SqsMessagesBlobClient(Client, new());
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new SqsOptions()));
 
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);

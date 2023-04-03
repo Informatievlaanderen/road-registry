@@ -73,7 +73,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<WfsContext>
     {
         var roadNodeRecord = await context.RoadNodes.SingleAsync(i => i.Id == roadNodeModified.Id, token).ConfigureAwait(false);
 
-        if (roadNodeRecord == null) throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeModified.Id} is not found!");
+        if (roadNodeRecord == null) throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeModified.Id} is not found");
 
         roadNodeRecord.Id = roadNodeModified.Id;
         roadNodeRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);

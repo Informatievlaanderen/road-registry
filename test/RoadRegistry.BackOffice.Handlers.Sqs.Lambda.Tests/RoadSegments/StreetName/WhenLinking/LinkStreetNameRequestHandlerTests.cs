@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetN
 
 using Autofac;
 using AutoFixture;
+using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Core;
 using Hosts;
@@ -29,14 +30,19 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
     private async Task HandleRequest(ITicketing ticketing, LinkStreetNameRequest request)
     {
+        var idempotentCommandHandler = new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>());
+
         var handler = new LinkStreetNameSqsLambdaRequestHandler(
             new FakeSqsLambdaHandlerOptions(),
             new FakeRetryPolicy(),
             ticketing,
-            new RoadRegistryIdempotentCommandHandler(Container.Resolve<CommandHandlerDispatcher>()),
+            idempotentCommandHandler,
             RoadRegistryContext,
             StreetNameCache,
-            new RoadNetworkCommandQueue(Store, ApplicationMetadata),
+            new ChangeRoadNetworkDispatcher(
+                new RoadNetworkCommandQueue(Store, ApplicationMetadata),
+                idempotentCommandHandler,
+                EntityMapFactory.Resolve<EventSourcedEntityMap>()),
             new FakeDistributedStreamStoreLockOptions(),
             LoggerFactory.CreateLogger<LinkStreetNameSqsLambdaRequestHandler>()
         );
@@ -63,10 +69,10 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         var validationResult = validator.Validate(new LinkStreetNameRequest(new RoadSegmentId(1), null, null));
 
-        var error = validationResult.Errors.Single();
+        var error = validationResult.Errors.TranslateToDutch().Single();
         Xunit.Assert.Equal("request", error.PropertyName);
         Xunit.Assert.Equal("JsonInvalid", error.ErrorCode);
-        Xunit.Assert.Equal("Json is not valid.", error.ErrorMessage);
+        Xunit.Assert.Equal("Ongeldig JSON formaat.", error.ErrorMessage);
     }
 
     [Fact]
@@ -74,9 +80,9 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         //Arrange
         var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = Segment1Added.Id;
+        var roadSegmentId = TestData.Segment1Added.Id;
 
-        Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+        TestData.Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
 
         await GivenSegment1Added();
 
@@ -92,9 +98,9 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         //Arrange
         var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = Segment1Added.Id;
+        var roadSegmentId = TestData.Segment1Added.Id;
 
-        Segment1Added.LeftSide.StreetNameId = null;
+        TestData.Segment1Added.LeftSide.StreetNameId = null;
 
         await GivenSegment1Added();
 
@@ -112,9 +118,9 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         //Arrange
         var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = new RoadSegmentId(Segment1Added.Id);
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
 
-        Segment1Added.LeftSide.StreetNameId = null;
+        TestData.Segment1Added.LeftSide.StreetNameId = null;
 
         await GivenSegment1Added();
 
@@ -135,9 +141,9 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         //Arrange
         var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = Segment1Added.Id;
+        var roadSegmentId = TestData.Segment1Added.Id;
 
-        Segment1Added.LeftSide.StreetNameId = null;
+        TestData.Segment1Added.LeftSide.StreetNameId = null;
 
         await GivenSegment1Added();
 
@@ -153,9 +159,9 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         //Arrange
         var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = Segment1Added.Id;
+        var roadSegmentId = TestData.Segment1Added.Id;
 
-        Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+        TestData.Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
 
         await GivenSegment1Added();
 
@@ -171,9 +177,9 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         //Arrange
         var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = Segment1Added.Id;
+        var roadSegmentId = TestData.Segment1Added.Id;
 
-        Segment1Added.RightSide.StreetNameId = null;
+        TestData.Segment1Added.RightSide.StreetNameId = null;
 
         await GivenSegment1Added();
 
@@ -191,9 +197,9 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         //Arrange
         var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = new RoadSegmentId(Segment1Added.Id);
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
 
-        Segment1Added.RightSide.StreetNameId = null;
+        TestData.Segment1Added.RightSide.StreetNameId = null;
 
         await GivenSegment1Added();
 
@@ -213,9 +219,9 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         //Arrange
         var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = Segment1Added.Id;
+        var roadSegmentId = TestData.Segment1Added.Id;
 
-        Segment1Added.RightSide.StreetNameId = null;
+        TestData.Segment1Added.RightSide.StreetNameId = null;
 
         await GivenSegment1Added();
 
@@ -250,10 +256,10 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         //Arrange
         var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = new RoadSegmentId(Segment1Added.Id);
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
 
-        Segment1Added.LeftSide.StreetNameId = null;
-        Segment1Added.RightSide.StreetNameId = null;
+        TestData.Segment1Added.LeftSide.StreetNameId = null;
+        TestData.Segment1Added.RightSide.StreetNameId = null;
 
         await GivenSegment1Added();
 

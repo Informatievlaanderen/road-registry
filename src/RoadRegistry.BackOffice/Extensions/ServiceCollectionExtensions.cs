@@ -13,6 +13,8 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IO;
+using NodaTime;
+using SqlStreamStore;
 
 public static class ServiceCollectionExtensions
 {
@@ -56,7 +58,13 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCommandHandlerDispatcher(this IServiceCollection services, Func<IServiceProvider, CommandHandlerResolver> commandHandlerResolverBuilder)
     {
         return services
-                .AddSingleton(sp => Dispatch.Using(commandHandlerResolverBuilder(sp), sp.GetRequiredService<ApplicationMetadata>()));
+            .AddSingleton(sp => Dispatch.Using(commandHandlerResolverBuilder(sp), sp.GetRequiredService<ApplicationMetadata>()));
+    }
+
+    public static IServiceCollection AddRoadNetworkEventWriter(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<IRoadNetworkEventWriter>(sp => new RoadNetworkEventWriter(sp.GetRequiredService<IStreamStore>(), EnrichEvent.WithTime(sp.GetRequiredService<IClock>())));
     }
 
     public static IServiceCollection AddDistributedS3Cache(this IServiceCollection services)

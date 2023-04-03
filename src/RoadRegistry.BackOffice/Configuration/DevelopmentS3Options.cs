@@ -8,15 +8,24 @@ using Newtonsoft.Json;
 
 public class DevelopmentS3Options : S3Options
 {
-    public DevelopmentS3Options(JsonSerializerSettings jsonSerializerSettings, string serviceUrl)
+    public DevelopmentS3Options()
+    {
+    }
+
+    public DevelopmentS3Options(JsonSerializerSettings jsonSerializerSettings, DevelopmentS3Options options)
         : base(jsonSerializerSettings)
     {
-        ServiceUrl = serviceUrl;
+        ServiceUrl = options.ServiceUrl;
+        AccessKey = options.AccessKey;
+        SecretKey = options.SecretKey;
     }
+
+    public string AccessKey { get; set; }
+    public string SecretKey { get; set; }
 
     public override AmazonS3Client CreateS3Client()
     {
-        return new AmazonS3Client(new BasicAWSCredentials("dummy", "dummy"), new AmazonS3Config()
+        return new AmazonS3Client(new BasicAWSCredentials(AccessKey ?? "dummy", SecretKey ?? "dummy"), new AmazonS3Config
         {
             ServiceURL = ServiceUrl,
             DisableHostPrefixInjection = true,

@@ -1,9 +1,6 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests;
 
 using System.Reflection;
-using Amazon;
-using Amazon.Runtime;
-using Amazon.S3;
 using Autofac;
 using BackOffice;
 using BackOffice.Configuration;
@@ -23,8 +20,6 @@ using MediatorModule = Sqs.MediatorModule;
 
 public class Startup : TestStartup
 {
-    protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
-
     protected override void ConfigureContainer(ContainerBuilder builder)
     {
         builder
@@ -45,27 +40,41 @@ public class Startup : TestStartup
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
-        var eventSourcedEntityMap = new EventSourcedEntityMap();
-
         var configuration = hostBuilderContext.Configuration;
-        var s3Options = configuration.GetOptions<S3Options>();
-        var s3ClientOptions = s3Options?.ServiceUrl is not null
-            ? new DevelopmentS3Options(EventsJsonSerializerSettingsProvider.CreateSerializerSettings(), s3Options.ServiceUrl)
-            : new S3Options(EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
-        var s3Client = s3ClientOptions.CreateS3Client();
-
-        services.AddSingleton<S3Options>(s3ClientOptions);
-        services.AddSingleton(s3Client);
+        
+        AddS3ClientAndDistributedCache(services, configuration);
 
         services
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
+            .AddSingleton<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
             .AddTransient<ICustomRetryPolicy>(sp => new FakeRetryPolicy())
             .AddRoadRegistrySnapshot()
+            ;
+    }
+
+    private void AddS3ClientAndDistributedCache(IServiceCollection services, IConfiguration configuration)
+    {
+        var s3Configuration = configuration.GetOptions<S3Options>();
+        var s3OptionsJsonSerializer = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
+        S3Options s3ClientOptions;
+        if (s3Configuration?.ServiceUrl is not null)
+        {
+            var developments3Configuration = configuration.GetOptions<DevelopmentS3Options>();
+            s3ClientOptions = new DevelopmentS3Options(s3OptionsJsonSerializer, developments3Configuration);
+        }
+        else
+        {
+            s3ClientOptions = new S3Options(s3OptionsJsonSerializer);
+        }
+        var s3Client = s3ClientOptions.CreateS3Client();
+
+        services
+            .AddSingleton(s3ClientOptions)
+            .AddSingleton(s3Client)
             .RegisterDistributedS3Cache(s3Client, new()
             {
                 Bucket = "road-registry-snapshots",
                 RootDir = "snapshots"
-            })
-            ;
+            });
     }
 }

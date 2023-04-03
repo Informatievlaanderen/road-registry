@@ -34,10 +34,15 @@ public class BlobClientModule : Module
                 var configuration = c.Resolve<IConfiguration>();
 
                 var s3Configuration = configuration.GetOptions<S3Options>();
+                var s3OptionsJsonSerializer = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-                return s3Configuration?.ServiceUrl != null
-                    ? new DevelopmentS3Options(EventsJsonSerializerSettingsProvider.CreateSerializerSettings(), s3Configuration.ServiceUrl)
-                    : new S3Options(EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+                if (s3Configuration?.ServiceUrl is not null)
+                {
+                    var developments3Configuration = configuration.GetOptions<DevelopmentS3Options>();
+                    return new DevelopmentS3Options(s3OptionsJsonSerializer, developments3Configuration);
+                }
+
+                return new S3Options(s3OptionsJsonSerializer);
             })
             .As<S3Options>()
             .SingleInstance();

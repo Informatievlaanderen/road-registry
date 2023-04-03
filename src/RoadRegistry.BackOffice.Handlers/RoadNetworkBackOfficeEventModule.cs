@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers;
 
 using Core;
-using MediatR;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using RoadRegistry.BackOffice;
@@ -9,11 +8,13 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using SqlStreamStore;
 using System;
+using Autofac;
 
 public class RoadNetworkBackOfficeEventModule : EventHandlerModule
 {
     public RoadNetworkBackOfficeEventModule(
         IStreamStore store,
+        ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
@@ -28,7 +29,7 @@ public class RoadNetworkBackOfficeEventModule : EventHandlerModule
         var logger = loggerFactory.CreateLogger<RoadNetworkBackOfficeEventModule>();
 
         For<CompletedRoadNetworkImport>()
-            .UseRoadRegistryContext(store, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, ct) =>
             {
                 logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));

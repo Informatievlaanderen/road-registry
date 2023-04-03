@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.RoadSegments;
-using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
@@ -28,6 +27,7 @@ public partial class RoadSegmentsController
     /// <param name="featureToggle">Ingeschakelde functionaliteit of niet</param>
     /// <param name="parameters">Bevat de attributen die gewijzigd moeten worden</param>
     /// <param name="validator"></param>
+    /// <param name="wrappedValidator"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het wegsegment gevonden is.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
@@ -61,9 +61,15 @@ public partial class RoadSegmentsController
         try
         {
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);
-            await wrappedValidator.ValidateAndThrowAsync((ChangeRoadSegmentAttributesParametersWrapper)parameters, cancellationToken);
 
-            var request = TranslateParametersIntoTypedBackOfficeRequest(parameters);
+            var wrappedValidatorResult = await wrappedValidator.ValidateAsync((ChangeRoadSegmentAttributesParametersWrapper)parameters, cancellationToken);
+            if (!wrappedValidatorResult.IsValid)
+            {
+                wrappedValidatorResult.Errors.ForEach(error => error.PropertyName = error.PropertyName.Replace($"{nameof(ChangeRoadSegmentAttributesParametersWrapper.Attributes)}[", "["));
+                throw new ValidationException(wrappedValidatorResult.Errors);
+            }
+
+            var request = TranslateParametersIntoTypedBackOfficeRequest();
 
             var sqsRequest = new ChangeRoadSegmentAttributesSqsRequest
             {
@@ -74,16 +80,12 @@ public partial class RoadSegmentsController
 
             return Accepted(result);
         }
-        catch (AggregateIdIsNotFoundException)
-        {
-            throw new ApiException(ValidationErrors.RoadNetwork.NotFound.Message, StatusCodes.Status404NotFound);
-        }
         catch (IdempotencyException)
         {
             return Accepted();
         }
 
-        ChangeRoadSegmentAttributesRequest TranslateParametersIntoTypedBackOfficeRequest(ChangeRoadSegmentAttributesParameters changeRoadSegmentAttributesParameters)
+        ChangeRoadSegmentAttributesRequest TranslateParametersIntoTypedBackOfficeRequest()
         {
             ChangeRoadSegmentAttributesRequest attributesRequest = new();
 
@@ -95,23 +97,43 @@ public partial class RoadSegmentsController
                 {
                     case ChangeRoadSegmentAttribute.Wegbeheerder:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                            attributesRequest.Add(new ChangeRoadSegmentMaintenanceAuthorityAttributeRequest(new RoadSegmentId(roadSegmentId), new OrganizationId(attributesChange.Attribuutwaarde)));
+                        {
+                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
+                                => roadSegment.MaintenanceAuthority = new OrganizationId(attributesChange.Attribuutwaarde)
+                            );
+                        }
                         break;
                     case ChangeRoadSegmentAttribute.WegsegmentStatus:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                            attributesRequest.Add(new ChangeRoadSegmentStatusAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentStatus.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
+                        {
+                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
+                                => roadSegment.Status = RoadSegmentStatus.ParseUsingDutchName(attributesChange.Attribuutwaarde)
+                            );
+                        }
                         break;
                     case ChangeRoadSegmentAttribute.MorfologischeWegklasse:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                            attributesRequest.Add(new ChangeRoadSegmentMorphologyAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentMorphology.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
+                        {
+                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
+                                => roadSegment.Morphology = RoadSegmentMorphology.ParseUsingDutchName(attributesChange.Attribuutwaarde)
+                            );
+                        }
                         break;
                     case ChangeRoadSegmentAttribute.Toegangsbeperking:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                            attributesRequest.Add(new ChangeRoadSegmentAccessRestrictionAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentAccessRestriction.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
+                        {
+                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
+                                => roadSegment.AccessRestriction = RoadSegmentAccessRestriction.ParseUsingDutchName(attributesChange.Attribuutwaarde)
+                            );
+                        }
                         break;
                     case ChangeRoadSegmentAttribute.Wegcategorie:
                         foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                            attributesRequest.Add(new ChangeRoadSegmentCategoryAttributeRequest(new RoadSegmentId(roadSegmentId), RoadSegmentCategory.ParseUsingDutchName(attributesChange.Attribuutwaarde)));
+                        {
+                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
+                                => roadSegment.Category = RoadSegmentCategory.ParseUsingDutchName(attributesChange.Attribuutwaarde)
+                            );
+                        }
                         break;
                     default:
                         throw new ValidationException("request", new[] { new ValidationFailure("request", "Onbehandelde waarde voor attribuut") });

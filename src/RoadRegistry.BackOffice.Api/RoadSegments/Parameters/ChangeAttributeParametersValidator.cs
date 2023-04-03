@@ -1,17 +1,17 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
+using Abstractions.RoadSegments;
+using Editor.Schema;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.RoadSegments;
-using Abstractions.Validation;
-using Amazon.DynamoDBv2.Model;
-using Editor.Schema;
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
+using Core;
+using Core.ProblemCodes;
+using Extensions;
 
 /// <summary>
 /// Geen wijzigingen op dynamisch gesegmenteerde attributen (wegverharding/wegbreedte/aantal rijstroken)
@@ -27,38 +27,32 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         RuleFor(x => x.Attribuut)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode("JsonInvalid")
-            .WithMessage("Json is not valid.")
+            .WithProblemCode(ProblemCode.Common.JsonInvalid)
             .IsEnumName(typeof(ChangeRoadSegmentAttribute), false)
-            .WithName("attribuut")
-            .WithErrorCode("AttribuutNietGekend")
-            .WithMessage(x => $"De waarde '{x.Attribuut}' komt niet overeen met een attribuut uit het Wegenregister dat via dit endpoint gewijzigd kan worden.");
+            .WithProblemCode(ProblemCode.RoadSegment.ChangeAttributesAttributeNotValid);
 
         RuleFor(x => x.Attribuutwaarde)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode("JsonInvalid")
-            .WithMessage("Json is not valid.");
+            .WithProblemCode(ProblemCode.Common.JsonInvalid);
 
         RuleFor(x => x.Wegsegmenten)
             .Cascade(CascadeMode.Stop)
-            .NotNull()
-            .WithErrorCode("JsonInvalid")
-            .WithMessage("Json is not valid.")
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.Common.JsonInvalid)
+            .Must(wegsegmenten => wegsegmenten.All(RoadSegmentId.IsValid))
+            .WithProblemCode(ProblemCode.Common.JsonInvalid)
             .MustAsync(BeExistingNonRemovedRoadSegment)
-            .WithErrorCode(ValidationErrors.RoadSegment.NotFound.Code)
-            .WithMessage(x => ValidationErrors.RoadSegment.NotFound.FormattedMessage(FindNonExistingOrRemovedRoadSegmentIds(x.Wegsegmenten)));
+            .WithProblemCode(ProblemCode.RoadSegments.NotFound, wegsegmenten => string.Join(", ", FindNonExistingOrRemovedRoadSegmentIds(wegsegmenten)));
 
         When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.Wegbeheerder), () =>
         {
             RuleFor(x => x.Attribuutwaarde)
                 .Cascade(CascadeMode.Stop)
                 .NotNull()
-                .WithErrorCode(ValidationErrors.Organization.IsRequired.Code)
-                .WithMessage(ValidationErrors.Organization.IsRequired.Message)
+                .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired)
                 .MustAsync(BeKnownOrganization)
-                .WithErrorCode(ValidationErrors.Organization.NotFound.Code)
-                .WithMessage(x => ValidationErrors.Organization.NotFound.Message(x.Attribuutwaarde));
+                .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid);
         });
 
         When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.WegsegmentStatus), () =>
@@ -66,11 +60,9 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             RuleFor(x => x.Attribuutwaarde)
                 .Cascade(CascadeMode.Stop)
                 .NotNull()
-                .WithErrorCode(ValidationErrors.RoadSegment.Status.IsRequired.Code)
-                .WithMessage(ValidationErrors.RoadSegment.Status.IsRequired.Message)
+                .WithProblemCode(ProblemCode.RoadSegment.Status.IsRequired)
                 .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value) != RoadSegmentStatus.Unknown)
-                .WithErrorCode(ValidationErrors.RoadSegment.Status.NotParsed.Code)
-                .WithMessage(x => ValidationErrors.RoadSegment.Status.NotParsed.Message(x.Attribuutwaarde));
+                .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
         });
 
         When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.MorfologischeWegklasse), () =>
@@ -78,11 +70,9 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             RuleFor(x => x.Attribuutwaarde)
                 .Cascade(CascadeMode.Stop)
                 .NotNull()
-                .WithErrorCode(ValidationErrors.RoadSegment.Morphology.IsRequired.Code)
-                .WithMessage(ValidationErrors.RoadSegment.Morphology.IsRequired.Message)
+                .WithProblemCode(ProblemCode.RoadSegment.Morphology.IsRequired)
                 .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value) != RoadSegmentMorphology.Unknown)
-                .WithErrorCode(ValidationErrors.RoadSegment.Morphology.NotParsed.Code)
-                .WithMessage(x => ValidationErrors.RoadSegment.Morphology.NotParsed.Message(x.Attribuutwaarde));
+                .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
         });
 
         When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.Toegangsbeperking), () =>
@@ -90,11 +80,9 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             RuleFor(x => x.Attribuutwaarde)
                 .Cascade(CascadeMode.Stop)
                 .NotNull()
-                .WithErrorCode(ValidationErrors.RoadSegment.AccessRestriction.IsRequired.Code)
-                .WithMessage(ValidationErrors.RoadSegment.AccessRestriction.IsRequired.Message)
+                .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.IsRequired)
                 .Must(RoadSegmentAccessRestriction.CanParseUsingDutchName)
-                .WithErrorCode(ValidationErrors.RoadSegment.AccessRestriction.NotParsed.Code)
-                .WithMessage(x => ValidationErrors.RoadSegment.AccessRestriction.NotParsed.Message(x.Attribuutwaarde));
+                .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid);
         });
 
         When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.Wegcategorie), () =>
@@ -102,12 +90,9 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             RuleFor(x => x.Attribuutwaarde)
                 .Cascade(CascadeMode.Stop)
                 .NotNull()
-                .WithErrorCode(ValidationErrors.RoadSegment.Category.IsRequired.Code)
-                .WithMessage(ValidationErrors.RoadSegment.Category.IsRequired.Message)
+                .WithProblemCode(ProblemCode.RoadSegment.Category.IsRequired)
                 .Must(RoadSegmentCategory.CanParseUsingDutchName)
-                .WithErrorCode(ValidationErrors.RoadSegment.Category.NotParsed.Code)
-                .WithMessage(x => ValidationErrors.RoadSegment.Category.NotParsed.Message(x.Attribuutwaarde));
-
+                .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid);
         });
     }
 

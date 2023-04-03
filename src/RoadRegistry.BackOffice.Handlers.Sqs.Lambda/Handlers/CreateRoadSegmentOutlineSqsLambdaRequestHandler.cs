@@ -6,7 +6,6 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
 using Hosts;
-using Hosts.Infrastructure.Extensions;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
@@ -18,7 +17,7 @@ using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaHandler<CreateRoadSegmentOutlineSqsLambdaRequest>
 {
-    private readonly IRoadNetworkCommandQueue _commandQueue;
+    private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public CreateRoadSegmentOutlineSqsLambdaRequestHandler(
@@ -27,7 +26,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IRoadNetworkCommandQueue commandQueue,
+        IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler> logger)
         : base(
@@ -38,7 +37,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             roadRegistryContext,
             logger)
     {
-        _commandQueue = commandQueue;
+        _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
@@ -46,7 +45,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
     {
         return _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
-            var changeRoadNetworkCommand = await _commandQueue.DispatchChangeRoadNetwork(IdempotentCommandHandler, request, "Wegsegment schetsen", async translatedChanges =>
+            var changeRoadNetworkCommand = await _changeRoadNetworkDispatcher.DispatchAsync(request, "Wegsegment schetsen", async translatedChanges =>
             {
                 var network = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
                 var roadSegmentId = network.ProvidesNextRoadSegmentId()();

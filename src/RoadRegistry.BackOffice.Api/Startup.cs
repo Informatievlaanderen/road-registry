@@ -132,6 +132,7 @@ public class Startup
                 {
                     AfterMiddleware = x =>
                     {
+                        x.UseMiddleware<ExceptionTranslationMiddleware>();
                         x.UseMiddleware<AddNoCacheHeadersMiddleware>();
                         x.UseHealthChecks(new PathString("/health"), Program.HostingPort, new HealthCheckOptions
                         {
@@ -228,13 +229,13 @@ public class Startup
                     _configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
                 WellknownSchemas.SnapshotSchema))
             .AddRoadRegistrySnapshot()
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
+            .AddScoped(_ => new EventSourcedEntityMap())
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
                             new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),
@@ -242,7 +243,7 @@ public class Startup
                             ),
                             new RoadNetworkCommandModule(
                                 sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IClock>(),
                                 sp.GetService<ILoggerFactory>()
@@ -250,7 +251,7 @@ public class Startup
                             new RoadNetworkExtractCommandModule(
                                 sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),

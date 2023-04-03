@@ -4,10 +4,12 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Extensions;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.Abstractions.Validation;
-using RoadRegistry.Editor.Schema;
+using Core;
+using Core.ProblemCodes;
+using Editor.Schema;
 
 public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostRoadSegmentOutlineParameters>
 {
@@ -24,63 +26,50 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
         RuleFor(x => x.Wegsegmentstatus)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode(ValidationErrors.RoadSegment.Status.IsRequired.Code)
-            .WithMessage(ValidationErrors.RoadSegment.Status.IsRequired.Message)
-            .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value) != RoadSegmentStatus.Unknown)
-            .WithErrorCode(ValidationErrors.RoadSegment.Status.NotParsed.Code)
-            .WithMessage(x => ValidationErrors.RoadSegment.Status.NotParsed.Message(x.Wegsegmentstatus));
+            .WithProblemCode(ProblemCode.RoadSegment.Status.IsRequired)
+            .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value).IsValidForRoadSegmentOutline())
+            .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
 
         RuleFor(x => x.MorfologischeWegklasse)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode(ValidationErrors.RoadSegment.Morphology.IsRequired.Code)
-            .WithMessage(ValidationErrors.RoadSegment.Morphology.IsRequired.Message)
-            .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value) != RoadSegmentMorphology.Unknown)
-            .WithErrorCode(ValidationErrors.RoadSegment.Morphology.NotParsed.Code)
-            .WithMessage(x => ValidationErrors.RoadSegment.Morphology.NotParsed.Message(x.MorfologischeWegklasse));
+            .WithProblemCode(ProblemCode.RoadSegment.Morphology.IsRequired)
+            .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value).IsValidForRoadSegmentOutline())
+            .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
 
         RuleFor(x => x.Toegangsbeperking)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode(ValidationErrors.RoadSegment.AccessRestriction.IsRequired.Code)
-            .WithMessage(ValidationErrors.RoadSegment.AccessRestriction.IsRequired.Message)
+            .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.IsRequired)
             .Must(RoadSegmentAccessRestriction.CanParseUsingDutchName)
-            .WithErrorCode(ValidationErrors.RoadSegment.AccessRestriction.NotParsed.Code)
-            .WithMessage(x => ValidationErrors.RoadSegment.AccessRestriction.NotParsed.Message(x.Toegangsbeperking));
+            .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid);
 
         RuleFor(x => x.Wegbeheerder)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode(ValidationErrors.Organization.IsRequired.Code)
-            .WithMessage(ValidationErrors.Organization.IsRequired.Message)
+            .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired)
             .MustAsync(BeKnownOrganization)
-            .WithErrorCode(ValidationErrors.Organization.NotFound.Code)
-            .WithMessage(x => ValidationErrors.Organization.NotFound.Message(x.Wegbeheerder));
+            .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid);
 
         var validSurfaceTypes = new[] { RoadSegmentSurfaceType.LooseSurface, RoadSegmentSurfaceType.SolidSurface };
 
         RuleFor(x => x.Wegverharding)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode(ValidationErrors.RoadSegment.SurfaceType.IsRequired.Code)
-            .WithMessage(ValidationErrors.RoadSegment.SurfaceType.IsRequired.Message)
+            .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.IsRequired)
             .Must(x => RoadSegmentSurfaceType.CanParseUsingDutchName(x) && validSurfaceTypes.Contains(RoadSegmentSurfaceType.ParseUsingDutchName(x)))
-            .WithErrorCode(ValidationErrors.RoadSegment.SurfaceType.NotParsed.Code)
-            .WithMessage(x => ValidationErrors.RoadSegment.SurfaceType.NotParsed.Message(x.Wegverharding));
+            .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.NotValid);
 
         RuleFor(x => x.Wegbreedte)
             .Cascade(CascadeMode.Stop)
             .GreaterThan(0)
-            .WithErrorCode(ValidationErrors.RoadSegment.Width.GreaterThanZero.Code)
-            .WithMessage(ValidationErrors.RoadSegment.Width.GreaterThanZero.Message)
+            .WithProblemCode(ProblemCode.RoadSegment.Width.GreaterThanZero)
             .Must(RoadSegmentWidth.Accepts)
-            .WithErrorCode(ValidationErrors.RoadSegment.Width.NotAccepted.Code)
-            .WithMessage(x => ValidationErrors.RoadSegment.Width.NotAccepted.Message(x.Wegbreedte));
+            .WithProblemCode(ProblemCode.RoadSegment.Width.NotValid);
 
         RuleFor(x => x.AantalRijstroken)
             .NotNull()
-            .WithErrorCode(ValidationErrors.RoadSegment.Lane.GreaterThanZero.Code)
-            .WithMessage(ValidationErrors.RoadSegment.Lane.GreaterThanZero.Message)
+            .WithProblemCode(ProblemCode.RoadSegment.Lane.GreaterThanZero)
             .SetValidator(new RoadSegmentLaneParametersValidator())
             .When(x => x.AantalRijstroken != null);
     }
