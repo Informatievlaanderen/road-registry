@@ -1,3 +1,16 @@
+# [3.38.0](https://github.com/informatievlaanderen/road-registry/compare/v3.37.1...v3.38.0) (2023-04-03)
+
+
+### Bug Fixes
+
+* WR-650 validation for RoadSegmentId ([#907](https://github.com/informatievlaanderen/road-registry/issues/907)) ([45e302a](https://github.com/informatievlaanderen/road-registry/commit/45e302a6ffaa2e10d51211c89d09668a2759af26))
+
+
+### Features
+
+* WR-561 add authentication through ACM/IDM for edit endpoints ([#906](https://github.com/informatievlaanderen/road-registry/issues/906)) ([a577bef](https://github.com/informatievlaanderen/road-registry/commit/a577bef7ea3a2f45b175ea636c7393bc6d1a7d4a))
+* WR-647 road segment attributes edit endpoint ([#905](https://github.com/informatievlaanderen/road-registry/issues/905)) ([14a8e43](https://github.com/informatievlaanderen/road-registry/commit/14a8e439f603ba184cef61db095bec52a89d42ee))
+
 ## [3.37.1](https://github.com/informatievlaanderen/road-registry/compare/v3.37.0...v3.37.1) (2023-03-22)
 
 
