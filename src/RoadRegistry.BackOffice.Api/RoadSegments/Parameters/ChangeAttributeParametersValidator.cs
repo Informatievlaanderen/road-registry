@@ -40,6 +40,8 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithProblemCode(ProblemCode.Common.JsonInvalid)
+            .Must(wegsegmenten => wegsegmenten.All(RoadSegmentId.IsValid))
+            .WithProblemCode(ProblemCode.Common.JsonInvalid)
             .MustAsync(BeExistingNonRemovedRoadSegment)
             .WithProblemCode(ProblemCode.RoadSegments.NotFound, wegsegmenten => string.Join(", ", FindNonExistingOrRemovedRoadSegmentIds(wegsegmenten)));
 

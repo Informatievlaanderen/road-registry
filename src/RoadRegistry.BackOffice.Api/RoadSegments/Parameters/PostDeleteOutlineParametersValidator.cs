@@ -1,7 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
+using Core.ProblemCodes;
+using Extensions;
 using FluentValidation;
-using Abstractions.Validation;
 
 public class PostDeleteOutlineParametersValidator : AbstractValidator<PostDeleteOutlineParameters>
 {
@@ -9,9 +10,8 @@ public class PostDeleteOutlineParametersValidator : AbstractValidator<PostDelete
     {
         RuleFor(x => x.WegsegmentId)
             .Cascade(CascadeMode.Stop)
-            .Must(x => int.TryParse(x, out int roadSegmentId) && RoadSegmentId.Accepts(roadSegmentId))
-            .WithErrorCode(ValidationErrors.Common.IncorrectObjectId.Code)
-            .WithMessage(x => ValidationErrors.Common.IncorrectObjectId.Message(x.WegsegmentId))
+            .Must(RoadSegmentId.IsValid)
+            .WithProblemCode(ProblemCode.Common.IncorrectObjectId)
             ;
     }
 }

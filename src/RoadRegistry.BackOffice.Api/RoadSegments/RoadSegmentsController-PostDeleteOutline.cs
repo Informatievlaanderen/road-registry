@@ -44,14 +44,14 @@ public partial class RoadSegmentsController
     public async Task<IActionResult> PostDeleteOutline(
         [FromServices] UseRoadSegmentOutlineDeleteFeatureToggle featureToggle,
         [FromServices] PostDeleteOutlineParametersValidator validator,
-        [FromRoute] string id,
+        [FromRoute] int id,
         CancellationToken cancellationToken)
     {
         if (!featureToggle.FeatureEnabled)
         {
             return NotFound();
         }
-        //TODO-rik WR-650 add unit test for API call to test ID validation, after WR-647 is merged
+        
         try
         {
             await validator.ValidateAndThrowAsync(new PostDeleteOutlineParameters
@@ -59,7 +59,7 @@ public partial class RoadSegmentsController
                 WegsegmentId = id
             }, cancellationToken: cancellationToken);
 
-            var roadSegmentId = new RoadSegmentId(int.Parse(id));
+            var roadSegmentId = new RoadSegmentId(id);
 
             var result = await _mediator.Send(Enrich(
                 new DeleteRoadSegmentOutlineSqsRequest
