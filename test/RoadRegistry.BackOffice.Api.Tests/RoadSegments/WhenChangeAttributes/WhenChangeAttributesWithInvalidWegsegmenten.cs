@@ -15,6 +15,7 @@ public class WhenChangeAttributesWithInvalidWegsegmenten : WhenChangeAttributesW
     [Theory]
     [InlineData(null)]
     [InlineData(new int[0])]
+    [InlineData(new int[] { 0 })]
     public async Task Wegsegmenten_JsonInvalid(int[] wegsegmenten)
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
