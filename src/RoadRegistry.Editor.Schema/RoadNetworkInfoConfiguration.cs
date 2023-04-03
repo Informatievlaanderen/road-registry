@@ -1,7 +1,6 @@
 namespace RoadRegistry.Editor.Schema;
 
 using BackOffice;
-using Dbase;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

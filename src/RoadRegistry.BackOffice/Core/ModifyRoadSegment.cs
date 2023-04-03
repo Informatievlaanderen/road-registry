@@ -79,7 +79,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message);
 
         message.RoadSegmentModified = new RoadSegmentModified
         {

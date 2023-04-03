@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.DutchTranslations;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -183,7 +184,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithFile
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = ProblemWithZipArchive.Translator(problem)
+                                Text = ProblemWithZipArchive.Translator(problem).Message
                             })
                             .ToArray()
                     })
@@ -221,7 +222,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithFile
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = ProblemWithZipArchive.Translator(problem)
+                                Text = ProblemWithZipArchive.Translator(problem).Message
                             })
                             .ToArray()
                     })
@@ -260,14 +261,15 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 Changes = envelope.Message.Changes
                     .Select(change => new AcceptedChange
                     {
-                        Change = DutchTranslations.AcceptedChange.Translator(change),
-                        Problems = change.Problems
+                        Change = BackOffice.DutchTranslations.AcceptedChange.Translator(change),
+                        Problems = change.Problems?
                             .Select(problem => new ProblemWithChange
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = DutchTranslations.ProblemWithChange.Translator(problem)
+                                Text = BackOffice.DutchTranslations.ProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
+                            ?? Array.Empty<ProblemWithChange>()
                     })
                     .ToArray()
             };
@@ -305,12 +307,12 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 Changes = envelope.Message.Changes
                     .Select(change => new RejectedChange
                     {
-                        Change = DutchTranslations.RejectedChange.Translator(change),
+                        Change = BackOffice.DutchTranslations.RejectedChange.Translator(change),
                         Problems = change.Problems
                             .Select(problem => new ProblemWithChange
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = DutchTranslations.ProblemWithChange.Translator(problem)
+                                Text = BackOffice.DutchTranslations.ProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
                     })

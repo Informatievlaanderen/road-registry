@@ -79,7 +79,7 @@
 //
 //             if (gradeSeparatedJunctionRecord == null)
 //             {
-//                 throw new InvalidOperationException($"GradeSeparatedJunctionRecord with id {gradeSeparatedJunctionModified.Id} is not found!");
+//                 throw new InvalidOperationException($"GradeSeparatedJunctionRecord with id {gradeSeparatedJunctionModified.Id} is not found");
 //             }
 //             var intersections = await ListIntersectionsByRoadSegmentIdsAsync(context, gradeSeparatedJunctionModified.LowerRoadSegmentId,gradeSeparatedJunctionModified.UpperRoadSegmentId, token);
 //             gradeSeparatedJunctionRecord.Id = gradeSeparatedJunctionModified.Id;

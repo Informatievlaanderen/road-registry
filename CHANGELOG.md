@@ -1,3 +1,84 @@
+## [3.37.1](https://github.com/informatievlaanderen/road-registry/compare/v3.37.0...v3.37.1) (2023-03-22)
+
+
+### Bug Fixes
+
+* don't update RecordingDate with ModifyRoadSegment ([#902](https://github.com/informatievlaanderen/road-registry/issues/902)) ([843f1ab](https://github.com/informatievlaanderen/road-registry/commit/843f1abd5089130b69d66ec72479857a3fea9ed0))
+* WR-645 add Outlined validation rules to file upload ([#901](https://github.com/informatievlaanderen/road-registry/issues/901)) ([a420315](https://github.com/informatievlaanderen/road-registry/commit/a420315bce87195e3081831731373b5c3f0fb7e0))
+
+# [3.37.0](https://github.com/informatievlaanderen/road-registry/compare/v3.36.9...v3.37.0) (2023-03-20)
+
+
+### Bug Fixes
+
+* WR-644 correct field sizes after FC changes ([#900](https://github.com/informatievlaanderen/road-registry/issues/900)) ([59462d8](https://github.com/informatievlaanderen/road-registry/commit/59462d8edf8eb8c1178e817fd522ebb6f5bf1d79))
+
+
+### Features
+
+* WR-586 roadsegment edit attributes endpoint ([#898](https://github.com/informatievlaanderen/road-registry/issues/898)) ([a71985b](https://github.com/informatievlaanderen/road-registry/commit/a71985b3247a6a7e442130a9c8a66074dd6d7991))
+
+## [3.36.9](https://github.com/informatievlaanderen/road-registry/compare/v3.36.8...v3.36.9) (2023-03-15)
+
+
+### Bug Fixes
+
+* lambda graceful shutdown to avoid open locks ([#890](https://github.com/informatievlaanderen/road-registry/issues/890)) ([f8b8ac8](https://github.com/informatievlaanderen/road-registry/commit/f8b8ac8d442f5e4400cd97b179769ef6bbcf1b71))
+* return upload validation as consistent response (including error codes) ([#893](https://github.com/informatievlaanderen/road-registry/issues/893)) ([c2ceb7a](https://github.com/informatievlaanderen/road-registry/commit/c2ceb7afc7e3963e9a007afafe8a79910172e480))
+* WR-640 handle upload after FC by commandhost instead of API ([#895](https://github.com/informatievlaanderen/road-registry/issues/895)) ([7ea194f](https://github.com/informatievlaanderen/road-registry/commit/7ea194f8aba9634e68a6efe63e1dd2a71ce840e1))
+
+## [3.36.8](https://github.com/informatievlaanderen/road-registry/compare/v3.36.7...v3.36.8) (2023-03-13)
+
+
+### Bug Fixes
+
+* WR-509 add missing validation road segment lane direction ([#889](https://github.com/informatievlaanderen/road-registry/issues/889)) ([f20bf5a](https://github.com/informatievlaanderen/road-registry/commit/f20bf5a0759c0cbf5bfc30a8de4133862e57b0dd))
+
+## [3.36.7](https://github.com/informatievlaanderen/road-registry/compare/v3.36.6...v3.36.7) (2023-03-09)
+
+
+### Bug Fixes
+
+* WR-623 link/unlink streetname must have at least left or right streetnameid filled in ([#888](https://github.com/informatievlaanderen/road-registry/issues/888)) ([4301b79](https://github.com/informatievlaanderen/road-registry/commit/4301b79c5c02b42b48941601c8f83798649f8063))
+
+## [3.36.6](https://github.com/informatievlaanderen/road-registry/compare/v3.36.5...v3.36.6) (2023-03-08)
+
+
+### Bug Fixes
+
+* add version property to RoadNode & RoadSegment Kafka projections ([#887](https://github.com/informatievlaanderen/road-registry/issues/887)) ([d85b56b](https://github.com/informatievlaanderen/road-registry/commit/d85b56bf021acad011db54162cae4d56d41396a8))
+
+## [3.36.5](https://github.com/informatievlaanderen/road-registry/compare/v3.36.4...v3.36.5) (2023-03-08)
+
+
+### Bug Fixes
+
+* nuget download/upload ([#886](https://github.com/informatievlaanderen/road-registry/issues/886)) ([e95ad8e](https://github.com/informatievlaanderen/road-registry/commit/e95ad8ea511e041f9c398afa3efeaf8e9259a548))
+
+## [3.36.4](https://github.com/informatievlaanderen/road-registry/compare/v3.36.3...v3.36.4) (2023-03-07)
+
+
+### Bug Fixes
+
+* cleanup unused roadnetwork data in memory ([#885](https://github.com/informatievlaanderen/road-registry/issues/885)) ([8e6b196](https://github.com/informatievlaanderen/road-registry/commit/8e6b196982596279d6f2f1a73aa1b53d3e5e99ca))
+
+## [3.36.3](https://github.com/informatievlaanderen/road-registry/compare/v3.36.2...v3.36.3) (2023-03-07)
+
+
+### Bug Fixes
+
+* release pipeline - add step upload NuGet package BackOffice ([87e8ca5](https://github.com/informatievlaanderen/road-registry/commit/87e8ca5a418f76863d0d662031d6dad8402b132e))
+
+## [3.36.2](https://github.com/informatievlaanderen/road-registry/compare/v3.36.1...v3.36.2) (2023-03-07)
+
+
+### Bug Fixes
+
+* add Backoffice lib to build.fsx ([#880](https://github.com/informatievlaanderen/road-registry/issues/880)) ([eebd22d](https://github.com/informatievlaanderen/road-registry/commit/eebd22def2ff5d76b0330486fad241e5fa2971d9))
+* add paket.template for RoadRegistry.BackOffice ([#879](https://github.com/informatievlaanderen/road-registry/issues/879)) ([2f8cc65](https://github.com/informatievlaanderen/road-registry/commit/2f8cc65a4156f7dbd075825f9696cf3c76186d0a))
+* build backoffice nuget ([#881](https://github.com/informatievlaanderen/road-registry/issues/881)) ([447e86e](https://github.com/informatievlaanderen/road-registry/commit/447e86e29a1b949e25cbe30dc40afd936295092d))
+* don't increment streamversion when loading snapshot ([#882](https://github.com/informatievlaanderen/road-registry/issues/882)) ([77b418d](https://github.com/informatievlaanderen/road-registry/commit/77b418da31e18c2491329ae7dc15fe79e4600483))
+
 ## [3.36.1](https://github.com/informatievlaanderen/road-registry/compare/v3.36.0...v3.36.1) (2023-03-03)
 
 

@@ -1,13 +1,14 @@
 namespace RoadRegistry.Editor.Projections;
 
+using System;
 using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Dbase;
+using RoadRegistry.BackOffice;
 using Schema;
+using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public class RoadNetworkInfoProjection : ConnectedProjection<EditorContext>
 {
@@ -187,7 +188,7 @@ public class RoadNetworkInfoProjection : ConnectedProjection<EditorContext>
         oldSegmentCache.LanesLength = newSegmentCache.LanesLength;
         oldSegmentCache.WidthsLength = newSegmentCache.WidthsLength;
     }
-
+    
     private static async Task OnRoadSegmentRemoved(EditorContext context, RoadSegmentRemoved m, RoadNetworkInfo info)
     {
         info.RoadSegmentCount -= 1;

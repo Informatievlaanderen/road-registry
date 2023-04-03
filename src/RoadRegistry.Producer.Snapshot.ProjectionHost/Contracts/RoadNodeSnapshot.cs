@@ -7,6 +7,7 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
     public class RoadNodeSnapshot : IQueueMessage
     {
         public int Id { get; }
+        public int Version { get; }
         public int TypeId { get; }
         public string TypeDutchName { get; }
         public string ExtendedWkbGeometryAsHex { get; }
@@ -19,6 +20,7 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
 
         public RoadNodeSnapshot(
             int id,
+            int version,
             int typeId,
             string typeDutchName,
             byte[] extendedWkbGeometry,
@@ -29,6 +31,7 @@ namespace Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry
             bool isRemoved)
         {
             Id = id;
+            Version = version;
             TypeId = typeId;
             TypeDutchName = typeDutchName;
             ExtendedWkbGeometryAsHex = extendedWkbGeometry.ToHexString();

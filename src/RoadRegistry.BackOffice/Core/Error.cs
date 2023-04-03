@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Core;
 
 using System.Collections.Generic;
 using System.Linq;
-using Messages;
 
 public class Error : Problem
 {
@@ -20,7 +19,7 @@ public class Error : Problem
     {
         return new Messages.Problem
         {
-            Severity = ProblemSeverity.Error,
+            Severity = Messages.ProblemSeverity.Error,
             Reason = Reason,
             Parameters = Parameters.Select(parameter => parameter.Translate()).ToArray()
         };

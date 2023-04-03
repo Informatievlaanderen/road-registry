@@ -6,20 +6,16 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Extensions;
-using Newtonsoft.Json;
-using Infrastructure.Converters;
 
 public class SqsMessagesBlobClient : IBlobClient
 {
     private readonly IBlobClient _client;
-    private readonly SqsOptions _sqsOptions;
+    private readonly SqsJsonMessageSerializer _sqsJsonMessageSerializer;
 
-    public SqsMessagesBlobClient(IBlobClient client, SqsOptions sqsOptions)
+    public SqsMessagesBlobClient(IBlobClient client, SqsJsonMessageSerializer sqsJsonMessageSerializer)
     {
-        _client = client ?? throw new ArgumentNullException(nameof(client));
-        _sqsOptions = sqsOptions;
+        _client = client.ThrowIfNull();
+        _sqsJsonMessageSerializer = sqsJsonMessageSerializer.ThrowIfNull();
     }
 
     public Task<bool> BlobExistsAsync(BlobName name, CancellationToken cancellationToken = default)
@@ -42,30 +38,11 @@ public class SqsMessagesBlobClient : IBlobClient
     {
         return _client.GetBlobAsync(name, cancellationToken);
     }
-
-    private JsonSerializer CreateJsonSerializer()
-    {
-        var serializer = JsonSerializer.CreateDefault(_sqsOptions.JsonSerializerSettings);
-        
-        serializer.Converters.Add(new OrganizationIdConverter());
-        serializer.Converters.Add(new RoadSegmentAccessRestrictionConverter());
-        serializer.Converters.Add(new RoadSegmentLaneCountConverter());
-        serializer.Converters.Add(new RoadSegmentLaneDirectionConverter());
-        serializer.Converters.Add(new RoadSegmentMorphologyConverter());
-        serializer.Converters.Add(new RoadSegmentStatusConverter());
-        serializer.Converters.Add(new RoadSegmentSurfaceTypeConverter());
-        serializer.Converters.Add(new RoadSegmentWidthConverter());
-
-        return serializer;
-    }
-
+    
     public async Task CreateBlobMessageAsync<T>(BlobName name, Metadata metadata, ContentType contentType, T message,
         CancellationToken cancellationToken = default)
     {
-        var serializer = CreateJsonSerializer();
-        
-        var sqsJsonMessage = SqsJsonMessage.Create(message, serializer);
-        var json = serializer.Serialize(sqsJsonMessage);
+        var json = _sqsJsonMessageSerializer.Serialize(message);
 
         using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
         {
@@ -77,17 +54,13 @@ public class SqsMessagesBlobClient : IBlobClient
     {
         var blob = await GetBlobAsync(name, cancellationToken);
 
-        var serializer = CreateJsonSerializer();
-
         using (var blobStream = await blob.OpenAsync(cancellationToken))
         using (var memoryStream = new MemoryStream())
         {
             await blobStream.CopyToAsync(memoryStream, cancellationToken);
 
             var blobJsonMessage = Encoding.UTF8.GetString(memoryStream.ToArray());
-            var sqsJsonMessage = serializer.Deserialize<SqsJsonMessage>(blobJsonMessage);
-
-            return sqsJsonMessage?.Map(serializer);
+            return _sqsJsonMessageSerializer.Deserialize(blobJsonMessage);
         }
     }
 }

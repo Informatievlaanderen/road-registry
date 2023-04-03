@@ -70,6 +70,10 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
     {
         Unknown, PermitRequested, BuildingPermitGranted, UnderConstruction, InUse, OutOfUse
     };
+    public static readonly RoadSegmentStatus[] AllOutlined =
+    {
+        PermitRequested, BuildingPermitGranted, UnderConstruction, InUse, OutOfUse
+    };
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentStatus> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
@@ -119,7 +123,7 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 
     public static implicit operator string(RoadSegmentStatus instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentStatus left, RoadSegmentStatus right)

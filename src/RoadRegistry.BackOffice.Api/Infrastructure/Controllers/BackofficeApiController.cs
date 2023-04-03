@@ -7,7 +7,6 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Hosts.Infrastructure.Options;
 using Microsoft.AspNetCore.Mvc;
-using NodaTime;
 
 public abstract class BackofficeApiController : ApiController
 {
@@ -22,16 +21,9 @@ public abstract class BackofficeApiController : ApiController
         _ticketingOptions = ticketingOptions;
     }
 
-    protected Provenance CreateFakeProvenance()
+    protected ProvenanceData CreateFakeProvenanceData()
     {
-        return new Provenance(
-            SystemClock.Instance.GetCurrentInstant(),
-            Application.RoadRegistry,
-            new Reason(string.Empty),
-            new Operator(OperatorName.Unknown),
-            Modification.Insert,
-            Organisation.Agiv
-        );
+        return new RoadRegistryProvenanceData(Modification.Insert);
     }
 
     protected IDictionary<string, object> GetMetadata()
@@ -50,7 +42,7 @@ public abstract class BackofficeApiController : ApiController
         where TRequest : SqsRequest
     {
         request.Metadata = GetMetadata();
-        request.ProvenanceData = new ProvenanceData(CreateFakeProvenance());
+        request.ProvenanceData = CreateFakeProvenanceData();
         return request;
     }
 

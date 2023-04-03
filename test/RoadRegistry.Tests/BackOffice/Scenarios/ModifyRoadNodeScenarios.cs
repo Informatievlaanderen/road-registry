@@ -21,6 +21,7 @@ using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
 using Point = NetTopologySuite.Geometries.Point;
 using Problem = RoadRegistry.BackOffice.Messages.Problem;
 using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
+using ProblemSeverity = RoadRegistry.BackOffice.Messages.ProblemSeverity;
 using RejectedChange = RoadRegistry.BackOffice.Messages.RejectedChange;
 using RoadSegmentLaneAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentLaneAttributes;
 using RoadSegmentSurfaceAttributes = RoadRegistry.BackOffice.Messages.RoadSegmentSurfaceAttributes;

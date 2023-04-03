@@ -89,9 +89,10 @@ public class RoadNetworks : IRoadNetworks
 
         var sw = Stopwatch.StartNew();
 
-        _logger.LogInformation("Read stream forward started with {Stream}, version {SnapshotVersion} and page size {StreamPageSize}", Stream, version, StreamPageSize);
-        var page = await _store.ReadStreamForwards(Stream, version, StreamPageSize, cancellationToken);
-        _logger.LogInformation("Read stream forward finished with {Stream}, version {SnapshotVersion} and page size {StreamPageSize} in {StopwatchElapsedMilliseconds}ms", Stream, version, StreamPageSize, sw.ElapsedMilliseconds);
+        var readStreamFromVersion = version == StreamVersion.Start ? version : version + 1;
+        _logger.LogInformation("Read stream forward started with {Stream}, version {SnapshotVersion} and page size {StreamPageSize}", Stream, readStreamFromVersion, StreamPageSize);
+        var page = await _store.ReadStreamForwards(Stream, readStreamFromVersion, StreamPageSize, cancellationToken);
+        _logger.LogInformation("Read stream forward finished with {Stream}, version {SnapshotVersion} and page size {StreamPageSize} in {StopwatchElapsedMilliseconds}ms", Stream, readStreamFromVersion, StreamPageSize, sw.ElapsedMilliseconds);
 
         if (page.Status == PageReadStatus.StreamNotFound)
         {
@@ -102,7 +103,7 @@ public class RoadNetworks : IRoadNetworks
         view = await ProcessPages(view, snapshotContext, page, processMessage, cancellationToken);
         
         var roadNetwork = RoadNetwork.Factory(view.ToImmutable());
-        _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, snapshotContext.Version.Value));
+        _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, ExpectedVersion.Any));
         
         return (roadNetwork, snapshotContext.Version.Value);
     }
@@ -143,6 +144,8 @@ public class RoadNetworks : IRoadNetworks
         
         foreach (var message in page.Messages)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (processMessage != null && processMessage(message.StreamVersion, page.LastStreamVersion))
             {
                 snapshotContext.ProcessingCancelled = true;
@@ -198,7 +201,6 @@ public class RoadNetworks : IRoadNetworks
                 _logger.LogInformation("View restore started from RoadNetwork snapshot version {SnapshotVersion}", version);
                 view = view.RestoreFromSnapshot(snapshot);
                 _logger.LogInformation("View restore finished for RoadNetwork snapshot version {SnapshotVersion} in {StopwatchElapsedMilliseconds}ms", version, sw.ElapsedMilliseconds);
-                version += 1;
             }
             else
             {

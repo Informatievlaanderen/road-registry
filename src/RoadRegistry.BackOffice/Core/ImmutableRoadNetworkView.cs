@@ -125,25 +125,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     public IRoadNetworkView RestoreFromEvent(object @event)
     {
         ArgumentNullException.ThrowIfNull(@event);
-
-        var result = this;
-        switch (@event)
-        {
-            case ImportedRoadNode importedRoadNode:
-                result = result.Given(importedRoadNode);
-                break;
-            case ImportedRoadSegment importedRoadSegment:
-                result = result.Given(importedRoadSegment);
-                break;
-            case ImportedGradeSeparatedJunction importedGradeSeparatedJunction:
-                result = result.Given(importedGradeSeparatedJunction);
-                break;
-            case RoadNetworkChangesAccepted roadNetworkChangesAccepted:
-                result = result.Given(roadNetworkChangesAccepted);
-                break;
-        }
-
-        return result;
+        
+        return RestoreFromEvents(new []{ @event });
     }
 
     public IRoadNetworkView RestoreFromEvents(IReadOnlyCollection<object> events)
@@ -375,6 +358,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 case ModifyRoadSegment modifyRoadSegment:
                     result = result.With(modifyRoadSegment);
                     break;
+                case ModifyRoadSegmentAttributes modifyRoadSegmentAttributes:
+                    result = result.With(modifyRoadSegmentAttributes);
+                    break;
                 case RemoveRoadSegment removeRoadSegment:
                     result = result.With(removeRoadSegment);
                     break;
@@ -590,6 +576,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 case RoadSegmentModified roadSegmentModified:
                     result = result.Given(roadSegmentModified);
                     break;
+                case RoadSegmentAttributesModified roadSegmentAttributesModified:
+                    result = result.Given(roadSegmentAttributesModified);
+                    break;
                 case RoadSegmentRemoved roadSegmentRemoved:
                     result = result.Given(roadSegmentRemoved);
                     break;
@@ -780,7 +769,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             RoadSegmentGeometryDrawMethod.Parse(@event.GeometryDrawMethod));
 
         var segmentBefore = _segments[id];
-        
+
         return new ImmutableRoadNetworkView(
             _nodes
                 .TryReplaceIf(segmentBefore.Start, node => node.Id != start, node => node.DisconnectFrom(id))
@@ -828,6 +817,59 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         );
     }
 
+    private ImmutableRoadNetworkView Given(RoadSegmentAttributesModified @event)
+    {
+        var id = new RoadSegmentId(@event.Id);
+        var version = new RoadSegmentVersion(@event.Version);
+
+        var segmentBefore = _segments[id];
+
+        var attributeHash = new AttributeHash(
+            @event.AccessRestriction is not null
+                ? RoadSegmentAccessRestriction.Parse(@event.AccessRestriction)
+                : segmentBefore.AttributeHash.AccessRestriction,
+            @event.Category is not null
+                ? RoadSegmentCategory.Parse(@event.Category)
+                : segmentBefore.AttributeHash.Category,
+            @event.Morphology is not null
+                ? RoadSegmentMorphology.Parse(@event.Morphology)
+                : segmentBefore.AttributeHash.Morphology,
+            @event.Status is not null
+                ? RoadSegmentStatus.Parse(@event.Status)
+                : segmentBefore.AttributeHash.Status,
+            segmentBefore.AttributeHash.LeftStreetNameId,
+            segmentBefore.AttributeHash.RightStreetNameId,
+            @event.MaintenanceAuthority is not null
+                ? new OrganizationId(@event.MaintenanceAuthority.Code)
+                : segmentBefore.AttributeHash.OrganizationId,
+            segmentBefore.AttributeHash.GeometryDrawMethod
+        );
+
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(version)
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(@event.GetHash())
+                ),
+            _gradeSeparatedJunctions,
+            _maximumTransactionId,
+            _maximumNodeId,
+            _maximumSegmentId,
+            _maximumGradeSeparatedJunctionId,
+            _maximumEuropeanRoadAttributeId,
+            _maximumNationalRoadAttributeId,
+            _maximumNumberedRoadAttributeId,
+            _maximumLaneAttributeId,
+            _maximumWidthAttributeId,
+            _maximumSurfaceAttributeId,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+    
     private ImmutableRoadNetworkView Given(RoadSegmentRemoved @event)
     {
         var id = new RoadSegmentId(@event.Id);
@@ -1262,6 +1304,45 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         );
     }
 
+    private ImmutableRoadNetworkView With(ModifyRoadSegmentAttributes command)
+    {
+        var segmentBefore = _segments[command.Id];
+
+        var attributeHash = new AttributeHash(
+            command.AccessRestriction ?? segmentBefore.AttributeHash.AccessRestriction,
+            command.Category ?? segmentBefore.AttributeHash.Category,
+            command.Morphology ?? segmentBefore.AttributeHash.Morphology,
+            command.Status ?? segmentBefore.AttributeHash.Status,
+            segmentBefore.AttributeHash.LeftStreetNameId,
+            segmentBefore.AttributeHash.RightStreetNameId,
+            command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
+            command.GeometryDrawMethod);
+
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(command.Id, segment => segment
+                    .WithVersion(command.Version)
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(command.GetHash())
+                ),
+            _gradeSeparatedJunctions,
+            _maximumTransactionId,
+            _maximumNodeId,
+            _maximumSegmentId,
+            _maximumGradeSeparatedJunctionId,
+            _maximumEuropeanRoadAttributeId,
+            _maximumNationalRoadAttributeId,
+            _maximumNumberedRoadAttributeId,
+            _maximumLaneAttributeId,
+            _maximumWidthAttributeId,
+            _maximumSurfaceAttributeId,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+
     private ImmutableRoadNetworkView With(RemoveRoadSegment command)
     {
         return new ImmutableRoadNetworkView(
@@ -1648,24 +1729,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         public IRoadNetworkView RestoreFromEvent(object @event)
         {
             ArgumentNullException.ThrowIfNull(@event);
-
-            switch (@event)
-            {
-                case ImportedRoadNode importedRoadNode:
-                    Given(importedRoadNode);
-                    break;
-                case ImportedRoadSegment importedRoadSegment:
-                    Given(importedRoadSegment);
-                    break;
-                case ImportedGradeSeparatedJunction importedGradeSeparatedJunction:
-                    Given(importedGradeSeparatedJunction);
-                    break;
-                case RoadNetworkChangesAccepted roadNetworkChangesAccepted:
-                    Given(roadNetworkChangesAccepted);
-                    break;
-            }
-
-            return this;
+            
+            return RestoreFromEvents(new []{ @event });
         }
 
         public IRoadNetworkView RestoreFromEvents(IReadOnlyCollection<object> events)
@@ -1899,6 +1964,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     case ModifyRoadSegment modifyRoadSegment:
                         With(modifyRoadSegment);
                         break;
+                    case ModifyRoadSegmentAttributes modifyRoadSegmentAttributes:
+                        With(modifyRoadSegmentAttributes);
+                        break;
                     case RemoveRoadSegment removeRoadSegment:
                         With(removeRoadSegment);
                         break;
@@ -2072,6 +2140,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     case RoadSegmentModified roadSegmentModified:
                         Given(roadSegmentModified);
                         break;
+                    case RoadSegmentAttributesModified roadSegmentAttributesModified:
+                        Given(roadSegmentAttributesModified);
+                        break;
                     case RoadSegmentRemoved roadSegmentRemoved:
                         Given(roadSegmentRemoved);
                         break;
@@ -2244,6 +2315,42 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 @event.Widths.Select(width => new AttributeId(width.AttributeId)));
             _segmentReusableSurfaceAttributeIdentifiers.Merge(id,
                 @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)));
+        }
+
+        private void Given(RoadSegmentAttributesModified @event)
+        {
+            var id = new RoadSegmentId(@event.Id);
+            var version = new RoadSegmentVersion(@event.Version);
+            
+            var segmentBefore = _segments[id];
+
+            var attributeHash = new AttributeHash(
+                @event.AccessRestriction is not null
+                    ? RoadSegmentAccessRestriction.Parse(@event.AccessRestriction)
+                    : segmentBefore.AttributeHash.AccessRestriction,
+                @event.Category is not null
+                    ? RoadSegmentCategory.Parse(@event.Category)
+                    : segmentBefore.AttributeHash.Category,
+                @event.Morphology is not null
+                    ? RoadSegmentMorphology.Parse(@event.Morphology)
+                    : segmentBefore.AttributeHash.Morphology,
+                @event.Status is not null
+                    ? RoadSegmentStatus.Parse(@event.Status)
+                    : segmentBefore.AttributeHash.Status,
+                segmentBefore.AttributeHash.LeftStreetNameId,
+                segmentBefore.AttributeHash.RightStreetNameId,
+                @event.MaintenanceAuthority is not null
+                    ? new OrganizationId(@event.MaintenanceAuthority.Code)
+                    : segmentBefore.AttributeHash.OrganizationId,
+                segmentBefore.AttributeHash.GeometryDrawMethod
+            );
+
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(version)
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(@event.GetHash())
+                );
         }
 
         private void Given(RoadSegmentRemoved @event)
@@ -2433,6 +2540,29 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 command.Widths.Select(width => new AttributeId(width.Id)));
             _segmentReusableSurfaceAttributeIdentifiers.Merge(command.Id,
                 command.Surfaces.Select(surface => new AttributeId(surface.Id)));
+        }
+
+        private void With(ModifyRoadSegmentAttributes command)
+        {
+            //NOTE: 2023-03-31 Rik: need to test, no idea how this code ever gets executed
+            var segmentBefore = _segments[command.Id];
+
+            var attributeHash = new AttributeHash(
+                command.AccessRestriction ?? segmentBefore.AttributeHash.AccessRestriction,
+                command.Category ?? segmentBefore.AttributeHash.Category,
+                command.Morphology ?? segmentBefore.AttributeHash.Morphology,
+                command.Status ?? segmentBefore.AttributeHash.Status,
+                segmentBefore.AttributeHash.LeftStreetNameId,
+                segmentBefore.AttributeHash.RightStreetNameId,
+                command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
+                command.GeometryDrawMethod);
+
+            _segments
+                .TryReplace(command.Id, segment => segment
+                    .WithVersion(command.Version)
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(command.GetHash())
+                );
         }
 
         private void With(RemoveRoadSegment command)

@@ -2,6 +2,7 @@
 version 7.0.2
 framework: net6.0
 source https://api.nuget.org/v3/index.json
+
 nuget Be.Vlaanderen.Basisregisters.Build.Pipeline 6.0.5 //"
 
 #load "packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/build-generic.fsx"
@@ -80,6 +81,7 @@ Target.create "Test_Solution" (fun _ ->
 
 Target.create "Publish_Solution" (fun _ ->
   [
+    "RoadRegistry.BackOffice"
     "RoadRegistry.BackOffice.Abstractions"
     "RoadRegistry.BackOffice.Api"
     "RoadRegistry.BackOffice.CommandHost"
@@ -113,6 +115,7 @@ Target.create "Publish_Solution" (fun _ ->
 Target.create "Pack_Solution" (fun _ ->
   [
     "RoadRegistry.Projector"
+    "RoadRegistry.BackOffice"
     "RoadRegistry.BackOffice.Api"
     "RoadRegistry.BackOffice.Abstractions"
     "RoadRegistry.BackOffice.ZipArchiveWriters"

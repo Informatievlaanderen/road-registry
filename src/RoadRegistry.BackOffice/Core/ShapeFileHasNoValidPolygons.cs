@@ -1,8 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using ProblemCodes;
+
 public class ShapeFileHasNoValidPolygons : Error
 {
-    public ShapeFileHasNoValidPolygons() : base(nameof(ShapeFileHasNoValidPolygons))
+    public ShapeFileHasNoValidPolygons()
+        : base(ProblemCode.ShapeFile.HasNoValidPolygons)
     {
     }
 }

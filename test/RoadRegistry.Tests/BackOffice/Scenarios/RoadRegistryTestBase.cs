@@ -34,14 +34,16 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     private static readonly JsonSerializerSettings Settings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    protected readonly Func<EventSourcedEntityMap> EntityMapFactory;
+    protected readonly ILifetimeScope EntityMapFactory;
     private ScenarioRunner _runner;
 
     protected RoadRegistryTestBase(ITestOutputHelper testOutputHelper, ComparisonConfig comparisonConfig = null)
         : base(testOutputHelper)
     {
-        var eventSourcedEntityMap = new EventSourcedEntityMap();
-        EntityMapFactory = () => eventSourcedEntityMap;
+        var containerBuilder = new ContainerBuilder();
+        containerBuilder.RegisterInstance(new EventSourcedEntityMap());
+        var container = containerBuilder.Build();
+        EntityMapFactory = container.BeginLifetimeScope();
 
         ObjectProvider = new Fixture();
         ObjectProvider.Register(() => (ISnapshotStrategy)NoSnapshotStrategy.Instance);
@@ -52,7 +54,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         LoggerFactory = new LoggerFactory();
 
         WithStore(new InMemoryStreamStore(), comparisonConfig);
-        RoadRegistryContext = new RoadRegistryContext(EntityMapFactory(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
+        RoadRegistryContext = new RoadRegistryContext(EntityMapFactory.Resolve<EventSourcedEntityMap>(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
     }
 
     public MemoryBlobClient Client { get; }

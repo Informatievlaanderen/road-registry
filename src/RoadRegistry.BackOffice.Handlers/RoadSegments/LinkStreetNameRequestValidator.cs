@@ -1,27 +1,44 @@
 namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
 using Abstractions.RoadSegments;
-using Abstractions.Validation;
+using BackOffice.Extensions;
+using Core;
+using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
+using FluentValidation.Results;
 
 public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRequest>
 {
+    protected override bool PreValidate(ValidationContext<LinkStreetNameRequest> context, ValidationResult result)
+    {
+        if (context.InstanceToValidate.LinkerstraatnaamId.GetIdentifierFromPuri() <= 0
+            && context.InstanceToValidate.RechterstraatnaamId.GetIdentifierFromPuri() <= 0)
+        {
+            context.AddFailure(new ValidationFailure
+            {
+                PropertyName = "request",
+                ErrorCode = ProblemCode.Common.JsonInvalid
+            });
+
+            return false;
+        }
+
+        return base.PreValidate(context, result);
+    }
+
     public LinkStreetNameRequestValidator()
     {
         RuleFor(x => x.WegsegmentId)
             .GreaterThan(0)
-            .WithErrorCode(ValidationErrors.Common.IncorrectObjectId.Code)
-            .WithMessage(request => ValidationErrors.Common.IncorrectObjectId.Message(request.WegsegmentId));
+            .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
 
         RuleFor(x => x.LinkerstraatnaamId)
             .MustBeValidStreetNamePuri()
-            .WithErrorCode(ValidationErrors.Common.IncorrectObjectId.Code)
-            .WithMessage(request => ValidationErrors.Common.IncorrectObjectId.Message(request.LinkerstraatnaamId));
+            .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
 
         RuleFor(x => x.RechterstraatnaamId)
             .MustBeValidStreetNamePuri()
-            .WithErrorCode(ValidationErrors.Common.IncorrectObjectId.Code)
-            .WithMessage(request => ValidationErrors.Common.IncorrectObjectId.Message(request.RechterstraatnaamId));
+            .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
     }
 }

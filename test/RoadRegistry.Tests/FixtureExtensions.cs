@@ -480,6 +480,30 @@ public static class Customizations
         );
     }
 
+    public static void CustomizeRoadSegmentAttributesModified(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentAttributesModified>(customization =>
+            customization
+                .FromFactory(generator =>
+                    new RoadSegmentAttributesModified
+                    {
+                        Id = fixture.Create<RoadSegmentId>(),
+                        Category = fixture.Create<RoadSegmentCategory>(),
+                        Morphology = fixture.Create<RoadSegmentMorphology>(),
+                        Version = fixture.Create<int>(),
+                        MaintenanceAuthority = new MaintenanceAuthority
+                        {
+                            Code = fixture.Create<OrganizationId>(),
+                            Name = fixture.Create<OrganizationName>()
+                        },
+                        Status = fixture.Create<RoadSegmentStatus>(),
+                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>()
+                    }
+                )
+                .OmitAutoProperties()
+        );
+    }
+
     public static void CustomizeRoadSegmentOnNumberedRoadModified(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentOnNumberedRoadModified>(customization =>

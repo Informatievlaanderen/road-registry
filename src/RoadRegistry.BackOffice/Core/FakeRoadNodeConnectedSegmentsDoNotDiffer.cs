@@ -1,10 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using ProblemCodes;
+
 public class FakeRoadNodeConnectedSegmentsDoNotDiffer : Warning
 {
     public FakeRoadNodeConnectedSegmentsDoNotDiffer(RoadNodeId node, RoadSegmentId segment1, RoadSegmentId segment2)
-        : base(
-            nameof(FakeRoadNodeConnectedSegmentsDoNotDiffer),
+        : base(ProblemCode.RoadNode.Fake.ConnectedSegmentsDoNotDiffer,
             new ProblemParameter(
                 "RoadNodeId",
                 node.ToInt32().ToString()),

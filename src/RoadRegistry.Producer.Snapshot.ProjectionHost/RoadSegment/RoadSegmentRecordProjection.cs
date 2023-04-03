@@ -37,7 +37,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                     new RoadSegmentRecord
                     {
                         Id = envelope.Message.Id,
-                        
+                        Version = envelope.Message.Version,
+
                         MaintainerId = envelope.Message.MaintenanceAuthority.Code,
                         MaintainerName = envelope.Message.MaintenanceAuthority.Name,
 
@@ -80,7 +81,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                         BeginRoadNodeId = envelope.Message.StartNodeId,
                         EndRoadNodeId = envelope.Message.EndNodeId,
                         StreetNameCachePosition = streetNameCachePosition,
-                        
+
                         Origin = envelope.Message.Origin.ToOrigin(),
                         LastChangedTimestamp = envelope.CreatedUtc
                     });
@@ -99,6 +100,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
                         case RoadSegmentModified roadSegmentModified:
                             await ModifyRoadSegment(streetNameCache, context, envelope, roadSegmentModified, token);
+                            break;
+
+                        case RoadSegmentAttributesModified roadSegmentAttributesModified:
+                            await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
                             break;
 
                         case RoadSegmentRemoved roadSegmentRemoved:
@@ -133,6 +138,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var roadSegmentRecord = new RoadSegmentRecord
             {
                 Id = roadSegmentAdded.Id,
+                Version = roadSegmentAdded.Version,
 
                 MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
                 MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
@@ -209,9 +215,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
-                throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentModified.Id} is not found!");
+                throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentModified.Id} is not found");
             }
-            
+
+            roadSegmentRecord.Version = roadSegmentModified.Version;
             roadSegmentRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
             roadSegmentRecord.MaintainerName = roadSegmentModified.MaintenanceAuthority.Name;
 
@@ -233,7 +240,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             roadSegmentRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
             roadSegmentRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
 
-            roadSegmentRecord.RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
             roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
 
             roadSegmentRecord.LeftSideMunicipalityId = null;
@@ -254,7 +260,73 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             roadSegmentRecord.Origin = envelope.Message.ToOrigin();
             roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
-            
+
+            await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
+        }
+
+        private async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
+            RoadSegmentProducerSnapshotContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            RoadSegmentAttributesModified roadSegmentAttributesModified,
+            CancellationToken token)
+        {
+            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id).ConfigureAwait(false);
+            if (roadSegmentRecord == null)
+            {
+                throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentAttributesModified.Id} is not found");
+            }
+
+            if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
+            {
+                roadSegmentRecord.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
+                roadSegmentRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
+            }
+
+            if (roadSegmentAttributesModified.Category is not null)
+            {
+                var category = RoadSegmentCategory.Parse(roadSegmentAttributesModified.Category);
+
+                roadSegmentRecord.CategoryId = category.Translation.Identifier;
+                roadSegmentRecord.CategoryDutchName = category.Translation.Name;
+            }
+
+            if (roadSegmentAttributesModified.Morphology is not null)
+            {
+                var morphology = RoadSegmentMorphology.Parse(roadSegmentAttributesModified.Morphology);
+
+                roadSegmentRecord.MorphologyId = morphology.Translation.Identifier;
+                roadSegmentRecord.MorphologyDutchName = morphology.Translation.Name;
+            }
+
+            if (roadSegmentAttributesModified.Status is not null)
+            {
+                var status = RoadSegmentStatus.Parse(roadSegmentAttributesModified.Status);
+
+                roadSegmentRecord.StatusId = status.Translation.Identifier;
+                roadSegmentRecord.StatusDutchName = status.Translation.Name;
+            }
+
+            if (roadSegmentAttributesModified.AccessRestriction is not null)
+            {
+                var accessRestriction =
+                    RoadSegmentAccessRestriction.Parse(roadSegmentAttributesModified.AccessRestriction);
+
+                roadSegmentRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
+                roadSegmentRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
+            }
+
+            var transactionId = new TransactionId(envelope.Message.TransactionId);
+            roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+
+            roadSegmentRecord.Version = roadSegmentAttributesModified.Version;
+            roadSegmentRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
+
+            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+            roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
+
+            roadSegmentRecord.Origin = envelope.Message.ToOrigin();
+            roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
+
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
         }
 
@@ -263,9 +335,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
-                throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentRemoved.Id} is not found!");
+                throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentRemoved.Id} is not found");
             }
-            
+
             roadSegmentRecord.Origin = envelope.Message.ToOrigin();
             roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
             roadSegmentRecord.IsRemoved = true;
@@ -273,10 +345,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
         }
 
-        private async Task Produce(int roadNodeId, RoadSegmentSnapshot snapshot, CancellationToken cancellationToken)
+        private async Task Produce(int roadSegmentId, RoadSegmentSnapshot snapshot, CancellationToken cancellationToken)
         {
             var result = await _kafkaProducer.Produce(
-                roadNodeId.ToString(CultureInfo.InvariantCulture),
+                roadSegmentId.ToString(CultureInfo.InvariantCulture),
                 snapshot,
                 cancellationToken);
 

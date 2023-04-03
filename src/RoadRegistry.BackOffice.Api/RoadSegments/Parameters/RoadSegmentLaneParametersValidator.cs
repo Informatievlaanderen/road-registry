@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
+using Core;
+using Core.ProblemCodes;
+using Extensions;
 using FluentValidation;
-using RoadRegistry.BackOffice.Abstractions.Validation;
 
 public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentLaneParameters>
 {
@@ -10,7 +12,13 @@ public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentL
         RuleFor(x => x.Aantal)
             .Cascade(CascadeMode.Stop)
             .GreaterThan(0)
-            .WithErrorCode(ValidationErrors.RoadSegmentOutline.Lane.GreaterThanZero.Code)
-            .WithMessage(ValidationErrors.RoadSegmentOutline.Lane.GreaterThanZero.Message);
+            .WithProblemCode(ProblemCode.RoadSegment.Lane.GreaterThanZero);
+
+        RuleFor(x => x.Richting)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithProblemCode(ProblemCode.RoadSegment.LaneDirection.IsRequired)
+            .Must(RoadSegmentLaneDirection.CanParseUsingDutchName)
+            .WithProblemCode(ProblemCode.RoadSegment.LaneDirection.NotValid);
     }
 }

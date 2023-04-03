@@ -1,8 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using ProblemCodes;
+
 public class RoadSegmentStartPointDoesNotMatchNodeGeometry : Error
 {
-    public RoadSegmentStartPointDoesNotMatchNodeGeometry() : base(nameof(RoadSegmentStartPointDoesNotMatchNodeGeometry))
+    public RoadSegmentStartPointDoesNotMatchNodeGeometry()
+        : base(ProblemCode.RoadSegment.StartPoint.DoesNotMatchNodeGeometry)
     {
     }
 }

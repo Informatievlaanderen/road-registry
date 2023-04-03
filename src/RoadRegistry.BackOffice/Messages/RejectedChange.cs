@@ -11,6 +11,7 @@ public class RejectedChange
     public ModifyGradeSeparatedJunction ModifyGradeSeparatedJunction { get; set; }
     public ModifyRoadNode ModifyRoadNode { get; set; }
     public ModifyRoadSegment ModifyRoadSegment { get; set; }
+    public ModifyRoadSegmentAttributes ModifyRoadSegmentAttributes { get; set; }
     public ModifyRoadSegmentOnNumberedRoad ModifyRoadSegmentOnNumberedRoad { get; set; }
     public Problem[] Problems { get; set; }
     public RemoveGradeSeparatedJunction RemoveGradeSeparatedJunction { get; set; }

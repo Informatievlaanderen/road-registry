@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using ProblemCodes;
+
 public class ShapeFileGeometryTypeMustBePolygon : Error
 {
     public ShapeFileGeometryTypeMustBePolygon()
-        : base(nameof(ShapeFileGeometryTypeMustBePolygon))
+        : base(ProblemCode.ShapeFile.GeometryTypeMustBePolygon)
     {
     }
 }

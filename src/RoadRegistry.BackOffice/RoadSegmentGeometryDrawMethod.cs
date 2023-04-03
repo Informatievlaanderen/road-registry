@@ -85,7 +85,7 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
 
     public static implicit operator string(RoadSegmentGeometryDrawMethod instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentGeometryDrawMethod left, RoadSegmentGeometryDrawMethod right)

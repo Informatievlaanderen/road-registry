@@ -1,18 +1,10 @@
 namespace RoadRegistry.Tests;
 
-using System.Reflection;
-using System.Text;
-using Amazon;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentValidation;
-using Hosts.Infrastructure.Extensions;
-using Hosts.Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,15 +17,15 @@ using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Abstractions.Configuration;
-using RoadRegistry.BackOffice.Configuration;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using RoadRegistry.Tests.Infrastructure.Modules;
 using SqlStreamStore;
+using System.Reflection;
+using System.Text;
 using Xunit.DependencyInjection;
 using Xunit.DependencyInjection.Logging;
 
@@ -87,7 +79,7 @@ public abstract class TestStartup
                     .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
                     .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())
                     .AddSingleton<IClock>(new FakeClock(NodaConstants.UnixEpoch))
-                    .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
+                    .AddScoped<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
                     .AddSingleton(ConfigureCommandHandlerDispatcher)
                     .AddSingleton(new RecyclableMemoryStreamManager())
                     .AddSingleton(new ZipArchiveWriterOptions())
@@ -116,7 +108,8 @@ public abstract class TestStartup
                 builder.RegisterModule<BlobClientTestModule>();
 
                 builder
-                    .Register(c => new SqsOptions(RegionEndpoint.EUWest1, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
+                    .Register(c => new FakeSqsOptions())
+                    .As<SqsOptions>()
                     .SingleInstance();
                 
                 builder

@@ -73,6 +73,7 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
         catch (Exception ex)
         {
             Logger.LogError(ex, "Create snapshot failed in {TotalElapsedTimespan}", _stopwatch.Elapsed);
+            throw;
         }
         finally
         {

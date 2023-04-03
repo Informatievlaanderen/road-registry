@@ -63,6 +63,3 @@ files
 
   RoadRegistry.Syndication.Schema.dll => lib\net6.0
   RoadRegistry.Syndication.Schema.pdb => lib\net6.0
-
-  RoadRegistry.Dbase.dll => lib\net6.0
-  RoadRegistry.Dbase.pdb => lib\net6.0

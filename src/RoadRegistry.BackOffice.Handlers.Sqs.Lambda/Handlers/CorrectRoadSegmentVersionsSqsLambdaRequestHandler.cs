@@ -1,34 +1,26 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
-
-using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Dbase.RoadSegments;
 using Editor.Projections;
 using Editor.Schema;
-using Framework;
 using Hosts;
 using Infrastructure;
-using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
 using RoadRegistry.BackOffice.Core;
 using System.Diagnostics;
-using Hosts.Infrastructure.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
-using Reason = Reason;
 
 public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambdaHandler<CorrectRoadSegmentVersionsSqsLambdaRequest>
 {
-    private readonly IRoadNetworkCommandQueue _commandQueue;
     private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
+    private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly Func<EditorContext> _editorContextFactory;
     private readonly RecyclableMemoryStreamManager _manager;
 
@@ -38,7 +30,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IRoadNetworkCommandQueue commandQueue,
+        IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         Func<EditorContext> editorContextFactory,
         RecyclableMemoryStreamManager manager,
@@ -51,8 +43,8 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
             roadRegistryContext,
             logger)
     {
-        _commandQueue = commandQueue;
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
+        _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _editorContextFactory = editorContextFactory;
         _manager = manager;
     }
@@ -61,9 +53,9 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
     {
         await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
-            await _commandQueue.DispatchChangeRoadNetwork(IdempotentCommandHandler, request, "Corrigeer wegsegmenten versies", async translatedChanges =>
+            await _changeRoadNetworkDispatcher.DispatchAsync(request, "Corrigeer wegsegmenten versies", async translatedChanges =>
             {
-                var roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions();
+                var roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
                 
                 if (roadSegmentIdsWithGeometryVersionZero.Any())
                 {
@@ -75,6 +67,8 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
 
                     foreach (var roadSegment in roadSegments)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                             recordNumber,
                             roadSegment.Id,
@@ -101,7 +95,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         return new ETagResponse(string.Empty, string.Empty);
     }
 
-    private async Task<List<int>> GetRoadSegmentIdsWithInvalidVersions()
+    private async Task<List<int>> GetRoadSegmentIdsWithInvalidVersions(CancellationToken cancellationToken)
     {
         await using var context = _editorContextFactory();
 
@@ -109,14 +103,15 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         const int pageSize = 5000;
         var pageIndex = 0;
 
-        while (await FillInvalidRoadSegmentIds(context, pageIndex++, pageSize, roadSegmentIds))
+        while (await FillInvalidRoadSegmentIds(context, pageIndex++, pageSize, roadSegmentIds, cancellationToken))
         {
+            cancellationToken.ThrowIfCancellationRequested();
         }
 
         return roadSegmentIds;
     }
 
-    private async Task<bool> FillInvalidRoadSegmentIds(EditorContext context, int pageIndex, int pageSize, List<int> roadSegmentIds)
+    private async Task<bool> FillInvalidRoadSegmentIds(EditorContext context, int pageIndex, int pageSize, List<int> roadSegmentIds, CancellationToken cancellationToken)
     {
         var sw = Stopwatch.StartNew();
 
@@ -125,7 +120,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
             .OrderBy(x => x.Id)
             .Skip(pageIndex * pageSize)
             .Take(pageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
         Logger.LogInformation("Read finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(context.RoadSegments), sw.ElapsedMilliseconds);
 
         sw.Restart();

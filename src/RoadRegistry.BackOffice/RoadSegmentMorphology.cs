@@ -5,7 +5,6 @@ namespace RoadRegistry.BackOffice;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentValidation.Results;
 
 public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 {
@@ -221,6 +220,27 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         PrimitiveRoad,
         Ferry
     };
+    public static readonly RoadSegmentMorphology[] AllOutlined =
+    {
+        Motorway,
+        Road_with_separate_lanes_that_is_not_a_motorway,
+        Road_consisting_of_one_roadway,
+        TrafficCircle,
+        SpecialTrafficSituation,
+        TrafficSquare,
+        Entry_or_exit_ramp_belonging_to_a_grade_separated_junction,
+        Entry_or_exit_ramp_belonging_to_a_level_junction,
+        ParallelRoad,
+        FrontageRoad,
+        Entry_or_exit_of_a_car_park,
+        Entry_or_exit_of_a_service,
+        PedestrainZone,
+        Walking_or_cycling_path_not_accessible_to_other_vehicles,
+        Tramway_not_accessible_to_other_vehicles,
+        ServiceRoad,
+        PrimitiveRoad,
+        Ferry
+    };
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentMorphology> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
@@ -270,7 +290,7 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public static implicit operator string(RoadSegmentMorphology instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentMorphology left, RoadSegmentMorphology right)

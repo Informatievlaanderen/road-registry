@@ -1,23 +1,11 @@
 namespace RoadRegistry.Hosts;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using Amazon.S3;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
-using BackOffice.Configuration;
 using BackOffice.Extensions;
 using BackOffice.Framework;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
-using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
@@ -28,6 +16,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Hosting.Internal;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Threading;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction : FunctionBase
@@ -36,7 +30,8 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
     protected readonly string ApplicationName;
     protected readonly JsonSerializerSettings EventSerializerSettings;
 
-    protected RoadRegistryLambdaFunction(string applicationName, IReadOnlyCollection<Assembly> messageAssemblies) : base(messageAssemblies)
+    protected RoadRegistryLambdaFunction(string applicationName, IReadOnlyCollection<Assembly> messageAssemblies)
+        : base(messageAssemblies, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())
     {
         ApplicationName = applicationName;
         EventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
@@ -73,7 +68,7 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
 
     protected override IServiceProvider ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<IHostEnvironment>(sp => new HostingEnvironment
+        services.AddSingleton<IHostEnvironment>(new HostingEnvironment
         {
             ApplicationName = ApplicationName,
             EnvironmentName = Debugger.IsAttached ? "Development" : Environments.Production
@@ -83,13 +78,11 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
         var hostEnvironment = tempProvider.GetRequiredService<IHostEnvironment>();
 
         var configuration = BuildConfiguration(hostEnvironment);
-
-        var eventSourcedEntityMap = new EventSourcedEntityMap();
-
+        
         services
             .AddTicketing()
             .AddSingleton(ApplicationMetadata)
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
+            .AddSingleton(_ => new EventSourcedEntityMap())
             .AddEditorContext()
             .AddStreamStore()
             .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })
