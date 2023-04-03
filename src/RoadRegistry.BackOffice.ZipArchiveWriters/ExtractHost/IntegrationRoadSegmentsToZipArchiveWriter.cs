@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
 using Editor.Schema.RoadSegments;
 using Extensions;
@@ -47,9 +48,15 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
                 x => x.Id,
                 cancellationToken);
 
+        var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.Buffer(integrationBufferInMeters)).ToList();
+
+        var integrationBufferedContourGeometry = (IPolygonal)GeometryConfiguration.GeometryFactory
+            .BuildGeometry(integrationBufferedSegmentsGeometries)
+            .ConvexHull();
+
         var segmentsInIntegrationBuffer = await context.RoadSegments
             .ToListWithPolygonials(request.Contour,
-                (dbSet, polygon) => dbSet.InsideContour((IPolygonal)((Geometry)polygon).Buffer(integrationBufferInMeters)),
+                (dbSet, polygon) => dbSet.InsideContour(integrationBufferedContourGeometry),
                 x => x.Id,
                 cancellationToken);
 
