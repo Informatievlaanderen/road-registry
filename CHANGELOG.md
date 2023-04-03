@@ -1,3 +1,10 @@
+## [3.38.1](https://github.com/informatievlaanderen/road-registry/compare/v3.38.0...v3.38.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* WR-646 change extract integration data logic ([#912](https://github.com/informatievlaanderen/road-registry/issues/912)) ([90854a2](https://github.com/informatievlaanderen/road-registry/commit/90854a215c8d6cd5205e08f814b53e857efcb86d))
+
 # [3.38.0](https://github.com/informatievlaanderen/road-registry/compare/v3.37.1...v3.38.0) (2023-04-03)
 
 
