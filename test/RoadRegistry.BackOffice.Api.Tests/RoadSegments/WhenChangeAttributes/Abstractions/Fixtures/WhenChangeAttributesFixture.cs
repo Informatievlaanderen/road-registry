@@ -19,6 +19,7 @@ using RoadRegistry.Editor.Schema;
 using RoadRegistry.Hosts.Infrastructure.Options;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using System.Text;
+using RoadRegistry.Tests.BackOffice;
 
 public abstract class WhenChangeAttributesFixture : ControllerActionFixture<ChangeRoadSegmentAttributesParameters>
 {
@@ -33,6 +34,22 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
         _editorContext = editorContext;
 
         TestData.CopyCustomizationsTo(ObjectProvider);
+
+        ObjectProvider.Customize<RoadSegmentMorphology>(customization =>
+            customization.FromFactory(generator =>
+                {
+                    var valid = RoadSegmentMorphology.All.Where(x => x != RoadSegmentMorphology.Unknown).ToArray();
+                    return valid[generator.Next() % valid.Length];
+                }
+            )
+        );
+        ObjectProvider.Customize<RoadSegmentStatus>(customization =>
+            customization.FromFactory(generator =>
+            {
+                var valid = RoadSegmentStatus.All.Where(x => x != RoadSegmentStatus.Unknown).ToArray();
+                return valid[generator.Next() % valid.Length];
+            })
+        );
     }
 
     protected override async Task SetupAsync()

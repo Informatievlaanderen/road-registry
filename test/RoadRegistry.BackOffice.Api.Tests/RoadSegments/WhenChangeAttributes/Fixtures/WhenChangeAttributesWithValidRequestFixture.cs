@@ -2,6 +2,7 @@ using RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Abstra
 
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Fixtures;
 
+using AutoFixture;
 using MediatR;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
@@ -27,25 +28,25 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
             new()
             {
                 Attribuut = ChangeRoadSegmentAttribute.MorfologischeWegklasse.ToString(),
-                Attribuutwaarde = RoadSegmentMorphology.Parse(TestData.Segment1Added.Morphology).Translation.Name,
+                Attribuutwaarde = ObjectProvider.Create<RoadSegmentMorphology>().Translation.Name,
                 Wegsegmenten = new []{ TestData.Segment1Added.Id }
             },
             new()
             {
                 Attribuut = ChangeRoadSegmentAttribute.Wegcategorie.ToString(),
-                Attribuutwaarde = RoadSegmentCategory.Parse(TestData.Segment1Added.Category).Translation.Name,
+                Attribuutwaarde = ObjectProvider.Create<RoadSegmentCategory>().Translation.Name,
                 Wegsegmenten = new []{ TestData.Segment1Added.Id }
             },
             new()
             {
                 Attribuut = ChangeRoadSegmentAttribute.WegsegmentStatus.ToString(),
-                Attribuutwaarde = RoadSegmentStatus.Parse(TestData.Segment1Added.Status).Translation.Name,
+                Attribuutwaarde = ObjectProvider.Create<RoadSegmentStatus>().Translation.Name,
                 Wegsegmenten = new []{ TestData.Segment1Added.Id }
             },
             new()
             {
                 Attribuut = ChangeRoadSegmentAttribute.Toegangsbeperking.ToString(),
-                Attribuutwaarde = RoadSegmentAccessRestriction.Parse(TestData.Segment1Added.AccessRestriction).Translation.Name,
+                Attribuutwaarde = ObjectProvider.Create<RoadSegmentAccessRestriction>().Translation.Name,
                 Wegsegmenten = new []{ TestData.Segment1Added.Id }
             }
         };
