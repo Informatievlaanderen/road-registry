@@ -10,6 +10,7 @@ using Editor.Schema.RoadSegments;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 
@@ -54,13 +55,32 @@ public class IntegrationRoadSegmentsToZipArchiveWriter : IZipArchiveWriter<Edito
             .BuildGeometry(integrationBufferedSegmentsGeometries)
             .ConvexHull();
 
+        ////TODO-rik temp dump to file
+        //var wktFile = new StringBuilder();
+        //wktFile.AppendLine("wkt");
+        //wktFile.AppendLine(((Geometry)integrationBufferedContourGeometry).AsText());
+        //File.WriteAllText("_wkt_convex.txt", wktFile.ToString());
+
+        //wktFile = new StringBuilder();
+        //wktFile.AppendLine("wkt");
+        //foreach (var item in integrationBufferedSegmentsGeometries)
+        //{
+        //    wktFile.AppendLine(item.AsText());
+        //}
+        //File.WriteAllText("_wkt_integrationbuffered.txt", wktFile.ToString());
+        ////-------------------
+
         var segmentsInIntegrationBuffer = await context.RoadSegments
-            .ToListWithPolygonials(request.Contour,
-                (dbSet, polygon) => dbSet.InsideContour(integrationBufferedContourGeometry),
-                x => x.Id,
-                cancellationToken);
+            .InsideContour(integrationBufferedContourGeometry)
+            .ToListAsync(cancellationToken);
 
         var integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
+
+        integrationSegments = integrationSegments.Where(integrationSegment =>
+            {
+                return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry));
+            })
+            .ToList();
 
         var dbfEntry = archive.CreateEntry("iWegsegment.dbf");
         var dbfHeader = new DbaseFileHeader(
