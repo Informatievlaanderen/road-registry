@@ -6,10 +6,10 @@ using System.Collections.Generic;
 public readonly record struct ProblemSeverity
 {
     private readonly byte _value;
-    public static readonly SortedList<byte, ProblemSeverity> Values = new();
+    private static readonly SortedList<byte, ProblemSeverity> Values = new();
 
-    public static ProblemSeverity Error = new(1);
-    public static ProblemSeverity Warning = new(2);
+    public static readonly ProblemSeverity Error = new(1);
+    public static readonly ProblemSeverity Warning = new(2);
 
     private ProblemSeverity(byte value)
     {
