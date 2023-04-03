@@ -9,13 +9,14 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using SqlStreamStore;
 using System;
+using Autofac;
 
 public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
 {
     public RoadNetworkSnapshotCommandModule(
         IStreamStore store,
         IMediator mediator,
-        Func<EventSourcedEntityMap> entityMapFactory,
+        ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
@@ -31,7 +32,7 @@ public class RoadNetworkSnapshotCommandModule : CommandHandlerModule
         var enricher = EnrichEvent.WithTime(clock);
 
         For<RebuildRoadNetworkSnapshot>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, applicationMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));

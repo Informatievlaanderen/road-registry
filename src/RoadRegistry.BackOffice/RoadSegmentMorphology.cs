@@ -290,7 +290,7 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public static implicit operator string(RoadSegmentMorphology instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentMorphology left, RoadSegmentMorphology right)

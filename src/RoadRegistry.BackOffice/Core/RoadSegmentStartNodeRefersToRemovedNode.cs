@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using ProblemCodes;
+
 public class RoadSegmentStartNodeRefersToRemovedNode : Error
 {
     public RoadSegmentStartNodeRefersToRemovedNode(RoadSegmentId segment, RoadNodeId node)
-        : base(nameof(RoadSegmentStartNodeRefersToRemovedNode),
+        : base(ProblemCode.RoadSegment.StartNode.RefersToRemovedNode,
             new ProblemParameter("SegmentId", segment.ToInt32().ToString()),
             new ProblemParameter("NodeId", node.ToInt32().ToString()))
     {

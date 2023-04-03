@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
+using ProblemCodes;
 
 public abstract class AddRoadSegmentValidatorBase : AbstractValidator<Messages.AddRoadSegment>
 {
@@ -17,8 +19,8 @@ public abstract class AddRoadSegmentValidatorBase : AbstractValidator<Messages.A
         RuleFor(c => c.GeometryDrawMethod)
             .NotEmpty()
             .Must(RoadSegmentGeometryDrawMethod.CanParse)
-            .When(c => c.GeometryDrawMethod != null, ApplyConditionTo.CurrentValidator)
-            .WithMessage("The 'GeometryDrawMethod' is not a RoadSegmentGeometryDrawMethod.");
+            .WithProblemCode(ProblemCode.RoadSegment.GeometryDrawMethod.NotValid)
+            .When(c => c.GeometryDrawMethod != null, ApplyConditionTo.CurrentValidator);
 
         RuleFor(c => c.MaintenanceAuthority)
             .NotEmpty();
@@ -26,26 +28,26 @@ public abstract class AddRoadSegmentValidatorBase : AbstractValidator<Messages.A
         RuleFor(c => c.Morphology)
             .NotEmpty()
             .Must(RoadSegmentMorphology.CanParse)
-            .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
-            .WithMessage("The 'Morphology' is not a RoadSegmentMorphology.");
+            .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid)
+            .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator);
 
         RuleFor(c => c.Status)
             .NotEmpty()
             .Must(RoadSegmentStatus.CanParse)
-            .When(c => c.Status != null, ApplyConditionTo.CurrentValidator)
-            .WithMessage("The 'Status' is not a RoadSegmentStatus.");
+            .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid)
+            .When(c => c.Status != null, ApplyConditionTo.CurrentValidator);
 
         RuleFor(c => c.AccessRestriction)
             .NotEmpty()
             .Must(RoadSegmentAccessRestriction.CanParse)
-            .When(c => c.AccessRestriction != null, ApplyConditionTo.CurrentValidator)
-            .WithMessage("The 'AccessRestriction' is not a RoadSegmentAccessRestriction.");
+            .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid)
+            .When(c => c.AccessRestriction != null, ApplyConditionTo.CurrentValidator);
 
         RuleFor(c => c.Category)
             .NotEmpty()
             .Must(RoadSegmentCategory.CanParse)
-            .When(c => c.Category != null, ApplyConditionTo.CurrentValidator)
-            .WithMessage("The 'Category' is not a RoadSegmentCategory.");
+            .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid)
+            .When(c => c.Category != null, ApplyConditionTo.CurrentValidator);
 
         RuleFor(c => c.Lanes).NotNull();
         RuleFor(c => c.Widths).NotNull();
@@ -59,7 +61,7 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
     {
         if (context.InstanceToValidate.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined.ToString())
         {
-            var validator = new AddRoadSegmentOutlineValidator();
+            var validator = new AddRoadSegmentOutlinedValidator();
             var outlineValidationResult = validator.Validate(context.InstanceToValidate);
             foreach (var failure in outlineValidationResult.Errors)
             {
@@ -86,9 +88,9 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
         RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RequestedRoadSegmentSurfaceAttributeValidator());
     }
 
-    private sealed class AddRoadSegmentOutlineValidator : AddRoadSegmentValidatorBase
+    private sealed class AddRoadSegmentOutlinedValidator : AddRoadSegmentValidatorBase
     {
-        public AddRoadSegmentOutlineValidator()
+        public AddRoadSegmentOutlinedValidator()
         {
             RuleFor(c => c.StartNodeId)
                 .Must(value => value.IsValidStartRoadNodeIdForRoadSegmentOutline());
@@ -99,14 +101,13 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
             RuleFor(c => c.Status)
                 .NotEmpty()
                 .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForRoadSegmentOutline())
-                .WithErrorCode("InvalidStatus")
-                .WithMessage("The 'Status' is not a valid RoadSegmentStatus.");
+                .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
 
             RuleFor(c => c.Morphology)
                 .NotEmpty()
                 .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentOutline())
                 .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
-                .WithMessage("The 'Morphology' is not a valid RoadSegmentMorphology.");
+                .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
 
             RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentOutlineLaneAttributeValidator());
             RuleForEach(c => c.Widths).NotNull().SetValidator(new RequestedRoadSegmentOutlineWidthAttributeValidator());

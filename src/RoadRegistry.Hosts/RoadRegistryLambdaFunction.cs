@@ -30,7 +30,8 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
     protected readonly string ApplicationName;
     protected readonly JsonSerializerSettings EventSerializerSettings;
 
-    protected RoadRegistryLambdaFunction(string applicationName, IReadOnlyCollection<Assembly> messageAssemblies) : base(messageAssemblies)
+    protected RoadRegistryLambdaFunction(string applicationName, IReadOnlyCollection<Assembly> messageAssemblies)
+        : base(messageAssemblies, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())
     {
         ApplicationName = applicationName;
         EventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
@@ -67,7 +68,7 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
 
     protected override IServiceProvider ConfigureServices(IServiceCollection services)
     {
-        services.AddSingleton<IHostEnvironment>(sp => new HostingEnvironment
+        services.AddSingleton<IHostEnvironment>(new HostingEnvironment
         {
             ApplicationName = ApplicationName,
             EnvironmentName = Debugger.IsAttached ? "Development" : Environments.Production
@@ -77,13 +78,11 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
         var hostEnvironment = tempProvider.GetRequiredService<IHostEnvironment>();
 
         var configuration = BuildConfiguration(hostEnvironment);
-
-        var eventSourcedEntityMap = new EventSourcedEntityMap();
-
+        
         services
             .AddTicketing()
             .AddSingleton(ApplicationMetadata)
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
+            .AddSingleton(_ => new EventSourcedEntityMap())
             .AddEditorContext()
             .AddStreamStore()
             .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })

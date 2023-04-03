@@ -48,6 +48,8 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
+using IdentityModel.AspNetCore.OAuth2Introspection;
 
 public class Startup
 {
@@ -130,6 +132,7 @@ public class Startup
                 {
                     AfterMiddleware = x =>
                     {
+                        x.UseMiddleware<ExceptionTranslationMiddleware>();
                         x.UseMiddleware<AddNoCacheHeadersMiddleware>();
                         x.UseHealthChecks(new PathString("/health"), Program.HostingPort, new HealthCheckOptions
                         {
@@ -147,6 +150,10 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        var oAuth2IntrospectionOptions = _configuration
+            .GetSection(nameof(OAuth2IntrospectionOptions))
+            .Get<OAuth2IntrospectionOptions>();
+
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
             {
@@ -192,9 +199,14 @@ public class Startup
                     {
                         // Do not remove this handler!
                         // It must be declared to avoid FluentValidation registering all validators within current assembly.
+                    },
+                    Authorization = options =>
+                    {
+                        options.AddAcmIdmAuthorization();
                     }
                 }
             })
+            .AddAcmIdmAuthorizationHandlers()
             .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator>(new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
             .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
@@ -217,13 +229,13 @@ public class Startup
                     _configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
                 WellknownSchemas.SnapshotSchema))
             .AddRoadRegistrySnapshot()
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
+            .AddScoped(_ => new EventSourcedEntityMap())
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
                             new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),
@@ -231,7 +243,7 @@ public class Startup
                             ),
                             new RoadNetworkCommandModule(
                                 sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IClock>(),
                                 sp.GetService<ILoggerFactory>()
@@ -239,7 +251,7 @@ public class Startup
                             new RoadNetworkExtractCommandModule(
                                 sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),
@@ -292,6 +304,8 @@ public class Startup
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
             ;
+
+        services.AddAcmIdmAuthentication(oAuth2IntrospectionOptions!); // Must be executed at the end
     }
 
     public void ConfigureContainer(ContainerBuilder builder)

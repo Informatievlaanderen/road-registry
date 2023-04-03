@@ -18,7 +18,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Extensions;
-using FeatureToggles;
 using Handlers.Sqs;
 using MediatR;
 using Snapshot.Handlers.Sqs;
@@ -39,19 +38,20 @@ public class Program
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
                 .AddTicketing()
                 .AddRoadRegistrySnapshot()
+                .AddRoadNetworkEventWriter()
+                .AddScoped(_ => new EventSourcedEntityMap())
                 .AddSingleton<ICommandProcessorPositionStore>(sp =>
                     new SqlCommandProcessorPositionStore(
                         new SqlConnectionStringBuilder(
                             sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.CommandHost)
                         ),
                         WellknownSchemas.CommandHostSchema))
-                .AddDistributedStreamStoreLockOptions()
-                .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap()))
+                .AddDistributedStreamStoreLockOptions())
             .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                     sp.GetRequiredService<IStreamStore>(),
-                    sp.GetRequiredService<Func<EventSourcedEntityMap>>(),
+                    sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
                     sp.GetRequiredService<IClock>(),
@@ -59,7 +59,7 @@ public class Program
                 ),
                 new RoadNetworkCommandModule(
                     sp.GetRequiredService<IStreamStore>(),
-                    sp.GetRequiredService<Func<EventSourcedEntityMap>>(),
+                    sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
@@ -67,7 +67,7 @@ public class Program
                 new RoadNetworkExtractCommandModule(
                     sp.GetRequiredService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetRequiredService<IStreamStore>(),
-                    sp.GetRequiredService<Func<EventSourcedEntityMap>>(),
+                    sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
                     sp.GetRequiredService<IClock>(),
@@ -76,7 +76,7 @@ public class Program
                 new RoadNetworkSnapshotCommandModule(
                     sp.GetRequiredService<IStreamStore>(),
                     sp.GetRequiredService<IMediator>(),
-                    sp.GetRequiredService<Func<EventSourcedEntityMap>>(),
+                    sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
                     sp.GetRequiredService<IClock>(),

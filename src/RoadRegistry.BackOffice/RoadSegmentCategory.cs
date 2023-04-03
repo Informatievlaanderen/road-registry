@@ -255,7 +255,7 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 
     public static implicit operator string(RoadSegmentCategory instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentCategory left, RoadSegmentCategory right)

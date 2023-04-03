@@ -122,7 +122,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
 
             if (nationalRoadRecord == null)
             {
-                throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is not found!");
+                throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is not found");
             }
 
             nationalRoadRecord.Origin = envelope.Message.ToOrigin();

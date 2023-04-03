@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
 using Abstractions.Exceptions;
-using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -10,7 +9,6 @@ using Core;
 using Exceptions;
 using Extensions;
 using Hosts;
-using Hosts.Infrastructure.Extensions;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
@@ -19,7 +17,7 @@ using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
 public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<UnlinkStreetNameSqsLambdaRequest>
 {
-    private readonly IRoadNetworkCommandQueue _commandQueue;
+    private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public UnlinkStreetNameSqsLambdaRequestHandler(
@@ -28,7 +26,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IRoadNetworkCommandQueue commandQueue,
+        IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<UnlinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
@@ -39,7 +37,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
             roadRegistryContext,
             logger)
     {
-        _commandQueue = commandQueue;
+        _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
@@ -47,7 +45,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
     {
         await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
-            await _commandQueue.DispatchChangeRoadNetwork(IdempotentCommandHandler, request, "Straatnaam ontkoppelen", async translatedChanges =>
+            await _changeRoadNetworkDispatcher.DispatchAsync(request, "Straatnaam ontkoppelen", async translatedChanges =>
             {
                 var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
                 var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.Request.WegsegmentId));
@@ -67,9 +65,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                     {
                         if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
                         {
-                            throw new RoadRegistryValidationException(
-                                ValidationErrors.RoadSegment.StreetName.Left.NotLinked.Message(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId!),
-                                ValidationErrors.RoadSegment.StreetName.Left.NotLinked.Code);
+                            throw new RoadRegistryValidationException(new RoadSegmentStreetNameLeftNotLinked(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId));
                         }
                     }
 
@@ -77,9 +73,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                     {
                         if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
                         {
-                            throw new RoadRegistryValidationException(
-                                ValidationErrors.RoadSegment.StreetName.Right.NotLinked.Message(request.Request.WegsegmentId, request.Request.RechterstraatnaamId!),
-                                ValidationErrors.RoadSegment.StreetName.Right.NotLinked.Code);
+                            throw new RoadRegistryValidationException(new RoadSegmentStreetNameRightNotLinked(request.Request.WegsegmentId, request.Request.RechterstraatnaamId));
                         }
                     }
 

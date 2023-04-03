@@ -11,7 +11,6 @@ public class RoadNetworkChangesAccepted : IMessage, IHaveHash
 {
     public const string EventName = "RoadNetworkChangesAccepted";
     
-    public int Version { get; set; }
     public AcceptedChange[] Changes { get; set; }
     public string Operator { get; set; }
     public string Organization { get; set; }

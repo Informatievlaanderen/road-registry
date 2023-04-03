@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Core;
 using FluentValidation;
@@ -11,6 +12,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
+using SqlStreamStore.Streams;
 
 public static class CommandHandlerModulePipelines
 {
@@ -21,7 +23,7 @@ public static class CommandHandlerModulePipelines
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     public static ICommandHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
-        this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, Func<EventSourcedEntityMap> entityMapFactory, IRoadNetworkSnapshotReader snapshotReader, ILoggerFactory loggerFactory, EventEnricher enricher)
+        this ICommandHandlerBuilder<TCommand> builder, IStreamStore store, ILifetimeScope lifetimeScope, IRoadNetworkSnapshotReader snapshotReader, ILoggerFactory loggerFactory, EventEnricher enricher)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
@@ -29,13 +31,18 @@ public static class CommandHandlerModulePipelines
 
         return builder.Pipe<IRoadRegistryContext>(next => async (message, commandMetadata, ct) =>
             {
-                await HandleMessage(store, entityMapFactory, snapshotReader, enricher, context => next(context, message, commandMetadata, ct), message, loggerFactory, ct);
+                await HandleMessage(store, lifetimeScope, snapshotReader, enricher, context => next(context, message, commandMetadata, ct), message, loggerFactory, ct);
             }
         );
     }
 
     public static IEventHandlerBuilder<IRoadRegistryContext, TCommand> UseRoadRegistryContext<TCommand>(
-        this IEventHandlerBuilder<TCommand> builder, IStreamStore store, IRoadNetworkSnapshotReader snapshotReader, ILoggerFactory loggerFactory, EventEnricher enricher)
+        this IEventHandlerBuilder<TCommand> builder,
+        IStreamStore store,
+        ILifetimeScope lifetimeScope,
+        IRoadNetworkSnapshotReader snapshotReader,
+        ILoggerFactory loggerFactory,
+        EventEnricher enricher)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
@@ -43,14 +50,14 @@ public static class CommandHandlerModulePipelines
 
         return builder.Pipe<IRoadRegistryContext>(next => async (message, ct) =>
             {
-                await HandleMessage(store, () => new EventSourcedEntityMap(), snapshotReader, enricher, context => next(context, message, ct), message, loggerFactory, ct);
+                await HandleMessage(store, lifetimeScope, snapshotReader, enricher, context => next(context, message, ct), message, loggerFactory, ct);
             }
         );
     }
 
     private static async Task HandleMessage<TMessage>(
         IStreamStore store,
-        Func<EventSourcedEntityMap> entityMapFactory,
+        ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         EventEnricher enricher,
         Func<IRoadRegistryContext, Task> next,
@@ -59,20 +66,22 @@ public static class CommandHandlerModulePipelines
         CancellationToken ct)
         where TMessage : IRoadRegistryMessage
     {
-        using (var map = entityMapFactory())
+        using (var container = lifetimeScope.BeginLifetimeScope())
         {
+            var map = container.Resolve<EventSourcedEntityMap>();
+       
             var context = new RoadRegistryContext(map, store, snapshotReader, SerializerSettings, EventMapping, loggerFactory);
 
             await next(context);
 
-            var roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
+            IRoadNetworkEventWriter roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
 
             foreach (var entry in map.Entries)
             {
                 var events = entry.Entity.TakeEvents();
                 if (events.Length != 0)
                 {
-                    await roadNetworkEventWriter.Write(entry.Stream, message, entry.ExpectedVersion, events, ct);
+                    await roadNetworkEventWriter.WriteAsync(entry.Stream, message, entry.ExpectedVersion, events, ct);
                 }
             }
         }

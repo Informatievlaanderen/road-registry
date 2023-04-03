@@ -1,9 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
-using System.Linq;
-using Abstractions.Validation;
+using Core;
 using FluentValidation;
 using FluentValidation.Results;
+using System.Linq;
+using Core.ProblemCodes;
 
 public class ChangeRoadSegmentAttributesParametersValidator : AbstractValidator<ChangeRoadSegmentAttributesParameters>
 {
@@ -31,9 +32,10 @@ public class ChangeRoadSegmentAttributesParametersValidator : AbstractValidator<
         if (context.InstanceToValidate is not null && context.InstanceToValidate.Any())
             return true;
 
-        context.AddFailure(new ValidationFailure("request", ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Message)
+        context.AddFailure(new ValidationFailure
         {
-            ErrorCode = ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Code
+            PropertyName = "request",
+            ErrorCode = ProblemCode.RoadSegment.ChangeAttributesRequestNull
         });
 
         return false;

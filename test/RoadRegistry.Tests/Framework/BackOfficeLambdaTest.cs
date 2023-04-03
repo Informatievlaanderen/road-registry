@@ -65,11 +65,11 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
 
         var roadNetworkChangesAccepted = new RoadNetworkChangesAccepted
         {
-            RequestId = RequestId,
-            Reason = ReasonForChange,
-            Operator = ChangedByOperator,
-            OrganizationId = ChangedByOrganization,
-            Organization = ChangedByOrganizationName,
+            RequestId = TestData.RequestId,
+            Reason = TestData.ReasonForChange,
+            Operator = TestData.ChangedByOperator,
+            OrganizationId = TestData.ChangedByOrganization,
+            Organization = TestData.ChangedByOrganizationName,
             TransactionId = new TransactionId(1),
             Changes = new[]
             {

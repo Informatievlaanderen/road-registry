@@ -1,33 +1,26 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
-
-using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Editor.Projections;
 using Editor.Schema;
-using Framework;
 using Hosts;
 using Infrastructure;
-using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
 using RoadRegistry.BackOffice.Core;
 using System.Diagnostics;
-using BackOffice.Extracts.Dbase.RoadSegments;
-using Hosts.Infrastructure.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
 public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambdaHandler<CorrectRoadSegmentVersionsSqsLambdaRequest>
 {
-    private readonly IRoadNetworkCommandQueue _commandQueue;
     private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
+    private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
     private readonly Func<EditorContext> _editorContextFactory;
     private readonly RecyclableMemoryStreamManager _manager;
 
@@ -37,7 +30,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IRoadNetworkCommandQueue commandQueue,
+        IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         Func<EditorContext> editorContextFactory,
         RecyclableMemoryStreamManager manager,
@@ -50,8 +43,8 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
             roadRegistryContext,
             logger)
     {
-        _commandQueue = commandQueue;
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
+        _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _editorContextFactory = editorContextFactory;
         _manager = manager;
     }
@@ -60,7 +53,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
     {
         await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
-            await _commandQueue.DispatchChangeRoadNetwork(IdempotentCommandHandler, request, "Corrigeer wegsegmenten versies", async translatedChanges =>
+            await _changeRoadNetworkDispatcher.DispatchAsync(request, "Corrigeer wegsegmenten versies", async translatedChanges =>
             {
                 var roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
                 

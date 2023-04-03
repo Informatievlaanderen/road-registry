@@ -1,11 +1,12 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System.Globalization;
+using ProblemCodes;
 
 public class RoadSegmentEndPointMeasureValueNotEqualToLength : Error
 {
     public RoadSegmentEndPointMeasureValueNotEqualToLength(double pointX, double pointY, double measure, double length)
-        : base(nameof(RoadSegmentEndPointMeasureValueNotEqualToLength),
+        : base(ProblemCode.RoadSegment.EndPoint.MeasureValueNotEqualToLength,
             new ProblemParameter("PointX", pointX.ToString(CultureInfo.InvariantCulture)),
             new ProblemParameter("PointY", pointY.ToString(CultureInfo.InvariantCulture)),
             new ProblemParameter("Measure", measure.ToString(CultureInfo.InvariantCulture)),

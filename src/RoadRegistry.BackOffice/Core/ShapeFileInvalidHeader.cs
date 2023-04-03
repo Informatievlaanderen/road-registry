@@ -1,11 +1,13 @@
-﻿namespace RoadRegistry.BackOffice.Core;
+namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using ProblemCodes;
 
 public class ShapeFileInvalidHeader : Error
 {
     public ShapeFileInvalidHeader(Exception ex)
-        : base(nameof(ShapeFileInvalidHeader), new ProblemParameter("ErrorMessage", ex.Message))
+        : base(ProblemCode.ShapeFile.InvalidHeader,
+            new ProblemParameter("ErrorMessage", ex.Message))
     {
     }
 }

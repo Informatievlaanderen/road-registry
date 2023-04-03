@@ -9,13 +9,9 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Exceptions;
-using FluentValidation;
-using FluentValidation.Results;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
-using NodaTime;
-using SqlStreamStore;
 using SqlStreamStore.Streams;
 
 /// <summary>Upload controller, post upload</summary>
@@ -33,8 +29,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
     private readonly RoadNetworkFeatureCompareBlobClient _client;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
     private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
-    private readonly IStreamStore _store;
-    private readonly IClock _clock;
+    private readonly IRoadNetworkEventWriter _roadNetworkEventWriter;
 
     public UploadExtractFeatureCompareRequestHandler(
         FeatureCompareMessagingOptions messagingOptions,
@@ -42,15 +37,13 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         RoadNetworkFeatureCompareBlobClient client,
         ISqsQueuePublisher sqsQueuePublisher,
         IZipArchiveBeforeFeatureCompareValidator validator,
-        IStreamStore store,
-        IClock clock,
+        IRoadNetworkEventWriter roadNetworkEventWriter,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
         _messagingOptions = messagingOptions;
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
-        _store = store;
-        _clock = clock;
+        _roadNetworkEventWriter = roadNetworkEventWriter;
         _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
     }
 
@@ -104,9 +97,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
 
     private async Task WriteRoadNetworkChangesArchiveUploadedToStore(RoadNetworkChangesArchive archive, CancellationToken cancellationToken)
     {
-        var roadNetworkEventWriter = new RoadNetworkEventWriter(_store, EnrichEvent.WithTime(_clock));
-
-        await roadNetworkEventWriter.WriteAsync(new StreamName(archive.Id), Guid.NewGuid(), ExpectedVersion.NoStream, new object[]
+        await _roadNetworkEventWriter.WriteAsync(new StreamName(archive.Id), Guid.NewGuid(), ExpectedVersion.NoStream, new object[]
         {
             new RoadNetworkChangesArchiveUploaded { ArchiveId = archive.Id, Description = archive.Description }
         }, cancellationToken);

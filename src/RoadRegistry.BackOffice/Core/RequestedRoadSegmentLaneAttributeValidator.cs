@@ -23,7 +23,6 @@ public class RequestedRoadSegmentLaneAttributeValidator : AbstractValidator<Requ
 
 public class RequestedRoadSegmentOutlineLaneAttributeValidator : RequestedRoadSegmentLaneAttributeValidator
 {
-    //TODO-rik apply outline validation in dbase
     public RequestedRoadSegmentOutlineLaneAttributeValidator()
     {
         RuleFor(c => c.Count)
