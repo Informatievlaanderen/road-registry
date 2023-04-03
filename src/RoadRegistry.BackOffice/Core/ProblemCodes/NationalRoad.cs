@@ -4,6 +4,6 @@ public sealed partial record ProblemCode
 {
     public static class NationalRoad
     {
-        public static ProblemCode NumberNotFound = new("NationalRoadNumberNotFound");
+        public static readonly ProblemCode NumberNotFound = new("NationalRoadNumberNotFound");
     }
 }

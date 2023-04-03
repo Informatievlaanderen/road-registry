@@ -2,17 +2,20 @@ namespace RoadRegistry.BackOffice.Core.ProblemCodes;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 public sealed partial record ProblemCode
 {
-    public static readonly SortedList<string, ProblemCode> Values = new();
+    private static readonly SortedList<string, ProblemCode> Values = new();
     private readonly string _value;
 
-    public ProblemCode(string value)
+    private ProblemCode(string value)
     {
         _value = value;
         Values.Add(value, this);
     }
+
+    public static ProblemCode[] GetValues() => Values.Values.ToArray();
 
     public static ProblemCode FromReason(string problemReason)
     {

@@ -4,6 +4,6 @@ public sealed partial record ProblemCode
 {
     public static class GradeSeparatedJunction
     {
-        public static ProblemCode NotFound = new("GradeSeparatedJunctionNotFound");
+        public static readonly ProblemCode NotFound = new("GradeSeparatedJunctionNotFound");
     }
 }

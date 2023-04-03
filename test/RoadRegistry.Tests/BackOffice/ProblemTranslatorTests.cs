@@ -25,11 +25,12 @@ public class ProblemTranslatorTests
             }
         };
 
-        Assert.NotEmpty(ProblemCode.Values);
+        var allValues = ProblemCode.GetValues();
+        Assert.NotEmpty(allValues);
 
         var problemCodesWithoutTranslation = new List<ProblemCode>();
 
-        foreach (var problemCode in ProblemCode.Values.Values)
+        foreach (var problemCode in allValues)
         {
             var parameters = defaultProblemParameters.ContainsKey(problemCode)
                 ? defaultProblemParameters[problemCode]
