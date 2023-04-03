@@ -7,4 +7,5 @@ docker-compose --project-name road-registry-tools \
     -f ./docker/compose/mssql.yml \
     -f ./docker/compose/tools.yml \
     up $1 \
-    --remove-orphans
+    --remove-orphans \
+    --force-recreate

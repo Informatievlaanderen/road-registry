@@ -138,29 +138,4 @@ public class RoadSegment
     {
         return new RoadSegment(Id, version, Geometry, GeometryVersion, Start, End, AttributeHash, PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
     }
-
-    public RoadSegment WithMaintenanceAuthorityAttribute(OrganizationId maintenanceAuthority)
-    {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash.With(maintenanceAuthority), PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
-    }
-
-    public RoadSegment WithStatusAttribute(RoadSegmentStatus status)
-    {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash.With(status), PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
-    }
-
-    public RoadSegment WithMorphologyAttribute(RoadSegmentMorphology morphology)
-    {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash.With(morphology), PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
-    }
-
-    public RoadSegment WithAccessRestrictionAttribute(RoadSegmentAccessRestriction accessRestriction)
-    {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash.With(accessRestriction), PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
-    }
-
-    public RoadSegment WithCategoryAttribute(RoadSegmentCategory category)
-    {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash.With(category), PartOfEuropeanRoads, PartOfNationalRoads, PartOfNumberedRoads, LastEventHash);
-    }
 }

@@ -1,9 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using ProblemCodes;
+
 public class RoadSegmentLaneAttributeFromPositionNotEqualToZero : Error
 {
     public RoadSegmentLaneAttributeFromPositionNotEqualToZero(AttributeId attributeId, RoadSegmentPosition fromPosition)
-        : base(nameof(RoadSegmentLaneAttributeFromPositionNotEqualToZero),
+        : base(ProblemCode.RoadSegment.Lane.FromPositionNotEqualToZero,
             new ProblemParameter("AttributeId", attributeId.ToInt32().ToString()),
             new ProblemParameter("FromPosition", fromPosition.ToString()))
     {

@@ -5,6 +5,7 @@ using FluentAssertions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
+using Scenarios;
 using Xunit;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using Problem = RoadRegistry.BackOffice.Messages.Problem;
@@ -42,11 +43,11 @@ public class ImmutableRoadNetworkViewTests
                         Changes = Array.Empty<AcceptedChange>()
                     }));
 
-        RoadNetworkFixtures = RoadNetworkTestHelpers.Create();
+        RoadNetworkFixtures = new RoadNetworkTestData();
     }
 
     public Fixture Fixture { get; }
-    public RoadNetworkTestHelpers RoadNetworkFixtures { get; }
+    public RoadNetworkTestData RoadNetworkFixtures { get; }
 
     // TODO
     //[Fact(Skip = "")]

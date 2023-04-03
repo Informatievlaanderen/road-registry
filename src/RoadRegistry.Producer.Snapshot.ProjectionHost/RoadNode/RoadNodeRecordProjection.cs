@@ -85,7 +85,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 
             if (roadNodeRecord == null)
             {
-                throw new InvalidOperationException($"{nameof(RoadNodeRecord)} with id {roadNodeModified.Id} is not found!");
+                throw new InvalidOperationException($"{nameof(RoadNodeRecord)} with id {roadNodeModified.Id} is not found");
             }
 
             var typeTranslation = RoadNodeType.Parse(roadNodeModified.Type).Translation;
@@ -113,8 +113,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             {
                 return;
             }
-
-            roadNodeRecord.Version = envelope.Message.Version;
+            
             roadNodeRecord.Origin = envelope.Message.ToOrigin();
             roadNodeRecord.LastChangedTimestamp = envelope.CreatedUtc;
             roadNodeRecord.IsRemoved = true;

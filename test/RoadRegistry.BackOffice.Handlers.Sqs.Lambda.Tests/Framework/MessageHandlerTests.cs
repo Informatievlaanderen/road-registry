@@ -30,7 +30,7 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
-        var blobClient = new SqsMessagesBlobClient(Client, new SqsOptions());
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new FakeSqsOptions()));
 
         var messageData = ObjectProvider.Create<TestSqsRequest>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
@@ -55,7 +55,7 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
-        var blobClient = new SqsMessagesBlobClient(Client, new SqsOptions());
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new FakeSqsOptions()));
 
         var messageData = ObjectProvider.Create<object>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };
@@ -81,7 +81,7 @@ public sealed class MessageHandlerTests : RoadRegistryTestBase
         var containerBuilder = new ContainerBuilder();
         containerBuilder.Register(_ => mediator.Object);
         var container = containerBuilder.Build();
-        var blobClient = new SqsMessagesBlobClient(Client, new SqsOptions());
+        var blobClient = new SqsMessagesBlobClient(Client, new SqsJsonMessageSerializer(new FakeSqsOptions()));
 
         var messageData = ObjectProvider.Create<TSqsRequest>();
         var messageMetadata = new MessageMetadata { MessageGroupId = ObjectProvider.Create<string>() };

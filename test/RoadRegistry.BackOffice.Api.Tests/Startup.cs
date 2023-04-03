@@ -32,7 +32,7 @@ public class Startup : TestStartup
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetService<RoadNetworkUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                 sp.GetService<IClock>(),
@@ -40,7 +40,7 @@ public class Startup : TestStartup
                 ),
                 new RoadNetworkCommandModule(
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
@@ -48,7 +48,7 @@ public class Startup : TestStartup
                 new RoadNetworkExtractCommandModule(
                     sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),
@@ -64,15 +64,8 @@ public class Startup : TestStartup
         builder.RegisterModule<Handlers.Sqs.MediatorModule>();
 
         builder
-            .Register(_ =>
-            {
-                var sqsQueueMock = new Mock<IBackOfficeS3SqsQueue>();
-                sqsQueueMock
-                    .Setup(x => x.Copy(It.IsAny<SqsRequest>(), It.IsAny<SqsQueueOptions>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(() => true);
-                return sqsQueueMock.Object;
-            })
-            .SingleInstance();
+            .RegisterInstance(new FakeBackOfficeS3SqsQueue())
+            .As<IBackOfficeS3SqsQueue>();
     }
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
@@ -82,6 +75,7 @@ public class Startup : TestStartup
             .AddFakeTicketing()
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
+            .AddRoadNetworkEventWriter()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

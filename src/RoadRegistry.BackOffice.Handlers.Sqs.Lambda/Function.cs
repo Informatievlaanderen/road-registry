@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
+using FluentValidation;
 
 public sealed class Function : RoadRegistryLambdaFunction
 {
@@ -35,12 +36,15 @@ public sealed class Function : RoadRegistryLambdaFunction
             .AddSingleton<IStreetNameCache, StreetNameCache>()
             .AddDistributedStreamStoreLockOptions()
             .AddRoadNetworkCommandQueue()
+            .AddRoadNetworkEventWriter()
+            .AddChangeRoadNetworkDispatcher()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
                     CommandModules.RoadNetwork(sp)
                 })
             )
+            .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .AddLogging(configure =>
             {
                 configure.AddRoadRegistryLambdaLogger();

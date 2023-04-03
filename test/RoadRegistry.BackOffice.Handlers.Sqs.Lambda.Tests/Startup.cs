@@ -47,7 +47,7 @@ public class Startup : TestStartup
             {
                 new RoadNetworkCommandModule(
                     c.Resolve<IStreamStore>(),
-                    c.Resolve<Func<EventSourcedEntityMap>>(),
+                    c.Resolve<ILifetimeScope>(),
                     new FakeRoadNetworkSnapshotReader(),
                     c.Resolve<IClock>(),
                     c.Resolve<ILoggerFactory>()
@@ -58,10 +58,8 @@ public class Startup : TestStartup
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
-        var eventSourcedEntityMap = new EventSourcedEntityMap();
-
         services
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
+            .AddSingleton<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
             .AddTransient<ICustomRetryPolicy>(sp => new FakeRetryPolicy())
             .AddTransient<IdempotencyContext>(sp => new FakeIdempotencyContextFactory().CreateDbContext(Array.Empty<string>()))
             .AddDbContext<EditorContext>((sp, options) => options

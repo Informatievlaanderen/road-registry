@@ -1,10 +1,9 @@
 namespace RoadRegistry.BackOffice.Abstractions.RoadSegments;
 
-using System.ComponentModel.DataAnnotations;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using MediatR;
 
-public sealed record ChangeRoadSegmentAttributesRequest() : IRequest<ETagResponse>
+public sealed record ChangeRoadSegmentAttributesRequest : IRequest<ETagResponse>
 {
     private readonly List<ChangeRoadSegmentAttributeRequest> _changeRequests = new();
 
@@ -14,13 +13,26 @@ public sealed record ChangeRoadSegmentAttributesRequest() : IRequest<ETagRespons
         init => _changeRequests = value.ToList();
     }
 
-    public void Add(ChangeRoadSegmentAttributeRequest request) => _changeRequests.Add(request);
+    public ChangeRoadSegmentAttributesRequest Add(RoadSegmentId roadSegmentId, Action<ChangeRoadSegmentAttributeRequest> updateRoadSegment)
+    {
+        var request = _changeRequests.SingleOrDefault(x => x.Id == roadSegmentId);
+        if (request is null)
+        {
+            request = new ChangeRoadSegmentAttributeRequest { Id = roadSegmentId };
+            _changeRequests.Add(request);
+        }
+
+        updateRoadSegment(request);
+        return this;
+    }
 }
 
-public abstract record ChangeRoadSegmentAttributeRequest(RoadSegmentId Id);
-
-public record ChangeRoadSegmentMaintenanceAuthorityAttributeRequest(RoadSegmentId Id, OrganizationId MaintenanceAuthority) : ChangeRoadSegmentAttributeRequest(Id);
-public record ChangeRoadSegmentStatusAttributeRequest(RoadSegmentId Id, RoadSegmentStatus Status) : ChangeRoadSegmentAttributeRequest(Id);
-public record ChangeRoadSegmentMorphologyAttributeRequest(RoadSegmentId Id, RoadSegmentMorphology Morphology) : ChangeRoadSegmentAttributeRequest(Id);
-public record ChangeRoadSegmentAccessRestrictionAttributeRequest(RoadSegmentId Id, RoadSegmentAccessRestriction AccessRestriction) : ChangeRoadSegmentAttributeRequest(Id);
-public record ChangeRoadSegmentCategoryAttributeRequest(RoadSegmentId Id, RoadSegmentCategory Category) : ChangeRoadSegmentAttributeRequest(Id);
+public class ChangeRoadSegmentAttributeRequest
+{
+    public RoadSegmentId Id { get; set; }
+    public OrganizationId? MaintenanceAuthority { get; set; }
+    public RoadSegmentStatus? Status { get; set; }
+    public RoadSegmentMorphology? Morphology { get; set; }
+    public RoadSegmentAccessRestriction? AccessRestriction { get; set; }
+    public RoadSegmentCategory? Category { get; set; }
+}

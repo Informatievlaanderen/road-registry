@@ -18,7 +18,6 @@ public class RequestedRoadSegmentWidthAttributeValidator : AbstractValidator<Req
 
 public class RequestedRoadSegmentOutlineWidthAttributeValidator : RequestedRoadSegmentWidthAttributeValidator
 {
-    //TODO-rik apply outline validation in dbase
     public RequestedRoadSegmentOutlineWidthAttributeValidator()
     {
         RuleFor(c => c.Width)

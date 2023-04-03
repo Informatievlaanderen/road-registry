@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Core;
 
 using System;
 using System.Threading.Tasks;
+using Autofac;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 {
     public RoadNetworkCommandModule(
         IStreamStore store,
-        Func<EventSourcedEntityMap> entityMapFactory,
+        ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         IClock clock,
         ILoggerFactory loggerFactory)
@@ -27,7 +28,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(ChangeRoadNetwork));
@@ -63,7 +64,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<CreateOrganization>()
             .UseValidator(new CreateOrganizationValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(CreateOrganization));
@@ -109,7 +110,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<DeleteOrganization>()
             .UseValidator(new DeleteOrganizationValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(DeleteOrganization));
@@ -146,7 +147,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<RenameOrganization>()
             .UseValidator(new RenameOrganizationValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, loggerFactory, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RenameOrganization));

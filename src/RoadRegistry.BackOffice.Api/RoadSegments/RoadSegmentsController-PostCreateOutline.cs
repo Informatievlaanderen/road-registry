@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.RoadSegmentsOutline;
-using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
@@ -76,10 +75,6 @@ public partial class RoadSegmentsController
             var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
 
             return Accepted(result);
-        }
-        catch (AggregateIdIsNotFoundException)
-        {
-            throw new ApiException(ValidationErrors.RoadNetwork.NotFound.Message, StatusCodes.Status404NotFound);
         }
         catch (IdempotencyException)
         {

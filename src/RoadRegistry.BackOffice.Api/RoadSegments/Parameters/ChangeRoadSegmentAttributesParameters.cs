@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 

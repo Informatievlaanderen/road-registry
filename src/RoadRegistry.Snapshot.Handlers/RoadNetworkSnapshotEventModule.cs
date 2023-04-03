@@ -1,6 +1,7 @@
 namespace RoadRegistry.Snapshot.Handlers;
 
 using System;
+using Autofac;
 using BackOffice.FeatureToggles;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using MediatR;
@@ -13,12 +14,12 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
 using SqlStreamStore;
-using Reason = BackOffice.Reason;
 
 public class RoadNetworkSnapshotEventModule : EventHandlerModule
 {
     public RoadNetworkSnapshotEventModule(
         IStreamStore store,
+        ILifetimeScope lifetimeScope,
         IMediator mediator,
         IRoadNetworkSnapshotReader snapshotReader,
         IRoadNetworkSnapshotWriter snapshotWriter,
@@ -37,7 +38,7 @@ public class RoadNetworkSnapshotEventModule : EventHandlerModule
         var enricher = EnrichEvent.WithTime(clock);
 
         For<RoadNetworkChangesAccepted>()
-            .UseRoadRegistryContext(store, snapshotReader, loggerFactory, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, message, ct) =>
             {
                 logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesAccepted));

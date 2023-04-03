@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs;
 
 using Autofac;
 using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Configuration;
 using Extensions;
@@ -17,16 +16,21 @@ public sealed class SqsHandlersModule : Module
             .Register(c =>
             {
                 var configuration = c.Resolve<IConfiguration>();
+                var jsonSerializerSettings = SqsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
                 var sqsConfiguration = configuration.GetOptions<SqsConfiguration>();
                 if (sqsConfiguration?.ServiceUrl != null)
                 {
-                    return new DevelopmentSqsOptions(EventsJsonSerializerSettingsProvider.CreateSerializerSettings(), sqsConfiguration.ServiceUrl) ;
+                    return new DevelopmentSqsOptions(jsonSerializerSettings, sqsConfiguration.ServiceUrl);
                 }
-
-                return new SqsOptions(EventsJsonSerializerSettingsProvider.CreateSerializerSettings());
+                
+                return new SqsOptions(jsonSerializerSettings);
             })
             .As<SqsOptions>()
+            .SingleInstance();
+
+        builder
+            .Register(c => new SqsJsonMessageSerializer(c.Resolve<SqsOptions>()))
             .SingleInstance();
 
         builder
@@ -43,11 +47,11 @@ public sealed class SqsHandlersModule : Module
             .RegisterOptions<SqsQueueUrlOptions>();
 
         builder
-            .Register(c => new SqsMessagesBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.SqsMessagesBucket), c.Resolve<SqsOptions>()))
+            .Register(c => new SqsMessagesBlobClient(c.Resolve<IBlobClientFactory>().Create(WellknownBuckets.SqsMessagesBucket), c.Resolve<SqsJsonMessageSerializer>()))
             .SingleInstance();
 
         builder
-            .Register(c => new BackOfficeS3SqsQueue(c.Resolve<SqsOptions>(), c.Resolve<SqsQueueUrlOptions>(), c.Resolve<SqsMessagesBlobClient>()))
+            .Register(c => new BackOfficeS3SqsQueue(c.Resolve<SqsOptions>(), c.Resolve<SqsQueueUrlOptions>(), c.Resolve<SqsMessagesBlobClient>(), c.Resolve<ILogger<BackOfficeS3SqsQueue>>()))
             .As<IBackOfficeS3SqsQueue>()
             .SingleInstance();
     }

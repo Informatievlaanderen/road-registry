@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.BackOffice.Infrastructure.Converters;
+namespace RoadRegistry.BackOffice.Infrastructure.Converters;
 
 using System;
 using Newtonsoft.Json;

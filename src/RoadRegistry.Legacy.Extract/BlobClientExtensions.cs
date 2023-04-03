@@ -25,7 +25,10 @@ internal static class BlobClientExtensions
                     var s3Client = host.Services.GetRequiredService<AmazonS3Client>();
                     var s3BlobClientOptions = host.Services.GetRequiredService<S3BlobClientOptions>();
                     var buckets = await s3Client.ListBucketsAsync(token);
-                    if (!buckets.Buckets.Exists(bucket => bucket.BucketName == s3BlobClientOptions.Buckets[WellknownBuckets.ImportLegacyBucket])) await s3Client.PutBucketAsync(s3BlobClientOptions.Buckets[WellknownBuckets.ImportLegacyBucket], token);
+                    if (!buckets.Buckets.Exists(bucket => bucket.BucketName == s3BlobClientOptions.Buckets[WellknownBuckets.ImportLegacyBucket]))
+                    {
+                        await s3Client.PutBucketAsync(s3BlobClientOptions.Buckets[WellknownBuckets.ImportLegacyBucket], token);
+                    }
                 }
 
                 break;

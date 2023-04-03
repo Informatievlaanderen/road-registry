@@ -1,19 +1,16 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
-using Abstractions.Validation;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Editor.Projections.DutchTranslations;
+using Core;
+using DutchTranslations;
 using Exceptions;
+using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Framework;
@@ -21,7 +18,11 @@ using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using FeatureToggles;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Core.ProblemCodes;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
@@ -57,9 +58,13 @@ public class UploadController : ControllerBase
     {
         if (archive == null)
         {
-            throw new ValidationException("Archive is missing", new[]
+            throw new ValidationException("Archive is required", new[]
             {
-                new ValidationFailure(nameof(archive), ValidationErrors.Common.NotFound.Message)
+                new ValidationFailure
+                {
+                    PropertyName = nameof(archive),
+                    ErrorCode = ProblemCode.Common.IsRequired
+                }
             });
         }
 
@@ -90,7 +95,7 @@ public class UploadController : ControllerBase
             var validationFailures = ex.Problems
                 .Select(problem => problem.Translate())
                 .Select(problem =>
-                    new ValidationFailure(problem.File, ProblemWithZipArchive.Translator(problem))
+                    new ValidationFailure(problem.File, ProblemWithZipArchive.Translator(problem).Message)
                     {
                         ErrorCode = $"{problem.Severity}{problem.Reason}"
                     })

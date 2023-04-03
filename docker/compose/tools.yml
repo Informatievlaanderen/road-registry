@@ -15,7 +15,6 @@ services:
       LAMBDA_EXECUTOR: docker-reuse
       LAMBDA_REMOTE_DOCKER: true
       LAMBDA_REMOVE_CONTAINERS: true
-      LAMBDA_DOCKER_FLAGS: "-p 19891:19891"
       DEBUG: true
       PORT_WEB_UI: 8081
       SQS_ENDPOINT_STRATEGY: path
@@ -28,6 +27,19 @@ services:
       - ../../.localstack/init:/etc/localstack/init
       - ../../.localstack/lambda:/etc/localstack/lambda
       - /var/run/docker.sock:/var/run/docker.sock
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+    - "9010:9000"
+    - "9011:9001"
+    environment:
+      MINIO_ACCESS_KEY: Q3AM3UQ867SPQQA43P2F
+      MINIO_SECRET_KEY: zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+    volumes:
+    - minio-data:/data
+    command: server --console-address :9001 /data
 
   seq:
     image: datalust/seq:latest
@@ -109,6 +121,7 @@ volumes:
   seq-data:
     name: seq-data
     external: true
+  minio-data:
 
 networks:
   default:

@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
-using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Core;
 using TicketingService.Abstractions;
 

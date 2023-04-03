@@ -26,7 +26,6 @@ public abstract class EventSourcedEntity : IEventSourcedEntity
             return Array.Empty<object>();
 
         var recorded = Recorder.RecordedEvents;
-        Recorder.Reset();
         return recorded;
     }
 
