@@ -44,6 +44,7 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode IsRequired = new("RoadSegmentLaneIsRequired");
             public static readonly ProblemCode FromPositionNotEqualToZero = new("RoadSegmentLaneAttributeFromPositionNotEqualToZero");
             public static readonly ProblemCode GreaterThanZero = new("RoadSegmentLaneGreaterThanZero");
+            public static readonly ProblemCode LessThanOrEqualToMaximum = new("RoadSegmentLaneLessThanOrEqualToMaximum");
             public static readonly ProblemCode HasLengthOfZero = new("RoadSegmentLaneAttributeHasLengthOfZero");
             public static readonly ProblemCode NotAdjacent = new("RoadSegmentLaneAttributesNotAdjacent");
             public static readonly ProblemCode ToPositionNotEqualToLength = new("RoadSegmentLaneAttributeToPositionNotEqualToLength");

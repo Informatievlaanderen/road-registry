@@ -72,6 +72,7 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .WithProblemCode(ProblemCode.RoadSegment.Width.NotValid);
 
         RuleFor(x => x.AantalRijstroken)
+            .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Lane.IsRequired)
             .SetValidator(new RoadSegmentLaneParametersValidator());

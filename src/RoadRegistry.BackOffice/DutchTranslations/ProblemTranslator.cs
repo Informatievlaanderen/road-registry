@@ -56,6 +56,7 @@ public static class ProblemTranslator
         {ProblemCode.RoadSegment.Lane.ToPositionNotEqualToLength, problem => new(problem.Severity, problem.Reason, $"De tot positie ({problem.Parameters[1].Value}) van het laatste rijstroken attribuut met id {problem.Parameters[0].Value} is niet de lengte van het wegsegment ({problem.Parameters[2].Value}).") },
         {ProblemCode.RoadSegment.Lane.IsRequired, problem => new(problem.Severity, "AantalRijstrokenVerplicht", "Aantal rijstroken is verplicht.")},
         {ProblemCode.RoadSegment.Lane.GreaterThanZero, problem => new(problem.Severity, "AantalRijstrokenGroterDanNul", "Aantal rijstroken moet groter dan nul zijn.")},
+        {ProblemCode.RoadSegment.Lane.LessThanOrEqualToMaximum, problem => new(problem.Severity, "AantalRijstrokenKleinerOfGelijkAanMaximum", $"Aantal rijstroken mag niet groter dan {RoadSegmentLaneCount.Maximum} zijn.")},
         {ProblemCode.RoadSegment.LaneDirection.IsRequired, problem => new(problem.Severity, "AantalRijstrokenRichtingVerplicht", "Aantal rijstroken richting is verplicht.")},
         {ProblemCode.RoadSegment.LaneDirection.NotValid, problem => new(problem.Severity, "AantalRijstrokenRichtingNietCorrect", $"Aantal rijstroken richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired, problem => new(problem.Severity, "WegbeheerderVerplicht", "Wegbeheerder is verplicht.") },
