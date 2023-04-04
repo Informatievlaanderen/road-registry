@@ -10,6 +10,6 @@ public class WhenCreateOutlineWithInvalidLaneCount : WhenCreateOutlineWithInvali
     {
     }
 
-    protected override string ExpectedErrorCode => "AantalRijstrokenVerplicht";
+    protected override string ExpectedErrorCode => "AantalRijstrokenGroterDanNul";
     protected override string ExpectedErrorMessagePrefix => "Aantal rijstroken moet groter dan nul zijn.";
 }
