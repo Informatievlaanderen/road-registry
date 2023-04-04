@@ -35,6 +35,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
     private readonly Scheduler _scheduler;
+    public event EventHandler CatchUpCompleted;
 
     protected DbContextEventProcessor(
         string queueName,
@@ -205,7 +206,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                 }
 
                                 await context.DisposeAsync().ConfigureAwait(false);
-
+                                CatchUpCompleted?.Invoke(this, EventArgs.Empty);
                                 //switch to subscription as of the last page
                                 await _messageChannel.Writer
                                     .WriteAsync(
