@@ -122,6 +122,10 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         {
             throw new RoadRegistryValidationException(new StreetNameNotFound());
         }
+        if (streetNameStatus is null)
+        {
+            throw new RoadRegistryValidationException(new StreetNameNotFound());
+        }
 
         if (!string.Equals(streetNameStatus, "proposed", StringComparison.InvariantCultureIgnoreCase)
             && !string.Equals(streetNameStatus, "current", StringComparison.InvariantCultureIgnoreCase))
