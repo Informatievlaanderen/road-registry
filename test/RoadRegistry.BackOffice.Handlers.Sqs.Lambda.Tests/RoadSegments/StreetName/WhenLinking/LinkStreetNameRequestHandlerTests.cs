@@ -111,6 +111,25 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         VerifyThatTicketHasError(ticketing, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
     }
 
+
+    [Fact]
+    public async Task LinkStreetNameToRoadSegment_LeftStreetName_NotFound()
+    {
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = TestData.Segment1Added.Id;
+
+        TestData.Segment1Added.LeftSide.StreetNameId = null;
+
+        await GivenSegment1Added();
+
+        //Act
+        await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, StreetNamePuri(WellKnownStreetNameIds.Null), null));
+
+        //Assert
+        VerifyThatTicketHasError(ticketing, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.");
+    }
+
     [InlineData(WellKnownStreetNameIds.Proposed)]
     [InlineData(WellKnownStreetNameIds.Current)]
     [Theory]
