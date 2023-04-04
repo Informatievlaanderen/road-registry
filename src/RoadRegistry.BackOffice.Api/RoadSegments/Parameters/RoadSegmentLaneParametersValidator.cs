@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
-using Core;
 using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
@@ -11,6 +10,8 @@ public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentL
     {
         RuleFor(x => x.Aantal)
             .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithProblemCode(ProblemCode.RoadSegment.Lane.IsRequired)
             .GreaterThan(0)
             .WithProblemCode(ProblemCode.RoadSegment.Lane.GreaterThanZero);
 

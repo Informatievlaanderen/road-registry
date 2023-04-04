@@ -54,7 +54,7 @@ public record PostRoadSegmentOutlineParameters
     /// </summary>
     [DataMember(Name = "Wegbreedte", Order = 7)]
     [JsonProperty]
-    public int Wegbreedte { get; set; }
+    public int? Wegbreedte { get; set; }
 
     /// <summary>
     ///     Aantal rijstroken van het wegsegment, en hun richting t.o.v. de richting van het wegsegment (begin- naar

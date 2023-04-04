@@ -10,7 +10,7 @@ public class RoadSegmentLaneParameters
     /// </summary>
     [DataMember(Name = "Aantal", Order = 1)]
     [JsonProperty]
-    public int Aantal { get; set; }
+    public int? Aantal { get; set; }
 
     /// <summary>
     ///     De richting van de wegsegmentschets (begin- naar eindknoop).

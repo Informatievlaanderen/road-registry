@@ -32,7 +32,6 @@ public partial class RoadSegmentsController
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost("acties/schetsen")]
-    [ValidationFilter]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
@@ -67,8 +66,8 @@ public partial class RoadSegmentsController
                     RoadSegmentAccessRestriction.ParseUsingDutchName(parameters.Toegangsbeperking),
                     new OrganizationId(parameters.Wegbeheerder),
                     RoadSegmentSurfaceType.ParseUsingDutchName(parameters.Wegverharding),
-                    new RoadSegmentWidth(parameters.Wegbreedte),
-                    new RoadSegmentLaneCount(parameters.AantalRijstroken.Aantal),
+                    new RoadSegmentWidth(parameters.Wegbreedte!.Value),
+                    new RoadSegmentLaneCount(parameters.AantalRijstroken.Aantal!.Value),
                     RoadSegmentLaneDirection.ParseUsingDutchName(parameters.AantalRijstroken.Richting)
                 ),
                 Metadata = GetMetadata(),

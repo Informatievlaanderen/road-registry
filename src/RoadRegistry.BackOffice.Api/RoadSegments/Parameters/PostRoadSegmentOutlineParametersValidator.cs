@@ -62,9 +62,9 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
 
         RuleFor(x => x.Wegbreedte)
             .Cascade(CascadeMode.Stop)
-            .GreaterThan(0)
-            .WithProblemCode(ProblemCode.RoadSegment.Width.GreaterThanZero)
-            .Must(RoadSegmentWidth.Accepts)
+            .NotNull()
+            .WithProblemCode(ProblemCode.RoadSegment.Width.IsRequired)
+            .Must(width => RoadSegmentWidth.Accepts(width!.Value))
             .WithProblemCode(ProblemCode.RoadSegment.Width.NotValid);
 
         RuleFor(x => x.AantalRijstroken)

@@ -75,7 +75,6 @@ public sealed partial record ProblemCode
         public static class Width
         {
             public static readonly ProblemCode FromPositionNotEqualToZero = new("RoadSegmentWidthAttributeFromPositionNotEqualToZero");
-            public static readonly ProblemCode GreaterThanZero = new("RoadSegmentWidthAttributeGreaterThanZero");
             public static readonly ProblemCode HasLengthOfZero = new("RoadSegmentWidthHasLengthOfZero");
             public static readonly ProblemCode IsRequired = new("RoadSegmentWidthIsRequired");
             public static readonly ProblemCode NotAdjacent = new("RoadSegmentWidthAttributesNotAdjacent");
