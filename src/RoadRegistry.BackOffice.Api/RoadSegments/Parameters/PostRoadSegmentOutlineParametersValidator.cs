@@ -68,6 +68,8 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Width.IsRequired)
+            .LessThanOrEqualTo(RoadSegmentWidth.Maximum)
+            .WithProblemCode(ProblemCode.RoadSegment.Width.LessThanOrEqualToMaximum)
             .Must(width => RoadSegmentWidth.Accepts(width!.Value))
             .WithProblemCode(ProblemCode.RoadSegment.Width.NotValid);
 

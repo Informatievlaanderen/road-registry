@@ -82,6 +82,7 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode NotAdjacent = new("RoadSegmentWidthAttributesNotAdjacent");
             public static readonly ProblemCode NotValid = new("RoadSegmentWidthNotValid");
             public static readonly ProblemCode ToPositionNotEqualToLength = new("RoadSegmentWidthAttributeToPositionNotEqualToLength");
+            public static readonly ProblemCode LessThanOrEqualToMaximum = new("RoadSegmentWidthLessThanOrEqualToMaximum");
         }
 
         public static class Surface
