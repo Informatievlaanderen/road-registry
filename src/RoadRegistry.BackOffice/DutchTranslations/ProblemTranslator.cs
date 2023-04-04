@@ -44,6 +44,7 @@ public static class ProblemTranslator
         {ProblemCode.RoadSegment.EndNode.RefersToRemovedNode, problem => new(problem.Severity, problem.Reason, $"De eind knoop van wegsegment {problem.Parameters[0].Value} verwijst naar een verwijderde knoop {problem.Parameters[1].Value}.") },
         {ProblemCode.RoadSegment.EndPoint.DoesNotMatchNodeGeometry, problem => new(problem.Severity, problem.Reason, "De positie van het eind punt van het wegsegment stemt niet overeen met de geometrie van de eind wegknoop.") },
         {ProblemCode.RoadSegment.EndPoint.MeasureValueNotEqualToLength, problem => new(problem.Severity, problem.Reason, $"De meting ({problem.Parameters[2].Value}) op het eind punt [X={problem.Parameters[0].Value},Y={problem.Parameters[1].Value}] is niet gelijk aan de lengte ({problem.Parameters[3].Value}).") },
+        {ProblemCode.RoadSegment.Geometry.IsRequired, problem => new(problem.Severity, "MiddellijnGeometrieVerplicht", "Middellijngeometrie is verplicht.") },
         {ProblemCode.RoadSegment.Geometry.LengthIsZero, problem => new(problem.Severity, problem.Reason, "De lengte van het wegsegment is 0.") },
         {ProblemCode.RoadSegment.Geometry.SelfIntersects, problem => new(problem.Severity, problem.Reason, "De geometrie van het wegsegment kruist zichzelf.") },
         {ProblemCode.RoadSegment.Geometry.SelfOverlaps, problem => new(problem.Severity, problem.Reason, "De geometrie van het wegsegment overlapt zichzelf.") },

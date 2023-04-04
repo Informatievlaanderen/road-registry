@@ -20,7 +20,11 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
         _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
 
         RuleFor(x => x.MiddellijnGeometrie)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
             .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
             .Must(GeometryTranslator.GmlIsValidLineString);
 
         RuleFor(x => x.Wegsegmentstatus)
