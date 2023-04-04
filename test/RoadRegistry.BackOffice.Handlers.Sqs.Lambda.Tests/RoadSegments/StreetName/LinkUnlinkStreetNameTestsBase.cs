@@ -23,7 +23,9 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
         StreetNameCache = new FakeStreetNameCache()
             .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))
             .AddStreetName(WellKnownStreetNameIds.Current, "Current street", nameof(StreetNameStatus.Current))
-            .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired));
+            .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired))
+            .AddStreetName(WellKnownStreetNameIds.Null, "Not found street", null)
+            ;
     }
 
     protected IStreetNameCache StreetNameCache { get; }
@@ -89,5 +91,6 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
         public const int Proposed = 1;
         public const int Current = 2;
         public const int Retired = 3;
+        public const int Null = 4;
     }
 }
