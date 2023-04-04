@@ -69,9 +69,8 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
 
         RuleFor(x => x.AantalRijstroken)
             .NotNull()
-            .WithProblemCode(ProblemCode.RoadSegment.Lane.GreaterThanZero)
-            .SetValidator(new RoadSegmentLaneParametersValidator())
-            .When(x => x.AantalRijstroken != null);
+            .WithProblemCode(ProblemCode.RoadSegment.Lane.IsRequired)
+            .SetValidator(new RoadSegmentLaneParametersValidator());
     }
 
     private Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
