@@ -20,7 +20,11 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
         _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
 
         RuleFor(x => x.MiddellijnGeometrie)
+            .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
             .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
             .Must(GeometryTranslator.GmlIsValidLineString);
 
         RuleFor(x => x.Wegsegmentstatus)
@@ -62,16 +66,18 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
 
         RuleFor(x => x.Wegbreedte)
             .Cascade(CascadeMode.Stop)
-            .GreaterThan(0)
-            .WithProblemCode(ProblemCode.RoadSegment.Width.GreaterThanZero)
-            .Must(RoadSegmentWidth.Accepts)
+            .NotNull()
+            .WithProblemCode(ProblemCode.RoadSegment.Width.IsRequired)
+            .LessThanOrEqualTo(RoadSegmentWidth.Maximum)
+            .WithProblemCode(ProblemCode.RoadSegment.Width.LessThanOrEqualToMaximum)
+            .Must(width => RoadSegmentWidth.Accepts(width!.Value))
             .WithProblemCode(ProblemCode.RoadSegment.Width.NotValid);
 
         RuleFor(x => x.AantalRijstroken)
+            .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithProblemCode(ProblemCode.RoadSegment.Lane.GreaterThanZero)
-            .SetValidator(new RoadSegmentLaneParametersValidator())
-            .When(x => x.AantalRijstroken != null);
+            .WithProblemCode(ProblemCode.RoadSegment.Lane.IsRequired)
+            .SetValidator(new RoadSegmentLaneParametersValidator());
     }
 
     private Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)

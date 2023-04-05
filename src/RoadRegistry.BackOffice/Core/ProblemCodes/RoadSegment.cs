@@ -27,6 +27,7 @@ public sealed partial record ProblemCode
 
         public static class Geometry
         {
+            public static readonly ProblemCode IsRequired = new("RoadSegmentGeometryIsRequired");
             public static readonly ProblemCode LengthIsZero = new("RoadSegmentGeometryLengthIsZero");
             public static readonly ProblemCode SelfIntersects = new("RoadSegmentGeometrySelfIntersects");
             public static readonly ProblemCode SelfOverlaps = new("RoadSegmentGeometrySelfOverlaps");
@@ -43,6 +44,7 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode IsRequired = new("RoadSegmentLaneIsRequired");
             public static readonly ProblemCode FromPositionNotEqualToZero = new("RoadSegmentLaneAttributeFromPositionNotEqualToZero");
             public static readonly ProblemCode GreaterThanZero = new("RoadSegmentLaneGreaterThanZero");
+            public static readonly ProblemCode LessThanOrEqualToMaximum = new("RoadSegmentLaneLessThanOrEqualToMaximum");
             public static readonly ProblemCode HasLengthOfZero = new("RoadSegmentLaneAttributeHasLengthOfZero");
             public static readonly ProblemCode NotAdjacent = new("RoadSegmentLaneAttributesNotAdjacent");
             public static readonly ProblemCode ToPositionNotEqualToLength = new("RoadSegmentLaneAttributeToPositionNotEqualToLength");
@@ -75,12 +77,12 @@ public sealed partial record ProblemCode
         public static class Width
         {
             public static readonly ProblemCode FromPositionNotEqualToZero = new("RoadSegmentWidthAttributeFromPositionNotEqualToZero");
-            public static readonly ProblemCode GreaterThanZero = new("RoadSegmentWidthAttributeGreaterThanZero");
             public static readonly ProblemCode HasLengthOfZero = new("RoadSegmentWidthHasLengthOfZero");
             public static readonly ProblemCode IsRequired = new("RoadSegmentWidthIsRequired");
             public static readonly ProblemCode NotAdjacent = new("RoadSegmentWidthAttributesNotAdjacent");
             public static readonly ProblemCode NotValid = new("RoadSegmentWidthNotValid");
             public static readonly ProblemCode ToPositionNotEqualToLength = new("RoadSegmentWidthAttributeToPositionNotEqualToLength");
+            public static readonly ProblemCode LessThanOrEqualToMaximum = new("RoadSegmentWidthLessThanOrEqualToMaximum");
         }
 
         public static class Surface

@@ -14,6 +14,7 @@ using Swashbuckle.AspNetCore.Filters;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Infrastructure.Controllers.Attributes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 
@@ -65,8 +66,8 @@ public partial class RoadSegmentsController
                     RoadSegmentAccessRestriction.ParseUsingDutchName(parameters.Toegangsbeperking),
                     new OrganizationId(parameters.Wegbeheerder),
                     RoadSegmentSurfaceType.ParseUsingDutchName(parameters.Wegverharding),
-                    new RoadSegmentWidth(parameters.Wegbreedte),
-                    new RoadSegmentLaneCount(parameters.AantalRijstroken.Aantal),
+                    new RoadSegmentWidth(parameters.Wegbreedte!.Value),
+                    new RoadSegmentLaneCount(parameters.AantalRijstroken.Aantal!.Value),
                     RoadSegmentLaneDirection.ParseUsingDutchName(parameters.AantalRijstroken.Richting)
                 ),
                 Metadata = GetMetadata(),

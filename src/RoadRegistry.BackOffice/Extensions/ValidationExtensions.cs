@@ -7,6 +7,7 @@ using System.Linq;
 using Core;
 using Core.ProblemCodes;
 using DutchTranslations;
+using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using ProblemSeverity = Messages.ProblemSeverity;
@@ -33,9 +34,9 @@ public static class ValidationExtensions
         return rule;
     }
 
-    public static ValidationException TranslateToDutch(this ValidationException ex)
+    public static DutchValidationException TranslateToDutch(this ValidationException ex)
     {
-        return new ValidationException(ex.Errors.TranslateToDutch());
+        return new DutchValidationException(ex.Errors.TranslateToDutch());
     }
 
     public static IEnumerable<ValidationFailure> TranslateToDutch(this IEnumerable<ValidationFailure> errors)

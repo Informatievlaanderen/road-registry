@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Tests.BackOffice;
+namespace RoadRegistry.Tests.BackOffice;
 
 using Albedo;
 using AutoFixture;
@@ -24,8 +24,8 @@ public class RoadSegmentLaneCountTests
     [InlineData(-1, false)]
     [InlineData(0, true)]
     [InlineData(1, true)]
-    [InlineData(7, true)]
-    [InlineData(8, false)]
+    [InlineData(10, true)]
+    [InlineData(11, false)]
     [InlineData(int.MaxValue, false)]
     public void AcceptsReturnsExpectedResult(int value, bool expected)
     {

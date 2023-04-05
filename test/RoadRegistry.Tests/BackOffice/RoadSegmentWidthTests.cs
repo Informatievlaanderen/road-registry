@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Tests.BackOffice;
+namespace RoadRegistry.Tests.BackOffice;
 
 using Albedo;
 using AutoFixture;
@@ -25,7 +25,7 @@ public class RoadSegmentWidthTests
     [InlineData(0, true)]
     [InlineData(1, true)]
     [InlineData(45, true)]
-    [InlineData(46, false)]
+    [InlineData(51, false)]
     [InlineData(int.MaxValue, false)]
     public void AcceptsReturnsExpectedResult(int value, bool expected)
     {
