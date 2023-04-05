@@ -1,3 +1,11 @@
+## [3.38.3](https://github.com/informatievlaanderen/road-registry/compare/v3.38.2...v3.38.3) (2023-04-05)
+
+
+### Bug Fixes
+
+* Validation behaviour and messages for WR-651, WR-652, WR-653, WR-654, WR-656, WR-657 ([#915](https://github.com/informatievlaanderen/road-registry/issues/915)) ([29521f8](https://github.com/informatievlaanderen/road-registry/commit/29521f85038be58649ff36a4b6a71d0e4cb8683a))
+* WR-631 wms projectionhost SyndicationContext disposed bug ([e199f6b](https://github.com/informatievlaanderen/road-registry/commit/e199f6b50d27dfba76454bbb3f9852ab14fbd27b))
+
 ## [3.38.2](https://github.com/informatievlaanderen/road-registry/compare/v3.38.1...v3.38.2) (2023-04-04)
 
 
