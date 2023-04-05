@@ -1,3 +1,12 @@
+## [3.38.2](https://github.com/informatievlaanderen/road-registry/compare/v3.38.1...v3.38.2) (2023-04-04)
+
+
+### Bug Fixes
+
+* make wms projection hostedservice ([17a36af](https://github.com/informatievlaanderen/road-registry/commit/17a36af01b11e069a16767b421b3296eb842a601))
+* run containers as non-root ([#913](https://github.com/informatievlaanderen/road-registry/issues/913)) ([c3bcf16](https://github.com/informatievlaanderen/road-registry/commit/c3bcf1613d16653c4d0afd62a1ccee6e23f0c96e))
+* WR-606 Adapt NotFound for removed streetname objects ([#914](https://github.com/informatievlaanderen/road-registry/issues/914)) ([5994a26](https://github.com/informatievlaanderen/road-registry/commit/5994a26e4abe3438c5fb972790498d3c11cb6376))
+
 ## [3.38.1](https://github.com/informatievlaanderen/road-registry/compare/v3.38.0...v3.38.1) (2023-04-03)
 
 
