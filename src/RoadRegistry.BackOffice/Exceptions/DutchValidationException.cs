@@ -1,33 +1,31 @@
+namespace RoadRegistry.BackOffice.Exceptions;
+
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using FluentValidation;
+using FluentValidation.Results;
 
-namespace RoadRegistry.BackOffice.Exceptions
+[Serializable]
+public sealed class DutchValidationException : ValidationException
 {
-    using FluentValidation;
-    using FluentValidation.Results;
-    using System.Runtime.Serialization;
-
-    [Serializable]
-    public sealed class DutchValidationException : ValidationException
+    private DutchValidationException(SerializationInfo info, StreamingContext context) : base(info, context)
     {
-        public DutchValidationException(string message) : base(message)
-        {
-        }
+    }
 
-        public DutchValidationException(string message, IEnumerable<ValidationFailure> errors) : base(message, errors)
-        {
-        }
+    public DutchValidationException(string message) : base(message)
+    {
+    }
 
-        public DutchValidationException(string message, IEnumerable<ValidationFailure> errors, bool appendDefaultMessage) : base(message, errors, appendDefaultMessage)
-        {
-        }
+    public DutchValidationException(string message, IEnumerable<ValidationFailure> errors) : base(message, errors)
+    {
+    }
 
-        public DutchValidationException(IEnumerable<ValidationFailure> errors) : base(errors)
-        {
-        }
+    public DutchValidationException(string message, IEnumerable<ValidationFailure> errors, bool appendDefaultMessage) : base(message, errors, appendDefaultMessage)
+    {
+    }
 
-        public DutchValidationException(SerializationInfo info, StreamingContext context) : base(info, context)
-        {
-        }
+    public DutchValidationException(IEnumerable<ValidationFailure> errors) : base(errors)
+    {
     }
 }

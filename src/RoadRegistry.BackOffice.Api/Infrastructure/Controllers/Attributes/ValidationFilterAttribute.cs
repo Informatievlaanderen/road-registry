@@ -23,6 +23,6 @@ internal class ValidationFilterAttribute : ActionFilterAttribute
             case AggregateIdIsNotFoundException:
                 context.Exception = new ApiException(new RoadNetworkNotFound().TranslateToDutch().Message, StatusCodes.Status404NotFound);
                 break;
-        };
+        }
     }
 }
