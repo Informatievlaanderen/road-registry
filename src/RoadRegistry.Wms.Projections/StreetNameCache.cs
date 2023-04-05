@@ -1,6 +1,5 @@
 namespace RoadRegistry.Wms.Projections;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -10,16 +9,16 @@ using Syndication.Schema;
 
 public class StreetNameCache : IStreetNameCache
 {
-    private readonly Func<SyndicationContext> _contextFactory;
+    private readonly IDbContextFactory<SyndicationContext> _contextFactory;
 
-    public StreetNameCache(Func<SyndicationContext> contextFactory)
+    public StreetNameCache(IDbContextFactory<SyndicationContext> contextFactory)
     {
         _contextFactory = contextFactory;
     }
 
     public async Task<StreetNameRecord> GetAsync(int streetNameId, CancellationToken token)
     {
-        using (var context = _contextFactory())
+        using (var context = await _contextFactory.CreateDbContextAsync(token))
         {
             return await context.StreetNames
                 .SingleOrDefaultAsync(record => record.PersistentLocalId == streetNameId, token);
@@ -28,7 +27,7 @@ public class StreetNameCache : IStreetNameCache
 
     public async Task<long> GetMaxPositionAsync(CancellationToken token)
     {
-        using (var context = _contextFactory())
+        using (var context = await _contextFactory.CreateDbContextAsync(token))
         {
             if (!await context.StreetNames.AnyAsync(token))
                 return -1;
@@ -39,7 +38,7 @@ public class StreetNameCache : IStreetNameCache
 
     public async Task<Dictionary<int, string>> GetStreetNamesByIdAsync(IEnumerable<int> streetNameIds, CancellationToken token)
     {
-        using (var context = _contextFactory())
+        using (var context = await _contextFactory.CreateDbContextAsync(token))
         {
             return await context.StreetNames
                 .Where(record => record.PersistentLocalId.HasValue)
