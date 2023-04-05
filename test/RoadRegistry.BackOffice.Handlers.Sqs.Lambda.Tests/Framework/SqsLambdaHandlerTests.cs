@@ -148,7 +148,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         //Assert
         ticketing.Verify(x =>
-            x.Error(sqsLambdaRequest.TicketId, new TicketError("Onbestaand wegsegment.", "NotFound"),
+            x.Error(sqsLambdaRequest.TicketId, new TicketError("Dit wegsegment bestaat niet of heeft niet de geometriemethode ingeschetst.", "NotFound"),
                 CancellationToken.None));
         ticketing.Verify(x => x.Complete(It.IsAny<Guid>(), It.IsAny<TicketResult>(), CancellationToken.None),
             Times.Never);

@@ -70,8 +70,8 @@ public class RequestedRoadSegmentWidthAttributeValidatorTests : ValidatorTest<Re
 
     [Theory]
     [InlineData(int.MaxValue)]
-    [InlineData(46)]
-    public void WidthMustBeLessThanOrEqualTo45(int value)
+    [InlineData(51)]
+    public void WidthMustBeLessThanOrEqualTo50(int value)
     {
         ShouldHaveValidationErrorFor(c => c.Width, value);
     }

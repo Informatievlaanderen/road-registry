@@ -33,7 +33,7 @@ public static class ProblemTranslator
         {ProblemCode.RoadSegment.IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction, problem => new(problem.Severity, problem.Reason, $"Het wegsegment {problem.Parameters[0].Value} mag niet kruisen met wegsegment {problem.Parameters[1].Value}.") },
         {ProblemCode.RoadSegment.LowerMissing, problem => new(problem.Severity, problem.Reason, "Het onderste wegsegment ontbreekt.") },
         {ProblemCode.RoadSegment.Missing, problem => new(problem.Severity, problem.Reason, $"Het wegsegment met id {problem.Parameters[0].Value} ontbreekt.") },
-        {ProblemCode.RoadSegment.NotFound, problem => new(problem.Severity, "NotFound", "Onbestaand wegsegment.") },
+        {ProblemCode.RoadSegment.NotFound, problem => new(problem.Severity, "NotFound", "Dit wegsegment bestaat niet of heeft niet de geometriemethode ingeschetst.") },
         {ProblemCode.RoadSegment.UpperAndLowerDoNotIntersect, problem => new(problem.Severity, problem.Reason, "Het bovenste en onderste wegsegment kruisen elkaar niet.") },
         {ProblemCode.RoadSegment.UpperMissing, problem => new(problem.Severity, problem.Reason, "Het bovenste wegsegment ontbreekt.") },
         {ProblemCode.RoadSegment.AccessRestriction.IsRequired, problem => new(problem.Severity, "ToegangsbeperkingVerplicht", "Toegangsbeperking is verplicht.") },
