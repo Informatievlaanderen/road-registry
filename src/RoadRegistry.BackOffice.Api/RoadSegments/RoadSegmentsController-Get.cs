@@ -314,12 +314,12 @@ public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadS
             EindknoopObjectId = 287336,
             Linkerstraatnaam = new StraatnaamObject
             {
-                ObjectId = "71671",
+                ObjectId = new StreetNamePuri(71671).ToString(),
                 Straatnaam = "Smidsestraat"
             },
             Rechterstraatnaam = new StraatnaamObject
             {
-                ObjectId = "71671",
+                ObjectId = new StreetNamePuri(71671).ToString(),
                 Straatnaam = "Smidsestraat"
             },
             Wegsegmentstatus = RoadSegmentStatus.InUse.Translation.Name,
