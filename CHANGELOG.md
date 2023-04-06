@@ -1,3 +1,10 @@
+## [3.38.4](https://github.com/informatievlaanderen/road-registry/compare/v3.38.3...v3.38.4) (2023-04-06)
+
+
+### Bug Fixes
+
+* WR-624 Updated road segment detail response with additional data ([#917](https://github.com/informatievlaanderen/road-registry/issues/917)) ([e88ce28](https://github.com/informatievlaanderen/road-registry/commit/e88ce2819f8a9c90a035ffe22dc9a4fba748b9ca))
+
 ## [3.38.3](https://github.com/informatievlaanderen/road-registry/compare/v3.38.2...v3.38.3) (2023-04-05)
 
 
