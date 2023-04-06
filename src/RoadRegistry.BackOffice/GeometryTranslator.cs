@@ -152,6 +152,19 @@ public static class GeometryTranslator
         return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPolygon(polygon);
     }
 
+
+
+    public static GeoJSON.Net.Geometry.MultiLineString ToGeoJson(MultiLineString multiLineString)
+    {
+        return new GeoJSON.Net.Geometry.MultiLineString(
+            multiLineString.Geometries.Select(lineString =>
+                new GeoJSON.Net.Geometry.LineString(lineString.Coordinates.Select(x =>
+                    new GeoJSON.Net.Geometry.Position(x.Y, x.X))
+                )
+            )
+        );
+    }
+
     public static Point Translate(RoadNodeGeometry geometry)
     {
         if (geometry == null) throw new ArgumentNullException(nameof(geometry));
