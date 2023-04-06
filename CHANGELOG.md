@@ -1,3 +1,10 @@
+## [3.38.5](https://github.com/informatievlaanderen/road-registry/compare/v3.38.4...v3.38.5) (2023-04-06)
+
+
+### Bug Fixes
+
+* get roadsegment response example ([#919](https://github.com/informatievlaanderen/road-registry/issues/919)) ([6196b14](https://github.com/informatievlaanderen/road-registry/commit/6196b14a557316712b65d1e1663386db09cddae5))
+
 ## [3.38.4](https://github.com/informatievlaanderen/road-registry/compare/v3.38.3...v3.38.4) (2023-04-06)
 
 
