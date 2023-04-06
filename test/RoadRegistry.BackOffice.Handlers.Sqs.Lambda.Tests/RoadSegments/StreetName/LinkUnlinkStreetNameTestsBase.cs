@@ -83,7 +83,7 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
 
     protected string StreetNamePuri(int identifier)
     {
-        return $"https://data.vlaanderen.be/id/straatnaam/{identifier}";
+        return new StreetNamePuri(identifier).ToString();
     }
 
     protected static class WellKnownStreetNameIds
