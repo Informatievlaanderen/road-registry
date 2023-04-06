@@ -30,54 +30,49 @@ public class Program
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
                 .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
-                .AddTransient<EventProcessor>()
                 .AddSingleton<IStreetNameCache, StreetNameCache>()
                 .AddScoped<IMetadataUpdater, MetadataUpdater>()
                 .AddSingleton(new EnvelopeFactory(
-                    EventProcessor.EventMapping,
+                    EventProcessorService.EventMapping,
                     new EventDeserializer((eventData, eventType) =>
-                        JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
+                        JsonConvert.DeserializeObject(eventData, eventType, EventProcessorService.SerializerSettings)))
                 )
-                .AddSingleton(
-                    () =>
-                        new WfsContext(
-                            new DbContextOptionsBuilder<WfsContext>()
-                                .UseSqlServer(
-                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.WfsProjections),
-                                    options => options
-                                        .EnableRetryOnFailure()
-                                        .UseNetTopologySuite()
-                                ).Options)
-                )
-                .AddSingleton(
-                    () =>
-                        new SyndicationContext(
-                            new DbContextOptionsBuilder<SyndicationContext>()
-                                .UseSqlServer(
-                                    hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
-                                    options => options
-                                        .EnableRetryOnFailure()
-                                ).Options)
-                )
+                .AddDbContextFactory<WfsContext>((sp, options) =>
+                {
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.WmsProjections);
+                    options
+                        .UseSqlServer(connectionString,
+                            o => o
+                                .EnableRetryOnFailure()
+                                .UseNetTopologySuite()
+                        );
+                })
+                .AddDbContextFactory<SyndicationContext>((sp, options) =>
+                {
+                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections);
+                    options
+                        .UseSqlServer(connectionString,
+                            o => o
+                                .EnableRetryOnFailure()
+                        );
+                })
                 .AddSingleton(sp => new ConnectedProjection<WfsContext>[]
                 {
                     // new GradeSeparatedJunctionRecordProjection(),
                     new RoadNodeRecordProjection(),
-                    new RoadSegmentRecordProjection(
-                        sp.GetRequiredService<IStreetNameCache>())
+                    new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>())
                 })
                 .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp
                     .GetRequiredService<ConnectedProjection<WfsContext>[]>()
                     .SelectMany(projection => projection.Handlers)
                     .ToArray())
                 )
-                .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<WfsContext>[]>(), EventProcessor.EventMapping))
-                .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory()))
-            .ConfigureRunCommand(async sp =>
-            {
-                var eventProcessor = sp.GetRequiredService<EventProcessor>();
-                await eventProcessor.Resume(CancellationToken.None);
-            })
+                .AddSingleton(sp =>
+                    new AcceptStreamMessage<WfsContext>(
+                        sp.GetRequiredService<ConnectedProjection<WfsContext>[]>()
+                        , EventProcessorService.EventMapping))
+                .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory())
+                .AddHostedService<EventProcessorService>())
             .Build();
 
         await roadRegistryHost
