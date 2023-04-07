@@ -455,19 +455,22 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         Assert.Equal(expectedContext, actualContext);
     }
 
-    [Fact]
-    public void ValidateWithRecordThatHasInvalidGeometryDrawMethodReturnsExpectedResult()
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(3)]
+    public void ValidateWithRecordThatHasInvalidGeometryDrawMethodReturnsExpectedResult(int geometryDrawMethod)
     {
         var expectedContext = ZipArchiveValidationContext.Empty;
         var record = _fixture.Create<RoadSegmentChangeDbaseRecord>();
-        record.METHODE.Value = -1;
+        record.METHODE.Value = geometryDrawMethod;
         expectedContext = BuildValidationContext(record, expectedContext);
         var records = new[] { record }.ToDbaseRecordEnumerator();
 
         var (result, actualContext) = _sut.Validate(_entry, records, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentGeometryDrawMethodMismatch(-1)),
+            ZipArchiveProblems.Single(_entry.AtDbaseRecord(new RecordNumber(1)).RoadSegmentGeometryDrawMethodMismatch(geometryDrawMethod)),
             result);
         Assert.Equal(expectedContext, actualContext);
     }

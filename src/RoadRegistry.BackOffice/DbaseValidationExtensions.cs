@@ -15,7 +15,8 @@ namespace RoadRegistry.BackOffice
             {
                 problems += recordContext.RequiredFieldIsNull(record.METHODE.Field);
             }
-            else if (!RoadSegmentGeometryDrawMethod.ByIdentifier.ContainsKey(record.METHODE.Value))
+            else if (!RoadSegmentGeometryDrawMethod.ByIdentifier.ContainsKey(record.METHODE.Value)
+                     || !RoadSegmentGeometryDrawMethod.ByIdentifier[record.METHODE.Value].IsAllowed())
             {
                 problems += recordContext.RoadSegmentGeometryDrawMethodMismatch(record.METHODE.Value);
             }

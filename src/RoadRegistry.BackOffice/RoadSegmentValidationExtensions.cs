@@ -23,4 +23,9 @@ public static class RoadSegmentValidationExtensions
     {
         return nodeId == 0;
     }
+
+    public static bool IsAllowed(this RoadSegmentGeometryDrawMethod geometryDrawMethod)
+    {
+        return RoadSegmentGeometryDrawMethod.Allowed.Contains(geometryDrawMethod);
+    }
 }
