@@ -1,3 +1,10 @@
+## [3.38.6](https://github.com/informatievlaanderen/road-registry/compare/v3.38.5...v3.38.6) (2023-04-07)
+
+
+### Bug Fixes
+
+* WR-671 convert wfs from cron job to continuous service ([#920](https://github.com/informatievlaanderen/road-registry/issues/920)) ([8351452](https://github.com/informatievlaanderen/road-registry/commit/8351452edb11447504a1de8b5f2b223da2caf3a5))
+
 ## [3.38.5](https://github.com/informatievlaanderen/road-registry/compare/v3.38.4...v3.38.5) (2023-04-06)
 
 
