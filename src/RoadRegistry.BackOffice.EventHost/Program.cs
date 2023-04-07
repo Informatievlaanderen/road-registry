@@ -55,7 +55,7 @@ public class Program
                     {
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
-                            new ZipArchiveTranslator(WellKnownEncodings.WindowsAnsi, sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
+                            new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()

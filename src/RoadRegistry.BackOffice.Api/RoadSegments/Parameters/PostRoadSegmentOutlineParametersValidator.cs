@@ -23,9 +23,8 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
-            .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
-            .Must(GeometryTranslator.GmlIsValidLineString);
+            .Must(GeometryTranslator.GmlIsValidLineString)
+            .WithProblemCode(ProblemCode.RoadSegment.Geometry.NotValid);
 
         RuleFor(x => x.Wegsegmentstatus)
             .Cascade(CascadeMode.Stop)

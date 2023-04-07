@@ -1,11 +1,10 @@
-namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Abstractions.Fixtures;
+namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeometry.Abstractions.Fixtures;
 
 using AutoFixture;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Projections;
 using Editor.Schema.RoadSegments;
-using FeatureToggles;
 using MediatR;
 using Messages;
 using Microsoft.AspNetCore.Http;
@@ -17,17 +16,18 @@ using RoadRegistry.BackOffice.Api.Tests.Framework;
 using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Hosts.Infrastructure.Options;
-using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using System.Text;
+using RoadRegistry.Tests.BackOffice;
 
-public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<object>
+public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture<PostChangeOutlineGeometryParameters>
 {
-    private readonly IMediator _mediator;
     private readonly EditorContext _editorContext;
+    private readonly IMediator _mediator;
+
     public RoadNetworkTestData TestData { get; protected set; }
 
-    protected WhenDeleteOutlineFixture(IMediator mediator, EditorContext editorContext)
+    protected WhenChangeOutlineGeometryFixture(IMediator mediator, EditorContext editorContext)
     {
         _mediator = mediator;
         _editorContext = editorContext;
@@ -98,7 +98,7 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<object>
         await _editorContext.SaveChangesAsync(CancellationToken.None);
     }
 
-    protected override async Task<IActionResult> GetResultAsync(object parameters)
+    protected override async Task<IActionResult> GetResultAsync(PostChangeOutlineGeometryParameters request)
     {
         var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
         {
@@ -108,13 +108,8 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<object>
             }
         };
 
-        return await controller.PostDeleteOutline(
-            new UseRoadSegmentOutlineDeleteFeatureToggle(true),
-            new RoadSegmentOutlinedIdValidator(_editorContext, new RecyclableMemoryStreamManager(), FileEncoding.UTF8),
-            RoadSegmentId,
-            CancellationToken.None
-        );
+        var idValidator = new RoadSegmentOutlinedIdValidator(_editorContext, new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+        var validator = new PostChangeOutlineGeometryParametersValidator();
+        return await controller.PostChangeOutlineGeometry(idValidator, validator, request, TestData.Segment1Added.Id, CancellationToken.None);
     }
-
-    public virtual int RoadSegmentId => TestData.Segment1Added.Id;
 }

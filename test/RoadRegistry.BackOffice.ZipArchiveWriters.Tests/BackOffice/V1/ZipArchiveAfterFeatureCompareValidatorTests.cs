@@ -999,7 +999,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     [Fact]
     public void IsZipArchiveAfterFeatureCompareValidator()
     {
-        var sut = new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8);
+        var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
         Assert.IsAssignableFrom<IZipArchiveAfterFeatureCompareValidator>(sut);
     }
@@ -1010,7 +1010,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
         using (var fileStream = File.OpenRead(@""))
         using (var archive = new ZipArchive(fileStream))
         {
-            var sut = new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8);
+            var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
             var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
 
@@ -1021,7 +1021,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     [Fact]
     public void ValidateArchiveCanNotBeNull()
     {
-        var sut = new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8);
+        var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
         Assert.Throws<ArgumentNullException>(() => sut.Validate(null, ZipArchiveMetadata.Empty));
     }
@@ -1029,7 +1029,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     [Fact]
     public void ValidateMetadataCanNotBeNull()
     {
-        var sut = new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8);
+        var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
         using (var ms = new MemoryStream())
         using (var archive = new ZipArchive(ms, ZipArchiveMode.Create))
@@ -1052,7 +1052,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
 
         using (var archive = CreateArchiveWithEmptyFiles())
         {
-            var sut = new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8);
+            var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
             var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
 
@@ -1092,7 +1092,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     {
         using (archive)
         {
-            var sut = new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8);
+            var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
             var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
 

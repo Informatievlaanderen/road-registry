@@ -579,6 +579,13 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadSegmentOutlineGeometryDrawMethod(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentGeometryDrawMethod>(customization =>
+            customization.FromFactory(_ => RoadSegmentGeometryDrawMethod.Outlined)
+        );
+    }
+
     public static void CustomizeRoadSegmentOutlineStatus(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentStatus>(customization =>

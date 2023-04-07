@@ -3,20 +3,14 @@ using RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Abstracti
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Fixtures;
 
 using AutoFixture;
+using Editor.Schema;
 using MediatR;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
 public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
 {
-    public WhenDeleteOutlineWithValidRequestFixture(IMediator mediator) : base(mediator)
+    public WhenDeleteOutlineWithValidRequestFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
     {
     }
 
-    protected override PostDeleteOutlineParameters CreateRequest()
-    {
-        return new PostDeleteOutlineParameters
-        {
-            WegsegmentId = ObjectProvider.Create<RoadSegmentId>()
-        };
-    }
+    public override int RoadSegmentId => ObjectProvider.Create<RoadSegmentId>();
 }

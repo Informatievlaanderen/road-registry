@@ -13,7 +13,7 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNetworkTestData
 {
-    public RoadNetworkTestData()
+    public RoadNetworkTestData(Action<Fixture> customize = null)
     {
         ObjectProvider = new Fixture();
         ObjectProvider.CustomizePoint();
@@ -52,15 +52,7 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeTransactionId();
 
         ObjectProvider.CustomizeRoadNetworkChangesAccepted();
-
-        ArchiveId = ObjectProvider.Create<ArchiveId>();
-        RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
-        ReasonForChange = ObjectProvider.Create<Reason>();
-        ChangedByOperator = ObjectProvider.Create<OperatorName>();
-        ChangedByOrganization = ObjectProvider.Create<OrganizationId>();
-        ChangedByOrganizationName = ObjectProvider.Create<OrganizationName>();
-        TransactionId = ObjectProvider.Create<TransactionId>();
-
+        
         ObjectProvider.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
             composer.Do(instance =>
                 {
@@ -111,6 +103,16 @@ public class RoadNetworkTestData
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
                 instance.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
             }).OmitAutoProperties());
+
+        customize?.Invoke(ObjectProvider);
+
+        ArchiveId = ObjectProvider.Create<ArchiveId>();
+        RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
+        ReasonForChange = ObjectProvider.Create<Reason>();
+        ChangedByOperator = ObjectProvider.Create<OperatorName>();
+        ChangedByOrganization = ObjectProvider.Create<OrganizationId>();
+        ChangedByOrganizationName = ObjectProvider.Create<OrganizationName>();
+        TransactionId = ObjectProvider.Create<TransactionId>();
 
         StartPoint1 = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint1 = new Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
@@ -719,12 +721,14 @@ public class RoadNetworkTestData
         };
     }
 
-    public void CopyCustomizationsTo(Fixture target)
+    public RoadNetworkTestData CopyCustomizationsTo(Fixture target)
     {
         foreach (var customization in ObjectProvider.Customizations)
         {
             target.Customizations.Add(customization);
         }
+
+        return this;
     }
 
     private Fixture ObjectProvider { get; }

@@ -21,6 +21,7 @@ public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProd
     private readonly IStreetNameCache _cache;
     private readonly ProductContext _context;
     private readonly RecyclableMemoryStreamManager _streamManager;
+    private readonly FileEncoding _fileEncoding;
     private readonly ZipArchiveWriterOptions _writerOptions;
 
     public DownloadProductRequestHandler(
@@ -28,12 +29,14 @@ public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProd
         ProductContext context,
         ZipArchiveWriterOptions writerOptions,
         RecyclableMemoryStreamManager streamManager,
+        FileEncoding fileEncoding,
         IStreetNameCache cache,
         ILogger<DownloadProductRequestHandler> logger) : base(dispatcher, logger)
     {
         _context = context;
         _writerOptions = writerOptions;
         _streamManager = streamManager;
+        _fileEncoding = fileEncoding;
         _cache = cache;
     }
 
@@ -53,8 +56,7 @@ public class DownloadProductRequestHandler : EndpointRequestHandler<DownloadProd
 
         return new DownloadProductResponse($"wegenregister-{request.Date}.zip", new MediaTypeHeaderValue("application/zip"), async (stream, ct) =>
         {
-            var encoding = Encoding.GetEncoding(1252);
-            var writer = new RoadNetworkForProductToZipArchiveWriter(result.Value, _writerOptions, _cache, _streamManager, encoding);
+            var writer = new RoadNetworkForProductToZipArchiveWriter(result.Value, _writerOptions, _cache, _streamManager, _fileEncoding);
             using var archive = new ZipArchive(stream, ZipArchiveMode.Create, true, Encoding.UTF8);
             await writer.WriteAsync(archive, _context, cancellationToken);
         });

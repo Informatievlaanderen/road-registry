@@ -32,7 +32,7 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
 
     private readonly Dictionary<string, IZipArchiveEntryValidator> _validators;
 
-    public ZipArchiveAfterFeatureCompareValidator(Encoding encoding)
+    public ZipArchiveAfterFeatureCompareValidator(FileEncoding encoding)
     {
         ArgumentNullException.ThrowIfNull(encoding);
 

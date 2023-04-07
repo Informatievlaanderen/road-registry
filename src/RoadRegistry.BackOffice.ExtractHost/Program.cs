@@ -64,7 +64,7 @@ public class Program
                             sp.GetService<ZipArchiveWriterOptions>(),
                             sp.GetService<IStreetNameCache>(),
                             sp.GetService<RecyclableMemoryStreamManager>(),
-                            Encoding.GetEncoding(1252)))
+                            sp.GetRequiredService<FileEncoding>()))
                     .AddSingleton<Func<EditorContext>>(sp =>
                         () =>
                             new EditorContext(
@@ -88,7 +88,7 @@ public class Program
                             sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
                             sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
-                            new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
+                            new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
                             sp.GetService<IStreamStore>(),
                             ApplicationMetadata)
                     })

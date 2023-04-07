@@ -53,7 +53,7 @@ public class Program
                     sp.GetRequiredService<IStreamStore>(),
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                    new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
+                    new ZipArchiveAfterFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
@@ -69,7 +69,7 @@ public class Program
                     sp.GetRequiredService<IStreamStore>(),
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                    new ZipArchiveAfterFeatureCompareValidator(Encoding.GetEncoding(1252)),
+                    new ZipArchiveAfterFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),

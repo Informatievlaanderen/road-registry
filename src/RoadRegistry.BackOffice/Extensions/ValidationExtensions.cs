@@ -23,9 +23,9 @@ public static class ValidationExtensions
         {
             propertyName = r.PropertyName;
         });
-        rule.WithState((item, value) =>
+        rule.WithState((_, value) =>
         {
-            return new[] { new ProblemParameter(propertyName, valueConverter is not null
+            return new[] { new ProblemParameter(propertyName ?? "request", valueConverter is not null
                 ? valueConverter(value)
                 : string.Format(CultureInfo.InvariantCulture, "{0}", value)
                 ) };

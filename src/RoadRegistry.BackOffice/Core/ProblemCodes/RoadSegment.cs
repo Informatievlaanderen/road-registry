@@ -27,6 +27,7 @@ public sealed partial record ProblemCode
 
         public static class Geometry
         {
+            public static readonly ProblemCode NotValid = new("RoadSegmentGeometryNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentGeometryIsRequired");
             public static readonly ProblemCode LengthIsZero = new("RoadSegmentGeometryLengthIsZero");
             public static readonly ProblemCode SelfIntersects = new("RoadSegmentGeometrySelfIntersects");
@@ -37,6 +38,7 @@ public sealed partial record ProblemCode
         public static class GeometryDrawMethod
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentGeometryDrawMethodNotValid");
+            public static readonly ProblemCode NotOutlined = new("RoadSegmentGeometryDrawMethodNotOutlined");
         }
 
         public static class Lane
