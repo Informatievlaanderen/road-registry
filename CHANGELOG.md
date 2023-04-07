@@ -1,3 +1,10 @@
+## [3.38.7](https://github.com/informatievlaanderen/road-registry/compare/v3.38.6...v3.38.7) (2023-04-07)
+
+
+### Bug Fixes
+
+* WR-671 connection string ([#921](https://github.com/informatievlaanderen/road-registry/issues/921)) ([b7f12ad](https://github.com/informatievlaanderen/road-registry/commit/b7f12ad70eea47b374b50542a64c8160eaa27114))
+
 ## [3.38.6](https://github.com/informatievlaanderen/road-registry/compare/v3.38.5...v3.38.6) (2023-04-07)
 
 
