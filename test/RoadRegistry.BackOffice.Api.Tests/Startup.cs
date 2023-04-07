@@ -1,27 +1,23 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
-using Amazon;
 using Autofac;
 using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
-using Be.Vlaanderen.Basisregisters.Sqs;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Castle.Core.Logging;
 using Core;
 using Editor.Schema;
 using Framework.Extensions;
 using Handlers.Sqs;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Extensions;
 using SqlStreamStore;
 using ILoggerFactory = Microsoft.Extensions.Logging.ILoggerFactory;
 using MediatorModule = BackOffice.MediatorModule;
@@ -36,7 +32,7 @@ public class Startup : TestStartup
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetService<RoadNetworkUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                 sp.GetService<IClock>(),
@@ -44,7 +40,7 @@ public class Startup : TestStartup
                 ),
                 new RoadNetworkCommandModule(
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
@@ -52,7 +48,7 @@ public class Startup : TestStartup
                 new RoadNetworkExtractCommandModule(
                     sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),
@@ -68,15 +64,8 @@ public class Startup : TestStartup
         builder.RegisterModule<Handlers.Sqs.MediatorModule>();
 
         builder
-            .Register(_ =>
-            {
-                var sqsQueueMock = new Mock<IBackOfficeS3SqsQueue>();
-                sqsQueueMock
-                    .Setup(x => x.Copy(It.IsAny<SqsRequest>(), It.IsAny<SqsQueueOptions>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(() => true);
-                return sqsQueueMock.Object;
-            })
-            .SingleInstance();
+            .RegisterInstance(new FakeBackOfficeS3SqsQueue())
+            .As<IBackOfficeS3SqsQueue>();
     }
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
@@ -84,6 +73,9 @@ public class Startup : TestStartup
         services
             .AddTicketing()
             .AddFakeTicketing()
+            .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
+            .AddRoadNetworkCommandQueue()
+            .AddRoadNetworkEventWriter()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

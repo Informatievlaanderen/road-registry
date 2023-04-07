@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 
 using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
-using Abstractions.Validation;
 using Autofac;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -149,7 +148,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         //Assert
         ticketing.Verify(x =>
-            x.Error(sqsLambdaRequest.TicketId, new TicketError(ValidationErrors.RoadSegment.NotFound.Message, ValidationErrors.RoadSegment.NotFound.Code),
+            x.Error(sqsLambdaRequest.TicketId, new TicketError("Dit wegsegment bestaat niet of heeft niet de geometriemethode ingeschetst.", "NotFound"),
                 CancellationToken.None));
         ticketing.Verify(x => x.Complete(It.IsAny<Guid>(), It.IsAny<TicketResult>(), CancellationToken.None),
             Times.Never);

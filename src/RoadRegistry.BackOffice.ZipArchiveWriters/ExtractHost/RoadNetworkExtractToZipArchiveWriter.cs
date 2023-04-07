@@ -3,9 +3,9 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 using System.IO.Compression;
 using System.Text;
 using Abstractions;
-using Dbase.Lists;
 using Editor.Schema;
 using Extracts;
+using Extracts.Dbase.Lists;
 using Microsoft.IO;
 
 public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorContext>
@@ -40,8 +40,7 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorCont
                     new RoadSegmentEuropeanRoadAttributesToZipArchiveWriter(manager, encoding),
                     new RoadSegmentNumberedRoadAttributesToZipArchiveWriter(manager, encoding),
                     new GradeSeparatedJunctionArchiveWriter(manager, encoding),
-                    new IntegrationRoadNodesToZipArchiveWriter(manager, encoding),
-                    new IntegrationRoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding)
+                    new IntegrationToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding)
                 )
             ),
             new DbaseFileArchiveWriter<EditorContext>("eWegknoopLktType.dbf", RoadNodeTypeDbaseRecord.Schema, Lists.AllRoadNodeTypeDbaseRecords, encoding),

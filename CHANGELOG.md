@@ -1,3 +1,83 @@
+## [3.38.5](https://github.com/informatievlaanderen/road-registry/compare/v3.38.4...v3.38.5) (2023-04-06)
+
+
+### Bug Fixes
+
+* get roadsegment response example ([#919](https://github.com/informatievlaanderen/road-registry/issues/919)) ([6196b14](https://github.com/informatievlaanderen/road-registry/commit/6196b14a557316712b65d1e1663386db09cddae5))
+
+## [3.38.4](https://github.com/informatievlaanderen/road-registry/compare/v3.38.3...v3.38.4) (2023-04-06)
+
+
+### Bug Fixes
+
+* WR-624 Updated road segment detail response with additional data ([#917](https://github.com/informatievlaanderen/road-registry/issues/917)) ([e88ce28](https://github.com/informatievlaanderen/road-registry/commit/e88ce2819f8a9c90a035ffe22dc9a4fba748b9ca))
+
+## [3.38.3](https://github.com/informatievlaanderen/road-registry/compare/v3.38.2...v3.38.3) (2023-04-05)
+
+
+### Bug Fixes
+
+* Validation behaviour and messages for WR-651, WR-652, WR-653, WR-654, WR-656, WR-657 ([#915](https://github.com/informatievlaanderen/road-registry/issues/915)) ([29521f8](https://github.com/informatievlaanderen/road-registry/commit/29521f85038be58649ff36a4b6a71d0e4cb8683a))
+* WR-631 wms projectionhost SyndicationContext disposed bug ([e199f6b](https://github.com/informatievlaanderen/road-registry/commit/e199f6b50d27dfba76454bbb3f9852ab14fbd27b))
+
+## [3.38.2](https://github.com/informatievlaanderen/road-registry/compare/v3.38.1...v3.38.2) (2023-04-04)
+
+
+### Bug Fixes
+
+* make wms projection hostedservice ([17a36af](https://github.com/informatievlaanderen/road-registry/commit/17a36af01b11e069a16767b421b3296eb842a601))
+* run containers as non-root ([#913](https://github.com/informatievlaanderen/road-registry/issues/913)) ([c3bcf16](https://github.com/informatievlaanderen/road-registry/commit/c3bcf1613d16653c4d0afd62a1ccee6e23f0c96e))
+* WR-606 Adapt NotFound for removed streetname objects ([#914](https://github.com/informatievlaanderen/road-registry/issues/914)) ([5994a26](https://github.com/informatievlaanderen/road-registry/commit/5994a26e4abe3438c5fb972790498d3c11cb6376))
+
+## [3.38.1](https://github.com/informatievlaanderen/road-registry/compare/v3.38.0...v3.38.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* WR-646 change extract integration data logic ([#912](https://github.com/informatievlaanderen/road-registry/issues/912)) ([90854a2](https://github.com/informatievlaanderen/road-registry/commit/90854a215c8d6cd5205e08f814b53e857efcb86d))
+
+# [3.38.0](https://github.com/informatievlaanderen/road-registry/compare/v3.37.1...v3.38.0) (2023-04-03)
+
+
+### Bug Fixes
+
+* WR-650 validation for RoadSegmentId ([#907](https://github.com/informatievlaanderen/road-registry/issues/907)) ([45e302a](https://github.com/informatievlaanderen/road-registry/commit/45e302a6ffaa2e10d51211c89d09668a2759af26))
+
+
+### Features
+
+* WR-561 add authentication through ACM/IDM for edit endpoints ([#906](https://github.com/informatievlaanderen/road-registry/issues/906)) ([a577bef](https://github.com/informatievlaanderen/road-registry/commit/a577bef7ea3a2f45b175ea636c7393bc6d1a7d4a))
+* WR-647 road segment attributes edit endpoint ([#905](https://github.com/informatievlaanderen/road-registry/issues/905)) ([14a8e43](https://github.com/informatievlaanderen/road-registry/commit/14a8e439f603ba184cef61db095bec52a89d42ee))
+
+## [3.37.1](https://github.com/informatievlaanderen/road-registry/compare/v3.37.0...v3.37.1) (2023-03-22)
+
+
+### Bug Fixes
+
+* don't update RecordingDate with ModifyRoadSegment ([#902](https://github.com/informatievlaanderen/road-registry/issues/902)) ([843f1ab](https://github.com/informatievlaanderen/road-registry/commit/843f1abd5089130b69d66ec72479857a3fea9ed0))
+* WR-645 add Outlined validation rules to file upload ([#901](https://github.com/informatievlaanderen/road-registry/issues/901)) ([a420315](https://github.com/informatievlaanderen/road-registry/commit/a420315bce87195e3081831731373b5c3f0fb7e0))
+
+# [3.37.0](https://github.com/informatievlaanderen/road-registry/compare/v3.36.9...v3.37.0) (2023-03-20)
+
+
+### Bug Fixes
+
+* WR-644 correct field sizes after FC changes ([#900](https://github.com/informatievlaanderen/road-registry/issues/900)) ([59462d8](https://github.com/informatievlaanderen/road-registry/commit/59462d8edf8eb8c1178e817fd522ebb6f5bf1d79))
+
+
+### Features
+
+* WR-586 roadsegment edit attributes endpoint ([#898](https://github.com/informatievlaanderen/road-registry/issues/898)) ([a71985b](https://github.com/informatievlaanderen/road-registry/commit/a71985b3247a6a7e442130a9c8a66074dd6d7991))
+
+## [3.36.9](https://github.com/informatievlaanderen/road-registry/compare/v3.36.8...v3.36.9) (2023-03-15)
+
+
+### Bug Fixes
+
+* lambda graceful shutdown to avoid open locks ([#890](https://github.com/informatievlaanderen/road-registry/issues/890)) ([f8b8ac8](https://github.com/informatievlaanderen/road-registry/commit/f8b8ac8d442f5e4400cd97b179769ef6bbcf1b71))
+* return upload validation as consistent response (including error codes) ([#893](https://github.com/informatievlaanderen/road-registry/issues/893)) ([c2ceb7a](https://github.com/informatievlaanderen/road-registry/commit/c2ceb7afc7e3963e9a007afafe8a79910172e480))
+* WR-640 handle upload after FC by commandhost instead of API ([#895](https://github.com/informatievlaanderen/road-registry/issues/895)) ([7ea194f](https://github.com/informatievlaanderen/road-registry/commit/7ea194f8aba9634e68a6efe63e1dd2a71ce840e1))
+
 ## [3.36.8](https://github.com/informatievlaanderen/road-registry/compare/v3.36.7...v3.36.8) (2023-03-13)
 
 

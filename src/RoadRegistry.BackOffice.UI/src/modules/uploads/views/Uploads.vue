@@ -205,7 +205,7 @@ export default Vue.extend({
             let validationErrors = err?.response?.data?.validationErrors;
             let fileProblems = Object.keys(validationErrors).map((key) => {
               let problems = validationErrors[key].map((validationError: any) => ({
-                severity: validationError.code.startsWith("Warning") ? "Warning" : "Error",
+                severity: (validationError.code ?? '').startsWith("Warning") ? "Warning" : "Error",
                 text: validationError.reason,
               }));
               problems = orderBy(problems, "severity");

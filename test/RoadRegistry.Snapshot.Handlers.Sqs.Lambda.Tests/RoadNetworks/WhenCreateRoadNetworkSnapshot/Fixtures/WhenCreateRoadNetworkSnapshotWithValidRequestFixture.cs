@@ -57,58 +57,56 @@ public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRo
 
     protected override async Task SetupAsync()
     {
-        var x = RoadNetworkTestHelpers.Create();
-
-        await Given(Organizations.ToStreamName(x.ChangedByOrganization), new ImportedOrganization
+        await Given(Organizations.ToStreamName(TestData.ChangedByOrganization), new ImportedOrganization
         {
-            Code = x.ChangedByOrganization,
-            Name = x.ChangedByOrganizationName,
+            Code = TestData.ChangedByOrganization,
+            Name = TestData.ChangedByOrganizationName,
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
         await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
         {
-            RequestId = x.RequestId,
-            Reason = x.ReasonForChange,
-            Operator = x.ChangedByOperator,
-            OrganizationId = x.ChangedByOrganization,
-            Organization = x.ChangedByOrganizationName,
+            RequestId = TestData.RequestId,
+            Reason = TestData.ReasonForChange,
+            Operator = TestData.ChangedByOperator,
+            OrganizationId = TestData.ChangedByOrganization,
+            Organization = TestData.ChangedByOrganizationName,
             Changes = new[]
             {
                 new AcceptedChange
                 {
-                    RoadNodeAdded = x.StartNode1Added
+                    RoadNodeAdded = TestData.StartNode1Added
                 },
                 new AcceptedChange
                 {
-                    RoadNodeAdded = x.EndNode1Added
+                    RoadNodeAdded = TestData.EndNode1Added
                 },
                 new AcceptedChange
                 {
-                    RoadSegmentAdded = x.Segment1Added
+                    RoadSegmentAdded = TestData.Segment1Added
                 }
             },
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
         await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
         {
-            RequestId = x.RequestId,
-            Reason = x.ReasonForChange,
-            Operator = x.ChangedByOperator,
-            OrganizationId = x.ChangedByOrganization,
-            Organization = x.ChangedByOrganizationName,
+            RequestId = TestData.RequestId,
+            Reason = TestData.ReasonForChange,
+            Operator = TestData.ChangedByOperator,
+            OrganizationId = TestData.ChangedByOrganization,
+            Organization = TestData.ChangedByOrganizationName,
             Changes = new[]
             {
                 new AcceptedChange
                 {
-                    RoadNodeAdded = x.StartNode2Added
+                    RoadNodeAdded = TestData.StartNode2Added
                 },
                 new AcceptedChange
                 {
-                    RoadNodeAdded = x.EndNode2Added
+                    RoadNodeAdded = TestData.EndNode2Added
                 },
                 new AcceptedChange
                 {
-                    RoadSegmentAdded = x.Segment2Added
+                    RoadSegmentAdded = TestData.Segment2Added
                 }
             },
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())

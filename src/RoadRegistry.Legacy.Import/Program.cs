@@ -4,13 +4,13 @@ using Amazon.S3;
 using Autofac;
 using BackOffice;
 using BackOffice.Configuration;
-using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Hosts;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using BackOffice.Infrastructure;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 
 public class Program

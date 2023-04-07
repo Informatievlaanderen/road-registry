@@ -13,6 +13,7 @@ Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
 Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy
 
 AWSSDK.Core
+AWSSDK.Lambda
 MediatR
 MediatR.Contracts
 Microsoft.Data.SqlClient

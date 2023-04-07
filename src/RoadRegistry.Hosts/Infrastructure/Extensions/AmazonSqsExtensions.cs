@@ -31,7 +31,7 @@ public static class AmazonSqsExtensions
                 await amazonSqsClient.CreateQueueAsync(new CreateQueueRequest
                 {
                     QueueName = queueName,
-                    Attributes = queueUrlAttributes[queueUrl]
+                    Attributes = queueUrlAttributes[queueUrl],
                 }, cancellationToken);
             }
             catch (AmazonSQSException)

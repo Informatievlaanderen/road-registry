@@ -16,8 +16,8 @@ public class ZipArchiveProjectionFormatEntryValidator : IZipArchiveEntryValidato
 
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
         using (var stream = entry.Open())

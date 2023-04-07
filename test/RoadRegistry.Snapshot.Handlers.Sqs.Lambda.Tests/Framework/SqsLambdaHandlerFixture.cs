@@ -1,5 +1,6 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.Framework;
 
+using Autofac;
 using BackOffice;
 using BackOffice.Framework;
 using BackOffice.Messages;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Newtonsoft.Json;
 using NodaTime;
+using RoadRegistry.Tests.BackOffice.Scenarios;
 using SqlStreamStore;
 using TicketingService.Abstractions;
 
@@ -36,13 +38,14 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
     protected readonly IConfiguration Configuration;
     protected readonly ICustomRetryPolicy CustomRetryPolicy;
-    protected readonly Func<EventSourcedEntityMap> EntityMapFactory;
+    protected readonly ILifetimeScope LifetimeScope;
     protected readonly IIdempotentCommandHandler IdempotentCommandHandler;
     protected readonly ILoggerFactory LoggerFactory;
     protected readonly SqsLambdaHandlerOptions Options;
     protected readonly IRoadNetworkCommandQueue RoadNetworkCommandQueue;
     protected readonly IRoadRegistryContext RoadRegistryContext;
     protected readonly IStreamStore Store;
+    protected readonly RoadNetworkTestData TestData = new();
 
     protected SqsLambdaHandlerFixture(
         IConfiguration configuration,
@@ -53,6 +56,8 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         SqsLambdaHandlerOptions options
     )
     {
+        TestData.CopyCustomizationsTo(ObjectProvider);
+
         Configuration = new ConfigurationBuilder()
             .AddConfiguration(configuration)
             .AddInMemoryCollection(new Dictionary<string, string>
@@ -63,9 +68,16 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
 
         CustomRetryPolicy = customRetryPolicy;
         Store = streamStore;
-        var eventSourcedEntityMap = new EventSourcedEntityMap();
-        EntityMapFactory = () => eventSourcedEntityMap;
-        RoadRegistryContext = new RoadRegistryContext(EntityMapFactory(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
+
+        var containerBuilder = new ContainerBuilder();
+        containerBuilder
+            .Register(_ => new EventSourcedEntityMap())
+            .AsSelf()
+            .SingleInstance();
+        var container = containerBuilder.Build();
+        LifetimeScope = container.BeginLifetimeScope();
+
+        RoadRegistryContext = new RoadRegistryContext(LifetimeScope.Resolve<EventSourcedEntityMap>(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
         RoadNetworkCommandQueue = roadNetworkCommandQueue;
         Clock = clock;
         Options = options;

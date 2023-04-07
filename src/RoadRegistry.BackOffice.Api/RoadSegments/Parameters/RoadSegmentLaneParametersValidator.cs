@@ -1,7 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
+using Core.ProblemCodes;
+using Extensions;
 using FluentValidation;
-using RoadRegistry.BackOffice.Abstractions.Validation;
 
 public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentLaneParameters>
 {
@@ -9,17 +10,18 @@ public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentL
     {
         RuleFor(x => x.Aantal)
             .Cascade(CascadeMode.Stop)
+            .NotNull()
+            .WithProblemCode(ProblemCode.RoadSegment.Lane.IsRequired)
             .GreaterThan(0)
-            .WithErrorCode(ValidationErrors.RoadSegmentOutline.Lane.GreaterThanZero.Code)
-            .WithMessage(ValidationErrors.RoadSegmentOutline.Lane.GreaterThanZero.Message);
+            .WithProblemCode(ProblemCode.RoadSegment.Lane.GreaterThanZero)
+            .LessThanOrEqualTo(RoadSegmentLaneCount.Maximum)
+            .WithProblemCode(ProblemCode.RoadSegment.Lane.LessThanOrEqualToMaximum);
 
         RuleFor(x => x.Richting)
             .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithErrorCode(ValidationErrors.RoadSegmentOutline.LaneDirection.IsRequired.Code)
-            .WithMessage(ValidationErrors.RoadSegmentOutline.LaneDirection.IsRequired.Message)
+            .WithProblemCode(ProblemCode.RoadSegment.LaneDirection.IsRequired)
             .Must(RoadSegmentLaneDirection.CanParseUsingDutchName)
-            .WithErrorCode(ValidationErrors.RoadSegmentOutline.LaneDirection.NotParsed.Code)
-            .WithMessage(x => ValidationErrors.RoadSegmentOutline.LaneDirection.NotParsed.Message(x.Richting));
+            .WithProblemCode(ProblemCode.RoadSegment.LaneDirection.NotValid);
     }
 }

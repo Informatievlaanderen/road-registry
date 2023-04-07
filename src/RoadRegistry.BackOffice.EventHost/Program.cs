@@ -43,6 +43,8 @@ public class Program
                     .AddHostedService<EventProcessor>()
                     .AddTicketing()
                     .AddRoadRegistrySnapshot()
+                    .AddRoadNetworkEventWriter()
+                    .AddScoped(_ => new EventSourcedEntityMap())
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
@@ -53,19 +55,21 @@ public class Program
                     {
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
-                            new ZipArchiveTranslator(Encoding.GetEncoding(1252)),
+                            new ZipArchiveTranslator(WellKnownEncodings.WindowsAnsi, sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
                         new RoadNetworkBackOfficeEventModule(
                             sp.GetRequiredService<IStreamStore>(),
+                            sp.GetRequiredService<ILifetimeScope>(),
                             sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                             sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),
                             sp.GetRequiredService<IClock>(),
                             sp.GetRequiredService<ILoggerFactory>()),
                         new RoadNetworkSnapshotEventModule(
                             sp.GetRequiredService<IStreamStore>(),
+                            sp.GetRequiredService<ILifetimeScope>(),
                             sp.GetRequiredService<IMediator>(),
                             sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                             sp.GetRequiredService<IRoadNetworkSnapshotWriter>(),

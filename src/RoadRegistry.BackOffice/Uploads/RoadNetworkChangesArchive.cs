@@ -6,9 +6,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase.AfterFeatureCompare.V2.Schema;
 using Framework;
 using Messages;
-using Schema.V2;
 
 public class RoadNetworkChangesArchive : EventSourcedEntity
 {

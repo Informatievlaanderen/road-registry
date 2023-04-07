@@ -1,17 +1,20 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.RoadSegmentsOutline;
-using Abstractions.Validation;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
 using Handlers.Sqs.RoadSegments;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Parameters;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {
@@ -19,12 +22,15 @@ public partial class RoadSegmentsController
     ///     Verwijder een ingeschetst wegsegment
     /// </summary>
     /// <param name="featureToggle"></param>
+    /// <param name="validator"></param>
     /// <param name="id">Identificator van het ingeschetst wegsegment.</param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het ingeschetst wegsegment gevonden is.</response>
+    /// <response code="400">Als uw verzoek foutieve data bevat.</response>
     /// <response code="404">Als het ingeschetst wegsegment niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost("{id}/acties/verwijderen/schets")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -37,6 +43,7 @@ public partial class RoadSegmentsController
     [SwaggerOperation(Description = "Verwijder een ingeschetst wegsegment.")]
     public async Task<IActionResult> PostDeleteOutline(
         [FromServices] UseRoadSegmentOutlineDeleteFeatureToggle featureToggle,
+        [FromServices] PostDeleteOutlineParametersValidator validator,
         [FromRoute] int id,
         CancellationToken cancellationToken)
     {
@@ -44,21 +51,24 @@ public partial class RoadSegmentsController
         {
             return NotFound();
         }
-
+        
         try
         {
+            await validator.ValidateAndThrowAsync(new PostDeleteOutlineParameters
+            {
+                WegsegmentId = id
+            }, cancellationToken: cancellationToken);
+
+            var roadSegmentId = new RoadSegmentId(id);
+
             var result = await _mediator.Send(Enrich(
                 new DeleteRoadSegmentOutlineSqsRequest
                 {
-                    Request = new DeleteRoadSegmentOutlineRequest(id)
+                    Request = new DeleteRoadSegmentOutlineRequest(roadSegmentId)
                 }
             ), cancellationToken);
 
             return Accepted(result);
-        }
-        catch (AggregateIdIsNotFoundException)
-        {
-            throw new ApiException(ValidationErrors.RoadNetwork.NotFound.Message, StatusCodes.Status404NotFound);
         }
         catch (IdempotencyException)
         {

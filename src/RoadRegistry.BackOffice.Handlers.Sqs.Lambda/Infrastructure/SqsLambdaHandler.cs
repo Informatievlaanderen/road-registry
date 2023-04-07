@@ -2,15 +2,16 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Infrastructure;
 
 using Abstractions;
 using Abstractions.Exceptions;
-using Abstractions.Validation;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using Microsoft.Extensions.Logging;
+using Core;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
+using Microsoft.Extensions.Logging;
 using TicketingService.Abstractions;
 
 public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambdaHandler<TSqsLambdaRequest>
@@ -45,9 +46,7 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
     {
         return exception switch
         {
-            RoadSegmentNotFoundException => new TicketError(
-                ValidationErrors.RoadSegment.NotFound.Message,
-                ValidationErrors.RoadSegment.NotFound.Code),
+            RoadSegmentNotFoundException => new RoadSegmentNotFound().ToTicketError(),
             _ => null
         };
     }

@@ -25,6 +25,7 @@ public class Program
                 .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
                 .RegisterOptions<FeatureCompareMessagingOptions>()
                 .AddRoadNetworkCommandQueue()
+                .AddRoadNetworkEventWriter()
             )
             .ConfigureContainer((hostContext, builder) =>
             {

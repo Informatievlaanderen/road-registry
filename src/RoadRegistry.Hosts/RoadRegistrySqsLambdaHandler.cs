@@ -1,11 +1,8 @@
 namespace RoadRegistry.Hosts;
 
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Core;
+using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -13,9 +10,13 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.Abstractions.Validation;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TicketingService.Abstractions;
 
 public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>
@@ -57,8 +58,11 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         }
         catch (ValidationException ex)
         {
-            var errorMessage = string.Join(",", ex.Errors.Select(x => x.ErrorMessage));
-            var errorCode = string.Join(",", ex.Errors.Select(x => x.ErrorCode));
+            var translatedEx = ex.TranslateToDutch();
+
+            //TODO-rik te bekijken of de ticketerror kan aangepast worden om een lijst van fouten op te slaan, ipv te moeten joinen
+            var errorMessage = string.Join(",", translatedEx.Errors.Select(x => x.ErrorMessage));
+            var errorCode = string.Join(",", translatedEx.Errors.Select(x => x.ErrorCode));
             Logger.LogError("InnerHandle failed with validation errors: {Message}", errorMessage);
             throw new RoadRegistryValidationException(errorMessage, errorCode);
         }
@@ -66,11 +70,7 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
 
     protected override async Task HandleAggregateIdIsNotFoundException(TSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        await Ticketing.Error(request.TicketId,
-            new TicketError(
-                ValidationErrors.RoadNetwork.NotFound.Message,
-                ValidationErrors.RoadNetwork.NotFound.Code),
-            cancellationToken);
+        await Ticketing.Error(request.TicketId, new RoadNetworkNotFound().ToTicketError(), cancellationToken);
     }
 
     protected virtual TicketError InnerMapDomainException(DomainException exception, TSqsLambdaRequest request)

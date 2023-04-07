@@ -45,9 +45,17 @@ using RoadRegistry.Product.Schema;
 using RoadRegistry.Syndication.Schema;
 using SqlStreamStore;
 using System;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
+using IdentityModel.AspNetCore.OAuth2Introspection;
+using Infrastructure.Controllers.Attributes;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using NisCodeService.Abstractions;
+using NisCodeService.Proxy.HttpProxy;
 
 public class Startup
 {
@@ -147,6 +155,10 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        var oAuth2IntrospectionOptions = _configuration
+            .GetSection(nameof(OAuth2IntrospectionOptions))
+            .Get<OAuth2IntrospectionOptions>();
+
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
             {
@@ -192,9 +204,14 @@ public class Startup
                     {
                         // Do not remove this handler!
                         // It must be declared to avoid FluentValidation registering all validators within current assembly.
+                    },
+                    Authorization = options =>
+                    {
+                        options.AddAcmIdmAuthorization();
                     }
                 }
             })
+            .AddAcmIdmAuthorizationHandlers()
             .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator>(new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
             .AddSingleton<IZipArchiveAfterFeatureCompareValidator>(new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
@@ -204,7 +221,7 @@ public class Startup
             .RegisterOptions<ExtractUploadsOptions>()
             .RegisterOptions<FeatureCompareMessagingOptions>()
             .AddStreamStore()
-            .AddSingleton<IClock>(SystemClock.Instance)
+            .AddSingleton<IClock>(NodaTime.SystemClock.Instance)
             .AddSingleton(new WKTReader(
                 new NtsGeometryServices(
                     GeometryConfiguration.GeometryFactory.PrecisionModel,
@@ -217,13 +234,13 @@ public class Startup
                     _configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
                 WellknownSchemas.SnapshotSchema))
             .AddRoadRegistrySnapshot()
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
+            .AddScoped(_ => new EventSourcedEntityMap())
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
                             new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),
@@ -231,7 +248,7 @@ public class Startup
                             ),
                             new RoadNetworkCommandModule(
                                 sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IClock>(),
                                 sp.GetService<ILoggerFactory>()
@@ -239,7 +256,7 @@ public class Startup
                             new RoadNetworkExtractCommandModule(
                                 sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                                 sp.GetService<IStreamStore>(),
-                                sp.GetService<Func<EventSourcedEntityMap>>(),
+                                sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
                                 sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),
@@ -289,21 +306,71 @@ public class Startup
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
             .AddTicketing()
             .AddRoadRegistrySnapshot()
-            ;
+            .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
+            .AddRoadNetworkCommandQueue()
+            .AddAcmIdmAuth(oAuth2IntrospectionOptions!);
+
+        services
+            .AddMvc(options => { 
+                options.Filters.Add<ValidationFilterAttribute>();
+            });
     }
 
     public void ConfigureContainer(ContainerBuilder builder)
     {
-        builder.RegisterModule(new DataDogModule(_configuration));
-        builder.RegisterModule<BlobClientModule>();
-        builder.RegisterModulesFromAssemblyContaining<Startup>();
-        builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
-        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
-        builder.RegisterModulesFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>();
+        builder
+            .RegisterModule(new DataDogModule(_configuration))
+            .RegisterModule<BlobClientModule>()
+            .RegisterModule<Snapshot.Handlers.Sqs.SnapshotSqsHandlersModule>();
+
+        builder
+            .RegisterModulesFromAssemblyContaining<Startup>()
+            .RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>()
+            .RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
+            .RegisterModulesFromAssemblyContaining<Handlers.Sqs.DomainAssemblyMarker>();
     }
 
     private static string GetApiLeadingText(ApiVersionDescription description)
     {
         return $"Momenteel leest u de documentatie voor versie {description.ApiVersion} van de Basisregisters Vlaanderen Road Registry API{string.Format(description.IsDeprecated ? ", **deze API versie is niet meer ondersteund * *." : ".")}";
+    }
+}
+
+public static class ServiceCollectionExtensions
+{
+    public static AuthenticationBuilder AddAcmIdmAuth(
+        this IServiceCollection services,
+        OAuth2IntrospectionOptions oAuth2IntrospectionOptions)
+    {
+        return services
+            .AddHttpProxyNisCodeService()
+            .AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddOAuth2Introspection(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.ClientId = oAuth2IntrospectionOptions.ClientId;
+                options.ClientSecret = oAuth2IntrospectionOptions.ClientSecret;
+                options.Authority = oAuth2IntrospectionOptions.Authority;
+                options.IntrospectionEndpoint = oAuth2IntrospectionOptions.IntrospectionEndpoint;
+            });
+    }
+
+    public static IServiceCollection AddHttpProxyNisCodeService(this IServiceCollection services)
+    {
+        services
+            .AddHttpClient<INisCodeService, HttpProxyNisCodeService>((sp, c) =>
+            {
+                var nisCodeServiceUrl = sp.GetRequiredService<IConfiguration>().GetValue<string>("NisCodeServiceUrl");
+                if (string.IsNullOrWhiteSpace(nisCodeServiceUrl))
+                {
+                    throw new ConfigurationErrorsException("Configuration should have a value for \"NisCodeServiceUrl\".");
+                }
+                c.BaseAddress = new Uri(nisCodeServiceUrl.TrimEnd('/'));
+            });
+        return services;
     }
 }

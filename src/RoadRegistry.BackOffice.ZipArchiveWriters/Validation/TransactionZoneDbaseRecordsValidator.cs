@@ -9,11 +9,9 @@ public class TransactionZoneDbaseRecordsValidator : IZipArchiveDbaseRecordsValid
 {
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-
-        if (records == null) throw new ArgumentNullException(nameof(records));
-
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(records);
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
         try

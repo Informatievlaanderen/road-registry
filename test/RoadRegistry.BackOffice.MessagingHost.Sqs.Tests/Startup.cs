@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Tests;
 
-using Amazon;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Core;
@@ -27,7 +26,7 @@ public class Startup : TestStartup
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetService<RoadNetworkUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),
@@ -35,7 +34,7 @@ public class Startup : TestStartup
                 ),
                 new RoadNetworkCommandModule(
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
@@ -43,7 +42,7 @@ public class Startup : TestStartup
                 new RoadNetworkExtractCommandModule(
                     sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),
@@ -76,7 +75,7 @@ public class Startup : TestStartup
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
         services
-            .AddSingleton(_ => new SqsOptions("", "", RegionEndpoint.EUWest1))
+            .AddSingleton<SqsOptions>(_ => new FakeSqsOptions())
             .AddSingleton<ISqsQueuePublisher>(sp => new FakeSqsQueuePublisher())
             .AddSingleton<ISqsQueueConsumer>(sp => new FakeSqsQueueConsumer())
             .AddDbContext<EditorContext>((sp, options) => options

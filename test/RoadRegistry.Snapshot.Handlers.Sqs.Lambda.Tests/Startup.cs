@@ -1,14 +1,13 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests;
 
 using System.Reflection;
-using Amazon;
-using Amazon.Runtime;
-using Amazon.S3;
 using Autofac;
 using BackOffice;
+using BackOffice.Configuration;
 using BackOffice.Extensions;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Hosts;
 using Microsoft.Extensions.Configuration;
@@ -21,8 +20,6 @@ using MediatorModule = Sqs.MediatorModule;
 
 public class Startup : TestStartup
 {
-    protected readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
-
     protected override void ConfigureContainer(ContainerBuilder builder)
     {
         builder
@@ -43,34 +40,41 @@ public class Startup : TestStartup
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
-        var eventSourcedEntityMap = new EventSourcedEntityMap();
-
-        var minioServer = hostBuilderContext.Configuration.GetValue<string>("MINIO_SERVER");
-
-        var s3Client = new AmazonS3Client(
-            new BasicAWSCredentials(
-                hostBuilderContext.Configuration.GetRequiredValue<string>("MINIO_ACCESS_KEY"),
-                hostBuilderContext.Configuration.GetRequiredValue<string>("MINIO_SECRET_KEY")
-            ),
-            new AmazonS3Config
-            {
-                RegionEndpoint = RegionEndpoint.USEast1, // minio's default region
-                ServiceURL = minioServer,
-                ForcePathStyle = true
-            }
-        );
-
-        services.AddSingleton(s3Client);
+        var configuration = hostBuilderContext.Configuration;
+        
+        AddS3ClientAndDistributedCache(services, configuration);
 
         services
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
+            .AddSingleton<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
             .AddTransient<ICustomRetryPolicy>(sp => new FakeRetryPolicy())
             .AddRoadRegistrySnapshot()
+            ;
+    }
+
+    private void AddS3ClientAndDistributedCache(IServiceCollection services, IConfiguration configuration)
+    {
+        var s3Configuration = configuration.GetOptions<S3Options>();
+        var s3OptionsJsonSerializer = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
+        S3Options s3ClientOptions;
+        if (s3Configuration?.ServiceUrl is not null)
+        {
+            var developments3Configuration = configuration.GetOptions<DevelopmentS3Options>();
+            s3ClientOptions = new DevelopmentS3Options(s3OptionsJsonSerializer, developments3Configuration);
+        }
+        else
+        {
+            s3ClientOptions = new S3Options(s3OptionsJsonSerializer);
+        }
+        var s3Client = s3ClientOptions.CreateS3Client();
+
+        services
+            .AddSingleton(s3ClientOptions)
+            .AddSingleton(s3Client)
             .RegisterDistributedS3Cache(s3Client, new()
             {
                 Bucket = "road-registry-snapshots",
                 RootDir = "snapshots"
-            })
-            ;
+            });
     }
 }

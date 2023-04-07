@@ -471,28 +471,32 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError RoadSegmentMorphologyMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    public static FileError RoadSegmentMorphologyMismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
     {
         return builder
             .Error(nameof(RoadSegmentMorphologyMismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", RoadSegmentMorphology.ByIdentifier.Keys.Select(key => key.ToString()))
+                    string.Join(",", outline
+                        ? RoadSegmentMorphology.AllOutlined.Select(status => status.Translation.Identifier.ToString())
+                        : RoadSegmentMorphology.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
             .Build();
     }
 
-    public static FileError RoadSegmentStatusMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    public static FileError RoadSegmentStatusMismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
     {
         return builder
             .Error(nameof(RoadSegmentStatusMismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", RoadSegmentStatus.ByIdentifier.Keys.Select(key => key.ToString()))
+                    string.Join(",", outline
+                        ? RoadSegmentStatus.AllOutlined.Select(status => status.Translation.Identifier.ToString())
+                        : RoadSegmentStatus.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))

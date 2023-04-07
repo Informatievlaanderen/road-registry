@@ -2,10 +2,13 @@ namespace RoadRegistry.Tests.BackOffice;
 
 using AutoFixture;
 using AutoFixture.Dsl;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using NodaTime;
+using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
@@ -13,6 +16,7 @@ using RoadRegistry.BackOffice.Uploads;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
+using Reason = RoadRegistry.BackOffice.Reason;
 using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.Core.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.Core.RoadSegmentSurfaceAttribute;
 using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.Core.RoadSegmentWidthAttribute;
@@ -676,6 +680,25 @@ public static class SharedCustomizations
     {
         fixture.Customize<TransactionId>(composer =>
             composer.FromFactory(generator => new TransactionId(generator.Next()))
+        );
+    }
+
+    public static void CustomizeOrganisation(this IFixture fixture)
+    {
+        fixture.Customize<Organisation>(customization =>
+            customization.FromSeed(_ => Organisation.DigitaalVlaanderen)
+        );
+    }
+
+    public static void CustomizeProvenanceData(this IFixture fixture)
+    {
+        fixture.Customize<ProvenanceData>(customization =>
+            customization.FromSeed(_ => new ProvenanceData(new Provenance(new FakeClock(NodaConstants.UnixEpoch).GetCurrentInstant(),
+                Application.RoadRegistry,
+                new Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason("TEST"),
+                new Operator("TEST"),
+                Modification.Unknown,
+                fixture.Create<Organisation>())))
         );
     }
 

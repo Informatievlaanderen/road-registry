@@ -23,7 +23,9 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
         StreetNameCache = new FakeStreetNameCache()
             .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))
             .AddStreetName(WellKnownStreetNameIds.Current, "Current street", nameof(StreetNameStatus.Current))
-            .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired));
+            .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired))
+            .AddStreetName(WellKnownStreetNameIds.Null, "Not found street", null)
+            ;
     }
 
     protected IStreetNameCache StreetNameCache { get; }
@@ -47,32 +49,32 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
 
     protected async Task GivenSegment1Added()
     {
-        await Given(Organizations.ToStreamName(ChangedByOrganization), new ImportedOrganization
+        await Given(Organizations.ToStreamName(TestData.ChangedByOrganization), new ImportedOrganization
         {
-            Code = ChangedByOrganization,
-            Name = ChangedByOrganizationName,
+            Code = TestData.ChangedByOrganization,
+            Name = TestData.ChangedByOrganizationName,
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
         await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
         {
-            RequestId = RequestId,
-            Reason = ReasonForChange,
-            Operator = ChangedByOperator,
-            OrganizationId = ChangedByOrganization,
-            Organization = ChangedByOrganizationName,
+            RequestId = TestData.RequestId,
+            Reason = TestData.ReasonForChange,
+            Operator = TestData.ChangedByOperator,
+            OrganizationId = TestData.ChangedByOrganization,
+            Organization = TestData.ChangedByOrganizationName,
             Changes = new[]
             {
                 new AcceptedChange
                 {
-                    RoadNodeAdded = StartNode1Added
+                    RoadNodeAdded = TestData.StartNode1Added
                 },
                 new AcceptedChange
                 {
-                    RoadNodeAdded = EndNode1Added
+                    RoadNodeAdded = TestData.EndNode1Added
                 },
                 new AcceptedChange
                 {
-                    RoadSegmentAdded = Segment1Added
+                    RoadSegmentAdded = TestData.Segment1Added
                 }
             },
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
@@ -81,7 +83,7 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
 
     protected string StreetNamePuri(int identifier)
     {
-        return $"https://data.vlaanderen.be/id/straatnaam/{identifier}";
+        return new StreetNamePuri(identifier).ToString();
     }
 
     protected static class WellKnownStreetNameIds
@@ -89,5 +91,6 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
         public const int Proposed = 1;
         public const int Current = 2;
         public const int Retired = 3;
+        public const int Null = 4;
     }
 }
