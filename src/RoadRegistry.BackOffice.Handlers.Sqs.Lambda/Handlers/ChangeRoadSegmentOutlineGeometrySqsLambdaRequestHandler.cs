@@ -9,14 +9,11 @@ using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
-using RoadRegistry.BackOffice.Core;
 using TicketingService.Abstractions;
-using RemoveRoadSegment = BackOffice.Uploads.RemoveRoadSegment;
 
 public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadSegmentOutlineGeometrySqsLambdaRequest>
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
-    private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -25,7 +22,6 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
-        DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -36,9 +32,8 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             logger)
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
-        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
-    //TODO-rik update projections to deal with Geometry in RoadSegmentAttributesModified event
+    
     protected override async Task<ETagResponse> InnerHandleAsync(ChangeRoadSegmentOutlineGeometrySqsLambdaRequest request, CancellationToken cancellationToken)
     {
         // Do NOT lock the stream store for stream RoadNetworks.Stream

@@ -2,12 +2,14 @@ namespace RoadRegistry.Wms.Projections;
 
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.EntityFrameworkCore;
 using Schema;
 using Syndication.Schema;
@@ -283,8 +285,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
-
-
+    
     private static async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
         WmsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -333,6 +334,12 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         {
             roadSegmentRecord.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
             roadSegmentRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
+        }
+
+        if (roadSegmentAttributesModified.Geometry is not null)
+        {
+            roadSegmentRecord.Geometry2D = WmsGeometryTranslator.Translate2D(roadSegmentAttributesModified.Geometry);
+            roadSegmentRecord.GeometryVersion = roadSegmentAttributesModified.GeometryVersion;
         }
 
         roadSegmentRecord.BeginOrganizationId = envelope.Message.OrganizationId;

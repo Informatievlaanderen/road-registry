@@ -291,8 +291,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 CategoryId = category.Translation.Identifier,
                 CategoryDutchName = category.Translation.Name,
 
-                Geometry = GeometryTranslator.Translate(segmentAdded.Geometry),
-                GeometryVersion = segmentAdded.GeometryVersion,
+                Geometry = GeometryTranslator.Translate(roadSegmentModified.Geometry),
+                GeometryVersion = roadSegmentModified.GeometryVersion,
 
                 MorphologyId = morphology.Translation.Identifier,
                 MorphologyDutchName = morphology.Translation.Name,

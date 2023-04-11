@@ -197,7 +197,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             var segmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
 
             var segment = change.RoadSegmentAttributesModified;
-            var geometry = GeometryTranslator.Translate(segmentAdded.Geometry);
+            var geometry = GeometryTranslator.Translate(segment.Geometry);
             var polyLineMShapeContent = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
 
             return (object)new RoadSegmentRecord
@@ -210,7 +210,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 {
                     WS_OIDN = { Value = segment.Id },
                     WS_UIDN = { Value = segment.Id + "_" + segment.Version },
-                    WS_GIDN = { Value = segment.Id + "_" + segmentAdded.GeometryVersion },
+                    WS_GIDN = { Value = segment.Id + "_" + segment.GeometryVersion },
                     B_WK_OIDN = { Value = segmentAdded.StartNodeId },
                     E_WK_OIDN = { Value = segmentAdded.EndNodeId },
                     STATUS = { Value = RoadSegmentStatus.Parse(segment.Status).Translation.Identifier },

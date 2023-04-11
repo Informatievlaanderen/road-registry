@@ -8,6 +8,7 @@ public class RoadSegmentAttributesModified : IHaveHash
 
     public int Id { get; set; }
     public int Version { get; set; }
+    public int? GeometryVersion { get; set; }
 
     public MaintenanceAuthority MaintenanceAuthority { get; set; }
     public string Status { get; set; }

@@ -269,6 +269,19 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
             dbaseRecord.LBLBEHEER.Value = roadSegmentAttributesModified.MaintenanceAuthority.Name;
         }
 
+        if (roadSegmentAttributesModified.Geometry is not null)
+        {
+            var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentAttributesModified.Geometry));
+            var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
+
+            roadSegmentRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
+            roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
+            roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
+            roadSegmentRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentAttributesModified.Geometry);
+
+            dbaseRecord.WS_GIDN.Value = $"{roadSegmentAttributesModified.Id}_{roadSegmentAttributesModified.GeometryVersion}";
+        }
+
         dbaseRecord.WS_UIDN.Value = $"{roadSegmentAttributesModified.Id}_{roadSegmentAttributesModified.Version}";
         // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);

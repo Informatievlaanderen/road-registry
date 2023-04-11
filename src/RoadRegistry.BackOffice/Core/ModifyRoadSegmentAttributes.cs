@@ -64,7 +64,8 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
             Status = Status,
             Category = Category,
             AccessRestriction = AccessRestriction,
-            Geometry = Geometry is not null ? GeometryTranslator.Translate(Geometry) : null
+            Geometry = Geometry is not null ? GeometryTranslator.Translate(Geometry) : null,
+            GeometryVersion = GeometryVersion?.ToInt32()
         };
     }
 

@@ -484,7 +484,7 @@ public static class Customizations
     {
         fixture.Customize<RoadSegmentAttributesModified>(customization =>
             customization
-                .FromFactory(generator =>
+                .FromFactory(_ =>
                     new RoadSegmentAttributesModified
                     {
                         Id = fixture.Create<RoadSegmentId>(),
@@ -497,7 +497,9 @@ public static class Customizations
                             Name = fixture.Create<OrganizationName>()
                         },
                         Status = fixture.Create<RoadSegmentStatus>(),
-                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>()
+                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
+                        Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                        GeometryVersion = fixture.Create<GeometryVersion>()
                     }
                 )
                 .OmitAutoProperties()

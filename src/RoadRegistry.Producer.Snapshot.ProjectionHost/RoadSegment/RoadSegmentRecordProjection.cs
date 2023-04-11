@@ -9,6 +9,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Editor.Schema.RoadSegments;
     using Extensions;
     using Projections;
     using Syndication.Schema;
@@ -313,6 +315,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
                 roadSegmentRecord.AccessRestrictionId = accessRestriction.Translation.Identifier;
                 roadSegmentRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
+            }
+
+            if (roadSegmentAttributesModified.Geometry is not null)
+            {
+                roadSegmentRecord.Geometry = GeometryTranslator.Translate(roadSegmentAttributesModified.Geometry);
+                roadSegmentRecord.GeometryVersion = roadSegmentAttributesModified.GeometryVersion;
             }
 
             var transactionId = new TransactionId(envelope.Message.TransactionId);

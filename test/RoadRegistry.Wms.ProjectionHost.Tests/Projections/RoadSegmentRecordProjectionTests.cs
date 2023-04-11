@@ -358,8 +358,8 @@ public class RoadSegmentRecordProjectionTests
                 CategoryId = RoadSegmentCategory.Parse(segment.Category).Translation.Identifier,
                 CategoryDutchName = RoadSegmentCategory.Parse(segment.Category).Translation.Name,
 
-                Geometry2D = WmsGeometryTranslator.Translate2D(segmentAdded.Geometry),
-                GeometryVersion = segmentAdded.GeometryVersion,
+                Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry),
+                GeometryVersion = segment.GeometryVersion,
 
                 MorphologyId = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Identifier,
                 MorphologyDutchName = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Name,
