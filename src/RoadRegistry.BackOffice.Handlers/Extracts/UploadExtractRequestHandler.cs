@@ -50,7 +50,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 throw new UnsupportedMediaTypeException();
 
             var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                           ?? throw new ExtractDownloadNotFoundException(DownloadId.Parse(parsedDownloadId.ToString()));
+                           ?? throw new ExtractDownloadNotFoundException(DownloadId.Parse(parsedDownloadId.ToString("N")));
 
             await using var readStream = request.Archive.ReadStream;
 
