@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Core;
 using System;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
+using NetTopologySuite.Geometries;
 
 public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
 {
@@ -11,16 +12,19 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
     public ModifyRoadSegmentAttributes(
         RoadSegmentId id,
         RoadSegmentVersion version,
+        GeometryVersion? geometryVersion,
         RoadSegmentGeometryDrawMethod geometryDrawMethod,
         OrganizationId? maintenanceAuthorityId,
         OrganizationName? maintenanceAuthorityName,
         RoadSegmentMorphology morphology,
         RoadSegmentStatus status,
         RoadSegmentCategory category,
-        RoadSegmentAccessRestriction accessRestriction)
+        RoadSegmentAccessRestriction accessRestriction,
+        MultiLineString geometry)
     {
         Id = id;
         Version = version;
+        GeometryVersion = geometryVersion;
         GeometryDrawMethod = geometryDrawMethod;
         MaintenanceAuthorityId = maintenanceAuthorityId;
         MaintenanceAuthorityName = maintenanceAuthorityName;
@@ -28,10 +32,12 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
         Status = status;
         Category = category;
         AccessRestriction = accessRestriction;
+        Geometry = geometry;
     }
 
     public RoadSegmentId Id { get; }
     public RoadSegmentVersion Version { get; }
+    public GeometryVersion? GeometryVersion { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
     public OrganizationId? MaintenanceAuthorityId { get; }
     public OrganizationName? MaintenanceAuthorityName { get; }
@@ -39,6 +45,7 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
     public RoadSegmentStatus Status { get; }
     public RoadSegmentCategory Category { get; }
     public RoadSegmentAccessRestriction AccessRestriction { get; }
+    public MultiLineString Geometry { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -57,6 +64,7 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
             Status = Status,
             Category = Category,
             AccessRestriction = AccessRestriction,
+            Geometry = Geometry is not null ? GeometryTranslator.Translate(Geometry) : null
         };
     }
 
@@ -69,7 +77,8 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
             Category = Category?.ToString(),
             MaintenanceAuthority = MaintenanceAuthorityId?.ToString(),
             Morphology = Morphology?.ToString(),
-            Status = Status?.ToString()
+            Status = Status?.ToString(),
+            Geometry = Geometry is not null ? GeometryTranslator.Translate(Geometry) : null
         };
     }
 

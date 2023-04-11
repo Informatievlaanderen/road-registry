@@ -75,6 +75,8 @@ public class ModifyRoadSegmentAttributesValidator : ModifyRoadSegmentAttributesV
                 .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentOutline())
                 .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
                 .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
+
+            //TODO-rik geometry validation
         }
     }
 }

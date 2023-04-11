@@ -367,12 +367,12 @@ internal class RequestedChangeTranslator
         var permanent = new RoadSegmentId(command.Id);
         
         var version = _nextRoadSegmentVersion(permanent);
+        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
 
         OrganizationId? maintainerId = command.MaintenanceAuthority is not null
             ? new OrganizationId(command.MaintenanceAuthority)
             : null;
         var maintainer = maintainerId is not null ? await organizations.FindAsync(maintainerId.Value, ct) : null;
-        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
         var morphology = command.Morphology is not null
             ? RoadSegmentMorphology.Parse(command.Morphology)
             : null;
@@ -385,18 +385,22 @@ internal class RequestedChangeTranslator
         var accessRestriction = command.AccessRestriction is not null
             ? RoadSegmentAccessRestriction.Parse(command.AccessRestriction)
             : null;
-        
+        var geometry = command.Geometry is not null ? GeometryTranslator.Translate(command.Geometry) : null;
+        var geometryVersion = geometry is not null ? _nextRoadSegmentGeometryVersion(permanent, geometry) : (GeometryVersion?)null;
+
         return new ModifyRoadSegmentAttributes
         (
             permanent,
             version,
+            geometryVersion,
             geometryDrawMethod,
             maintainerId,
             maintainer?.Translation.Name,
             morphology,
             status,
             category,
-            accessRestriction
+            accessRestriction,
+            geometry
         );
     }
 

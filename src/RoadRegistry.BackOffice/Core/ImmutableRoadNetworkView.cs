@@ -1318,11 +1318,16 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
             command.GeometryDrawMethod);
 
+        var geometry = command.Geometry ?? segmentBefore.Geometry;
+        var geometryVersion = command.GeometryVersion ?? segmentBefore.GeometryVersion;
+
         return new ImmutableRoadNetworkView(
             _nodes,
             _segments
                 .TryReplace(command.Id, segment => segment
                     .WithVersion(command.Version)
+                    .WithGeometryVersion(geometryVersion)
+                    .WithGeometry(geometry)
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(command.GetHash())
                 ),
@@ -2556,10 +2561,15 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 segmentBefore.AttributeHash.RightStreetNameId,
                 command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
                 command.GeometryDrawMethod);
+            
+            var geometry = command.Geometry ?? segmentBefore.Geometry;
+            var geometryVersion = command.GeometryVersion ?? segmentBefore.GeometryVersion;
 
             _segments
                 .TryReplace(command.Id, segment => segment
                     .WithVersion(command.Version)
+                    .WithGeometryVersion(geometryVersion)
+                    .WithGeometry(geometry)
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(command.GetHash())
                 );

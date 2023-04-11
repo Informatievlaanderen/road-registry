@@ -10,11 +10,12 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
         RecordNumber recordNumber,
         RoadSegmentId id,
         RoadSegmentGeometryDrawMethod geometryDrawMethod,
-        OrganizationId? maintenanceAuthority,
-        RoadSegmentMorphology morphology,
-        RoadSegmentStatus status,
-        RoadSegmentCategory category,
-        RoadSegmentAccessRestriction accessRestriction)
+        OrganizationId? maintenanceAuthority = null,
+        RoadSegmentMorphology morphology = null,
+        RoadSegmentStatus status = null,
+        RoadSegmentCategory category = null,
+        RoadSegmentAccessRestriction accessRestriction = null,
+        RoadSegmentGeometry geometry = null)
     {
         RecordNumber = recordNumber;
         Id = id;
@@ -24,6 +25,7 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
         Status = status;
         Category = category;
         AccessRestriction = accessRestriction;
+        Geometry = geometry;
     }
     
     public RecordNumber RecordNumber { get; }
@@ -31,6 +33,7 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 
     public RoadSegmentAccessRestriction AccessRestriction { get; }
+    public RoadSegmentGeometry Geometry { get; }
     public RoadSegmentCategory Category { get; }
     public OrganizationId? MaintenanceAuthority { get; }
     public RoadSegmentMorphology Morphology { get; }
@@ -48,7 +51,8 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
             Morphology = Morphology,
             Status = Status,
             Category = Category,
-            AccessRestriction = AccessRestriction
+            AccessRestriction = AccessRestriction,
+            Geometry = Geometry
         };
     }
 }
