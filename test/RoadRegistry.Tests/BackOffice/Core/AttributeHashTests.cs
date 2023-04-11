@@ -110,9 +110,8 @@ public class AttributeHashTests
     [Fact]
     public void DiffersWhenGeometryDrawMethodDiffers()
     {
-        var value1 = _fixture.Create<RoadSegmentGeometryDrawMethod>();
-        var value2 = new Generator<RoadSegmentGeometryDrawMethod>(_fixture)
-            .First(candidate => candidate != value1);
+        var value1 = RoadSegmentGeometryDrawMethod.Measured;
+        var value2 = RoadSegmentGeometryDrawMethod.Outlined;
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.With(value1);
         var right = sut.With(value2);

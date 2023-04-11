@@ -42,6 +42,10 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
     {
         Outlined, Measured, Measured_according_to_GRB_specifications
     };
+    public static readonly RoadSegmentGeometryDrawMethod[] Allowed =
+    {
+        Outlined, Measured
+    };
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentGeometryDrawMethod> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);

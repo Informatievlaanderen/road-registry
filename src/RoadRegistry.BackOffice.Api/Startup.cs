@@ -234,6 +234,7 @@ public class Startup
                     _configuration.GetConnectionString(WellknownConnectionNames.Snapshots)),
                 WellknownSchemas.SnapshotSchema))
             .AddRoadRegistrySnapshot()
+            .AddRoadNetworkEventWriter()
             .AddScoped(_ => new EventSourcedEntityMap())
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]

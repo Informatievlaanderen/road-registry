@@ -100,7 +100,7 @@ public class UploadController : ControllerBase
                         ErrorCode = $"{problem.Severity}{problem.Reason}"
                     })
                 .ToList();
-            throw new ValidationException(validationFailures);
+            throw new DutchValidationException(validationFailures);
         }
     }
 
