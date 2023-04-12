@@ -446,15 +446,7 @@ public static class SharedCustomizations
     public static void CustomizeRoadSegmentGeometryDrawMethod(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentGeometryDrawMethod>(customization =>
-            customization.FromFactory(generator =>
-                {
-                    var itemsExceptOutline = RoadSegmentGeometryDrawMethod.All
-                        .Where(x => x.ToString() != RoadSegmentGeometryDrawMethod.Outlined.ToString())
-                        .ToArray();
-
-                    return itemsExceptOutline[generator.Next() % itemsExceptOutline.Length];
-                }
-            )
+            customization.FromFactory(generator => RoadSegmentGeometryDrawMethod.Measured)
         );
     }
 

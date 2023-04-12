@@ -448,7 +448,7 @@ public static class DbaseFileProblems
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", RoadSegmentGeometryDrawMethod.ByIdentifier.Keys.Select(key => key.ToString()))
+                    string.Join(",", RoadSegmentGeometryDrawMethod.Allowed.Select(geometryDrawMethod => geometryDrawMethod.Translation.Identifier.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
