@@ -21,7 +21,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using System.Text;
 
-public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<object>
+public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
 {
     private readonly IMediator _mediator;
     private readonly EditorContext _editorContext;
@@ -98,7 +98,7 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<object>
         await _editorContext.SaveChangesAsync(CancellationToken.None);
     }
 
-    protected override async Task<IActionResult> GetResultAsync(object parameters)
+    protected override async Task<IActionResult> GetResultAsync(int roadSegmentId)
     {
         var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
         {
@@ -111,10 +111,13 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<object>
         return await controller.PostDeleteOutline(
             new UseRoadSegmentOutlineDeleteFeatureToggle(true),
             new RoadSegmentOutlinedIdValidator(_editorContext, new RecyclableMemoryStreamManager(), FileEncoding.UTF8),
-            RoadSegmentId,
+            roadSegmentId,
             CancellationToken.None
         );
     }
 
-    public virtual int RoadSegmentId => TestData.Segment1Added.Id;
+    protected override int CreateRequest()
+    {
+        return TestData.Segment1Added.Id;
+    }
 }

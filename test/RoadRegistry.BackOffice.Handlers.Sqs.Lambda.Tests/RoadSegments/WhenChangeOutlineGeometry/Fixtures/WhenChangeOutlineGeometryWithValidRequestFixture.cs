@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCha
 
 using Abstractions.Fixtures;
 using AutoFixture;
-using BackOffice.Abstractions.RoadSegments;
 using BackOffice.Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Microsoft.Extensions.Configuration;

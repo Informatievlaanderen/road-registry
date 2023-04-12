@@ -11,5 +11,5 @@ public class WhenChangeOutlineGeometryWithInvalidGeometry : WhenChangeOutlineGeo
     }
 
     protected override string ExpectedErrorCode => "MiddellijnGeometrieNietCorrect";
-    protected override string ExpectedErrorMessagePrefix => "Middellijngeometrie is foutief";
+    protected override string ExpectedErrorMessagePrefix => "De opgegeven geometrie is geen geldige LineString in gml 3.2.";
 }

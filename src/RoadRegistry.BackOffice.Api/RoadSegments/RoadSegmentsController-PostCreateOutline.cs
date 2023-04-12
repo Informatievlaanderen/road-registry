@@ -1,11 +1,14 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using Abstractions.RoadSegmentsOutline;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Parameters;
@@ -13,10 +16,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
-using Infrastructure.Controllers.Attributes;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 
 public partial class RoadSegmentsController
 {

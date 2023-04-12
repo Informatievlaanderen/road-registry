@@ -10,5 +10,8 @@ public class WhenDeleteOutlineWithInvalidIdFixture : WhenDeleteOutlineWithValidR
         
     }
 
-    public override int RoadSegmentId => 0;
+    protected override int CreateRequest()
+    {
+        return 0;
+    }
 }

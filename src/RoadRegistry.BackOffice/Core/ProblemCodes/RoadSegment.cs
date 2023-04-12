@@ -30,8 +30,10 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode NotValid = new("RoadSegmentGeometryNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentGeometryIsRequired");
             public static readonly ProblemCode LengthIsZero = new("RoadSegmentGeometryLengthIsZero");
+            public static readonly ProblemCode LengthLessThanMinimum = new("RoadSegmentGeometryLengthLessThanMinimum");
             public static readonly ProblemCode SelfIntersects = new("RoadSegmentGeometrySelfIntersects");
             public static readonly ProblemCode SelfOverlaps = new("RoadSegmentGeometrySelfOverlaps");
+            public static readonly ProblemCode SridNotValid = new("RoadSegmentGeometrySridNotValid");
             public static readonly ProblemCode Taken = new("RoadSegmentGeometryTaken");
         }
 

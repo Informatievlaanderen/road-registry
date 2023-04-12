@@ -34,6 +34,14 @@ public static class ValidationExtensions
         return rule;
     }
 
+    public static IRuleBuilderOptions<T, TProperty> WithProblemCode<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, ProblemCode problemCode, Func<TProperty, Problem> problemBuilder)
+    {
+        rule.WithErrorCode(problemCode);
+        rule.WithState((_, value) => problemBuilder(value).Parameters.ToArray());
+
+        return rule;
+    }
+
     public static DutchValidationException TranslateToDutch(this ValidationException ex)
     {
         return new DutchValidationException(ex.Errors.TranslateToDutch());

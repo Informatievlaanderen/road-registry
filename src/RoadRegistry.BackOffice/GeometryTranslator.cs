@@ -1,17 +1,16 @@
 namespace RoadRegistry.BackOffice;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Exceptions;
 using Messages;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.GML2;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
