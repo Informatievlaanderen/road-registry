@@ -54,7 +54,7 @@ public static class SharedCustomizations
                     );
                     var times = generator.Next(0, 10);
                     for (var index = 0; index < times; index++)
-                        switch (generator.Next(0, 8))
+                        switch (generator.Next(0, 11))
                         {
                             case 0:
                                 result = result.With(fixture.Create<RoadSegmentCategory>());
@@ -80,7 +80,24 @@ public static class SharedCustomizations
                             case 7:
                                 result = result.With(fixture.Create<RoadSegmentGeometryDrawMethod>());
                                 break;
+                            case 8:
+                                result = result.With(fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentLaneAttribute>(generator.Next(1, 5)).ToArray());
+                                break;
+                            case 9:
+                                result = result.With(fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute>(generator.Next(1, 5)).ToArray());
+                                break;
+                            case 10:
+                                result = result.With(fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentWidthAttribute>(generator.Next(1, 5)).ToArray());
+                                break;
                         }
+
+                    if (result.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+                    {
+                        result = result
+                            .With(result.Lanes.Take(1).ToArray())
+                            .With(result.Surfaces.Take(1).ToArray())
+                            .With(result.Widths.Take(1).ToArray());
+                    }
 
                     return result;
                 }));
@@ -472,7 +489,7 @@ public static class SharedCustomizations
     {
         fixture.Customize<RoadSegmentLaneAttribute>(customization =>
             customization.FromFactory<int>(
-                value =>
+                _ =>
                 {
                     var generator = new Generator<RoadSegmentPosition>(fixture);
                     var from = generator.First();

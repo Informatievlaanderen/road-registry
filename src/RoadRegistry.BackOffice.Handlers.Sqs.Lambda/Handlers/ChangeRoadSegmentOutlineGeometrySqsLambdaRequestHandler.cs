@@ -60,7 +60,7 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var geometry = GeometryTranslator.Translate(request.Request.Geometry);
             var fromPosition = new RoadSegmentPosition(0);
             var toPosition = new RoadSegmentPosition((decimal)geometry.Length);
-            //TODO-rik lanes/surfaces/widths: update projections + add unit tests
+            
             return translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(
                 recordNumber,
                 roadSegmentId,

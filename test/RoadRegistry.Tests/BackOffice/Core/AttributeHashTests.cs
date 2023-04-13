@@ -21,6 +21,13 @@ public class AttributeHashTests
         _fixture.CustomizeOrganizationId();
         _fixture.CustomizeAttributeHash();
         _fixture.CustomizeRoadSegmentGeometryDrawMethod();
+        _fixture.CustomizeRoadSegmentLaneCount();
+        _fixture.CustomizeRoadSegmentLaneDirection();
+        _fixture.CustomizeRoadSegmentLaneAttribute();
+        _fixture.CustomizeRoadSegmentSurfaceType();
+        _fixture.CustomizeRoadSegmentSurfaceAttribute();
+        _fixture.CustomizeRoadSegmentWidth();
+        _fixture.CustomizeRoadSegmentWidthAttribute();
     }
 
     [Fact]
@@ -75,8 +82,7 @@ public class AttributeHashTests
     public void DiffersWhenOrganizationDiffers()
     {
         var value1 = _fixture.Create<OrganizationId>();
-        var value2 = new Generator<OrganizationId>(_fixture)
-            .First(candidate => candidate != value1);
+        var value2 = _fixture.CreateWhichIsDifferentThan(value1);
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.With(value1);
         var right = sut.With(value2);
@@ -87,8 +93,7 @@ public class AttributeHashTests
     public void DiffersWhenRightSideDiffers()
     {
         var value1 = _fixture.Create<CrabStreetnameId?>();
-        var value2 = new Generator<CrabStreetnameId?>(_fixture)
-            .First(candidate => candidate != value1);
+        var value2 = _fixture.CreateWhichIsDifferentThan(value1);
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.WithRightSide(value1);
         var right = sut.WithRightSide(value2);
@@ -99,8 +104,7 @@ public class AttributeHashTests
     public void DiffersWhenStatusDiffers()
     {
         var value1 = _fixture.Create<RoadSegmentStatus>();
-        var value2 = new Generator<RoadSegmentStatus>(_fixture)
-            .First(candidate => candidate != value1);
+        var value2 = _fixture.CreateWhichIsDifferentThan(value1);
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.With(value1);
         var right = sut.With(value2);
@@ -112,6 +116,39 @@ public class AttributeHashTests
     {
         var value1 = RoadSegmentGeometryDrawMethod.Measured;
         var value2 = RoadSegmentGeometryDrawMethod.Outlined;
+        var sut = _fixture.Create<AttributeHash>();
+        var left = sut.With(value1);
+        var right = sut.With(value2);
+        Assert.NotEqual(left, right);
+    }
+
+    [Fact]
+    public void DiffersWhenLanesDiffers()
+    {
+        var value1 = _fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentLaneAttribute>().ToArray();
+        var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
+        var sut = _fixture.Create<AttributeHash>();
+        var left = sut.With(value1);
+        var right = sut.With(value2);
+        Assert.NotEqual(left, right);
+    }
+
+    [Fact]
+    public void DiffersWhenSurfacesDiffers()
+    {
+        var value1 = _fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute>().ToArray();
+        var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
+        var sut = _fixture.Create<AttributeHash>();
+        var left = sut.With(value1);
+        var right = sut.With(value2);
+        Assert.NotEqual(left, right);
+    }
+
+    [Fact]
+    public void DiffersWhenWidthsDiffers()
+    {
+        var value1 = _fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentWidthAttribute>().ToArray();
+        var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.With(value1);
         var right = sut.With(value2);

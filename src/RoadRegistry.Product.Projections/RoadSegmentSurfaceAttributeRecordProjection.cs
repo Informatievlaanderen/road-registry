@@ -112,7 +112,7 @@ public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<P
             await context.RoadSegmentSurfaceAttributes.AddRangeAsync(surfaces);
         }
     }
-
+    //TODO-rik add handler for RoadSegmentAttributesModified
     private static async Task ModifyRoadSegment(RecyclableMemoryStreamManager manager,
         Encoding encoding,
         ProductContext context,

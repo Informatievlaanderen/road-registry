@@ -114,7 +114,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                 await Produce(roadSegmentSurfaceRecord.Entity.Id, roadSegmentSurfaceRecord.Entity.ToContract(), token);
             }
         }
-
+        //TODO-rik add handler for RoadSegmentAttributesModified
         private async Task RoadSegmentModified(
             RoadSegmentSurfaceProducerSnapshotContext context,
             Envelope<RoadNetworkChangesAccepted> envelope,

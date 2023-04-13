@@ -2478,7 +2478,9 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             new RoadSegmentLaneAttributes
             {
                 FromPosition = 0,
-                ToPosition = 10
+                ToPosition = 10,
+                Count = 1,
+                Direction = RoadSegmentLaneDirection.Unknown
             }
         };
 
@@ -2503,6 +2505,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             {
                 FromPosition = 0,
                 ToPosition = 10,
+                Count = 1,
                 Direction = RoadSegmentLaneDirection.Forward
             }
         };
@@ -2511,7 +2514,8 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             new RequestedRoadSegmentWidthAttribute
             {
                 FromPosition = 0,
-                ToPosition = 10
+                ToPosition = 10,
+                Width = 2
             }
         };
         TestData.AddSegment2.Surfaces = new[]
@@ -2537,6 +2541,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             {
                 FromPosition = TestData.AddSegment2.Lanes[0].FromPosition,
                 ToPosition = TestData.AddSegment2.Lanes[0].ToPosition,
+                Count = TestData.AddSegment2.Lanes[0].Count,
                 Direction = TestData.AddSegment2.Lanes[0].Direction,
                 AsOfGeometryVersion = 1,
                 AttributeId = 1
@@ -2548,6 +2553,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
             {
                 FromPosition = TestData.AddSegment2.Widths[0].FromPosition,
                 ToPosition = TestData.AddSegment2.Widths[0].ToPosition,
+                Width = TestData.AddSegment2.Widths[0].Width,
                 AsOfGeometryVersion = 1,
                 AttributeId = nextWidthsAttributeId
             }

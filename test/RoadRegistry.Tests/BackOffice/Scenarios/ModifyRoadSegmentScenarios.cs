@@ -194,6 +194,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                         part.ToPosition = Convert.ToDecimal(line2After.Length);
                     else
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(line2After.Length) / count);
+                    part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                    part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
 
                     return part;
                 })
@@ -207,6 +209,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                         part.ToPosition = Convert.ToDecimal(line2After.Length);
                     else
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(line2After.Length) / count);
+                    part.Width = ObjectProvider.Create<RoadSegmentWidth>();
 
                     return part;
                 })
@@ -220,6 +223,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                         part.ToPosition = Convert.ToDecimal(line2After.Length);
                     else
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(line2After.Length) / count);
+                    part.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
 
                     return part;
                 })
@@ -303,6 +307,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                             part.ToPosition = Convert.ToDecimal(line1.Length);
                                         else
                                             part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
+                                        part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                                        part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
 
                                         return part;
                                     })
@@ -316,6 +322,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                             part.ToPosition = Convert.ToDecimal(line1.Length);
                                         else
                                             part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
+                                        part.Width = ObjectProvider.Create<RoadSegmentWidth>();
 
                                         return part;
                                     })
@@ -329,6 +336,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                             part.ToPosition = Convert.ToDecimal(line1.Length);
                                         else
                                             part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
+                                        part.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
 
                                         return part;
                                     })
@@ -396,6 +404,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                             part.ToPosition = Convert.ToDecimal(line2Before.Length);
                                         else
                                             part.ToPosition = (index + 1) * (Convert.ToDecimal(line2Before.Length) / count);
+                                        part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                                        part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
 
                                         return part;
                                     })
@@ -409,6 +419,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                             part.ToPosition = Convert.ToDecimal(line2Before.Length);
                                         else
                                             part.ToPosition = (index + 1) * (Convert.ToDecimal(line2Before.Length) / count);
+                                        part.Width = ObjectProvider.Create<RoadSegmentWidth>();
 
                                         return part;
                                     })
@@ -422,6 +433,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                             part.ToPosition = Convert.ToDecimal(line2Before.Length);
                                         else
                                             part.ToPosition = (index + 1) * (Convert.ToDecimal(line2Before.Length) / count);
+                                        part.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
 
                                         return part;
                                     })
@@ -545,6 +557,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                         part.ToPosition = Convert.ToDecimal(lineBefore.Length);
                     else
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(lineBefore.Length) / count);
+                    part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                    part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
 
                     return part;
                 })
@@ -558,6 +572,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                         part.ToPosition = Convert.ToDecimal(lineBefore.Length);
                     else
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(lineBefore.Length) / count);
+                    part.Width = ObjectProvider.Create<RoadSegmentWidth>();
 
                     return part;
                 })
@@ -571,6 +586,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                         part.ToPosition = Convert.ToDecimal(lineBefore.Length);
                     else
                         part.ToPosition = (index + 1) * (Convert.ToDecimal(lineBefore.Length) / count);
+                    part.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
 
                     return part;
                 })
@@ -654,6 +670,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                             part.ToPosition = Convert.ToDecimal(lineBefore.Length);
                                         else
                                             part.ToPosition = (index + 1) * (Convert.ToDecimal(lineBefore.Length) / count);
+                                        part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                                        part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
 
                                         return part;
                                     })
@@ -667,6 +685,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                             part.ToPosition = Convert.ToDecimal(lineBefore.Length);
                                         else
                                             part.ToPosition = (index + 1) * (Convert.ToDecimal(lineBefore.Length) / count);
+                                        part.Width = ObjectProvider.Create<RoadSegmentWidth>();
 
                                         return part;
                                     })
@@ -680,6 +699,7 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                             part.ToPosition = Convert.ToDecimal(lineBefore.Length);
                                         else
                                             part.ToPosition = (index + 1) * (Convert.ToDecimal(lineBefore.Length) / count);
+                                        part.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
 
                                         return part;
                                     })

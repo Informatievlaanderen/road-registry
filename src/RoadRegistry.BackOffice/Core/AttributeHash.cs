@@ -91,21 +91,21 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
     }
-    //TODO-rik add unit tests
+    
     [Pure]
-    public AttributeHash WithLanes(IReadOnlyCollection<BackOffice.RoadSegmentLaneAttribute> lanes)
+    public AttributeHash With(IReadOnlyCollection<BackOffice.RoadSegmentLaneAttribute> lanes)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, lanes, Surfaces, Widths);
     }
 
     [Pure]
-    public AttributeHash WithSurfaces(IReadOnlyCollection<BackOffice.RoadSegmentSurfaceAttribute> surfaces)
+    public AttributeHash With(IReadOnlyCollection<BackOffice.RoadSegmentSurfaceAttribute> surfaces)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, surfaces, Widths);
     }
 
     [Pure]
-    public AttributeHash WithWidths(IReadOnlyCollection<BackOffice.RoadSegmentWidthAttribute> widths)
+    public AttributeHash With(IReadOnlyCollection<BackOffice.RoadSegmentWidthAttribute> widths)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, widths);
     }
@@ -121,7 +121,7 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
                && RightStreetNameId.Equals(other.RightStreetNameId)
                && OrganizationId.Equals(other.OrganizationId)
                && GeometryDrawMethod.Equals(other.GeometryDrawMethod)
-               && Lanes.Equals(other.Lanes) //TODO-rik test of de onderliggende equality comparer wordt uitgevoerd
+               && Lanes.Equals(other.Lanes)
                && Surfaces.Equals(other.Surfaces)
                && Widths.Equals(other.Widths)
                ;

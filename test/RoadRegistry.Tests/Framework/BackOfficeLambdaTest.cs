@@ -137,6 +137,8 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                                 {
                                     part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
                                 }
+                                part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
+                                part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
 
                                 return part;
                             })
@@ -154,6 +156,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                                 {
                                     part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
                                 }
+                                part.Width = ObjectProvider.Create<RoadSegmentWidth>();
 
                                 return part;
                             })
@@ -171,6 +174,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                                 {
                                     part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
                                 }
+                                part.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
 
                                 return part;
                             })

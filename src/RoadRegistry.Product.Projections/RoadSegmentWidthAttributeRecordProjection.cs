@@ -102,7 +102,7 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Pro
             await context.RoadSegmentWidthAttributes.AddRangeAsync(widths);
         }
     }
-
+    //TODO-rik add handler for RoadSegmentAttributesModified
     private static async Task ModifyRoadSegment(RecyclableMemoryStreamManager manager,
         Encoding encoding,
         ProductContext context,

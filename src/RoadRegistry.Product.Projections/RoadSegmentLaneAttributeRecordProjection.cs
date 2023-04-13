@@ -115,7 +115,7 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Prod
             await context.RoadSegmentLaneAttributes.AddRangeAsync(lanes, cancellationToken);
         }
     }
-
+    //TODO-rik add handler for RoadSegmentAttributesModified
     private static async Task ModifyRoadSegment(RecyclableMemoryStreamManager manager,
         Encoding encoding,
         ProductContext context,

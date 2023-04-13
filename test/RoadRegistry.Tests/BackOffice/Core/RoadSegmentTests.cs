@@ -28,6 +28,13 @@ public class RoadSegmentTests
         fixture.CustomizeRoadSegmentStatus();
         fixture.CustomizeRoadSegmentAccessRestriction();
         fixture.CustomizeOrganizationId();
+        fixture.CustomizeRoadSegmentLaneCount();
+        fixture.CustomizeRoadSegmentLaneDirection();
+        fixture.CustomizeRoadSegmentLaneAttribute();
+        fixture.CustomizeRoadSegmentSurfaceType();
+        fixture.CustomizeRoadSegmentSurfaceAttribute();
+        fixture.CustomizeRoadSegmentWidth();
+        fixture.CustomizeRoadSegmentWidthAttribute();
         fixture.CustomizeAttributeHash();
         fixture.CustomizeRoadSegmentGeometryDrawMethod();
         _id = fixture.Create<RoadSegmentId>();

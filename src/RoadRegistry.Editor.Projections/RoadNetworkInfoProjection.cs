@@ -162,7 +162,7 @@ public class RoadNetworkInfoProjection : ConnectedProjection<EditorContext>
 
         await context.RoadNetworkInfoSegmentCache.AddAsync(roadNetworkInfoSegmentCache);
     }
-
+    //TODO-rik add handler for RoadSegmentAttributesModified
     private static async Task OnRoadSegmentModified(EditorContext context, RoadSegmentModified m, RoadNetworkInfo info)
     {
         var oldSegmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id);
