@@ -79,18 +79,6 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, value, Lanes, Surfaces, Widths);
     }
-
-    [Pure]
-    public AttributeHash WithLeftSide(CrabStreetnameId? value)
-    {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
-    }
-
-    [Pure]
-    public AttributeHash WithRightSide(CrabStreetnameId? value)
-    {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
-    }
     
     [Pure]
     public AttributeHash With(IReadOnlyCollection<BackOffice.RoadSegmentLaneAttribute> lanes)
@@ -108,6 +96,18 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     public AttributeHash With(IReadOnlyCollection<BackOffice.RoadSegmentWidthAttribute> widths)
     {
         return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, widths);
+    }
+
+    [Pure]
+    public AttributeHash WithLeftSide(CrabStreetnameId? value)
+    {
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
+    }
+
+    [Pure]
+    public AttributeHash WithRightSide(CrabStreetnameId? value)
+    {
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
     }
 
     [Pure]
