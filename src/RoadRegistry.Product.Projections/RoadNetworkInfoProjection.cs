@@ -98,6 +98,10 @@ public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
                         await OnRoadSegmentModified(context, m, info);
                         break;
 
+                    case RoadSegmentGeometryModified m:
+                        await OnRoadSegmentGeometryModified(context, m, info);
+                        break;
+
                     case RoadSegmentRemoved m:
                         await OnRoadSegmentRemoved(context, m, info);
                         break;
@@ -161,8 +165,34 @@ public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
 
         await context.RoadNetworkInfoSegmentCache.AddAsync(roadNetworkInfoSegmentCache);
     }
-    //TODO-rik add handler for RoadSegmentAttributesModified
+
     private static async Task OnRoadSegmentModified(ProductContext context, RoadSegmentModified m, RoadNetworkInfo info)
+    {
+        var oldSegmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id);
+        var newSegmentCache = new RoadNetworkInfoSegmentCache
+        {
+            ShapeLength = new PolyLineMShapeContent(
+                    GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(m.Geometry))
+                )
+                .ContentLength.Plus(ShapeRecord.HeaderLength)
+                .ToInt32(),
+            SurfacesLength = m.Surfaces.Length,
+            LanesLength = m.Lanes.Length,
+            WidthsLength = m.Widths.Length
+        };
+
+        info.TotalRoadSegmentShapeLength += newSegmentCache.ShapeLength - oldSegmentCache.ShapeLength;
+        info.RoadSegmentSurfaceAttributeCount += newSegmentCache.SurfacesLength - oldSegmentCache.SurfacesLength;
+        info.RoadSegmentLaneAttributeCount += newSegmentCache.LanesLength - oldSegmentCache.LanesLength;
+        info.RoadSegmentWidthAttributeCount += newSegmentCache.WidthsLength - oldSegmentCache.WidthsLength;
+
+        oldSegmentCache.ShapeLength = newSegmentCache.ShapeLength;
+        oldSegmentCache.SurfacesLength = newSegmentCache.SurfacesLength;
+        oldSegmentCache.LanesLength = newSegmentCache.LanesLength;
+        oldSegmentCache.WidthsLength = newSegmentCache.WidthsLength;
+    }
+
+    private static async Task OnRoadSegmentGeometryModified(ProductContext context, RoadSegmentGeometryModified m, RoadNetworkInfo info)
     {
         var oldSegmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id);
         var newSegmentCache = new RoadNetworkInfoSegmentCache

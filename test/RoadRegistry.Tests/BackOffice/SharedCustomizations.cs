@@ -517,7 +517,8 @@ public static class SharedCustomizations
                         laneAttribute.From,
                         laneAttribute.To,
                         laneAttribute.Count,
-                        laneAttribute.Direction
+                        laneAttribute.Direction,
+                        laneAttribute.AsOfGeometryVersion
                     );
                 }
             )
@@ -659,7 +660,8 @@ public static class SharedCustomizations
                     return new RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute(
                         surfaceAttribute.From,
                         surfaceAttribute.To,
-                        surfaceAttribute.Type
+                        surfaceAttribute.Type,
+                        surfaceAttribute.AsOfGeometryVersion
                     );
                 }
             )
@@ -735,7 +737,8 @@ public static class SharedCustomizations
                     return new RoadRegistry.BackOffice.RoadSegmentWidthAttribute(
                         widthAttribute.From,
                         widthAttribute.To,
-                        widthAttribute.Width
+                        widthAttribute.Width,
+                        widthAttribute.AsOfGeometryVersion
                     );
                 }
             )

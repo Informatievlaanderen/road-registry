@@ -102,6 +102,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
                         await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
                         break;
 
+                    case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                        await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
+                        break;
+
                     case RoadSegmentRemoved roadSegmentRemoved:
                         await RemoveRoadSegment(roadSegmentRemoved, context);
                         break;
@@ -242,10 +246,25 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
             roadSegmentRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
         }
 
-        if (roadSegmentAttributesModified.Geometry is not null)
+        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+        roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
+    }
+
+    private static async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+        WfsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadSegmentGeometryModified segment,
+        CancellationToken token)
+    {
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
+        if (roadSegmentRecord == null)
         {
-            roadSegmentRecord.Geometry2D = WfsGeometryTranslator.Translate2D(roadSegmentAttributesModified.Geometry);
+            throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
         }
+        
+        roadSegmentRecord.Geometry2D = WfsGeometryTranslator.Translate2D(segment.Geometry);
 
         roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 

@@ -91,6 +91,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
                         await ModifyRoadSegmentAttributes(manager, encoding, context, roadSegmentAttributesModified, envelope);
                         break;
 
+                    case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                        await ModifyRoadSegmentGeometry(manager, encoding, context, roadSegmentGeometryModified, envelope);
+                        break;
+
                     case RoadSegmentRemoved roadSegmentRemoved:
                         await RemoveRoadSegment(context, roadSegmentRemoved);
                         break;
@@ -262,20 +266,43 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
             dbaseRecord.LBLBEHEER.Value = roadSegmentAttributesModified.MaintenanceAuthority.Name;
         }
 
-        if (roadSegmentAttributesModified.Geometry is not null)
-        {
-            var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentAttributesModified.Geometry));
-            var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
-
-            roadSegmentRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
-            roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
-            roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
-
-            dbaseRecord.WS_GIDN.Value = $"{roadSegmentAttributesModified.Id}_{roadSegmentAttributesModified.GeometryVersion}";
-        }
-
         // dbaseRecord.WS_OIDN.Value remains unchanged upon modification (it's the key)
         dbaseRecord.WS_UIDN.Value = $"{roadSegmentAttributesModified.Id}_{roadSegmentAttributesModified.Version}";
+        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
+        dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
+        dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization;
+
+        roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+    }
+
+    private static async Task ModifyRoadSegmentGeometry(RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentGeometryModified segment,
+        Envelope<RoadNetworkChangesAccepted> envelope)
+    {
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadNodeRecord with id {segment.Id} is not found");
+        }
+
+        roadSegmentRecord.Id = segment.Id;
+        var dbaseRecord = new RoadSegmentDbaseRecord();
+        dbaseRecord.FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
+
+        var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(segment.Geometry));
+        var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
+
+        roadSegmentRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
+        roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
+        roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
+
+        dbaseRecord.WS_GIDN.Value = $"{segment.Id}_{segment.GeometryVersion}";
+
+        // dbaseRecord.WS_OIDN.Value remains unchanged upon modification (it's the key)
+        dbaseRecord.WS_UIDN.Value = $"{segment.Id}_{segment.Version}";
         // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;

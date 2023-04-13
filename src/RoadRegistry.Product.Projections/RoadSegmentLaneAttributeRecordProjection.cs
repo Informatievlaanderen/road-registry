@@ -67,12 +67,14 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Prod
 
                     case RoadSegmentModified segment:
                         await ModifyRoadSegment(manager, encoding, context, segment, envelope, token);
+                        break;
 
+                    case RoadSegmentGeometryModified segment:
+                        await ModifyRoadSegmentGeometry(manager, encoding, context, segment, envelope, token);
                         break;
 
                     case RoadSegmentRemoved segment:
                         await RemoveRoadSegment(context, segment, token);
-
                         break;
                 }
         });
@@ -115,11 +117,71 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Prod
             await context.RoadSegmentLaneAttributes.AddRangeAsync(lanes, cancellationToken);
         }
     }
-    //TODO-rik add handler for RoadSegmentAttributesModified
+
     private static async Task ModifyRoadSegment(RecyclableMemoryStreamManager manager,
         Encoding encoding,
         ProductContext context,
         RoadSegmentModified segment,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        if (segment.Lanes.Length == 0)
+        {
+            context.RoadSegmentLaneAttributes.RemoveRange(
+                context
+                    .RoadSegmentLaneAttributes
+                    .Local.Where(a => a.RoadSegmentId == segment.Id)
+                    .Concat(await context
+                        .RoadSegmentLaneAttributes
+                        .Where(a => a.RoadSegmentId == segment.Id)
+                        .ToArrayAsync(token)
+                    ));
+        }
+        else
+        {
+            await context
+                .RoadSegmentLaneAttributes
+                .Where(a => a.RoadSegmentId == segment.Id)
+                .ToArrayAsync(token);
+            var currentSet = context
+                .RoadSegmentLaneAttributes
+                .Local.Where(a => a.RoadSegmentId == segment.Id)
+                .ToDictionary(a => a.Id);
+            var nextSet = segment
+                .Lanes
+                .Select(lane =>
+                {
+                    var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
+                    return new RoadSegmentLaneAttributeRecord
+                    {
+                        Id = lane.AttributeId,
+                        RoadSegmentId = segment.Id,
+                        DbaseRecord = new RoadSegmentLaneAttributeDbaseRecord
+                        {
+                            RS_OIDN = { Value = lane.AttributeId },
+                            WS_OIDN = { Value = segment.Id },
+                            WS_GIDN = { Value = $"{segment.Id}_{lane.AsOfGeometryVersion}" },
+                            AANTAL = { Value = lane.Count },
+                            RICHTING = { Value = laneDirectionTranslation.Identifier },
+                            LBLRICHT = { Value = laneDirectionTranslation.Name },
+                            VANPOS = { Value = (double)lane.FromPosition },
+                            TOTPOS = { Value = (double)lane.ToPosition },
+                            BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                            BEGINORG = { Value = envelope.Message.OrganizationId },
+                            LBLBGNORG = { Value = envelope.Message.Organization }
+                        }.ToBytes(manager, encoding)
+                    };
+                })
+                .ToDictionary(a => a.Id);
+            context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet,
+                (current, next) => { current.DbaseRecord = next.DbaseRecord; });
+        }
+    }
+
+    private static async Task ModifyRoadSegmentGeometry(RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentGeometryModified segment,
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {

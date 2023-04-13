@@ -61,26 +61,24 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var fromPosition = new RoadSegmentPosition(0);
             var toPosition = new RoadSegmentPosition((decimal)geometry.Length);
             
-            return translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(
+            return translatedChanges.AppendChange(new ModifyRoadSegmentGeometry(
                 recordNumber,
                 roadSegmentId,
-                roadSegment.AttributeHash.GeometryDrawMethod
-            )
-            {
-                Geometry = request.Request.Geometry,
-                Lanes = new[]
+                roadSegment.AttributeHash.GeometryDrawMethod,
+                request.Request.Geometry,
+                new[]
                 {
                     new RoadSegmentLaneAttribute(network.ProvidesNextRoadSegmentLaneAttributeId()(roadSegmentId)(), lane.Count, lane.Direction, fromPosition, toPosition)
                 },
-                Surfaces = new[]
+                new[]
                 {
                     new RoadSegmentSurfaceAttribute(network.ProvidesNextRoadSegmentSurfaceAttributeId()(roadSegmentId)(), surface.Type, fromPosition, toPosition)
                 },
-                Widths = new[]
+                new[]
                 {
                     new RoadSegmentWidthAttribute(network.ProvidesNextRoadSegmentWidthAttributeId()(roadSegmentId)(), width.Width, fromPosition, toPosition)
                 }
-            });
+            ));
         }, cancellationToken);
 
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);

@@ -20,7 +20,7 @@ using AddRoadSegmentToNationalRoad = RoadRegistry.BackOffice.Messages.AddRoadSeg
 using AddRoadSegmentToNumberedRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToNumberedRoad;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
-using ModifyRoadSegmentAttributes = RoadRegistry.BackOffice.Messages.ModifyRoadSegmentAttributes;
+using ModifyRoadSegmentGeometry = RoadRegistry.BackOffice.Messages.ModifyRoadSegmentGeometry;
 using Point = NetTopologySuite.Geometries.Point;
 using Problem = RoadRegistry.BackOffice.Messages.Problem;
 using ProblemParameter = RoadRegistry.BackOffice.Messages.ProblemParameter;
@@ -3894,7 +3894,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     TestData.StartPoint1.X + random.Next(1, 1000) / 1000.0 * Distances.TooClose,
                     TestData.StartPoint1.Y + random.Next(1, 1000) / 1000.0 * Distances.TooClose
                 ))
-                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             TestData.AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
                         new[]
@@ -3910,7 +3910,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                                 GeometryConfiguration.GeometryFactory
                             )
                         })
-                    { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
             );
             TestData.AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint);
 
@@ -4040,7 +4040,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             GeometryConfiguration.GeometryFactory
                         )
                     })
-                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
         );
         TestData.AddStartNode2.Geometry = TestData.StartNode1Added.Geometry;
 
@@ -4917,7 +4917,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             GeometryConfiguration.GeometryFactory
                         )
                     })
-                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
         );
         TestData.AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint);
         return Run(scenario => scenario
@@ -5029,7 +5029,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             GeometryConfiguration.GeometryFactory
                         )
                     })
-                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
         );
         TestData.AddEndNode2.Geometry = TestData.EndNode1Added.Geometry;
 
@@ -5429,20 +5429,41 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
     }
 
     [Fact]
-    public Task when_modifying_a_segment_attribute()
+    public Task when_modifying_a_segment_geometry()
     {
         var org2Code = ObjectProvider.CreateWhichIsDifferentThan(new OrganizationId(TestData.ChangedByOrganization));
         var org2Name = TestData.ChangedByOrganizationName;
 
-        var modifyRoadSegmentAttributes = new ModifyRoadSegmentAttributes
+        var geometry = ObjectProvider.Create<RoadSegmentGeometry>();
+        var geometryLength = (decimal)GeometryTranslator.Translate(geometry).Length;
+
+        var modifyRoadSegmentGeometry = new ModifyRoadSegmentGeometry
         {
             Id = TestData.Segment1Added.Id,
             GeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
-            MaintenanceAuthority = org2Code,
-            Morphology = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentMorphology.Parse(TestData.Segment1Added.Morphology)),
-            AccessRestriction = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentAccessRestriction.Parse(TestData.Segment1Added.AccessRestriction)),
-            Category = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentCategory.Parse(TestData.Segment1Added.Category)),
-            Status = ObjectProvider.CreateWhichIsDifferentThan(RoadSegmentStatus.Parse(TestData.Segment1Added.Status))
+            Geometry = ObjectProvider.Create<RoadSegmentGeometry>(),
+            Lanes = new[]{new RequestedRoadSegmentLaneAttribute
+            {
+                AttributeId = 1,
+                FromPosition = 0,
+                ToPosition = geometryLength,
+                Count = ObjectProvider.Create<RoadSegmentLaneCount>(),
+                Direction = ObjectProvider.Create<RoadSegmentLaneDirection>()
+            }},
+            Surfaces = new[]{new RequestedRoadSegmentSurfaceAttribute
+            {
+                AttributeId = 1,
+                FromPosition = 0,
+                ToPosition = geometryLength,
+                Type = ObjectProvider.Create<RoadSegmentSurfaceType>()
+            }},
+            Widths = new[]{new RequestedRoadSegmentWidthAttribute
+            {
+                AttributeId = 1,
+                FromPosition = 0,
+                ToPosition = geometryLength,
+                Width = ObjectProvider.Create<RoadSegmentWidth>()
+            }}
         };
 
         return Run(scenario => scenario
@@ -5490,7 +5511,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                 TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
                 new RequestedChange
                 {
-                    ModifyRoadSegmentAttributes = modifyRoadSegmentAttributes
+                    ModifyRoadSegmentGeometry = modifyRoadSegmentGeometry
                 }
             ))
             .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
@@ -5505,19 +5526,34 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                 {
                     new AcceptedChange
                     {
-                        RoadSegmentAttributesModified = new RoadSegmentAttributesModified
+                        RoadSegmentGeometryModified = new RoadSegmentGeometryModified
                         {
-                            Id = modifyRoadSegmentAttributes.Id,
+                            Id = modifyRoadSegmentGeometry.Id,
                             Version = TestData.Segment1Added.Version + 1,
-                            AccessRestriction = modifyRoadSegmentAttributes.AccessRestriction,
-                            Category = modifyRoadSegmentAttributes.Category,
-                            MaintenanceAuthority = new MaintenanceAuthority
+                            GeometryVersion = TestData.Segment1Added.GeometryVersion + 1,
+                            Geometry = modifyRoadSegmentGeometry.Geometry,
+                            Lanes = modifyRoadSegmentGeometry.Lanes.Select(attribute => new RoadSegmentLaneAttributes
                             {
-                                Code = org2Code,
-                                Name = org2Name
-                            },
-                            Morphology = modifyRoadSegmentAttributes.Morphology,
-                            Status = modifyRoadSegmentAttributes.Status
+                                AttributeId = attribute.AttributeId,
+                                FromPosition = attribute.FromPosition,
+                                ToPosition = attribute.ToPosition,
+                                Count = attribute.Count,
+                                Direction = attribute.Direction
+                            }).ToArray(),
+                            Surfaces = modifyRoadSegmentGeometry.Surfaces.Select(attribute => new RoadSegmentSurfaceAttributes
+                            {
+                                AttributeId = attribute.AttributeId,
+                                FromPosition = attribute.FromPosition,
+                                ToPosition = attribute.ToPosition,
+                                Type = attribute.Type
+                            }).ToArray(),
+                            Widths = modifyRoadSegmentGeometry.Widths.Select(attribute => new RoadSegmentWidthAttributes
+                            {
+                                AttributeId = attribute.AttributeId,
+                                FromPosition = attribute.FromPosition,
+                                ToPosition = attribute.ToPosition,
+                                Width = attribute.Width
+                            }).ToArray(),
                         },
                         Problems = Array.Empty<Problem>()
                     }

@@ -65,12 +65,14 @@ public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<P
 
                     case RoadSegmentModified segment:
                         await ModifyRoadSegment(manager, encoding, context, segment, envelope, token);
+                        break;
 
+                    case RoadSegmentGeometryModified segment:
+                        await ModifyRoadSegmentGeometry(manager, encoding, context, segment, envelope, token);
                         break;
 
                     case RoadSegmentRemoved segment:
                         await RemoveRoadSegment(context, segment, token);
-
                         break;
                 }
         });
@@ -112,11 +114,70 @@ public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<P
             await context.RoadSegmentSurfaceAttributes.AddRangeAsync(surfaces);
         }
     }
-    //TODO-rik add handler for RoadSegmentAttributesModified
+
     private static async Task ModifyRoadSegment(RecyclableMemoryStreamManager manager,
         Encoding encoding,
         ProductContext context,
         RoadSegmentModified segment,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        if (segment.Lanes.Length == 0)
+        {
+            context.RoadSegmentSurfaceAttributes.RemoveRange(
+                context
+                    .RoadSegmentSurfaceAttributes
+                    .Local.Where(a => a.RoadSegmentId == segment.Id)
+                    .Concat(await context
+                        .RoadSegmentSurfaceAttributes
+                        .Where(a => a.RoadSegmentId == segment.Id)
+                        .ToArrayAsync(token)
+                    ));
+        }
+        else
+        {
+            await context
+                .RoadSegmentSurfaceAttributes
+                .Where(a => a.RoadSegmentId == segment.Id)
+                .ToArrayAsync(token);
+            var currentSet = context
+                .RoadSegmentSurfaceAttributes
+                .Local.Where(a => a.RoadSegmentId == segment.Id)
+                .ToDictionary(a => a.Id);
+            var nextSet = segment
+                .Surfaces
+                .Select(surface =>
+                {
+                    var typeTranslation = RoadSegmentSurfaceType.Parse(surface.Type).Translation;
+                    return new RoadSegmentSurfaceAttributeRecord
+                    {
+                        Id = surface.AttributeId,
+                        RoadSegmentId = segment.Id,
+                        DbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord
+                        {
+                            WV_OIDN = { Value = surface.AttributeId },
+                            WS_OIDN = { Value = segment.Id },
+                            WS_GIDN = { Value = $"{segment.Id}_{surface.AsOfGeometryVersion}" },
+                            TYPE = { Value = typeTranslation.Identifier },
+                            LBLTYPE = { Value = typeTranslation.Name },
+                            VANPOS = { Value = (double)surface.FromPosition },
+                            TOTPOS = { Value = (double)surface.ToPosition },
+                            BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                            BEGINORG = { Value = envelope.Message.OrganizationId },
+                            LBLBGNORG = { Value = envelope.Message.Organization }
+                        }.ToBytes(manager, encoding)
+                    };
+                })
+                .ToDictionary(a => a.Id);
+            context.RoadSegmentSurfaceAttributes.Synchronize(currentSet, nextSet,
+                (current, next) => { current.DbaseRecord = next.DbaseRecord; });
+        }
+    }
+
+    private static async Task ModifyRoadSegmentGeometry(RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentGeometryModified segment,
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {

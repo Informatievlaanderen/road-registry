@@ -202,15 +202,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                                 new RoadSegmentPosition(lane.FromPosition),
                                 new RoadSegmentPosition(lane.ToPosition),
                                 new RoadSegmentLaneCount(lane.Count),
-                                RoadSegmentLaneDirection.ByIdentifier[lane.Direction])).ToArray(),
+                                RoadSegmentLaneDirection.ByIdentifier[lane.Direction],
+                                new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
                             segment.AttributeHash.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                                 new RoadSegmentPosition(surface.FromPosition),
                                 new RoadSegmentPosition(surface.ToPosition),
-                                RoadSegmentSurfaceType.ByIdentifier[surface.Type])).ToArray(),
+                                RoadSegmentSurfaceType.ByIdentifier[surface.Type],
+                                new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
                             segment.AttributeHash.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                                 new RoadSegmentPosition(width.FromPosition),
                                 new RoadSegmentPosition(width.ToPosition),
-                                new RoadSegmentWidth(width.Width))).ToArray()
+                                new RoadSegmentWidth(width.Width),
+                                new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
                         ),
                         segment.LastEventHash);
                     roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));
@@ -283,19 +286,22 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         FromPosition = lane.From.ToDecimal(),
                         ToPosition = lane.To.ToDecimal(),
                         Count = lane.Count.ToInt32(),
-                        Direction = lane.Direction.Translation.Identifier
+                        Direction = lane.Direction.Translation.Identifier,
+                        AsOfGeometryVersion = lane.AsOfGeometryVersion
                     }).ToArray(),
                     Surfaces = segment.Value.AttributeHash.Surfaces.Select(surface => new RoadNetworkSnapshotSegmentSurfaceAttribute
                     {
                         FromPosition = surface.From.ToDecimal(),
                         ToPosition = surface.To.ToDecimal(),
-                        Type = surface.Type.Translation.Identifier
+                        Type = surface.Type.Translation.Identifier,
+                        AsOfGeometryVersion = surface.AsOfGeometryVersion
                     }).ToArray(),
                     Widths = segment.Value.AttributeHash.Widths.Select(width => new RoadNetworkSnapshotSegmentWidthAttribute
                     {
                         FromPosition = width.From.ToDecimal(),
                         ToPosition = width.To.ToDecimal(),
-                        Width = width.Width.ToInt32()
+                        Width = width.Width.ToInt32(),
+                        AsOfGeometryVersion = width.AsOfGeometryVersion
                     }).ToArray()
                 },
                 PartOfEuropeanRoads = segment.Value.PartOfEuropeanRoads.Select(number => number.ToString()).ToArray(),
@@ -393,6 +399,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 case ModifyRoadSegmentAttributes modifyRoadSegmentAttributes:
                     result = result.With(modifyRoadSegmentAttributes);
                     break;
+                case ModifyRoadSegmentGeometry modifyRoadSegmentGeometry:
+                    result = result.With(modifyRoadSegmentGeometry);
+                    break;
                 case RemoveRoadSegment removeRoadSegment:
                     result = result.With(removeRoadSegment);
                     break;
@@ -479,15 +488,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 new RoadSegmentPosition(lane.FromPosition),
                 new RoadSegmentPosition(lane.ToPosition),
                 new RoadSegmentLaneCount(lane.Count),
-                RoadSegmentLaneDirection.Parse(lane.Direction))).ToArray(),
+                RoadSegmentLaneDirection.Parse(lane.Direction),
+                new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
             @event.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                 new RoadSegmentPosition(surface.FromPosition),
                 new RoadSegmentPosition(surface.ToPosition),
-                RoadSegmentSurfaceType.Parse(surface.Type))).ToArray(),
+                RoadSegmentSurfaceType.Parse(surface.Type),
+                new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
             @event.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                 new RoadSegmentPosition(width.FromPosition),
                 new RoadSegmentPosition(width.ToPosition),
-                new RoadSegmentWidth(width.Width))).ToArray()
+                new RoadSegmentWidth(width.Width),
+                new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
         );
         
         var segment = new RoadSegment(
@@ -625,6 +637,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 case RoadSegmentAttributesModified roadSegmentAttributesModified:
                     result = result.Given(roadSegmentAttributesModified);
                     break;
+                case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                    result = result.Given(roadSegmentGeometryModified);
+                    break;
                 case RoadSegmentRemoved roadSegmentRemoved:
                     result = result.Given(roadSegmentRemoved);
                     break;
@@ -752,15 +767,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 new RoadSegmentPosition(lane.FromPosition),
                 new RoadSegmentPosition(lane.ToPosition),
                 new RoadSegmentLaneCount(lane.Count),
-                RoadSegmentLaneDirection.Parse(lane.Direction))).ToArray(),
+                RoadSegmentLaneDirection.Parse(lane.Direction),
+                new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
             @event.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                 new RoadSegmentPosition(surface.FromPosition),
                 new RoadSegmentPosition(surface.ToPosition),
-                RoadSegmentSurfaceType.Parse(surface.Type))).ToArray(),
+                RoadSegmentSurfaceType.Parse(surface.Type),
+                new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
             @event.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                 new RoadSegmentPosition(width.FromPosition),
                 new RoadSegmentPosition(width.ToPosition),
-                new RoadSegmentWidth(width.Width))).ToArray()
+                new RoadSegmentWidth(width.Width),
+                new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
         );
 
         var segment = new RoadSegment(
@@ -831,15 +849,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 new RoadSegmentPosition(lane.FromPosition),
                 new RoadSegmentPosition(lane.ToPosition),
                 new RoadSegmentLaneCount(lane.Count),
-                RoadSegmentLaneDirection.Parse(lane.Direction))).ToArray(),
+                RoadSegmentLaneDirection.Parse(lane.Direction),
+                new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
             @event.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                 new RoadSegmentPosition(surface.FromPosition),
                 new RoadSegmentPosition(surface.ToPosition),
-                RoadSegmentSurfaceType.Parse(surface.Type))).ToArray(),
+                RoadSegmentSurfaceType.Parse(surface.Type),
+                new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
             @event.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                 new RoadSegmentPosition(width.FromPosition),
                 new RoadSegmentPosition(width.ToPosition),
-                new RoadSegmentWidth(width.Width))).ToArray()
+                new RoadSegmentWidth(width.Width),
+                new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
         );
 
         var segmentBefore = _segments[id];
@@ -917,22 +938,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 ? new OrganizationId(@event.MaintenanceAuthority.Code)
                 : segmentBefore.AttributeHash.OrganizationId,
             segmentBefore.AttributeHash.GeometryDrawMethod,
-            @event.Lanes?.Select(lane => new BackOffice.RoadSegmentLaneAttribute(
-                new RoadSegmentPosition(lane.FromPosition),
-                new RoadSegmentPosition(lane.ToPosition),
-                new RoadSegmentLaneCount(lane.Count),
-                RoadSegmentLaneDirection.Parse(lane.Direction))).ToArray()
-                ?? segmentBefore.AttributeHash.Lanes,
-            @event.Surfaces?.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
-                new RoadSegmentPosition(surface.FromPosition),
-                new RoadSegmentPosition(surface.ToPosition),
-                RoadSegmentSurfaceType.Parse(surface.Type))).ToArray()
-                ?? segmentBefore.AttributeHash.Surfaces,
-            @event.Widths?.Select(width => new BackOffice.RoadSegmentWidthAttribute(
-                new RoadSegmentPosition(width.FromPosition),
-                new RoadSegmentPosition(width.ToPosition),
-                new RoadSegmentWidth(width.Width))).ToArray()
-                ?? segmentBefore.AttributeHash.Widths
+            segmentBefore.AttributeHash.Lanes,
+            segmentBefore.AttributeHash.Surfaces,
+            segmentBefore.AttributeHash.Widths
         );
 
         return new ImmutableRoadNetworkView(
@@ -957,6 +965,83 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
             SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+
+    private ImmutableRoadNetworkView Given(RoadSegmentGeometryModified @event)
+    {
+        var id = new RoadSegmentId(@event.Id);
+        var version = new RoadSegmentVersion(@event.Version);
+        var geometryVersion = new GeometryVersion(@event.GeometryVersion);
+
+        var segmentBefore = _segments[id];
+
+        var attributeHash = new AttributeHash(
+            segmentBefore.AttributeHash.AccessRestriction,
+            segmentBefore.AttributeHash.Category,
+            segmentBefore.AttributeHash.Morphology,
+            segmentBefore.AttributeHash.Status,
+            segmentBefore.AttributeHash.LeftStreetNameId,
+            segmentBefore.AttributeHash.RightStreetNameId,
+            segmentBefore.AttributeHash.OrganizationId,
+            segmentBefore.AttributeHash.GeometryDrawMethod,
+            @event.Lanes.Select(lane => new BackOffice.RoadSegmentLaneAttribute(
+                new RoadSegmentPosition(lane.FromPosition),
+                new RoadSegmentPosition(lane.ToPosition),
+                new RoadSegmentLaneCount(lane.Count),
+                RoadSegmentLaneDirection.Parse(lane.Direction),
+                new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
+            @event.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
+                new RoadSegmentPosition(surface.FromPosition),
+                new RoadSegmentPosition(surface.ToPosition),
+                RoadSegmentSurfaceType.Parse(surface.Type),
+                new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
+            @event.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
+                new RoadSegmentPosition(width.FromPosition),
+                new RoadSegmentPosition(width.ToPosition),
+                new RoadSegmentWidth(width.Width),
+                new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
+        );
+
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(version)
+                    .WithGeometryVersion(geometryVersion)
+                    .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(@event.GetHash())
+                ),
+            _gradeSeparatedJunctions,
+            _maximumTransactionId,
+            _maximumNodeId,
+            _maximumSegmentId,
+            _maximumGradeSeparatedJunctionId,
+            _maximumEuropeanRoadAttributeId,
+            _maximumNationalRoadAttributeId,
+            _maximumNumberedRoadAttributeId,
+            @event.Lanes.Length != 0
+                ? AttributeId.Max(
+                    new AttributeId(@event.Lanes.Max(_ => _.AttributeId)),
+                    _maximumLaneAttributeId)
+                : _maximumLaneAttributeId,
+            @event.Widths.Length != 0
+                ? AttributeId.Max(
+                    new AttributeId(@event.Widths.Max(_ => _.AttributeId)),
+                    _maximumWidthAttributeId)
+                : _maximumWidthAttributeId,
+            @event.Surfaces.Length != 0
+                ? AttributeId.Max(
+                    new AttributeId(@event.Surfaces.Max(_ => _.AttributeId)),
+                    _maximumSurfaceAttributeId)
+                : _maximumSurfaceAttributeId,
+            SegmentReusableLaneAttributeIdentifiers.Merge(id,
+                @event.Lanes.Select(lane => new AttributeId(lane.AttributeId))),
+            SegmentReusableWidthAttributeIdentifiers.Merge(id,
+                @event.Widths.Select(width => new AttributeId(width.AttributeId))),
+            SegmentReusableSurfaceAttributeIdentifiers.Merge(id,
+                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)))
         );
     }
     
@@ -1314,9 +1399,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             command.RightSideStreetNameId,
             command.MaintenanceAuthorityId,
             command.GeometryDrawMethod,
-            command.Lanes.Select(lane => new BackOffice.RoadSegmentLaneAttribute(lane.From, lane.To, lane.Count, lane.Direction)).ToArray(),
-            command.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(surface.From, surface.To, surface.Type)).ToArray(),
-            command.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(width.From, width.To, width.Width)).ToArray()
+            command.Lanes.Select(lane => new BackOffice.RoadSegmentLaneAttribute(lane.From, lane.To, lane.Count, lane.Direction, lane.AsOfGeometryVersion)).ToArray(),
+            command.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(surface.From, surface.To, surface.Type, surface.AsOfGeometryVersion)).ToArray(),
+            command.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(width.From, width.To, width.Width, width.AsOfGeometryVersion)).ToArray()
         );
 
         var version = RoadSegmentVersion.Initial;
@@ -1364,15 +1449,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 lane.From,
                 lane.To,
                 lane.Count,
-                lane.Direction)).ToArray(),
+                lane.Direction,
+                lane.AsOfGeometryVersion)).ToArray(),
             command.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                 surface.From,
                 surface.To,
-                surface.Type)).ToArray(),
+                surface.Type,
+                surface.AsOfGeometryVersion)).ToArray(),
             command.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                 width.From,
                 width.To,
-                width.Width)).ToArray()
+                width.Width,
+                width.AsOfGeometryVersion)).ToArray()
         );
 
         var segmentBefore = _segments[command.Id];
@@ -1425,23 +1513,69 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             segmentBefore.AttributeHash.RightStreetNameId,
             command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
             command.GeometryDrawMethod,
-            command.Lanes?.Select(lane => new BackOffice.RoadSegmentLaneAttribute(
+            segmentBefore.AttributeHash.Lanes,
+            segmentBefore.AttributeHash.Surfaces,
+            segmentBefore.AttributeHash.Widths
+        );
+        
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments
+                .TryReplace(command.Id, segment => segment
+                    .WithVersion(command.Version)
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(command.GetHash())
+                ),
+            _gradeSeparatedJunctions,
+            _maximumTransactionId,
+            _maximumNodeId,
+            _maximumSegmentId,
+            _maximumGradeSeparatedJunctionId,
+            _maximumEuropeanRoadAttributeId,
+            _maximumNationalRoadAttributeId,
+            _maximumNumberedRoadAttributeId,
+            _maximumLaneAttributeId,
+            _maximumWidthAttributeId,
+            _maximumSurfaceAttributeId,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+
+    private ImmutableRoadNetworkView With(ModifyRoadSegmentGeometry command)
+    {
+        var segmentBefore = _segments[command.Id];
+
+        var attributeHash = new AttributeHash(
+            segmentBefore.AttributeHash.AccessRestriction,
+            segmentBefore.AttributeHash.Category,
+            segmentBefore.AttributeHash.Morphology,
+            segmentBefore.AttributeHash.Status,
+            segmentBefore.AttributeHash.LeftStreetNameId,
+            segmentBefore.AttributeHash.RightStreetNameId,
+            segmentBefore.AttributeHash.OrganizationId,
+            command.GeometryDrawMethod,
+            command.Lanes.Select(lane => new BackOffice.RoadSegmentLaneAttribute(
                 lane.From,
                 lane.To,
                 lane.Count,
-                lane.Direction)).ToArray() ?? segmentBefore.AttributeHash.Lanes,
-            command.Surfaces?.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
+                lane.Direction,
+                lane.AsOfGeometryVersion)).ToArray(),
+            command.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                 surface.From,
                 surface.To,
-                surface.Type)).ToArray() ?? segmentBefore.AttributeHash.Surfaces,
-            command.Widths?.Select(width => new BackOffice.RoadSegmentWidthAttribute(
+                surface.Type,
+                surface.AsOfGeometryVersion)).ToArray(),
+            command.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                 width.From,
                 width.To,
-                width.Width)).ToArray() ?? segmentBefore.AttributeHash.Widths
+                width.Width,
+                width.AsOfGeometryVersion)).ToArray()
         );
 
-        var geometry = command.Geometry ?? segmentBefore.Geometry;
-        var geometryVersion = command.GeometryVersion ?? segmentBefore.GeometryVersion;
+        var geometry = command.Geometry;
+        var geometryVersion = command.GeometryVersion;
 
         return new ImmutableRoadNetworkView(
             _nodes,
@@ -1464,9 +1598,12 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _maximumLaneAttributeId,
             _maximumWidthAttributeId,
             _maximumSurfaceAttributeId,
-            SegmentReusableLaneAttributeIdentifiers,
-            SegmentReusableWidthAttributeIdentifiers,
-            SegmentReusableSurfaceAttributeIdentifiers
+            SegmentReusableLaneAttributeIdentifiers.Merge(command.Id,
+                command.Lanes.Select(lane => new AttributeId(lane.Id))),
+            SegmentReusableWidthAttributeIdentifiers.Merge(command.Id,
+                command.Widths.Select(width => new AttributeId(width.Id))),
+            SegmentReusableSurfaceAttributeIdentifiers.Merge(command.Id,
+                command.Surfaces.Select(surface => new AttributeId(surface.Id)))
         );
     }
 
@@ -1934,15 +2071,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                                     new RoadSegmentPosition(lane.FromPosition),
                                     new RoadSegmentPosition(lane.ToPosition),
                                     new RoadSegmentLaneCount(lane.Count),
-                                    RoadSegmentLaneDirection.ByIdentifier[lane.Direction])).ToArray(),
+                                    RoadSegmentLaneDirection.ByIdentifier[lane.Direction],
+                                    new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
                                 segment.AttributeHash.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                                     new RoadSegmentPosition(surface.FromPosition),
                                     new RoadSegmentPosition(surface.ToPosition),
-                                    RoadSegmentSurfaceType.ByIdentifier[surface.Type])).ToArray(),
+                                    RoadSegmentSurfaceType.ByIdentifier[surface.Type],
+                                    new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
                                 segment.AttributeHash.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                                     new RoadSegmentPosition(width.FromPosition),
                                     new RoadSegmentPosition(width.ToPosition),
-                                    new RoadSegmentWidth(width.Width))).ToArray()
+                                    new RoadSegmentWidth(width.Width),
+                                    new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
                             ),
                             segment.LastEventHash);
                         roadSegment = segment.PartOfEuropeanRoads.Aggregate(roadSegment, (current, number) => current.PartOfEuropeanRoad(EuropeanRoadNumber.Parse(number)));
@@ -2015,19 +2155,22 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                             FromPosition = lane.From.ToDecimal(),
                             ToPosition = lane.To.ToDecimal(),
                             Count = lane.Count.ToInt32(),
-                            Direction = lane.Direction.Translation.Identifier
+                            Direction = lane.Direction.Translation.Identifier,
+                            AsOfGeometryVersion = lane.AsOfGeometryVersion
                         }).ToArray(),
                         Surfaces = segment.Value.AttributeHash.Surfaces.Select(surface => new RoadNetworkSnapshotSegmentSurfaceAttribute
                         {
                             FromPosition = surface.From.ToDecimal(),
                             ToPosition = surface.To.ToDecimal(),
-                            Type = surface.Type.Translation.Identifier
+                            Type = surface.Type.Translation.Identifier,
+                            AsOfGeometryVersion = surface.AsOfGeometryVersion
                         }).ToArray(),
                         Widths = segment.Value.AttributeHash.Widths.Select(width => new RoadNetworkSnapshotSegmentWidthAttribute
                         {
                             FromPosition = width.From.ToDecimal(),
                             ToPosition = width.To.ToDecimal(),
-                            Width = width.Width.ToInt32()
+                            Width = width.Width.ToInt32(),
+                            AsOfGeometryVersion = width.AsOfGeometryVersion
                         }).ToArray()
                     },
                     PartOfEuropeanRoads = segment.Value.PartOfEuropeanRoads.Select(number => number.ToString()).ToArray(),
@@ -2127,6 +2270,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     case ModifyRoadSegmentAttributes modifyRoadSegmentAttributes:
                         With(modifyRoadSegmentAttributes);
                         break;
+                    case ModifyRoadSegmentGeometry modifyRoadSegmentGeometry:
+                        With(modifyRoadSegmentGeometry);
+                        break;
                     case RemoveRoadSegment removeRoadSegment:
                         With(removeRoadSegment);
                         break;
@@ -2201,15 +2347,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     new RoadSegmentPosition(lane.FromPosition),
                     new RoadSegmentPosition(lane.ToPosition),
                     new RoadSegmentLaneCount(lane.Count),
-                    RoadSegmentLaneDirection.Parse(lane.Direction))).ToArray(),
+                    RoadSegmentLaneDirection.Parse(lane.Direction),
+                    new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
                 @event.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                     new RoadSegmentPosition(surface.FromPosition),
                     new RoadSegmentPosition(surface.ToPosition),
-                    RoadSegmentSurfaceType.Parse(surface.Type))).ToArray(),
+                    RoadSegmentSurfaceType.Parse(surface.Type),
+                    new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
                 @event.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                     new RoadSegmentPosition(width.FromPosition),
                     new RoadSegmentPosition(width.ToPosition),
-                    new RoadSegmentWidth(width.Width))).ToArray()
+                    new RoadSegmentWidth(width.Width),
+                    new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
             );
 
             var segment = new RoadSegment(
@@ -2317,6 +2466,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
                         Given(roadSegmentAttributesModified);
                         break;
+                    case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                        Given(roadSegmentGeometryModified);
+                        break;
                     case RoadSegmentRemoved roadSegmentRemoved:
                         Given(roadSegmentRemoved);
                         break;
@@ -2397,15 +2549,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     new RoadSegmentPosition(lane.FromPosition),
                     new RoadSegmentPosition(lane.ToPosition),
                     new RoadSegmentLaneCount(lane.Count),
-                    RoadSegmentLaneDirection.Parse(lane.Direction))).ToArray(),
+                    RoadSegmentLaneDirection.Parse(lane.Direction),
+                    new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
                 @event.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                     new RoadSegmentPosition(surface.FromPosition),
                     new RoadSegmentPosition(surface.ToPosition),
-                    RoadSegmentSurfaceType.Parse(surface.Type))).ToArray(),
+                    RoadSegmentSurfaceType.Parse(surface.Type),
+                    new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
                 @event.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                     new RoadSegmentPosition(width.FromPosition),
                     new RoadSegmentPosition(width.ToPosition),
-                    new RoadSegmentWidth(width.Width))).ToArray()
+                    new RoadSegmentWidth(width.Width),
+                    new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
             );
 
             var segment = new RoadSegment(
@@ -2468,15 +2623,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     new RoadSegmentPosition(lane.FromPosition),
                     new RoadSegmentPosition(lane.ToPosition),
                     new RoadSegmentLaneCount(lane.Count),
-                    RoadSegmentLaneDirection.Parse(lane.Direction))).ToArray(),
+                    RoadSegmentLaneDirection.Parse(lane.Direction),
+                    new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
                 @event.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                     new RoadSegmentPosition(surface.FromPosition),
                     new RoadSegmentPosition(surface.ToPosition),
-                    RoadSegmentSurfaceType.Parse(surface.Type))).ToArray(),
+                    RoadSegmentSurfaceType.Parse(surface.Type),
+                    new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
                 @event.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                     new RoadSegmentPosition(width.FromPosition),
                     new RoadSegmentPosition(width.ToPosition),
-                    new RoadSegmentWidth(width.Width))).ToArray()
+                    new RoadSegmentWidth(width.Width),
+                    new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
             );
 
             var segmentBefore = _segments[id];
@@ -2545,22 +2703,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     ? new OrganizationId(@event.MaintenanceAuthority.Code)
                     : segmentBefore.AttributeHash.OrganizationId,
                 segmentBefore.AttributeHash.GeometryDrawMethod,
-                @event.Lanes?.Select(lane => new BackOffice.RoadSegmentLaneAttribute(
-                    new RoadSegmentPosition(lane.FromPosition),
-                    new RoadSegmentPosition(lane.ToPosition),
-                    new RoadSegmentLaneCount(lane.Count),
-                    RoadSegmentLaneDirection.Parse(lane.Direction))).ToArray()
-                    ?? segmentBefore.AttributeHash.Lanes,
-                @event.Surfaces?.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
-                    new RoadSegmentPosition(surface.FromPosition),
-                    new RoadSegmentPosition(surface.ToPosition),
-                    RoadSegmentSurfaceType.Parse(surface.Type))).ToArray()
-                    ?? segmentBefore.AttributeHash.Surfaces,
-                @event.Widths?.Select(width => new BackOffice.RoadSegmentWidthAttribute(
-                    new RoadSegmentPosition(width.FromPosition),
-                    new RoadSegmentPosition(width.ToPosition),
-                    new RoadSegmentWidth(width.Width))).ToArray()
-                    ?? segmentBefore.AttributeHash.Widths
+                segmentBefore.AttributeHash.Lanes,
+                segmentBefore.AttributeHash.Surfaces,
+                segmentBefore.AttributeHash.Widths
             );
 
             _segments
@@ -2569,6 +2714,73 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(@event.GetHash())
                 );
+        }
+
+        private void Given(RoadSegmentGeometryModified @event)
+        {
+            var id = new RoadSegmentId(@event.Id);
+            var version = new RoadSegmentVersion(@event.Version);
+            var geometryVersion = new GeometryVersion(@event.GeometryVersion);
+            
+            var segmentBefore = _segments[id];
+
+            var attributeHash = new AttributeHash(
+                segmentBefore.AttributeHash.AccessRestriction,
+                segmentBefore.AttributeHash.Category,
+                segmentBefore.AttributeHash.Morphology,
+                segmentBefore.AttributeHash.Status,
+                segmentBefore.AttributeHash.LeftStreetNameId,
+                segmentBefore.AttributeHash.RightStreetNameId,
+                segmentBefore.AttributeHash.OrganizationId,
+                segmentBefore.AttributeHash.GeometryDrawMethod,
+                @event.Lanes.Select(lane => new BackOffice.RoadSegmentLaneAttribute(
+                    new RoadSegmentPosition(lane.FromPosition),
+                    new RoadSegmentPosition(lane.ToPosition),
+                    new RoadSegmentLaneCount(lane.Count),
+                    RoadSegmentLaneDirection.Parse(lane.Direction),
+                    new GeometryVersion(lane.AsOfGeometryVersion))).ToArray(),
+                @event.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
+                    new RoadSegmentPosition(surface.FromPosition),
+                    new RoadSegmentPosition(surface.ToPosition),
+                    RoadSegmentSurfaceType.Parse(surface.Type),
+                    new GeometryVersion(surface.AsOfGeometryVersion))).ToArray(),
+                @event.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
+                    new RoadSegmentPosition(width.FromPosition),
+                    new RoadSegmentPosition(width.ToPosition),
+                    new RoadSegmentWidth(width.Width),
+                    new GeometryVersion(width.AsOfGeometryVersion))).ToArray()
+            );
+
+            _segments
+                .TryReplace(id, segment => segment
+                    .WithVersion(version)
+                    .WithGeometryVersion(geometryVersion)
+                    .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(@event.GetHash())
+                );
+            _maximumLaneAttributeId =
+                @event.Lanes.Length != 0
+                    ? AttributeId.Max(
+                        new AttributeId(@event.Lanes.Max(_ => _.AttributeId)),
+                        _maximumLaneAttributeId)
+                    : _maximumLaneAttributeId;
+            _maximumWidthAttributeId = @event.Widths.Length != 0
+                ? AttributeId.Max(
+                    new AttributeId(@event.Widths.Max(_ => _.AttributeId)),
+                    _maximumWidthAttributeId)
+                : _maximumWidthAttributeId;
+            _maximumSurfaceAttributeId = @event.Surfaces.Length != 0
+                ? AttributeId.Max(
+                    new AttributeId(@event.Surfaces.Max(_ => _.AttributeId)),
+                    _maximumSurfaceAttributeId)
+                : _maximumSurfaceAttributeId;
+            _segmentReusableLaneAttributeIdentifiers.Merge(id,
+                @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)));
+            _segmentReusableWidthAttributeIdentifiers.Merge(id,
+                @event.Widths.Select(width => new AttributeId(width.AttributeId)));
+            _segmentReusableSurfaceAttributeIdentifiers.Merge(id,
+                @event.Surfaces.Select(surface => new AttributeId(surface.AttributeId)));
         }
 
         private void Given(RoadSegmentRemoved @event)
@@ -2711,15 +2923,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     lane.From,
                     lane.To,
                     lane.Count,
-                    lane.Direction)).ToArray(),
+                    lane.Direction,
+                    lane.AsOfGeometryVersion)).ToArray(),
                 command.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                     surface.From,
                     surface.To,
-                    surface.Type)).ToArray(),
+                    surface.Type,
+                    surface.AsOfGeometryVersion)).ToArray(),
                 command.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                     width.From,
                     width.To,
-                    width.Width)).ToArray()
+                    width.Width,
+                    width.AsOfGeometryVersion)).ToArray()
             );
 
             _nodes
@@ -2752,15 +2967,18 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     lane.From,
                     lane.To,
                     lane.Count,
-                    lane.Direction)).ToArray(),
+                    lane.Direction,
+                    lane.AsOfGeometryVersion)).ToArray(),
                 command.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                     surface.From,
                     surface.To,
-                    surface.Type)).ToArray(),
+                    surface.Type,
+                    surface.AsOfGeometryVersion)).ToArray(),
                 command.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                     width.From,
                     width.To,
-                    width.Width)).ToArray()
+                    width.Width,
+                    width.AsOfGeometryVersion)).ToArray()
             );
 
             var segmentBefore = _segments[command.Id];
@@ -2802,23 +3020,53 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 segmentBefore.AttributeHash.RightStreetNameId,
                 command.MaintenanceAuthorityId ?? segmentBefore.AttributeHash.OrganizationId,
                 command.GeometryDrawMethod,
-                command.Lanes?.Select(lane => new BackOffice.RoadSegmentLaneAttribute(
+                segmentBefore.AttributeHash.Lanes,
+                segmentBefore.AttributeHash.Surfaces,
+                segmentBefore.AttributeHash.Widths
+            );
+            
+            _segments
+                .TryReplace(command.Id, segment => segment
+                    .WithVersion(command.Version)
+                    .WithAttributeHash(attributeHash)
+                    .WithLastEventHash(command.GetHash())
+                );
+        }
+
+        private void With(ModifyRoadSegmentGeometry command)
+        {
+            //NOTE: 2023-03-31 Rik: need to test, no idea how this code ever gets executed
+            var segmentBefore = _segments[command.Id];
+
+            var attributeHash = new AttributeHash(
+                segmentBefore.AttributeHash.AccessRestriction,
+                segmentBefore.AttributeHash.Category,
+                segmentBefore.AttributeHash.Morphology,
+                segmentBefore.AttributeHash.Status,
+                segmentBefore.AttributeHash.LeftStreetNameId,
+                segmentBefore.AttributeHash.RightStreetNameId,
+                segmentBefore.AttributeHash.OrganizationId,
+                command.GeometryDrawMethod,
+                command.Lanes.Select(lane => new BackOffice.RoadSegmentLaneAttribute(
                     lane.From,
                     lane.To,
                     lane.Count,
-                    lane.Direction)).ToArray() ?? segmentBefore.AttributeHash.Lanes,
-                command.Surfaces?.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
+                    lane.Direction,
+                    lane.AsOfGeometryVersion)).ToArray(),
+                command.Surfaces.Select(surface => new BackOffice.RoadSegmentSurfaceAttribute(
                     surface.From,
                     surface.To,
-                    surface.Type)).ToArray() ?? segmentBefore.AttributeHash.Surfaces,
-                command.Widths?.Select(width => new BackOffice.RoadSegmentWidthAttribute(
+                    surface.Type,
+                    surface.AsOfGeometryVersion)).ToArray(),
+                command.Widths.Select(width => new BackOffice.RoadSegmentWidthAttribute(
                     width.From,
                     width.To,
-                    width.Width)).ToArray() ?? segmentBefore.AttributeHash.Widths
+                    width.Width,
+                    width.AsOfGeometryVersion)).ToArray()
             );
-            
-            var geometry = command.Geometry ?? segmentBefore.Geometry;
-            var geometryVersion = command.GeometryVersion ?? segmentBefore.GeometryVersion;
+
+            var geometry = command.Geometry;
+            var geometryVersion = command.GeometryVersion;
 
             _segments
                 .TryReplace(command.Id, segment => segment
@@ -2828,6 +3076,12 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithAttributeHash(attributeHash)
                     .WithLastEventHash(command.GetHash())
                 );
+            _segmentReusableLaneAttributeIdentifiers.Merge(command.Id,
+                command.Lanes.Select(lane => new AttributeId(lane.Id)));
+            _segmentReusableWidthAttributeIdentifiers.Merge(command.Id,
+                command.Widths.Select(width => new AttributeId(width.Id)));
+            _segmentReusableSurfaceAttributeIdentifiers.Merge(command.Id,
+                command.Surfaces.Select(surface => new AttributeId(surface.Id)));
         }
 
         private void With(RemoveRoadSegment command)

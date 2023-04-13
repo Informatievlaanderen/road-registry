@@ -32,6 +32,7 @@ public static class AcceptedChanges
                     break;
                 case RoadSegmentModified _:
                 case RoadSegmentAttributesModified _:
+                case RoadSegmentGeometryModified _:
                     summary.RoadSegments.Modified += 1;
                     break;
                 case RoadSegmentRemoved _:

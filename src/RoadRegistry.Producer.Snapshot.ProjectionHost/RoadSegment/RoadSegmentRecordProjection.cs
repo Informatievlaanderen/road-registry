@@ -108,6 +108,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                             await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
                             break;
 
+                        case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                            await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
+                            break;
+
                         case RoadSegmentRemoved roadSegmentRemoved:
                             await RemoveRoadSegment(roadSegmentRemoved, context, envelope, token);
                             break;
@@ -317,17 +321,41 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 roadSegmentRecord.AccessRestrictionDutchName = accessRestriction.Translation.Name;
             }
 
-            if (roadSegmentAttributesModified.Geometry is not null)
-            {
-                roadSegmentRecord.Geometry = GeometryTranslator.Translate(roadSegmentAttributesModified.Geometry);
-                roadSegmentRecord.GeometryVersion = roadSegmentAttributesModified.GeometryVersion;
-            }
-
             var transactionId = new TransactionId(envelope.Message.TransactionId);
             roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
 
             roadSegmentRecord.Version = roadSegmentAttributesModified.Version;
             roadSegmentRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
+
+            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+            roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
+
+            roadSegmentRecord.Origin = envelope.Message.ToOrigin();
+            roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
+
+            await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
+        }
+
+        private async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+            RoadSegmentProducerSnapshotContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            RoadSegmentGeometryModified segment,
+            CancellationToken token)
+        {
+            var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
+            if (roadSegmentRecord == null)
+            {
+                throw new InvalidOperationException($"RoadNodeRecord with id {segment.Id} is not found");
+            }
+
+            roadSegmentRecord.Geometry = GeometryTranslator.Translate(segment.Geometry);
+            roadSegmentRecord.GeometryVersion = segment.GeometryVersion;
+
+            var transactionId = new TransactionId(envelope.Message.TransactionId);
+            roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+
+            roadSegmentRecord.Version = segment.Version;
+            roadSegmentRecord.RoadSegmentVersion = segment.Version;
 
             var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
             roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;

@@ -131,6 +131,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                         await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
                         break;
 
+                    case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                        await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
+                        break;
+
                     case RoadSegmentRemoved roadSegmentRemoved:
                         await RemoveRoadSegment(roadSegmentRemoved, context);
                         break;
@@ -285,7 +289,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
-    
+
     private static async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
         WmsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -336,16 +340,37 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             roadSegmentRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
         }
 
-        if (roadSegmentAttributesModified.Geometry is not null)
-        {
-            roadSegmentRecord.Geometry2D = WmsGeometryTranslator.Translate2D(roadSegmentAttributesModified.Geometry);
-            roadSegmentRecord.GeometryVersion = roadSegmentAttributesModified.GeometryVersion;
-        }
-
         roadSegmentRecord.BeginOrganizationId = envelope.Message.OrganizationId;
         roadSegmentRecord.BeginOrganizationName = envelope.Message.Organization;
         roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         roadSegmentRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
+
+        var transactionId = new TransactionId(envelope.Message.TransactionId);
+        roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+
+        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+        roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
+    }
+
+    private static async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+        WmsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadSegmentGeometryModified segment,
+        CancellationToken token)
+    {
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
+        }
+
+        roadSegmentRecord.Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry);
+        roadSegmentRecord.GeometryVersion = segment.GeometryVersion;
+
+        roadSegmentRecord.BeginOrganizationId = envelope.Message.OrganizationId;
+        roadSegmentRecord.BeginOrganizationName = envelope.Message.Organization;
+        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        roadSegmentRecord.RoadSegmentVersion = segment.Version;
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
         roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();

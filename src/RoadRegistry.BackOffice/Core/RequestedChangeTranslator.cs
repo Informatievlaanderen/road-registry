@@ -82,6 +82,9 @@ internal class RequestedChangeTranslator
                 case Messages.ModifyRoadSegmentAttributes command:
                     translated = translated.Append(await Translate(command, organizations, ct));
                     break;
+                case Messages.ModifyRoadSegmentGeometry command:
+                    translated = translated.Append(Translate(command));
+                    break;
                 case Messages.RemoveRoadSegment command:
                     translated = translated.Append(Translate(command));
                     break;
@@ -385,11 +388,32 @@ internal class RequestedChangeTranslator
         var accessRestriction = command.AccessRestriction is not null
             ? RoadSegmentAccessRestriction.Parse(command.AccessRestriction)
             : null;
-        var geometry = command.Geometry is not null ? GeometryTranslator.Translate(command.Geometry) : null;
-        var geometryVersion = geometry is not null ? _nextRoadSegmentGeometryVersion(permanent, geometry) : (GeometryVersion?)null;
+
+        return new ModifyRoadSegmentAttributes
+        (
+            permanent,
+            version,
+            geometryDrawMethod,
+            maintainerId,
+            maintainer?.Translation.Name,
+            morphology,
+            status,
+            category,
+            accessRestriction
+        );
+    }
+    private ModifyRoadSegmentGeometry Translate(Messages.ModifyRoadSegmentGeometry command)
+    {
+        var permanent = new RoadSegmentId(command.Id);
+        
+        var version = _nextRoadSegmentVersion(permanent);
+        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
+        
+        var geometry = GeometryTranslator.Translate(command.Geometry);
+        var geometryVersion = _nextRoadSegmentGeometryVersion(permanent, geometry);
 
         var nextLaneAttributeId = _nextRoadSegmentLaneAttributeId(permanent);
-        var laneAttributes = command.Lanes?.Select(
+        var laneAttributes = command.Lanes.Select(
             item => new RoadSegmentLaneAttribute(
                 nextLaneAttributeId(),
                 new AttributeId(item.AttributeId),
@@ -402,7 +426,7 @@ internal class RequestedChangeTranslator
         ).ToArray();
 
         var nextWidthAttributeId = _nextRoadSegmentWidthAttributeId(permanent);
-        var widthAttributes = command.Widths?.Select(
+        var widthAttributes = command.Widths.Select(
             item => new RoadSegmentWidthAttribute(
                 nextWidthAttributeId(),
                 new AttributeId(item.AttributeId),
@@ -414,7 +438,7 @@ internal class RequestedChangeTranslator
         ).ToArray();
 
         var nextSurfaceAttributeId = _nextRoadSegmentSurfaceAttributeId(permanent);
-        var surfaceAttributes = command.Surfaces?.Select(
+        var surfaceAttributes = command.Surfaces.Select(
             item => new RoadSegmentSurfaceAttribute(
                 nextSurfaceAttributeId(),
                 new AttributeId(item.AttributeId),
@@ -425,18 +449,12 @@ internal class RequestedChangeTranslator
             )
         ).ToArray();
 
-        return new ModifyRoadSegmentAttributes
+        return new ModifyRoadSegmentGeometry
         (
             permanent,
             version,
             geometryVersion,
             geometryDrawMethod,
-            maintainerId,
-            maintainer?.Translation.Name,
-            morphology,
-            status,
-            category,
-            accessRestriction,
             geometry,
             laneAttributes,
             surfaceAttributes,

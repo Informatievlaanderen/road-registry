@@ -4,5 +4,6 @@ public record struct RoadSegmentLaneAttribute(
     RoadSegmentPosition From,
     RoadSegmentPosition To,
     RoadSegmentLaneCount Count,
-    RoadSegmentLaneDirection Direction
+    RoadSegmentLaneDirection Direction,
+    GeometryVersion AsOfGeometryVersion
 );

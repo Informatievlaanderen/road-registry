@@ -16,6 +16,7 @@ public static class AcceptedChange
                 RoadSegmentAdded m => $"Wegsegment {m.TemporaryId} toegevoegd met id {m.Id}.",
                 RoadSegmentModified m => $"Wegsegment {m.Id} gewijzigd.",
                 RoadSegmentAttributesModified m => $"Wegsegment {m.Id} attributen gewijzigd.",
+                RoadSegmentGeometryModified m => $"Wegsegment {m.Id} geometrie gewijzigd.",
                 RoadSegmentRemoved m => $"Wegsegment {m.Id} verwijderd.",
                 RoadSegmentAddedToEuropeanRoad m => $"Wegsegment {m.SegmentId} toegevoegd aan europese weg {m.Number}.",
                 RoadSegmentRemovedFromEuropeanRoad m => $"Wegsegment {m.SegmentId} verwijderd van europese weg {m.Number}.",

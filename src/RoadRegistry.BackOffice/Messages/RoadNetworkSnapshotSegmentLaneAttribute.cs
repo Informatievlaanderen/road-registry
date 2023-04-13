@@ -9,4 +9,5 @@ public class RoadNetworkSnapshotSegmentLaneAttribute
     [Key(1)] public decimal ToPosition { get; set; }
     [Key(2)] public int Count { get; set; }
     [Key(3)] public int Direction { get; set; }
+    [Key(4)] public int AsOfGeometryVersion { get; set; }
 }

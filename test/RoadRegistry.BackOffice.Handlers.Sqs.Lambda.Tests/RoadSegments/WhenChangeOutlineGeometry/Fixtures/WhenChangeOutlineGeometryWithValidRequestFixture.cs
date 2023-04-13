@@ -75,7 +75,7 @@ public class WhenChangeOutlineGeometryWithValidRequestFixture : WhenChangeOutlin
         await VerifyThatTicketHasCompleted(roadSegmentId);
         
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
-        var @event = command.Changes.Single().RoadSegmentAttributesModified;
+        var @event = command.Changes.Single().RoadSegmentGeometryModified;
         return @event.Id == roadSegmentId
                && GeometryTranslator.Translate(@event.Geometry) == GeometryTranslator.Translate(Request.Geometry)
                ;

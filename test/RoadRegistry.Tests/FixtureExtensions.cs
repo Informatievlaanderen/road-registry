@@ -530,9 +530,27 @@ public static class Customizations
                             Name = fixture.Create<OrganizationName>()
                         },
                         Status = fixture.Create<RoadSegmentStatus>(),
-                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
+                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>()
+                    }
+                )
+                .OmitAutoProperties()
+        );
+    }
+
+    public static void CustomizeRoadSegmentGeometryModified(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentGeometryModified>(customization =>
+            customization
+                .FromFactory(_ =>
+                    new RoadSegmentGeometryModified
+                    {
+                        Id = fixture.Create<RoadSegmentId>(),
+                        Version = fixture.Create<int>(),
                         Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
-                        GeometryVersion = fixture.Create<GeometryVersion>()
+                        GeometryVersion = fixture.Create<GeometryVersion>(),
+                        Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>(10).ToArray(),
+                        Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>(10).ToArray(),
+                        Widths = fixture.CreateMany<RoadSegmentWidthAttributes>(10).ToArray()
                     }
                 )
                 .OmitAutoProperties()
