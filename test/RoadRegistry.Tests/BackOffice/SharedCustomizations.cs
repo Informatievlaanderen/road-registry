@@ -464,6 +464,19 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadSegmentGeometry(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentGeometry>(customizer =>
+            customizer.FromFactory(_ => new RoadSegmentGeometry
+            {
+                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+                MultiLineString = new[]
+                {
+                    fixture.Create<RoadRegistry.BackOffice.Messages.LineString>()
+                }
+            }).OmitAutoProperties());
+    }
+
     public static void CustomizeRoadSegmentGeometryDrawMethod(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentGeometryDrawMethod>(customization =>

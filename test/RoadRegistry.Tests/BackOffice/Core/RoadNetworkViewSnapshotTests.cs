@@ -60,15 +60,7 @@ public class RoadNetworkViewSnapshotTests
                 Segments = _fixture.CreateMany<RoadSegmentId>(10).Distinct().Select(id => id.ToInt32()).ToArray()
             }).OmitAutoProperties());
 
-        _fixture.Customize<RoadSegmentGeometry>(customizer =>
-            customizer.FromFactory(_ => new RoadSegmentGeometry
-            {
-                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                MultiLineString = new[]
-                {
-                    _fixture.Create<LineString>()
-                }
-            }).OmitAutoProperties());
+        _fixture.CustomizeRoadSegmentGeometry();
 
         _fixture.Customize<RoadNetworkSnapshotSegmentLaneAttribute>(customizer =>
             customizer.FromFactory(_ =>

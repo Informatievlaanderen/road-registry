@@ -35,6 +35,7 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeRoadSegmentLaneCount();
         ObjectProvider.CustomizeRoadSegmentLaneDirection();
         ObjectProvider.CustomizeRoadSegmentNumberedRoadDirection();
+        ObjectProvider.CustomizeRoadSegmentGeometry();
         ObjectProvider.CustomizeRoadSegmentGeometryDrawMethod();
         ObjectProvider.CustomizeRoadSegmentNumberedRoadOrdinal();
         ObjectProvider.CustomizeRoadSegmentSurfaceType();

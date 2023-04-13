@@ -5441,7 +5441,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         {
             Id = TestData.Segment1Added.Id,
             GeometryDrawMethod = TestData.Segment1Added.GeometryDrawMethod,
-            Geometry = ObjectProvider.Create<RoadSegmentGeometry>(),
+            Geometry = geometry,
             Lanes = new[]{new RequestedRoadSegmentLaneAttribute
             {
                 AttributeId = 1,
@@ -5538,21 +5538,24 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                                 FromPosition = attribute.FromPosition,
                                 ToPosition = attribute.ToPosition,
                                 Count = attribute.Count,
-                                Direction = attribute.Direction
+                                Direction = attribute.Direction,
+                                AsOfGeometryVersion = 1
                             }).ToArray(),
                             Surfaces = modifyRoadSegmentGeometry.Surfaces.Select(attribute => new RoadSegmentSurfaceAttributes
                             {
                                 AttributeId = attribute.AttributeId,
                                 FromPosition = attribute.FromPosition,
                                 ToPosition = attribute.ToPosition,
-                                Type = attribute.Type
+                                Type = attribute.Type,
+                                AsOfGeometryVersion = 1
                             }).ToArray(),
                             Widths = modifyRoadSegmentGeometry.Widths.Select(attribute => new RoadSegmentWidthAttributes
                             {
                                 AttributeId = attribute.AttributeId,
                                 FromPosition = attribute.FromPosition,
                                 ToPosition = attribute.ToPosition,
-                                Width = attribute.Width
+                                Width = attribute.Width,
+                                AsOfGeometryVersion = 1
                             }).ToArray(),
                         },
                         Problems = Array.Empty<Problem>()
