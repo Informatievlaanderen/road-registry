@@ -1,3 +1,11 @@
+## [3.38.8](https://github.com/informatievlaanderen/road-registry/compare/v3.38.7...v3.38.8) (2023-04-12)
+
+
+### Bug Fixes
+
+* WR-505 remove GeometryDrawMethod 'Measured_according_to_GRB_specifications' as a valid value ([#922](https://github.com/informatievlaanderen/road-registry/issues/922)) ([d9918d2](https://github.com/informatievlaanderen/road-registry/commit/d9918d287685fd94cd909b6a09f7d356b7717a3f))
+* WR-676 Updated scopes for link/unlink streetname ([#924](https://github.com/informatievlaanderen/road-registry/issues/924)) ([32d68eb](https://github.com/informatievlaanderen/road-registry/commit/32d68eb8dd5da75d3cfa52ac81f7417cc92e84ab))
+
 ## [3.38.7](https://github.com/informatievlaanderen/road-registry/compare/v3.38.6...v3.38.7) (2023-04-07)
 
 
