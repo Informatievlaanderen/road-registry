@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 using NetTopologySuite.Geometries;
@@ -20,7 +22,10 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
         RoadSegmentStatus status,
         RoadSegmentCategory category,
         RoadSegmentAccessRestriction accessRestriction,
-        MultiLineString geometry)
+        MultiLineString geometry,
+        IReadOnlyList<RoadSegmentLaneAttribute> lanes,
+        IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces,
+        IReadOnlyList<RoadSegmentWidthAttribute> widths)
     {
         Id = id;
         Version = version;
@@ -33,6 +38,9 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
         Category = category;
         AccessRestriction = accessRestriction;
         Geometry = geometry;
+        Lanes = lanes;
+        Surfaces = surfaces;
+        Widths = widths;
     }
 
     public RoadSegmentId Id { get; }
@@ -46,6 +54,9 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
     public RoadSegmentCategory Category { get; }
     public RoadSegmentAccessRestriction AccessRestriction { get; }
     public MultiLineString Geometry { get; }
+    public IReadOnlyList<RoadSegmentLaneAttribute> Lanes { get; }
+    public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
+    public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -65,7 +76,38 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
             Category = Category,
             AccessRestriction = AccessRestriction,
             Geometry = Geometry is not null ? GeometryTranslator.Translate(Geometry) : null,
-            GeometryVersion = GeometryVersion?.ToInt32()
+            GeometryVersion = GeometryVersion?.ToInt32(),
+            Lanes = Lanes?
+                .Select(item => new Messages.RoadSegmentLaneAttributes
+                {
+                    AttributeId = item.Id,
+                    AsOfGeometryVersion = BackOffice.GeometryVersion.Initial,
+                    Count = item.Count,
+                    Direction = item.Direction,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Widths = Widths?
+                .Select(item => new Messages.RoadSegmentWidthAttributes
+                {
+                    AttributeId = item.Id,
+                    AsOfGeometryVersion = BackOffice.GeometryVersion.Initial,
+                    Width = item.Width,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Surfaces = Surfaces?
+                .Select(item => new Messages.RoadSegmentSurfaceAttributes
+                {
+                    AttributeId = item.Id,
+                    AsOfGeometryVersion = BackOffice.GeometryVersion.Initial,
+                    Type = item.Type,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray()
         };
     }
 
@@ -79,7 +121,35 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
             MaintenanceAuthority = MaintenanceAuthorityId?.ToString(),
             Morphology = Morphology?.ToString(),
             Status = Status?.ToString(),
-            Geometry = Geometry is not null ? GeometryTranslator.Translate(Geometry) : null
+            Geometry = Geometry is not null ? GeometryTranslator.Translate(Geometry) : null,
+            Lanes = Lanes?
+                .Select(item => new RequestedRoadSegmentLaneAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Count = item.Count,
+                    Direction = item.Direction,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Widths = Widths?
+                .Select(item => new RequestedRoadSegmentWidthAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Width = item.Width,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Surfaces = Surfaces?
+                .Select(item => new RequestedRoadSegmentSurfaceAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Type = item.Type,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray()
         };
     }
 

@@ -11,4 +11,7 @@ public class ModifyRoadSegmentAttributes
     public string Morphology { get; set; }
     public string Status { get; set; }
     public RoadSegmentGeometry Geometry { get; set; }
+    public RequestedRoadSegmentLaneAttribute[] Lanes { get; set; }
+    public RequestedRoadSegmentSurfaceAttribute[] Surfaces { get; set; }
+    public RequestedRoadSegmentWidthAttribute[] Widths { get; set; }
 }

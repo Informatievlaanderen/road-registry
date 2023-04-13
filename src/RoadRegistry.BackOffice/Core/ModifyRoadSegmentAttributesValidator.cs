@@ -75,6 +75,33 @@ public class ModifyRoadSegmentAttributesValidator : ModifyRoadSegmentAttributesV
                 .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentOutline())
                 .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
                 .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
+
+            When(c => c.Lanes is not null, () =>
+            {
+                RuleFor(x => x.Lanes)
+                    .NotEmpty()
+                    .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero)
+                    .MaximumLength(1)
+                    .WithProblemCode(ProblemCode.RoadSegment.Lanes.CountGreaterThanOne);
+            });
+
+            When(c => c.Surfaces is not null, () =>
+            {
+                RuleFor(x => x.Surfaces)
+                    .NotEmpty()
+                    .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero)
+                    .MaximumLength(1)
+                    .WithProblemCode(ProblemCode.RoadSegment.Surfaces.CountGreaterThanOne);
+            });
+
+            When(c => c.Widths is not null, () =>
+            {
+                RuleFor(x => x.Widths)
+                    .NotEmpty()
+                    .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero)
+                    .MaximumLength(1)
+                    .WithProblemCode(ProblemCode.RoadSegment.Widths.CountGreaterThanOne);
+            });
         }
     }
 }

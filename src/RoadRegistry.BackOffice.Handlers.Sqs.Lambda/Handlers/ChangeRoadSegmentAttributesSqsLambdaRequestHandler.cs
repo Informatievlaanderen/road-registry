@@ -50,16 +50,14 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
 
                 var geometryDrawMethod = roadSegment?.AttributeHash.GeometryDrawMethod;
 
-                translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(
-                    recordNumber,
-                    roadSegmentId,
-                    geometryDrawMethod,
-                    change.MaintenanceAuthority is not null ? new OrganizationId(change.MaintenanceAuthority) : null,
-                    change.Morphology is not null ? RoadSegmentMorphology.Parse(change.Morphology) : null,
-                    change.Status is not null ? RoadSegmentStatus.Parse(change.Status) : null,
-                    change.Category is not null ? RoadSegmentCategory.Parse(change.Category) : null,
-                    change.AccessRestriction is not null ? RoadSegmentAccessRestriction.Parse(change.AccessRestriction) : null
-                ));
+                translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
+                {
+                    MaintenanceAuthority = change.MaintenanceAuthority is not null ? new OrganizationId(change.MaintenanceAuthority) : null,
+                    Morphology = change.Morphology is not null ? RoadSegmentMorphology.Parse(change.Morphology) : null,
+                    Status = change.Status is not null ? RoadSegmentStatus.Parse(change.Status) : null,
+                    Category = change.Category is not null ? RoadSegmentCategory.Parse(change.Category) : null,
+                    AccessRestriction = change.AccessRestriction is not null ? RoadSegmentAccessRestriction.Parse(change.AccessRestriction) : null
+                });
 
                 recordNumber = recordNumber.Next();
             }

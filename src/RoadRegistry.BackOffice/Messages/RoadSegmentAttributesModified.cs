@@ -16,6 +16,9 @@ public class RoadSegmentAttributesModified : IHaveHash
     public string AccessRestriction { get; set; }
     public string Category { get; set; }
     public RoadSegmentGeometry Geometry { get; set; }
+    public RoadSegmentLaneAttributes[] Lanes { get; set; }
+    public RoadSegmentSurfaceAttributes[] Surfaces { get; set; }
+    public RoadSegmentWidthAttributes[] Widths { get; set; }
 
     public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
     public string GetHash() => this.ToEventHash(EventName);

@@ -388,6 +388,43 @@ internal class RequestedChangeTranslator
         var geometry = command.Geometry is not null ? GeometryTranslator.Translate(command.Geometry) : null;
         var geometryVersion = geometry is not null ? _nextRoadSegmentGeometryVersion(permanent, geometry) : (GeometryVersion?)null;
 
+        var nextLaneAttributeId = _nextRoadSegmentLaneAttributeId(permanent);
+        var laneAttributes = command.Lanes?.Select(
+            item => new RoadSegmentLaneAttribute(
+                nextLaneAttributeId(),
+                new AttributeId(item.AttributeId),
+                new RoadSegmentLaneCount(item.Count),
+                RoadSegmentLaneDirection.Parse(item.Direction),
+                new RoadSegmentPosition(item.FromPosition),
+                new RoadSegmentPosition(item.ToPosition),
+                new GeometryVersion(0)
+            )
+        ).ToArray();
+
+        var nextWidthAttributeId = _nextRoadSegmentWidthAttributeId(permanent);
+        var widthAttributes = command.Widths?.Select(
+            item => new RoadSegmentWidthAttribute(
+                nextWidthAttributeId(),
+                new AttributeId(item.AttributeId),
+                new RoadSegmentWidth(item.Width),
+                new RoadSegmentPosition(item.FromPosition),
+                new RoadSegmentPosition(item.ToPosition),
+                new GeometryVersion(0)
+            )
+        ).ToArray();
+
+        var nextSurfaceAttributeId = _nextRoadSegmentSurfaceAttributeId(permanent);
+        var surfaceAttributes = command.Surfaces?.Select(
+            item => new RoadSegmentSurfaceAttribute(
+                nextSurfaceAttributeId(),
+                new AttributeId(item.AttributeId),
+                RoadSegmentSurfaceType.Parse(item.Type),
+                new RoadSegmentPosition(item.FromPosition),
+                new RoadSegmentPosition(item.ToPosition),
+                new GeometryVersion(0)
+            )
+        ).ToArray();
+
         return new ModifyRoadSegmentAttributes
         (
             permanent,
@@ -400,7 +437,10 @@ internal class RequestedChangeTranslator
             status,
             category,
             accessRestriction,
-            geometry
+            geometry,
+            laneAttributes,
+            surfaceAttributes,
+            widthAttributes
         );
     }
 

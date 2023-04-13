@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
-[DataContract(Name = "WegsegmentSchetsen", Namespace = "")]
+[DataContract(Name = "WegsegmentSchetsGeometrieWijzigen", Namespace = "")]
 public record PostChangeOutlineGeometryParameters
 {
     /// <summary>

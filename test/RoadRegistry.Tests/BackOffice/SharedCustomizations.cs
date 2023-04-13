@@ -47,7 +47,11 @@ public static class SharedCustomizations
                         fixture.Create<CrabStreetnameId?>(),
                         fixture.Create<CrabStreetnameId?>(),
                         fixture.Create<OrganizationId>(),
-                        fixture.Create<RoadSegmentGeometryDrawMethod>());
+                        fixture.Create<RoadSegmentGeometryDrawMethod>(),
+                        fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentLaneAttribute>(generator.Next(1, 5)).ToArray(),
+                        fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute>(generator.Next(1, 5)).ToArray(),
+                        fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentWidthAttribute>(generator.Next(1, 5)).ToArray()
+                    );
                     var times = generator.Next(0, 10);
                     for (var index = 0; index < times; index++)
                         switch (generator.Next(0, 8))
@@ -485,6 +489,22 @@ public static class SharedCustomizations
                 }
             )
         );
+
+        fixture.Customize<RoadRegistry.BackOffice.RoadSegmentLaneAttribute>(customization =>
+            customization.FromFactory<int>(
+                _ =>
+                {
+                    var laneAttribute = fixture.Create<RoadSegmentLaneAttribute>();
+                    
+                    return new RoadRegistry.BackOffice.RoadSegmentLaneAttribute(
+                        laneAttribute.From,
+                        laneAttribute.To,
+                        laneAttribute.Count,
+                        laneAttribute.Direction
+                    );
+                }
+            )
+        );
     }
 
     public static void CustomizeRoadSegmentLaneCount(this IFixture fixture)
@@ -612,6 +632,21 @@ public static class SharedCustomizations
                 }
             )
         );
+
+        fixture.Customize<RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute>(customization =>
+            customization.FromFactory<int>(
+                _ =>
+                {
+                    var surfaceAttribute = fixture.Create<RoadSegmentSurfaceAttribute>();
+
+                    return new RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute(
+                        surfaceAttribute.From,
+                        surfaceAttribute.To,
+                        surfaceAttribute.Type
+                    );
+                }
+            )
+        );
     }
 
     public static void CustomizeRoadSegmentSurfaceType(this IFixture fixture)
@@ -669,6 +704,21 @@ public static class SharedCustomizations
                         from,
                         to,
                         fixture.Create<GeometryVersion>()
+                    );
+                }
+            )
+        );
+
+        fixture.Customize<RoadRegistry.BackOffice.RoadSegmentWidthAttribute>(customization =>
+            customization.FromFactory<int>(
+                _ =>
+                {
+                    var widthAttribute = fixture.Create<RoadSegmentWidthAttribute>();
+
+                    return new RoadRegistry.BackOffice.RoadSegmentWidthAttribute(
+                        widthAttribute.From,
+                        widthAttribute.To,
+                        widthAttribute.Width
                     );
                 }
             )

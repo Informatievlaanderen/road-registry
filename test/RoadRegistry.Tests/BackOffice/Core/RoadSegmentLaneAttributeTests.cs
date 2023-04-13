@@ -4,6 +4,7 @@ using AutoFixture;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using Xunit;
+using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.Core.RoadSegmentLaneAttribute;
 
 public class RoadSegmentLaneAttributeTests
 {

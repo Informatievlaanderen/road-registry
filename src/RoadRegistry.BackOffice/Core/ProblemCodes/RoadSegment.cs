@@ -54,6 +54,12 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode ToPositionNotEqualToLength = new("RoadSegmentLaneAttributeToPositionNotEqualToLength");
         }
 
+        public static class Lanes
+        {
+            public static readonly ProblemCode CountGreaterThanOne = new("RoadSegmentLanesCountGreaterThanOne");
+            public static readonly ProblemCode HasCountOfZero = new("RoadSegmentLanesHasCountOfZero");
+        }
+
         public static class LaneDirection
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentLaneDirectionNotValid");
@@ -89,12 +95,24 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode LessThanOrEqualToMaximum = new("RoadSegmentWidthLessThanOrEqualToMaximum");
         }
 
+        public static class Widths
+        {
+            public static readonly ProblemCode CountGreaterThanOne = new("RoadSegmentWidthsCountGreaterThanOne");
+            public static readonly ProblemCode HasCountOfZero = new("RoadSegmentWidthsHasCountOfZero");
+        }
+
         public static class Surface
         {
             public static readonly ProblemCode FromPositionNotEqualToZero = new("RoadSegmentSurfaceAttributeFromPositionNotEqualToZero");
             public static readonly ProblemCode HasLengthOfZero = new("RoadSegmentSurfaceAttributeHasLengthOfZero");
             public static readonly ProblemCode NotAdjacent = new("RoadSegmentSurfaceAttributesNotAdjacent");
             public static readonly ProblemCode ToPositionNotEqualToLength = new("RoadSegmentSurfaceAttributeToPositionNotEqualToLength");
+        }
+
+        public static class Surfaces
+        {
+            public static readonly ProblemCode CountGreaterThanOne = new("RoadSegmentSurfacesCountGreaterThanOne");
+            public static readonly ProblemCode HasCountOfZero = new("RoadSegmentSurfacesHasCountOfZero");
         }
 
         public static class SurfaceType

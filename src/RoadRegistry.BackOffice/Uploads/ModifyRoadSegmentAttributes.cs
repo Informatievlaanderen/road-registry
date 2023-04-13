@@ -3,41 +3,34 @@ namespace RoadRegistry.BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public class ModifyRoadSegmentAttributes : ITranslatedChange
 {
     public ModifyRoadSegmentAttributes(
         RecordNumber recordNumber,
         RoadSegmentId id,
-        RoadSegmentGeometryDrawMethod geometryDrawMethod,
-        OrganizationId? maintenanceAuthority = null,
-        RoadSegmentMorphology morphology = null,
-        RoadSegmentStatus status = null,
-        RoadSegmentCategory category = null,
-        RoadSegmentAccessRestriction accessRestriction = null,
-        RoadSegmentGeometry geometry = null)
+        RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
         RecordNumber = recordNumber;
         Id = id;
         GeometryDrawMethod = geometryDrawMethod;
-        MaintenanceAuthority = maintenanceAuthority;
-        Morphology = morphology;
-        Status = status;
-        Category = category;
-        AccessRestriction = accessRestriction;
-        Geometry = geometry;
     }
     
     public RecordNumber RecordNumber { get; }
     public RoadSegmentId Id { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 
-    public RoadSegmentAccessRestriction AccessRestriction { get; }
-    public RoadSegmentGeometry Geometry { get; }
-    public RoadSegmentCategory Category { get; }
-    public OrganizationId? MaintenanceAuthority { get; }
-    public RoadSegmentMorphology Morphology { get; }
-    public RoadSegmentStatus Status { get; }
+    public RoadSegmentAccessRestriction AccessRestriction { get; init; }
+    public RoadSegmentGeometry Geometry { get; init; }
+    public RoadSegmentCategory Category { get; init; }
+    public OrganizationId? MaintenanceAuthority { get; init; }
+    public RoadSegmentMorphology Morphology { get; init; }
+    public RoadSegmentStatus Status { get; init; }
+    public IReadOnlyCollection<RoadSegmentLaneAttribute> Lanes { get; init; }
+    public IReadOnlyCollection<RoadSegmentSurfaceAttribute> Surfaces { get; init; }
+    public IReadOnlyCollection<RoadSegmentWidthAttribute> Widths { get; init; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -52,7 +45,35 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
             Status = Status,
             Category = Category,
             AccessRestriction = AccessRestriction,
-            Geometry = Geometry
+            Geometry = Geometry,
+            Lanes = Lanes?
+                .Select(item => new RequestedRoadSegmentLaneAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Count = item.Count,
+                    Direction = item.Direction,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Surfaces = Surfaces?
+                .Select(item => new RequestedRoadSegmentSurfaceAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Type = item.Type,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Widths = Widths?
+                .Select(item => new RequestedRoadSegmentWidthAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Width = item.Width,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray()
         };
     }
 }
