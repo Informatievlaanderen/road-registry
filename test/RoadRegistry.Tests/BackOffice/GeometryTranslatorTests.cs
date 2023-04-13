@@ -74,5 +74,23 @@ public class GeometryTranslatorTests
         var geometry = GeometryTranslator.ParseGmlLineString(gml);
 
         Assert.NotNull(geometry);
+        Assert.Equal(31370, geometry.SRID);
+    }
+
+    [Theory]
+    [InlineData(@"<gml:MultiLineString srsName=""https://www.opengis.net/def/crs/EPSG/0/10000"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:lineStringMember srsName=""https://www.opengis.net/def/crs/EPSG/0/10000"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368.75 181577.016 217400.11 181499.516</gml:posList>
+</gml:lineStringMember>
+</gml:MultiLineString>")]
+    [InlineData(@"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/10000"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368 181577 217400 181499</gml:posList>
+</gml:LineString>")]
+    public void ParseGmlLineStringWithInvalidSrid(string gml)
+    {
+        var geometry = GeometryTranslator.ParseGmlLineString(gml);
+
+        Assert.NotNull(geometry);
+        Assert.Equal(10000, geometry.SRID);
     }
 }

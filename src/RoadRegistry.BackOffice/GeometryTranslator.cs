@@ -17,6 +17,8 @@ using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
 
 public static class GeometryTranslator
 {
+    private static readonly GeometryFactory NoSridGeometryFactory = new(GeometryConfiguration.GeometryFactory.PrecisionModel, 0, GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory);
+
     private static Geometry ApplyBuffer(IPolygonal geometry, double buffer)
     {
         switch (geometry)
@@ -70,7 +72,7 @@ public static class GeometryTranslator
 
         if (geometry is LineString lineString)
         {
-            return WithMeasureOrdinates(new MultiLineString(new[] { lineString }, GeometryConfiguration.GeometryFactory));
+            return WithMeasureOrdinates(new MultiLineString(new[] { lineString }, NoSridGeometryFactory) { SRID = geometry.SRID });
         }
         
         throw new InvalidOperationException(
@@ -105,18 +107,25 @@ public static class GeometryTranslator
                         coordinates[i] = new CoordinateM(currentPoint.X, currentPoint.Y, currentMeasure);
                     }
 
-                    lineString = new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory);
+                    lineString = new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory)
+                    {
+                        SRID = multiLineString.SRID
+                    };
                 }
 
                 return lineString;
             })
             .ToArray();
-        return new MultiLineString(lineStrings, multiLineString.Factory);
+
+        return new MultiLineString(lineStrings, multiLineString.Factory)
+        {
+            SRID = multiLineString.SRID
+        };
     }
 
     private static Geometry ParseGml(string gml)
     {
-        var gmlReader = new GMLReader(GeometryConfiguration.GeometryFactory);
+        var gmlReader = new GMLReader(NoSridGeometryFactory);
         return gmlReader.Read(gml);
     }
 
