@@ -21,12 +21,12 @@ public abstract class BackofficeApiController : ApiController
         _ticketingOptions = ticketingOptions;
     }
 
-    protected ProvenanceData CreateFakeProvenanceData()
+    private ProvenanceData CreateFakeProvenanceData()
     {
         return new RoadRegistryProvenanceData(Modification.Insert);
     }
 
-    protected IDictionary<string, object> GetMetadata()
+    private IDictionary<string, object> GetMetadata()
     {
         var userId = User.FindFirst("urn:be:vlaanderen:roadregistry:acmid")?.Value;
         var correlationId = User.FindFirst(AddCorrelationIdMiddleware.UrnBasisregistersVlaanderenCorrelationId)?.Value;

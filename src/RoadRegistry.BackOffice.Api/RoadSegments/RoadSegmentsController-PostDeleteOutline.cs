@@ -5,6 +5,7 @@ using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
+using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -22,6 +23,7 @@ public partial class RoadSegmentsController
     ///     Verwijder een ingeschetst wegsegment
     /// </summary>
     /// <param name="featureToggle"></param>
+    /// <param name="idValidator"></param>
     /// <param name="validator"></param>
     /// <param name="id">Identificator van het ingeschetst wegsegment.</param>
     /// <param name="cancellationToken"></param>
@@ -43,7 +45,7 @@ public partial class RoadSegmentsController
     [SwaggerOperation(Description = "Verwijder een ingeschetst wegsegment.")]
     public async Task<IActionResult> PostDeleteOutline(
         [FromServices] UseRoadSegmentOutlineDeleteFeatureToggle featureToggle,
-        [FromServices] PostDeleteOutlineParametersValidator validator,
+        [FromServices] RoadSegmentOutlinedIdValidator idValidator,
         [FromRoute] int id,
         CancellationToken cancellationToken)
     {
@@ -54,17 +56,12 @@ public partial class RoadSegmentsController
         
         try
         {
-            await validator.ValidateAndThrowAsync(new PostDeleteOutlineParameters
-            {
-                WegsegmentId = id
-            }, cancellationToken: cancellationToken);
-
-            var roadSegmentId = new RoadSegmentId(id);
+            await idValidator.ValidateAndThrowAsync(id, cancellationToken);
 
             var result = await _mediator.Send(Enrich(
                 new DeleteRoadSegmentOutlineSqsRequest
                 {
-                    Request = new DeleteRoadSegmentOutlineRequest(roadSegmentId)
+                    Request = new DeleteRoadSegmentOutlineRequest(new RoadSegmentId(id))
                 }
             ), cancellationToken);
 

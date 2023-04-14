@@ -83,6 +83,7 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
             .AddTicketing()
             .AddSingleton(ApplicationMetadata)
             .AddSingleton(_ => new EventSourcedEntityMap())
+            .AddSingleton(FileEncoding.UTF8)
             .AddEditorContext()
             .AddStreamStore()
             .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })

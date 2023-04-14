@@ -82,6 +82,9 @@ internal class RequestedChangeTranslator
                 case Messages.ModifyRoadSegmentAttributes command:
                     translated = translated.Append(await Translate(command, organizations, ct));
                     break;
+                case Messages.ModifyRoadSegmentGeometry command:
+                    translated = translated.Append(Translate(command));
+                    break;
                 case Messages.RemoveRoadSegment command:
                     translated = translated.Append(Translate(command));
                     break;
@@ -367,12 +370,12 @@ internal class RequestedChangeTranslator
         var permanent = new RoadSegmentId(command.Id);
         
         var version = _nextRoadSegmentVersion(permanent);
+        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
 
         OrganizationId? maintainerId = command.MaintenanceAuthority is not null
             ? new OrganizationId(command.MaintenanceAuthority)
             : null;
         var maintainer = maintainerId is not null ? await organizations.FindAsync(maintainerId.Value, ct) : null;
-        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
         var morphology = command.Morphology is not null
             ? RoadSegmentMorphology.Parse(command.Morphology)
             : null;
@@ -385,7 +388,7 @@ internal class RequestedChangeTranslator
         var accessRestriction = command.AccessRestriction is not null
             ? RoadSegmentAccessRestriction.Parse(command.AccessRestriction)
             : null;
-        
+
         return new ModifyRoadSegmentAttributes
         (
             permanent,
@@ -397,6 +400,65 @@ internal class RequestedChangeTranslator
             status,
             category,
             accessRestriction
+        );
+    }
+    private ModifyRoadSegmentGeometry Translate(Messages.ModifyRoadSegmentGeometry command)
+    {
+        var permanent = new RoadSegmentId(command.Id);
+        
+        var version = _nextRoadSegmentVersion(permanent);
+        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
+        
+        var geometry = GeometryTranslator.Translate(command.Geometry);
+        var geometryVersion = _nextRoadSegmentGeometryVersion(permanent, geometry);
+
+        var nextLaneAttributeId = _nextRoadSegmentLaneAttributeId(permanent);
+        var laneAttributes = command.Lanes.Select(
+            item => new RoadSegmentLaneAttribute(
+                nextLaneAttributeId(),
+                new AttributeId(item.AttributeId),
+                new RoadSegmentLaneCount(item.Count),
+                RoadSegmentLaneDirection.Parse(item.Direction),
+                new RoadSegmentPosition(item.FromPosition),
+                new RoadSegmentPosition(item.ToPosition),
+                new GeometryVersion(0)
+            )
+        ).ToArray();
+
+        var nextWidthAttributeId = _nextRoadSegmentWidthAttributeId(permanent);
+        var widthAttributes = command.Widths.Select(
+            item => new RoadSegmentWidthAttribute(
+                nextWidthAttributeId(),
+                new AttributeId(item.AttributeId),
+                new RoadSegmentWidth(item.Width),
+                new RoadSegmentPosition(item.FromPosition),
+                new RoadSegmentPosition(item.ToPosition),
+                new GeometryVersion(0)
+            )
+        ).ToArray();
+
+        var nextSurfaceAttributeId = _nextRoadSegmentSurfaceAttributeId(permanent);
+        var surfaceAttributes = command.Surfaces.Select(
+            item => new RoadSegmentSurfaceAttribute(
+                nextSurfaceAttributeId(),
+                new AttributeId(item.AttributeId),
+                RoadSegmentSurfaceType.Parse(item.Type),
+                new RoadSegmentPosition(item.FromPosition),
+                new RoadSegmentPosition(item.ToPosition),
+                new GeometryVersion(0)
+            )
+        ).ToArray();
+
+        return new ModifyRoadSegmentGeometry
+        (
+            permanent,
+            version,
+            geometryVersion,
+            geometryDrawMethod,
+            geometry,
+            laneAttributes,
+            surfaceAttributes,
+            widthAttributes
         );
     }
 

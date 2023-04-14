@@ -2,12 +2,14 @@ namespace RoadRegistry.Wfs.Projections;
 
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.EntityFrameworkCore;
 using Schema;
 using Syndication.Schema;
@@ -98,6 +100,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
 
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
                         await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
+                        break;
+
+                    case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                        await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
                         break;
 
                     case RoadSegmentRemoved roadSegmentRemoved:
@@ -239,6 +245,26 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
             roadSegmentRecord.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
             roadSegmentRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
         }
+
+        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+        roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
+    }
+
+    private static async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+        WfsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadSegmentGeometryModified segment,
+        CancellationToken token)
+    {
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
+        }
+        
+        roadSegmentRecord.Geometry2D = WfsGeometryTranslator.Translate2D(segment.Geometry);
 
         roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 

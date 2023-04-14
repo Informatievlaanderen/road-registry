@@ -184,7 +184,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithFile
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = ProblemWithZipArchive.Translator(problem).Message
+                                Text = FileProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
                     })
@@ -222,7 +222,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithFile
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = ProblemWithZipArchive.Translator(problem).Message
+                                Text = FileProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
                     })

@@ -195,6 +195,17 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         if (context == null) throw new ArgumentNullException(nameof(context));
 
         var problems = Problems.None;
+        
+        var line = Geometry.Geometries
+            .OfType<LineString>()
+            .Single();
+
+        if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        {
+            problems.AddRange(line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances));
+
+            return problems;
+        }
 
         var byOtherSegment =
             context.AfterView.Segments.Values.FirstOrDefault(segment =>
@@ -204,10 +215,6 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
             problems = problems.Add(new RoadSegmentGeometryTaken(
                 context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
             ));
-
-        var line = Geometry.Geometries
-            .OfType<LineString>()
-            .Single();
 
         var segmentBefore = context.BeforeView.Segments[Id];
 
@@ -259,7 +266,10 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         var problems = Problems.None;
 
-        if (!context.BeforeView.Segments.ContainsKey(Id)) problems = problems.Add(new RoadSegmentNotFound());
+        if (!context.BeforeView.Segments.ContainsKey(Id))
+        {
+            problems = problems.Add(new RoadSegmentNotFound());
+        }
         
         var line = Geometry.Geometries
             .OfType<LineString>()

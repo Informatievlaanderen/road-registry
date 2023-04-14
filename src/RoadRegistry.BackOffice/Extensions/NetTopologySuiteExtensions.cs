@@ -20,7 +20,19 @@ public static class NetTopologySuiteExtensions
 
         throw new NotSupportedException($"Type '{polygonal.GetType().FullName}' is not supported. Only 'Polygon' or 'MultiPolygon' are allowed.");
     }
-    
+
+    public static Problems GetProblemsForRoadSegmentOutlinedGeometry(this LineString line, VerificationContextTolerances contextTolerances)
+    {
+        var problems = Problems.None;
+
+        if (Math.Abs(line.Length) <= Distances.TooClose)
+        {
+            problems = problems.Add(new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.TooClose));
+        }
+
+        return problems;
+    }
+
     public static Problems GetProblemsForRoadSegmentGeometry(this LineString line, VerificationContextTolerances contextTolerances)
     {
         var problems = Problems.None;

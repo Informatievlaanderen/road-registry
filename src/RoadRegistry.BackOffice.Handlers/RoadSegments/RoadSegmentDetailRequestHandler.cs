@@ -19,17 +19,20 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
 {
     private readonly EditorContext _editorContext;
     private readonly RecyclableMemoryStreamManager _manager;
+    private readonly FileEncoding _fileEncoding;
     private readonly IStreetNameCache _streetNameCache;
 
     public RoadSegmentDetailRequestHandler(CommandHandlerDispatcher dispatcher,
         ILogger<RoadSegmentDetailRequestHandler> logger,
         EditorContext editorContext,
         RecyclableMemoryStreamManager manager,
+        FileEncoding fileEncoding,
         IStreetNameCache streetNameCache)
         : base(dispatcher, logger)
     {
         _editorContext = editorContext;
         _manager = manager;
+        _fileEncoding = fileEncoding;
         _streetNameCache = streetNameCache;
     }
 
@@ -41,7 +44,7 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             throw new RoadSegmentNotFoundException();
         }
 
-        var dbfRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegment.DbaseRecord, _manager, WellKnownEncodings.WindowsAnsi);
+        var dbfRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegment.DbaseRecord, _manager, _fileEncoding);
 
         var streetNameIds = new[] { dbfRecord.LSTRNMID?.Value, dbfRecord.RSTRNMID?.Value }
             .Where(x => x != null)
@@ -63,19 +66,19 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
         var surfaceTypes = (await _editorContext.RoadSegmentSurfaceAttributes
             .Where(x => x.RoadSegmentId == roadSegment.Id)
             .ToListAsync(cancellationToken: cancellationToken))
-            .Select(x => new RoadSegmentSurfaceAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, WellKnownEncodings.WindowsAnsi))
+            .Select(x => new RoadSegmentSurfaceAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
         
         var widths = (await _editorContext.RoadSegmentWidthAttributes
             .Where(x => x.RoadSegmentId == roadSegment.Id)
             .ToListAsync(cancellationToken: cancellationToken))
-            .Select(x => new RoadSegmentWidthAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, WellKnownEncodings.WindowsAnsi))
+            .Select(x => new RoadSegmentWidthAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
         var lanes = (await _editorContext.RoadSegmentLaneAttributes
             .Where(x => x.RoadSegmentId == roadSegment.Id)
             .ToListAsync(cancellationToken: cancellationToken))
-            .Select(x => new RoadSegmentLaneAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, WellKnownEncodings.WindowsAnsi))
+            .Select(x => new RoadSegmentLaneAttributeDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .ToList();
 
         return new RoadSegmentDetailResponse(

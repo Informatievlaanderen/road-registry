@@ -110,7 +110,7 @@ public class RoadNetwork : EventSourcedEntity
         {
             return segment;
         }
-
+        
         return null;
     }
 

@@ -23,6 +23,39 @@ public static class Customizations
         return value;
     }
 
+    public static bool EqualsCollection<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2)
+    {
+        var collection1 = enumerable1.ToArray();
+        var collection2 = enumerable2.ToArray();
+
+        if (collection1.Length != collection2.Length)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < collection1.Length; i++)
+        {
+            if (!Equals(collection1[i], collection2[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static IEnumerable<T> CreateManyWhichIsDifferentThan<T>(this IFixture fixture, IEnumerable<T> illegalValue)
+    {
+        var value = fixture.CreateMany<T>();
+
+        while (value.EqualsCollection(illegalValue))
+        {
+            value = fixture.CreateMany<T>();
+        }
+
+        return value;
+    }
+
     public static void CustomizeGradeSeparatedJunctionAdded(this IFixture fixture)
     {
         fixture.Customize<GradeSeparatedJunctionAdded>(customization =>
@@ -484,7 +517,7 @@ public static class Customizations
     {
         fixture.Customize<RoadSegmentAttributesModified>(customization =>
             customization
-                .FromFactory(generator =>
+                .FromFactory(_ =>
                     new RoadSegmentAttributesModified
                     {
                         Id = fixture.Create<RoadSegmentId>(),
@@ -498,6 +531,26 @@ public static class Customizations
                         },
                         Status = fixture.Create<RoadSegmentStatus>(),
                         AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>()
+                    }
+                )
+                .OmitAutoProperties()
+        );
+    }
+
+    public static void CustomizeRoadSegmentGeometryModified(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentGeometryModified>(customization =>
+            customization
+                .FromFactory(_ =>
+                    new RoadSegmentGeometryModified
+                    {
+                        Id = fixture.Create<RoadSegmentId>(),
+                        Version = fixture.Create<int>(),
+                        Geometry = GeometryTranslator.Translate(fixture.Create<MultiLineString>()),
+                        GeometryVersion = fixture.Create<GeometryVersion>(),
+                        Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>(10).ToArray(),
+                        Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>(10).ToArray(),
+                        Widths = fixture.CreateMany<RoadSegmentWidthAttributes>(10).ToArray()
                     }
                 )
                 .OmitAutoProperties()

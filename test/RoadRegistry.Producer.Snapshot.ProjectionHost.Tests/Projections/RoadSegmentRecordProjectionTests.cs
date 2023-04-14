@@ -49,6 +49,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         _fixture.CustomizeRoadSegmentAdded();
         _fixture.CustomizeRoadSegmentModified();
         _fixture.CustomizeRoadSegmentAttributesModified();
+        _fixture.CustomizeRoadSegmentGeometryModified();
         _fixture.CustomizeRoadSegmentRemoved();
     }
 
@@ -341,6 +342,110 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentAttributesModified)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+    }
+
+    [Fact]
+    public async Task When_modifying_road_segment_geometry()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentGeometryModified = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentGeometryModified>());
+
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentGeometryModified.Changes, change =>
+        {
+            var segmentAdded = acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded;
+
+            var roadSegmentModified = change.RoadSegmentGeometryModified;
+            var transactionId = new TransactionId(acceptedRoadSegmentGeometryModified.TransactionId);
+            var method = RoadSegmentGeometryDrawMethod.Parse(segmentAdded.GeometryDrawMethod);
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(segmentAdded.AccessRestriction);
+            var status = RoadSegmentStatus.Parse(segmentAdded.Status);
+            var morphology = RoadSegmentMorphology.Parse(segmentAdded.Morphology);
+            var category = RoadSegmentCategory.Parse(segmentAdded.Category);
+
+            var roadSegmentRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentModified.Id,
+                Version = roadSegmentModified.Version,
+
+                MaintainerId = segmentAdded.MaintenanceAuthority.Code,
+                MaintainerName = segmentAdded.MaintenanceAuthority.Name,
+
+                MethodId = method.Translation.Identifier,
+                MethodDutchName = method.Translation.Name,
+
+                CategoryId = category.Translation.Identifier,
+                CategoryDutchName = category.Translation.Name,
+
+                Geometry = GeometryTranslator.Translate(roadSegmentModified.Geometry),
+                GeometryVersion = roadSegmentModified.GeometryVersion,
+
+                MorphologyId = morphology.Translation.Identifier,
+                MorphologyDutchName = morphology.Translation.Name,
+
+                StatusId = status.Translation.Identifier,
+                StatusDutchName = status.Translation.Name,
+
+                AccessRestrictionId = accessRestriction.Translation.Identifier,
+                AccessRestrictionDutchName = accessRestriction.Translation.Name,
+
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
+
+                LeftSideMunicipalityId = null,
+                LeftSideMunicipalityNisCode = null,
+                LeftSideStreetNameId = segmentAdded.LeftSide?.StreetNameId,
+                LeftSideStreetName = null,
+
+                RightSideMunicipalityId = null,
+                RightSideMunicipalityNisCode = null,
+                RightSideStreetNameId = segmentAdded.RightSide?.StreetNameId,
+                RightSideStreetName = null,
+
+                RoadSegmentVersion = roadSegmentModified.Version,
+
+                BeginRoadNodeId = segmentAdded.StartNodeId,
+                EndRoadNodeId = segmentAdded.EndNodeId,
+                StreetNameCachePosition = 0L,
+
+                Origin = acceptedRoadSegmentGeometryModified.ToOrigin(),
+                LastChangedTimestamp = created
+            };
+            return (object)roadSegmentRecord;
+        });
+
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
+
+        var streetNameCache = new Mock<IStreetNameCache>();
+        streetNameCache
+            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
+            .ReturnsAsync((StreetNameRecord)null);
+
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
             .Expect(created.UtcDateTime, expectedRecords);
 
         foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())

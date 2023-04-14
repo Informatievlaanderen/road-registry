@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 
 using Autofac;
-using Autofac.Core;
+using AutoFixture;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
@@ -46,7 +46,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     protected readonly IChangeRoadNetworkDispatcher ChangeRoadNetworkDispatcher;
     protected readonly IRoadRegistryContext RoadRegistryContext;
     protected readonly IStreamStore Store;
-    protected readonly RoadNetworkTestData TestData = new();
+    protected RoadNetworkTestData TestData { get; }
 
     protected SqsLambdaHandlerFixture(
         IConfiguration configuration,
@@ -55,6 +55,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         SqsLambdaHandlerOptions options
     )
     {
+        TestData = new RoadNetworkTestData(CustomizeTestData);
         TestData.CopyCustomizationsTo(ObjectProvider);
 
         Configuration = configuration;
@@ -83,6 +84,10 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
             LifetimeScope.Resolve<EventSourcedEntityMap>());
 
         Exception = null;
+    }
+
+    protected virtual void CustomizeTestData(Fixture fixture)
+    {
     }
 
     public IClock Clock { get; }

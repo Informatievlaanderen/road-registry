@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Core;
 
-using System;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
+using System;
 
 public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
 {
@@ -56,7 +56,7 @@ public class ModifyRoadSegmentAttributes : IRequestedChange, IHaveHash
             Morphology = Morphology,
             Status = Status,
             Category = Category,
-            AccessRestriction = AccessRestriction,
+            AccessRestriction = AccessRestriction
         };
     }
 

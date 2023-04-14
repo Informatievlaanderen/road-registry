@@ -93,6 +93,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         await ModifyRoadSegmentAttributes(manager, encoding, context, roadSegmentAttributesModified, envelope);
                         break;
 
+                    case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                        await ModifyRoadSegmentGeometry(manager, encoding, context, roadSegmentGeometryModified, envelope);
+                        break;
+
                     case RoadSegmentRemoved roadSegmentRemoved:
                         await RemoveRoadSegment(context, roadSegmentRemoved);
                         break;
@@ -278,6 +282,41 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
 
         UpdateHash(roadSegmentRecord, roadSegmentAttributesModified);
+    }
+
+    private static async Task ModifyRoadSegmentGeometry(RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        RoadSegmentGeometryModified roadSegmentGeometryModified,
+        Envelope<RoadNetworkChangesAccepted> envelope)
+    {
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentGeometryModified.Id);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentGeometryModified.Id} is not found");
+        }
+
+        var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
+
+        var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry));
+        var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
+
+        roadSegmentRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
+        roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
+        roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
+        roadSegmentRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry);
+
+        dbaseRecord.WS_GIDN.Value = $"{roadSegmentGeometryModified.Id}_{roadSegmentGeometryModified.GeometryVersion}";
+
+        dbaseRecord.WS_UIDN.Value = $"{roadSegmentGeometryModified.Id}_{roadSegmentGeometryModified.Version}";
+        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
+        dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
+        dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization;
+
+        roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+
+        UpdateHash(roadSegmentRecord, roadSegmentGeometryModified);
     }
 
     private static async Task RemoveRoadSegment(EditorContext context, RoadSegmentRemoved roadSegmentRemoved)

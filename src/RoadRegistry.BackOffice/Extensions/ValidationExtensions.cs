@@ -23,13 +23,21 @@ public static class ValidationExtensions
         {
             propertyName = r.PropertyName;
         });
-        rule.WithState((item, value) =>
+        rule.WithState((_, value) =>
         {
-            return new[] { new ProblemParameter(propertyName, valueConverter is not null
+            return new[] { new ProblemParameter(propertyName ?? "request", valueConverter is not null
                 ? valueConverter(value)
                 : string.Format(CultureInfo.InvariantCulture, "{0}", value)
                 ) };
         });
+
+        return rule;
+    }
+
+    public static IRuleBuilderOptions<T, TProperty> WithProblemCode<T, TProperty>(this IRuleBuilderOptions<T, TProperty> rule, ProblemCode problemCode, Func<TProperty, Problem> problemBuilder)
+    {
+        rule.WithErrorCode(problemCode);
+        rule.WithState((_, value) => problemBuilder(value).Parameters.ToArray());
 
         return rule;
     }

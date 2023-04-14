@@ -1,16 +1,17 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Fixtures;
 
+using Editor.Schema;
 using MediatR;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
 public class WhenDeleteOutlineWithInvalidIdFixture : WhenDeleteOutlineWithValidRequestFixture
 {
-    public WhenDeleteOutlineWithInvalidIdFixture(IMediator mediator) : base(mediator)
+    public WhenDeleteOutlineWithInvalidIdFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
     {
+        
     }
 
-    protected override PostDeleteOutlineParameters CreateRequest()
+    protected override int CreateRequest()
     {
-        return base.CreateRequest() with { WegsegmentId = 0 };
+        return 0;
     }
 }

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Runtime.Serialization;
@@ -30,6 +31,7 @@ public partial class RoadSegmentsController
     /// <param name="parameters"></param>
     /// <param name="id">Identificator van het wegsegment.</param>
     /// <param name="ifMatchHeaderValue"></param>
+    /// <param name="idValidator"></param>
     /// <param name="validator"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het wegsegment gevonden is.</response>
@@ -54,6 +56,7 @@ public partial class RoadSegmentsController
     public async Task<IActionResult> PostUnlinkStreetName(
         [FromServices] UseRoadSegmentUnlinkStreetNameFeatureToggle featureToggle,
         [FromServices] IIfMatchHeaderValidator ifMatchHeaderValidator,
+        [FromServices] RoadSegmentIdValidator idValidator,
         [FromServices] IValidator<UnlinkStreetNameRequest> validator,
         [FromBody] PostUnlinkStreetNameParameters parameters,
         [FromRoute] int id,
@@ -67,13 +70,15 @@ public partial class RoadSegmentsController
 
         try
         {
-            var request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
-            await validator.ValidateAndThrowAsync(request, cancellationToken);
+            await idValidator.ValidateAndThrowAsync(id, cancellationToken);
 
             if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, new RoadSegmentId(id), cancellationToken))
             {
                 return new PreconditionFailedResult();
             }
+            
+            var request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
+            await validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var result = await _mediator.Send(Enrich(
                 new UnlinkStreetNameSqsRequest

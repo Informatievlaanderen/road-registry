@@ -6,9 +6,9 @@ using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using FileProblem = Messages.FileProblem;
 
-public static class ProblemWithZipArchive
+public static class FileProblemTranslator
 {
-    public static readonly Converter<FileProblem, ProblemTranslation> Translator = problem =>
+    public static readonly Converter<FileProblem, ProblemTranslation> Dutch = problem =>
     {
         var translation = new ProblemTranslation(problem.Severity, problem.Reason);
 

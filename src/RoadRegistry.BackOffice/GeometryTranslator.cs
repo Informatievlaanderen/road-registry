@@ -1,23 +1,24 @@
 namespace RoadRegistry.BackOffice;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Exceptions;
 using Messages;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NetTopologySuite.IO;
 using NetTopologySuite.IO.GML2;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
 
 public static class GeometryTranslator
 {
+    private static readonly GeometryFactory NoSridGeometryFactory = new(GeometryConfiguration.GeometryFactory.PrecisionModel, 0, GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory);
+
     private static Geometry ApplyBuffer(IPolygonal geometry, double buffer)
     {
         switch (geometry)
@@ -71,7 +72,7 @@ public static class GeometryTranslator
 
         if (geometry is LineString lineString)
         {
-            return WithMeasureOrdinates(new MultiLineString(new[] { lineString }, GeometryConfiguration.GeometryFactory));
+            return WithMeasureOrdinates(new MultiLineString(new[] { lineString }, NoSridGeometryFactory) { SRID = geometry.SRID });
         }
         
         throw new InvalidOperationException(
@@ -106,18 +107,25 @@ public static class GeometryTranslator
                         coordinates[i] = new CoordinateM(currentPoint.X, currentPoint.Y, currentMeasure);
                     }
 
-                    lineString = new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory);
+                    lineString = new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory)
+                    {
+                        SRID = multiLineString.SRID
+                    };
                 }
 
                 return lineString;
             })
             .ToArray();
-        return new MultiLineString(lineStrings, multiLineString.Factory);
+
+        return new MultiLineString(lineStrings, multiLineString.Factory)
+        {
+            SRID = multiLineString.SRID
+        };
     }
 
     private static Geometry ParseGml(string gml)
     {
-        var gmlReader = new GMLReader(GeometryConfiguration.GeometryFactory);
+        var gmlReader = new GMLReader(NoSridGeometryFactory);
         return gmlReader.Read(gml);
     }
 

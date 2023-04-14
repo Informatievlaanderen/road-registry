@@ -1,15 +1,16 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
+using Core.ProblemCodes;
+using Editor.Schema;
+using Extensions;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Extensions;
-using FluentValidation;
-using Microsoft.EntityFrameworkCore;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
-using Core.ProblemCodes;
-using Editor.Schema;
 
 public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostRoadSegmentOutlineParameters>
 {
@@ -23,9 +24,12 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
-            .NotEmpty()
-            .WithProblemCode(ProblemCode.RoadSegment.Geometry.IsRequired)
-            .Must(GeometryTranslator.GmlIsValidLineString);
+            .Must(GeometryTranslator.GmlIsValidLineString)
+            .WithProblemCode(ProblemCode.RoadSegment.Geometry.NotValid)
+            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).SRID == SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32())
+            .WithProblemCode(ProblemCode.RoadSegment.Geometry.SridNotValid)
+            .Must(gml => GeometryTranslator.ParseGmlLineString(gml).Length >= Distances.TooClose)
+            .WithProblemCode(RoadSegmentGeometryLengthIsLessThanMinimum.ProblemCode, _ => new RoadSegmentGeometryLengthIsLessThanMinimum(Distances.TooClose));
 
         RuleFor(x => x.Wegsegmentstatus)
             .Cascade(CascadeMode.Stop)

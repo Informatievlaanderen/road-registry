@@ -2,12 +2,14 @@ namespace RoadRegistry.Wms.Projections;
 
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.EntityFrameworkCore;
 using Schema;
 using Syndication.Schema;
@@ -127,6 +129,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
                         await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
+                        break;
+
+                    case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                        await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
                         break;
 
                     case RoadSegmentRemoved roadSegmentRemoved:
@@ -284,7 +290,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
 
-
     private static async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
         WmsContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
@@ -339,6 +344,33 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.BeginOrganizationName = envelope.Message.Organization;
         roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         roadSegmentRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
+
+        var transactionId = new TransactionId(envelope.Message.TransactionId);
+        roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+
+        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+        roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
+    }
+
+    private static async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+        WmsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadSegmentGeometryModified segment,
+        CancellationToken token)
+    {
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
+        }
+
+        roadSegmentRecord.Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry);
+        roadSegmentRecord.GeometryVersion = segment.GeometryVersion;
+
+        roadSegmentRecord.BeginOrganizationId = envelope.Message.OrganizationId;
+        roadSegmentRecord.BeginOrganizationName = envelope.Message.Organization;
+        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        roadSegmentRecord.RoadSegmentVersion = segment.Version;
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
         roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();

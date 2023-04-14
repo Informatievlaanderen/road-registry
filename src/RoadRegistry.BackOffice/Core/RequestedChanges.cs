@@ -168,6 +168,11 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         return AppendChange(change);
     }
 
+    public RequestedChanges Append(ModifyRoadSegmentGeometry change)
+    {
+        return AppendChange(change);
+    }
+
     public RequestedChanges Append(RemoveRoadSegment change)
     {
         return AppendChange(change);
@@ -282,6 +287,11 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
                 case ModifyRoadSegmentAttributes modifyRoadSegmentAttributes:
                     // if we still know this segment, include the geometry as we know it now
                     if (view.Segments.TryGetValue(modifyRoadSegmentAttributes.Id, out var segmentAttributesToModify)) envelope.ExpandToInclude(segmentAttributesToModify.Geometry.EnvelopeInternal);
+
+                    break;
+                case ModifyRoadSegmentGeometry modifyRoadSegmentGeometry:
+                    // if we still know this segment, include the geometry as we know it now
+                    if (view.Segments.TryGetValue(modifyRoadSegmentGeometry.Id, out var segmentGeometryToModify)) envelope.ExpandToInclude(segmentGeometryToModify.Geometry.EnvelopeInternal);
 
                     break;
                 case RemoveRoadSegment removeRoadSegment:

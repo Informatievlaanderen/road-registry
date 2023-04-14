@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Runtime.Serialization;
@@ -27,6 +28,7 @@ public partial class RoadSegmentsController
     /// </summary>
     /// <param name="featureToggle"></param>
     /// <param name="ifMatchHeaderValidator"></param>
+    /// <param name="idValidator"></param>
     /// <param name="validator"></param>
     /// <param name="parameters"></param>
     /// <param name="id">Identificator van het wegsegment.</param>
@@ -54,6 +56,7 @@ public partial class RoadSegmentsController
     public async Task<IActionResult> PostLinkStreetName(
         [FromServices] UseRoadSegmentLinkStreetNameFeatureToggle featureToggle,
         [FromServices] IIfMatchHeaderValidator ifMatchHeaderValidator,
+        [FromServices] RoadSegmentIdValidator idValidator,
         [FromServices] IValidator<LinkStreetNameRequest> validator,
         [FromBody] PostLinkStreetNameParameters parameters,
         [FromRoute] int id,
@@ -67,14 +70,16 @@ public partial class RoadSegmentsController
 
         try
         {
-            var request = new LinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
-            await validator.ValidateAndThrowAsync(request, cancellationToken);
+            await idValidator.ValidateAndThrowAsync(id, cancellationToken);
 
             if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, new RoadSegmentId(id), cancellationToken))
             {
                 return new PreconditionFailedResult();
             }
 
+            var request = new LinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
+            await validator.ValidateAndThrowAsync(request, cancellationToken);
+            
             var result = await _mediator.Send(Enrich(
                 new LinkStreetNameSqsRequest
                 {

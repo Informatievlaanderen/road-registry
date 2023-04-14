@@ -9,6 +9,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+    using Be.Vlaanderen.Basisregisters.Shaperon;
+    using Editor.Schema.RoadSegments;
     using Extensions;
     using Projections;
     using Syndication.Schema;
@@ -104,6 +106,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
                         case RoadSegmentAttributesModified roadSegmentAttributesModified:
                             await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
+                            break;
+
+                        case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                            await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
                             break;
 
                         case RoadSegmentRemoved roadSegmentRemoved:
@@ -320,6 +326,36 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             roadSegmentRecord.Version = roadSegmentAttributesModified.Version;
             roadSegmentRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
+
+            var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+            roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
+
+            roadSegmentRecord.Origin = envelope.Message.ToOrigin();
+            roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;
+
+            await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
+        }
+
+        private async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+            RoadSegmentProducerSnapshotContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            RoadSegmentGeometryModified segment,
+            CancellationToken token)
+        {
+            var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
+            if (roadSegmentRecord == null)
+            {
+                throw new InvalidOperationException($"RoadNodeRecord with id {segment.Id} is not found");
+            }
+
+            roadSegmentRecord.Geometry = GeometryTranslator.Translate(segment.Geometry);
+            roadSegmentRecord.GeometryVersion = segment.GeometryVersion;
+
+            var transactionId = new TransactionId(envelope.Message.TransactionId);
+            roadSegmentRecord.TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32();
+
+            roadSegmentRecord.Version = segment.Version;
+            roadSegmentRecord.RoadSegmentVersion = segment.Version;
 
             var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
             roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;

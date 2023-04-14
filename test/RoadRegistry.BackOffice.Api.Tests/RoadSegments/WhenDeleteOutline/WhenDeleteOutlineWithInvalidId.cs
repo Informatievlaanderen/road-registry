@@ -11,5 +11,5 @@ public class WhenDeleteOutlineWithInvalidId : WhenDeleteOutlineWithInvalidReques
     }
 
     protected override string ExpectedErrorCode => "IncorrectObjectId";
-    protected override string ExpectedErrorMessagePrefix => $"De waarde '{Fixture.Request.WegsegmentId}' is ongeldig.";
+    protected override string ExpectedErrorMessagePrefix => $"De waarde '{Fixture.Request}' is ongeldig.";
 }

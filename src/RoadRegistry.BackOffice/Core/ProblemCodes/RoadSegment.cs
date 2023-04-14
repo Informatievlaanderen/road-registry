@@ -27,16 +27,20 @@ public sealed partial record ProblemCode
 
         public static class Geometry
         {
+            public static readonly ProblemCode NotValid = new("RoadSegmentGeometryNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentGeometryIsRequired");
             public static readonly ProblemCode LengthIsZero = new("RoadSegmentGeometryLengthIsZero");
+            public static readonly ProblemCode LengthLessThanMinimum = new("RoadSegmentGeometryLengthLessThanMinimum");
             public static readonly ProblemCode SelfIntersects = new("RoadSegmentGeometrySelfIntersects");
             public static readonly ProblemCode SelfOverlaps = new("RoadSegmentGeometrySelfOverlaps");
+            public static readonly ProblemCode SridNotValid = new("RoadSegmentGeometrySridNotValid");
             public static readonly ProblemCode Taken = new("RoadSegmentGeometryTaken");
         }
 
         public static class GeometryDrawMethod
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentGeometryDrawMethodNotValid");
+            public static readonly ProblemCode NotOutlined = new("RoadSegmentGeometryDrawMethodNotOutlined");
         }
 
         public static class Lane
@@ -48,6 +52,12 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode HasLengthOfZero = new("RoadSegmentLaneAttributeHasLengthOfZero");
             public static readonly ProblemCode NotAdjacent = new("RoadSegmentLaneAttributesNotAdjacent");
             public static readonly ProblemCode ToPositionNotEqualToLength = new("RoadSegmentLaneAttributeToPositionNotEqualToLength");
+        }
+
+        public static class Lanes
+        {
+            public static readonly ProblemCode CountGreaterThanOne = new("RoadSegmentLanesCountGreaterThanOne");
+            public static readonly ProblemCode HasCountOfZero = new("RoadSegmentLanesHasCountOfZero");
         }
 
         public static class LaneDirection
@@ -85,12 +95,24 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode LessThanOrEqualToMaximum = new("RoadSegmentWidthLessThanOrEqualToMaximum");
         }
 
+        public static class Widths
+        {
+            public static readonly ProblemCode CountGreaterThanOne = new("RoadSegmentWidthsCountGreaterThanOne");
+            public static readonly ProblemCode HasCountOfZero = new("RoadSegmentWidthsHasCountOfZero");
+        }
+
         public static class Surface
         {
             public static readonly ProblemCode FromPositionNotEqualToZero = new("RoadSegmentSurfaceAttributeFromPositionNotEqualToZero");
             public static readonly ProblemCode HasLengthOfZero = new("RoadSegmentSurfaceAttributeHasLengthOfZero");
             public static readonly ProblemCode NotAdjacent = new("RoadSegmentSurfaceAttributesNotAdjacent");
             public static readonly ProblemCode ToPositionNotEqualToLength = new("RoadSegmentSurfaceAttributeToPositionNotEqualToLength");
+        }
+
+        public static class Surfaces
+        {
+            public static readonly ProblemCode CountGreaterThanOne = new("RoadSegmentSurfacesCountGreaterThanOne");
+            public static readonly ProblemCode HasCountOfZero = new("RoadSegmentSurfacesHasCountOfZero");
         }
 
         public static class SurfaceType

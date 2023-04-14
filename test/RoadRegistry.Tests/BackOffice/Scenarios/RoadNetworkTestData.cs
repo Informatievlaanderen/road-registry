@@ -13,7 +13,7 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNetworkTestData
 {
-    public RoadNetworkTestData()
+    public RoadNetworkTestData(Action<Fixture> customize = null)
     {
         ObjectProvider = new Fixture();
         ObjectProvider.CustomizePoint();
@@ -35,6 +35,7 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeRoadSegmentLaneCount();
         ObjectProvider.CustomizeRoadSegmentLaneDirection();
         ObjectProvider.CustomizeRoadSegmentNumberedRoadDirection();
+        ObjectProvider.CustomizeRoadSegmentGeometry();
         ObjectProvider.CustomizeRoadSegmentGeometryDrawMethod();
         ObjectProvider.CustomizeRoadSegmentNumberedRoadOrdinal();
         ObjectProvider.CustomizeRoadSegmentSurfaceType();
@@ -52,15 +53,7 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeTransactionId();
 
         ObjectProvider.CustomizeRoadNetworkChangesAccepted();
-
-        ArchiveId = ObjectProvider.Create<ArchiveId>();
-        RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
-        ReasonForChange = ObjectProvider.Create<Reason>();
-        ChangedByOperator = ObjectProvider.Create<OperatorName>();
-        ChangedByOrganization = ObjectProvider.Create<OrganizationId>();
-        ChangedByOrganizationName = ObjectProvider.Create<OrganizationName>();
-        TransactionId = ObjectProvider.Create<TransactionId>();
-
+        
         ObjectProvider.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
             composer.Do(instance =>
                 {
@@ -111,6 +104,16 @@ public class RoadNetworkTestData
                 instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
                 instance.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
             }).OmitAutoProperties());
+
+        customize?.Invoke(ObjectProvider);
+
+        ArchiveId = ObjectProvider.Create<ArchiveId>();
+        RequestId = ChangeRequestId.FromArchiveId(ArchiveId);
+        ReasonForChange = ObjectProvider.Create<Reason>();
+        ChangedByOperator = ObjectProvider.Create<OperatorName>();
+        ChangedByOrganization = ObjectProvider.Create<OrganizationId>();
+        ChangedByOrganizationName = ObjectProvider.Create<OrganizationName>();
+        TransactionId = ObjectProvider.Create<TransactionId>();
 
         StartPoint1 = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint1 = new Point(new CoordinateM(50.0, 50.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
@@ -269,9 +272,11 @@ public class RoadNetworkTestData
             Type = AddEndNode3.Type
         };
 
-        var laneCount1 = new Random().Next(1, 10);
-        var widthCount1 = new Random().Next(1, 10);
-        var surfaceCount1 = new Random().Next(1, 10);
+        var geometryDrawMethod1 = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>();
+        var laneCount1 = geometryDrawMethod1 == RoadSegmentGeometryDrawMethod.Outlined ? 1 : new Random().Next(1, 10);
+        var widthCount1 = geometryDrawMethod1 == RoadSegmentGeometryDrawMethod.Outlined ? 1 : new Random().Next(1, 10);
+        var surfaceCount1 = geometryDrawMethod1 == RoadSegmentGeometryDrawMethod.Outlined ? 1 : new Random().Next(1, 10);
+
         AddSegment1 = new AddRoadSegment
         {
             TemporaryId = ObjectProvider.Create<RoadSegmentId>(),
@@ -279,7 +284,7 @@ public class RoadNetworkTestData
             EndNodeId = AddEndNode1.TemporaryId,
             Geometry = GeometryTranslator.Translate(MultiLineString1),
             MaintenanceAuthority = ChangedByOrganization,
-            GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
+            GeometryDrawMethod = geometryDrawMethod1,
             Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
             Status = ObjectProvider.Create<RoadSegmentStatus>(),
             Category = ObjectProvider.Create<RoadSegmentCategory>(),
@@ -458,9 +463,10 @@ public class RoadNetworkTestData
             Widths = Segment1Added.Widths
         };
 
-        var laneCount2 = new Random().Next(1, 10);
-        var widthCount2 = new Random().Next(1, 10);
-        var surfaceCount2 = new Random().Next(1, 10);
+        var geometryDrawMethod2 = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>();
+        var laneCount2 = geometryDrawMethod2 == RoadSegmentGeometryDrawMethod.Outlined ? 1 : new Random().Next(1, 10);
+        var widthCount2 = geometryDrawMethod2 == RoadSegmentGeometryDrawMethod.Outlined ? 1 : new Random().Next(1, 10);
+        var surfaceCount2 = geometryDrawMethod2 == RoadSegmentGeometryDrawMethod.Outlined ? 1 : new Random().Next(1, 10);
         AddSegment2 = new AddRoadSegment
         {
             TemporaryId = AddSegment1.TemporaryId + 1,
@@ -468,7 +474,7 @@ public class RoadNetworkTestData
             EndNodeId = AddEndNode2.TemporaryId,
             Geometry = GeometryTranslator.Translate(MultiLineString2),
             MaintenanceAuthority = ChangedByOrganization,
-            GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
+            GeometryDrawMethod = geometryDrawMethod2,
             Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
             Status = ObjectProvider.Create<RoadSegmentStatus>(),
             Category = ObjectProvider.Create<RoadSegmentCategory>(),
@@ -588,9 +594,10 @@ public class RoadNetworkTestData
                 .ToArray()
         };
 
-        var laneCount3 = new Random().Next(1, 10);
-        var widthCount3 = new Random().Next(1, 10);
-        var surfaceCount3 = new Random().Next(1, 10);
+        var geometryDrawMethod3 = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>();
+        var laneCount3 = geometryDrawMethod3 == RoadSegmentGeometryDrawMethod.Outlined ? 1 : new Random().Next(1, 10);
+        var widthCount3 = geometryDrawMethod3 == RoadSegmentGeometryDrawMethod.Outlined ? 1 : new Random().Next(1, 10);
+        var surfaceCount3 = geometryDrawMethod3 == RoadSegmentGeometryDrawMethod.Outlined ? 1 : new Random().Next(1, 10);
         AddSegment3 = new AddRoadSegment
         {
             TemporaryId = AddSegment2.TemporaryId + 1,
@@ -598,7 +605,7 @@ public class RoadNetworkTestData
             EndNodeId = AddEndNode3.TemporaryId,
             Geometry = GeometryTranslator.Translate(MultiLineString3),
             MaintenanceAuthority = ObjectProvider.Create<OrganizationId>(),
-            GeometryDrawMethod = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>(),
+            GeometryDrawMethod = geometryDrawMethod3,
             Morphology = ObjectProvider.Create<RoadSegmentMorphology>(),
             Status = ObjectProvider.Create<RoadSegmentStatus>(),
             Category = ObjectProvider.Create<RoadSegmentCategory>(),
@@ -719,12 +726,14 @@ public class RoadNetworkTestData
         };
     }
 
-    public void CopyCustomizationsTo(Fixture target)
+    public RoadNetworkTestData CopyCustomizationsTo(Fixture target)
     {
         foreach (var customization in ObjectProvider.Customizations)
         {
             target.Customizations.Add(customization);
         }
+
+        return this;
     }
 
     private Fixture ObjectProvider { get; }

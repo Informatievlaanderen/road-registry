@@ -9,32 +9,22 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
     public ModifyRoadSegmentAttributes(
         RecordNumber recordNumber,
         RoadSegmentId id,
-        RoadSegmentGeometryDrawMethod geometryDrawMethod,
-        OrganizationId? maintenanceAuthority,
-        RoadSegmentMorphology morphology,
-        RoadSegmentStatus status,
-        RoadSegmentCategory category,
-        RoadSegmentAccessRestriction accessRestriction)
+        RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
         RecordNumber = recordNumber;
         Id = id;
         GeometryDrawMethod = geometryDrawMethod;
-        MaintenanceAuthority = maintenanceAuthority;
-        Morphology = morphology;
-        Status = status;
-        Category = category;
-        AccessRestriction = accessRestriction;
     }
     
     public RecordNumber RecordNumber { get; }
     public RoadSegmentId Id { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 
-    public RoadSegmentAccessRestriction AccessRestriction { get; }
-    public RoadSegmentCategory Category { get; }
-    public OrganizationId? MaintenanceAuthority { get; }
-    public RoadSegmentMorphology Morphology { get; }
-    public RoadSegmentStatus Status { get; }
+    public RoadSegmentAccessRestriction AccessRestriction { get; init; }
+    public RoadSegmentCategory Category { get; init; }
+    public OrganizationId? MaintenanceAuthority { get; init; }
+    public RoadSegmentMorphology Morphology { get; init; }
+    public RoadSegmentStatus Status { get; init; }
 
     public void TranslateTo(RequestedChange message)
     {

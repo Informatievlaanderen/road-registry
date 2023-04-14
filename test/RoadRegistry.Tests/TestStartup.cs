@@ -90,8 +90,9 @@ public abstract class TestStartup
                         RequestQueueUrl = "request.fifo",
                         ResponseQueueUrl = "response.fifo"
                     })
-                    .AddTransient<IZipArchiveBeforeFeatureCompareValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
-                    .AddTransient<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
+                    .AddSingleton(new FileEncoding(Encoding.UTF8))
+                    .AddTransient<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
+                    .AddTransient<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
                     .AddLogging();

@@ -23,6 +23,7 @@ public class AcceptedChange
     public RoadSegmentAddedToNumberedRoad RoadSegmentAddedToNumberedRoad { get; set; }
     public RoadSegmentModified RoadSegmentModified { get; set; }
     public RoadSegmentAttributesModified RoadSegmentAttributesModified { get; set; }
+    public RoadSegmentGeometryModified RoadSegmentGeometryModified { get; set; }
 
     public RoadSegmentOnNumberedRoadModified RoadSegmentOnNumberedRoadModified { get; set; }
     public RoadSegmentRemoved RoadSegmentRemoved { get; set; }

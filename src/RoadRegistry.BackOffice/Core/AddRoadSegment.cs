@@ -194,8 +194,14 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
 
         var problems = Problems.None;
 
+        var line = Geometry.Geometries
+            .OfType<LineString>()
+            .Single();
+
         if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
         {
+            problems.AddRange(line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances));
+
             return problems;
         }
 
@@ -208,9 +214,6 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
                 context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
             ));
 
-        var line = Geometry.Geometries
-            .OfType<LineString>()
-            .Single();
 
         if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
         {

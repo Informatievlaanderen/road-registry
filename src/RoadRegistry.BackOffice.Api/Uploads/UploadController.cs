@@ -95,7 +95,7 @@ public class UploadController : ControllerBase
             var validationFailures = ex.Problems
                 .Select(problem => problem.Translate())
                 .Select(problem =>
-                    new ValidationFailure(problem.File, ProblemWithZipArchive.Translator(problem).Message)
+                    new ValidationFailure(problem.File, FileProblemTranslator.Dutch(problem).Message)
                     {
                         ErrorCode = $"{problem.Severity}{problem.Reason}"
                     })

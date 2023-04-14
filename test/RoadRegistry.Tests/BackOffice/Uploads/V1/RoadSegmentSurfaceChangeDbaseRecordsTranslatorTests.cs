@@ -8,6 +8,7 @@ using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Validation;
 using Xunit;
+using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.Uploads.RoadSegmentSurfaceAttribute;
 
 public class RoadSegmentSurfaceChangeDbaseRecordsTranslatorTests : IDisposable
 {
