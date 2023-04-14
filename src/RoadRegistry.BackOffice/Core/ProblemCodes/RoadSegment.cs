@@ -5,6 +5,7 @@ public sealed partial record ProblemCode
     public static class RoadSegment
     {
         public static readonly ProblemCode NotFound = new("RoadSegmentNotFound");
+        public static readonly ProblemCode OutlinedNotFound = new("RoadSegmentOutlinedNotFound");
         public static readonly ProblemCode ChangeAttributesRequestNull = new("RoadSegmentChangeAttributesRequestNull");
         public static readonly ProblemCode ChangeAttributesAttributeNotValid = new("RoadSegmentChangeAttributesAttributeNotValid");
         public static readonly ProblemCode IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction = new("IntersectingRoadSegmentsDoNotHaveGradeSeparatedJunction");

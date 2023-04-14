@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Core;
 using Core.ProblemCodes;
 using DutchTranslations;
@@ -79,4 +81,12 @@ public static class ValidationExtensions
         return ProblemTranslator.Dutch(problem.Translate());
     }
 
+    public static async Task ValidateAndThrowAsync<T>(this IValidator<T> validator, T instance, Func<ValidationResult, Exception> exceptionBuilder, CancellationToken cancellationToken)
+    {
+        var validationResult = await validator.ValidateAsync(instance, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            throw exceptionBuilder(validationResult) ?? new ValidationException(validationResult.Errors);
+        }
+    }
 }

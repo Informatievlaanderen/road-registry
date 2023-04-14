@@ -1,11 +1,9 @@
 namespace RoadRegistry.BackOffice.Handlers.RoadSegments;
 
-using System.Text;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using BackOffice.Extracts.Dbase.RoadSegments;
-using Core;
 using Editor.Projections;
 using Editor.Schema;
 using Framework;

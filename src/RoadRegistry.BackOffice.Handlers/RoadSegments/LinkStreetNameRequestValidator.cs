@@ -30,7 +30,7 @@ public class LinkStreetNameRequestValidator : AbstractValidator<LinkStreetNameRe
     public LinkStreetNameRequestValidator()
     {
         RuleFor(x => x.WegsegmentId)
-            .Must(RoadSegmentId.IsValid)
+            .Must(RoadSegmentId.Accepts)
             .WithProblemCode(ProblemCode.Common.IncorrectObjectId);
 
         RuleFor(x => x.LinkerstraatnaamId)

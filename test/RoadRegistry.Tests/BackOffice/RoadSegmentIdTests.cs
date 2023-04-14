@@ -20,7 +20,7 @@ public class RoadSegmentIdTests
     [Theory]
     [InlineData(int.MinValue, false)]
     [InlineData(-1, false)]
-    [InlineData(0, true)]
+    [InlineData(0, false)]
     [InlineData(1, true)]
     [InlineData(int.MaxValue, true)]
     public void AcceptsReturnsExpectedResult(int value, bool expected)

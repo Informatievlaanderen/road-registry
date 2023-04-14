@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Abstractions.Extensions;
 using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
@@ -70,7 +71,7 @@ public partial class RoadSegmentsController
 
         try
         {
-            await idValidator.ValidateAndThrowAsync(id, cancellationToken);
+            await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
 
             if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, new RoadSegmentId(id), cancellationToken))
             {

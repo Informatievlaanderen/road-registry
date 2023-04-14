@@ -17,7 +17,7 @@ public class RoadSegmentOutlinedIdValidator : AbstractValidator<int>
         ArgumentNullException.ThrowIfNull(editorContext);
 
         RuleFor(x => x).Cascade(CascadeMode.Stop)
-            .Must(RoadSegmentId.IsValid)
+            .Must(RoadSegmentId.Accepts)
             .WithName("objectId")
             .WithProblemCode(ProblemCode.Common.IncorrectObjectId)
             .MustAsync((id, cancellationToken) =>
