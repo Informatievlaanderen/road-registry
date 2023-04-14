@@ -15,7 +15,7 @@ public class RoadSegmentIdValidator : AbstractValidator<int>
 
         RuleFor(x => x)
             .Cascade(CascadeMode.Stop)
-            .Must(RoadSegmentId.IsValid)
+            .Must(RoadSegmentId.Accepts)
             .WithName("objectId")
             .WithProblemCode(ProblemCode.Common.IncorrectObjectId)
             .MustAsync((id, cancellationToken) =>
