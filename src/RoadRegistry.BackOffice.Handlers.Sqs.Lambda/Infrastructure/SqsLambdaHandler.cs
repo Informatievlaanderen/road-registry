@@ -46,6 +46,7 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
     {
         return exception switch
         {
+            RoadSegmentOutlinedNotFoundException => new RoadSegmentOutlinedNotFound().ToTicketError(),
             RoadSegmentNotFoundException => new RoadSegmentNotFound().ToTicketError(),
             _ => null
         };

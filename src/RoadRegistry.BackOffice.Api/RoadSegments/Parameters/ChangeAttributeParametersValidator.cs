@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 
 using Abstractions.RoadSegments;
+using Core.ProblemCodes;
 using Editor.Schema;
+using Extensions;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -9,9 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Core;
-using Core.ProblemCodes;
-using Extensions;
 
 /// <summary>
 /// Geen wijzigingen op dynamisch gesegmenteerde attributen (wegverharding/wegbreedte/aantal rijstroken)

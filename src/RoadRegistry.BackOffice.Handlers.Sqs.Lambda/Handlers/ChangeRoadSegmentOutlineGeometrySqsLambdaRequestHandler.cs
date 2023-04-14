@@ -48,7 +48,7 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var roadSegment = network.FindRoadSegment(roadSegmentId);
             if (roadSegment == null || roadSegment.AttributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
             {
-                throw new RoadSegmentNotFoundException();
+                throw new RoadSegmentOutlinedNotFoundException();
             }
 
             var recordNumber = RecordNumber.Initial;

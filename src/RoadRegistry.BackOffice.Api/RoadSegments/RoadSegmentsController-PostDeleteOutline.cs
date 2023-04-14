@@ -5,13 +5,13 @@ using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using FeatureToggles;
-using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Parameters;
+using RoadRegistry.BackOffice.Abstractions.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Threading;
@@ -20,16 +20,15 @@ using System.Threading.Tasks;
 public partial class RoadSegmentsController
 {
     /// <summary>
-    ///     Verwijder een ingeschetst wegsegment
+    ///     Verwijder een ingeschetst wegsegment.
     /// </summary>
     /// <param name="featureToggle"></param>
     /// <param name="idValidator"></param>
-    /// <param name="validator"></param>
     /// <param name="id">Identificator van het ingeschetst wegsegment.</param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het ingeschetst wegsegment gevonden is.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
-    /// <response code="404">Als het ingeschetst wegsegment niet gevonden kan worden.</response>
+    /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost("{id}/acties/verwijderen/schets")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
@@ -42,7 +41,7 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
-    [SwaggerOperation(Description = "Verwijder een ingeschetst wegsegment.")]
+    [SwaggerOperation(Description = "Verwijder een wegsegment met geometriemethode <ingeschetst>.")]
     public async Task<IActionResult> PostDeleteOutline(
         [FromServices] UseRoadSegmentOutlineDeleteFeatureToggle featureToggle,
         [FromServices] RoadSegmentOutlinedIdValidator idValidator,
@@ -56,7 +55,7 @@ public partial class RoadSegmentsController
         
         try
         {
-            await idValidator.ValidateAndThrowAsync(id, cancellationToken);
+            await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
 
             var result = await _mediator.Send(Enrich(
                 new DeleteRoadSegmentOutlineSqsRequest

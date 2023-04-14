@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Parameters;
+using RoadRegistry.BackOffice.Abstractions.Extensions;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Threading;
@@ -34,13 +35,15 @@ public partial class RoadSegmentsController
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseHeader(StatusCodes.Status202Accepted, "ETag", "string", "De ETag van de response.")]
     [SwaggerResponseHeader(StatusCodes.Status202Accepted, "x-correlation-id", "string", "Correlatie identificator van de response.")]
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
+    [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerRequestExample(typeof(PostChangeOutlineGeometryParameters), typeof(PostChangeOutlineGeometryParametersExamples))]
-    [SwaggerOperation(Description = "Wijzig de geometrie van een ingeschetst wegsegment.")]
+    [SwaggerOperation(Description = "Wijzig de geometrie van een wegsegment met geometriemethode <ingeschetst>.")]
     public async Task<IActionResult> PostChangeOutlineGeometry(
         [FromServices] RoadSegmentOutlinedIdValidator idValidator,
         [FromServices] PostChangeOutlineGeometryParametersValidator validator,
@@ -50,9 +53,9 @@ public partial class RoadSegmentsController
     {
         try
         {
-            await idValidator.ValidateAndThrowAsync(id, cancellationToken);
+            await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
             await validator.ValidateAndThrowAsync(parameters, cancellationToken);
-            
+
             var sqsRequest = new ChangeRoadSegmentOutlineGeometrySqsRequest
             {
                 Request = new ChangeRoadSegmentOutlineGeometryRequest(

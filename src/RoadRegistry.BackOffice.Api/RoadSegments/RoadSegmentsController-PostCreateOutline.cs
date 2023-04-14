@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 public partial class RoadSegmentsController
 {
     /// <summary>
-    ///     Maak een schets van een wegsegment
+    ///     Schets een wegsegment.
     /// </summary>
     /// <param name="featureToggle"></param>
     /// <param name="validator"></param>
@@ -28,7 +28,6 @@ public partial class RoadSegmentsController
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het wegsegment gevonden is.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
-    /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost("acties/schetsen")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.GeschetsteWeg.Beheerder)]
@@ -40,7 +39,7 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerRequestExample(typeof(PostRoadSegmentOutlineParameters), typeof(PostRoadSegmentOutlineParametersExamples))]
-    [SwaggerOperation(Description = "Nieuw wegsegment schetsen.")]
+    [SwaggerOperation(Description = "Voeg een nieuw wegsegment toe aan het Wegenregister met geometriemethode <ingeschetst>.")]
     public async Task<IActionResult> PostCreateOutline(
         [FromServices] UseRoadSegmentOutlineFeatureToggle featureToggle,
         [FromServices] PostRoadSegmentOutlineParametersValidator validator,
