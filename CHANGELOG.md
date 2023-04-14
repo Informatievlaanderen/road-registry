@@ -1,3 +1,10 @@
+# [3.39.0](https://github.com/informatievlaanderen/road-registry/compare/v3.38.8...v3.39.0) (2023-04-14)
+
+
+### Features
+
+* WR-525 WR-526 roadsegment outlined change geometry endpoint ([#923](https://github.com/informatievlaanderen/road-registry/issues/923)) ([efeaa32](https://github.com/informatievlaanderen/road-registry/commit/efeaa32d54ff9563aeff520fa52d51dd45205a12))
+
 ## [3.38.8](https://github.com/informatievlaanderen/road-registry/compare/v3.38.7...v3.38.8) (2023-04-12)
 
 
