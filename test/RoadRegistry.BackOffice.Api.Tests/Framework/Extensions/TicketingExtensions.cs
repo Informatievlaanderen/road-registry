@@ -1,4 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Framework.Extensions;
+
 using Microsoft.Extensions.DependencyInjection;
 using TicketingService.Abstractions;
 
@@ -24,6 +25,8 @@ public class FakeHttpProxyTicketing : ITicketing
     public Task Complete(Guid ticketId, TicketResult result, CancellationToken cancellationToken = new CancellationToken()) => Task.CompletedTask;
 
     public Task Error(Guid ticketId, TicketError error, CancellationToken cancellationToken = new CancellationToken()) => Task.CompletedTask;
+
+    public Task Error(Guid ticketId, TicketError[] errors, CancellationToken cancellationToken = new CancellationToken()) => Task.CompletedTask;
 
     public Task Delete(Guid ticketId, CancellationToken cancellationToken = new CancellationToken()) => Task.CompletedTask;
 }
