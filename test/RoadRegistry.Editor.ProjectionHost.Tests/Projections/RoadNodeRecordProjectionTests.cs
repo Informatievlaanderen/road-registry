@@ -61,7 +61,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
                 DbaseRecord = new RoadNodeDbaseRecord
                 {
                     WK_OIDN = { Value = roadNodeAdded.Id },
-                    WK_UIDN = { Value = roadNodeAdded.Id + "_0" },
+                    WK_UIDN = { Value = $"{roadNodeAdded.Id}_{roadNodeAdded.Version}" },
                     TYPE = { Value = RoadNodeType.Parse(roadNodeAdded.Type).Translation.Identifier },
                     LBLTYPE =
                     {
@@ -111,7 +111,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
                 DbaseRecord = new RoadNodeDbaseRecord
                 {
                     WK_OIDN = { Value = roadNodeAdded.Id },
-                    WK_UIDN = { Value = roadNodeAdded.Id + "_0" },
+                    WK_UIDN = { Value = $"{roadNodeAdded.Id}_{roadNodeAdded.Version}" },
                     TYPE = { Value = RoadNodeType.Parse(roadNodeAdded.Type).Translation.Identifier },
                     LBLTYPE =
                     {

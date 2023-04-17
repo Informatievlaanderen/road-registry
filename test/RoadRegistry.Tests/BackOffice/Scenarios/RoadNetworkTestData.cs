@@ -26,6 +26,7 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeOrganizationId();
         ObjectProvider.CustomizeOrganizationName();
         ObjectProvider.CustomizeRoadNodeId();
+        ObjectProvider.CustomizeRoadNodeVersion();
         ObjectProvider.CustomizeRoadNodeType();
         ObjectProvider.CustomizeRoadSegmentId();
         ObjectProvider.CustomizeRoadSegmentCategory();
@@ -166,7 +167,8 @@ public class RoadNetworkTestData
             Id = 1,
             TemporaryId = AddStartNode1.TemporaryId,
             Geometry = AddStartNode1.Geometry,
-            Type = AddStartNode1.Type
+            Type = AddStartNode1.Type,
+            Version = 1
         };
 
         ModifyStartNode1 = new ModifyRoadNode
@@ -178,9 +180,10 @@ public class RoadNetworkTestData
 
         StartNode1Modified = new RoadNodeModified
         {
-            Id = 1,
-            Geometry = AddStartNode1.Geometry,
-            Type = AddStartNode1.Type
+            Id = StartNode1Added.Id,
+            Geometry = StartNode1Added.Geometry,
+            Type = StartNode1Added.Type,
+            Version = 2
         };
 
         AddEndNode1 = new AddRoadNode
@@ -195,7 +198,8 @@ public class RoadNetworkTestData
             Id = 2,
             TemporaryId = AddEndNode1.TemporaryId,
             Geometry = AddEndNode1.Geometry,
-            Type = AddEndNode1.Type
+            Type = AddEndNode1.Type,
+            Version = 1
         };
 
         ModifyEndNode1 = new ModifyRoadNode
@@ -207,9 +211,10 @@ public class RoadNetworkTestData
 
         EndNode1Modified = new RoadNodeModified
         {
-            Id = 2,
-            Geometry = ModifyEndNode1.Geometry,
-            Type = ModifyEndNode1.Type
+            Id = EndNode1Added.Id,
+            Geometry = EndNode1Added.Geometry,
+            Type = EndNode1Added.Type,
+            Version = 2
         };
 
         AddStartNode2 = new AddRoadNode
@@ -224,7 +229,8 @@ public class RoadNetworkTestData
             Id = 3,
             TemporaryId = AddStartNode2.TemporaryId,
             Geometry = AddStartNode2.Geometry,
-            Type = AddStartNode2.Type
+            Type = AddStartNode2.Type,
+            Version = 1
         };
 
         AddEndNode2 = new AddRoadNode
@@ -239,7 +245,8 @@ public class RoadNetworkTestData
             Id = 4,
             TemporaryId = AddEndNode2.TemporaryId,
             Geometry = AddEndNode2.Geometry,
-            Type = AddEndNode2.Type
+            Type = AddEndNode2.Type,
+            Version = 1
         };
 
         AddStartNode3 = new AddRoadNode
@@ -254,7 +261,8 @@ public class RoadNetworkTestData
             Id = 5,
             TemporaryId = AddStartNode3.TemporaryId,
             Geometry = AddStartNode3.Geometry,
-            Type = AddStartNode3.Type
+            Type = AddStartNode3.Type,
+            Version = 1
         };
 
         AddEndNode3 = new AddRoadNode
@@ -269,7 +277,8 @@ public class RoadNetworkTestData
             Id = 6,
             TemporaryId = AddEndNode3.TemporaryId,
             Geometry = AddEndNode3.Geometry,
-            Type = AddEndNode3.Type
+            Type = AddEndNode3.Type,
+            Version = 1
         };
 
         var geometryDrawMethod1 = ObjectProvider.Create<RoadSegmentGeometryDrawMethod>();

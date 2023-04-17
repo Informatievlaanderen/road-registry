@@ -24,7 +24,7 @@ public sealed partial record ProblemCode
             return problemCode;
         }
 
-        throw new ArgumentException($"Problem code '{problemReason}' was not found");
+        return null;
     }
 
     public static implicit operator string(ProblemCode problemCode)

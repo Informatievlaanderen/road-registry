@@ -254,7 +254,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                 Id = nodeA,
                                 TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointA),
-                                Type = RoadNodeType.EndNode
+                                Type = RoadNodeType.EndNode,
+                                Version = 1
                             },
                             Problems = Array.Empty<Problem>()
                         },
@@ -265,7 +266,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                 Id = nodeB,
                                 TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointB),
-                                Type = RoadNodeType.EndNode
+                                Type = RoadNodeType.EndNode,
+                                Version = 1
                             },
                             Problems = Array.Empty<Problem>()
                         },
@@ -351,7 +353,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                 Id = nodeC,
                                 TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointC),
-                                Type = RoadNodeType.EndNode
+                                Type = RoadNodeType.EndNode,
+                                Version = 1
                             },
                             Problems = Array.Empty<Problem>()
                         },
@@ -362,7 +365,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                 Id = nodeD,
                                 TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointD),
-                                Type = RoadNodeType.EndNode
+                                Type = RoadNodeType.EndNode,
+                                Version = 1
                             },
                             Problems = Array.Empty<Problem>()
                         },
@@ -617,7 +621,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                 Id = nodeA,
                                 TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointA),
-                                Type = RoadNodeType.EndNode
+                                Type = RoadNodeType.EndNode,
+                                Version = 1
                             },
                             Problems = Array.Empty<Problem>()
                         },
@@ -628,7 +633,8 @@ public class ModifyRoadSegmentScenarios : RoadRegistryTestBase
                                 Id = nodeB,
                                 TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                                 Geometry = GeometryTranslator.Translate(pointB),
-                                Type = RoadNodeType.EndNode
+                                Type = RoadNodeType.EndNode,
+                                Version = 1
                             },
                             Problems = Array.Empty<Problem>()
                         },

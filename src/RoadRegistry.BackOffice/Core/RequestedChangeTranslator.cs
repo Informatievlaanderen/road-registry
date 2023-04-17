@@ -15,6 +15,7 @@ internal class RequestedChangeTranslator
     private readonly Func<AttributeId> _nextNationalRoadAttributeId;
     private readonly Func<AttributeId> _nextNumberedRoadAttributeId;
     private readonly Func<RoadNodeId> _nextRoadNodeId;
+    private readonly Func<RoadNodeId, RoadNodeVersion> _nextRoadNodeVersion;
     private readonly Func<RoadSegmentId, MultiLineString, GeometryVersion> _nextRoadSegmentGeometryVersion;
     private readonly Func<RoadSegmentId> _nextRoadSegmentId;
     private readonly Func<RoadSegmentId, Func<AttributeId>> _nextRoadSegmentLaneAttributeId;
@@ -26,6 +27,7 @@ internal class RequestedChangeTranslator
     public RequestedChangeTranslator(
         Func<TransactionId> nextTransactionId,
         Func<RoadNodeId> nextRoadNodeId,
+        Func<RoadNodeId, RoadNodeVersion> nextRoadNodeVersion,
         Func<RoadSegmentId> nextRoadSegmentId,
         Func<GradeSeparatedJunctionId> nextGradeSeparatedJunctionId,
         Func<AttributeId> nextEuropeanRoadAttributeId,
@@ -39,6 +41,7 @@ internal class RequestedChangeTranslator
     {
         _nextTransactionId = nextTransactionId.ThrowIfNull();
         _nextRoadNodeId = nextRoadNodeId.ThrowIfNull();
+        _nextRoadNodeVersion = nextRoadNodeVersion.ThrowIfNull();
         _nextRoadSegmentId = nextRoadSegmentId.ThrowIfNull();
         _nextGradeSeparatedJunctionId = nextGradeSeparatedJunctionId.ThrowIfNull();
         _nextEuropeanRoadAttributeId = nextEuropeanRoadAttributeId.ThrowIfNull();
@@ -140,9 +143,12 @@ internal class RequestedChangeTranslator
     private ModifyRoadNode Translate(Messages.ModifyRoadNode command)
     {
         var permanent = new RoadNodeId(command.Id);
+        var version = _nextRoadNodeVersion(permanent);
+
         return new ModifyRoadNode
         (
             permanent,
+            version,
             RoadNodeType.Parse(command.Type),
             GeometryTranslator.Translate(command.Geometry)
         );

@@ -335,7 +335,8 @@ public static class Customizations
                         Id = fixture.Create<RoadNodeId>(),
                         TemporaryId = fixture.Create<RoadNodeId>(),
                         Type = fixture.Create<RoadNodeType>(),
-                        Geometry = GeometryTranslator.Translate(fixture.Create<Point>())
+                        Geometry = GeometryTranslator.Translate(fixture.Create<Point>()),
+                        Version = 1
                     }
                 )
                 .OmitAutoProperties()
@@ -351,7 +352,8 @@ public static class Customizations
                     {
                         Id = fixture.Create<RoadNodeId>(),
                         Type = fixture.Create<RoadNodeType>(),
-                        Geometry = GeometryTranslator.Translate(fixture.Create<Point>())
+                        Geometry = GeometryTranslator.Translate(fixture.Create<Point>()),
+                        Version = fixture.Create<RoadNodeVersion>()
                     }
                 )
                 .OmitAutoProperties()
