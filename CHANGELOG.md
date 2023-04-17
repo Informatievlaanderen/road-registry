@@ -1,3 +1,11 @@
+## [3.39.1](https://github.com/informatievlaanderen/road-registry/compare/v3.39.0...v3.39.1) (2023-04-17)
+
+
+### Bug Fixes
+
+* endpoint documentation ([#926](https://github.com/informatievlaanderen/road-registry/issues/926)) ([9a83e06](https://github.com/informatievlaanderen/road-registry/commit/9a83e0639618407fd1a735693bdd1161965a3679))
+* Updated change attribute endpoint ([#927](https://github.com/informatievlaanderen/road-registry/issues/927)) ([8526dbb](https://github.com/informatievlaanderen/road-registry/commit/8526dbbede4ac91118d64cc49ca6ee326c402eb5))
+
 # [3.39.0](https://github.com/informatievlaanderen/road-registry/compare/v3.38.8...v3.39.0) (2023-04-14)
 
 
