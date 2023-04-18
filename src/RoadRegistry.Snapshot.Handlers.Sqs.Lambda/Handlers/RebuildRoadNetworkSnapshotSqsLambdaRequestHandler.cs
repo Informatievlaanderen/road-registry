@@ -33,7 +33,7 @@ public sealed class RebuildRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambd
         _snapshotStrategyOptions = snapshotStrategyOptions;
     }
     
-    protected override async Task<ETagResponse> InnerHandleAsync(RebuildRoadNetworkSnapshotSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(RebuildRoadNetworkSnapshotSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         _stopwatch.Restart();
 

@@ -49,7 +49,7 @@ public sealed class CorrectRoadSegmentVersionsSqsLambdaRequestHandler : SqsLambd
         _manager = manager;
     }
 
-    protected override async Task<ETagResponse> InnerHandleAsync(CorrectRoadSegmentVersionsSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(CorrectRoadSegmentVersionsSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {

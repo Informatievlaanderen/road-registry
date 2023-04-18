@@ -52,7 +52,7 @@ public sealed class CorrectRoadNodeVersionsSqsLambdaRequestHandler : SqsLambdaHa
         _fileEncoding = fileEncoding;
     }
 
-    protected override async Task<ETagResponse> InnerHandleAsync(CorrectRoadNodeVersionsSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(CorrectRoadNodeVersionsSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {

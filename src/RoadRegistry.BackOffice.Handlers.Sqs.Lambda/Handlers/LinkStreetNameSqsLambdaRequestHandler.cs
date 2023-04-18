@@ -45,7 +45,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
-    protected override async Task<ETagResponse> InnerHandleAsync(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {

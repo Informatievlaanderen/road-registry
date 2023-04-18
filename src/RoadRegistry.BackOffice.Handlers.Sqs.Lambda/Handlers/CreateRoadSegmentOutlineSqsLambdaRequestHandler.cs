@@ -41,9 +41,9 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
-    protected override Task<ETagResponse> InnerHandleAsync(CreateRoadSegmentOutlineSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(CreateRoadSegmentOutlineSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        return _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+        return await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
             var changeRoadNetworkCommand = await _changeRoadNetworkDispatcher.DispatchAsync(request, "Wegsegment schetsen", async translatedChanges =>
             {

@@ -161,7 +161,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         return VerifyThatTicketHasCompleted(string.Format(ConfigurationDetailUrl, roadSegmentId), roadSegment?.LastEventHash ?? string.Empty);
     }
 
-    protected bool VerifyThatTicketHasError(string code, string message)
+    protected virtual bool VerifyThatTicketHasError(string code, string message)
     {
         if (Exception is not null)
         {

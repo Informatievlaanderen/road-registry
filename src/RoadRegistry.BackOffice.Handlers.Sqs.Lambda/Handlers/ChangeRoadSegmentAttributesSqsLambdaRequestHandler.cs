@@ -33,7 +33,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
     }
 
-    protected override async Task<ETagResponse> InnerHandleAsync(ChangeRoadSegmentAttributesSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(ChangeRoadSegmentAttributesSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         // Do NOT lock the stream store for stream RoadNetworks.Stream
 
