@@ -54,7 +54,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
         ticketing.Verify(x => x.Pending(sqsLambdaRequest.TicketId, CancellationToken.None), Times.Once);
         ticketing.Verify(
             x => x.Complete(sqsLambdaRequest.TicketId,
-                new TicketResult(new ETagResponse("bla", "etag")), CancellationToken.None), Times.Once);
+                new TicketResult(new ETagResponse(string.Empty, string.Empty)), CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -176,10 +176,12 @@ public sealed class FakeLambdaHandler : SqsLambdaHandler<LinkStreetNameSqsLambda
 
     protected override async Task<object> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        return await IdempotentCommandHandler.Dispatch(
+        await IdempotentCommandHandler.Dispatch(
             Guid.NewGuid(),
             new object(),
             new Dictionary<string, object>(),
             cancellationToken);
+
+        return new ETagResponse(string.Empty, string.Empty);
     }
 }

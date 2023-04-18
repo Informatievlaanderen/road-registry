@@ -40,8 +40,12 @@ public class WhenCreateOutlineWithInvalidRequestFixture : WhenCreateOutlineWithV
 
         var ticketError = new TicketError(new[]
         {
-            new TicketError(code, message)
+            new TicketError("Wegsegment status is foutief. 'Unknown' is geen geldige waarde.", "WegsegmentStatusNietCorrect"),
+            new TicketError("Morfologische wegklasse is foutief. 'Unknown' is geen geldige waarde.", "MorfologischeWegklasseNietCorrect"),
+            new TicketError("The 'Type' is not a valid RoadSegmentSurfaceType.", "PredicateValidator"),
         });
+
+        var invocationArguments = TicketingMock.Invocations.Last().Arguments[1];
 
         TicketingMock.Verify(x =>
             x.Error(It.IsAny<Guid>(),
