@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using MediatR;
 using Requests;
+using RoadRegistry.BackOffice.Handlers.Sqs.RoadNodes;
 using RoadSegments;
 
 public sealed class MessageHandler : BlobMessageHandler
@@ -39,6 +40,7 @@ public sealed class MessageHandler : BlobMessageHandler
         {
             LinkStreetNameSqsRequest request => new LinkStreetNameSqsLambdaRequest(groupId, request),
             UnlinkStreetNameSqsRequest request => new UnlinkStreetNameSqsLambdaRequest(groupId, request),
+            CorrectRoadNodeVersionsSqsRequest request => new CorrectRoadNodeVersionsSqsLambdaRequest(groupId, request),
             CorrectRoadSegmentVersionsSqsRequest request => new CorrectRoadSegmentVersionsSqsLambdaRequest(groupId, request),
             CreateRoadSegmentOutlineSqsRequest request => new CreateRoadSegmentOutlineSqsLambdaRequest(groupId, request),
             DeleteRoadSegmentOutlineSqsRequest request => new DeleteRoadSegmentOutlineSqsLambdaRequest(groupId, request),

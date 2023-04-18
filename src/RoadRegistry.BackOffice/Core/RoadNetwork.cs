@@ -122,6 +122,14 @@ public class RoadNetwork : EventSourcedEntity
             .ToList();
     }
 
+    public ICollection<RoadNode> FindRoadNodes(IEnumerable<RoadNodeId> ids)
+    {
+        return _view.Nodes
+            .Select(x => x.Value)
+            .Where(x => ids.Contains(x.Id))
+            .ToList();
+    }
+
     public Func<AttributeId> ProvidesNextEuropeanRoadAttributeId()
     {
         return new NextAttributeIdProvider(_view.MaximumEuropeanRoadAttributeId).Next;
@@ -153,7 +161,7 @@ public class RoadNetwork : EventSourcedEntity
         {
             if (_view.Nodes.TryGetValue(id, out var roadNode) && roadNode != null)
             {
-                return new NextRoadNodeVersionProvider(roadNode.Version).Next();
+                return new NextRoadNodeVersionProvider(roadNode.Version == 0 ? RoadNodeVersion.Initial : roadNode.Version).Next();
             }
 
             return new NextRoadNodeVersionProvider().Next();
@@ -219,9 +227,8 @@ public class RoadNetwork : EventSourcedEntity
         {
             if (_view.Segments.TryGetValue(id, out var roadSegment) && roadSegment != null)
             {
-                return new NextRoadSegmentVersionProvider(roadSegment.Version).Next();
+                return new NextRoadSegmentVersionProvider(roadSegment.Version == 0 ? RoadSegmentVersion.Initial : roadSegment.Version).Next();
             }
-
             return new NextRoadSegmentVersionProvider().Next();
         };
     }
