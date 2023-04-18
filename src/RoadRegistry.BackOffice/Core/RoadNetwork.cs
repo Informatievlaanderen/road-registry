@@ -176,7 +176,7 @@ public class RoadNetwork : EventSourcedEntity
             {
                 if (roadSegment.Geometry != geometry)
                 {
-                    return new NextRoadSegmentGeometryVersionProvider(roadSegment.GeometryVersion).Next();
+                    return new NextRoadSegmentGeometryVersionProvider(roadSegment.GeometryVersion == 0 ? GeometryVersion.Initial : roadSegment.GeometryVersion).Next();
                 }
 
                 return roadSegment.GeometryVersion;

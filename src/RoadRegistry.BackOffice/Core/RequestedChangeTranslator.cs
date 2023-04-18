@@ -295,10 +295,7 @@ internal class RequestedChangeTranslator
         var version = _nextRoadSegmentVersion(permanent);
         var geometry = GeometryTranslator.Translate(command.Geometry);
         var geometryVersion = _nextRoadSegmentGeometryVersion(permanent, geometry);
-        if (geometryVersion < GeometryVersion.Initial)
-        {
-            geometryVersion = GeometryVersion.Initial;
-        }
+
         var maintainerId = new OrganizationId(command.MaintenanceAuthority);
         var maintainer = await organizations.FindAsync(maintainerId, ct);
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
