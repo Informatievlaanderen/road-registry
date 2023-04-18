@@ -167,7 +167,8 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             Id = 1,
             TemporaryId = AddStartNode1.TemporaryId,
             Geometry = AddStartNode1.Geometry,
-            Type = AddStartNode1.Type
+            Type = AddStartNode1.Type,
+            Version = 1
         };
 
         ModifyStartNode1 = new ModifyRoadNode
@@ -179,9 +180,10 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
 
         StartNode1Modified = new RoadNodeModified
         {
-            Id = 1,
-            Geometry = AddStartNode1.Geometry,
-            Type = AddStartNode1.Type
+            Id = StartNode1Added.Id,
+            Geometry = StartNode1Added.Geometry,
+            Type = StartNode1Added.Type,
+            Version = 2
         };
 
         AddEndNode1 = new AddRoadNode
@@ -196,7 +198,8 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             Id = 2,
             TemporaryId = AddEndNode1.TemporaryId,
             Geometry = AddEndNode1.Geometry,
-            Type = AddEndNode1.Type
+            Type = AddEndNode1.Type,
+            Version = 1
         };
 
         ModifyEndNode1 = new ModifyRoadNode
@@ -210,7 +213,8 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
         {
             Id = 2,
             Geometry = ModifyEndNode1.Geometry,
-            Type = ModifyEndNode1.Type
+            Type = ModifyEndNode1.Type,
+            Version = 2
         };
 
         AddStartNode2 = new AddRoadNode
@@ -225,7 +229,8 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             Id = 3,
             TemporaryId = AddStartNode2.TemporaryId,
             Geometry = AddStartNode2.Geometry,
-            Type = AddStartNode2.Type
+            Type = AddStartNode2.Type,
+            Version = 1
         };
 
         AddEndNode2 = new AddRoadNode
@@ -240,7 +245,8 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             Id = 4,
             TemporaryId = AddEndNode2.TemporaryId,
             Geometry = AddEndNode2.Geometry,
-            Type = AddEndNode2.Type
+            Type = AddEndNode2.Type,
+            Version = 1
         };
 
         AddStartNode3 = new AddRoadNode
@@ -255,7 +261,8 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             Id = 5,
             TemporaryId = AddStartNode3.TemporaryId,
             Geometry = AddStartNode3.Geometry,
-            Type = AddStartNode3.Type
+            Type = AddStartNode3.Type,
+            Version = 1
         };
 
         AddEndNode3 = new AddRoadNode
@@ -270,7 +277,8 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             Id = 6,
             TemporaryId = AddEndNode3.TemporaryId,
             Geometry = AddEndNode3.Geometry,
-            Type = AddEndNode3.Type
+            Type = AddEndNode3.Type,
+            Version = 1
         };
 
         var laneCount1 = new Random().Next(1, 10);
@@ -350,7 +358,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             StartNodeId = 1,
             EndNodeId = 2,
             Geometry = AddSegment1.Geometry,
-            GeometryVersion = 0,
+            GeometryVersion = 1,
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = AddSegment1.MaintenanceAuthority,
@@ -400,7 +408,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
                     AsOfGeometryVersion = 1
                 })
                 .ToArray(),
-            Version = 0
+            Version = 1
         };
 
         var laneCount2 = new Random().Next(1, 10);
@@ -480,7 +488,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             StartNodeId = 3,
             EndNodeId = 4,
             Geometry = AddSegment2.Geometry,
-            GeometryVersion = 0,
+            GeometryVersion = 1,
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = AddSegment2.MaintenanceAuthority,
@@ -530,7 +538,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
                     AsOfGeometryVersion = 1
                 })
                 .ToArray(),
-            Version = 0
+            Version = 1
         };
 
         var laneCount3 = new Random().Next(1, 10);
@@ -610,7 +618,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
             StartNodeId = 5,
             EndNodeId = 6,
             Geometry = AddSegment3.Geometry,
-            GeometryVersion = 0,
+            GeometryVersion = 1,
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = AddSegment3.MaintenanceAuthority,
@@ -660,7 +668,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
                     AsOfGeometryVersion = 1
                 })
                 .ToArray(),
-            Version = 0
+            Version = 1
         };
 
         ArchiveId = ObjectProvider.Create<ArchiveId>();
@@ -2140,12 +2148,7 @@ public class ModifyRoadNodeScenarios : RoadRegistryTestBase
                 {
                     new AcceptedChange
                     {
-                        RoadNodeModified = new RoadNodeModified
-                        {
-                            Geometry = StartNode1Added.Geometry,
-                            Id = StartNode1Added.Id,
-                            Type = StartNode1Added.Type
-                        },
+                        RoadNodeModified = StartNode1Modified,
                         Problems = Array.Empty<Problem>()
                     }
                 },

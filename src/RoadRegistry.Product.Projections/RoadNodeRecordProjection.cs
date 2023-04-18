@@ -80,7 +80,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
         var dbaseRecord = new RoadNodeDbaseRecord
         {
             WK_OIDN = { Value = node.Id },
-            WK_UIDN = { Value = node.Id + "_0" }, // 1?
+            WK_UIDN = { Value = $"{node.Id}_{node.Version}" },
             TYPE = { Value = typeTranslation.Identifier },
             LBLTYPE = { Value = typeTranslation.Name },
             BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
@@ -111,7 +111,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
         var dbaseRecord = new RoadNodeDbaseRecord
         {
             WK_OIDN = { Value = node.Id },
-            WK_UIDN = { Value = node.Id + "_0" }, // 1?
+            WK_UIDN = { Value = $"{node.Id}_{node.Version}" },
             TYPE = { Value = typeTranslation.Identifier },
             LBLTYPE = { Value = typeTranslation.Name },
             BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },

@@ -80,7 +80,8 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                         Id = nodeA,
                         TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                         Geometry = GeometryTranslator.Translate(pointA),
-                        Type = RoadNodeType.EndNode
+                        Type = RoadNodeType.EndNode,
+                        Version = 1
                     },
                     Problems = Array.Empty<Problem>()
                 },
@@ -91,7 +92,8 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                         Id = nodeB,
                         TemporaryId = ObjectProvider.Create<RoadNodeId>(),
                         Geometry = GeometryTranslator.Translate(pointB),
-                        Type = RoadNodeType.EndNode
+                        Type = RoadNodeType.EndNode,
+                        Version = 1
                     },
                     Problems = Array.Empty<Problem>()
                 },

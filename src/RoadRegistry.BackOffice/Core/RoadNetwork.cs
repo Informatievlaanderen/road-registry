@@ -122,6 +122,14 @@ public class RoadNetwork : EventSourcedEntity
             .ToList();
     }
 
+    public ICollection<RoadNode> FindRoadNodes(IEnumerable<RoadNodeId> ids)
+    {
+        return _view.Nodes
+            .Select(x => x.Value)
+            .Where(x => ids.Contains(x.Id))
+            .ToList();
+    }
+
     public Func<AttributeId> ProvidesNextEuropeanRoadAttributeId()
     {
         return new NextAttributeIdProvider(_view.MaximumEuropeanRoadAttributeId).Next;
@@ -147,6 +155,19 @@ public class RoadNetwork : EventSourcedEntity
         return new NextRoadNodeIdProvider(_view.MaximumNodeId).Next;
     }
 
+    public Func<RoadNodeId, RoadNodeVersion> ProvidesNextRoadNodeVersion()
+    {
+        return id =>
+        {
+            if (_view.Nodes.TryGetValue(id, out var roadNode) && roadNode != null)
+            {
+                return new NextRoadNodeVersionProvider(roadNode.Version == 0 ? RoadNodeVersion.Initial : roadNode.Version).Next();
+            }
+
+            return new NextRoadNodeVersionProvider().Next();
+        };
+    }
+
     public Func<RoadSegmentId, MultiLineString, GeometryVersion> ProvidesNextRoadSegmentGeometryVersion()
     {
         return (id, geometry) =>
@@ -155,7 +176,7 @@ public class RoadNetwork : EventSourcedEntity
             {
                 if (roadSegment.Geometry != geometry)
                 {
-                    return new NextRoadSegmentGeometryVersionProvider(roadSegment.GeometryVersion).Next();
+                    return new NextRoadSegmentGeometryVersionProvider(roadSegment.GeometryVersion == 0 ? GeometryVersion.Initial : roadSegment.GeometryVersion).Next();
                 }
 
                 return roadSegment.GeometryVersion;
@@ -206,9 +227,8 @@ public class RoadNetwork : EventSourcedEntity
         {
             if (_view.Segments.TryGetValue(id, out var roadSegment) && roadSegment != null)
             {
-                return new NextRoadSegmentVersionProvider(roadSegment.Version).Next();
+                return new NextRoadSegmentVersionProvider(roadSegment.Version == 0 ? RoadSegmentVersion.Initial : roadSegment.Version).Next();
             }
-
             return new NextRoadSegmentVersionProvider().Next();
         };
     }
@@ -246,6 +266,28 @@ public class RoadNetwork : EventSourcedEntity
     public RoadNetworkSnapshot TakeSnapshot()
     {
         return _view.TakeSnapshot();
+    }
+
+    private sealed class NextRoadNodeVersionProvider
+    {
+        private RoadNodeVersion _current;
+
+        public NextRoadNodeVersionProvider()
+            : this(0)
+        {
+        }
+
+        public NextRoadNodeVersionProvider(int current)
+        {
+            _current = new RoadNodeVersion(current);
+        }
+
+        public RoadNodeVersion Next()
+        {
+            var next = _current.Next();
+            _current = next;
+            return next;
+        }
     }
 
     private sealed class NextRoadSegmentVersionProvider

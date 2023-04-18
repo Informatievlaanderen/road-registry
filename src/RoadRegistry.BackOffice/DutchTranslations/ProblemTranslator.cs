@@ -112,7 +112,7 @@ public static class ProblemTranslator
     public static readonly Converter<Problem, ProblemTranslation> Dutch = problem =>
     {
         var problemCode = ProblemCode.FromReason(problem.Reason);
-        if (ProblemCodeDutchTranslators.TryGetValue(problemCode, out Converter<Problem, ProblemTranslation> converter))
+        if (problemCode is not null && ProblemCodeDutchTranslators.TryGetValue(problemCode, out Converter<Problem, ProblemTranslation> converter))
         {
             return converter(problem);
         }

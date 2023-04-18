@@ -440,6 +440,13 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadNodeVersion(this IFixture fixture)
+    {
+        fixture.Customize<RoadNodeVersion>(composer =>
+            composer.FromFactory<int>(value => new RoadNodeVersion(Math.Abs(value)))
+        );
+    }
+
     public static void CustomizeRoadNodeType(this IFixture fixture)
     {
         fixture.Customize<RoadNodeType>(composer =>

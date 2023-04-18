@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts;
 
 using System;
+using System.Linq;
 using BackOffice.Configuration;
 using Be.Vlaanderen.Basisregisters.BlobStore.Aws;
 using Microsoft.Data.SqlClient;
@@ -35,15 +36,30 @@ public static class ProgramConfigurationLogExtensions
         IConfiguration configuration,
         string connectionName)
     {
-        if (configuration == null) throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(connectionName);
 
-        if (connectionName == null) throw new ArgumentNullException(nameof(connectionName));
+        var connectionString = configuration.GetConnectionString(connectionName);
 
         logger.LogInformation("{ConnectionName} connection string set to:{ConnectionString}",
             connectionName,
-            new SqlConnectionStringBuilder(configuration.GetConnectionString(connectionName))
+            new SqlConnectionStringBuilder(connectionString)
             {
                 Password = "**REDACTED**"
             }.ConnectionString);
+    }
+
+    public static void LogKnownSqlServerConnectionStrings<T>(this ILogger<T> logger, IConfiguration configuration)
+    {
+        var connectionStringNames = configuration
+            .GetSection("ConnectionStrings")
+            .GetChildren()
+            .Select(x => x.Key)
+            .ToArray();
+
+        foreach (var connectionStringName in connectionStringNames)
+        {
+            logger.LogSqlServerConnectionString(configuration, connectionStringName);
+        }
     }
 }
