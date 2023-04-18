@@ -1,3 +1,10 @@
+## [3.39.3](https://github.com/informatievlaanderen/road-registry/compare/v3.39.2...v3.39.3) (2023-04-18)
+
+
+### Bug Fixes
+
+* Update ticketing service capabilities ([#932](https://github.com/informatievlaanderen/road-registry/issues/932)) ([f649cc5](https://github.com/informatievlaanderen/road-registry/commit/f649cc59f9353de29cb96939c12be7172a9fd83d))
+
 ## [3.39.2](https://github.com/informatievlaanderen/road-registry/compare/v3.39.1...v3.39.2) (2023-04-18)
 
 
