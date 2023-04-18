@@ -1,3 +1,10 @@
+## [3.39.2](https://github.com/informatievlaanderen/road-registry/compare/v3.39.1...v3.39.2) (2023-04-18)
+
+
+### Bug Fixes
+
+* WR-643 set roadnode version correctly ([#931](https://github.com/informatievlaanderen/road-registry/issues/931)) ([bd673aa](https://github.com/informatievlaanderen/road-registry/commit/bd673aa8f3c0fbe550e67d10aed32937b48dde0d))
+
 ## [3.39.1](https://github.com/informatievlaanderen/road-registry/compare/v3.39.0...v3.39.1) (2023-04-17)
 
 
