@@ -54,7 +54,7 @@ public static class ValidationExtensions
         return errors
             .Select(x => new
             {
-                x.PropertyName,
+                ValidationFailure = x,
                 Problem = new Messages.Problem
                 {
                     Severity = ProblemSeverity.Error,
@@ -66,10 +66,15 @@ public static class ValidationExtensions
             })
             .Select(x =>
             {
+                if (ProblemCode.FromReason(x.Problem.Reason) is null)
+                {
+                    return x.ValidationFailure;
+                }
+
                 var problem = ProblemTranslator.Dutch(x.Problem);
                 return new ValidationFailure
                 {
-                    PropertyName = x.PropertyName,
+                    PropertyName = x.ValidationFailure.PropertyName,
                     ErrorCode = problem.Code,
                     ErrorMessage = problem.Message
                 };

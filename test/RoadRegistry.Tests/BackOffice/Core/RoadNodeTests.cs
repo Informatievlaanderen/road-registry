@@ -11,18 +11,22 @@ public class FullyDisconnectedRoadNodeTests
     private readonly Fixture _fixture;
     private readonly Point _geometry;
     private readonly RoadNodeId _id;
+    private readonly RoadNodeVersion _version;
     private readonly RoadNode _sut;
     private readonly RoadNodeType _type;
 
     public FullyDisconnectedRoadNodeTests()
     {
         _fixture = new Fixture();
-        _fixture.CustomizePoint();
+        _fixture.CustomizeRoadNodeId();
+        _fixture.CustomizeRoadNodeVersion();
         _fixture.CustomizeRoadNodeType();
+        _fixture.CustomizePoint();
         _id = _fixture.Create<RoadNodeId>();
+        _version = _fixture.Create<RoadNodeVersion>();
         _type = _fixture.Create<RoadNodeType>();
         _geometry = _fixture.Create<Point>();
-        _sut = new RoadNode(_id, _type, _geometry);
+        _sut = new RoadNode(_id, _version, _type, _geometry);
     }
 
     [Fact]
@@ -84,6 +88,14 @@ public class FullyDisconnectedRoadNodeTests
         var result = _sut.WithType(type);
         Assert.Equal(type, result.Type);
     }
+
+    [Fact]
+    public void WithVersionReturnsExpectedResult()
+    {
+        var version = _fixture.CreateWhichIsDifferentThan(_version);
+        var result = _sut.WithVersion(version);
+        Assert.Equal(version, result.Version);
+    }
 }
 
 public class ConnectedRoadNodeTests
@@ -91,6 +103,7 @@ public class ConnectedRoadNodeTests
     private readonly Fixture _fixture;
     private readonly Point _geometry;
     private readonly RoadNodeId _id;
+    private readonly RoadNodeVersion _version;
     private readonly RoadSegmentId _link1;
     private readonly RoadSegmentId _link2;
     private readonly RoadNode _sut;
@@ -99,14 +112,18 @@ public class ConnectedRoadNodeTests
     public ConnectedRoadNodeTests()
     {
         _fixture = new Fixture();
-        _fixture.CustomizePoint();
+        _fixture.CustomizeRoadNodeId();
+        _fixture.CustomizeRoadNodeVersion();
         _fixture.CustomizeRoadNodeType();
+        _fixture.CustomizePoint();
+
         _id = _fixture.Create<RoadNodeId>();
+        _version = _fixture.Create<RoadNodeVersion>();
         _type = _fixture.Create<RoadNodeType>();
         _geometry = _fixture.Create<Point>();
         _link1 = _fixture.Create<RoadSegmentId>();
         _link2 = _fixture.Create<RoadSegmentId>();
-        _sut = new RoadNode(_id, _type, _geometry).ConnectWith(_link1).ConnectWith(_link2);
+        _sut = new RoadNode(_id, _version, _type, _geometry).ConnectWith(_link1).ConnectWith(_link2);
     }
 
     [Fact]

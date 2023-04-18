@@ -18,10 +18,13 @@ using Microsoft.Extensions.Hosting.Internal;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction : FunctionBase
@@ -105,6 +108,9 @@ public abstract class RoadRegistryLambdaFunction : FunctionBase
         {
             sp.CreateMissingBucketsAsync(CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
         }
+  
+        var logger = sp.GetRequiredService<ILogger<RoadRegistryLambdaFunction>>();
+        logger.LogKnownSqlServerConnectionStrings(configuration);
 
         using (var scope = sp.CreateScope())
         {

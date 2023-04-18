@@ -51,6 +51,10 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         }).ToList();
 
         var messageId = lambdaRequest.TicketId;
+        if (messageId == Guid.Empty)
+        {
+            messageId = Guid.NewGuid();
+        }
 
         var command = new ChangeRoadNetwork(lambdaRequest.Provenance)
         {

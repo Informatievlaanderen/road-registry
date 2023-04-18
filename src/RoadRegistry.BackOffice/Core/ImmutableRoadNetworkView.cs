@@ -175,7 +175,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             snapshot.Nodes.ToImmutableDictionary(node => new RoadNodeId(node.Id),
                 node =>
                 {
-                    var roadNode = new RoadNode(new RoadNodeId(node.Id), RoadNodeType.Parse(node.Type),
+                    var roadNode = new RoadNode(new RoadNodeId(node.Id), new RoadNodeVersion(node.Version), RoadNodeType.Parse(node.Type),
                         GeometryTranslator.Translate(node.Geometry));
 
                     return node.Segments.Aggregate(roadNode, (current, segment) => current.ConnectWith(new RoadSegmentId(segment)));
@@ -261,7 +261,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 Id = node.Value.Id.ToInt32(),
                 Segments = node.Value.Segments.Select(segment => segment.ToInt32()).ToArray(),
                 Type = node.Value.Type,
-                Geometry = GeometryTranslator.Translate(node.Value.Geometry)
+                Geometry = GeometryTranslator.Translate(node.Value.Geometry),
+                Version = node.Value.Version
             }).ToArray(),
             Segments = _segments.Select(segment => new RoadNetworkSnapshotSegment
             {
@@ -445,8 +446,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         ArgumentNullException.ThrowIfNull(@event);
 
         var id = new RoadNodeId(@event.Id);
+        var version = new RoadNodeVersion(@event.Version);
         var type = RoadNodeType.Parse(@event.Type);
-        var node = new RoadNode(id, type, GeometryTranslator.Translate(@event.Geometry));
+        var node = new RoadNode(id, version, type, GeometryTranslator.Translate(@event.Geometry));
         return new ImmutableRoadNetworkView(
             _nodes.Add(id, node),
             _segments,
@@ -681,8 +683,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     private ImmutableRoadNetworkView Given(RoadNodeAdded @event)
     {
         var id = new RoadNodeId(@event.Id);
+        var version = new RoadNodeVersion(@event.Version);
         var type = RoadNodeType.Parse(@event.Type);
-        var node = new RoadNode(id, type, GeometryTranslator.Translate(@event.Geometry));
+        var node = new RoadNode(id, version, type, GeometryTranslator.Translate(@event.Geometry));
         return new ImmutableRoadNetworkView(
             _nodes.Add(id, node),
             _segments,
@@ -706,7 +709,11 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
     {
         var id = new RoadNodeId(@event.Id);
         return new ImmutableRoadNetworkView(
-            _nodes.TryReplace(id, node => node.WithGeometry(GeometryTranslator.Translate(@event.Geometry)).WithType(RoadNodeType.Parse(@event.Type))),
+            _nodes.TryReplace(id, node => node
+                .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
+                .WithType(RoadNodeType.Parse(@event.Type))
+                .WithVersion(new RoadNodeVersion(@event.Version))
+            ),
             _segments,
             _gradeSeparatedJunctions,
             _maximumTransactionId,
@@ -1326,7 +1333,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
     private ImmutableRoadNetworkView With(AddRoadNode command)
     {
-        var node = new RoadNode(command.Id, command.Type, command.Geometry);
+        var version = RoadNodeVersion.Initial;
+        var node = new RoadNode(command.Id, version, command.Type, command.Geometry);
         return new ImmutableRoadNetworkView(
             _nodes.Add(command.Id, node),
             _segments,
@@ -2043,7 +2051,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     node => new RoadNodeId(node.Id),
                     node =>
                     {
-                        var roadNode = new RoadNode(new RoadNodeId(node.Id), RoadNodeType.Parse(node.Type),
+                        var roadNode = new RoadNode(new RoadNodeId(node.Id), new RoadNodeVersion(node.Version), RoadNodeType.Parse(node.Type),
                             GeometryTranslator.Translate(node.Geometry));
 
                         return node.Segments.Aggregate(roadNode, (current, segment) => current.ConnectWith(new RoadSegmentId(segment)));
@@ -2130,7 +2138,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     Id = node.Value.Id.ToInt32(),
                     Segments = node.Value.Segments.Select(segment => segment.ToInt32()).ToArray(),
                     Type = node.Value.Type,
-                    Geometry = GeometryTranslator.Translate(node.Value.Geometry)
+                    Geometry = GeometryTranslator.Translate(node.Value.Geometry),
+                    Version = node.Value.Version
                 }).ToArray(),
                 Segments = _segments.Select(segment => new RoadNetworkSnapshotSegment
                 {
@@ -2316,8 +2325,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             ArgumentNullException.ThrowIfNull(@event);
 
             var id = new RoadNodeId(@event.Id);
+            var version = new RoadNodeVersion(@event.Version);
             var type = RoadNodeType.Parse(@event.Type);
-            var node = new RoadNode(id, type, GeometryTranslator.Translate(@event.Geometry));
+            var node = new RoadNode(id, version, type, GeometryTranslator.Translate(@event.Geometry));
             _nodes.Add(id, node);
             _maximumTransactionId =
                 TransactionId.Max(new TransactionId(@event.Origin.TransactionId), _maximumTransactionId);
@@ -2508,8 +2518,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         private void Given(RoadNodeAdded @event)
         {
             var id = new RoadNodeId(@event.Id);
+            var version = new RoadNodeVersion(@event.Version);
             var type = RoadNodeType.Parse(@event.Type);
-            var node = new RoadNode(id, type, GeometryTranslator.Translate(@event.Geometry));
+            var node = new RoadNode(id, version, type, GeometryTranslator.Translate(@event.Geometry));
             _nodes.Add(id, node);
             _maximumNodeId = RoadNodeId.Max(id, _maximumNodeId);
         }
@@ -2519,7 +2530,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             var id = new RoadNodeId(@event.Id);
             _nodes.TryReplace(id, node => node
                 .WithType(RoadNodeType.Parse(@event.Type))
-                .WithGeometry(GeometryTranslator.Translate(@event.Geometry)));
+                .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
+                .WithVersion(new RoadNodeVersion(@event.Version))
+            );
         }
 
         private void Given(RoadNodeRemoved @event)
@@ -2890,7 +2903,8 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
         private void With(AddRoadNode command)
         {
-            var node = new RoadNode(command.Id, command.Type, command.Geometry);
+            var version = RoadNodeVersion.Initial;
+            var node = new RoadNode(command.Id, version, command.Type, command.Geometry);
             _nodes.Add(command.Id, node);
             _maximumNodeId = RoadNodeId.Max(command.Id, _maximumNodeId);
         }

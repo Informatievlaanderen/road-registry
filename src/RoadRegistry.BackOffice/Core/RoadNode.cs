@@ -10,17 +10,20 @@ public class RoadNode
 {
     private readonly ImmutableHashSet<RoadSegmentId> _segments;
 
-    public RoadNode(RoadNodeId id, RoadNodeType type, Point geometry)
+    public RoadNode(RoadNodeId id, RoadNodeVersion version, RoadNodeType type, Point geometry)
+        : this(id,
+            version,
+            type ?? throw new ArgumentNullException(nameof(type)),
+            geometry ?? throw new ArgumentNullException(nameof(geometry)),
+            ImmutableHashSet<RoadSegmentId>.Empty
+        )
     {
-        Id = id;
-        Type = type ?? throw new ArgumentNullException(nameof(type));
-        Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
-        _segments = ImmutableHashSet<RoadSegmentId>.Empty;
     }
 
-    private RoadNode(RoadNodeId id, RoadNodeType type, Point geometry, ImmutableHashSet<RoadSegmentId> segments)
+    private RoadNode(RoadNodeId id, RoadNodeVersion version, RoadNodeType type, Point geometry, ImmutableHashSet<RoadSegmentId> segments)
     {
         Id = id;
+        Version = version;
         Type = type;
         Geometry = geometry;
         _segments = segments;
@@ -28,6 +31,7 @@ public class RoadNode
 
     public Point Geometry { get; }
     public RoadNodeId Id { get; }
+    public RoadNodeVersion Version { get; }
     public IReadOnlyCollection<RoadSegmentId> Segments => _segments;
 
     public IReadOnlyCollection<RoadNodeType> SupportedRoadNodeTypes
@@ -47,12 +51,12 @@ public class RoadNode
 
     public RoadNode ConnectWith(RoadSegmentId segment)
     {
-        return new RoadNode(Id, Type, Geometry, _segments.Add(segment));
+        return new RoadNode(Id, Version, Type, Geometry, _segments.Add(segment));
     }
 
     public RoadNode DisconnectFrom(RoadSegmentId segment)
     {
-        return new RoadNode(Id, Type, Geometry, _segments.Remove(segment));
+        return new RoadNode(Id, Version, Type, Geometry, _segments.Remove(segment));
     }
 
     public Problems VerifyTypeMatchesConnectedSegmentCount(IRoadNetworkView view, IRequestedChangeIdentityTranslator translator)
@@ -97,15 +101,21 @@ public class RoadNode
         return problems;
     }
 
+    public RoadNode WithVersion(RoadNodeVersion version)
+    {
+        ArgumentNullException.ThrowIfNull(version);
+        return new RoadNode(Id, version, Type, Geometry, _segments);
+    }
+
     public RoadNode WithGeometry(Point geometry)
     {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
-        return new RoadNode(Id, Type, geometry, _segments);
+        ArgumentNullException.ThrowIfNull(geometry);
+        return new RoadNode(Id, Version, Type, geometry, _segments);
     }
 
     public RoadNode WithType(RoadNodeType type)
     {
-        if (type == null) throw new ArgumentNullException(nameof(type));
-        return new RoadNode(Id, type, Geometry, _segments);
+        ArgumentNullException.ThrowIfNull(type);
+        return new RoadNode(Id, Version, type, Geometry, _segments);
     }
 }

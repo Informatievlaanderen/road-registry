@@ -44,6 +44,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 var translator = new RequestedChangeTranslator(
                     network.ProvidesNextTransactionId(),
                     network.ProvidesNextRoadNodeId(),
+                    network.ProvidesNextRoadNodeVersion(),
                     network.ProvidesNextRoadSegmentId(),
                     network.ProvidesNextGradeSeparatedJunctionId(),
                     network.ProvidesNextEuropeanRoadAttributeId(),

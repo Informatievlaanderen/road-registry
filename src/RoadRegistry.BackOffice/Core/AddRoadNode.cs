@@ -27,6 +27,7 @@ public class AddRoadNode : IRequestedChange
         message.RoadNodeAdded = new RoadNodeAdded
         {
             Id = Id,
+            Version = RoadNodeVersion.Initial,
             TemporaryId = TemporaryId,
             Type = Type.ToString(),
             Geometry = new RoadNodeGeometry
