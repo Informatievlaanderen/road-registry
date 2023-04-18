@@ -44,28 +44,9 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
     protected IRoadRegistryContext RoadRegistryContext { get; }
     protected ILogger Logger { get; }
 
-    protected abstract Task<ETagResponse> InnerHandleAsync(TSqsLambdaRequest request, CancellationToken cancellationToken);
-
-    protected sealed override async Task<ETagResponse> InnerHandle(TSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override TicketError MapValidationException(ValidationException exception, TSqsLambdaRequest request)
     {
-        try
-        {
-            var sw = Stopwatch.StartNew();
-            Logger.LogInformation("Started InnerHandle on {HandlerType} for lambda request {RequestType}", GetType().Name, request.GetType().Name);
-            var result = await InnerHandleAsync(request, cancellationToken);
-            Logger.LogInformation("Finished InnerHandle on {HandlerType} for lambda request {RequestType} in {StopwatchElapsedMilliseconds}", GetType().Name, request.GetType().Name, sw.ElapsedMilliseconds);
-            return result;
-        }
-        catch (ValidationException ex)
-        {
-            var translatedEx = ex.TranslateToDutch();
-
-            //TODO-rik te bekijken of de ticketerror kan aangepast worden om een lijst van fouten op te slaan, ipv te moeten joinen
-            var errorMessage = string.Join(",", translatedEx.Errors.Select(x => x.ErrorMessage));
-            var errorCode = string.Join(",", translatedEx.Errors.Select(x => x.ErrorCode));
-            Logger.LogError("InnerHandle failed with validation errors: {Message}", errorMessage);
-            throw new RoadRegistryValidationException(errorMessage, errorCode);
-        }
+        return base.MapValidationException(exception.TranslateToDutch(), request);
     }
 
     protected override async Task HandleAggregateIdIsNotFoundException(TSqsLambdaRequest request, CancellationToken cancellationToken)

@@ -174,14 +174,12 @@ public sealed class FakeLambdaHandler : SqsLambdaHandler<LinkStreetNameSqsLambda
     {
     }
 
-    protected override Task<ETagResponse> InnerHandleAsync(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        IdempotentCommandHandler.Dispatch(
+        return await IdempotentCommandHandler.Dispatch(
             Guid.NewGuid(),
             new object(),
             new Dictionary<string, object>(),
             cancellationToken);
-
-        return Task.FromResult(new ETagResponse("bla", "etag"));
     }
 }
