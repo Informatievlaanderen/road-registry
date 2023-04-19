@@ -1,3 +1,10 @@
+## [3.39.5](https://github.com/informatievlaanderen/road-registry/compare/v3.39.4...v3.39.5) (2023-04-19)
+
+
+### Bug Fixes
+
+* Invalid JSON error from basic model binding issues ([#934](https://github.com/informatievlaanderen/road-registry/issues/934)) ([6288412](https://github.com/informatievlaanderen/road-registry/commit/6288412b49ea279f3297bee33937d3243fb917a6))
+
 ## [3.39.4](https://github.com/informatievlaanderen/road-registry/compare/v3.39.3...v3.39.4) (2023-04-19)
 
 
