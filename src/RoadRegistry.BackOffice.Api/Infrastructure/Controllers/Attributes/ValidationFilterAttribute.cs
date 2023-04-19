@@ -19,24 +19,16 @@ internal class ValidationFilterAttribute : ActionFilterAttribute
 {
     public override Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
-        if (!context.ModelState.IsValid)
-        {
-            var validationException = new ValidationException(new[]
-            {
-                new ValidationFailure
+        if (context.ModelState.IsValid) return base.OnActionExecutionAsync(context, next);
+
+        context.Result = new BadRequestObjectResult(
+            new ValidationProblemDetails(
+                new ValidationException(new[]
                 {
-                    PropertyName = "request",
-                    ErrorCode = ProblemCode.Common.JsonInvalid
-                }
-            });
+                    new ValidationFailure { PropertyName = "request", ErrorCode = ProblemCode.Common.JsonInvalid }
+                }).TranslateToDutch()));
+        return Task.CompletedTask;
 
-            var problemDetails = new ValidationProblemDetails(validationException.TranslateToDutch());
-
-            context.Result = new BadRequestObjectResult(problemDetails);
-            return Task.CompletedTask;
-        }
-
-        return base.OnActionExecutionAsync(context, next);
     }
 
     public override void OnActionExecuted(ActionExecutedContext context)
