@@ -1,3 +1,10 @@
+## [3.39.4](https://github.com/informatievlaanderen/road-registry/compare/v3.39.3...v3.39.4) (2023-04-19)
+
+
+### Bug Fixes
+
+* enable snapshot lambda in release pipeline ([#933](https://github.com/informatievlaanderen/road-registry/issues/933)) ([b50a7b9](https://github.com/informatievlaanderen/road-registry/commit/b50a7b998f2311408a9d9a24d4b54821db626121))
+
 ## [3.39.3](https://github.com/informatievlaanderen/road-registry/compare/v3.39.2...v3.39.3) (2023-04-18)
 
 
