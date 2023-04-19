@@ -23,12 +23,8 @@ internal class ValidationFilterAttribute : ActionFilterAttribute
 
         context.Result = new BadRequestObjectResult(
             new ValidationProblemDetails(
-                new ValidationException(new[]
-                {
-                    new ValidationFailure { PropertyName = "request", ErrorCode = ProblemCode.Common.JsonInvalid }
-                }).TranslateToDutch()));
+                new ValidationException(new[] { new ValidationFailure { PropertyName = "request", ErrorCode = ProblemCode.Common.JsonInvalid } }).TranslateToDutch()));
         return Task.CompletedTask;
-
     }
 
     public override void OnActionExecuted(ActionExecutedContext context)
