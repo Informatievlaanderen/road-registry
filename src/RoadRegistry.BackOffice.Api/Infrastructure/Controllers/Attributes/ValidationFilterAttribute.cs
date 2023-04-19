@@ -5,13 +5,28 @@ using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Core;
+using Core.ProblemCodes;
 using Exceptions;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Threading.Tasks;
+using ValidationProblemDetails = Be.Vlaanderen.Basisregisters.BasicApiProblem.ValidationProblemDetails;
 
 internal class ValidationFilterAttribute : ActionFilterAttribute
 {
+    public override Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+    {
+        if (context.ModelState.IsValid) return base.OnActionExecutionAsync(context, next);
+
+        context.Result = new BadRequestObjectResult(
+            new ValidationProblemDetails(
+                new ValidationException(new[] { new ValidationFailure { PropertyName = "request", ErrorCode = ProblemCode.Common.JsonInvalid } }).TranslateToDutch()));
+        return Task.CompletedTask;
+    }
+
     public override void OnActionExecuted(ActionExecutedContext context)
     {
         switch (context.Exception)
