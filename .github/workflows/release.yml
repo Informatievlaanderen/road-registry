@@ -378,10 +378,10 @@ jobs:
         aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
         popd
         
-        #pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
-        #echo aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
-        #aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
-        #popd
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
+        echo aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+        popd
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
         
@@ -408,10 +408,10 @@ jobs:
        aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
        popd
        
-       #pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
-       #echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
-       #aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
-       #popd
+       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
+       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+       popd
       env:
        SEMVER: ${{ env.RELEASE_VERSION }}
 
@@ -1300,8 +1300,8 @@ jobs:
         echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
         aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
 
-        #echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
-        #aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.build.outputs.version }}
         
@@ -1314,8 +1314,8 @@ jobs:
         echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
         docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
         
-        #echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
-        #docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
@@ -1417,8 +1417,8 @@ jobs:
         echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
         aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
 
-        #echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
-        #aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.build.outputs.version }}
         
@@ -1431,8 +1431,8 @@ jobs:
         echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
         docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
         
-        #echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
-        #docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
