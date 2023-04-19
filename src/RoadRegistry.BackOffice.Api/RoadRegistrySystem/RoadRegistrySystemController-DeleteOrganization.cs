@@ -31,6 +31,6 @@ public partial class RoadRegistrySystemController
         await RoadNetworkCommandQueue
             .Write(new Command(command), HttpContext.RequestAborted);
 
-        return Ok();
+        return Accepted();
     }
 }

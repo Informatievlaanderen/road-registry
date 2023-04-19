@@ -1,6 +1,6 @@
-namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Configuration;
+namespace RoadRegistry.BackOffice.Configuration;
 
-using BackOffice;
+using RoadRegistry.BackOffice;
 
 public class RoadNetworkSnapshotStrategyOptions: IHasConfigurationKey
 {

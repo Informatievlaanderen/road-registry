@@ -4,12 +4,12 @@ using BackOffice;
 using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Configuration;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
 using System.Diagnostics;
+using BackOffice.Configuration;
 using TicketingService.Abstractions;
 
 public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambdaHandler<CreateRoadNetworkSnapshotSqsLambdaRequest>

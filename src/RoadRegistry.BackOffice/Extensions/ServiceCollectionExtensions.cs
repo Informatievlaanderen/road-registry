@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
+using Configuration;
 using Core;
 using FeatureToggle;
 using FeatureToggles;
@@ -134,5 +135,17 @@ public static class ServiceCollectionExtensions
         }
 
         return services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<TOptions>(configurationSectionKey));
+    }
+
+    public static IServiceCollection AddRoadNetworkSnapshotStrategyOptions(this IServiceCollection services)
+    {
+        return services
+            .RegisterOptions<RoadNetworkSnapshotStrategyOptions>(options =>
+            {
+                if (options.EventCount <= 0)
+                {
+                    throw new ConfigurationErrorsException($"{nameof(options.EventCount)} must be greater than zero");
+                }
+            });
     }
 }

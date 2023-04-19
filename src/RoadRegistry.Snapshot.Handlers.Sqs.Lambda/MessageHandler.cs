@@ -18,7 +18,6 @@ public sealed class MessageHandler : RoadRegistryMessageHandler
         return sqsRequest switch
         {
             CreateRoadNetworkSnapshotSqsRequest request => new CreateRoadNetworkSnapshotSqsLambdaRequest(groupId, request),
-            RebuildRoadNetworkSnapshotSqsRequest request => new RebuildRoadNetworkSnapshotSqsLambdaRequest(groupId, request),
             _ => throw new NotImplementedException(
                 $"{sqsRequest.GetType().Name} has no corresponding {nameof(SqsLambdaRequest)} defined.")
         };
