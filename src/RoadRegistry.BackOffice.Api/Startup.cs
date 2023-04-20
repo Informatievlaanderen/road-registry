@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Api;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Autofac;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -16,6 +17,10 @@ using FluentValidation;
 using Handlers.Extensions;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
+using IdentityModel.AspNetCore.OAuth2Introspection;
+using Infrastructure.Controllers.Attributes;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -32,6 +37,8 @@ using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using NetTopologySuite;
 using NetTopologySuite.IO;
+using NisCodeService.Abstractions;
+using NisCodeService.Proxy.HttpProxy;
 using NodaTime;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Abstractions.Configuration;
@@ -47,15 +54,7 @@ using SqlStreamStore;
 using System;
 using System.Configuration;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
-using IdentityModel.AspNetCore.OAuth2Introspection;
-using Infrastructure.Controllers.Attributes;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using NisCodeService.Abstractions;
-using NisCodeService.Proxy.HttpProxy;
 
 public class Startup
 {
@@ -310,6 +309,7 @@ public class Startup
             .AddRoadRegistrySnapshot()
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
+            .AddRoadNetworkSnapshotStrategyOptions()
             .AddAcmIdmAuth(oAuth2IntrospectionOptions!);
 
         services
@@ -323,8 +323,10 @@ public class Startup
         builder
             .RegisterModule(new DataDogModule(_configuration))
             .RegisterModule<BlobClientModule>()
-            .RegisterModule<Snapshot.Handlers.Sqs.SnapshotSqsHandlersModule>();
-
+            .RegisterModule<Snapshot.Handlers.MediatorModule>()
+            .RegisterModule<Snapshot.Handlers.Sqs.SnapshotSqsHandlersModule>()
+            ;
+        
         builder
             .RegisterModulesFromAssemblyContaining<Startup>()
             .RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>()

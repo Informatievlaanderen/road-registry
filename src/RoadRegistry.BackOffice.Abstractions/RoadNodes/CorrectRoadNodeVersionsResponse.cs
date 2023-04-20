@@ -1,0 +1,2 @@
+namespace RoadRegistry.BackOffice.Abstractions.RoadNodes;
+public sealed record CorrectRoadNodeVersionsResponse(int InvalidRoadNodesCount);

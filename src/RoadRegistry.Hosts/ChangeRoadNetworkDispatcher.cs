@@ -56,7 +56,7 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
             messageId = Guid.NewGuid();
         }
 
-        var command = new ChangeRoadNetwork(lambdaRequest.Provenance)
+        var changeRoadNetwork = new ChangeRoadNetwork(lambdaRequest.Provenance)
         {
             RequestId = ChangeRequestId.FromUploadId(new UploadId(messageId)),
             Changes = requestedChanges.ToArray(),
@@ -64,15 +64,16 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
             Operator = translatedChanges.Operator,
             OrganizationId = translatedChanges.Organization
         };
+        await new ChangeRoadNetworkValidator().ValidateAndThrowAsync(changeRoadNetwork, cancellationToken);
 
-        var commandId = command.CreateCommandId();
-        await _commandQueue.Write(new Command(command).WithMessageId(commandId), cancellationToken);
+        var commandId = changeRoadNetwork.CreateCommandId();
+        await _commandQueue.Write(new Command(changeRoadNetwork).WithMessageId(commandId), cancellationToken);
 
         try
         {
             await _idempotentCommandHandler.Dispatch(
                 commandId,
-                command,
+                changeRoadNetwork,
                 lambdaRequest.Metadata,
                 cancellationToken);
         }
@@ -101,7 +102,7 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
             }
         }
 
-        return command;
+        return changeRoadNetwork;
     }
 }
 

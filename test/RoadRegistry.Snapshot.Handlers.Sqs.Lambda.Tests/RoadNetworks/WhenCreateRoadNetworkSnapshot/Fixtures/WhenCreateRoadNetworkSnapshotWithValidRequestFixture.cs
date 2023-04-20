@@ -1,6 +1,7 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenCreateRoadNetworkSnapshot.Fixtures;
 
 using Abstractions.Fixtures;
+using BackOffice.Configuration;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Moq;
@@ -11,7 +12,6 @@ using RoadRegistry.BackOffice.Abstractions.RoadNetworks;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Hosts;
-using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Configuration;
 using RoadRegistry.Tests.BackOffice.Core;
 using SqlStreamStore;
 using AcceptedChange = BackOffice.Messages.AcceptedChange;

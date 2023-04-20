@@ -4,12 +4,13 @@ using BackOffice;
 using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Configuration;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
 using System.Diagnostics;
+using BackOffice.Abstractions.RoadNetworks;
+using BackOffice.Configuration;
 using TicketingService.Abstractions;
 
 public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambdaHandler<CreateRoadNetworkSnapshotSqsLambdaRequest>
@@ -63,12 +64,16 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
                     Logger.LogInformation("Create snapshot started for new message received from SQS with snapshot version {SnapshotVersion}", roadnetworkVersion);
                     await _snapshotWriter.WriteSnapshot(snapshot, roadnetworkVersion, cancellationToken);
                     Logger.LogInformation("Create snapshot completed for version {SnapshotVersion} in {TotalElapsedTimespan}", roadnetworkVersion, _stopwatch.Elapsed);
+
+                    return new CreateRoadNetworkSnapshotResponse(roadnetworkVersion);
                 }
             }
             else
             {
                 Logger.LogInformation("Snapshot strategy determined that the strategy limit had not been reached");
             }
+
+            return new CreateRoadNetworkSnapshotResponse(null);
         }
         catch (Exception ex)
         {
@@ -79,7 +84,5 @@ public sealed class CreateRoadNetworkSnapshotSqsLambdaRequestHandler : SqsLambda
         {
             _stopwatch.Stop();
         }
-
-        return new ETagResponse(string.Empty, string.Empty);
     }
 }

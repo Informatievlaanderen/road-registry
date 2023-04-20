@@ -1,7 +1,10 @@
 namespace RoadRegistry.BackOffice.Extensions;
 
 using System;
+using System.Collections.Generic;
 using Autofac;
+using MediatR;
+using MediatR.Pipeline;
 using Microsoft.Extensions.Configuration;
 
 public static class ContainerBuilderExtensions
@@ -33,6 +36,30 @@ public static class ContainerBuilderExtensions
         }
 
         builder.Register(c => c.Resolve<IConfiguration>().GetOptions<TOptions>(configurationSectionKey)).AsSelf().SingleInstance();
+        return builder;
+    }
+
+    private static readonly IEnumerable<Type> MediatrHandlerTypes = new[]
+    {
+        typeof(IRequestHandler<>),
+        typeof(IRequestHandler<,>),
+        typeof(IRequestExceptionHandler<,,>),
+        typeof(IRequestExceptionAction<,>)
+    };
+
+    public static ContainerBuilder RegisterMediatrHandlersFromAssemblyContaining<T>(this ContainerBuilder builder)
+    {
+        return RegisterMediatrHandlersFromAssemblyContaining(builder, typeof(T));
+    }
+
+    public static ContainerBuilder RegisterMediatrHandlersFromAssemblyContaining(this ContainerBuilder builder, Type type)
+    {
+        foreach (var mediatrOpenType in MediatrHandlerTypes)
+            builder
+                .RegisterAssemblyTypes(type.Assembly)
+                .AsClosedTypesOf(mediatrOpenType)
+                .AsImplementedInterfaces();
+
         return builder;
     }
 }

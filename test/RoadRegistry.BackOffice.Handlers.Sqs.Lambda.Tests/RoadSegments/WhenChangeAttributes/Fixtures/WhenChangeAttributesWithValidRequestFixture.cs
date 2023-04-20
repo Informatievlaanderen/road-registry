@@ -76,7 +76,7 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
 
         var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
 
-        VerifyThatTicketHasCompleted(string.Empty, string.Empty);
+        VerifyThatTicketHasCompleted(new ChangeRoadSegmentAttributesResponse());
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         var @event = command.Changes.Single().RoadSegmentAttributesModified;

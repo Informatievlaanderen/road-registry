@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Abstractions.RoadNetworks
 {
-    public class RebuildRoadNetworkSnapshotRequest
+    using MediatR;
+
+    public class RebuildRoadNetworkSnapshotRequest: IRequest<RebuildRoadNetworkSnapshotResponse>
     {
     }
 }

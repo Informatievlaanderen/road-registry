@@ -1,6 +1,7 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenCreateRoadNetworkSnapshot.Abstractions.Fixtures;
 
 using AutoFixture;
+using BackOffice.Configuration;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +12,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions.RoadNetworks;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.Hosts;
-using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Configuration;
 using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Handlers;
 using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Requests;
 using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.Framework;
