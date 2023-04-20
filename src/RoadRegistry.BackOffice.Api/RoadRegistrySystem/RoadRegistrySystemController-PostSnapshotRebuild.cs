@@ -22,8 +22,8 @@ public partial class RoadRegistrySystemController
 
         if (snapshotFeatureToggle.FeatureEnabled)
         {
-            var result = await Mediator.Send(new RebuildRoadNetworkSnapshotRequest(), cancellationToken);
-            return Ok(result);
+            var response = await Mediator.Send(new RebuildRoadNetworkSnapshotRequest(), cancellationToken);
+            return Ok(response);
         }
 
         var command = new RebuildRoadNetworkSnapshot();

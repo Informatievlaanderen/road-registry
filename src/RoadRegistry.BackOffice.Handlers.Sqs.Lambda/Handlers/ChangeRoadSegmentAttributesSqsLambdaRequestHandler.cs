@@ -2,11 +2,11 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
-using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
@@ -65,6 +65,6 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             return translatedChanges;
         }, cancellationToken);
 
-        return new ETagResponse(string.Empty, string.Empty);
+        return new ChangeRoadSegmentAttributesResponse();
     }
 }

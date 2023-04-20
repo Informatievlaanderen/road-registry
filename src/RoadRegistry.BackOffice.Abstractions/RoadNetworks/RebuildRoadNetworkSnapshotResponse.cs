@@ -1,3 +1,3 @@
 namespace RoadRegistry.BackOffice.Abstractions.RoadNetworks;
 
-public record RebuildRoadNetworkSnapshotResponse(int SnapshotVersion);
+public sealed record RebuildRoadNetworkSnapshotResponse(int SnapshotVersion);
