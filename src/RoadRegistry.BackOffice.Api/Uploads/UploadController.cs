@@ -90,18 +90,6 @@ public class UploadController : ControllerBase
                 409,
                 new ExceptionProblemDetails(exception), exception);
         }
-        catch (ZipArchiveValidationException ex)
-        {
-            var validationFailures = ex.Problems
-                .Select(problem => problem.Translate())
-                .Select(problem =>
-                    new ValidationFailure(problem.File, FileProblemTranslator.Dutch(problem).Message)
-                    {
-                        ErrorCode = $"{problem.Severity}{problem.Reason}"
-                    })
-                .ToList();
-            throw new DutchValidationException(validationFailures);
-        }
     }
 
     [HttpPost("")]

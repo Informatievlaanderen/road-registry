@@ -223,7 +223,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
                     })
                 };
 
-                var result = await Controller.PostFeatureCompareUpload(
+                var result = await Controller.PostUploadBeforeFeatureCompare(
                     "not_a_guid_without_dashes",
                     formFile,
                     CancellationToken.None);
@@ -274,7 +274,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
             //    "not_a_guid_without_dashes",
             //    formFile,
             //    CancellationToken.None);
-            await Controller.PostFeatureCompareUpload(
+            await Controller.PostUploadBeforeFeatureCompare(
                 "not_a_guid_without_dashes",
                 formFile,
                 CancellationToken.None);

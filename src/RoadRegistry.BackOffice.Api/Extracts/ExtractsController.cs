@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
+using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework;
@@ -17,6 +18,9 @@ using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using DownloadExtractRequest = Abstractions.Extracts.DownloadExtractRequest;
+using UploadExtractFeatureCompareRequest = Abstractions.Extracts.UploadExtractFeatureCompareRequest;
+using UploadExtractRequest = Abstractions.Extracts.UploadExtractRequest;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
@@ -143,8 +147,8 @@ public class ExtractsController : ControllerBase
         }
     }
 
-    [HttpPost("download/{downloadId}/uploads/feature-compare")]
-    public async Task<ActionResult> PostFeatureCompareUpload(
+    [HttpPost("download/{downloadId}/uploads/fc")]
+    public async Task<ActionResult> PostUploadBeforeFeatureCompare(
         [FromRoute] string downloadId,
         IFormFile archive,
         CancellationToken cancellationToken)
@@ -163,7 +167,7 @@ public class ExtractsController : ControllerBase
     }
 
     [HttpPost("download/{downloadId}/uploads")]
-    public async Task<ActionResult> PostUpload(
+    public async Task<ActionResult> PostUploadAfterFeatureCompare(
         [FromRoute] string downloadId,
         IFormFile archive,
         CancellationToken cancellationToken)

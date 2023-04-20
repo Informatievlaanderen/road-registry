@@ -1,93 +1,63 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
-using Abstractions;
 using Abstractions.Configuration;
 using Abstractions.Exceptions;
-using Abstractions.Extracts;
-using BackOffice.Extracts;
-using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using BackOffice.Uploads;
 using Editor.Schema;
-using Exceptions;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice.Abstractions.Uploads;
+using Uploads;
+using UploadExtractFeatureCompareRequest = Abstractions.Extracts.UploadExtractFeatureCompareRequest;
 
 /// <summary>
 ///     Post upload extract controller
 /// </summary>
-/// <exception cref="BlobClientNotFoundException"></exception>
-/// <exception cref="EditorContextNotFoundException"></exception>
-/// <exception cref="DownloadExtractNotFoundException"></exception>
-/// <exception cref="UnsupportedMediaTypeException"></exception>
-/// <exception cref="ExtractDownloadNotFoundException"></exception>
-/// <exception cref="ExtractDownloadNotFoundException"></exception>
-public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<UploadExtractFeatureCompareRequest, UploadExtractResponse>
+public class UploadExtractFeatureCompareRequestHandler : UploadExtractFeatureCompareRequestHandlerBase<UploadExtractFeatureCompareRequest>
 {
-    private static readonly ContentType[] SupportedContentTypes =
-    {
-        ContentType.Parse("application/zip"),
-        ContentType.Parse("application/x-zip-compressed")
-    };
-
-    private readonly FeatureCompareMessagingOptions _messagingOptions;
-    private readonly RoadNetworkExtractUploadsBlobClient _client;
     private readonly EditorContext _context;
-    private readonly ISqsQueuePublisher _sqsQueuePublisher;
 
     public UploadExtractFeatureCompareRequestHandler(
         FeatureCompareMessagingOptions messagingOptions,
         CommandHandlerDispatcher dispatcher,
-        RoadNetworkExtractUploadsBlobClient client,
-        EditorContext context,
+        RoadNetworkFeatureCompareBlobClient client,
         ISqsQueuePublisher sqsQueuePublisher,
-        ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
+        IZipArchiveBeforeFeatureCompareValidator validator,
+        IRoadNetworkEventWriter roadNetworkEventWriter,
+        EditorContext context,
+        ILogger<UploadExtractFeatureCompareRequestHandler> logger)
+        : base(messagingOptions, dispatcher, client, sqsQueuePublisher, validator, roadNetworkEventWriter, logger)
     {
-        _messagingOptions = messagingOptions;
-        _client = client ?? throw new BlobClientNotFoundException(nameof(client));
-        _context = context ?? throw new EditorContextNotFoundException(nameof(context));
-        _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
+        _context = context.ThrowIfNull();
     }
 
-    public override async Task<UploadExtractResponse> HandleAsync(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken)
+    public override async Task<UploadExtractFeatureCompareResponse> HandleAsync(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken)
     {
-        if (request.DownloadId is null) throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
-
-        if (Guid.TryParseExact(request.DownloadId, "N", out var parsedDownloadId))
+        if (request.DownloadId is null)
         {
-            if (!ContentType.TryParse(request.Archive.ContentType, out var parsedContentType) || !SupportedContentTypes.Contains(parsedContentType))
-                throw new UnsupportedMediaTypeException();
-
-            var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                           ?? throw new ExtractDownloadNotFoundException(DownloadId.Parse(parsedDownloadId.ToString()));
-
-            await using var readStream = request.Archive.ReadStream;
-
-            var uploadId = new UploadId(Guid.NewGuid());
-            var archiveId = new ArchiveId(uploadId.ToString());
-            var metadata = Metadata.None;
-
-            await _client.CreateBlobAsync(
-                new BlobName(archiveId.ToString()),
-                metadata,
-                ContentType.Parse("application/zip"),
-                readStream,
-                cancellationToken
-            );
-
-            var message = new UploadRoadNetworkExtractChangesArchive
-            {
-                RequestId = download.RequestId,
-                DownloadId = download.DownloadId,
-                UploadId = uploadId.ToGuid(),
-                ArchiveId = archiveId.ToString()
-            };
-
-            await _sqsQueuePublisher.CopyToQueue(_messagingOptions.RequestQueueUrl, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
-
-            return new UploadExtractResponse(uploadId);
+            throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
         }
 
-        throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
+        return await base.HandleAsync(request, cancellationToken);
+    }
+
+    protected override async Task<object> BuildSqsMessage(UploadExtractFeatureCompareRequest request, ArchiveId archiveId, CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParseExact(request.DownloadId, "N", out var parsedDownloadId))
+        {
+            throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
+        }
+
+        var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
+                       ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+
+        return new UploadRoadNetworkExtractChangesArchive
+        {
+            RequestId = download.RequestId,
+            DownloadId = download.DownloadId,
+            UploadId = archiveId.ToGuid(),
+            ArchiveId = archiveId.ToString()
+        };
     }
 }
