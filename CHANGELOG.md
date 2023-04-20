@@ -1,3 +1,10 @@
+## [3.39.6](https://github.com/informatievlaanderen/road-registry/compare/v3.39.5...v3.39.6) (2023-04-20)
+
+
+### Bug Fixes
+
+* WR-684 move long running Lambdas to API+CommandHost ([#935](https://github.com/informatievlaanderen/road-registry/issues/935)) ([fc24ea6](https://github.com/informatievlaanderen/road-registry/commit/fc24ea6aef6a79e5d22a08f75f1436cc8797dd0d))
+
 ## [3.39.5](https://github.com/informatievlaanderen/road-registry/compare/v3.39.4...v3.39.5) (2023-04-19)
 
 
