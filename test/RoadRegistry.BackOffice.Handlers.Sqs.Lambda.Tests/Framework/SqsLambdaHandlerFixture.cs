@@ -135,6 +135,11 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
 
     protected bool VerifyThatTicketHasCompleted(string location, string eTag)
     {
+        return VerifyThatTicketHasCompleted(new ETagResponse(location, eTag));
+    }
+
+    protected bool VerifyThatTicketHasCompleted(object response)
+    {
         if (Exception is not null)
         {
             throw Exception;
@@ -143,9 +148,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         TicketingMock.Verify(x =>
             x.Complete(
                 It.IsAny<Guid>(),
-                new TicketResult(
-                    new ETagResponse(location, eTag)
-                ),
+                new TicketResult(response),
                 CancellationToken.None
             )
         );
