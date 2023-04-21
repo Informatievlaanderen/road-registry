@@ -83,15 +83,6 @@ public class FeatureCompareMessageConsumer : BackgroundService
                     await _mediator.Send(request, stoppingToken);
                 }
                 break;
-            //case JObject jObject:
-            //    {
-            //        var uploadRoadNetworkChangesArchive = jObject.ToObject<UploadRoadNetworkChangesArchive>();
-
-            //        _logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkChangesArchive.ArchiveId);
-            //        var request = new Abstractions.Uploads.FeatureCompare.FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
-            //        await _mediator.Send(request, stoppingToken);
-            //    }
-            //    break;
             default:
                 throw new UnknownSqsMessageTypeException($"Unhandled message type '{message.GetType()}' found on queue '{_messagingOptions.ResponseQueueUrl}'", message.GetType().FullName);
         }
