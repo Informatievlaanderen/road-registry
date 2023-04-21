@@ -14,17 +14,8 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore.Streams;
 
-public class UploadExtractFeatureCompareRequestHandler : UploadExtractFeatureCompareRequestHandlerBase<UploadExtractFeatureCompareRequest>
-{
-    public UploadExtractFeatureCompareRequestHandler(FeatureCompareMessagingOptions messagingOptions, CommandHandlerDispatcher dispatcher, RoadNetworkFeatureCompareBlobClient client, ISqsQueuePublisher sqsQueuePublisher, IZipArchiveBeforeFeatureCompareValidator validator, IRoadNetworkEventWriter roadNetworkEventWriter, ILogger<UploadExtractFeatureCompareRequestHandler> logger)
-        : base(messagingOptions, dispatcher, client, sqsQueuePublisher, validator, roadNetworkEventWriter, logger)
-    {
-    }
-}
-
 /// <summary>Upload controller, post upload</summary>
-public abstract class UploadExtractFeatureCompareRequestHandlerBase<TRequest> : EndpointRequestHandler<TRequest, UploadExtractFeatureCompareResponse>
-    where TRequest: EndpointRequest<UploadExtractFeatureCompareResponse>, IUploadExtractFeatureCompareRequest
+public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<UploadExtractFeatureCompareRequest, UploadExtractFeatureCompareResponse>
 {
     private static readonly ContentType[] SupportedContentTypes =
     {
@@ -38,14 +29,14 @@ public abstract class UploadExtractFeatureCompareRequestHandlerBase<TRequest> : 
     private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
     private readonly IRoadNetworkEventWriter _roadNetworkEventWriter;
 
-    protected UploadExtractFeatureCompareRequestHandlerBase(
+    public UploadExtractFeatureCompareRequestHandler(
         FeatureCompareMessagingOptions messagingOptions,
         CommandHandlerDispatcher dispatcher,
         RoadNetworkFeatureCompareBlobClient client,
         ISqsQueuePublisher sqsQueuePublisher,
         IZipArchiveBeforeFeatureCompareValidator validator,
         IRoadNetworkEventWriter roadNetworkEventWriter,
-        ILogger logger) : base(dispatcher, logger)
+        ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
         _messagingOptions = messagingOptions;
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
@@ -54,7 +45,7 @@ public abstract class UploadExtractFeatureCompareRequestHandlerBase<TRequest> : 
         _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
     }
 
-    public override async Task<UploadExtractFeatureCompareResponse> HandleAsync(TRequest request, CancellationToken cancellationToken)
+    public override async Task<UploadExtractFeatureCompareResponse> HandleAsync(UploadExtractFeatureCompareRequest request, CancellationToken cancellationToken)
     {
         if (!ContentType.TryParse(request.Archive.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
         {
@@ -83,8 +74,6 @@ public abstract class UploadExtractFeatureCompareRequestHandlerBase<TRequest> : 
                 throw new ZipArchiveValidationException(problems);
             }
 
-            var message = await BuildSqsMessage(request, archiveId, cancellationToken);
-
             readStream.Position = 0;
             await _client.CreateBlobAsync(
                 new BlobName(archiveId.ToString()),
@@ -94,6 +83,10 @@ public abstract class UploadExtractFeatureCompareRequestHandlerBase<TRequest> : 
                 cancellationToken
             );
             
+            var message = new UploadRoadNetworkChangesArchive
+            {
+                ArchiveId = archiveId.ToString()
+            };
             await _sqsQueuePublisher.CopyToQueue(_messagingOptions.RequestQueueUrl, message, new SqsQueueOptions { MessageGroupId = SqsFeatureCompare.MessageGroupId }, cancellationToken);
 
             await WriteRoadNetworkChangesArchiveUploadedToStore(entity, cancellationToken);
@@ -101,15 +94,7 @@ public abstract class UploadExtractFeatureCompareRequestHandlerBase<TRequest> : 
 
         return new UploadExtractFeatureCompareResponse(archiveId);
     }
-
-    protected virtual Task<object> BuildSqsMessage(TRequest request, ArchiveId archiveId, CancellationToken cancellationToken)
-    {
-        return Task.FromResult((object)new UploadRoadNetworkChangesArchive
-        {
-            ArchiveId = archiveId.ToString()
-        });
-    }
-
+    
     private async Task WriteRoadNetworkChangesArchiveUploadedToStore(RoadNetworkChangesArchive archive, CancellationToken cancellationToken)
     {
         await _roadNetworkEventWriter.WriteAsync(new StreamName(archive.Id), Guid.NewGuid(), ExpectedVersion.NoStream, new object[]

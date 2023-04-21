@@ -1,12 +1,12 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Exceptions;
 using Microsoft.Extensions.Logging;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 public class SqsQueueConsumer : ISqsQueueConsumer
 {

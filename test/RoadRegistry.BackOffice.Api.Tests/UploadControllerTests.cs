@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Exceptions;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using Uploads;
@@ -145,9 +146,9 @@ public class UploadControllerTests : ControllerTests<UploadController>
                 var result = await Controller.PostUploadAfterFeatureCompare(formFile, CancellationToken.None);
                 Assert.IsType<OkResult>(result);
             }
-            catch (ValidationException ex)
+            catch (ZipArchiveValidationException ex)
             {
-                var validationFileProblems = ex.Errors.Select(ex => ex.PropertyName);
+                var validationFileProblems = ex.Problems.Select(fileProblem => fileProblem.File).ToArray();
 
                 Assert.Contains("TRANSACTIEZONES.DBF", validationFileProblems);
                 Assert.Contains("WEGKNOOP_ALL.DBF", validationFileProblems);
@@ -234,9 +235,9 @@ public class UploadControllerTests : ControllerTests<UploadController>
                 await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(true), formFile, CancellationToken.None);
                 throw new ValidationException("This should not be reachable");
             }
-            catch (ValidationException ex)
+            catch (ZipArchiveValidationException ex)
             {
-                var validationFileProblems = ex.Errors.Select(ex => ex.PropertyName);
+                var validationFileProblems = ex.Problems.Select(fileProblem => fileProblem.File).ToArray();
 
                 Assert.Contains("WEGKNOOP.SHP", validationFileProblems);
                 Assert.Contains("WEGKNOOP.DBF", validationFileProblems);

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using BackOffice.Abstractions.Configuration;
 using BackOffice.Configuration;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,6 +60,26 @@ public static class AmazonSqsExtensions
         if (!string.IsNullOrEmpty(sqsQueueUrlOptions?.Snapshot))
         {
             queueUrlAttributes.Add(sqsQueueUrlOptions.Snapshot, new Dictionary<string, string>
+            {
+                {"FifoQueue","true"},
+                {"ContentBasedDeduplication","true"},
+                {"DeduplicationScope","messageGroup"}
+            });
+        }
+
+        var featureCompareMessagingOptions = sp.GetService<FeatureCompareMessagingOptions>();
+        if (!string.IsNullOrEmpty(featureCompareMessagingOptions?.RequestQueueUrl))
+        {
+            queueUrlAttributes.Add(featureCompareMessagingOptions.RequestQueueUrl, new Dictionary<string, string>
+            {
+                {"FifoQueue","true"},
+                {"ContentBasedDeduplication","true"},
+                {"DeduplicationScope","messageGroup"}
+            });
+        }
+        if (!string.IsNullOrEmpty(featureCompareMessagingOptions?.ResponseQueueUrl))
+        {
+            queueUrlAttributes.Add(featureCompareMessagingOptions.ResponseQueueUrl, new Dictionary<string, string>
             {
                 {"FifoQueue","true"},
                 {"ContentBasedDeduplication","true"},

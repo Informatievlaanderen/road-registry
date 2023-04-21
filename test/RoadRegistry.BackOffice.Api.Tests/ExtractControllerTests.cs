@@ -159,10 +159,10 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
         try
         {
             await Controller.PostDownloadRequest(new DownloadExtractRequestBody
-                {
-                    RequestId = externalExtractRequestId,
-                    Contour = null
-                },
+            {
+                RequestId = externalExtractRequestId,
+                Contour = null
+            },
                 CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
@@ -199,7 +199,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
     }
 
     [Fact]
-    public async Task When_uploading_an_extract_that_is_an_empty_zip()
+    public async Task When_uploading_an_extract_after_fc_that_is_an_empty_zip()
     {
         try
         {
@@ -223,7 +223,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
                     })
                 };
 
-                var result = await Controller.PostUploadBeforeFeatureCompare(
+                var result = await Controller.PostUploadAfterFeatureCompare(
                     "not_a_guid_without_dashes",
                     formFile,
                     CancellationToken.None);
@@ -258,7 +258,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
     }
 
     [Fact]
-    public async Task When_uploading_an_extract_that_is_not_a_zip()
+    public async Task When_uploading_an_extract_before_fc_that_is_not_a_zip()
     {
         var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
         {
@@ -268,23 +268,28 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
             })
         };
 
-        try
+        var result = await Controller.PostUploadBeforeFeatureCompare(
+            "not_a_guid_without_dashes",
+            formFile,
+            CancellationToken.None);
+        Assert.IsType<UnsupportedMediaTypeResult>(result);
+    }
+
+    [Fact]
+    public async Task When_uploading_an_extract_after_fc_that_is_not_a_zip()
+    {
+        var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
         {
-            //await Controller.PostUpload(
-            //    "not_a_guid_without_dashes",
-            //    formFile,
-            //    CancellationToken.None);
-            await Controller.PostUploadBeforeFeatureCompare(
-                "not_a_guid_without_dashes",
-                formFile,
-                CancellationToken.None);
-            throw new XunitException("Expected a validation exception but did not receive any");
-        }
-        catch (UploadExtractNotFoundException)
-        {
-        }
-        catch (ValidationException)
-        {
-        }
+            Headers = new HeaderDictionary(new Dictionary<string, StringValues>
+            {
+                { "Content-Type", StringValues.Concat(StringValues.Empty, "application/octet-stream") }
+            })
+        };
+
+        var result = await Controller.PostUploadAfterFeatureCompare(
+            "not_a_guid_without_dashes",
+            formFile,
+            CancellationToken.None);
+        Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
 }

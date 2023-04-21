@@ -96,6 +96,9 @@ public static class EnrichEvent
                 case RoadNetworkExtractChangesArchiveRejected m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
+                case RoadNetworkExtractChangesArchiveFeatureCompareCompleted m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
             }
         };
     }

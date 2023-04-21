@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Abstractions.FeatureCompare;
+namespace RoadRegistry.BackOffice.Abstractions.Extracts.FeatureCompare;
 
 public record FeatureCompareProcessOutputMessageResponse(ArchiveId ArchiveId) : SqsMessageResponse
 {

@@ -1,6 +1,6 @@
-using RoadRegistry.BackOffice.Abstractions.Uploads;
-
 namespace RoadRegistry.BackOffice.Abstractions.Extracts;
 
+using Uploads;
+
 public record UploadExtractFeatureCompareRequest(string DownloadId, UploadExtractArchiveRequest Archive)
-    : EndpointRequest<UploadExtractFeatureCompareResponse>, IUploadExtractFeatureCompareRequest;
+    : EndpointRequest<UploadExtractFeatureCompareResponse>;

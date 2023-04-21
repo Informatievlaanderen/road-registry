@@ -11,8 +11,14 @@ using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using Abstractions.Uploads;
+using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Core.ProblemCodes;
+using FluentValidation;
+using FluentValidation.Results;
 using Framework;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
@@ -148,36 +154,58 @@ public class ExtractsController : ControllerBase
     }
 
     [HttpPost("download/{downloadId}/uploads/fc")]
-    public async Task<ActionResult> PostUploadBeforeFeatureCompare(
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public Task<IActionResult> PostUploadBeforeFeatureCompare(
         [FromRoute] string downloadId,
         IFormFile archive,
         CancellationToken cancellationToken)
     {
-        try
+        return PostUpload(archive, async () =>
         {
             var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractFeatureCompareRequest(downloadId, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
-            return Accepted(response);
-        }
-        catch (ExtractDownloadNotFoundException)
-        {
-            return NotFound();
-        }
+            return Accepted(new UploadExtractBeforeFeatureCompareResponseBody { ArchiveId = response.ArchiveId });
+        });
     }
 
     [HttpPost("download/{downloadId}/uploads")]
-    public async Task<ActionResult> PostUploadAfterFeatureCompare(
+    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
+    public Task<IActionResult> PostUploadAfterFeatureCompare(
         [FromRoute] string downloadId,
         IFormFile archive,
         CancellationToken cancellationToken)
     {
-        try
+        return PostUpload(archive, async () =>
         {
             var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractRequest(downloadId, requestArchive);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted(new UploadExtractResponseBody { UploadId = response.UploadId.ToString() });
+        });
+    }
+
+    private async Task<IActionResult> PostUpload(IFormFile archive, Func<Task<IActionResult>> callback)
+    {
+        if (archive == null)
+        {
+            throw new ValidationException("Archive is required", new[]
+            {
+                new ValidationFailure
+                {
+                    PropertyName = nameof(archive),
+                    ErrorCode = ProblemCode.Common.IsRequired
+                }
+            });
+        }
+
+        try
+        {
+            return await callback.Invoke();
+        }
+        catch (UnsupportedMediaTypeException)
+        {
+            return new UnsupportedMediaTypeResult();
         }
         catch (ExtractDownloadNotFoundException)
         {

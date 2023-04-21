@@ -32,7 +32,7 @@ public class RoadNetworkExtractUpload
         _applier(@event);
     }
 
-    public void ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator)
+    public ZipArchiveProblems ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator)
     {
         var zipArchiveMetadata = ZipArchiveMetadata.Empty.WithDownloadId(_downloadId);
 
@@ -61,5 +61,7 @@ public class RoadNetworkExtractUpload
                     ArchiveId = _archiveId,
                     Problems = problems.Select(problem => problem.Translate()).ToArray()
                 });
+
+        return problems;
     }
 }
