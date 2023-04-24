@@ -1,3 +1,11 @@
+## [3.39.7](https://github.com/informatievlaanderen/road-registry/compare/v3.39.6...v3.39.7) (2023-04-24)
+
+
+### Bug Fixes
+
+* MessageGroupId for roadsegment edit endpoints ([#938](https://github.com/informatievlaanderen/road-registry/issues/938)) ([310d202](https://github.com/informatievlaanderen/road-registry/commit/310d202452513980ece42a6988c457bf6226194e))
+* WR-658 extracts upload ([#937](https://github.com/informatievlaanderen/road-registry/issues/937)) ([833e2d8](https://github.com/informatievlaanderen/road-registry/commit/833e2d8d4f88925877b90c19951504e02641a815))
+
 ## [3.39.6](https://github.com/informatievlaanderen/road-registry/compare/v3.39.5...v3.39.6) (2023-04-20)
 
 
