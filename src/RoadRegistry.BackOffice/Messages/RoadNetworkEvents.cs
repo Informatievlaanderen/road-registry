@@ -31,6 +31,7 @@ public static class RoadNetworkEvents
         typeof(RoadNetworkExtractDownloadTimeoutOccurred),
         typeof(RoadNetworkExtractChangesArchiveAccepted),
         typeof(RoadNetworkExtractChangesArchiveRejected),
-        typeof(RoadNetworkExtractChangesArchiveUploaded)
+        typeof(RoadNetworkExtractChangesArchiveUploaded),
+        typeof(RoadNetworkExtractChangesArchiveFeatureCompareCompleted)
     };
 }

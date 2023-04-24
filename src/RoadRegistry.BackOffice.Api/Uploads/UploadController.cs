@@ -54,7 +54,7 @@ public class UploadController : ControllerBase
         }
     }
 
-    private static async Task<IActionResult> Post(IFormFile archive, Func<Task<IActionResult>> callback)
+    private static async Task<IActionResult> PostUpload(IFormFile archive, Func<Task<IActionResult>> callback)
     {
         if (archive == null)
         {
@@ -90,25 +90,13 @@ public class UploadController : ControllerBase
                 409,
                 new ExceptionProblemDetails(exception), exception);
         }
-        catch (ZipArchiveValidationException ex)
-        {
-            var validationFailures = ex.Problems
-                .Select(problem => problem.Translate())
-                .Select(problem =>
-                    new ValidationFailure(problem.File, FileProblemTranslator.Dutch(problem).Message)
-                    {
-                        ErrorCode = $"{problem.Severity}{problem.Reason}"
-                    })
-                .ToList();
-            throw new DutchValidationException(validationFailures);
-        }
     }
 
     [HttpPost("")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
     public async Task<IActionResult> PostUploadAfterFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
     {
-        return await Post(archive, async () =>
+        return await PostUpload(archive, async () =>
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractRequest(archive.FileName, requestArchive);
@@ -126,7 +114,7 @@ public class UploadController : ControllerBase
             return NotFound();
         }
 
-        return await Post(archive, async () =>
+        return await PostUpload(archive, async () =>
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
             var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);

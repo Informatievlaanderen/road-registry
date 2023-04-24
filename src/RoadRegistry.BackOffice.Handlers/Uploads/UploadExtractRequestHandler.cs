@@ -44,7 +44,10 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
     {
-        if (!ContentType.TryParse(request.Archive.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed)) throw new UnsupportedMediaTypeException();
+        if (!ContentType.TryParse(request.Archive.ContentType, out var parsed) || !SupportedContentTypes.Contains(parsed))
+        {
+            throw new UnsupportedMediaTypeException();
+        }
 
         await using var readStream = request.Archive.ReadStream;
         ArchiveId archiveId = new(Guid.NewGuid().ToString("N"));
