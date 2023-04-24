@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
-using Core;
 using TicketingService.Abstractions;
 
 public class DeleteRoadSegmentOutlineSqsRequestHandler : SqsHandler<DeleteRoadSegmentOutlineSqsRequest>
@@ -14,7 +13,7 @@ public class DeleteRoadSegmentOutlineSqsRequestHandler : SqsHandler<DeleteRoadSe
 
     protected override string WithAggregateId(DeleteRoadSegmentOutlineSqsRequest request)
     {
-        return RoadNetwork.Identifier.ToString();
+        return $"{Action}_{request.Request.WegsegmentId}";
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, DeleteRoadSegmentOutlineSqsRequest sqsRequest)

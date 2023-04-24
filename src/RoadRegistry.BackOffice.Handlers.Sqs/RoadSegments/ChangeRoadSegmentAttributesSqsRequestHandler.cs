@@ -14,7 +14,7 @@ public class ChangeRoadSegmentAttributesSqsRequestHandler : SqsHandler<ChangeRoa
 
     protected override string WithAggregateId(ChangeRoadSegmentAttributesSqsRequest request)
     {
-        return RoadNetwork.Identifier.ToString();
+        return Guid.NewGuid().ToString();
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, ChangeRoadSegmentAttributesSqsRequest sqsRequest)

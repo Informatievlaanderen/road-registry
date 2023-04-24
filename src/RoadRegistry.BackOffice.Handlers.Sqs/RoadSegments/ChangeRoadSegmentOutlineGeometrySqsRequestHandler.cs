@@ -14,7 +14,7 @@ public class ChangeRoadSegmentOutlineGeometrySqsRequestHandler : SqsHandler<Chan
 
     protected override string WithAggregateId(ChangeRoadSegmentOutlineGeometrySqsRequest request)
     {
-        return RoadNetwork.Identifier.ToString();
+        return $"{Action}_{request.Request.RoadSegmentId}";
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, ChangeRoadSegmentOutlineGeometrySqsRequest sqsRequest)
