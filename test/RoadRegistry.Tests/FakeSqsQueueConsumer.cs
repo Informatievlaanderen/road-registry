@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests;
 
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 
@@ -12,7 +13,7 @@ public class FakeSqsQueueConsumer : ISqsQueueConsumer
         _serializer = JsonSerializer.Create(new FakeSqsOptions().JsonSerializerSettings);
     }
 
-    public async Task Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
+    public async Task<Result<SqsJsonMessage>> Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
@@ -26,5 +27,7 @@ public class FakeSqsQueueConsumer : ISqsQueueConsumer
 
             MemorySqsQueue.Consume(queueUrl);
         }
+
+        return Result<SqsJsonMessage>.Success(new SqsJsonMessage());
     }
 }
