@@ -81,6 +81,7 @@ Target.create "Test_Solution" (fun _ ->
 
 Target.create "Publish_Solution" (fun _ ->
   [
+    "RoadRegistry.AdminHost"
     "RoadRegistry.BackOffice"
     "RoadRegistry.BackOffice.Abstractions"
     "RoadRegistry.BackOffice.Api"
@@ -126,6 +127,9 @@ Target.create "Pack_Solution" (fun _ ->
     )
     |> List.iter pack
 )
+
+Target.create "Containerize_AdminHost" (fun _ -> containerize "RoadRegistry.AdminHost" "adminhost")
+Target.create "PushContainer_AdminHost" (fun _ -> push "adminhost")
 
 Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
 Target.create "PushContainer_Projector" (fun _ -> push "projector")
@@ -204,6 +208,7 @@ Target.create "Push" ignore
   ==> "Pack"
 
 "Pack"
+  ==> "Containerize_AdminHost"
   ==> "Containerize_Projector"
   ==> "Containerize_BackOfficeApi"
   ==> "Containerize_EditorProjectionHost"
@@ -225,6 +230,7 @@ Target.create "Push" ignore
 
 "Containerize"
   ==> "DockerLogin"
+  ==> "PushContainer_AdminHost"
   ==> "PushContainer_Projector"
   ==> "PushContainer_BackOfficeApi"
   ==> "PushContainer_BackOfficeUI"

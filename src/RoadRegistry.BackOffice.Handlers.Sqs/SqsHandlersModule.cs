@@ -54,5 +54,10 @@ public sealed class SqsHandlersModule : Module
             .Register(c => new BackOfficeS3SqsQueue(c.Resolve<SqsOptions>(), c.Resolve<SqsQueueUrlOptions>(), c.Resolve<SqsMessagesBlobClient>(), c.Resolve<ILogger<BackOfficeS3SqsQueue>>()))
             .As<IBackOfficeS3SqsQueue>()
             .SingleInstance();
+
+        builder
+            .Register(c => new AdminSqsQueue(c.Resolve<SqsOptions>(), c.Resolve<SqsQueueUrlOptions>()))
+            .As<IAdminSqsQueue>()
+            .SingleInstance();
     }
 }

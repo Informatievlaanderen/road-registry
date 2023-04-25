@@ -21,6 +21,7 @@ using Serilog.Debugging;
 using System;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
@@ -200,6 +201,14 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         });
     }
 
+    public RoadRegistryHostBuilder<T> ConfigureRunCommand(Func<IServiceProvider, CancellationToken, Task> runCommandDelegate)
+    {
+        return ConfigureRunCommand(sp =>
+        {
+            var hostApplicationLifetime = sp.GetRequiredService<IHostApplicationLifetime>();
+            return runCommandDelegate(sp, hostApplicationLifetime.ApplicationStopping);
+        });
+    }
     public RoadRegistryHostBuilder<T> ConfigureRunCommand(Func<IServiceProvider, Task> runCommandDelegate)
     {
         _runCommandDelegate = runCommandDelegate;

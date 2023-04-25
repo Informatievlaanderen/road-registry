@@ -133,6 +133,7 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
+        docker image save $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER -o ~/rr-adminhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER -o ~/rr-projector-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER -o ~/rr-backoffice-api-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER -o ~/rr-backoffice-ui-image.tar
@@ -197,6 +198,13 @@ jobs:
     # Upload build artifacts
     #
     
+    - name: Upload adminhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: adminhost
+        path: ~/rr-adminhost-image.tar
+
     - name: Upload projector artifact
       if: env.RELEASE_VERSION != 'none'
       uses: actions/upload-artifact@v3
@@ -559,6 +567,12 @@ jobs:
       # Download artifacts
       #
       
+      - name: Download adminhost
+        uses: actions/download-artifact@v3
+        with:
+          name: adminhost
+          path: ~/
+      
       - name: Download projector
         uses: actions/download-artifact@v3
         with:
@@ -662,6 +676,7 @@ jobs:
       - name: Load artifacts
         shell: bash
         run: |
+          docker image load -i ~/rr-adminhost-image.tar
           docker image load -i ~/rr-projector-image.tar
           docker image load -i ~/rr-backoffice-api-image.tar
           docker image load -i ~/rr-backoffice-ui-image.tar
@@ -684,6 +699,7 @@ jobs:
         shell: bash
         run: |
           echo $SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
@@ -728,6 +744,12 @@ jobs:
       # Download artifacts
       #
       
+      - name: Download adminhost
+        uses: actions/download-artifact@v3
+        with:
+          name: adminhost
+          path: ~/
+      
       - name: Download projector
         uses: actions/download-artifact@v3
         with:
@@ -831,6 +853,7 @@ jobs:
       - name: Load artifacts
         shell: bash
         run: |
+          docker image load -i ~/rr-adminhost-image.tar
           docker image load -i ~/rr-projector-image.tar
           docker image load -i ~/rr-backoffice-api-image.tar
           docker image load -i ~/rr-backoffice-ui-image.tar
@@ -852,6 +875,9 @@ jobs:
         if: env.RELEASE_VERSION != 'none'
         shell: bash
         run: |
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/adminhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
 
@@ -928,6 +954,12 @@ jobs:
       # Download artifacts
       #
       
+      - name: Download adminhost
+        uses: actions/download-artifact@v3
+        with:
+          name: adminhost
+          path: ~/
+      
       - name: Download projector
         uses: actions/download-artifact@v3
         with:
@@ -1031,6 +1063,7 @@ jobs:
       - name: Load artifacts
         shell: bash
         run: |
+          docker image load -i ~/rr-adminhost-image.tar
           docker image load -i ~/rr-projector-image.tar
           docker image load -i ~/rr-backoffice-api-image.tar
           docker image load -i ~/rr-backoffice-ui-image.tar
@@ -1053,6 +1086,9 @@ jobs:
         if: env.RELEASE_VERSION != 'none'
         shell: bash
         run: |
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/adminhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/adminhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/adminhost:$SEMVER
+
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
 
@@ -1137,7 +1173,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
+        services: ['road-registry-adminhost', 'road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
     
     steps:
     - name: Deploy services
@@ -1255,7 +1291,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
+        services: ['road-registry-adminhost', 'road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
 
     steps:
     - name: CD services
@@ -1372,7 +1408,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
        matrix: 
-         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
+         services: ['road-registry-adminhost', 'road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
 
     steps:
     - name: CD services

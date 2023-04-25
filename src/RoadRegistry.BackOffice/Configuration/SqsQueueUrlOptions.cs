@@ -4,6 +4,7 @@ public class SqsQueueUrlOptions: IHasConfigurationKey
 {
     public string BackOffice { get; set; }
     public string Snapshot { get; set; }
+    public string Admin { get; set; }
 
     public string GetConfigurationKey()
     {

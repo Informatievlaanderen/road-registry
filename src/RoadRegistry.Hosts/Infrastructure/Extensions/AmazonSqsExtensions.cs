@@ -67,6 +67,16 @@ public static class AmazonSqsExtensions
             });
         }
 
+        if (!string.IsNullOrEmpty(sqsQueueUrlOptions?.Admin))
+        {
+            queueUrlAttributes.Add(sqsQueueUrlOptions.Admin, new Dictionary<string, string>
+            {
+                {"FifoQueue","true"},
+                {"ContentBasedDeduplication","true"},
+                {"DeduplicationScope","messageGroup"}
+            });
+        }
+
         var featureCompareMessagingOptions = sp.GetService<FeatureCompareMessagingOptions>();
         if (!string.IsNullOrEmpty(featureCompareMessagingOptions?.RequestQueueUrl))
         {

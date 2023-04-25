@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.RoadRegistrySystem;
 
+using System;
+using System.Collections.Generic;
 using Abstractions.RoadNetworks;
 using BackOffice.Framework;
 using FeatureToggles;
@@ -8,6 +10,7 @@ using Messages;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using Snapshot.Handlers.Sqs.RoadNetworks;
 
 public partial class RoadRegistrySystemController
 {
@@ -18,17 +21,25 @@ public partial class RoadRegistrySystemController
         [FromServices] UseSnapshotSqsRequestFeatureToggle snapshotFeatureToggle,
         CancellationToken cancellationToken)
     {
-        await validator.ValidateAndThrowAsync(parameters, HttpContext.RequestAborted);
+        await validator.ValidateAndThrowAsync(parameters, cancellationToken);
 
         if (snapshotFeatureToggle.FeatureEnabled)
         {
-            var response = await Mediator.Send(new RebuildRoadNetworkSnapshotRequest(), cancellationToken);
-            return Ok(response);
+            await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
+            {
+                ProvenanceData = new RoadRegistryProvenanceData(),
+                Metadata = new Dictionary<string, object>
+                {
+                    { "CorrelationId", Guid.NewGuid() }
+                },
+                Request = new RebuildRoadNetworkSnapshotRequest()
+            }, cancellationToken);
+            return Accepted();
         }
 
         var command = new RebuildRoadNetworkSnapshot();
         await RoadNetworkCommandQueue
-            .Write(new Command(command), HttpContext.RequestAborted);
+            .Write(new Command(command), cancellationToken);
         return Accepted();
     }
 }
