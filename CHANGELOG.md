@@ -1,3 +1,10 @@
+## [3.40.1](https://github.com/informatievlaanderen/road-registry/compare/v3.40.0...v3.40.1) (2023-04-26)
+
+
+### Bug Fixes
+
+* Incorrect validation of outlined road segment from dbase record ([#943](https://github.com/informatievlaanderen/road-registry/issues/943)) ([601069d](https://github.com/informatievlaanderen/road-registry/commit/601069d852ba6d031cfdf152a9c748511a8a24b6))
+
 # [3.40.0](https://github.com/informatievlaanderen/road-registry/compare/v3.39.7...v3.40.0) (2023-04-26)
 
 
