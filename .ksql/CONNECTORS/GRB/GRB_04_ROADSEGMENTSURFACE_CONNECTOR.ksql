@@ -1,10 +1,10 @@
-CREATE SINK CONNECTOR `RoadNodeGrbConnector` with (
-    "topics"= 'road.roadnode.snapshot.stream.flatten.grb',
+CREATE SINK CONNECTOR `RoadRoadSegmentSurfaceGrbConnector` with (
+    "topics"= 'road.roadsegmentsurface.snapshot.stream.flatten.grb',
     "input.data.format"= 'JSON_SR',
     "input.key.format"= 'JSON_SR',
     "delete.enabled"= false,
     "connector.class"= 'MicrosoftSqlServerSink',
-    "name"= 'RoadNodeGrbConnector',
+    "name"= 'RoadRoadSegmentSurfaceGrbConnector',
     "kafka.auth.mode"= 'KAFKA_API_KEY',
     "kafka.api.key"= 'DZKR6A5UYAZDBARE',
     "kafka.api.secret"= '***',
@@ -15,7 +15,7 @@ CREATE SINK CONNECTOR `RoadNodeGrbConnector` with (
     "db.name"= 'BasisRegisters',
     "ssl.mode"= 'require',
     "insert.mode"= 'UPSERT',
-    "table.name.format"= 'BasisRegisters.WR.Wegknoop',
+    "table.name.format"= 'BasisRegisters.WR.AttWegverharding',
     "table.types"= 'TABLE',
     "db.timezone"= 'UTC',
     "pk.mode"= 'record_key',
