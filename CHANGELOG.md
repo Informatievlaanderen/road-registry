@@ -1,3 +1,10 @@
+## [3.40.2](https://github.com/informatievlaanderen/road-registry/compare/v3.40.1...v3.40.2) (2023-04-26)
+
+
+### Bug Fixes
+
+* release pipeline, add step to delete /opt/hostedtoolcache ([#944](https://github.com/informatievlaanderen/road-registry/issues/944)) ([49f39ef](https://github.com/informatievlaanderen/road-registry/commit/49f39ef50070dd896bb71c2e37ef8d4c44bbf306))
+
 ## [3.40.1](https://github.com/informatievlaanderen/road-registry/compare/v3.40.0...v3.40.1) (2023-04-26)
 
 
