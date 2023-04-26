@@ -138,20 +138,12 @@ namespace RoadRegistry.BackOffice
                 problems += recordContext.RoadSegmentMorphologyMismatch(record.MORFOLOGIE.Value, true);
             }
 
-            if (!record.B_WK_OIDN.HasValue)
-            {
-                problems += recordContext.RequiredFieldIsNull(record.B_WK_OIDN.Field);
-            }
-            else if (!record.B_WK_OIDN.Value.IsValidStartRoadNodeIdForRoadSegmentOutline())
+            if (record.B_WK_OIDN.HasValue && !record.B_WK_OIDN.Value.IsValidStartRoadNodeIdForRoadSegmentOutline())
             {
                 problems += recordContext.BeginRoadNodeIdOutOfRange(record.B_WK_OIDN.Value);
             }
 
-            if (!record.E_WK_OIDN.HasValue)
-            {
-                problems += recordContext.RequiredFieldIsNull(record.E_WK_OIDN.Field);
-            }
-            else if (!record.E_WK_OIDN.Value.IsValidEndRoadNodeIdForRoadSegmentOutline())
+            if (record.E_WK_OIDN.HasValue && !record.E_WK_OIDN.Value.IsValidEndRoadNodeIdForRoadSegmentOutline())
             {
                 problems += recordContext.EndRoadNodeIdOutOfRange(record.E_WK_OIDN.Value);
             }
