@@ -1,3 +1,15 @@
+# [3.40.0](https://github.com/informatievlaanderen/road-registry/compare/v3.39.7...v3.40.0) (2023-04-26)
+
+
+### Bug Fixes
+
+* move and rename connectors ([#942](https://github.com/informatievlaanderen/road-registry/issues/942)) ([91fd9e2](https://github.com/informatievlaanderen/road-registry/commit/91fd9e268a037e9765d23f2e873fd9832a6e5521))
+
+
+### Features
+
+* WR-684 add AdminHost for long running admin operations ([#941](https://github.com/informatievlaanderen/road-registry/issues/941)) ([c6230d4](https://github.com/informatievlaanderen/road-registry/commit/c6230d4ae87545036a39a79d4cc227fcabce6a6b))
+
 ## [3.39.7](https://github.com/informatievlaanderen/road-registry/compare/v3.39.6...v3.39.7) (2023-04-24)
 
 
