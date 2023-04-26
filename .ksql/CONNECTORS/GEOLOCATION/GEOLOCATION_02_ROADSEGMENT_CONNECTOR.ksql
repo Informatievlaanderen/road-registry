@@ -1,10 +1,10 @@
-CREATE SINK CONNECTOR `NationalRoadGeolocationConnector` with (
-    "topics"= 'road.nationalroad.snapshot.stream.flatten.geolocation',
+CREATE SINK CONNECTOR `RoadRoadSegmentGeolocationConnector` with (
+    "topics"= 'road.roadsegment.snapshot.stream.flatten.geolocation',
     "input.data.format"= 'JSON_SR',
     "input.key.format"= 'JSON_SR',
     "delete.enabled"= false,
     "connector.class"= 'MicrosoftSqlServerSink',
-    "name"= 'NationalRoadGeolocationConnector',
+    "name"= 'RoadRoadSegmentGeolocationConnector',
     "kafka.auth.mode"= 'KAFKA_API_KEY',
     "kafka.api.key"= 'B65LDWZMQCZNM6P6',
     "kafka.api.secret"= '***',
@@ -15,7 +15,7 @@ CREATE SINK CONNECTOR `NationalRoadGeolocationConnector` with (
     "db.name"= 'vbr-wms',
     "ssl.mode"= 'require',
     "insert.mode"= 'UPSERT',
-    "table.name.format"= 'vbr-wms.geolocation.NationalRoadGeolocation',
+    "table.name.format"= 'vbr-wms.geolocation.RoadSegmentGeolocation',
     "table.types"= 'TABLE',
     "db.timezone"= 'UTC',
     "pk.mode"= 'record_key',
