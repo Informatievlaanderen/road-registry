@@ -1,3 +1,15 @@
+# [3.41.0](https://github.com/informatievlaanderen/road-registry/compare/v3.40.3...v3.41.0) (2023-04-27)
+
+
+### Bug Fixes
+
+* AdminHost read SQS messages correctly ([#948](https://github.com/informatievlaanderen/road-registry/issues/948)) ([b5f6805](https://github.com/informatievlaanderen/road-registry/commit/b5f68059a62d52917f7db6687483bf2172e7ac55))
+
+
+### Features
+
+* Updated release pipeline ([#947](https://github.com/informatievlaanderen/road-registry/issues/947)) ([9991dcf](https://github.com/informatievlaanderen/road-registry/commit/9991dcf8719edd71984eafcd57bb7a3150af0da0))
+
 ## [3.40.3](https://github.com/informatievlaanderen/road-registry/compare/v3.40.2...v3.40.3) (2023-04-27)
 
 
