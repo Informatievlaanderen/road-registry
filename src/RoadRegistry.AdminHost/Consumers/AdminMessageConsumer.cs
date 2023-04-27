@@ -48,6 +48,10 @@ public class AdminMessageConsumer
             {
                 _logger.LogError("SQS message processing failed: {Error}", lastMessage.Error);
             }
+            else if (string.IsNullOrEmpty(lastMessage?.Message?.Type))
+            {
+                _logger.LogInformation("No SQS message received");
+            }
         }
         catch (Exception ex)
         {
