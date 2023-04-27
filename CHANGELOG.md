@@ -1,3 +1,10 @@
+## [3.40.3](https://github.com/informatievlaanderen/road-registry/compare/v3.40.2...v3.40.3) (2023-04-27)
+
+
+### Bug Fixes
+
+* add logging when no SQS message received ([#946](https://github.com/informatievlaanderen/road-registry/issues/946)) ([8f83e82](https://github.com/informatievlaanderen/road-registry/commit/8f83e825610bcebed34ed86978ed386102cb1ec4))
+
 ## [3.40.2](https://github.com/informatievlaanderen/road-registry/compare/v3.40.1...v3.40.2) (2023-04-26)
 
 
