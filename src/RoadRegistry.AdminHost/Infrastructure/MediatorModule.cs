@@ -10,7 +10,5 @@ public class MediatorModule : Module
     {
         builder.RegisterAssemblyTypes(typeof(IMediator).Assembly).AsImplementedInterfaces();
         builder.RegisterGeneric(typeof(ValidationPipelineBehavior<,>)).As(typeof(IPipelineBehavior<,>));
-
-        builder.RegisterModule(new BackOffice.Handlers.MediatorModule());
     }
 }

@@ -34,7 +34,9 @@ public class Program
             .ConfigureContainer((hostContext, builder) =>
             {
                 builder.RegisterModule<MediatorModule>();
+                builder.RegisterModule<BackOffice.Handlers.MediatorModule>();
                 builder.RegisterModule<Snapshot.Handlers.MediatorModule>();
+                builder.RegisterModule<Snapshot.Handlers.Sqs.MediatorModule>();
 
                 builder.RegisterModule<ContextModule>();
                 builder.RegisterModule<SqsHandlersModule>();
