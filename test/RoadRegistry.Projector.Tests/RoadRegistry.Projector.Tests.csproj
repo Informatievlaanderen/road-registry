@@ -6,13 +6,13 @@
 		<Nullable>disable</Nullable>
 		<IsPackable>false</IsPackable>
 		<Platforms>AnyCPU;x64;x86</Platforms>
+		<NoWarn>8618,8887</NoWarn>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference
-			Include="..\..\src\RoadRegistry.BackOffice.Handlers.Kafka\RoadRegistry.BackOffice.Handlers.Kafka.csproj" />
+		<ProjectReference Include="..\..\src\RoadRegistry.Projector\RoadRegistry.Projector.csproj" />
 		<ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
 	</ItemGroup>
 

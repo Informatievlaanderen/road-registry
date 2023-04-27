@@ -3,17 +3,16 @@
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
+		<Nullable>disable</Nullable>
 		<IsPackable>false</IsPackable>
 		<Platforms>AnyCPU;x64;x86</Platforms>
-    <NoWarn>CS8602;CS8618;CS8625</NoWarn>
+		<NoWarn>8618,8887</NoWarn>
 		<EnableDefaultContentItems>false</EnableDefaultContentItems>
 		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\RoadRegistry.StreetNameConsumer.Projections\RoadRegistry.StreetNameConsumer.Projections.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.csproj" />
+		<ProjectReference Include="..\..\src\RoadRegistry.Legacy.Extract\RoadRegistry.Legacy.Extract.csproj" />
 		<ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
 	</ItemGroup>
 

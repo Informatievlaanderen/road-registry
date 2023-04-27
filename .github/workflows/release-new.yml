@@ -64,8 +64,8 @@ jobs:
       build-target: Containerize_BackOfficeApi
       image-file: rr-backoffice-api-image.tar
       image-name: backoffice-api
-      test-project: RoadRegistry.Tests
-      build-project: RoadRegistry.Api.BackOffice
+      test-project: RoadRegistry.BackOffice.Api.Tests
+      build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
@@ -79,8 +79,8 @@ jobs:
       build-target: Containerize_BackOfficeUi
       image-file: rr-backoffice-ui-image.tar
       image-name: backoffice-ui
-      test-project: RoadRegistry.Tests
-      build-project: RoadRegistry.Api.BackOffice
+      test-project: RoadRegistry.BackOffice.UI.Tests
+      build-project: RoadRegistry.BackOffice.UI
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
@@ -94,8 +94,8 @@ jobs:
       build-target: Containerize_BackOfficeEventHost
       image-file: rr-backoffice-eventhost-image.tar
       image-name: backoffice-eventhost
-      test-project: RoadRegistry.Tests
-      build-project: RoadRegistry.BackOffice
+      test-project: RoadRegistry.BackOffice.EventHost.Tests
+      build-project: RoadRegistry.BackOffice.EventHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
@@ -109,7 +109,7 @@ jobs:
       build-target: Containerize_BackOfficeExtractHost
       image-file: rr-backoffice-extracthost-image.tar
       image-name: backoffice-extracthost
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.BackOffice.ExtractHost.Tests
       build-project: RoadRegistry.BackOffice.ExtractHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -124,7 +124,7 @@ jobs:
         build-target: Containerize_BackOfficeCommandHost
         image-file: rr-backoffice-commandhost-image.tar
         image-name: backoffice-commandhost
-        test-project: RoadRegistry.Tests
+        test-project: RoadRegistry.BackOffice.CommandHost.Tests
         build-project: RoadRegistry.BackOffice.CommandHost
         semver: ${{ needs.set-release-version.outputs.version }}
       secrets: inherit
@@ -139,7 +139,7 @@ jobs:
       build-target: Containerize_BackOfficeMessagingHost
       image-file: rr-backoffice-messaginghost-sqs-image.tar
       image-name: backoffice-messaginghost-sqs
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.BackOffice.MessagingHost.Sqs.Tests
       build-project: RoadRegistry.BackOffice.MessagingHost.Sqs
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -154,7 +154,7 @@ jobs:
         build-target: Containerize_AdminHost
         image-file: rr-adminhost-image.tar
         image-name: adminhost
-        test-project: RoadRegistry.Tests
+        test-project: RoadRegistry.AdminHost.Tests
         build-project: RoadRegistry.AdminHost
         semver: ${{ needs.set-release-version.outputs.version }}
       secrets: inherit
@@ -169,7 +169,7 @@ jobs:
       build-target: Containerize_Projector
       image-file: rr-projector-image.tar
       image-name: projector
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.Projector.Tests
       build-project: RoadRegistry.Projector
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -184,7 +184,7 @@ jobs:
       build-target: Containerize_EditorProjectionHost
       image-file: rr-editor-projectionhost-image.tar
       image-name: editor-projectionhost
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.Editor.ProjectionHost.Tests
       build-project: RoadRegistry.Editor.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -199,7 +199,7 @@ jobs:
       build-target: Containerize_ProductProjectionHost
       image-file: rr-product-projectionhost-image.tar
       image-name: product-projectionhost
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.Product.ProjectionHost.Tests
       build-project: RoadRegistry.Product.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -214,8 +214,8 @@ jobs:
       build-target: Containerize_ProductSnapshotProjectionHost
       image-file: rr-producer-snapshot-projectionhost-image.tar
       image-name: producer-snapshot-projectionhost
-      test-project: RoadRegistry.Tests
-      build-project: RoadRegistry.Api.BackOffice
+      test-project: RoadRegistry.Producer.Snapshot.ProjectionHost.Tests
+      build-project: RoadRegistry.Producer.Snapshot.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
@@ -229,7 +229,7 @@ jobs:
       build-target: Containerize_StreetnameConsumerProjectionHost
       image-file: rr-streetnameconsumer-projectionhost-image.tar
       image-name: streetnameconsumer-projectionhost
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.StreetNameConsumer.ProjectionHost.Tests
       build-project: RoadRegistry.StreetNameConsumer.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -244,7 +244,7 @@ jobs:
         build-target: Containerize_SyndicationProjectionHost
         image-file: rr-syndication-projectionhost-image.tar
         image-name: syndication-projectionhost
-        test-project: RoadRegistry.Tests
+        test-project: RoadRegistry.Syndication.ProjectionHost.Tests
         build-project: RoadRegistry.Syndication.ProjectionHost
         semver: ${{ needs.set-release-version.outputs.version }}
       secrets: inherit
@@ -259,7 +259,7 @@ jobs:
       build-target: Containerize_WmsProjectionHost
       image-file: rr-wms-projectionhost-image.tar
       image-name: wms-projectionhost
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.Wms.ProjectionHost.Tests
       build-project: RoadRegistry.Wms.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -274,7 +274,7 @@ jobs:
       build-target: Containerize_WfsProjectionHost
       image-file: rr-wfs-projectionhost-image.tar
       image-name: wfs-projectionhost
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.Wfs.ProjectionHost.Tests
       build-project: RoadRegistry.Wfs.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -289,8 +289,8 @@ jobs:
       build-target: Containerize_ImportLegacy
       image-file: rr-import-legacy-image.tar
       image-name: import-legacy
-      test-project: RoadRegistry.Tests
-      build-project: RoadRegistry.Import.Legacy
+      test-project: RoadRegistry.Legacy.Import.Tests
+      build-project: RoadRegistry.Legacy.Import
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
@@ -304,8 +304,8 @@ jobs:
       build-target: Containerize_ExtractLegacy
       image-file: rr-extract-legacy-image.tar
       image-name: extract-legacy
-      test-project: RoadRegistry.Tests
-      build-project: RoadRegistry.Extract.Legacy
+      test-project: RoadRegistry.Legacyt.Extract.Tests
+      build-project: RoadRegistry.Legacy.Extract
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
@@ -340,7 +340,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       pack-file: Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.BackOffice.Api.Tests
       build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -352,7 +352,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       pack-file: Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.BackOffice.ZipArchiveWriters.Tests
       build-project: RoadRegistry.BackOffice.ZipArchiveWriters
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -364,7 +364,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       pack-file: Be.Vlaanderen.Basisregisters.RoadRegistry.Projector
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.Projector.Tests
       build-project: RoadRegistry.Projector
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -376,7 +376,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       lambda-name: lambda-backoffice
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests
       build-project: RoadRegistry.BackOffice.Handlers.Sqs.Lambda
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -388,7 +388,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       lambda-name: lambda-snapshot
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests
       build-project: RoadRegistry.Snapshot.Handlers.Sqs.Lambda
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
