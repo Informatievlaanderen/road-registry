@@ -211,7 +211,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       registry: road-registry
-      build-target: Containerize_ProductSnapshotProjectionHost
+      build-target: Containerize_ProducerSnapshotProjectionHost
       image-file: rr-producer-snapshot-projectionhost-image.tar
       image-name: producer-snapshot-projectionhost
       test-project: RoadRegistry.Producer.Snapshot.ProjectionHost.Tests
@@ -397,7 +397,8 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     name: Semantic Release
     runs-on: ubuntu-latest
-    needs: [ set-release-version,
+    needs: [ 
+      set-release-version,
       pack-backoffice,
       pack-backoffice-abstractions,
       pack-backoffice-api,
@@ -421,7 +422,8 @@ jobs:
       build-legacy-import,
       build-legacy-extract,
       build-lambda-backoffice,
-      build-lambda-snapshot ]
+      build-lambda-snapshot 
+    ]
     outputs:
       version: ${{ steps.set-version.outputs.version }}
     steps:
