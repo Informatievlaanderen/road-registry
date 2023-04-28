@@ -414,7 +414,7 @@ jobs:
       build-projectionhost-editor,
       build-projectionhost-product,
       build-projectionhost-producersnapshot,
-      build-projectionhost-roadconsumer,
+      build-projectionhost-streetnameconsumer,
       build-projectionhost-syndication,
       build-projectionhost-wms,
       build-projectionhost-wfs,
@@ -662,7 +662,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
+        image: [
+          'backoffice-api', 
+          'backoffice-ui', 
+          'backoffice-eventhost', 
+          'backoffice-extracthost', 
+          'backoffice-commandhost', 
+          'backoffice-messaginghost-sqs', 
+          'adminhost', 
+          'projector', 
+          'editor-projectionhost', 
+          'product-projectionhost', 
+          'producer-snapshot-projectionhost', 
+          'streetnameconsumer-projectionhost', 
+          'syndication-projectionhost', 
+          'wms-projectionhost', 
+          'wfs-projectionhost', 
+          'import-legacy', 
+          'extract-legacy'
+        ]
     steps:
       - name: Configure AWS credentials (Test)
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -709,8 +727,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
-
+        services: [
+          'backoffice-api', 
+          'backoffice-ui', 
+          'backoffice-eventhost', 
+          'backoffice-extracthost', 
+          'backoffice-commandhost', 
+          'backoffice-messaginghost-sqs', 
+          'adminhost', 
+          'projector', 
+          'editor-projectionhost', 
+          'product-projectionhost', 
+          'producer-snapshot-projectionhost', 
+          'streetnameconsumer-projectionhost', 
+          'syndication-projectionhost', 
+          'wms-projectionhost', 
+          'wfs-projectionhost', 
+          'import-legacy', 
+          'extract-legacy'
+        ]
     steps:
     - name: Deploy services
       env:
@@ -823,7 +858,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
+        image: [
+          'backoffice-api', 
+          'backoffice-ui', 
+          'backoffice-eventhost', 
+          'backoffice-extracthost', 
+          'backoffice-commandhost', 
+          'backoffice-messaginghost-sqs', 
+          'adminhost', 
+          'projector', 
+          'editor-projectionhost', 
+          'product-projectionhost', 
+          'producer-snapshot-projectionhost', 
+          'streetnameconsumer-projectionhost', 
+          'syndication-projectionhost', 
+          'wms-projectionhost', 
+          'wfs-projectionhost', 
+          'import-legacy', 
+          'extract-legacy'
+        ]
     steps:
       - name: Configure AWS credentials (Staging)
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -872,7 +925,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
+        services: [
+          'backoffice-api', 
+          'backoffice-ui', 
+          'backoffice-eventhost', 
+          'backoffice-extracthost', 
+          'backoffice-commandhost', 
+          'backoffice-messaginghost-sqs', 
+          'adminhost', 
+          'projector', 
+          'editor-projectionhost', 
+          'product-projectionhost', 
+          'producer-snapshot-projectionhost', 
+          'streetnameconsumer-projectionhost', 
+          'syndication-projectionhost', 
+          'wms-projectionhost', 
+          'wfs-projectionhost', 
+          'import-legacy', 
+          'extract-legacy'
+        ]
 
     steps:
     - name: CD services
@@ -986,7 +1057,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
+        image: [
+          'backoffice-api', 
+          'backoffice-ui', 
+          'backoffice-eventhost', 
+          'backoffice-extracthost', 
+          'backoffice-commandhost', 
+          'backoffice-messaginghost-sqs', 
+          'adminhost', 
+          'projector', 
+          'editor-projectionhost', 
+          'product-projectionhost', 
+          'producer-snapshot-projectionhost', 
+          'streetnameconsumer-projectionhost', 
+          'syndication-projectionhost', 
+          'wms-projectionhost', 
+          'wfs-projectionhost', 
+          'import-legacy', 
+          'extract-legacy'
+        ]
     steps:
       - name: Configure AWS credentials (Production)
         uses: aws-actions/configure-aws-credentials@v1-node16
