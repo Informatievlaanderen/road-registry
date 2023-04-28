@@ -219,18 +219,18 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
-  build-projectionhost-roadconsumer:
+  build-projectionhost-streetnameconsumer:
     name: Build Streetname Consumer Projection Host
     uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       registry: road-registry
-      build-target: Containerize_StreetnameConsumerProjectionHost
+      build-target: Containerize_StreetNameConsumerProjectionHost
       image-file: rr-streetnameconsumer-projectionhost-image.tar
       image-name: streetnameconsumer-projectionhost
-      test-project: RoadRegistry.StreetnameConsumer.ProjectionHost.Tests
-      build-project: RoadRegistry.StreetnameConsumer.ProjectionHost
+      test-project: RoadRegistry.StreetNameConsumer.ProjectionHost.Tests
+      build-project: RoadRegistry.StreetNameConsumer.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
