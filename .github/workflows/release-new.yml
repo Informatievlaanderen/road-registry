@@ -219,18 +219,18 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
-  build-projectionhost-streetnameconsumer:
-    name: Build Streetname Consumer Projection Host
+  build-projectionhost-roadconsumer:
+    name: Build road Consumer Projection Host
     uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       registry: road-registry
-      build-target: Containerize_StreetnameConsumerProjectionHost
-      image-file: rr-streetnameconsumer-projectionhost-image.tar
-      image-name: streetnameconsumer-projectionhost
-      test-project: RoadRegistry.StreetNameConsumer.ProjectionHost.Tests
-      build-project: RoadRegistry.StreetNameConsumer.ProjectionHost
+      build-target: Containerize_roadConsumerProjectionHost
+      image-file: rr-roadconsumer-projectionhost-image.tar
+      image-name: roadconsumer-projectionhost
+      test-project: RoadRegistry.roadConsumer.ProjectionHost.Tests
+      build-project: RoadRegistry.roadConsumer.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
 
@@ -414,7 +414,7 @@ jobs:
       build-projectionhost-editor,
       build-projectionhost-product,
       build-projectionhost-producersnapshot,
-      build-projectionhost-streetnameconsumer,
+      build-projectionhost-roadconsumer,
       build-projectionhost-syndication,
       build-projectionhost-wms,
       build-projectionhost-wfs,
@@ -662,7 +662,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'streetnameconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
+        image: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
     steps:
       - name: Configure AWS credentials (Test)
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -686,8 +686,8 @@ jobs:
       - name: Load artifact
         shell: bash
         run: |
-          echo sr-$IMAGE-image.tar
-          docker image load -i ~/sr-$IMAGE-image.tar
+          echo rr-$IMAGE-image.tar
+          docker image load -i ~/rr-$IMAGE-image.tar
         env:
           IMAGE: ${{ matrix.image }}
 
@@ -695,7 +695,7 @@ jobs:
         shell: bash
         run: |
           echo $IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/streetname-registry/$IMAGE:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           IMAGE: ${{ matrix.image }}
@@ -709,7 +709,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'streetnameconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
+        services: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
 
     steps:
     - name: Deploy services
@@ -823,7 +823,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'streetnameconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
+        image: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
     steps:
       - name: Configure AWS credentials (Staging)
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -847,8 +847,8 @@ jobs:
       - name: Load artifact
         shell: bash
         run: |
-          echo sr-$IMAGE-image.tar
-          docker image load -i ~/sr-$IMAGE-image.tar
+          echo rr-$IMAGE-image.tar
+          docker image load -i ~/rr-$IMAGE-image.tar
         env:
           IMAGE: ${{ matrix.image }}
 
@@ -856,8 +856,8 @@ jobs:
         shell: bash
         run: |
           echo $IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY_TST/streetname-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/streetname-registry/$IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/streetname-registry/$IMAGE:$SEMVER
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
@@ -872,7 +872,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'streetnameconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
+        services: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
 
     steps:
     - name: CD services
@@ -986,7 +986,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'streetnameconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
+        image: ['backoffice-api', 'backoffice-ui', 'backoffice-eventhost', 'backoffice-extracthost', 'backoffice-commandhost', 'backoffice-messaginghost-sqs', 'adminhost', 'projector', 'editor-projectionhost', 'product-projectionhost', 'producer-snapshot-projectionhost', 'roadconsumer-projectionhost', 'syndication-projectionhost', 'wms-projectionhost', 'wfs-projectionhost', 'import-legacy', 'extract-legacy']
     steps:
       - name: Configure AWS credentials (Production)
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -1010,8 +1010,8 @@ jobs:
       - name: Load artifact
         shell: bash
         run: |
-          echo sr-$IMAGE-image.tar
-          docker image load -i ~/sr-$IMAGE-image.tar
+          echo rr-$IMAGE-image.tar
+          docker image load -i ~/rr-$IMAGE-image.tar
         env:
           IMAGE: ${{ matrix.image }}
 
@@ -1019,8 +1019,8 @@ jobs:
         shell: bash
         run: |
           echo $IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY_TST/streetname-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/streetname-registry/$IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY_PRD/streetname-registry/$IMAGE:$SEMVER
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/$IMAGE:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/$IMAGE:$SEMVER
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
