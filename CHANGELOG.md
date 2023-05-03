@@ -1,3 +1,11 @@
+## [3.41.1](https://github.com/informatievlaanderen/road-registry/compare/v3.41.0...v3.41.1) (2023-05-03)
+
+
+### Bug Fixes
+
+* Road registry release pipeline ([#950](https://github.com/informatievlaanderen/road-registry/issues/950)) ([63acc0c](https://github.com/informatievlaanderen/road-registry/commit/63acc0c3894dcdcfa46c6e8e630b18d23b1371bc))
+* Version bump for test with Release V2 ([#949](https://github.com/informatievlaanderen/road-registry/issues/949)) ([7a90f53](https://github.com/informatievlaanderen/road-registry/commit/7a90f53e90d0c37e7eba908262e35564439669d8))
+
 # [3.41.0](https://github.com/informatievlaanderen/road-registry/compare/v3.40.3...v3.41.0) (2023-04-27)
 
 
