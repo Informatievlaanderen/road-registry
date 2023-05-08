@@ -1,14 +1,13 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice;
 
-using System.IO.Compression;
-using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Core;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
+using System.IO.Compression;
+using System.Text;
 using Uploads;
 using Point = NetTopologySuite.Geometries.Point;
 
@@ -79,6 +78,7 @@ public class ZipArchiveShapeEntryValidatorTests
             fileSize,
             ShapeType.Point,
             BoundingBox3D.Empty);
+        var geometries = records.Select(x => RoadRegistry.BackOffice.GeometryTranslator.ToPoint(((PointShapeContent)x.Content).Shape)).ToArray();
 
         using (var stream = new MemoryStream())
         {
@@ -105,7 +105,7 @@ public class ZipArchiveShapeEntryValidatorTests
                 var (result, context) = sut.Validate(entry, _context);
 
                 Assert.Equal(ZipArchiveProblems.None, result);
-                Assert.Equal(records, validator.Collected, new ShapeRecordEqualityComparer());
+                Assert.Equal(geometries, validator.Collected);
                 Assert.Same(_context, context);
             }
         }
@@ -141,12 +141,11 @@ public class ZipArchiveShapeEntryValidatorTests
 
                 var (result, context) = sut.Validate(entry, _context);
 
-                Assert.Equal(
-                    ZipArchiveProblems.Single(entry.HasShapeHeaderFormatError(
-                        new ShapeFileHeaderException("The File Code field does not match 9994."))
-                    ),
-                    result,
-                    new FileProblemComparer());
+                var expected = ZipArchiveProblems.Single(entry
+                    .AtShapeRecord(RecordNumber.Initial)
+                    .HasShapeRecordFormatError(new NetTopologySuite.IO.ShapefileException("The first four bytes of this file indicate this is not a shape file."))
+                );
+                Assert.Equal(expected, result, new FileProblemComparer());
                 Assert.Same(_context, context);
             }
         }
@@ -175,7 +174,7 @@ public class ZipArchiveShapeEntryValidatorTests
                 var (result, context) = sut.Validate(entry, _context);
 
                 Assert.Equal(
-                    ZipArchiveProblems.Single(entry.HasShapeHeaderFormatError(
+                    ZipArchiveProblems.Single(entry.AtShapeRecord(RecordNumber.Initial).HasShapeRecordFormatError(
                         new EndOfStreamException("Unable to read beyond the end of the stream."))
                     ),
                     result,
@@ -186,15 +185,11 @@ public class ZipArchiveShapeEntryValidatorTests
     }
 
     [Fact]
-    public void ValidateReturnsExpectedResultWhenShapeRecordValidatorReturnsErrors()
+    public void ValidateReturnsExpectedResultWhenShapeFileIsEmpty()
     {
-        var problems = new FileProblem[]
-        {
-            new FileError("file1", "error1", new ProblemParameter("parameter1", "value1")),
-            new FileWarning("file2", "error2", new ProblemParameter("parameter2", "value2"))
-        };
         var sut = new ZipArchiveShapeEntryValidator(
-            new FakeShapeRecordValidator(problems));
+            new FakeShapeRecordValidator());
+
         var header = new ShapeFileHeader(
             ShapeFileHeader.Length,
             ShapeType.Point,
@@ -223,13 +218,14 @@ public class ZipArchiveShapeEntryValidatorTests
                 var (result, context) = sut.Validate(entry, _context);
 
                 Assert.Equal(
-                    ZipArchiveProblems.None.AddRange(problems),
-                    result);
+                    ZipArchiveProblems.Single(entry.HasNoShapeRecords()),
+                    result,
+                    new FileProblemComparer());
                 Assert.Same(_context, context);
             }
         }
     }
-
+    
     [Fact]
     public void ValidatorCanNotBeNull()
     {
@@ -240,11 +236,11 @@ public class ZipArchiveShapeEntryValidatorTests
 
     private class CollectShapeRecordValidator : IZipArchiveShapeRecordValidator
     {
-        public List<ShapeRecord> Collected { get; } = new();
+        public List<Geometry> Collected { get; } = new();
         
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, RecordNumber recordNumber, Geometry geometry, ZipArchiveValidationContext context)
         {
-            Collected.Add(new PointShapeContent(GeometryTranslator.FromGeometryPoint((Point)geometry)).RecordAs(recordNumber));
+            Collected.Add(geometry);
             return (ZipArchiveProblems.None, context);
         }
     }
