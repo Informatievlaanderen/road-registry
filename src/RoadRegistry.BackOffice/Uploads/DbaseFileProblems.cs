@@ -33,7 +33,7 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    private static string Describe(DbaseSchema schema)
+    public static string Describe(this DbaseSchema schema)
     {
         var builder = new StringBuilder();
         var index = 0;

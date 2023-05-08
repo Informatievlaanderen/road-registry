@@ -21,10 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="s3-bucket-tester.zip" />
-  </ItemGroup>
-
-  <ItemGroup>
 	  <Using Include="Xunit" />
 	  <Using Include="Xunit.Abstractions" />
   </ItemGroup>
@@ -44,7 +40,9 @@
   <ItemGroup>
     <EmbeddedResource Include="BackOffice\ident2.txt" />
     <EmbeddedResource Include="BackOffice\ident8.txt" />
+    <EmbeddedResource Include="BackOffice\Uploads\FeatureCompareZipArchiveTranslatorData\*.zip" />
     <EmbeddedResource Include="s3-bucket-tester.zip" />
+    <EmbeddedResource Include="Resources\**\*" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

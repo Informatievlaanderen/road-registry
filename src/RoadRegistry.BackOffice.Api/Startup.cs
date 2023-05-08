@@ -243,6 +243,7 @@ public class Startup
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
+                                sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
                                 sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),
                                 sp.GetService<ILoggerFactory>()
@@ -259,6 +260,7 @@ public class Startup
                                 sp.GetService<IStreamStore>(),
                                 sp.GetService<ILifetimeScope>(),
                                 sp.GetService<IRoadNetworkSnapshotReader>(),
+                                sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
                                 sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                                 sp.GetService<IClock>(),
                                 sp.GetService<ILoggerFactory>()

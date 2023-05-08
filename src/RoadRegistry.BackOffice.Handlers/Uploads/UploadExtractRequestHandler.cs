@@ -24,20 +24,23 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     };
 
     private readonly RoadNetworkUploadsBlobClient _client;
+    private readonly IZipArchiveBeforeFeatureCompareValidator _beforeFeatureCompareValidator;
     private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
-    private readonly IZipArchiveAfterFeatureCompareValidator _validator;
+    private readonly IZipArchiveAfterFeatureCompareValidator _afterFeatureCompareValidator;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkUploadsBlobClient client,
-        IZipArchiveAfterFeatureCompareValidator validator,
+        IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
+        IZipArchiveAfterFeatureCompareValidator afterFeatureCompareValidator,
         UseUploadZipArchiveValidationFeatureToggle uploadZipArchiveValidationFeatureToggle,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
-        _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
+        _beforeFeatureCompareValidator = beforeFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(beforeFeatureCompareValidator));
+        _afterFeatureCompareValidator = afterFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(afterFeatureCompareValidator));
         _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle ?? throw new ArgumentNullException(nameof(uploadZipArchiveValidationFeatureToggle));
         _roadNetworkCommandQueue = roadNetworkCommandQueue;
     }
@@ -60,14 +63,14 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         );
 
         if (_uploadZipArchiveValidationFeatureToggle.FeatureEnabled)
-            await ValidateAndUploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
+            await ValidateAndUploadAndDispatchCommand(request, readStream, archiveId, metadata, cancellationToken);
         else
-            await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
+            await UploadAndDispatchCommand(request, readStream, archiveId, metadata, cancellationToken);
 
         return new UploadExtractResponse(archiveId);
     }
 
-    private async Task UploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    private async Task UploadAndDispatchCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
         readStream.Position = 0;
 
@@ -81,20 +84,22 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
         var command = new Command(new UploadRoadNetworkChangesArchive
         {
-            ArchiveId = archiveId.ToString()
+            ArchiveId = archiveId.ToString(),
+            UseZipArchiveFeatureCompareTranslator = request.UseZipArchiveFeatureCompareTranslator
         });
         await _roadNetworkCommandQueue.Write(command, cancellationToken);
 
         _logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), archiveId);
     }
 
-    private async Task ValidateAndUploadAndDispatchCommand(Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    private async Task ValidateAndUploadAndDispatchCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
         var entity = RoadNetworkChangesArchive.Upload(archiveId, readStream);
 
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
-            var problems = entity.ValidateArchiveUsing(archive, _validator);
+            IZipArchiveValidator validator = request.UseZipArchiveFeatureCompareTranslator ? _beforeFeatureCompareValidator : _afterFeatureCompareValidator;
+            var problems = entity.ValidateArchiveUsing(archive, validator);
 
             var fileProblems = problems.OfType<FileError>().ToArray();
             if (fileProblems.Any())
@@ -102,7 +107,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 throw new ZipArchiveValidationException(problems);
             }
 
-            await UploadAndDispatchCommand(readStream, archiveId, metadata, cancellationToken);
+            await UploadAndDispatchCommand(request, readStream, archiveId, metadata, cancellationToken);
         }
     }
 }

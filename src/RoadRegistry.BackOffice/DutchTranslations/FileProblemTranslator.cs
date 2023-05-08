@@ -64,6 +64,7 @@ public static class FileProblemTranslator
             nameof(ShapeFileProblems.ShapeHeaderFormatError) => translation with { Message = "De hoofding van het bestand is niet correct geformateerd." },
             nameof(ShapeFileProblems.HasShapeRecordFormatError) => translation with { Message = $"De shape record na record {problem.Parameters[0].Value} is niet correct geformateerd." },
             nameof(ShapeFileProblems.ShapeRecordShapeTypeMismatch) => translation with { Message = $"De shape record {problem.Parameters[0].Value} bevat geen {problem.Parameters[1].Value} maar een {problem.Parameters[2].Value}." },
+            nameof(ShapeFileProblems.ShapeRecordShapeGeometryTypeMismatch) => translation with { Message = $"De shape record {problem.Parameters[0].Value} bevat geen {problem.Parameters[1].Value} maar een {problem.Parameters[2].Value}." },
             nameof(ShapeFileProblems.ShapeRecordGeometryMismatch) => translation with { Message = $"De shape record {problem.Parameters[0].Value} geometrie is ongeldig." },
             nameof(ShapeFileProblems.ShapeRecordGeometryLineCountMismatch) => translation with { Message = $"De shape record {problem.Parameters[0].Value} geometrie heeft meer lijnen dan verwacht." },
             nameof(ShapeFileProblems.ShapeRecordGeometrySelfOverlaps) => translation with { Message = $"De shape record {problem.Parameters[0].Value} geometrie overlapt zichzelf." },

@@ -40,7 +40,10 @@ public class UploadControllerTests : ControllerTests<UploadController>
             })
         };
 
-        var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(true), formFile, CancellationToken.None);
+        var result = await Controller.PostUploadBeforeFeatureCompare(
+            new UseFeatureCompareFeatureToggle(true),
+            new UseZipArchiveFeatureCompareTranslatorFeatureToggle(false),
+            formFile, CancellationToken.None);
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
 
@@ -55,7 +58,10 @@ public class UploadControllerTests : ControllerTests<UploadController>
             })
         };
 
-        var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(false), formFile, CancellationToken.None);
+        var result = await Controller.PostUploadBeforeFeatureCompare(
+            new UseFeatureCompareFeatureToggle(false),
+            new UseZipArchiveFeatureCompareTranslatorFeatureToggle(false),
+            formFile, CancellationToken.None);
         Assert.IsType<NotFoundResult>(result);
     }
 
@@ -189,9 +195,12 @@ public class UploadControllerTests : ControllerTests<UploadController>
                     { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
                 })
             };
-            var result = await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(true), formFile, CancellationToken.None);
+            var result = await Controller.PostUploadBeforeFeatureCompare(
+                new UseFeatureCompareFeatureToggle(true),
+                new UseZipArchiveFeatureCompareTranslatorFeatureToggle(false),
+                formFile, CancellationToken.None);
 
-            var typedResult = Assert.IsType<OkObjectResult>(result);
+            var typedResult = Assert.IsType<AcceptedResult>(result);
             var response = Assert.IsType<UploadExtractFeatureCompareResponseBody>(typedResult.Value);
 
             Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(response.ArchiveId)));
@@ -232,7 +241,10 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
             try
             {
-                await Controller.PostUploadBeforeFeatureCompare(new UseFeatureCompareFeatureToggle(true), formFile, CancellationToken.None);
+                await Controller.PostUploadBeforeFeatureCompare(
+                    new UseFeatureCompareFeatureToggle(true),
+                    new UseZipArchiveFeatureCompareTranslatorFeatureToggle(false),
+                    formFile, CancellationToken.None);
                 throw new ValidationException("This should not be reachable");
             }
             catch (ZipArchiveValidationException ex)

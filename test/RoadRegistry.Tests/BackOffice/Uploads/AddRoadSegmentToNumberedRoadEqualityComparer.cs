@@ -4,6 +4,13 @@ using RoadRegistry.BackOffice.Uploads;
 
 public class AddRoadSegmentToNumberedRoadEqualityComparer : IEqualityComparer<AddRoadSegmentToNumberedRoad>
 {
+    private readonly bool _ignoreRecordNumber;
+
+    public AddRoadSegmentToNumberedRoadEqualityComparer(bool ignoreRecordNumber = false)
+    {
+        _ignoreRecordNumber = ignoreRecordNumber;
+    }
+
     public bool Equals(AddRoadSegmentToNumberedRoad left, AddRoadSegmentToNumberedRoad right)
     {
         if (left == null && right == null) return true;
@@ -13,7 +20,7 @@ public class AddRoadSegmentToNumberedRoadEqualityComparer : IEqualityComparer<Ad
                && left.TemporaryAttributeId.Equals(right.TemporaryAttributeId)
                && left.Ordinal.Equals(right.Ordinal)
                && left.Direction.Equals(right.Direction)
-               && left.RecordNumber.Equals(right.RecordNumber);
+               && (_ignoreRecordNumber || left.RecordNumber.Equals(right.RecordNumber));
     }
 
     public int GetHashCode(AddRoadSegmentToNumberedRoad instance)

@@ -18,6 +18,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="FeatureCompare\Translators\Extracts\**" />
+    <Compile Remove="FeatureCompare\Translators\Uploads\**" />
+    <EmbeddedResource Remove="FeatureCompare\Translators\Extracts\**" />
+    <EmbeddedResource Remove="FeatureCompare\Translators\Uploads\**" />
+    <None Remove="FeatureCompare\Translators\Extracts\**" />
+    <None Remove="FeatureCompare\Translators\Uploads\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
   </ItemGroup>
 

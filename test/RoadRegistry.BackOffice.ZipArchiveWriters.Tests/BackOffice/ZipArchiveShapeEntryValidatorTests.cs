@@ -250,7 +250,7 @@ public class ZipArchiveShapeEntryValidatorTests
         Assert.Throws<ArgumentNullException>(
             () => new ZipArchiveShapeEntryValidator(
                 Encoding.Default,
-                null));
+                null as IZipArchiveShapeRecordsValidator));
     }
 
     private class CollectShapeRecordValidator : IZipArchiveShapeRecordsValidator
