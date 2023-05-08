@@ -94,7 +94,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators
             return changes;
         }
 
-        private class ExtractsFeatureReader : FeatureReader<RoadSegmentLaneAttributeDbaseRecord, Feature>
+        private sealed class ExtractsFeatureReader : FeatureReader<RoadSegmentLaneAttributeDbaseRecord, Feature>
         {
             public ExtractsFeatureReader(Encoding encoding)
                 : base(encoding, RoadSegmentLaneAttributeDbaseRecord.Schema)
@@ -115,7 +115,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators
             }
         }
 
-        private class UploadsV2FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature>
+        private sealed class UploadsV2FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature>
         {
             public UploadsV2FeatureReader(Encoding encoding)
                 : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema)
@@ -136,7 +136,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators
             }
         }
 
-        private class UploadsV1FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature>
+        private sealed class UploadsV1FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature>
         {
             public UploadsV1FeatureReader(Encoding encoding)
                 : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema)

@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 public interface IZipArchiveTranslatorAsync
 {
-    Task<TranslatedChanges> Translate(ZipArchive archive, CancellationToken cancellation);
+    Task<TranslatedChanges> Translate(ZipArchive archive, CancellationToken cancellationToken);
 }

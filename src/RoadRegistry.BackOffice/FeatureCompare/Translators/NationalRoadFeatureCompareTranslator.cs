@@ -127,7 +127,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators
             return changes;
         }
 
-        private class ExtractsFeatureReader : FeatureReader<RoadSegmentNationalRoadAttributeDbaseRecord, Feature>
+        private sealed class ExtractsFeatureReader : FeatureReader<RoadSegmentNationalRoadAttributeDbaseRecord, Feature>
         {
             public ExtractsFeatureReader(Encoding encoding)
                 : base(encoding, RoadSegmentNationalRoadAttributeDbaseRecord.Schema)

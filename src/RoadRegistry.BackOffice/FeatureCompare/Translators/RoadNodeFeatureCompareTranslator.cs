@@ -165,7 +165,7 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
         return processedRecords;
     }
 
-    private class ExtractsFeatureReader : FeatureReader<RoadNodeDbaseRecord, Feature>
+    private sealed class ExtractsFeatureReader : FeatureReader<RoadNodeDbaseRecord, Feature>
     {
         public ExtractsFeatureReader(Encoding encoding)
             : base(encoding, RoadNodeDbaseRecord.Schema)

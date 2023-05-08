@@ -341,7 +341,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
         return Task.FromResult(changes);
     }
 
-    private class ExtractsFeatureReader : FeatureReader<GradeSeparatedJunctionDbaseRecord, Feature>
+    private sealed class ExtractsFeatureReader : FeatureReader<GradeSeparatedJunctionDbaseRecord, Feature>
     {
         public ExtractsFeatureReader(Encoding encoding)
             : base(encoding, GradeSeparatedJunctionDbaseRecord.Schema)

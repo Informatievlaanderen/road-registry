@@ -91,7 +91,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators
             return changes;
         }
 
-        private class ExtractsFeatureReader : FeatureReader<RoadSegmentWidthAttributeDbaseRecord, Feature>
+        private sealed class ExtractsFeatureReader : FeatureReader<RoadSegmentWidthAttributeDbaseRecord, Feature>
         {
             public ExtractsFeatureReader(Encoding encoding)
                 : base(encoding, RoadSegmentWidthAttributeDbaseRecord.Schema)
@@ -111,7 +111,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators
             }
         }
 
-        private class UploadsV2FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentWidthAttributeDbaseRecord, Feature>
+        private sealed class UploadsV2FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentWidthAttributeDbaseRecord, Feature>
         {
             public UploadsV2FeatureReader(Encoding encoding)
                 : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentWidthAttributeDbaseRecord.Schema)
@@ -131,7 +131,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators
             }
         }
 
-        private class UploadsV1FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentWidthAttributeDbaseRecord, Feature>
+        private sealed class UploadsV1FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentWidthAttributeDbaseRecord, Feature>
         {
             public UploadsV1FeatureReader(Encoding encoding)
                 : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentWidthAttributeDbaseRecord.Schema)

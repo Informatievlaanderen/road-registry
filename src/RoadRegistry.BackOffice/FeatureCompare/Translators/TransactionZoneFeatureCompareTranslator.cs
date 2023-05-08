@@ -47,7 +47,7 @@ internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslato
         return Task.FromResult(changes);
     }
 
-    private class ExtractsFeatureReader : FeatureReader<TransactionZoneDbaseRecord, Feature>
+    private sealed class ExtractsFeatureReader : FeatureReader<TransactionZoneDbaseRecord, Feature>
     {
         public ExtractsFeatureReader(Encoding encoding)
             : base(encoding, TransactionZoneDbaseRecord.Schema)

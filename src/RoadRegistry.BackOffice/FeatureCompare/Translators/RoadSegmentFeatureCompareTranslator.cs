@@ -256,15 +256,15 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                 }
                 else
                 {
-                    var compareIdn = string.Empty;
+                    var compareIdn = new StringBuilder();
                     foreach (var f in intersectingGeometries)
                     {
-                        compareIdn += f.Attributes.WS_OIDN + ";";
+                        compareIdn.Append(f.Attributes.WS_OIDN + ";");
                     }
 
                     processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Added)
                     {
-                        CompareIdn = compareIdn,
+                        CompareIdn = compareIdn.ToString(),
                         EventIdn = AddedEventIdn
                     });
                 }
@@ -281,7 +281,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
         return processedRecords;
     }
 
-    private class ExtractsFeatureReader : FeatureReader<RoadSegmentDbaseRecord, Feature>
+    private sealed class ExtractsFeatureReader : FeatureReader<RoadSegmentDbaseRecord, Feature>
     {
         public ExtractsFeatureReader(Encoding encoding)
             : base(encoding, RoadSegmentDbaseRecord.Schema)
@@ -307,7 +307,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
         }
     }
 
-    private class UploadsV2FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord, Feature>
+    private sealed class UploadsV2FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord, Feature>
     {
         public UploadsV2FeatureReader(Encoding encoding)
             : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord.Schema)
