@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
+using NetTopologySuite.IO;
 
 public static class ZipArchiveEntryProblems
 {

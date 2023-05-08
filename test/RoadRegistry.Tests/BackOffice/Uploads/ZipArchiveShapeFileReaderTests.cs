@@ -14,7 +14,7 @@ public class ZipArchiveShapeFileReaderTests
     [InlineData("eWegknoop.zip", "eWegknoop")]
     public async Task RoadNodeShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, string entryFileName)
     {
-        var sut = new ZipArchiveShapeFileReader(Encoding.UTF8);
+        var sut = new ZipArchiveShapeFileReader();
 
         using (var beforeFcArchiveStream = new MemoryStream())
         {
@@ -43,7 +43,7 @@ public class ZipArchiveShapeFileReaderTests
     [InlineData("eWegsegment.zip", "eWegsegment")]
     public async Task RoadSegmentShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, string entryFileName)
     {
-        var sut = new ZipArchiveShapeFileReader(Encoding.UTF8);
+        var sut = new ZipArchiveShapeFileReader();
 
         using (var beforeFcArchiveStream = new MemoryStream())
         {

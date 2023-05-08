@@ -54,14 +54,12 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                 {
                     "EWEGKNOOP.SHP",
                     new ZipArchiveShapeEntryValidator(
-                        encoding,
                         new RoadNodeChangeShapeRecordValidator()
                     )
                 },
                 {
                     "WEGKNOOP.SHP",
                     new ZipArchiveShapeEntryValidator(
-                        encoding,
                         new RoadNodeChangeShapeRecordValidator()
                     )
                 },
@@ -102,14 +100,12 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                 {
                     "EWEGSEGMENT.SHP",
                     new ZipArchiveShapeEntryValidator(
-                        encoding,
                         new RoadSegmentChangeShapeRecordValidator()
                     )
                 },
                 {
                     "WEGSEGMENT.SHP",
                     new ZipArchiveShapeEntryValidator(
-                        encoding,
                         new RoadSegmentChangeShapeRecordValidator()
                     )
                 },

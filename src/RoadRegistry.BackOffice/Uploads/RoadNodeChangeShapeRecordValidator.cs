@@ -17,9 +17,10 @@ public class RoadNodeChangeShapeRecordValidator : IZipArchiveShapeRecordValidato
 
         var problems = ZipArchiveProblems.None;
 
-        var recordContext = entry.AtShapeRecord(recordNumber);
         if (geometry is not Point)
         {
+            var recordContext = entry.AtShapeRecord(recordNumber);
+
             problems += recordContext.ShapeRecordShapeGeometryTypeMismatch(
                 ShapeGeometryType.Point,
                 geometry.GeometryType);

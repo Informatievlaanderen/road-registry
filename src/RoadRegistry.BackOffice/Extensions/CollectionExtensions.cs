@@ -8,8 +8,13 @@ namespace RoadRegistry.BackOffice
     {
         public static IEnumerable<ICollection<T>> SplitIntoBatches<T>(this ICollection<T> collection, int batchCount)
         {
-            var batchSize = (int)Math.Floor((double)collection.Count / batchCount) + 1;
-            return Enumerable.Range(0, batchCount).Select(batchIndex => collection.Skip(batchSize * batchIndex).Take(batchSize).ToArray());
+            var batchSize = (double)collection.Count / batchCount;
+            var batchSizeRounded = (int)Math.Floor(batchSize);
+            if (batchSize != batchSizeRounded)
+            {
+                batchSizeRounded++;
+            }
+            return Enumerable.Range(0, batchCount).Select(batchIndex => collection.Skip(batchSizeRounded * batchIndex).Take(batchSizeRounded).ToArray());
         }
     }
 }

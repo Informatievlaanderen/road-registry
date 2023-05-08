@@ -40,7 +40,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
             throw new FileNotFoundException($"File '{shpFileName}' was not found in zip archive", shpFileName);
         }
 
-        var shpReader = new ZipArchiveShapeFileReader(Encoding);
+        var shpReader = new ZipArchiveShapeFileReader();
         foreach (var (geometry, recordNumber) in shpReader.Read(shpEntry))
         {
             var multiLineString = geometry as MultiLineString;

@@ -1,19 +1,21 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice
+namespace RoadRegistry.Tests.BackOffice
 {
+    using System.IO.Compression;
+    using System.Text;
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
     using NetTopologySuite.Geometries;
     using NetTopologySuite.Geometries.Implementation;
+    using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Extracts.Dbase;
     using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
     using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
     using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-    using RoadRegistry.Tests.BackOffice;
-    using System.IO.Compression;
-    using System.Text;
-    using Uploads;
-    using Validation;
+    using RoadRegistry.BackOffice.Uploads;
+    using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
+    using RoadRegistry.Tests;
+    using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
     using Point = NetTopologySuite.Geometries.Point;
 
     public class ExtractsZipArchiveTestData : IDisposable

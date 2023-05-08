@@ -41,7 +41,6 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                 {
                     "WEGKNOOP_ALL.SHP",
                     new ZipArchiveShapeEntryValidator(
-                        encoding,
                         new RoadNodeChangeShapeRecordValidator()
                     )
                 },
@@ -69,7 +68,6 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                 {
                     "WEGSEGMENT_ALL.SHP",
                     new ZipArchiveShapeEntryValidator(
-                        encoding,
                         new RoadSegmentChangeShapeRecordValidator()
                     )
                 },
