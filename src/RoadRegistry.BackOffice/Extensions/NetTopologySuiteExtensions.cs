@@ -96,12 +96,12 @@ public static class NetTopologySuiteExtensions
 
     public static bool OverlapsWith(this Geometry g0, Geometry g1, double threshold, OgcGeometryType oGisGeometryType, double clusterTolerance)
     {
-        if (g0 == null && g1 == null)
+        if (g0 is null && g1 is null)
         {
             return true;
         }
 
-        if ((g0 == null && g1 != null) || (g0 != null && g1 == null))
+        if (g0 is null || g1 is null)
         {
             return false;
         }
@@ -127,7 +127,7 @@ public static class NetTopologySuiteExtensions
             }
             var g1Buf = g1.Buffer(clusterTolerance);
             overlap = g0.Intersection(g1Buf);
-            var overlapValue = Math.Round((double)((overlap.Length * 100) / g1.Length));
+            var overlapValue = Math.Round(overlap.Length * 100 / g1.Length);
             if (overlapValue >= threshold)
             {
                 return CheckOverlapViceVersa(g0, g1, OgcGeometryType.LineString, threshold, clusterTolerance);
@@ -140,7 +140,7 @@ public static class NetTopologySuiteExtensions
         {
             overlap = g0.Intersection(g1);
 
-            var overlapValue = Math.Round((double)((overlap.Area * 100) / g1.Area));
+            var overlapValue = Math.Round(overlap.Area * 100 / g1.Area);
             if (overlapValue >= threshold)
             {
                 return true;
@@ -155,11 +155,12 @@ public static class NetTopologySuiteExtensions
     public static bool IsReasonablyEqualTo(this Geometry g0, Geometry g1, double clusterTolerance)
     {
         //Catch weird comparisons...
-        if (g0 == null && g1 == null)
+        if (g0 is null && g1 is null)
         {
             return true;
         }
-        if ((g0 == null && g1 != null) || (g0 != null && g1 == null))
+
+        if (g0 is null || g1 is null)
         {
             return false;
         }
@@ -182,7 +183,7 @@ public static class NetTopologySuiteExtensions
         {
             var g0Buf = g0.Buffer(compareTolerance);
             var overlap = g1.Intersection(g0Buf);
-            var overlapValue = Math.Round((double)((overlap.Length * 100) / g0.Length));
+            var overlapValue = Math.Round(overlap.Length * 100 / g0.Length);
             if (overlapValue >= threshold)
             {
                 return true;
@@ -194,7 +195,7 @@ public static class NetTopologySuiteExtensions
         {
             //omgekeerde moet ook gecheckt worden (voorkomen vergelijking met verkeerd omvattend feature, overlap = 100%)
             var overlap = g1.Intersection(g0);
-            var overlapValue = Math.Round((double)((overlap.Area * 100) / g0.Area));
+            var overlapValue = Math.Round(overlap.Area * 100 / g0.Area);
             if (overlapValue >= threshold)
             {
                 return true;
