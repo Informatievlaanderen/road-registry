@@ -35,5 +35,10 @@ public class RoadSegmentRecord
 
     public bool GeometryChanged { get; set; }
     public string CompareIdn { get; set; }
-    public int EventIdn { get; set; }
+    public int? TempId { get; set; }
+
+    public int GetActualId()
+    {
+        return TempId ?? Id;
+    }
 }

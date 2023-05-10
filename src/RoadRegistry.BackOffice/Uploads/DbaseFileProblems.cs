@@ -399,6 +399,14 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadNodeIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadNodeIdOutOfRange))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+
     public static FileError RoadNodeTypeMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
     {
         return builder

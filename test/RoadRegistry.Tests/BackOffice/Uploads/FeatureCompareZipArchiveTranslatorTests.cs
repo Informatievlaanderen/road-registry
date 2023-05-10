@@ -9,7 +9,10 @@ namespace RoadRegistry.Tests.BackOffice.Uploads
     using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
-    
+    using RoadRegistry.BackOffice;
+    using RoadRegistry.BackOffice.Exceptions;
+    using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
+
     public class FeatureCompareZipArchiveTranslatorTests
     {
         private readonly ITestOutputHelper _outputHelper;
@@ -29,13 +32,14 @@ namespace RoadRegistry.Tests.BackOffice.Uploads
             Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
         }
 
-        [Theory(Skip = "For local testing only due to big archive files")]
-        [InlineData("Aarschot")]
+        //[Theory(Skip = "For local testing only due to big archive files")]
+        [Theory]
+        //[InlineData("Aarschot")]
         [InlineData("Antwerpen")]
-        [InlineData("Dendermonde")]
+        //[InlineData("Dendermonde")]
         [InlineData("Gent")]
-        [InlineData("Oudenburg")]
-        [InlineData("Tervuren")]
+        //[InlineData("Oudenburg")]
+        //[InlineData("Tervuren")]
         public async Task TranslateWithRecordsReturnsExpectedResult(string zipFileName)
         {
             using (var beforeFcArchiveStream = new MemoryStream())
@@ -56,6 +60,18 @@ namespace RoadRegistry.Tests.BackOffice.Uploads
                 using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
                 using (var afterFcArchive = new ZipArchive(afterFcArchiveStream))
                 {
+                    //var validator = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
+                    //var validationResult = validator.Validate(beforeFcArchive, ZipArchiveMetadata.Empty);
+                    //var fileErrors = validationResult.OfType<FileError>().ToArray();
+                    //if (fileErrors.Any())
+                    //{
+                    //    foreach (var problem in fileErrors)
+                    //    {
+                    //        _outputHelper.WriteLine($"{problem.File}: {problem.Reason}, Parameters: {string.Join(", ", problem.Parameters.Select(p => $"{p.Name}={p.Value}"))}");
+                    //    }
+                    //    throw new ZipArchiveValidationException(validationResult);
+                    //}
+
                     var sw = Stopwatch.StartNew();
                     _outputHelper.WriteLine($"{zipFileName} started translate Before-FC");
                     var changes = await _sut.Translate(beforeFcArchive, CancellationToken.None);

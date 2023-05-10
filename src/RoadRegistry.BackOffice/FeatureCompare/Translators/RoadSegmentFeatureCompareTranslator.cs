@@ -15,8 +15,6 @@ using System.Threading.Tasks;
 
 internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
-    private const int AddedEventIdn = -1;
-
     public RoadSegmentFeatureCompareTranslator(Encoding encoding)
         : base(encoding)
     {
@@ -70,7 +68,9 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
     {
         var entries = context.Entries;
 
-        var (extractFeatures, leveringFeatures) = ReadExtractAndLeveringFeatures(entries, "WEGSEGMENT");
+        var (extractFeatures, leveringFeatures, integrationFeatures) = ReadExtractAndLeveringAndIntegrationFeatures(entries, "WEGSEGMENT");
+
+        context.RoadSegments.AddRange(integrationFeatures.Select(feature => new RoadSegmentRecord(feature.RecordNumber, feature.Attributes, RecordType.Identical)));
 
         var batchCount = 2;
 
@@ -85,9 +85,9 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
             context.RoadSegments.AddRange(processedLeveringRecords.SelectMany(x => x));
 
             var rootNumber = Convert.ToInt32(leveringFeatures.Max(x => x.Attributes.WS_OIDN)) + 1;
-            foreach (var record in context.RoadSegments.Where(x => x.RecordType.Equals(RecordType.Added) && x.EventIdn == AddedEventIdn))
+            foreach (var record in context.RoadSegments.Where(x => x.RecordType.Equals(RecordType.Added)))
             {
-                record.EventIdn = rootNumber++;
+                record.TempId = rootNumber++;
             }
         }
 
@@ -149,7 +149,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     changes = changes.AppendChange(
                         new AddRoadSegment(
                             record.RecordNumber,
-                            new RoadSegmentId(record.EventIdn != 0 ? record.EventIdn : record.Attributes.WS_OIDN),
+                            new RoadSegmentId(record.GetActualId()),
                             new RoadNodeId(record.Attributes.B_WK_OIDN),
                             new RoadNodeId(record.Attributes.E_WK_OIDN),
                             new OrganizationId(record.Attributes.BEHEER),
@@ -264,17 +264,13 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
                     processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Added)
                     {
-                        CompareIdn = compareIdn.ToString(),
-                        EventIdn = AddedEventIdn
+                        CompareIdn = compareIdn.ToString()
                     });
                 }
             }
             else
             {
-                processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Added)
-                {
-                    EventIdn = AddedEventIdn
-                });
+                processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Added));
             }
         }
 

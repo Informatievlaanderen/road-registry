@@ -141,6 +141,10 @@ public class CommandProcessor : IHostedService
                                             _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
                                     process.Complete();
+
+                                    logger.LogInformation(
+                                        "Processed {MessageType} at {Position}",
+                                        process.Message.Type, process.Message.Position);
                                 }
                                 catch (Exception exception)
                                 {

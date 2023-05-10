@@ -287,6 +287,261 @@ public class ZipArchiveFeatureCompareTranslatorTests
     }
 
     [Fact]
+    public async Task ModifyShouldSucceed()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+
+        roadSegmentDbaseRecord1.STATUS.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord1.STATUS.Value]).Translation.Identifier;
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+
+        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+
+        var europeanRoadDbaseRecord = fixture.Create<RoadSegmentEuropeanRoadAttributeDbaseRecord>();
+        europeanRoadDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        var europeanRoadExtractStream = fixture.CreateDbfFile(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, new[] { europeanRoadDbaseRecord });
+
+        var europeanRoadDbaseRecordExtractEuropeanRoadNumber = EuropeanRoadNumber.Parse(europeanRoadDbaseRecord.EUNUMMER.Value);
+        europeanRoadDbaseRecord.EUNUMMER.Value = fixture.CreateWhichIsDifferentThan(EuropeanRoadNumber.Parse(europeanRoadDbaseRecord.EUNUMMER.Value)).ToString();
+        var europeanRoadChangeStream = fixture.CreateDbfFile(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, new[] { europeanRoadDbaseRecord });
+
+        var nationalRoadDbaseRecord = fixture.Create<RoadSegmentNationalRoadAttributeDbaseRecord>();
+        nationalRoadDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        var nationalRoadExtractStream = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, new[] { nationalRoadDbaseRecord });
+
+        var nationalRoadDbaseRecordExtractNationalRoadNumber = NationalRoadNumber.Parse(nationalRoadDbaseRecord.IDENT2.Value);
+        nationalRoadDbaseRecord.IDENT2.Value = fixture.CreateWhichIsDifferentThan(NationalRoadNumber.Parse(nationalRoadDbaseRecord.IDENT2.Value)).ToString();
+        var nationalRoadChangeStream = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, new[] { nationalRoadDbaseRecord });
+
+        var numberedRoadDbaseRecord = fixture.Create<RoadSegmentNumberedRoadAttributeDbaseRecord>();
+        numberedRoadDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        var numberedRoadExtractStream = fixture.CreateDbfFile(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, new[] { numberedRoadDbaseRecord });
+
+        var numberedRoadDbaseRecordExtractNumberedRoadNumber = NumberedRoadNumber.Parse(numberedRoadDbaseRecord.IDENT8.Value);
+        numberedRoadDbaseRecord.IDENT8.Value = fixture.CreateWhichIsDifferentThan(NumberedRoadNumber.Parse(numberedRoadDbaseRecord.IDENT8.Value)).ToString();
+        var numberedRoadChangeStream = fixture.CreateDbfFile(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, new[] { numberedRoadDbaseRecord });
+
+        var laneDbaseRecord = fixture.Create<RoadSegmentLaneAttributeDbaseRecord>();
+        laneDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        laneDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        laneDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var laneExtractStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
+
+        laneDbaseRecord.RICHTING.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentLaneDirection.ByIdentifier[laneDbaseRecord.RICHTING.Value]).Translation.Identifier;
+        var laneChangeStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
+
+        var widthDbaseRecord = fixture.Create<RoadSegmentWidthAttributeDbaseRecord>();
+        widthDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        widthDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        widthDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var widthExtractStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
+
+        widthDbaseRecord.BREEDTE.Value = fixture.CreateWhichIsDifferentThan(new RoadSegmentWidth(widthDbaseRecord.BREEDTE.Value));
+        var widthChangeStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
+
+        var surfaceDbaseRecord = fixture.Create<RoadSegmentSurfaceAttributeDbaseRecord>();
+        surfaceDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        surfaceDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var surfaceExtractStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
+
+        surfaceDbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentSurfaceType.ByIdentifier[surfaceDbaseRecord.TYPE.Value]).Translation.Identifier;
+        var surfaceChangeStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
+
+        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
+        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
+        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+
+        roadNodeDbaseRecord1.TYPE.Value = fixture.CreateWhichIsDifferentThan(RoadNodeType.ByIdentifier[roadNodeDbaseRecord1.TYPE.Value]).Translation.Identifier;
+        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+
+        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+
+        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
+        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+
+        gradeSeparatedJunctionDbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord.TYPE.Value]).Translation.Identifier;
+        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
+            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
+            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
+            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
+            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
+            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
+            europeanRoadExtractStream: europeanRoadExtractStream,
+            europeanRoadChangeStream: europeanRoadChangeStream,
+            numberedRoadExtractStream: numberedRoadExtractStream,
+            numberedRoadChangeStream: numberedRoadChangeStream,
+            nationalRoadExtractStream: nationalRoadExtractStream,
+            nationalRoadChangeStream: nationalRoadChangeStream,
+            laneExtractStream: laneExtractStream,
+            laneChangeStream: laneChangeStream,
+            widthExtractStream: widthExtractStream,
+            widthChangeStream: widthChangeStream,
+            surfaceExtractStream: surfaceExtractStream,
+            surfaceChangeStream: surfaceChangeStream,
+            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
+            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
+        );
+        
+        var expected = TranslatedChanges.Empty
+            .AppendChange(
+                new ModifyRoadNode(
+                    new RecordNumber(1),
+                    new RoadNodeId(roadNodeDbaseRecord1.WK_OIDN.Value),
+                    RoadNodeType.ByIdentifier[roadNodeDbaseRecord1.TYPE.Value]
+                ).WithGeometry(GeometryTranslator.ToPoint(roadNodeShapeContent1.Shape))
+            )
+            .AppendChange(
+                new ModifyRoadSegment(
+                        new RecordNumber(1),
+                        new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                        new RoadNodeId(roadSegmentDbaseRecord1.B_WK_OIDN.Value),
+                        new RoadNodeId(roadSegmentDbaseRecord1.E_WK_OIDN.Value),
+                        new OrganizationId(roadSegmentDbaseRecord1.BEHEERDER.Value),
+                        RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord1.METHODE.Value],
+                        RoadSegmentMorphology.ByIdentifier[roadSegmentDbaseRecord1.MORFOLOGIE.Value],
+                        RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord1.STATUS.Value],
+                        RoadSegmentCategory.ByIdentifier[roadSegmentDbaseRecord1.CATEGORIE.Value],
+                        RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord1.TGBEP.Value],
+                        CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.LSTRNMID.Value),
+                        CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.RSTRNMID.Value)
+                    )
+                    .WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContent1.Shape))
+                    .WithLane(
+                        new RoadSegmentLaneAttribute(
+                            new AttributeId(laneDbaseRecord.RS_OIDN.Value),
+                            new RoadSegmentLaneCount(laneDbaseRecord.AANTAL.Value),
+                            RoadSegmentLaneDirection.ByIdentifier[laneDbaseRecord.RICHTING.Value],
+                            new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.VANPOS.Value)),
+                            new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.TOTPOS.Value))
+                        )
+                    )
+                    .WithWidth(
+                        new RoadSegmentWidthAttribute(
+                            new AttributeId(widthDbaseRecord.WB_OIDN.Value),
+                            new RoadSegmentWidth(widthDbaseRecord.BREEDTE.Value),
+                            new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.VANPOS.Value)),
+                            new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.TOTPOS.Value))
+                        )
+                    )
+                    .WithSurface(
+                        new RoadSegmentSurfaceAttribute(
+                            new AttributeId(surfaceDbaseRecord.WV_OIDN.Value),
+                            RoadSegmentSurfaceType.ByIdentifier[surfaceDbaseRecord.TYPE.Value],
+                            new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.VANPOS.Value)),
+                            new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.TOTPOS.Value))
+                        )
+                    )
+            )
+            .AppendChange(
+                new AddRoadSegmentToEuropeanRoad
+                (
+                    new RecordNumber(1),
+                    new AttributeId(europeanRoadDbaseRecord.EU_OIDN.Value),
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                    EuropeanRoadNumber.Parse(europeanRoadDbaseRecord.EUNUMMER.Value)
+                )
+            )
+            .AppendChange(
+                new RemoveRoadSegmentFromEuropeanRoad
+                (
+                    new RecordNumber(1),
+                    new AttributeId(europeanRoadDbaseRecord.EU_OIDN.Value),
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                    europeanRoadDbaseRecordExtractEuropeanRoadNumber
+                )
+            )
+            .AppendChange(
+                new AddRoadSegmentToNationalRoad
+                (
+                    new RecordNumber(1),
+                    new AttributeId(nationalRoadDbaseRecord.NW_OIDN.Value),
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                    NationalRoadNumber.Parse(nationalRoadDbaseRecord.IDENT2.Value)
+                )
+            )
+            .AppendChange(
+                new RemoveRoadSegmentFromNationalRoad
+                (
+                    new RecordNumber(1),
+                    new AttributeId(nationalRoadDbaseRecord.NW_OIDN.Value),
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                    nationalRoadDbaseRecordExtractNationalRoadNumber
+                )
+            )
+            .AppendChange(
+                new AddRoadSegmentToNumberedRoad
+                (
+                    new RecordNumber(1),
+                    new AttributeId(numberedRoadDbaseRecord.GW_OIDN.Value),
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                    NumberedRoadNumber.Parse(numberedRoadDbaseRecord.IDENT8.Value),
+                    RoadSegmentNumberedRoadDirection.ByIdentifier[numberedRoadDbaseRecord.RICHTING.Value],
+                    new RoadSegmentNumberedRoadOrdinal(numberedRoadDbaseRecord.VOLGNUMMER.Value)
+                )
+            )
+            .AppendChange(
+                new RemoveRoadSegmentFromNumberedRoad
+                (
+                    new RecordNumber(1),
+                    new AttributeId(numberedRoadDbaseRecord.GW_OIDN.Value),
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                    numberedRoadDbaseRecordExtractNumberedRoadNumber
+                )
+            )
+            .AppendChange(
+                new AddGradeSeparatedJunction
+                (
+                    new RecordNumber(1),
+                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
+                    GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord.TYPE.Value],
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                    new RoadSegmentId(roadSegmentDbaseRecord2.WS_OIDN.Value)
+                )
+            )
+            .AppendChange(
+                new RemoveGradeSeparatedJunction
+                (
+                    new RecordNumber(1),
+                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord.OK_OIDN.Value)
+                )
+            );
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    [Fact]
     public async Task RemoveShouldSucceed()
     {
         var testData = new ExtractsZipArchiveTestData();
@@ -458,8 +713,7 @@ public class ZipArchiveFeatureCompareTranslatorTests
         var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent });
 
         // change
-        var status = RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord.STATUS.Value];
-        roadSegmentDbaseRecord.STATUS.Value = fixture.CreateWhichIsDifferentThan(status).Translation.Identifier;
+        roadSegmentDbaseRecord.STATUS.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord.STATUS.Value]).Translation.Identifier;
 
         var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent });
         var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord });

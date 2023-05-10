@@ -37,6 +37,10 @@ public class RoadSegmentDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator
                             {
                                 problems += recordContext.RoadSegmentIdOutOfRange(record.WS_OIDN.Value);
                             }
+                            else
+                            {
+                                context = context.WithKnownRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                            }
                         }
                         else
                         {

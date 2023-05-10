@@ -11,7 +11,8 @@ using RoadRegistry.BackOffice.Uploads;
 public enum FeatureType
 {
     Extract,
-    Levering
+    Levering,
+    Integration
 }
 
 internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEntryFeatureCompareTranslator
@@ -25,14 +26,26 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
     }
 
     protected Encoding Encoding { get; }
-    
+
+    private static string GetFileNamePrefix(FeatureType featureType)
+    {
+        switch (featureType)
+        {
+            case FeatureType.Extract:
+                return "e";
+            case FeatureType.Integration:
+                return "i";
+        }
+
+        return string.Empty;
+    }
     protected string GetDbfFileName(FeatureType featureType, string fileName)
     {
-        return featureType == FeatureType.Extract ? $"e{fileName}.dbf" : $"{fileName}.dbf";
+        return $"{GetFileNamePrefix(featureType)}{fileName}.dbf";
     }
     protected string GetShpFileName(FeatureType featureType, string fileName)
     {
-        return featureType == FeatureType.Extract ? $"e{fileName}.shp" : $"{fileName}.shp";
+        return $"{GetFileNamePrefix(featureType)}{fileName}.shp";
     }
 
     protected abstract List<Feature> ReadFeatures(FeatureType featureType, IReadOnlyCollection<ZipArchiveEntry> entries, string fileName);
@@ -42,6 +55,14 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
         var extractFeatures = ReadFeatures(FeatureType.Extract, entries, fileName);
         var leveringFeatures = ReadFeatures(FeatureType.Levering, entries, fileName);
         return (extractFeatures, leveringFeatures);
+    }
+
+    protected (List<Feature>, List<Feature>, List<Feature>) ReadExtractAndLeveringAndIntegrationFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+    {
+        var extractFeatures = ReadFeatures(FeatureType.Extract, entries, fileName);
+        var leveringFeatures = ReadFeatures(FeatureType.Levering, entries, fileName);
+        var integrationFeatures = ReadFeatures(FeatureType.Integration, entries, fileName);
+        return (extractFeatures, leveringFeatures, integrationFeatures);
     }
     
     public abstract Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);

@@ -64,6 +64,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                     )
                 },
                 {
+                    "IWEGKNOOP.DBF",
+                    new ZipArchiveDbaseEntryValidator<RoadNodeDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        RoadNodeDbaseRecord.Schema,
+                        new RoadNodeDbaseRecordsValidator()
+                    )
+                },
+                {
                     "EWEGKNOOP.DBF",
                     new ZipArchiveDbaseEntryValidator<RoadNodeDbaseRecord>(
                         encoding, new DbaseFileHeaderReadBehavior(true),
@@ -107,6 +115,14 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                     "WEGSEGMENT.SHP",
                     new ZipArchiveShapeEntryValidator(
                         new RoadSegmentChangeShapeRecordValidator()
+                    )
+                },
+                {
+                    "IWEGSEGMENT.DBF",
+                    new ZipArchiveDbaseEntryValidator<RoadSegmentDbaseRecord>(
+                        encoding, new DbaseFileHeaderReadBehavior(true),
+                        RoadSegmentDbaseRecord.Schema,
+                        new RoadSegmentDbaseRecordsValidator()
                     )
                 },
                 {
