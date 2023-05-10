@@ -289,6 +289,9 @@ export default Vue.extend({
         contourType: contourTypes[0],
         wkt: "",
         wktIsValid: false,
+        wktIsLargerThanMaximumArea: false,
+        area: 0,
+        areaMaximumSquareKilometers: 0,
         files: [] as Array<File>,
         description: "",
         hasValidationErrors: false,
@@ -370,13 +373,20 @@ export default Vue.extend({
       if (
         this.contourFlow.contourType === "wkt" &&
         this.contourFlow.wkt &&
-        !this.contourFlow.wktIsValid &&
         !this.isCheckingWkt
       ) {
-        status.title = "Ongeldige contour";
-        status.text =
-          "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
-        status.error = true;
+        if(!this.contourFlow.wktIsValid) {
+          status.title = "Ongeldige contour";
+          status.text = "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
+          status.error = true;
+        } else if(this.contourFlow.wktIsLargerThanMaximumArea) {
+          status.title = "Ongeldige contour";
+          status.text = "Gelieve als contour een maximum van " + this.contourFlow.areaMaximumSquareKilometers + " km² aan te houden.";
+          status.error = true;
+        } else {
+          status.title = "";
+          status.error = false;
+        }
       }
 
       if (
@@ -522,11 +532,15 @@ export default Vue.extend({
     },
     async contourFlowWktChanged() {
       this.contourFlow.wktIsValid = false;
+      this.contourFlow.wktIsLargerThanMaximumArea = false;
+      this.contourFlow.area = 0;
+      this.contourFlow.areaMaximumSquareKilometers = 0;     
       this.isCheckingWkt = true;
       this.debouncedCheckIfContourWktIsValid();
     },
-    async checkIfContourWktIsValid(): Promise<void> {
+    async checkIfContourWktIsValid(): Promise<RoadRegistry.ValidateWktResponse | void> {
       this.contourFlow.wktIsValid = false;
+      this.contourFlow.wktIsLargerThanMaximumArea = false;
 
       if (!this.contourFlow.wkt) {
         return;
@@ -535,11 +549,17 @@ export default Vue.extend({
       this.isCheckingWkt = true;
 
       try {
-        await BackOfficeApi.Information.postValidateWkt(this.contourFlow.wkt);
-        this.contourFlow.wktIsValid = true;
+        let response = await BackOfficeApi.Information.postValidateWkt(this.contourFlow.wkt);
+        this.contourFlow.wktIsValid = response.isValid;
+        this.contourFlow.wktIsLargerThanMaximumArea = response.isLargerThanMaximumArea;
+        this.contourFlow.area = response.area;
+        this.contourFlow.areaMaximumSquareKilometers = response.areaMaximumSquareKilometers;     
       } catch (err) {
         console.error("WKT is invalid", err);
         this.contourFlow.wktIsValid = false;
+        this.contourFlow.wktIsLargerThanMaximumArea = false;
+        this.contourFlow.area = 0;
+        this.contourFlow.areaMaximumSquareKilometers = 0;     
       } finally {
         this.isCheckingWkt = false;
       }

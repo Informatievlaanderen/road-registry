@@ -6,18 +6,17 @@ using Abstractions.Information;
 using FluentValidation;
 using Framework;
 using Microsoft.Extensions.Logging;
-using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
 /// <summary>
 ///     Upload controller, get upload
 /// </summary>
-/// <exception cref="UploadExtractBlobClientNotFoundException"></exception>
 /// <exception cref="ExtractDownloadNotFoundException"></exception>
 /// <exception cref="ValidationException"></exception>
 public class ValidateWktContourRequestHandler : EndpointRequestHandler<ValidateWktContourRequest, ValidateWktContourResponse>
 {
     private readonly WKTReader _reader;
+    private const int SquareKmMaximum = 100;
 
     public ValidateWktContourRequestHandler(
         CommandHandlerDispatcher dispatcher,
@@ -29,17 +28,14 @@ public class ValidateWktContourRequestHandler : EndpointRequestHandler<ValidateW
 
     public override Task<ValidateWktContourResponse> HandleAsync(ValidateWktContourRequest request, CancellationToken cancellationToken)
     {
-        try
+        var geometry = _reader.Read(request.Contour);
+
+        var response = new ValidateWktContourResponse
         {
-            GeometryTranslator.TranslateToRoadNetworkExtractGeometry(_reader.Read(request.Contour) as IPolygonal);
-            return Task.FromResult(new ValidateWktContourResponse(request.Contour));
-        }
-        catch (Exception ex)
-        {
-            return Task.FromResult(new ValidateWktContourResponse(request.Contour)
-            {
-                Exception = new ValidationException(ex.Message)
-            });
-        }
+            IsValid = geometry.IsValid,
+            Area = geometry.Area
+        };
+
+        return Task.FromResult(response);
     }
 }
