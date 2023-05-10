@@ -1,3 +1,11 @@
+## [3.41.2](https://github.com/informatievlaanderen/road-registry/compare/v3.41.1...v3.41.2) (2023-05-10)
+
+
+### Bug Fixes
+
+* Maximum square kilometer area WR-321 ([#956](https://github.com/informatievlaanderen/road-registry/issues/956)) ([d31730c](https://github.com/informatievlaanderen/road-registry/commit/d31730c7678f9f27b15e798e6628c9cfef22c5cd))
+* Minimal length for extract description ([#958](https://github.com/informatievlaanderen/road-registry/issues/958)) ([77a7dad](https://github.com/informatievlaanderen/road-registry/commit/77a7dad13bb592bd915555a822947abc217506af))
+
 ## [3.41.1](https://github.com/informatievlaanderen/road-registry/compare/v3.41.0...v3.41.1) (2023-05-03)
 
 
