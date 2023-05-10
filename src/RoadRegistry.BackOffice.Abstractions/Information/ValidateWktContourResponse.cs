@@ -1,8 +1,9 @@
 namespace RoadRegistry.BackOffice.Abstractions.Information;
 
-using FluentValidation;
-
-public sealed record ValidateWktContourResponse(string Contour) : EndpointResponse
+public sealed record ValidateWktContourResponse : EndpointResponse
 {
-    public ValidationException Exception { get; init; }
+    public double Area { get; set; }
+    public int AreaMaximumSquareKilometers { get; set; }
+    public bool IsValid { get; set; }
+    public bool IsLargerThanMaximumArea { get; set; }
 }

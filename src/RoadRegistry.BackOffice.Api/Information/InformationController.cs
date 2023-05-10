@@ -39,8 +39,7 @@ public class InformationController : ControllerBase
     {
         var request = new ValidateWktContourRequest(model.Contour ?? "");
         var response = await _mediator.Send(request, cancellationToken);
-        return response.Exception is null
-            ? Ok()
-            : UnprocessableEntity();
+
+        return Ok(response);
     }
 }

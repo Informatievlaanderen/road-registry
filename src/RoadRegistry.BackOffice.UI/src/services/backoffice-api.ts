@@ -127,9 +127,10 @@ export const BackOfficeApi = {
       const response = await apiClient.get<RoadRegistry.RoadNetworkInformationResponse>(path);
       return response.data;
     },
-    postValidateWkt: async (wkt: String): Promise<void> => {
+    postValidateWkt: async (wkt: String): Promise<RoadRegistry.ValidateWktResponse> => {
       const path = `/roads/v1/information/validate-wkt`;
-      await apiClient.post(path, { contour: wkt });
+      const response = await apiClient.post(path, { contour: wkt });
+      return response.data;
     },
   },
 };

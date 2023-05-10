@@ -74,5 +74,12 @@ export namespace RoadRegistry {
         nisCode: string;
         description: string;
     }
+
+    export interface ValidateWktResponse {
+        area: number;
+        areaMaximumSquareKilometers: number;
+        isValid: boolean;
+        isLargerThanMaximumArea: boolean;
+    }
 }
 export default RoadRegistry;
