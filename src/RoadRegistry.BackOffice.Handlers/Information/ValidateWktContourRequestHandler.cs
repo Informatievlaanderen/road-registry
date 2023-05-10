@@ -15,8 +15,9 @@ using NetTopologySuite.IO;
 /// <exception cref="ValidationException"></exception>
 public class ValidateWktContourRequestHandler : EndpointRequestHandler<ValidateWktContourRequest, ValidateWktContourResponse>
 {
+    public const int SquareKmMaximum = 100;
+
     private readonly WKTReader _reader;
-    private const int SquareKmMaximum = 100;
 
     public ValidateWktContourRequestHandler(
         CommandHandlerDispatcher dispatcher,
@@ -32,8 +33,10 @@ public class ValidateWktContourRequestHandler : EndpointRequestHandler<ValidateW
 
         var response = new ValidateWktContourResponse
         {
+            Area = geometry.Area,
+            AreaMaximumSquareKilometers = SquareKmMaximum,
             IsValid = geometry.IsValid,
-            Area = geometry.Area
+            IsLargerThanMaximumArea =  geometry.Area > (SquareKmMaximum * 1000 * 1000)
         };
 
         return Task.FromResult(response);
