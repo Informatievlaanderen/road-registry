@@ -229,9 +229,9 @@
 
           <div class="vl-form-col--8-12"></div>
           <div class="vl-form-col--6-12">
-            <span v-if="!isDescriptionValid(contourFlow.description)">
-              Gelieve een beschrijving mee te geven van maximaal 250 karakters.
-            </span>
+            <vl-alert v-if="!isDescriptionValid(contourFlow.description)" mod-warning title="Validatie fouten" mod-small>
+              Gelieve een beschrijving mee te geven van minimaal 5 en maximaal 250 karakters.
+            </vl-alert>
             <vl-alert v-if="contourFlow.hasGenericError" mod-error mod-small>
               <p>Er is een onverwachte fout opgetreden.</p>
             </vl-alert>
@@ -300,7 +300,7 @@ export default Vue.extend({
       },
       validation: {
         description: {
-          minLength: 1,
+          minLength: 5,
           maxLength: 250,
         },
       },
