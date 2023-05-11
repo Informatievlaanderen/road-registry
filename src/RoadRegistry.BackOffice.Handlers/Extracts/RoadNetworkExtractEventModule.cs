@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Extracts;
+using BackOffice.FeatureCompare;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core;
@@ -22,6 +23,7 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         RoadNetworkExtractUploadsBlobClient uploadsBlobClient,
         IRoadNetworkExtractArchiveAssembler assembler,
         IZipArchiveTranslator translator,
+        IZipArchiveFeatureCompareTranslator featureCompareTranslator,
         IStreamStore store,
         ApplicationMetadata applicationMetadata)
     {
@@ -29,7 +31,9 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(assembler);
         ArgumentNullException.ThrowIfNull(translator);
+        ArgumentNullException.ThrowIfNull(featureCompareTranslator);
         ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(applicationMetadata);
         
         For<RoadNetworkExtractGotRequested>()
             .UseRoadNetworkExtractCommandQueue(store)
@@ -51,7 +55,9 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                 {
                     var requestedChanges = new List<RequestedChange>();
-                    var translatedChanges = translator.Translate(archive);
+                    var translatedChanges = message.Body.UseZipArchiveFeatureCompareTranslator
+                        ? await featureCompareTranslator.Translate(archive, ct)
+                        : translator.Translate(archive);
                     foreach (var change in translatedChanges)
                     {
                         var requestedChange = new RequestedChange();

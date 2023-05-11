@@ -33,7 +33,7 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    private static string Describe(DbaseSchema schema)
+    public static string Describe(this DbaseSchema schema)
     {
         var builder = new StringBuilder();
         var index = 0;
@@ -395,6 +395,14 @@ public static class DbaseFileProblems
     {
         return builder
             .Error(nameof(RightStreetNameIdOutOfRange))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+
+    public static FileError RoadNodeIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadNodeIdOutOfRange))
             .WithParameter(new ProblemParameter("Actual", value.ToString()))
             .Build();
     }

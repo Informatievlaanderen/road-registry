@@ -7,9 +7,7 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
-using Core;
-using DutchTranslations;
-using Exceptions;
+using Core.ProblemCodes;
 using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
@@ -19,10 +17,8 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Core.ProblemCodes;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
@@ -107,7 +103,11 @@ public class UploadController : ControllerBase
 
     [HttpPost("fc")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadBeforeFeatureCompare([FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
+    public async Task<IActionResult> PostUploadBeforeFeatureCompare(
+        [FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle,
+        [FromServices] UseZipArchiveFeatureCompareTranslatorFeatureToggle useZipArchiveFeatureCompareTranslatorFeatureToggle,
+        IFormFile archive,
+        CancellationToken cancellationToken)
     {
         if (!useFeatureCompareToggle.FeatureEnabled)
         {
@@ -116,12 +116,25 @@ public class UploadController : ControllerBase
 
         return await PostUpload(archive, async () =>
         {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Ok(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
+            if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
+            {
+                UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+                var request = new UploadExtractRequest(archive.FileName, requestArchive)
+                {
+                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled
+                };
+                var response = await _mediator.Send(request, cancellationToken);
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
+            }
+            else
+            {
+                UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+                var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
+                var response = await _mediator.Send(request, cancellationToken);
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
+            }
         });
     }
 }
 
-public sealed record UploadExtractFeatureCompareResponseBody(string ArchiveId) { }
+public sealed record UploadExtractFeatureCompareResponseBody(string ArchiveId);

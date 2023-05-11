@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using Amazon.DynamoDBv2.Model;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class ZipArchiveDbaseEntryTranslator<TRecord> : IZipArchiveEntryTranslator

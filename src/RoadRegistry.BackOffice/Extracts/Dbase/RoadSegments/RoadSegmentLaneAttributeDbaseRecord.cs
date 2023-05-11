@@ -35,7 +35,7 @@ public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
             LBLBGNORG
         };
     }
-
+    
     public DbaseInt32 AANTAL { get; set; }
     public DbaseString BEGINORG { get; set; }
     public DbaseDateTime BEGINTIJD { get; set; }

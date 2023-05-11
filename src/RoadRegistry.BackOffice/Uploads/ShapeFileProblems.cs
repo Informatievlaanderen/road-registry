@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Uploads;
 using System;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
+using NetTopologySuite.IO;
 
 public static class ShapeFileProblems
 {
@@ -12,7 +13,6 @@ public static class ShapeFileProblems
     }
 
     // record
-
     public static FileError HasShapeRecordFormatError(this IShapeFileRecordProblemBuilder builder, Exception exception)
     {
         if (exception == null) throw new ArgumentNullException(nameof(exception));
@@ -23,8 +23,8 @@ public static class ShapeFileProblems
                 new ProblemParameter("Exception", exception.ToString()))
             .Build();
     }
-    // file
 
+    // file
     public static FileError ShapeHeaderFormatError(this IFileProblemBuilder builder, Exception exception)
     {
         if (exception == null) throw new ArgumentNullException(nameof(exception));
@@ -74,6 +74,17 @@ public static class ShapeFileProblems
             .WithParameters(
                 new ProblemParameter("ExpectedShapeType", expectedShapeType.ToString()),
                 new ProblemParameter("ActualShapeType", actualShapeType.ToString()))
+            .Build();
+    }
+
+    public static FileError ShapeRecordShapeGeometryTypeMismatch(this IShapeFileRecordProblemBuilder builder,
+        ShapeGeometryType expectedGeometryType, string geometryType)
+    {
+        return builder
+            .Error(nameof(ShapeRecordShapeGeometryTypeMismatch))
+            .WithParameters(
+                new ProblemParameter("ExpectedShapeType", expectedGeometryType.ToString()),
+                new ProblemParameter("ActualShapeType", geometryType))
             .Build();
     }
 }

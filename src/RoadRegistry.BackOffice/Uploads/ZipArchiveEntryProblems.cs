@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
+using NetTopologySuite.IO;
 
 public static class ZipArchiveEntryProblems
 {
@@ -52,7 +53,7 @@ public static class ZipArchiveEntryProblems
         return new FileProblemBuilder(entry.Name).HasNoShapeRecords();
     }
 
-    public static FileError HasShapeHeaderFormatError(this ZipArchiveEntry entry, Exception exception)
+    public static FileError HasShapeRecordFormatError(this ZipArchiveEntry entry, Exception exception)
     {
         return new FileProblemBuilder(entry.Name).HasShapeRecordFormatError(exception);
     }

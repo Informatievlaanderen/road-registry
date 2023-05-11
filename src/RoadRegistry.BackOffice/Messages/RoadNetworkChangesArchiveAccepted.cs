@@ -10,4 +10,5 @@ public class RoadNetworkChangesArchiveAccepted : IMessage
     public string Description { get; set; }
     public FileProblem[] Problems { get; set; }
     public string When { get; set; }
+    public bool UseZipArchiveFeatureCompareTranslator { get; set; }
 }

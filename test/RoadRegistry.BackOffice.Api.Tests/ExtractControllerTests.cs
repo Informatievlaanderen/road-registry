@@ -10,6 +10,7 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
+using FeatureToggles;
 using FluentValidation;
 using Framework.Containers;
 using MediatR;
@@ -269,6 +270,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
         };
 
         var result = await Controller.PostUploadBeforeFeatureCompare(
+            new UseZipArchiveFeatureCompareTranslatorFeatureToggle(false),
             "not_a_guid_without_dashes",
             formFile,
             CancellationToken.None);

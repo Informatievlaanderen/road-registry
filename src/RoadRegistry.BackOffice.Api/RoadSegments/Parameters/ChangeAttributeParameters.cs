@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 public record ChangeAttributeParameters
 {
     /// <summary>
-    ///     Het attribuut die gewijzigd moet worden.
+    ///     Het attribuut dat gewijzigd moet worden.
     /// </summary>
     [DataMember(Name = "attribuut", Order = 1)]
     [JsonProperty("attribuut")]

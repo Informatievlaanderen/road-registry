@@ -26,6 +26,7 @@ Microsoft.IdentityModel.Logging
 Microsoft.IdentityModel.Tokens
 Microsoft.IO.RecyclableMemoryStream
 NetTopologySuite
+NetTopologySuite.IO.ShapeFile
 Polly
 SqlStreamStore
 System.IdentityModel.Tokens.Jwt
