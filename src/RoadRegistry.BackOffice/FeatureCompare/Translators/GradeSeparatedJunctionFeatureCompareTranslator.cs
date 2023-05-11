@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Exceptions;
 
 internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
 {
@@ -37,7 +38,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
         var entries = context.Entries;
 
         var (extractFeatures, leveringFeatures) = ReadExtractAndLeveringFeatures(entries, "RLTOGKRUISING");
-        
+
         var processedRecords = new List<Record>();
 
         void RemoveFeatures(ICollection<Feature> features)
@@ -51,84 +52,65 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
                 }
             }
         }
-
-        var recordTypes = new[] { RecordType.Added, RecordType.Modified, RecordType.Identical, RecordType.Removed };
-
+        
         foreach (var leveringFeature in leveringFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            foreach (var boRecordType in recordTypes)
+            
+            var boWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == leveringFeature.Attributes.BO_WS_OIDN);
+            if (boWegsegmentFeature is null)
             {
-                foreach (var onRecordType in recordTypes)
+                throw new RoadSegmentNotFoundInZipArchiveException(leveringFeature.Attributes.BO_WS_OIDN);
+            }
+
+            var onWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == leveringFeature.Attributes.ON_WS_OIDN);
+            if (onWegsegmentFeature is null)
+            {
+                throw new RoadSegmentNotFoundInZipArchiveException(leveringFeature.Attributes.ON_WS_OIDN);
+            }
+            
+            var editedLeveringFeature = leveringFeature with
+            {
+                Attributes = leveringFeature.Attributes with
                 {
-                    var boWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => x.RecordType.Equals(boRecordType) && (x.Id == leveringFeature.Attributes.BO_WS_OIDN || x.TempId == leveringFeature.Attributes.BO_WS_OIDN));
-                    if (boWegsegmentFeature is null)
-                    {
-                        continue;
-                    }
-
-                    var onWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => x.RecordType.Equals(onRecordType) && (x.Id == leveringFeature.Attributes.ON_WS_OIDN || x.TempId == leveringFeature.Attributes.ON_WS_OIDN));
-                    if (onWegsegmentFeature is null)
-                    {
-                        continue;
-                    }
-
-                    var boWegsegmentIdOld = boWegsegmentFeature.Id;
-                    var boWegsegmentIdNew = boWegsegmentFeature.GetActualId();
-                    var onWegsegmentIdOld = onWegsegmentFeature.Id;
-                    var onWegsegmentIdNew = onWegsegmentFeature.GetActualId();
-
-                    leveringFeature.Attributes.BO_WS_OIDN = boWegsegmentIdNew;
-                    leveringFeature.Attributes.ON_WS_OIDN = onWegsegmentIdNew;
-
-                    if (boWegsegmentFeature.RecordType.Equals(RecordType.Added) || onWegsegmentFeature.RecordType.Equals(RecordType.Added))
-                    {
-                        var boOrOnSegmentIsIdentical = boWegsegmentFeature.RecordType.Equals(RecordType.Identical) || onWegsegmentFeature.RecordType.Equals(RecordType.Identical);
-                        if (!boOrOnSegmentIsIdentical)
-                        {
-                            var removeExtractFeatures = extractFeatures
-                                .FindAll(x => x.Attributes.BO_WS_OIDN == boWegsegmentIdOld
-                                              && x.Attributes.ON_WS_OIDN == onWegsegmentIdOld);
-                            RemoveFeatures(removeExtractFeatures);
-                        }
-
-                        processedRecords.Add(new Record(leveringFeature, RecordType.Added));
-                    }
-                    else
-                    {
-                        var hasExtractFeatures = extractFeatures
-                            .Any(x => x.Attributes.BO_WS_OIDN == boWegsegmentIdOld
-                                      && x.Attributes.ON_WS_OIDN == onWegsegmentIdOld
-                                      && x.Attributes.TYPE == leveringFeature.Attributes.TYPE);
-
-                        processedRecords.Add(new Record(leveringFeature, hasExtractFeatures ? RecordType.Identical : RecordType.Added));
-                    }
+                    BO_WS_OIDN = boWegsegmentFeature.GetNewOrOriginalId(),
+                    ON_WS_OIDN = onWegsegmentFeature.GetNewOrOriginalId()
                 }
-            }
-        }
+            };
 
-        foreach (var extractFeature in extractFeatures)
-        {
-            var hasLeveringIdenticalOrRemovedFeatures = processedRecords
-                .Any(x => (x.RecordType.Equals(RecordType.Identical) || x.RecordType.Equals(RecordType.Removed))
-                          && x.Feature.Attributes.BO_WS_OIDN == extractFeature.Attributes.BO_WS_OIDN
-                          && x.Feature.Attributes.ON_WS_OIDN == extractFeature.Attributes.ON_WS_OIDN);
-
-            if (!hasLeveringIdenticalOrRemovedFeatures)
+            var matchingExtractFeatures = extractFeatures
+                .Where(x => x.Attributes.BO_WS_OIDN == editedLeveringFeature.Attributes.BO_WS_OIDN
+                            && x.Attributes.ON_WS_OIDN == editedLeveringFeature.Attributes.ON_WS_OIDN)
+                .ToArray();
+            if (!matchingExtractFeatures.Any())
             {
-                RemoveFeatures(new[] { extractFeature });
+                processedRecords.Add(new Record(editedLeveringFeature, RecordType.Added));
+                continue;
             }
+
+            var hasMatchByType = matchingExtractFeatures.Any(x => x.Attributes.TYPE == editedLeveringFeature.Attributes.TYPE);
+            if (hasMatchByType)
+            {
+                processedRecords.Add(new Record(editedLeveringFeature, RecordType.Identical));
+                continue;
+            }
+
+            var matchingExtractFeature = matchingExtractFeatures.FirstOrDefault(x => x.Attributes.OK_OIDN == editedLeveringFeature.Attributes.OK_OIDN)
+                                         ?? matchingExtractFeatures.First();
+
+            processedRecords.Add(new Record(editedLeveringFeature, RecordType.Added));
+            processedRecords.Add(new Record(matchingExtractFeature, RecordType.Removed));
         }
 
         {
-            var notProcessedExtractFeatures = extractFeatures.FindAll(extractFeature =>
-                processedRecords.All(processedRecord => processedRecord.Feature.Attributes.OK_OIDN != extractFeature.Attributes.OK_OIDN)
+            var extractFeaturesWithoutLeveringFeatures = extractFeatures.FindAll(extractFeature =>
+                !processedRecords.Any(x => x.Feature.Attributes.BO_WS_OIDN == extractFeature.Attributes.BO_WS_OIDN
+                                           && x.Feature.Attributes.ON_WS_OIDN == extractFeature.Attributes.ON_WS_OIDN)
             );
 
-            RemoveFeatures(notProcessedExtractFeatures);
+            RemoveFeatures(extractFeaturesWithoutLeveringFeatures);
         }
-
+        
         foreach (var record in processedRecords)
         {
             switch (record.RecordType.Translation.Identifier)

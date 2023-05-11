@@ -15,11 +15,11 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public static class Customizations
 {
-    public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, T illegalValue)
+    public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, params T[] illegalValues)
     {
         var value = fixture.Create<T>();
 
-        while (Equals(value, illegalValue))
+        while (illegalValues.Any(illegalValue => Equals(value, illegalValue)))
         {
             value = fixture.Create<T>();
         }
@@ -877,11 +877,15 @@ public static class Customizations
 
         var files = new Dictionary<string, Stream>
             {
+                { "IWEGSEGMENT.DBF", fixture.CreateEmptyDbfFile<RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentDbaseRecord>(RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentDbaseRecord.Schema) },
+                { "IWEGSEGMENT.SHP", fixture.CreateEmptyRoadSegmentShapeFile() },
                 { "WEGSEGMENT.SHP", roadSegmentShapeChangeStream },
                 { "EWEGSEGMENT.SHP", roadSegmentShapeExtractStream },
                 { "WEGSEGMENT.DBF", roadSegmentDbaseChangeStream },
                 { "EWEGSEGMENT.DBF", roadSegmentDbaseExtractStream },
                 { "WEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
+                { "IWEGKNOOP.DBF", fixture.CreateEmptyDbfFile<RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes.RoadNodeDbaseRecord>(RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes.RoadNodeDbaseRecord.Schema) },
+                { "IWEGKNOOP.SHP", fixture.CreateEmptyRoadNodeShapeFile() },
                 { "WEGKNOOP.SHP", roadNodeShapeChangeStream },
                 { "EWEGKNOOP.SHP", roadNodeShapeExtractStream },
                 { "WEGKNOOP.DBF", roadNodeDbaseChangeStream },

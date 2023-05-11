@@ -47,7 +47,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators
                 {
                     foreach (var feature in addedFeatures)
                     {
-                        feature.Attributes.WS_OIDN = wegsegment.GetActualId();
+                        feature.Attributes.WS_OIDN = wegsegment.GetNewOrOriginalId();
                         processedRecords.Add(new Record(feature, RecordType.Added));
                     }
                 }

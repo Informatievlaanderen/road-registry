@@ -34,12 +34,12 @@ namespace RoadRegistry.Tests.BackOffice.Uploads
 
         //[Theory(Skip = "For local testing only due to big archive files")]
         [Theory]
-        //[InlineData("Aarschot")]
-        [InlineData("Antwerpen")]
-        //[InlineData("Dendermonde")]
-        [InlineData("Gent")]
         //[InlineData("Oudenburg")]
+        //[InlineData("Dendermonde")]
+        //[InlineData("Aarschot")]
         //[InlineData("Tervuren")]
+        //[InlineData("Antwerpen")]
+        [InlineData("Gent")]
         public async Task TranslateWithRecordsReturnsExpectedResult(string zipFileName)
         {
             using (var beforeFcArchiveStream = new MemoryStream())

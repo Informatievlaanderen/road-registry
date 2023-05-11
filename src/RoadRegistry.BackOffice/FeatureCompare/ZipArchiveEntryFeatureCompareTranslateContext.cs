@@ -37,7 +37,7 @@ public class RoadSegmentRecord
     public string CompareIdn { get; set; }
     public int? TempId { get; set; }
 
-    public int GetActualId()
+    public int GetNewOrOriginalId()
     {
         return TempId ?? Id;
     }

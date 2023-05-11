@@ -149,7 +149,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     changes = changes.AppendChange(
                         new AddRoadSegment(
                             record.RecordNumber,
-                            new RoadSegmentId(record.GetActualId()),
+                            new RoadSegmentId(record.GetNewOrOriginalId()),
                             new RoadNodeId(record.Attributes.B_WK_OIDN),
                             new RoadNodeId(record.Attributes.E_WK_OIDN),
                             new OrganizationId(record.Attributes.BEHEER),

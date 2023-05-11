@@ -26,8 +26,12 @@ namespace RoadRegistry.Tests.BackOffice
         public Fixture Fixture { get; }
 
         public readonly string[] ExtractFileNames = {
+            "IWEGKNOOP.DBF",
+            "IWEGKNOOP.SHP",
             "EWEGKNOOP.DBF",
             "EWEGKNOOP.SHP",
+            "IWEGSEGMENT.DBF",
+            "IWEGSEGMENT.SHP",
             "EWEGSEGMENT.DBF",
             "EWEGSEGMENT.SHP",
             "EATTRIJSTROKEN.DBF",
@@ -201,13 +205,17 @@ namespace RoadRegistry.Tests.BackOffice
             var requiredFiles = new[]
             {
                 "TRANSACTIEZONES.DBF",
+                "IWEGKNOOP.DBF",
                 "EWEGKNOOP.DBF",
                 "WEGKNOOP.DBF",
+                "IWEGKNOOP.SHP",
                 "EWEGKNOOP.SHP",
                 "WEGKNOOP.SHP",
                 "WEGKNOOP.PRJ",
+                "IWEGSEGMENT.DBF",
                 "EWEGSEGMENT.DBF",
                 "WEGSEGMENT.DBF",
+                "IWEGSEGMENT.SHP",
                 "EWEGSEGMENT.SHP",
                 "WEGSEGMENT.SHP",
                 "WEGSEGMENT.PRJ",
@@ -243,6 +251,7 @@ namespace RoadRegistry.Tests.BackOffice
                 {
                     switch (requiredFile)
                     {
+                        case "IWEGSEGMENT.SHP":
                         case "EWEGSEGMENT.SHP":
                         case "WEGSEGMENT.SHP":
                             CreateEntry(requiredFile, roadSegmentShapeChangeStream);
@@ -250,10 +259,12 @@ namespace RoadRegistry.Tests.BackOffice
                         case "WEGSEGMENT.PRJ":
                             CreateEntry(requiredFile, roadSegmentProjectionFormatStream);
                             break;
+                        case "IWEGSEGMENT.DBF":
                         case "EWEGSEGMENT.DBF":
                         case "WEGSEGMENT.DBF":
                             CreateEntry(requiredFile, roadSegmentDbaseChangeStream);
                             break;
+                        case "IWEGKNOOP.SHP":
                         case "EWEGKNOOP.SHP":
                         case "WEGKNOOP.SHP":
                             CreateEntry(requiredFile, roadNodeShapeChangeStream);
@@ -261,6 +272,7 @@ namespace RoadRegistry.Tests.BackOffice
                         case "WEGKNOOP.PRJ":
                             CreateEntry(requiredFile, roadNodeProjectionFormatStream);
                             break;
+                        case "IWEGKNOOP.DBF":
                         case "EWEGKNOOP.DBF":
                         case "WEGKNOOP.DBF":
                             CreateEntry(requiredFile, roadNodeDbaseChangeStream);
