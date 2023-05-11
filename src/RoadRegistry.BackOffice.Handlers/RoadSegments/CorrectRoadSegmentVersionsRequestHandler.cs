@@ -70,8 +70,8 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
             translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
                 recordNumber,
                 roadSegment.Id,
-                roadSegment.Start,
-                roadSegment.End,
+                roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.Start,
+                roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.End,
                 roadSegment.AttributeHash.OrganizationId,
                 roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.AttributeHash.Morphology,

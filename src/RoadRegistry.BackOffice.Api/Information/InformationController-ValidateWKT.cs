@@ -16,12 +16,12 @@ public partial class InformationController
     /// <returns>IActionResult.</returns>
     [HttpPost("validate-wkt", Name = nameof(ValidateWKT))]
     [SwaggerOperation(OperationId = nameof(ValidateWKT), Description = "")]
-    public async Task<IActionResult> ValidateWKT([FromBody] ValidateWktContourRequestBody model, CancellationToken cancellationToken)
+    public async Task<ValidateWktContourResponse> ValidateWKT([FromBody] ValidateWktContourRequestBody model, CancellationToken cancellationToken)
     {
         var request = new ValidateWktContourRequest(model.Contour ?? "");
         var response = await _mediator.Send(request, cancellationToken);
 
-        return Ok(response);
+        return response;
     }
 }
 

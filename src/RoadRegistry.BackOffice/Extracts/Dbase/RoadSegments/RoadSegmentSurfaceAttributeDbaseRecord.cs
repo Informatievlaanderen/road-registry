@@ -33,7 +33,7 @@ public class RoadSegmentSurfaceAttributeDbaseRecord : DbaseRecord
             LBLBGNORG
         };
     }
-
+    
     public DbaseString BEGINORG { get; set; }
     public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseString LBLBGNORG { get; set; }

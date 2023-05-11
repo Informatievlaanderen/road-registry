@@ -1,10 +1,12 @@
 namespace RoadRegistry.Tests.BackOffice.Uploads;
 
-using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using RoadRegistry.BackOffice.Uploads;
+using System.IO.Compression;
 using Xunit;
 using Point = NetTopologySuite.Geometries.Point;
 
@@ -13,10 +15,9 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
     private readonly ZipArchive _archive;
     private readonly ZipArchiveValidationContext _context;
     private readonly ZipArchiveEntry _entry;
-    private readonly IEnumerator<ShapeRecord> _enumerator;
     private readonly Fixture _fixture;
     private readonly MemoryStream _stream;
-    private readonly RoadNodeChangeShapeRecordsValidator _sut;
+    private readonly RoadNodeChangeShapeRecordValidator _sut;
 
     public RoadNodeChangeShapeRecordsValidatorTests()
     {
@@ -36,10 +37,9 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
                 new PointShapeContent(GeometryTranslator.FromGeometryPoint(_fixture.Create<Point>())).RecordAs(_fixture.Create<RecordNumber>())
             ).OmitAutoProperties()
         );
-        _sut = new RoadNodeChangeShapeRecordsValidator();
-        _enumerator = new List<ShapeRecord>().GetEnumerator();
+        _sut = new RoadNodeChangeShapeRecordValidator();
         _stream = new MemoryStream();
-        _archive = new ZipArchive(_stream, ZipArchiveMode.Create);
+        _archive = new ZipArchive(_stream, ZipArchiveMode.Update);
         _entry = _archive.CreateEntry("wegknoop_all.shp");
         _context = ZipArchiveValidationContext.Empty;
     }
@@ -51,77 +51,34 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void IsZipArchiveShapeRecordsValidator()
+    public void IsZipArchiveShapeRecordValidator()
     {
-        Assert.IsAssignableFrom<IZipArchiveShapeRecordsValidator>(_sut);
+        Assert.IsAssignableFrom<IZipArchiveShapeRecordValidator>(_sut);
     }
 
     [Fact]
     public void ValidateContextCanNotBeNull()
     {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, _enumerator, null));
+        Assert.Throws<ArgumentNullException>(() => new ZipArchiveShapeEntryValidator(_sut).Validate(_entry, null));
     }
 
     [Fact]
     public void ValidateEntryCanNotBeNull()
     {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(null, _enumerator, _context));
+        Assert.Throws<ArgumentNullException>(() => new ZipArchiveShapeEntryValidator(_sut).Validate(null, _context));
     }
-
-    [Fact]
-    public void ValidateRecordsCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => _sut.Validate(_entry, null, _context));
-    }
-
-    [Fact(Skip = "It's impossible to mimic empty points at this time because they can no longer be serialized.")]
-    public void ValidateWithEmptyPointRecordsReturnsExpectedResult()
-    {
-        var records = Enumerable.Range(0, 2)
-            .Select(index =>
-                new PointShapeContent(GeometryTranslator.FromGeometryPoint(Point.Empty))
-                    .RecordAs(new RecordNumber(index + 1)))
-            .GetEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Many(
-                _entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryMismatch(),
-                _entry.AtShapeRecord(new RecordNumber(2)).ShapeRecordGeometryMismatch()
-            ),
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithNullRecordsReturnsExpectedResult()
-    {
-        var records = _fixture
-            .CreateMany<ShapeRecord>(new Random().Next(1, 5))
-            .Select((record, index) => index == 0
-                ? NullShapeContent.Instance.RecordAs(new RecordNumber(1))
-                : record.Content.RecordAs(new RecordNumber(index + 1)))
-            .GetEnumerator();
-
-        var (result, context) = _sut.Validate(_entry, records, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(
-                _entry
-                    .AtShapeRecord(RecordNumber.Initial)
-                    .ShapeRecordShapeTypeMismatch(
-                        ShapeType.Point,
-                        ShapeType.NullShape)
-            ),
-            result);
-        Assert.Same(_context, context);
-    }
-
+    
     [Fact]
     public void ValidateWithoutRecordsReturnsExpectedResult()
     {
-        var (result, context) = _sut.Validate(_entry, _enumerator, _context);
+        var stream = _fixture.CreateEmptyRoadNodeShapeFile();
+        stream.Position = 0;
+        using (var entryStream = _entry.Open())
+        {
+            stream.CopyTo(entryStream);
+        }
+
+        var (result, context) = new ZipArchiveShapeEntryValidator(_sut).Validate(_entry, _context);
 
         Assert.Equal(
             ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
@@ -130,35 +87,40 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
     }
 
     [Fact]
-    public void ValidateWithProblematicRecordsReturnsExpectedResult()
+    public void ValidateWithInvalidGeometryTypeReturnsExpectedResult()
     {
-        var records = _fixture
-            .CreateMany<ShapeRecord>(new Random().Next(1, 5))
-            .Select((record, index) => record.Content.RecordAs(new RecordNumber(index + 1)))
-            .ToArray();
-        var exception = new Exception("problem");
-        var enumerator = new ProblematicShapeRecordEnumerator(records, 1, exception);
+        var stream = _fixture.CreateRoadSegmentShapeFileWithOneRecord();
+        stream.Position = 0;
+        using (var entryStream = _entry.Open())
+        {
+            stream.CopyTo(entryStream);
+        }
 
-        var (result, context) = _sut.Validate(_entry, enumerator, _context);
+        var (result, context) = _sut.Validate(_entry, RecordNumber.Initial, new LineString(new []{ new Coordinate(0, 0), new Coordinate(1, 0) }), _context);
 
-        Assert.Equal(
-            ZipArchiveProblems.Single(
-                _entry.AtShapeRecord(new RecordNumber(2)).HasShapeRecordFormatError(exception)
-            ),
-            result,
-            new FileProblemComparer());
+        var expected = ZipArchiveProblems.Single(_entry
+            .AtShapeRecord(RecordNumber.Initial)
+            .ShapeRecordShapeGeometryTypeMismatch(ShapeGeometryType.Point, nameof(LineString)));
+        Assert.Equal(expected, result);
         Assert.Same(_context, context);
     }
 
     [Fact]
     public void ValidateWithValidRecordsReturnsExpectedResult()
     {
-        var records = _fixture
+        var shapeRecords = _fixture
             .CreateMany<ShapeRecord>(new Random().Next(1, 5))
-            .Select((record, index) => record.Content.RecordAs(new RecordNumber(index + 1)))
-            .GetEnumerator();
+            .Select((record, index) => (PointShapeContent)record.Content)
+            .ToArray();
 
-        var (result, context) = _sut.Validate(_entry, records, _context);
+        var stream = _fixture.CreateRoadNodeShapeFile(shapeRecords);
+        stream.Position = 0;
+        using (var entryStream = _entry.Open())
+        {
+            stream.CopyTo(entryStream);
+        }
+
+        var (result, context) = new ZipArchiveShapeEntryValidator(_sut).Validate(_entry, _context);
 
         Assert.Equal(
             ZipArchiveProblems.None,

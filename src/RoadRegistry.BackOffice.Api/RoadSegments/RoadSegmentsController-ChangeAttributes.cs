@@ -31,7 +31,7 @@ public partial class RoadSegmentsController
     private const string ChangeAttributesRoute = "acties/wijzigen/attributen";
 
     /// <summary>
-    ///     Attribuutwaarde van status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie van wegsegmenten wijzigen.
+    ///     Wijzig een attribuutwaarde voor één of meerdere wegsegmenten.
     /// </summary>
     /// <param name="featureToggle">Ingeschakelde functionaliteit of niet</param>
     /// <param name="parameters">Bevat de attributen die gewijzigd moeten worden</param>
@@ -265,7 +265,7 @@ public class ChangeRoadSegmentAttributesParametersWrapper
 public record ChangeAttributeParameters
 {
     /// <summary>
-    ///     Het attribuut die gewijzigd moet worden.
+    ///     Het attribuut dat gewijzigd moet worden.
     /// </summary>
     [DataMember(Name = "attribuut", Order = 1)]
     [JsonProperty("attribuut")]

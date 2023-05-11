@@ -18,14 +18,15 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
         IStreamStore store,
         ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
-        IZipArchiveAfterFeatureCompareValidator validator,
+        IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
+        IZipArchiveAfterFeatureCompareValidator afterFeatureCompareValidator,
         IClock clock,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(blobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
-        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(afterFeatureCompareValidator);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
@@ -51,8 +52,9 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 {
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
+                        IZipArchiveValidator validator = message.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
                         logger.LogInformation("Validation started for archive with validator {Validator}", validator.GetType().Name);
-                        upload.ValidateArchiveUsing(archive, validator);
+                        upload.ValidateArchiveUsing(archive, validator, message.Body.UseZipArchiveFeatureCompareTranslator);
                         logger.LogInformation("Validation completed for archive with validator {Validator}", validator.GetType().Name);
                     }
                     context.RoadNetworkChangesArchives.Add(upload);

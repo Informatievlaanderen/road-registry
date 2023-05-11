@@ -6,38 +6,38 @@ public class TranslatedChangeEqualityComparer : IEqualityComparer<ITranslatedCha
 {
     private readonly Dictionary<(Type, Type), IEqualityComparer<ITranslatedChange>> _comparers;
 
-    public TranslatedChangeEqualityComparer()
+    public TranslatedChangeEqualityComparer(bool ignoreRecordNumber = false)
     {
         _comparers = new Dictionary<(Type, Type), IEqualityComparer<ITranslatedChange>>
         {
             {
                 (typeof(AddRoadSegmentToEuropeanRoad), typeof(AddRoadSegmentToEuropeanRoad)),
                 new TranslatedChangeEqualityComparer<AddRoadSegmentToEuropeanRoad>(
-                    new AddRoadSegmentToEuropeanRoadEqualityComparer()
+                    new AddRoadSegmentToEuropeanRoadEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(RemoveRoadSegmentFromEuropeanRoad), typeof(RemoveRoadSegmentFromEuropeanRoad)),
                 new TranslatedChangeEqualityComparer<RemoveRoadSegmentFromEuropeanRoad>(
-                    new RemoveRoadSegmentFromEuropeanRoadEqualityComparer()
+                    new RemoveRoadSegmentFromEuropeanRoadEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(AddRoadSegmentToNationalRoad), typeof(AddRoadSegmentToNationalRoad)),
                 new TranslatedChangeEqualityComparer<AddRoadSegmentToNationalRoad>(
-                    new AddRoadSegmentToNationalRoadEqualityComparer()
+                    new AddRoadSegmentToNationalRoadEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(RemoveRoadSegmentFromNationalRoad), typeof(RemoveRoadSegmentFromNationalRoad)),
                 new TranslatedChangeEqualityComparer<RemoveRoadSegmentFromNationalRoad>(
-                    new RemoveRoadSegmentFromNationalRoadEqualityComparer()
+                    new RemoveRoadSegmentFromNationalRoadEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(AddRoadSegmentToNumberedRoad), typeof(AddRoadSegmentToNumberedRoad)),
                 new TranslatedChangeEqualityComparer<AddRoadSegmentToNumberedRoad>(
-                    new AddRoadSegmentToNumberedRoadEqualityComparer()
+                    new AddRoadSegmentToNumberedRoadEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
@@ -49,61 +49,61 @@ public class TranslatedChangeEqualityComparer : IEqualityComparer<ITranslatedCha
             {
                 (typeof(RemoveRoadSegmentFromNumberedRoad), typeof(RemoveRoadSegmentFromNumberedRoad)),
                 new TranslatedChangeEqualityComparer<RemoveRoadSegmentFromNumberedRoad>(
-                    new RemoveRoadSegmentFromNumberedRoadEqualityComparer()
+                    new RemoveRoadSegmentFromNumberedRoadEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(AddGradeSeparatedJunction), typeof(AddGradeSeparatedJunction)),
                 new TranslatedChangeEqualityComparer<AddGradeSeparatedJunction>(
-                    new AddGradeSeparatedJunctionEqualityComparer()
+                    new AddGradeSeparatedJunctionEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(ModifyGradeSeparatedJunction), typeof(ModifyGradeSeparatedJunction)),
                 new TranslatedChangeEqualityComparer<ModifyGradeSeparatedJunction>(
-                    new ModifyGradeSeparatedJunctionEqualityComparer()
+                    new ModifyGradeSeparatedJunctionEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(RemoveGradeSeparatedJunction), typeof(RemoveGradeSeparatedJunction)),
                 new TranslatedChangeEqualityComparer<RemoveGradeSeparatedJunction>(
-                    new RemoveGradeSeparatedJunctionEqualityComparer()
+                    new RemoveGradeSeparatedJunctionEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(AddRoadNode), typeof(AddRoadNode)),
                 new TranslatedChangeEqualityComparer<AddRoadNode>(
-                    new AddRoadNodeEqualityComparer()
+                    new AddRoadNodeEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(ModifyRoadNode), typeof(ModifyRoadNode)),
                 new TranslatedChangeEqualityComparer<ModifyRoadNode>(
-                    new ModifyRoadNodeEqualityComparer()
+                    new ModifyRoadNodeEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(RemoveRoadNode), typeof(RemoveRoadNode)),
                 new TranslatedChangeEqualityComparer<RemoveRoadNode>(
-                    new RemoveRoadNodeEqualityComparer()
+                    new RemoveRoadNodeEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(AddRoadSegment), typeof(AddRoadSegment)),
                 new TranslatedChangeEqualityComparer<AddRoadSegment>(
-                    new AddRoadSegmentEqualityComparer()
+                    new AddRoadSegmentEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(ModifyRoadSegment), typeof(ModifyRoadSegment)),
                 new TranslatedChangeEqualityComparer<ModifyRoadSegment>(
-                    new ModifyRoadSegmentEqualityComparer()
+                    new ModifyRoadSegmentEqualityComparer(ignoreRecordNumber)
                 )
             },
             {
                 (typeof(RemoveRoadSegment), typeof(RemoveRoadSegment)),
                 new TranslatedChangeEqualityComparer<RemoveRoadSegment>(
-                    new RemoveRoadSegmentEqualityComparer()
+                    new RemoveRoadSegmentEqualityComparer(ignoreRecordNumber)
                 )
             }
         };

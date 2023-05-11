@@ -9,19 +9,23 @@ using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using BackOffice.FeatureCompare;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 {
     public RoadNetworkChangesArchiveEventModule(
         RoadNetworkUploadsBlobClient client,
         IZipArchiveTranslator translator,
+        IZipArchiveFeatureCompareTranslator featureCompareTranslator,
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
         ILogger<RoadNetworkChangesArchiveEventModule> logger)
     {
-        if (client == null) throw new ArgumentNullException(nameof(client));
-        if (translator == null) throw new ArgumentNullException(nameof(translator));
-        if (store == null) throw new ArgumentNullException(nameof(store));
+        ArgumentNullException.ThrowIfNull(client);
+        ArgumentNullException.ThrowIfNull(translator);
+        ArgumentNullException.ThrowIfNull(featureCompareTranslator);
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(applicationMetadata);
 
         For<RoadNetworkChangesArchiveAccepted>()
             .UseRoadNetworkCommandQueue(store, applicationMetadata)
@@ -37,7 +41,9 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                 using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                 {
                     var requestedChanges = new List<RequestedChange>();
-                    var translatedChanges = translator.Translate(archive);
+                    var translatedChanges = message.Body.UseZipArchiveFeatureCompareTranslator
+                        ? await featureCompareTranslator.Translate(archive, ct)
+                        : translator.Translate(archive);
                     foreach (var change in translatedChanges)
                     {
                         var requestedChange = new RequestedChange();

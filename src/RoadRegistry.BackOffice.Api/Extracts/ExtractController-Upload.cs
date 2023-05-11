@@ -14,7 +14,7 @@ public partial class ExtractController
     private const string PostUploadRoute = "download/{downloadId}/uploads";
 
     /// <summary>
-    /// Uploads the specified download identifier.
+    /// Upload after feature compare archive.
     /// </summary>
     /// <param name="downloadId">The download identifier.</param>
     /// <param name="archive">The archive.</param>

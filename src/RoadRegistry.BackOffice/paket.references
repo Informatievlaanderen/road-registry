@@ -35,6 +35,7 @@ MediatR
 MessagePack
 NetTopologySuite
 NetTopologySuite.IO.GeoJson
+NetTopologySuite.IO.ShapeFile
 Polly
 Serilog.Enrichers.Environment
 Serilog.Enrichers.Thread

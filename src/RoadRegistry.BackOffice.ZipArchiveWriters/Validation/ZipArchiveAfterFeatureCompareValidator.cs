@@ -1,8 +1,7 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
-using System.IO.Compression;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using System.IO.Compression;
 using Uploads;
 using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using Uploads.Dbase.AfterFeatureCompare.V2.Validation;
@@ -42,8 +41,7 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                 {
                     "WEGKNOOP_ALL.SHP",
                     new ZipArchiveShapeEntryValidator(
-                        encoding,
-                        new RoadNodeChangeShapeRecordsValidator()
+                        new RoadNodeChangeShapeRecordValidator()
                     )
                 },
                 {
@@ -70,8 +68,7 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                 {
                     "WEGSEGMENT_ALL.SHP",
                     new ZipArchiveShapeEntryValidator(
-                        encoding,
-                        new RoadSegmentChangeShapeRecordsValidator()
+                        new RoadSegmentChangeShapeRecordValidator()
                     )
                 },
                 {

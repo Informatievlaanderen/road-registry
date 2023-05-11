@@ -24,6 +24,7 @@ using SqlStreamStore;
 using System.Text;
 using System.Threading.Tasks;
 using Extensions;
+using FeatureCompare;
 using Uploads;
 
 public class Program
@@ -56,6 +57,7 @@ public class Program
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
+                            new ZipArchiveFeatureCompareTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()

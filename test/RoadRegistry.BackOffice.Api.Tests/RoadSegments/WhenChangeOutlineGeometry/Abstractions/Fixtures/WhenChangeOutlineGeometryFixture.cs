@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.Api.Tests.Framework;
+using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Hosts.Infrastructure.Options;

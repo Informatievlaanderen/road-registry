@@ -80,7 +80,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 RequestId = download.RequestId,
                 DownloadId = download.DownloadId,
                 UploadId = uploadId.ToGuid(),
-                ArchiveId = archiveId.ToString()
+                ArchiveId = archiveId.ToString(),
+                UseZipArchiveFeatureCompareTranslator = request.UseZipArchiveFeatureCompareTranslator
             });
 
         await Dispatcher(message, cancellationToken);

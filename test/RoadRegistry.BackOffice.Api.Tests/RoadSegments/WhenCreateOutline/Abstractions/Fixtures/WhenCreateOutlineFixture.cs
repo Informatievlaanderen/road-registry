@@ -4,7 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.Api.Tests.Framework;
+using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Editor.Schema;

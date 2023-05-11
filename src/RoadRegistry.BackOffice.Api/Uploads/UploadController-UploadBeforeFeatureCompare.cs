@@ -6,6 +6,7 @@ using Abstractions.Exceptions;
 using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Extracts;
 using FeatureToggles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,6 +21,7 @@ public partial class UploadController
     ///     Posts the upload before feature compare.
     /// </summary>
     /// <param name="useFeatureCompareToggle"></param>
+    /// <param name="useZipArchiveFeatureCompareTranslatorFeatureToggle"></param>
     /// <param name="archive">The archive.</param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het bestand goed ontvangen werd.</response>
@@ -33,7 +35,11 @@ public partial class UploadController
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(UploadBeforeFeatureCompare), Description = "")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> UploadBeforeFeatureCompare([FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle, IFormFile archive, CancellationToken cancellationToken)
+    public async Task<IActionResult> UploadBeforeFeatureCompare(
+        [FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle,
+        [FromServices] UseZipArchiveFeatureCompareTranslatorFeatureToggle useZipArchiveFeatureCompareTranslatorFeatureToggle,
+        IFormFile archive,
+        CancellationToken cancellationToken)
     {
         if (!useFeatureCompareToggle.FeatureEnabled)
         {
@@ -42,10 +48,23 @@ public partial class UploadController
 
         return await PostUpload(archive, async () =>
         {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Ok(response);
+            if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
+            {
+                UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+                var request = new UploadExtractRequest(archive.FileName, requestArchive)
+                {
+                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled
+                };
+                var response = await _mediator.Send(request, cancellationToken);
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
+            }
+            else
+            {
+                UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+                var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
+                var response = await _mediator.Send(request, cancellationToken);
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
+            }
         });
     }
 }

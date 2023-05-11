@@ -31,6 +31,14 @@ public class RoadNodeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<Ro
                             {
                                 problems += recordContext.IdentifierZero();
                             }
+                            else if (!RoadNodeId.Accepts(record.WK_OIDN.Value))
+                            {
+                                problems += recordContext.RoadNodeIdOutOfRange(record.WK_OIDN.Value);
+                            }
+                            else
+                            {
+                                context = context.WithKnownRoadNode(new RoadNodeId(record.WK_OIDN.Value));
+                            }
                         }
                         else
                         {

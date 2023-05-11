@@ -20,6 +20,7 @@ using Syndication.Schema;
 using System;
 using System.Text;
 using System.Threading.Tasks;
+using FeatureCompare;
 using Uploads;
 using ZipArchiveWriters.ExtractHost;
 
@@ -89,6 +90,7 @@ public class Program
                             sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
+                            new ZipArchiveFeatureCompareTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()),
                             sp.GetService<IStreamStore>(),
                             ApplicationMetadata)
                     })
