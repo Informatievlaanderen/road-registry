@@ -11,15 +11,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 using RoadRegistry.BackOffice.Api.Tests.Framework;
 using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Hosts.Infrastructure.Options;
+using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using System.Text;
-using RoadRegistry.Tests.BackOffice;
 
 public abstract class WhenChangeAttributesFixture : ControllerActionFixture<ChangeRoadSegmentAttributesParameters>
 {
@@ -122,7 +121,7 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
             }
         };
 
-        return await controller.PostChangeAttributes(
+        return await controller.ChangeAttributes(
             new UseRoadSegmentChangeAttributesFeatureToggle(true),
             parameters,
             new ChangeRoadSegmentAttributesParametersValidator(),

@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 using RoadRegistry.BackOffice.Api.Tests.Framework;
 using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 using RoadRegistry.Editor.Schema;
@@ -108,7 +107,7 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
             }
         };
 
-        return await controller.PostDeleteOutline(
+        return await controller.DeleteOutline(
             new UseRoadSegmentOutlineDeleteFeatureToggle(true),
             new RoadSegmentOutlinedIdValidator(_editorContext, new RecyclableMemoryStreamManager(), FileEncoding.UTF8),
             roadSegmentId,

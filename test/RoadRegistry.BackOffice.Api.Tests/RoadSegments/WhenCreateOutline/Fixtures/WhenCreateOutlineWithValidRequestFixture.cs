@@ -2,9 +2,9 @@ using RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Abstracti
 
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Fixtures;
 
+using Api.RoadSegments;
 using AutoFixture;
 using MediatR;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Tests.BackOffice;
 

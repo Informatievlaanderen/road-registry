@@ -4,7 +4,6 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 using RoadRegistry.BackOffice.Api.Tests.Framework;
 using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 using RoadRegistry.BackOffice.FeatureToggles;
@@ -43,6 +42,6 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
         };
 
         var validator = new PostRoadSegmentOutlineParametersValidator(_editorContext);
-        return await controller.PostCreateOutline(new UseRoadSegmentOutlineFeatureToggle(true), validator, request, CancellationToken.None);
+        return await controller.CreateOutline(new UseRoadSegmentOutlineFeatureToggle(true), validator, request, CancellationToken.None);
     }
 }

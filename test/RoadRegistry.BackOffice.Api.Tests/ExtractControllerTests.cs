@@ -28,7 +28,7 @@ using Point = NetTopologySuite.Geometries.Point;
 using Position = SqlStreamStore.Streams.Position;
 
 [Collection(nameof(SqlServerCollection))]
-public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyncLifetime
+public class ExtractControllerTests : ControllerTests<ExtractController>, IAsyncLifetime
 {
     private readonly Fixture _fixture;
     private readonly SqlServer _sqlServerFixture;
@@ -111,11 +111,10 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
 
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         var contour = _fixture.Create<RoadNetworkExtractGeometry>();
-        var response = await Controller.PostDownloadRequest(new DownloadExtractRequestBody
-        {
-            RequestId = externalExtractRequestId,
-            Contour = writer.Write((Geometry)GeometryTranslator.Translate(contour))
-        }, CancellationToken.None);
+        var response = await Controller.RequestDownload(new DownloadExtractRequestBody(
+            externalExtractRequestId,
+            writer.Write((Geometry)GeometryTranslator.Translate(contour))
+        ), CancellationToken.None);
         var result = Assert.IsType<AcceptedResult>(response);
         Assert.IsType<DownloadExtractResponseBody>(result.Value);
     }
@@ -135,11 +134,11 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         try
         {
-            await Controller.PostDownloadRequest(new DownloadExtractRequestBody
-            {
-                RequestId = externalExtractRequestId,
-                Contour = writer.Write(new Point(1.0, 2.0))
-            }, CancellationToken.None);
+            await Controller.RequestDownload(new DownloadExtractRequestBody
+            (
+                externalExtractRequestId,
+                writer.Write(new Point(1.0, 2.0))
+            ), CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
         catch (ValidationException)
@@ -158,12 +157,11 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
         try
         {
-            await Controller.PostDownloadRequest(new DownloadExtractRequestBody
-            {
-                RequestId = externalExtractRequestId,
-                Contour = null
-            },
-                CancellationToken.None);
+            await Controller.RequestDownload(new DownloadExtractRequestBody
+            (
+                null,
+                externalExtractRequestId
+            ), CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
         catch (ValidationException)
@@ -186,11 +184,11 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
         var contour = _fixture.Create<RoadNetworkExtractGeometry>();
         try
         {
-            await Controller.PostDownloadRequest(new DownloadExtractRequestBody
-            {
-                RequestId = null,
-                Contour = writer.Write((Geometry)GeometryTranslator.Translate(contour))
-            }, CancellationToken.None);
+            await Controller.RequestDownload(new DownloadExtractRequestBody
+            (
+                writer.Write((Geometry)GeometryTranslator.Translate(contour)),
+                null
+            ), CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
         catch (ValidationException)
@@ -223,7 +221,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
                     })
                 };
 
-                var result = await Controller.PostUploadAfterFeatureCompare(
+                var result = await Controller.UploadFeatureCompare(
                     "not_a_guid_without_dashes",
                     formFile,
                     CancellationToken.None);
@@ -268,7 +266,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
             })
         };
 
-        var result = await Controller.PostUploadBeforeFeatureCompare(
+        var result = await Controller.UploadFeatureCompare(
             "not_a_guid_without_dashes",
             formFile,
             CancellationToken.None);
@@ -286,7 +284,7 @@ public class ExtractControllerTests : ControllerTests<ExtractsController>, IAsyn
             })
         };
 
-        var result = await Controller.PostUploadAfterFeatureCompare(
+        var result = await Controller.Upload(
             "not_a_guid_without_dashes",
             formFile,
             CancellationToken.None);

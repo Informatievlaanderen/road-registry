@@ -11,14 +11,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
 using RoadRegistry.BackOffice.Api.Tests.Framework;
 using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 using RoadRegistry.Editor.Schema;
 using RoadRegistry.Hosts.Infrastructure.Options;
+using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Scenarios;
 using System.Text;
-using RoadRegistry.Tests.BackOffice;
 
 public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture<PostChangeOutlineGeometryParameters>
 {
@@ -110,6 +109,6 @@ public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture
 
         var idValidator = new RoadSegmentOutlinedIdValidator(_editorContext, new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
         var validator = new PostChangeOutlineGeometryParametersValidator();
-        return await controller.PostChangeOutlineGeometry(idValidator, validator, request, TestData.Segment1Added.Id, CancellationToken.None);
+        return await controller.ChangeOutlineGeometry(idValidator, validator, request, TestData.Segment1Added.Id, CancellationToken.None);
     }
 }

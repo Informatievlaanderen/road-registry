@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Api.Tests;
 
 using Abstractions;
 using Api.Downloads;
-using Api.Framework;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Editor.Schema;
@@ -11,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Product.Schema;
+using RoadRegistry.BackOffice.Api.Infrastructure;
 using SqlStreamStore;
 
 [Collection(nameof(SqlServerCollection))]
@@ -48,7 +48,7 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
         });
         await _editorContext.SaveChangesAsync();
 
-        var result = await Controller.Get(_tokenSource.Token);
+        var result = await Controller.GetForEditor(_tokenSource.Token);
         var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
 
         var filename = $"wegenregister-{DateTime.Today.ToString("yyyyMMdd")}.zip";
@@ -58,7 +58,7 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
     [Fact]
     public async Task When_downloading_editor_archive_before_an_import()
     {
-        var result = await Controller.Get(_tokenSource.Token);
+        var result = await Controller.GetForEditor(_tokenSource.Token);
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
     }
@@ -73,7 +73,7 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
         });
         await _editorContext.SaveChangesAsync();
 
-        var result = await Controller.Get(_tokenSource.Token);
+        var result = await Controller.GetForEditor(_tokenSource.Token);
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
     }
@@ -89,7 +89,7 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
         await _productContext.SaveChangesAsync();
 
         var version = DateTime.Today.ToString("yyyyMMdd");
-        var result = await Controller.Get(version, _tokenSource.Token);
+        var result = await Controller.GetForProduct(version, _tokenSource.Token);
         var fileCallbackResult = Assert.IsType<FileCallbackResult>(result);
         Assert.Equal($"wegenregister-{version}.zip", fileCallbackResult.FileDownloadName);
     }
@@ -97,7 +97,8 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
     [Fact]
     public async Task When_downloading_product_archive_before_an_import()
     {
-        var result = await Controller.Get(_tokenSource.Token);
+        var version = DateTime.Today.ToString("yyyyMMdd");
+        var result = await Controller.GetForProduct(version, _tokenSource.Token);
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
     }
@@ -112,7 +113,8 @@ public class DownloadControllerTests : ControllerTests<DownloadController>
         });
         await _productContext.SaveChangesAsync();
 
-        var result = await Controller.Get(_tokenSource.Token);
+        var version = DateTime.Today.ToString("yyyyMMdd");
+        var result = await Controller.GetForProduct(version, _tokenSource.Token);
         var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
         Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
     }

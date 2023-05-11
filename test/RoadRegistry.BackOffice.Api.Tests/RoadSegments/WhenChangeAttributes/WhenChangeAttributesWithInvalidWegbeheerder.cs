@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
 using Abstractions;
-using Api.RoadSegments.Parameters;
+using Api.RoadSegments;
 using BackOffice.Abstractions.RoadSegments;
 using Fixtures;
 using Xunit.Abstractions;

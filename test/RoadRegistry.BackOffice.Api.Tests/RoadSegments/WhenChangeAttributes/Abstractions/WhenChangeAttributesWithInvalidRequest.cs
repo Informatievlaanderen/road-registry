@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Abstractions;
 
-using Api.RoadSegments.Parameters;
+using Api.RoadSegments;
 using Extensions;
 using Fixtures;
 using FluentValidation;

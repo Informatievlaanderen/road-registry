@@ -88,12 +88,21 @@ public static class EndPointTypeExtensions
     {
         public int Compare(string? x, string? y)
         {
-            if (x == null || y == null) return DefaultCompare(x, y);
+            if (x == null || y == null)
+            {
+                return DefaultCompare(x, y);
+            }
 
             var problemResult = 0;
-            if (ContainsProblem(x)) problemResult -= 1;
+            if (ContainsProblem(x))
+            {
+                problemResult -= 1;
+            }
 
-            if (ContainsProblem(y)) problemResult += 1;
+            if (ContainsProblem(y))
+            {
+                problemResult += 1;
+            }
 
             return problemResult != 0 ? problemResult : string.CompareOrdinal(x, y);
         }

@@ -2,11 +2,11 @@ using RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Abstra
 
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Fixtures;
 
+using Api.RoadSegments;
 using AutoFixture;
+using Editor.Schema;
 using MediatR;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
-using Editor.Schema;
 
 public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesFixture
 {

@@ -1,10 +1,12 @@
 namespace RoadRegistry.Tests.Framework.Projections;
 
+using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.Converters;
 using Newtonsoft.Json;
 
 public static class Formatters
 {
+    private static readonly GeometryFactory _factory = new GeometryFactory(new PrecisionModel(), 31370);
     private static readonly JsonConverter[] Converters;
 
     static Formatters()
@@ -12,7 +14,14 @@ public static class Formatters
         Converters = new JsonConverter[]
         {
             new GeometryConverter(),
-            new CoordinateConverter()
+            new CoordinateConverter(),
+            new FeatureCollectionConverter(),
+            new FeatureConverter(),
+            new AttributesTableConverter(),
+            new GeometryConverter(_factory, 2),
+            new GeometryArrayConverter(_factory, 2),
+            new CoordinateConverter(_factory.PrecisionModel, 2),
+            new EnvelopeConverter()
         };
     }
 
