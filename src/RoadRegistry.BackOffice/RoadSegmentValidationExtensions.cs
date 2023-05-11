@@ -16,12 +16,12 @@ public static class RoadSegmentValidationExtensions
 
     public static bool IsValidStartRoadNodeIdForRoadSegmentOutline(this int nodeId)
     {
-        return nodeId == 0;
+        return nodeId == RoadNodeId.Zero;
     }
 
     public static bool IsValidEndRoadNodeIdForRoadSegmentOutline(this int nodeId)
     {
-        return nodeId == 0;
+        return nodeId == RoadNodeId.Zero;
     }
 
     public static bool IsAllowed(this RoadSegmentGeometryDrawMethod geometryDrawMethod)

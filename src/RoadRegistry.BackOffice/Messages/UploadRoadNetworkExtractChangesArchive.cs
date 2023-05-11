@@ -9,4 +9,5 @@ public class UploadRoadNetworkExtractChangesArchive
     public string RequestId { get; set; }
     public Guid UploadId { get; set; }
     public bool FeatureCompareCompleted { get; set; }
+    public bool UseZipArchiveFeatureCompareTranslator { get; set; }
 }

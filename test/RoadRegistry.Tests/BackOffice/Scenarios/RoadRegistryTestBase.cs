@@ -50,7 +50,8 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 
         Client = new MemoryBlobClient();
         Clock = new FakeClock(NodaConstants.UnixEpoch);
-        ZipArchiveValidator = new FakeZipArchiveAfterFeatureCompareValidator();
+        ZipArchiveBeforeFeatureCompareValidator = new FakeZipArchiveBeforeFeatureCompareValidator();
+        ZipArchiveAfterFeatureCompareValidator = new FakeZipArchiveAfterFeatureCompareValidator();
         LoggerFactory = new LoggerFactory();
 
         WithStore(new InMemoryStreamStore(), comparisonConfig);
@@ -61,7 +62,8 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     public FakeClock Clock { get; }
     public Fixture ObjectProvider { get; }
     public IStreamStore Store { get; private set; }
-    public IZipArchiveAfterFeatureCompareValidator ZipArchiveValidator { get; set; }
+    public IZipArchiveAfterFeatureCompareValidator ZipArchiveAfterFeatureCompareValidator { get; set; }
+    public IZipArchiveBeforeFeatureCompareValidator ZipArchiveBeforeFeatureCompareValidator { get; set; }
     protected IRoadRegistryContext RoadRegistryContext { get; }
     protected LoggerFactory LoggerFactory { get; }
 
@@ -108,7 +110,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
                 new RoadNetworkCommandModule(Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), Clock, LoggerFactory),
-                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), ZipArchiveValidator, Clock, LoggerFactory)
+                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), ZipArchiveBeforeFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator, Clock, LoggerFactory)
             }),
             Store,
             Settings,

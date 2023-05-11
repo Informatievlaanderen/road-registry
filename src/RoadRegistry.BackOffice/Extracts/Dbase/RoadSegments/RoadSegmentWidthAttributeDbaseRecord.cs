@@ -31,7 +31,7 @@ public class RoadSegmentWidthAttributeDbaseRecord : DbaseRecord
             LBLBGNORG
         };
     }
-
+    
     public DbaseString BEGINORG { get; set; }
     public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseInt32 BREEDTE { get; set; }

@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Authorization;
 public partial class RoadSegmentsController
 {
     /// <summary>
-    ///     Attribuutwaarde van status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie van wegsegmenten wijzigen.
+    ///     Wijzig een attribuutwaarde voor één of meerdere wegsegmenten.
     /// </summary>
     /// <param name="featureToggle">Ingeschakelde functionaliteit of niet</param>
     /// <param name="parameters">Bevat de attributen die gewijzigd moeten worden</param>

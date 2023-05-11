@@ -93,4 +93,115 @@ public static class NetTopologySuiteExtensions
 
         return problems;
     }
+
+    public static bool OverlapsWith(this Geometry g0, Geometry g1, double threshold, OgcGeometryType oGisGeometryType, double clusterTolerance)
+    {
+        if (g0 is null && g1 is null)
+        {
+            return true;
+        }
+
+        if (g0 is null || g1 is null)
+        {
+            return false;
+        }
+
+        Geometry overlap;
+
+        if (oGisGeometryType == OgcGeometryType.Point)
+        {
+            var g0Buf = g0.Buffer(clusterTolerance);
+            var g1Buf = g1.Buffer(clusterTolerance);
+            if (!g0.Within(g1Buf))
+                return false;
+            if (!g1.Within(g0Buf))
+                return false;
+            return true;
+        }
+
+        if (oGisGeometryType == OgcGeometryType.LineString)
+        {
+            if (g1.Length < 1.42)
+            {
+                clusterTolerance = g1.Length / 2;
+            }
+            var g1Buf = g1.Buffer(clusterTolerance);
+            overlap = g0.Intersection(g1Buf);
+            var overlapValue = Math.Round(overlap.Length * 100 / g1.Length);
+            if (overlapValue >= threshold)
+            {
+                return CheckOverlapViceVersa(g0, g1, OgcGeometryType.LineString, threshold, clusterTolerance);
+            }
+
+            return false;
+        }
+
+        if (oGisGeometryType == OgcGeometryType.Polygon)
+        {
+            overlap = g0.Intersection(g1);
+
+            var overlapValue = Math.Round(overlap.Area * 100 / g1.Area);
+            if (overlapValue >= threshold)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        throw new NotSupportedException($"{nameof(OgcGeometryType)}.{oGisGeometryType} is not supported");
+    }
+
+    public static bool IsReasonablyEqualTo(this Geometry g0, Geometry g1, double clusterTolerance)
+    {
+        //Catch weird comparisons...
+        if (g0 is null && g1 is null)
+        {
+            return true;
+        }
+
+        if (g0 is null || g1 is null)
+        {
+            return false;
+        }
+
+        // check if geometries are reasonably equal by checking if they fit within eachother's buffer
+        var g0Buf = g0.Buffer(clusterTolerance);
+        var g1Buf = g1.Buffer(clusterTolerance);
+
+        if (!g0.Within(g1Buf))
+            return false;
+        if (!g1.Within(g0Buf))
+            return false;
+
+        return true;
+    }
+
+    private static bool CheckOverlapViceVersa(Geometry g0, Geometry g1, OgcGeometryType oGisGeometryType, double threshold, double compareTolerance)
+    {
+        if (oGisGeometryType == OgcGeometryType.LineString)
+        {
+            var g0Buf = g0.Buffer(compareTolerance);
+            var overlap = g1.Intersection(g0Buf);
+            var overlapValue = Math.Round(overlap.Length * 100 / g0.Length);
+            if (overlapValue >= threshold)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        else
+        {
+            //omgekeerde moet ook gecheckt worden (voorkomen vergelijking met verkeerd omvattend feature, overlap = 100%)
+            var overlap = g1.Intersection(g0);
+            var overlapValue = Math.Round(overlap.Area * 100 / g0.Area);
+            if (overlapValue >= threshold)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    }
 }

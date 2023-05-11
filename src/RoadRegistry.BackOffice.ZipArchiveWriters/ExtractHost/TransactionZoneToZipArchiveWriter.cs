@@ -4,8 +4,8 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
-using Editor.Schema.Extracts;
 using Extracts;
+using Extracts.Dbase;
 
 public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {

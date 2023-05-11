@@ -17,6 +17,7 @@ using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core.ProblemCodes;
+using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
 using Framework;
@@ -156,16 +157,30 @@ public class ExtractsController : ControllerBase
     [HttpPost("download/{downloadId}/uploads/fc")]
     [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
     public Task<IActionResult> PostUploadBeforeFeatureCompare(
+        [FromServices] UseZipArchiveFeatureCompareTranslatorFeatureToggle useZipArchiveFeatureCompareTranslatorFeatureToggle,
         [FromRoute] string downloadId,
         IFormFile archive,
         CancellationToken cancellationToken)
     {
         return PostUpload(archive, async () =>
         {
-            var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractFeatureCompareRequest(downloadId, requestArchive);
-            var response = await _mediator.Send(request, cancellationToken);
-            return Accepted(new UploadExtractBeforeFeatureCompareResponseBody { ArchiveId = response.ArchiveId });
+            if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
+            {
+                var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+                var request = new UploadExtractRequest(downloadId, requestArchive)
+                {
+                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled
+                };
+                var response = await _mediator.Send(request, cancellationToken);
+                return Accepted(new UploadExtractResponseBody { UploadId = response.UploadId.ToString() });
+            }
+            else
+            {
+                var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
+                var request = new UploadExtractFeatureCompareRequest(downloadId, requestArchive);
+                var response = await _mediator.Send(request, cancellationToken);
+                return Accepted(new UploadExtractBeforeFeatureCompareResponseBody { ArchiveId = response.ArchiveId });
+            }
         });
     }
 

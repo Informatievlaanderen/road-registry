@@ -19,14 +19,15 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         IStreamStore store,
         ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
-        IZipArchiveAfterFeatureCompareValidator validator,
+        IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
+        IZipArchiveAfterFeatureCompareValidator afterFeatureCompareValidator,
         IClock clock,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(uploadsBlobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
-        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(afterFeatureCompareValidator);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
@@ -108,7 +109,8 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                 using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                 {
-                    upload.ValidateArchiveUsing(archive, validator);
+                    IZipArchiveValidator validator = message.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
+                    upload.ValidateArchiveUsing(archive, validator,  message.Body.UseZipArchiveFeatureCompareTranslator);
                 }
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(UploadRoadNetworkExtractChangesArchive));
