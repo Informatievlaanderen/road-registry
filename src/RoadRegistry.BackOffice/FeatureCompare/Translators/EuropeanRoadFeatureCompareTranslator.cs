@@ -1,96 +1,38 @@
-namespace RoadRegistry.BackOffice.FeatureCompare.Translators
+namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
+
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
+using Uploads;
+
+internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<EuropeanRoadFeatureCompareAttributes>
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-    using RoadRegistry.BackOffice.Uploads;
-    using System.Collections.Generic;
-    using System.IO.Compression;
-    using System.Linq;
-    using System.Text;
-
-    internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<EuropeanRoadFeatureCompareAttributes>
+    public EuropeanRoadFeatureCompareTranslator(Encoding encoding)
+        : base(encoding, "ATTEUROPWEG")
     {
-        public EuropeanRoadFeatureCompareTranslator(Encoding encoding)
-            : base(encoding, "ATTEUROPWEG")
+    }
+
+    protected override void HandleIdenticalRoadSegment(RoadSegmentRecord wegsegment, List<Feature<EuropeanRoadFeatureCompareAttributes>> leveringFeatures, List<Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
+    {
+        var wegsegmentLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
+        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
+
+        foreach (var leveringFeature in wegsegmentLeveringFeatures)
         {
-        }
-
-        protected override List<Feature> ReadFeatures(FeatureType featureType, IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
-        {
-            var featureReader = new VersionedFeatureReader<Feature>(
-                new ExtractsFeatureReader(Encoding),
-                new UploadsFeatureReader(Encoding)
-            );
-
-            var dbfFileName = GetDbfFileName(featureType, fileName);
-
-            return featureReader.Read(entries, dbfFileName);
-        }
-
-        protected override void HandleIdenticalRoadSegment(RoadSegmentRecord wegsegment, List<Feature> leveringFeatures, List<Feature> extractFeatures, List<Record> processedRecords)
-        {
-            var wegsegmentLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.WS_OIDN.ToString() == wegsegment.CompareIdn);
-            var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.WS_OIDN == wegsegment.Id);
-
-            foreach (var leveringFeature in wegsegmentLeveringFeatures)
+            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == leveringFeature.Attributes.RoadSegmentId
+                                                                       && x.Attributes.Number == leveringFeature.Attributes.Number);
+            if (!leveringExtractFeatures.Any())
             {
-                var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.WS_OIDN == leveringFeature.Attributes.WS_OIDN
-                                                                   && x.Attributes.EUNUMMER == leveringFeature.Attributes.EUNUMMER);
-                if (!leveringExtractFeatures.Any())
-                {
-                    processedRecords.Add(new Record(leveringFeature, RecordType.Added));
-                }
-                else
-                {
-                    processedRecords.Add(new Record(leveringFeature, RecordType.Identical));
-
-                    if (leveringExtractFeatures.Count > 1)
-                    {
-                        foreach (var extractFeature in leveringExtractFeatures.Skip(1))
-                        {
-                            processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-                        }
-                    }
-                }
+                processedRecords.Add(new Record(leveringFeature, RecordType.Added));
             }
-
-            foreach (var extractFeature in wegsegmentExtractFeatures)
+            else
             {
-                var extractLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.WS_OIDN == extractFeature.Attributes.WS_OIDN
-                                                                            && x.Attributes.EUNUMMER == extractFeature.Attributes.EUNUMMER);
-                if (!extractLeveringFeatures.Any())
-                {
-                    processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-                }
-            }
-        }
+                processedRecords.Add(new Record(leveringFeature, RecordType.Identical));
 
-        protected override void HandleModifiedRoadSegment(RoadSegmentRecord wegsegment, List<Feature> leveringFeatures, List<Feature> extractFeatures, List<Record> processedRecords)
-        {
-            var wegsegmentLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.WS_OIDN.ToString() == wegsegment.CompareIdn);
-            var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.WS_OIDN == wegsegment.Id);
-
-            foreach (var leveringFeature in wegsegmentLeveringFeatures)
-            {
-                var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.WS_OIDN == wegsegment.Id
-                                                                           && x.Attributes.EUNUMMER == leveringFeature.Attributes.EUNUMMER);
-                if (!leveringExtractFeatures.Any())
+                if (leveringExtractFeatures.Count > 1)
                 {
-                    processedRecords.Add(new Record(leveringFeature, RecordType.Added, wegsegment.Id));
-                }
-                else
-                {
-                    processedRecords.Add(new Record(leveringExtractFeatures.First(), RecordType.Identical));
-                }
-            }
-
-            foreach (var extractFeature in wegsegmentExtractFeatures)
-            {
-                {
-                    var extractLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.WS_OIDN.ToString() == wegsegment.CompareIdn
-                                                                           && x.Attributes.EUNUMMER == extractFeature.Attributes.EUNUMMER);
-
-                    if (!extractLeveringFeatures.Any())
+                    foreach (var extractFeature in leveringExtractFeatures.Skip(1))
                     {
                         processedRecords.Add(new Record(extractFeature, RecordType.Removed));
                     }
@@ -98,72 +40,85 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators
             }
         }
 
-        protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
+        foreach (var extractFeature in wegsegmentExtractFeatures)
         {
-            foreach (var record in records)
+            var extractLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId == extractFeature.Attributes.RoadSegmentId
+                                                                        && x.Attributes.Number == extractFeature.Attributes.Number);
+            if (!extractLeveringFeatures.Any())
             {
-                switch (record.RecordType.Translation.Identifier)
+                processedRecords.Add(new Record(extractFeature, RecordType.Removed));
+            }
+        }
+    }
+
+    protected override void HandleModifiedRoadSegment(RoadSegmentRecord wegsegment, List<Feature<EuropeanRoadFeatureCompareAttributes>> leveringFeatures, List<Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
+    {
+        var wegsegmentLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
+        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
+
+        foreach (var leveringFeature in wegsegmentLeveringFeatures)
+        {
+            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id
+                                                                       && x.Attributes.Number == leveringFeature.Attributes.Number);
+            if (!leveringExtractFeatures.Any())
+            {
+                processedRecords.Add(new Record(leveringFeature, RecordType.Added, wegsegment.Id));
+            }
+            else
+            {
+                processedRecords.Add(new Record(leveringExtractFeatures.First(), RecordType.Identical));
+            }
+        }
+
+        foreach (var extractFeature in wegsegmentExtractFeatures)
+        {
+            {
+                var extractLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn
+                                                                            && x.Attributes.Number == extractFeature.Attributes.Number);
+
+                if (!extractLeveringFeatures.Any())
                 {
-                    case RecordType.AddedIdentifier:
-                        changes = changes.AppendChange(
-                            new AddRoadSegmentToEuropeanRoad(
-                                record.Feature.RecordNumber,
-                                new AttributeId(record.Feature.Attributes.EU_OIDN),
-                                new RoadSegmentId(record.Feature.Attributes.WS_OIDN),
-                                EuropeanRoadNumber.Parse(record.Feature.Attributes.EUNUMMER)
-                            )
-                        );
-                        break;
-                    case RecordType.RemovedIdentifier:
-                        changes = changes.AppendChange(
-                            new RemoveRoadSegmentFromEuropeanRoad(
-                                record.Feature.RecordNumber,
-                                new AttributeId(record.Feature.Attributes.EU_OIDN),
-                                new RoadSegmentId(record.Feature.Attributes.WS_OIDN),
-                                EuropeanRoadNumber.Parse(record.Feature.Attributes.EUNUMMER)
-                            )
-                        );
-                        break;
+                    processedRecords.Add(new Record(extractFeature, RecordType.Removed));
                 }
             }
-
-            return changes;
         }
+    }
 
-        private sealed class ExtractsFeatureReader : FeatureReader<RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature>
+    protected override List<Feature<EuropeanRoadFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    {
+        var featureReader = new EuropeanRoadFeatureCompareFeatureReader(Encoding);
+        return featureReader.Read(entries, featureType, fileName);
+    }
+
+    protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
+    {
+        foreach (var record in records)
         {
-            public ExtractsFeatureReader(Encoding encoding)
-                : base(encoding, RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema)
+            switch (record.RecordType.Translation.Identifier)
             {
-            }
-
-            protected override Feature ConvertDbfRecordToFeature(RecordNumber recordNumber, RoadSegmentEuropeanRoadAttributeDbaseRecord dbaseRecord)
-            {
-                return new Feature(recordNumber, new EuropeanRoadFeatureCompareAttributes
-                {
-                    EU_OIDN = dbaseRecord.EU_OIDN.Value,
-                    EUNUMMER = dbaseRecord.EUNUMMER.Value,
-                    WS_OIDN = dbaseRecord.WS_OIDN.Value
-                });
-            }
-        }
-
-        private sealed class UploadsFeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature>
-        {
-            public UploadsFeatureReader(Encoding encoding)
-                : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema)
-            {
-            }
-
-            protected override Feature ConvertDbfRecordToFeature(RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord dbaseRecord)
-            {
-                return new Feature(recordNumber, new EuropeanRoadFeatureCompareAttributes
-                {
-                    EU_OIDN = dbaseRecord.EU_OIDN.Value,
-                    EUNUMMER = dbaseRecord.EUNUMMER.Value,
-                    WS_OIDN = dbaseRecord.WS_OIDN.Value
-                });
+                case RecordType.AddedIdentifier:
+                    changes = changes.AppendChange(
+                        new AddRoadSegmentToEuropeanRoad(
+                            record.Feature.RecordNumber,
+                            new AttributeId(record.Feature.Attributes.Id),
+                            new RoadSegmentId(record.Feature.Attributes.RoadSegmentId),
+                            EuropeanRoadNumber.Parse(record.Feature.Attributes.Number)
+                        )
+                    );
+                    break;
+                case RecordType.RemovedIdentifier:
+                    changes = changes.AppendChange(
+                        new RemoveRoadSegmentFromEuropeanRoad(
+                            record.Feature.RecordNumber,
+                            new AttributeId(record.Feature.Attributes.Id),
+                            new RoadSegmentId(record.Feature.Attributes.RoadSegmentId),
+                            EuropeanRoadNumber.Parse(record.Feature.Attributes.Number)
+                        )
+                    );
+                    break;
             }
         }
+
+        return changes;
     }
 }

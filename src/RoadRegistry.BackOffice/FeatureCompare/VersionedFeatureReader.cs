@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using RoadRegistry.BackOffice.Uploads;
+using Uploads;
 
 public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
     where TFeature: class
@@ -22,7 +22,7 @@ public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
         _versionedReaders = readers;
     }
     
-    public List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+    public virtual List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
     {
         ArgumentNullException.ThrowIfNull(entries);
         ArgumentNullException.ThrowIfNull(fileName);
@@ -34,7 +34,7 @@ public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
         {
             try
             {
-                return reader.Read(entries, fileName);
+                return reader.Read(entries, featureType, fileName);
             }
             catch (DbaseSchemaMismatchException ex)
             {
@@ -43,6 +43,6 @@ public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
             }
         }
 
-        throw new DbfReaderNotFoundException(fileName, actualSchema, expectedSchemas);
+        throw new DbaseReaderNotFoundException(fileName, actualSchema, expectedSchemas);
     }
 }

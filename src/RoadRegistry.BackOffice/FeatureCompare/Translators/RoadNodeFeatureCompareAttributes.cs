@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using Point = NetTopologySuite.Geometries.Point;
+using NetTopologySuite.Geometries;
 
 public class RoadNodeFeatureCompareAttributes
 {
-    public int TYPE { get; init; }
-    public int WK_OIDN { get; init; }
+    public int Id { get; init; }
+    public int Type { get; init; }
     public Point Geometry { get; set; }
 }

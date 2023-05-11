@@ -2,8 +2,8 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 public record GradeSeparatedJunctionFeatureCompareAttributes
 {
-    public int OK_OIDN { get; init; }
-    public int BO_WS_OIDN { get; init; }
-    public int ON_WS_OIDN { get; init; }
-    public int TYPE { get; init; }
+    public int Id { get; init; }
+    public int UpperRoadSegmentId { get; init; }
+    public int LowerRoadSegmentId { get; init; }
+    public int Type { get; init; }
 }

@@ -15,13 +15,13 @@ using System.Text;
 using Exceptions;
 using Uploads;
 
-public class ZipArchiveFeatureCompareTranslatorTests
+public class FeatureCompareTranslatorScenarios
 {
     private static readonly Encoding Encoding = Encoding.UTF8;
 
     private readonly ILogger<ZipArchiveFeatureCompareTranslator> _logger;
 
-    public ZipArchiveFeatureCompareTranslatorTests(ILogger<ZipArchiveFeatureCompareTranslator> logger)
+    public FeatureCompareTranslatorScenarios(ILogger<ZipArchiveFeatureCompareTranslator> logger)
     {
         _logger = logger;
     }

@@ -1,9 +1,9 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-public record NumberedRoadFeatureCompareAttributes : RoadNumberingFeatureCompareAttributes
+public class NumberedRoadFeatureCompareAttributes : RoadNumberingFeatureCompareAttributes
 {
-    public int GW_OIDN { get; init; }
-    public string IDENT8 { get; init; }
-    public int RICHTING { get; init; }
-    public int VOLGNUMMER { get; init; }
+    public int Id { get; init; }
+    public string Number { get; init; }
+    public int Direction { get; init; }
+    public int Ordinal { get; init; }
 }

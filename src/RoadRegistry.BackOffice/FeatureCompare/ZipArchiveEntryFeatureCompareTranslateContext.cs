@@ -27,7 +27,7 @@ public class RoadSegmentRecord
         RecordType = recordType;
     }
 
-    public int Id => Attributes.WS_OIDN;
+    public int Id => Attributes.Id;
 
     public RecordNumber RecordNumber { get; }
     public RoadSegmentFeatureCompareAttributes Attributes { get; }

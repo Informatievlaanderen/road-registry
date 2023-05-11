@@ -4,17 +4,17 @@ using NetTopologySuite.Geometries;
 
 public class RoadSegmentFeatureCompareAttributes
 {
-    public int B_WK_OIDN { get; init; }
-    public string BEHEER { get; init; }
-    public int E_WK_OIDN { get; init; }
-    public int? LSTRNMID { get; init; }
-    public int METHODE { get; init; }
-    public int MORF { get; init; }
-    public int? RSTRNMID { get; init; }
-    public int STATUS { get; init; }
-    public int TGBEP { get; init; }
-    public string WEGCAT { get; init; }
-    public int WS_OIDN { get; set; }
+    public int Id { get; set; }
+    public int StartNodeId { get; init; }
+    public string MaintenanceAuthority { get; init; }
+    public int EndNodeId { get; init; }
+    public int? LeftStreetNameId { get; init; }
+    public int Method { get; init; }
+    public int Morphology { get; init; }
+    public int? RightStreetNameId { get; init; }
+    public int Status { get; init; }
+    public int AccessRestriction { get; init; }
+    public string Category { get; init; }
 
     public MultiLineString Geometry { get; set; }
 }

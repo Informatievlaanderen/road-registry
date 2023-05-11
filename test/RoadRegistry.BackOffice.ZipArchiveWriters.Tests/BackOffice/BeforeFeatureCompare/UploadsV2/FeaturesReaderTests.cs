@@ -1,16 +1,14 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatureCompare.Extracts;
+namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatureCompare.UploadsV2;
 
 using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using FeatureCompare;
 using Uploads;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
+using Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
 
 public class FeaturesReaderTests
 {

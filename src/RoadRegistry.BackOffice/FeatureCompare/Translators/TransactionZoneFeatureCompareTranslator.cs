@@ -1,14 +1,12 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using RoadRegistry.BackOffice.Extracts.Dbase;
-using RoadRegistry.BackOffice.Uploads;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Uploads;
 
 internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslatorBase<TransactionZoneFeatureCompareAttributes>
 {
@@ -17,53 +15,28 @@ internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslato
     {
     }
 
-    protected override List<Feature> ReadFeatures(FeatureType featureType, IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+    protected override List<Feature<TransactionZoneFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
     {
-        var featureReader = new VersionedFeatureReader<Feature>(
-            new ExtractsFeatureReader(Encoding)
-        );
-
-        var dbfFileName = GetDbfFileName(featureType, fileName);
-
-        return featureReader.Read(entries, dbfFileName);
+        var featureReader = new TransactionZoneFeatureCompareFeatureReader(Encoding);
+        return featureReader.Read(entries, featureType, fileName);
     }
 
     public override Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
         var entries = context.Entries;
 
-        var features = ReadFeatures(FeatureType.Levering, entries, "TRANSACTIEZONES");
+        var features = ReadFeatures(entries, FeatureType.Levering, "TRANSACTIEZONES");
         var feature = features.SingleOrDefault();
         if (feature is not null)
         {
             changes = changes
-                .WithReason(new Reason(feature.Attributes.BESCHRIJV))
-                .WithOperatorName(string.IsNullOrEmpty(feature.Attributes.OPERATOR)
+                .WithReason(new Reason(feature.Attributes.Description))
+                .WithOperatorName(string.IsNullOrEmpty(feature.Attributes.OperatorName)
                     ? OperatorName.Unknown
-                    : new OperatorName(feature.Attributes.OPERATOR))
-                .WithOrganization(new OrganizationId(feature.Attributes.ORG));
+                    : new OperatorName(feature.Attributes.OperatorName))
+                .WithOrganization(new OrganizationId(feature.Attributes.Organization));
         }
 
         return Task.FromResult(changes);
-    }
-
-    private sealed class ExtractsFeatureReader : FeatureReader<TransactionZoneDbaseRecord, Feature>
-    {
-        public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, TransactionZoneDbaseRecord.Schema)
-        {
-        }
-
-        protected override Feature ConvertDbfRecordToFeature(RecordNumber recordNumber, TransactionZoneDbaseRecord dbaseRecord)
-        {
-            return new Feature(recordNumber, new TransactionZoneFeatureCompareAttributes
-            {
-                BESCHRIJV = dbaseRecord.BESCHRIJV.Value,
-                DOWNLOADID = dbaseRecord.DOWNLOADID.Value,
-                OPERATOR = dbaseRecord.OPERATOR.Value,
-                ORG = dbaseRecord.ORG.Value,
-                TYPE = dbaseRecord.TYPE.Value
-            });
-        }
     }
 }

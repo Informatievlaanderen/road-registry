@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-public record EuropeanRoadFeatureCompareAttributes: RoadNumberingFeatureCompareAttributes
+public class EuropeanRoadFeatureCompareAttributes: RoadNumberingFeatureCompareAttributes
 {
-    public int EU_OIDN { get; init; }
-    public string EUNUMMER { get; init; }
+    public int Id { get; init; }
+    public string Number { get; init; }
 }

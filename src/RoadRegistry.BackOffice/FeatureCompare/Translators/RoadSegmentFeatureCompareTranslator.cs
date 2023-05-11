@@ -1,17 +1,14 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-using RoadRegistry.BackOffice.Uploads;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NetTopologySuite.Geometries;
+using Uploads;
 
 internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
@@ -20,164 +17,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
     {
     }
 
-    protected override List<Feature> ReadFeatures(FeatureType featureType, IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
-    {
-        var featureReader = new VersionedFeatureReader<Feature>(
-            new ExtractsFeatureReader(Encoding),
-            new UploadsV2FeatureReader(Encoding)
-        );
-
-        var dbfFileName = GetDbfFileName(featureType, fileName);
-
-        var features = featureReader.Read(entries, dbfFileName);
-
-        var shpFileName = GetShpFileName(featureType, fileName);
-        var shpEntry = entries.Single(x => x.Name.Equals(shpFileName, StringComparison.InvariantCultureIgnoreCase));
-        if (shpEntry is null)
-        {
-            throw new FileNotFoundException($"File '{shpFileName}' was not found in zip archive", shpFileName);
-        }
-
-        var shpReader = new ZipArchiveShapeFileReader();
-        foreach (var (geometry, recordNumber) in shpReader.Read(shpEntry))
-        {
-            var multiLineString = geometry as MultiLineString;
-            if (multiLineString is null)
-            {
-                var lineString = (LineString)geometry;
-                multiLineString = new MultiLineString(new[] { lineString }, lineString.Factory)
-                {
-                    SRID = lineString.SRID
-                };
-            }
-
-            var feature = features.Single(x => x.RecordNumber.Equals(recordNumber));
-            feature.Attributes.Geometry = multiLineString;
-        }
-
-        var featuresWithoutGeometry = features.Where(x => x.Attributes.Geometry is null).ToArray();
-        if (featuresWithoutGeometry.Any())
-        {
-            throw new InvalidOperationException($"{featuresWithoutGeometry.Length} {fileName} records have no geometry");
-        }
-
-        return features;
-    }
-
-    public override async Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
-    {
-        var entries = context.Entries;
-
-        var (extractFeatures, leveringFeatures, integrationFeatures) = ReadExtractAndLeveringAndIntegrationFeatures(entries, "WEGSEGMENT");
-
-        context.RoadSegments.AddRange(integrationFeatures.Select(feature => new RoadSegmentRecord(feature.RecordNumber, feature.Attributes, RecordType.Identical)));
-
-        var batchCount = 2;
-
-        if (leveringFeatures.Any())
-        {
-            var processedLeveringRecords = await Task.WhenAll(
-            leveringFeatures.SplitIntoBatches(batchCount)
-                .Select(leveringFeaturesBatch =>
-                {
-                    return Task.Run(() => ProcessLeveringRecords(leveringFeaturesBatch, extractFeatures, cancellationToken), cancellationToken);
-                }));
-            context.RoadSegments.AddRange(processedLeveringRecords.SelectMany(x => x));
-
-            var rootNumber = Convert.ToInt32(leveringFeatures.Max(x => x.Attributes.WS_OIDN)) + 1;
-            foreach (var record in context.RoadSegments.Where(x => x.RecordType.Equals(RecordType.Added)))
-            {
-                record.TempId = rootNumber++;
-            }
-        }
-
-        foreach (var extractFeature in extractFeatures)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var hasProcessedRoadSegment = context.RoadSegments.Any(x => x.Id == extractFeature.Attributes.WS_OIDN
-                                                                        && !x.RecordType.Equals(RecordType.Added));
-            if (!hasProcessedRoadSegment)
-            {
-                context.RoadSegments.Add(new RoadSegmentRecord(extractFeature.RecordNumber, extractFeature.Attributes, RecordType.Removed));
-            }
-        }
-
-        foreach (var record in context.RoadSegments)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            switch (record.RecordType.Translation.Identifier)
-            {
-                case RecordType.IdenticalIdentifier:
-                    changes = changes.AppendProvisionalChange(
-                        new ModifyRoadSegment(
-                            record.RecordNumber,
-                            new RoadSegmentId(record.Attributes.WS_OIDN),
-                            new RoadNodeId(record.Attributes.B_WK_OIDN),
-                            new RoadNodeId(record.Attributes.E_WK_OIDN),
-                            new OrganizationId(record.Attributes.BEHEER),
-                            RoadSegmentGeometryDrawMethod.ByIdentifier[record.Attributes.METHODE],
-                            RoadSegmentMorphology.ByIdentifier[record.Attributes.MORF],
-                            RoadSegmentStatus.ByIdentifier[record.Attributes.STATUS],
-                            RoadSegmentCategory.ByIdentifier[record.Attributes.WEGCAT],
-                            RoadSegmentAccessRestriction.ByIdentifier[record.Attributes.TGBEP],
-                            CrabStreetnameId.FromValue(record.Attributes.LSTRNMID),
-                            CrabStreetnameId.FromValue(record.Attributes.RSTRNMID)
-                        ).WithGeometry(record.Attributes.Geometry)
-                    );
-                    break;
-                case RecordType.ModifiedIdentifier:
-                    changes = changes.AppendChange(
-                        new ModifyRoadSegment(
-                            record.RecordNumber,
-                            new RoadSegmentId(record.Attributes.WS_OIDN),
-                            new RoadNodeId(record.Attributes.B_WK_OIDN),
-                            new RoadNodeId(record.Attributes.E_WK_OIDN),
-                            new OrganizationId(record.Attributes.BEHEER),
-                            RoadSegmentGeometryDrawMethod.ByIdentifier[record.Attributes.METHODE],
-                            RoadSegmentMorphology.ByIdentifier[record.Attributes.MORF],
-                            RoadSegmentStatus.ByIdentifier[record.Attributes.STATUS],
-                            RoadSegmentCategory.ByIdentifier[record.Attributes.WEGCAT],
-                            RoadSegmentAccessRestriction.ByIdentifier[record.Attributes.TGBEP],
-                            CrabStreetnameId.FromValue(record.Attributes.LSTRNMID),
-                            CrabStreetnameId.FromValue(record.Attributes.RSTRNMID)
-                        ).WithGeometry(record.Attributes.Geometry)
-                    );
-                    break;
-                case RecordType.AddedIdentifier:
-                    changes = changes.AppendChange(
-                        new AddRoadSegment(
-                            record.RecordNumber,
-                            new RoadSegmentId(record.GetNewOrOriginalId()),
-                            new RoadNodeId(record.Attributes.B_WK_OIDN),
-                            new RoadNodeId(record.Attributes.E_WK_OIDN),
-                            new OrganizationId(record.Attributes.BEHEER),
-                            RoadSegmentGeometryDrawMethod.ByIdentifier[record.Attributes.METHODE],
-                            RoadSegmentMorphology.ByIdentifier[record.Attributes.MORF],
-                            RoadSegmentStatus.ByIdentifier[record.Attributes.STATUS],
-                            RoadSegmentCategory.ByIdentifier[record.Attributes.WEGCAT],
-                            RoadSegmentAccessRestriction.ByIdentifier[record.Attributes.TGBEP],
-                            CrabStreetnameId.FromValue(record.Attributes.LSTRNMID),
-                            CrabStreetnameId.FromValue(record.Attributes.RSTRNMID)
-                        ).WithGeometry(record.Attributes.Geometry)
-                    );
-                    break;
-                case RecordType.RemovedIdentifier:
-                    changes = changes.AppendChange(
-                        new RemoveRoadSegment(
-                            record.RecordNumber,
-                            new RoadSegmentId(record.Attributes.WS_OIDN)
-                        )
-                    );
-                    break;
-            }
-        }
-
-        return changes;
-    }
-
-    private List<RoadSegmentRecord> ProcessLeveringRecords(ICollection<Feature> leveringFeatures, ICollection<Feature> extractFeatures, CancellationToken cancellationToken)
+    private List<RoadSegmentRecord> ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> leveringFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, CancellationToken cancellationToken)
     {
         var openGisGeometryType = OgcGeometryType.LineString;
         var clusterTolerance = 0.10; // cfr WVB in GRB = 0,15
@@ -202,24 +42,24 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                 {
                     // Test op verschillen in niet kenmerkende attributen
                     var nonCriticalAttributesUnchanged = overlappingGeometries.FindAll(extractFeature =>
-                        leveringFeature.Attributes.STATUS == extractFeature.Attributes.STATUS &&
-                        leveringFeature.Attributes.WEGCAT == extractFeature.Attributes.WEGCAT &&
-                        leveringFeature.Attributes.LSTRNMID == extractFeature.Attributes.LSTRNMID &&
-                        leveringFeature.Attributes.RSTRNMID == extractFeature.Attributes.RSTRNMID &&
-                        leveringFeature.Attributes.BEHEER == extractFeature.Attributes.BEHEER &&
-                        leveringFeature.Attributes.METHODE == extractFeature.Attributes.METHODE &&
-                        leveringFeature.Attributes.B_WK_OIDN == extractFeature.Attributes.B_WK_OIDN &&
-                        leveringFeature.Attributes.E_WK_OIDN == extractFeature.Attributes.E_WK_OIDN &&
-                        leveringFeature.Attributes.TGBEP == extractFeature.Attributes.TGBEP &&
-                        leveringFeature.Attributes.MORF == extractFeature.Attributes.MORF
+                        leveringFeature.Attributes.Status == extractFeature.Attributes.Status &&
+                        leveringFeature.Attributes.Category == extractFeature.Attributes.Category &&
+                        leveringFeature.Attributes.LeftStreetNameId == extractFeature.Attributes.LeftStreetNameId &&
+                        leveringFeature.Attributes.RightStreetNameId == extractFeature.Attributes.RightStreetNameId &&
+                        leveringFeature.Attributes.MaintenanceAuthority == extractFeature.Attributes.MaintenanceAuthority &&
+                        leveringFeature.Attributes.Method == extractFeature.Attributes.Method &&
+                        leveringFeature.Attributes.StartNodeId == extractFeature.Attributes.StartNodeId &&
+                        leveringFeature.Attributes.EndNodeId == extractFeature.Attributes.EndNodeId &&
+                        leveringFeature.Attributes.AccessRestriction == extractFeature.Attributes.AccessRestriction &&
+                        leveringFeature.Attributes.Morphology == extractFeature.Attributes.Morphology
                     );
                     if (nonCriticalAttributesUnchanged.Any())
                     {
                         var identicalFeatures = nonCriticalAttributesUnchanged.FindAll(extractFeature => leveringFeature.Attributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, clusterTolerance));
                         if (identicalFeatures.Any())
                         {
-                            var compareIdn = leveringFeature.Attributes.WS_OIDN.ToString();
-                            leveringFeature.Attributes.WS_OIDN = identicalFeatures.First().Attributes.WS_OIDN;
+                            var compareIdn = leveringFeature.Attributes.Id.ToString();
+                            leveringFeature.Attributes.Id = identicalFeatures.First().Attributes.Id;
 
                             processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Identical)
                             {
@@ -228,8 +68,8 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                         }
                         else
                         {
-                            var compareIdn = leveringFeature.Attributes.WS_OIDN.ToString();
-                            leveringFeature.Attributes.WS_OIDN = nonCriticalAttributesUnchanged.First().Attributes.WS_OIDN;
+                            var compareIdn = leveringFeature.Attributes.Id.ToString();
+                            leveringFeature.Attributes.Id = nonCriticalAttributesUnchanged.First().Attributes.Id;
 
                             //update because geometries differ (slightly)
                             processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Modified)
@@ -244,8 +84,8 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                         //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
                         var identicalGeometries = overlappingGeometries.FindAll(f => leveringFeature.Attributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, clusterTolerance));
 
-                        var compareIdn = leveringFeature.Attributes.WS_OIDN.ToString();
-                        leveringFeature.Attributes.WS_OIDN = overlappingGeometries.First().Attributes.WS_OIDN;
+                        var compareIdn = leveringFeature.Attributes.Id.ToString();
+                        leveringFeature.Attributes.Id = overlappingGeometries.First().Attributes.Id;
 
                         processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Modified)
                         {
@@ -259,7 +99,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     var compareIdn = new StringBuilder();
                     foreach (var f in intersectingGeometries)
                     {
-                        compareIdn.Append(f.Attributes.WS_OIDN + ";");
+                        compareIdn.Append(f.Attributes.Id + ";");
                     }
 
                     processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Added)
@@ -277,55 +117,119 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
         return processedRecords;
     }
 
-    private sealed class ExtractsFeatureReader : FeatureReader<RoadSegmentDbaseRecord, Feature>
+    protected override List<Feature<RoadSegmentFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
     {
-        public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentDbaseRecord.Schema)
-        {
-        }
-
-        protected override Feature ConvertDbfRecordToFeature(RecordNumber recordNumber, RoadSegmentDbaseRecord dbaseRecord)
-        {
-            return new Feature(recordNumber, new RoadSegmentFeatureCompareAttributes
-            {
-                B_WK_OIDN = dbaseRecord.B_WK_OIDN.HasValue ? dbaseRecord.B_WK_OIDN.Value : 0,
-                BEHEER = dbaseRecord.BEHEER.Value,
-                E_WK_OIDN = dbaseRecord.E_WK_OIDN.HasValue ? dbaseRecord.E_WK_OIDN.Value : 0,
-                LSTRNMID = dbaseRecord.LSTRNMID.Value,
-                METHODE = dbaseRecord.METHODE.Value,
-                MORF = dbaseRecord.MORF.Value,
-                RSTRNMID = dbaseRecord.RSTRNMID.Value,
-                STATUS = dbaseRecord.STATUS.Value,
-                TGBEP = dbaseRecord.TGBEP.Value,
-                WEGCAT = dbaseRecord.WEGCAT.Value,
-                WS_OIDN = dbaseRecord.WS_OIDN.Value
-            });
-        }
+        var featureReader = new RoadSegmentFeatureCompareFeatureReader(Encoding);
+        return featureReader.Read(entries, featureType, fileName);
     }
 
-    private sealed class UploadsV2FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord, Feature>
+    public override async Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
-        public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord.Schema)
+        var entries = context.Entries;
+
+        var (extractFeatures, leveringFeatures, integrationFeatures) = ReadExtractAndLeveringAndIntegrationFeatures(entries, "WEGSEGMENT");
+
+        context.RoadSegments.AddRange(integrationFeatures.Select(feature => new RoadSegmentRecord(feature.RecordNumber, feature.Attributes, RecordType.Identical)));
+
+        var batchCount = 2;
+
+        if (leveringFeatures.Any())
         {
+            var processedLeveringRecords = await Task.WhenAll(
+                leveringFeatures.SplitIntoBatches(batchCount)
+                    .Select(leveringFeaturesBatch => { return Task.Run(() => ProcessLeveringRecords(leveringFeaturesBatch, extractFeatures, cancellationToken), cancellationToken); }));
+            context.RoadSegments.AddRange(processedLeveringRecords.SelectMany(x => x));
+
+            var rootNumber = Convert.ToInt32(leveringFeatures.Max(x => x.Attributes.Id)) + 1;
+            foreach (var record in context.RoadSegments.Where(x => x.RecordType.Equals(RecordType.Added)))
+            {
+                record.TempId = rootNumber++;
+            }
         }
 
-        protected override Feature ConvertDbfRecordToFeature(RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord dbaseRecord)
+        foreach (var extractFeature in extractFeatures)
         {
-            return new Feature(recordNumber, new RoadSegmentFeatureCompareAttributes
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var hasProcessedRoadSegment = context.RoadSegments.Any(x => x.Id == extractFeature.Attributes.Id
+                                                                        && !x.RecordType.Equals(RecordType.Added));
+            if (!hasProcessedRoadSegment)
             {
-                B_WK_OIDN = dbaseRecord.B_WK_OIDN.HasValue ? dbaseRecord.B_WK_OIDN.Value : 0,
-                BEHEER = dbaseRecord.BEHEER.Value,
-                E_WK_OIDN = dbaseRecord.E_WK_OIDN.HasValue ? dbaseRecord.E_WK_OIDN.Value : 0,
-                LSTRNMID = dbaseRecord.LSTRNMID.Value,
-                METHODE = dbaseRecord.METHODE.Value,
-                MORF = dbaseRecord.MORF.Value,
-                RSTRNMID = dbaseRecord.RSTRNMID.Value,
-                STATUS = dbaseRecord.STATUS.Value,
-                TGBEP = dbaseRecord.TGBEP.Value,
-                WEGCAT = dbaseRecord.WEGCAT.Value,
-                WS_OIDN = dbaseRecord.WS_OIDN.Value
-            });
+                context.RoadSegments.Add(new RoadSegmentRecord(extractFeature.RecordNumber, extractFeature.Attributes, RecordType.Removed));
+            }
         }
+
+        foreach (var record in context.RoadSegments)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            switch (record.RecordType.Translation.Identifier)
+            {
+                case RecordType.IdenticalIdentifier:
+                    changes = changes.AppendProvisionalChange(
+                        new ModifyRoadSegment(
+                            record.RecordNumber,
+                            new RoadSegmentId(record.Attributes.Id),
+                            new RoadNodeId(record.Attributes.StartNodeId),
+                            new RoadNodeId(record.Attributes.EndNodeId),
+                            new OrganizationId(record.Attributes.MaintenanceAuthority),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[record.Attributes.Method],
+                            RoadSegmentMorphology.ByIdentifier[record.Attributes.Morphology],
+                            RoadSegmentStatus.ByIdentifier[record.Attributes.Status],
+                            RoadSegmentCategory.ByIdentifier[record.Attributes.Category],
+                            RoadSegmentAccessRestriction.ByIdentifier[record.Attributes.AccessRestriction],
+                            CrabStreetnameId.FromValue(record.Attributes.LeftStreetNameId),
+                            CrabStreetnameId.FromValue(record.Attributes.RightStreetNameId)
+                        ).WithGeometry(record.Attributes.Geometry)
+                    );
+                    break;
+                case RecordType.ModifiedIdentifier:
+                    changes = changes.AppendChange(
+                        new ModifyRoadSegment(
+                            record.RecordNumber,
+                            new RoadSegmentId(record.Attributes.Id),
+                            new RoadNodeId(record.Attributes.StartNodeId),
+                            new RoadNodeId(record.Attributes.EndNodeId),
+                            new OrganizationId(record.Attributes.MaintenanceAuthority),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[record.Attributes.Method],
+                            RoadSegmentMorphology.ByIdentifier[record.Attributes.Morphology],
+                            RoadSegmentStatus.ByIdentifier[record.Attributes.Status],
+                            RoadSegmentCategory.ByIdentifier[record.Attributes.Category],
+                            RoadSegmentAccessRestriction.ByIdentifier[record.Attributes.AccessRestriction],
+                            CrabStreetnameId.FromValue(record.Attributes.LeftStreetNameId),
+                            CrabStreetnameId.FromValue(record.Attributes.RightStreetNameId)
+                        ).WithGeometry(record.Attributes.Geometry)
+                    );
+                    break;
+                case RecordType.AddedIdentifier:
+                    changes = changes.AppendChange(
+                        new AddRoadSegment(
+                            record.RecordNumber,
+                            new RoadSegmentId(record.GetNewOrOriginalId()),
+                            new RoadNodeId(record.Attributes.StartNodeId),
+                            new RoadNodeId(record.Attributes.EndNodeId),
+                            new OrganizationId(record.Attributes.MaintenanceAuthority),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[record.Attributes.Method],
+                            RoadSegmentMorphology.ByIdentifier[record.Attributes.Morphology],
+                            RoadSegmentStatus.ByIdentifier[record.Attributes.Status],
+                            RoadSegmentCategory.ByIdentifier[record.Attributes.Category],
+                            RoadSegmentAccessRestriction.ByIdentifier[record.Attributes.AccessRestriction],
+                            CrabStreetnameId.FromValue(record.Attributes.LeftStreetNameId),
+                            CrabStreetnameId.FromValue(record.Attributes.RightStreetNameId)
+                        ).WithGeometry(record.Attributes.Geometry)
+                    );
+                    break;
+                case RecordType.RemovedIdentifier:
+                    changes = changes.AppendChange(
+                        new RemoveRoadSegment(
+                            record.RecordNumber,
+                            new RoadSegmentId(record.Attributes.Id)
+                        )
+                    );
+                    break;
+            }
+        }
+
+        return changes;
     }
 }

@@ -1,154 +1,86 @@
-namespace RoadRegistry.BackOffice.FeatureCompare.Translators
+namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
+
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Text;
+using Uploads;
+
+internal class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentSurfaceFeatureCompareAttributes>
 {
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-    using RoadRegistry.BackOffice.Uploads;
-    using System.Collections.Generic;
-    using System.IO.Compression;
-    using System.Text;
-
-    internal class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentSurfaceFeatureCompareAttributes>
+    public RoadSegmentSurfaceFeatureCompareTranslator(Encoding encoding)
+        : base(encoding, "ATTWEGVERHARDING")
     {
-        public RoadSegmentSurfaceFeatureCompareTranslator(Encoding encoding)
-            : base(encoding, "ATTWEGVERHARDING")
-        {
-        }
+    }
 
-        protected override List<Feature> ReadFeatures(FeatureType featureType, IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+    protected override bool AttributesEquals(Feature<RoadSegmentSurfaceFeatureCompareAttributes> feature1, Feature<RoadSegmentSurfaceFeatureCompareAttributes> feature2)
+    {
+        return feature1.Attributes.FromPosition == feature2.Attributes.FromPosition
+               && feature1.Attributes.ToPosition == feature2.Attributes.ToPosition
+               && feature1.Attributes.Type == feature2.Attributes.Type;
+    }
+
+    protected override List<Feature<RoadSegmentSurfaceFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    {
+        var featureReader = new RoadSegmentSurfaceFeatureCompareFeatureReader(Encoding);
+        return featureReader.Read(entries, featureType, fileName);
+    }
+
+    protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
+    {
+        foreach (var record in records)
         {
-            var featureReader = new VersionedFeatureReader<Feature>(
-                new ExtractsFeatureReader(Encoding),
-                new UploadsV2FeatureReader(Encoding),
-                new UploadsV1FeatureReader(Encoding)
+            var segmentId = new RoadSegmentId(record.Feature.Attributes.RoadSegmentId);
+            var surface = new RoadSegmentSurfaceAttribute(
+                new AttributeId(record.Feature.Attributes.Id),
+                RoadSegmentSurfaceType.ByIdentifier[record.Feature.Attributes.Type],
+                RoadSegmentPosition.FromDouble(record.Feature.Attributes.FromPosition),
+                RoadSegmentPosition.FromDouble(record.Feature.Attributes.ToPosition)
             );
-
-            var dbfFileName = GetDbfFileName(featureType, fileName);
-
-            return featureReader.Read(entries, dbfFileName);
-        }
-
-        protected override bool Equals(Feature feature1, Feature feature2)
-        {
-            return feature1.Attributes.VANPOS == feature2.Attributes.VANPOS
-                   && feature1.Attributes.TOTPOS == feature2.Attributes.TOTPOS
-                   && feature1.Attributes.TYPE == feature2.Attributes.TYPE;
-        }
-
-        protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
-        {
-            foreach (var record in records)
+            if (changes.TryFindRoadSegmentProvisionalChange(segmentId, out var provisionalChange))
             {
-                var segmentId = new RoadSegmentId(record.Feature.Attributes.WS_OIDN);
-                var surface = new RoadSegmentSurfaceAttribute(
-                    new AttributeId(record.Feature.Attributes.Id),
-                    RoadSegmentSurfaceType.ByIdentifier[record.Feature.Attributes.TYPE],
-                    RoadSegmentPosition.FromDouble(record.Feature.Attributes.VANPOS),
-                    RoadSegmentPosition.FromDouble(record.Feature.Attributes.TOTPOS)
-                );
-                if (changes.TryFindRoadSegmentProvisionalChange(segmentId, out var provisionalChange))
+                switch (provisionalChange)
                 {
-                    switch (provisionalChange)
-                    {
-                        case ModifyRoadSegment modifyRoadSegment:
-                            switch (record.RecordType.Translation.Identifier)
-                            {
-                                case RecordType.IdenticalIdentifier:
-                                    changes = changes.ReplaceProvisionalChange(modifyRoadSegment,
-                                        modifyRoadSegment.WithSurface(surface));
-                                    break;
-                                case RecordType.AddedIdentifier:
-                                case RecordType.ModifiedIdentifier:
-                                    changes = changes.ReplaceChange(modifyRoadSegment,
-                                        modifyRoadSegment.WithSurface(surface));
-                                    break;
-                                case RecordType.RemovedIdentifier:
-                                    changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment);
-                                    break;
-                            }
-                            break;
-                    }
-                }
-                else if (changes.TryFindRoadSegmentChange(segmentId, out var change))
-                {
-                    switch (record.RecordType.Translation.Identifier)
-                    {
-                        case RecordType.IdenticalIdentifier:
-                        case RecordType.AddedIdentifier:
-                            switch (change)
-                            {
-                                case AddRoadSegment addRoadSegment:
-                                    changes = changes.ReplaceChange(addRoadSegment, addRoadSegment.WithSurface(surface));
-                                    break;
-                                case ModifyRoadSegment modifyRoadSegment:
-                                    changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment.WithSurface(surface));
-                                    break;
-                            }
-                            break;
-                    }
+                    case ModifyRoadSegment modifyRoadSegment:
+                        switch (record.RecordType.Translation.Identifier)
+                        {
+                            case RecordType.IdenticalIdentifier:
+                                changes = changes.ReplaceProvisionalChange(modifyRoadSegment,
+                                    modifyRoadSegment.WithSurface(surface));
+                                break;
+                            case RecordType.AddedIdentifier:
+                            case RecordType.ModifiedIdentifier:
+                                changes = changes.ReplaceChange(modifyRoadSegment,
+                                    modifyRoadSegment.WithSurface(surface));
+                                break;
+                            case RecordType.RemovedIdentifier:
+                                changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment);
+                                break;
+                        }
+
+                        break;
                 }
             }
-
-            return changes;
-        }
-
-        private sealed class ExtractsFeatureReader : FeatureReader<RoadSegmentSurfaceAttributeDbaseRecord, Feature>
-        {
-            public ExtractsFeatureReader(Encoding encoding)
-                : base(encoding, RoadSegmentSurfaceAttributeDbaseRecord.Schema)
+            else if (changes.TryFindRoadSegmentChange(segmentId, out var change))
             {
-            }
-
-            protected override Feature ConvertDbfRecordToFeature(RecordNumber recordNumber, RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord)
-            {
-                return new Feature(recordNumber, new RoadSegmentSurfaceFeatureCompareAttributes
+                switch (record.RecordType.Translation.Identifier)
                 {
-                    Id = dbaseRecord.WV_OIDN.Value,
-                    WS_OIDN = dbaseRecord.WS_OIDN.Value,
-                    VANPOS = dbaseRecord.VANPOS.Value,
-                    TOTPOS = dbaseRecord.TOTPOS.Value,
-                    TYPE = dbaseRecord.TYPE.Value
-                });
+                    case RecordType.IdenticalIdentifier:
+                    case RecordType.AddedIdentifier:
+                        switch (change)
+                        {
+                            case AddRoadSegment addRoadSegment:
+                                changes = changes.ReplaceChange(addRoadSegment, addRoadSegment.WithSurface(surface));
+                                break;
+                            case ModifyRoadSegment modifyRoadSegment:
+                                changes = changes.ReplaceChange(modifyRoadSegment, modifyRoadSegment.WithSurface(surface));
+                                break;
+                        }
+
+                        break;
+                }
             }
         }
 
-        private sealed class UploadsV2FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord, Feature>
-        {
-            public UploadsV2FeatureReader(Encoding encoding)
-                : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema)
-            {
-            }
-
-            protected override Feature ConvertDbfRecordToFeature(RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord)
-            {
-                return new Feature(recordNumber, new RoadSegmentSurfaceFeatureCompareAttributes
-                {
-                    Id = dbaseRecord.WV_OIDN.Value,
-                    WS_OIDN = dbaseRecord.WS_OIDN.Value,
-                    VANPOS = dbaseRecord.VANPOS.Value,
-                    TOTPOS = dbaseRecord.TOTPOS.Value,
-                    TYPE = dbaseRecord.TYPE.Value
-                });
-            }
-        }
-
-        private sealed class UploadsV1FeatureReader : FeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentSurfaceAttributeDbaseRecord, Feature>
-        {
-            public UploadsV1FeatureReader(Encoding encoding)
-                : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentSurfaceAttributeDbaseRecord.Schema)
-            {
-            }
-
-            protected override Feature ConvertDbfRecordToFeature(RecordNumber recordNumber, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentSurfaceAttributeDbaseRecord dbaseRecord)
-            {
-                return new Feature(recordNumber, new RoadSegmentSurfaceFeatureCompareAttributes
-                {
-                    Id = dbaseRecord.WV_OIDN.Value,
-                    WS_OIDN = dbaseRecord.WS_OIDN.Value,
-                    VANPOS = dbaseRecord.VANPOS.Value,
-                    TOTPOS = dbaseRecord.TOTPOS.Value,
-                    TYPE = dbaseRecord.TYPE.Value
-                });
-            }
-        }
+        return changes;
     }
 }

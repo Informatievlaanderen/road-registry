@@ -30,7 +30,7 @@ public class ZipArchiveShapeFileReaderTests
                 var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, $"{entryFileName}.shp", StringComparison.InvariantCultureIgnoreCase));
 
                 var dbfRecords = new SimpleDbfReader<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema)
-                    .Read(beforeFcArchive.Entries, $"{entryFileName}.dbf");
+                    .Read(beforeFcArchive.Entries, entryFileName);
                 Assert.True(dbfRecords.Any());
 
                 var records = sut.Read(shpEntry).ToArray();
@@ -59,7 +59,7 @@ public class ZipArchiveShapeFileReaderTests
                 var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, $"{entryFileName}.shp", StringComparison.InvariantCultureIgnoreCase));
 
                 var dbfRecords = new SimpleDbfReader<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema)
-                    .Read(beforeFcArchive.Entries, $"{entryFileName}.dbf");
+                    .Read(beforeFcArchive.Entries, entryFileName);
                 Assert.True(dbfRecords.Any());
 
                 var records = sut.Read(shpEntry).ToArray();
@@ -68,12 +68,17 @@ public class ZipArchiveShapeFileReaderTests
         }
     }
 
-    private class SimpleDbfReader<TDbaseRecord> : FeatureReader<TDbaseRecord, object>
+    private class SimpleDbfReader<TDbaseRecord> : DbaseFeatureReader<TDbaseRecord, object>
         where TDbaseRecord : DbaseRecord, new()
     {
         public SimpleDbfReader(DbaseSchema dbaseSchema)
             : base(Encoding.UTF8, dbaseSchema)
         {
+        }
+
+        public List<object> Read(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+        {
+            return Read(entries, FeatureType.Levering, fileName);
         }
 
         protected override object ConvertDbfRecordToFeature(RecordNumber recordNumber, TDbaseRecord dbaseRecord)

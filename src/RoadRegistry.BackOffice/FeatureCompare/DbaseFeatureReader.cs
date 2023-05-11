@@ -9,13 +9,13 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice.Uploads;
 
-public abstract class FeatureReader<TDbaseRecord, TFeature>: IFeatureReader<TFeature>
+public abstract class DbaseFeatureReader<TDbaseRecord, TFeature>: IFeatureReader<TFeature>
     where TDbaseRecord: DbaseRecord, new()
 {
     private readonly Encoding _encoding;
     private readonly DbaseSchema _dbaseSchema;
 
-    protected FeatureReader(Encoding encoding, DbaseSchema dbaseSchema)
+    protected DbaseFeatureReader(Encoding encoding, DbaseSchema dbaseSchema)
     {
         _encoding = encoding;
         _dbaseSchema = dbaseSchema;
@@ -23,12 +23,13 @@ public abstract class FeatureReader<TDbaseRecord, TFeature>: IFeatureReader<TFea
 
     protected abstract TFeature ConvertDbfRecordToFeature(RecordNumber recordNumber, TDbaseRecord dbaseRecord);
 
-    public List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+    public List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
     {
-        var entry = entries.SingleOrDefault(x => x.Name.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+        var dbfFileName = featureType.GetDbfFileName(fileName);
+        var entry = entries.SingleOrDefault(x => x.Name.Equals(dbfFileName, StringComparison.InvariantCultureIgnoreCase));
         if (entry is null)
         {
-            throw new FileNotFoundException($"File '{fileName}' was not found in zip archive", fileName);
+            throw new FileNotFoundException($"File '{dbfFileName}' was not found in zip archive", dbfFileName);
         }
 
         var records = new List<TFeature>();
