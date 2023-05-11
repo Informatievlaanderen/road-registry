@@ -109,8 +109,10 @@ namespace RoadRegistry.Tests.BackOffice
             var roadNodeDbaseChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadNodeDbaseRecord>(
                 RoadNodeDbaseRecord.Schema);
 
-            var gradeSeparatedJunctionChangeStream = Fixture.CreateDbfFileWithOneRecord<GradeSeparatedJunctionDbaseRecord>(
-                GradeSeparatedJunctionDbaseRecord.Schema);
+            var gradeSeparatedJunctionDbaseRecord = Fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+            gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
+            gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
+            var gradeSeparatedJunctionChangeStream = Fixture.CreateDbfFileWithOneRecord(GradeSeparatedJunctionDbaseRecord.Schema, gradeSeparatedJunctionDbaseRecord);
 
             var transactionZoneStream = Fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
 

@@ -32,8 +32,8 @@ namespace RoadRegistry.Tests.BackOffice.Uploads
             Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
         }
 
-        //[Theory(Skip = "For local testing only due to big archive files")]
-        [Theory]
+        [Theory(Skip = "For local testing only due to big archive files")]
+        //[Theory]
         //[InlineData("Oudenburg")]
         //[InlineData("Dendermonde")]
         //[InlineData("Aarschot")]

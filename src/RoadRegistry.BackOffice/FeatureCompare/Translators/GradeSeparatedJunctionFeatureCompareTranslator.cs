@@ -26,7 +26,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
     {
         var entries = context.Entries;
 
-        var (extractFeatures, leveringFeatures) = ReadExtractAndLeveringFeatures(entries, "RLTOGKRUISING");
+        var (extractFeatures, changeFeatures) = ReadExtractAndChangeFeatures(entries, "RLTOGKRUISING");
 
         var processedRecords = new List<Record>();
 
@@ -42,25 +42,25 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
             }
         }
 
-        foreach (var leveringFeature in leveringFeatures)
+        foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var boWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == leveringFeature.Attributes.UpperRoadSegmentId);
+            var boWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == changeFeature.Attributes.UpperRoadSegmentId);
             if (boWegsegmentFeature is null)
             {
-                throw new RoadSegmentNotFoundInZipArchiveException(leveringFeature.Attributes.UpperRoadSegmentId);
+                throw new RoadSegmentNotFoundInZipArchiveException(changeFeature.Attributes.UpperRoadSegmentId);
             }
 
-            var onWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == leveringFeature.Attributes.LowerRoadSegmentId);
+            var onWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == changeFeature.Attributes.LowerRoadSegmentId);
             if (onWegsegmentFeature is null)
             {
-                throw new RoadSegmentNotFoundInZipArchiveException(leveringFeature.Attributes.LowerRoadSegmentId);
+                throw new RoadSegmentNotFoundInZipArchiveException(changeFeature.Attributes.LowerRoadSegmentId);
             }
 
-            var editedLeveringFeature = leveringFeature with
+            var editedChangeFeature = changeFeature with
             {
-                Attributes = leveringFeature.Attributes with
+                Attributes = changeFeature.Attributes with
                 {
                     UpperRoadSegmentId = boWegsegmentFeature.GetNewOrOriginalId(),
                     LowerRoadSegmentId = onWegsegmentFeature.GetNewOrOriginalId()
@@ -68,36 +68,36 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
             };
 
             var matchingExtractFeatures = extractFeatures
-                .Where(x => x.Attributes.UpperRoadSegmentId == editedLeveringFeature.Attributes.UpperRoadSegmentId
-                            && x.Attributes.LowerRoadSegmentId == editedLeveringFeature.Attributes.LowerRoadSegmentId)
+                .Where(x => x.Attributes.UpperRoadSegmentId == editedChangeFeature.Attributes.UpperRoadSegmentId
+                            && x.Attributes.LowerRoadSegmentId == editedChangeFeature.Attributes.LowerRoadSegmentId)
                 .ToArray();
             if (!matchingExtractFeatures.Any())
             {
-                processedRecords.Add(new Record(editedLeveringFeature, RecordType.Added));
+                processedRecords.Add(new Record(editedChangeFeature, RecordType.Added));
                 continue;
             }
 
-            var hasMatchByType = matchingExtractFeatures.Any(x => x.Attributes.Type == editedLeveringFeature.Attributes.Type);
+            var hasMatchByType = matchingExtractFeatures.Any(x => x.Attributes.Type == editedChangeFeature.Attributes.Type);
             if (hasMatchByType)
             {
-                processedRecords.Add(new Record(editedLeveringFeature, RecordType.Identical));
+                processedRecords.Add(new Record(editedChangeFeature, RecordType.Identical));
                 continue;
             }
 
-            var matchingExtractFeature = matchingExtractFeatures.FirstOrDefault(x => x.Attributes.Id == editedLeveringFeature.Attributes.Id)
+            var matchingExtractFeature = matchingExtractFeatures.FirstOrDefault(x => x.Attributes.Id == editedChangeFeature.Attributes.Id)
                                          ?? matchingExtractFeatures.First();
 
-            processedRecords.Add(new Record(editedLeveringFeature, RecordType.Added));
+            processedRecords.Add(new Record(editedChangeFeature, RecordType.Added));
             processedRecords.Add(new Record(matchingExtractFeature, RecordType.Removed));
         }
 
         {
-            var extractFeaturesWithoutLeveringFeatures = extractFeatures.FindAll(extractFeature =>
+            var extractFeaturesWithoutChangeFeatures = extractFeatures.FindAll(extractFeature =>
                 !processedRecords.Any(x => x.Feature.Attributes.UpperRoadSegmentId == extractFeature.Attributes.UpperRoadSegmentId
                                            && x.Feature.Attributes.LowerRoadSegmentId == extractFeature.Attributes.LowerRoadSegmentId)
             );
 
-            RemoveFeatures(extractFeaturesWithoutLeveringFeatures);
+            RemoveFeatures(extractFeaturesWithoutChangeFeatures);
         }
 
         foreach (var record in processedRecords)

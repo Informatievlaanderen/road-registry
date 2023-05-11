@@ -52,6 +52,12 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
             new Dictionary<string, IZipArchiveEntryValidator>(StringComparer.InvariantCultureIgnoreCase)
             {
                 {
+                    "IWEGKNOOP.SHP",
+                    new ZipArchiveShapeEntryValidator(
+                        new RoadNodeChangeShapeRecordValidator()
+                    )
+                },
+                {
                     "EWEGKNOOP.SHP",
                     new ZipArchiveShapeEntryValidator(
                         new RoadNodeChangeShapeRecordValidator()
@@ -103,6 +109,12 @@ public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureC
                     "WEGKNOOP.PRJ",
                     new ZipArchiveProjectionFormatEntryValidator(
                         encoding
+                    )
+                },
+                {
+                    "IWEGSEGMENT.SHP",
+                    new ZipArchiveShapeEntryValidator(
+                        new RoadSegmentChangeShapeRecordValidator()
                     )
                 },
                 {

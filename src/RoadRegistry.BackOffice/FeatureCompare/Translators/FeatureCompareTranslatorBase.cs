@@ -22,19 +22,19 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
     
     protected abstract List<Feature<TAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName);
 
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndLeveringFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndChangeFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
     {
         var extractFeatures = ReadFeatures(entries, FeatureType.Extract, fileName);
-        var leveringFeatures = ReadFeatures(entries, FeatureType.Levering, fileName);
-        return (extractFeatures, leveringFeatures);
+        var changeFeatures = ReadFeatures(entries, FeatureType.Change, fileName);
+        return (extractFeatures, changeFeatures);
     }
 
     protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndLeveringAndIntegrationFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
     {
         var extractFeatures = ReadFeatures(entries, FeatureType.Extract, fileName);
-        var leveringFeatures = ReadFeatures(entries, FeatureType.Levering, fileName);
+        var changeFeatures = ReadFeatures(entries, FeatureType.Change, fileName);
         var integrationFeatures = ReadFeatures(entries, FeatureType.Integration, fileName);
-        return (extractFeatures, leveringFeatures, integrationFeatures);
+        return (extractFeatures, changeFeatures, integrationFeatures);
     }
     
     public abstract Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);

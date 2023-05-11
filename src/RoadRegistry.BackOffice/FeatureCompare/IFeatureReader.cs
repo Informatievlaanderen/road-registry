@@ -11,7 +11,7 @@ public interface IFeatureReader<TFeature>
 public enum FeatureType
 {
     Extract,
-    Levering,
+    Change,
     Integration
 }
 

@@ -38,7 +38,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
 
@@ -50,7 +50,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
 
@@ -62,7 +62,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
 
@@ -74,7 +74,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
 
@@ -86,7 +86,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
 
@@ -98,7 +98,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
 
@@ -110,7 +110,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
 
@@ -122,7 +122,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
 
@@ -134,7 +134,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
 
@@ -146,7 +146,7 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive();
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Levering, FileName));
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
     

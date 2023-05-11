@@ -18,14 +18,14 @@ internal abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> :
         _fileName = fileName;
     }
 
-    protected abstract void HandleIdenticalRoadSegment(RoadSegmentRecord wegsegment, List<Feature<TAttributes>> leveringFeatures, List<Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
-    protected abstract void HandleModifiedRoadSegment(RoadSegmentRecord wegsegment, List<Feature<TAttributes>> leveringFeatures, List<Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
+    protected abstract void HandleIdenticalRoadSegment(RoadSegmentRecord wegsegment, List<Feature<TAttributes>> changeFeatures, List<Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
+    protected abstract void HandleModifiedRoadSegment(RoadSegmentRecord wegsegment, List<Feature<TAttributes>> changeFeatures, List<Feature<TAttributes>> extractFeatures, List<Record> processedRecords);
 
     public override Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
         var entries = context.Entries;
 
-        var (extractFeatures, leveringFeatures) = ReadExtractAndLeveringFeatures(entries, _fileName);
+        var (extractFeatures, changeFeatures) = ReadExtractAndChangeFeatures(entries, _fileName);
 
         var wegsegmentenAdd = context.RoadSegments.Where(x => x.RecordType == RecordType.Added).ToList();
         var wegsegmentenIdentical = context.RoadSegments.Where(x => x.RecordType == RecordType.Identical).ToList();
@@ -38,8 +38,8 @@ internal abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> :
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var wegsegmentLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
-            foreach (var feature in wegsegmentLeveringFeatures)
+            var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
+            foreach (var feature in wegsegmentChangeFeatures)
             {
                 processedRecords.Add(new Record(feature, RecordType.Added, wegsegment.GetNewOrOriginalId()));
             }
@@ -60,14 +60,14 @@ internal abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> :
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            HandleIdenticalRoadSegment(wegsegment, leveringFeatures, extractFeatures, processedRecords);
+            HandleIdenticalRoadSegment(wegsegment, changeFeatures, extractFeatures, processedRecords);
         }
 
         foreach (var wegsegment in wegsegmentenUpdate)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            HandleModifiedRoadSegment(wegsegment, leveringFeatures, extractFeatures, processedRecords);
+            HandleModifiedRoadSegment(wegsegment, changeFeatures, extractFeatures, processedRecords);
         }
 
         foreach (var record in processedRecords.Where(x => x.TempRoadSegmentId != 0))

@@ -24,7 +24,7 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
     {
         var entries = context.Entries;
 
-        var (extractFeatures, leveringFeatures) = ReadExtractAndLeveringFeatures(entries, _fileName);
+        var (extractFeatures, changeFeatures) = ReadExtractAndChangeFeatures(entries, _fileName);
 
         var wegsegmentenAdd = context.RoadSegments.Where(x => x.RecordType == RecordType.Added).ToList();
         var wegsegmentenIdentical = context.RoadSegments.Where(x => x.RecordType == RecordType.Identical).ToList();
@@ -37,7 +37,7 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var addedFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
+            var addedFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
             if (addedFeatures.Any())
             {
                 foreach (var feature in addedFeatures)
@@ -67,16 +67,16 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             cancellationToken.ThrowIfCancellationRequested();
 
             var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
-            var wegsegmentLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
+            var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
 
-            if (wegsegmentExtractFeatures.Count != wegsegmentLeveringFeatures.Count)
+            if (wegsegmentExtractFeatures.Count != wegsegmentChangeFeatures.Count)
             {
                 foreach (var feature in wegsegmentExtractFeatures)
                 {
                     processedRecords.Add(new Record(feature, RecordType.Removed));
                 }
 
-                foreach (var feature in wegsegmentLeveringFeatures)
+                foreach (var feature in wegsegmentChangeFeatures)
                 {
                     processedRecords.Add(new Record(feature, RecordType.Added));
                 }
@@ -84,22 +84,22 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             else
             {
                 wegsegmentExtractFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
-                wegsegmentLeveringFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
+                wegsegmentChangeFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
 
-                for (var i = 0; i <= wegsegmentLeveringFeatures.Count - 1; i++)
+                for (var i = 0; i <= wegsegmentChangeFeatures.Count - 1; i++)
                 {
-                    var leveringFeature = wegsegmentLeveringFeatures[i];
+                    var changeFeature = wegsegmentChangeFeatures[i];
                     var extractFeature = wegsegmentExtractFeatures[i];
 
-                    if (AttributesEquals(leveringFeature, extractFeature))
+                    if (AttributesEquals(changeFeature, extractFeature))
                     {
-                        processedRecords.Add(new Record(leveringFeature, RecordType.Identical));
+                        processedRecords.Add(new Record(changeFeature, RecordType.Identical));
                     }
                     else
                     {
                         processedRecords.Add(new Record(extractFeature, RecordType.Removed));
 
-                        processedRecords.Add(new Record(leveringFeature, RecordType.Added));
+                        processedRecords.Add(new Record(changeFeature, RecordType.Added));
                     }
                 }
             }
@@ -110,9 +110,9 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             cancellationToken.ThrowIfCancellationRequested();
 
             var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
-            var wegsegmentLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
+            var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
 
-            var removeAndAddLanes = wegsegment.GeometryChanged || wegsegmentExtractFeatures.Count != wegsegmentLeveringFeatures.Count;
+            var removeAndAddLanes = wegsegment.GeometryChanged || wegsegmentExtractFeatures.Count != wegsegmentChangeFeatures.Count;
             if (removeAndAddLanes)
             {
                 foreach (var feature in wegsegmentExtractFeatures)
@@ -123,7 +123,7 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
                     }
                 }
 
-                foreach (var feature in wegsegmentLeveringFeatures)
+                foreach (var feature in wegsegmentChangeFeatures)
                 {
                     processedRecords.Add(new Record(feature, RecordType.Added, wegsegment.Id));
                 }
@@ -131,22 +131,22 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             else
             {
                 wegsegmentExtractFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
-                wegsegmentLeveringFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
+                wegsegmentChangeFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
 
-                for (var i = 0; i <= wegsegmentLeveringFeatures.Count - 1; i++)
+                for (var i = 0; i <= wegsegmentChangeFeatures.Count - 1; i++)
                 {
-                    var leveringFeature = wegsegmentLeveringFeatures[i];
+                    var changeFeature = wegsegmentChangeFeatures[i];
                     var extractFeature = wegsegmentExtractFeatures[i];
 
-                    if (AttributesEquals(leveringFeature, extractFeature))
+                    if (AttributesEquals(changeFeature, extractFeature))
                     {
-                        processedRecords.Add(new Record(leveringFeature, RecordType.Identical));
+                        processedRecords.Add(new Record(changeFeature, RecordType.Identical));
                     }
                     else
                     {
                         processedRecords.Add(new Record(extractFeature, RecordType.Removed));
 
-                        processedRecords.Add(new Record(leveringFeature, RecordType.Added, wegsegment.Id));
+                        processedRecords.Add(new Record(changeFeature, RecordType.Added, wegsegment.Id));
                     }
                 }
             }

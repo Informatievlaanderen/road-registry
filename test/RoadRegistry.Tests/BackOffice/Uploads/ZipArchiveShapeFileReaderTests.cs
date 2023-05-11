@@ -78,7 +78,7 @@ public class ZipArchiveShapeFileReaderTests
 
         public List<object> Read(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
         {
-            return Read(entries, FeatureType.Levering, fileName);
+            return Read(entries, FeatureType.Change, fileName);
         }
 
         protected override object ConvertDbfRecordToFeature(RecordNumber recordNumber, TDbaseRecord dbaseRecord)

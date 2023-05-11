@@ -25,7 +25,7 @@ internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslato
     {
         var entries = context.Entries;
 
-        var features = ReadFeatures(entries, FeatureType.Levering, "TRANSACTIEZONES");
+        var features = ReadFeatures(entries, FeatureType.Change, "TRANSACTIEZONES");
         var feature = features.SingleOrDefault();
         if (feature is not null)
         {

@@ -15,17 +15,17 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
     {
     }
 
-    private List<Record> ProcessLeveringRecords(ICollection<Feature<RoadNodeFeatureCompareAttributes>> leveringFeatures, ICollection<Feature<RoadNodeFeatureCompareAttributes>> extractFeatures, CancellationToken cancellationToken)
+    private List<Record> ProcessLeveringRecords(ICollection<Feature<RoadNodeFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadNodeFeatureCompareAttributes>> extractFeatures, CancellationToken cancellationToken)
     {
         var clusterTolerance = 0.05; // cfr WVB in GRB
 
         var processedRecords = new List<Record>();
 
-        foreach (var leveringFeature in leveringFeatures)
+        foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var bufferedGeometry = leveringFeature.Attributes.Geometry.Buffer(clusterTolerance);
+            var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(clusterTolerance);
             var intersectingGeometries = extractFeatures
                 .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry.Envelope) && x.Attributes.Geometry.Intersects(bufferedGeometry))
                 .ToList();
@@ -33,25 +33,25 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
             if (intersectingGeometries.Any())
             {
                 var nonIntersectingGeometries = intersectingGeometries.FindAll(extractFeature =>
-                    extractFeature.Attributes.Type == leveringFeature.Attributes.Type
+                    extractFeature.Attributes.Type == changeFeature.Attributes.Type
                 );
                 int idValue;
                 if (nonIntersectingGeometries.Any())
                 {
                     idValue = nonIntersectingGeometries.First().Attributes.Id;
 
-                    processedRecords.Add(new Record(leveringFeature, RecordType.Identical, idValue));
+                    processedRecords.Add(new Record(changeFeature, RecordType.Identical, idValue));
                 }
                 else
                 {
                     idValue = intersectingGeometries.First().Attributes.Id;
 
-                    processedRecords.Add(new Record(leveringFeature, RecordType.Modified, idValue));
+                    processedRecords.Add(new Record(changeFeature, RecordType.Modified, idValue));
                 }
             }
             else
             {
-                processedRecords.Add(new Record(leveringFeature, RecordType.Added, leveringFeature.Attributes.Id));
+                processedRecords.Add(new Record(changeFeature, RecordType.Added, changeFeature.Attributes.Id));
             }
         }
 
@@ -68,13 +68,13 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
     {
         var entries = context.Entries;
 
-        var (extractFeatures, leveringFeatures) = ReadExtractAndLeveringFeatures(entries, "WEGKNOOP");
+        var (extractFeatures, changeFeatures) = ReadExtractAndChangeFeatures(entries, "WEGKNOOP");
 
         var batchCount = 2;
 
         var processedLeveringRecords = await Task.WhenAll(
-            leveringFeatures.SplitIntoBatches(batchCount)
-                .Select(leveringFeaturesBatch => { return Task.Run(() => ProcessLeveringRecords(leveringFeaturesBatch, extractFeatures, cancellationToken), cancellationToken); }));
+            changeFeatures.SplitIntoBatches(batchCount)
+                .Select(changeFeaturesBatch => { return Task.Run(() => ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, cancellationToken), cancellationToken); }));
         var processedRecords = processedLeveringRecords.SelectMany(x => x).ToList();
 
         foreach (var extractFeature in extractFeatures)

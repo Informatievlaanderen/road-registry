@@ -13,18 +13,18 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
     {
     }
 
-    protected override void HandleIdenticalRoadSegment(RoadSegmentRecord wegsegment, List<Feature<NumberedRoadFeatureCompareAttributes>> leveringFeatures, List<Feature<NumberedRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
+    protected override void HandleIdenticalRoadSegment(RoadSegmentRecord wegsegment, List<Feature<NumberedRoadFeatureCompareAttributes>> changeFeatures, List<Feature<NumberedRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
     {
-        var wegsegmentLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
+        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
         var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
 
-        foreach (var leveringFeature in wegsegmentLeveringFeatures)
+        foreach (var changeFeature in wegsegmentChangeFeatures)
         {
-            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == leveringFeature.Attributes.RoadSegmentId
-                                                                       && x.Attributes.Number == leveringFeature.Attributes.Number);
+            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == changeFeature.Attributes.RoadSegmentId
+                                                                       && x.Attributes.Number == changeFeature.Attributes.Number);
             if (!leveringExtractFeatures.Any())
             {
-                processedRecords.Add(new Record(leveringFeature, RecordType.Added));
+                processedRecords.Add(new Record(changeFeature, RecordType.Added));
             }
             else
             {
@@ -34,15 +34,15 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
 
                     if (i == 0)
                     {
-                        if (leveringFeature.Attributes.Ordinal != extractFeature.Attributes.Ordinal ||
-                            leveringFeature.Attributes.Direction != extractFeature.Attributes.Direction)
+                        if (changeFeature.Attributes.Ordinal != extractFeature.Attributes.Ordinal ||
+                            changeFeature.Attributes.Direction != extractFeature.Attributes.Direction)
                         {
                             processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-                            processedRecords.Add(new Record(leveringFeature, RecordType.Added));
+                            processedRecords.Add(new Record(changeFeature, RecordType.Added));
                         }
                         else
                         {
-                            processedRecords.Add(new Record(leveringFeature, RecordType.Identical));
+                            processedRecords.Add(new Record(changeFeature, RecordType.Identical));
                         }
                     }
                     else
@@ -55,26 +55,26 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
 
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
-            var extractLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId == extractFeature.Attributes.RoadSegmentId
+            var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == extractFeature.Attributes.RoadSegmentId
                                                                         && x.Attributes.Number == extractFeature.Attributes.Number);
-            if (!extractLeveringFeatures.Any())
+            if (!extractChangeFeatures.Any())
             {
                 processedRecords.Add(new Record(extractFeature, RecordType.Removed));
             }
         }
     }
 
-    protected override void HandleModifiedRoadSegment(RoadSegmentRecord wegsegment, List<Feature<NumberedRoadFeatureCompareAttributes>> leveringFeatures, List<Feature<NumberedRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
+    protected override void HandleModifiedRoadSegment(RoadSegmentRecord wegsegment, List<Feature<NumberedRoadFeatureCompareAttributes>> changeFeatures, List<Feature<NumberedRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
     {
-        var wegsegmentLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
+        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
         var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
 
-        foreach (var leveringFeature in wegsegmentLeveringFeatures)
+        foreach (var changeFeature in wegsegmentChangeFeatures)
         {
-            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id && x.Attributes.Number == leveringFeature.Attributes.Number);
+            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id && x.Attributes.Number == changeFeature.Attributes.Number);
             if (!leveringExtractFeatures.Any())
             {
-                processedRecords.Add(new Record(leveringFeature, RecordType.Added, wegsegment.Id));
+                processedRecords.Add(new Record(changeFeature, RecordType.Added, wegsegment.Id));
             }
             else
             {
@@ -84,11 +84,11 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
 
                     if (i == 0)
                     {
-                        if (leveringFeature.Attributes.Ordinal != extractFeature.Attributes.Ordinal ||
-                            leveringFeature.Attributes.Direction != extractFeature.Attributes.Direction)
+                        if (changeFeature.Attributes.Ordinal != extractFeature.Attributes.Ordinal ||
+                            changeFeature.Attributes.Direction != extractFeature.Attributes.Direction)
                         {
                             processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-                            processedRecords.Add(new Record(leveringFeature, RecordType.Added, wegsegment.Id));
+                            processedRecords.Add(new Record(changeFeature, RecordType.Added, wegsegment.Id));
                         }
                         else
                         {
@@ -105,9 +105,9 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
 
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
-            var extractLeveringFeatures = leveringFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn
+            var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn
                                                                         && x.Attributes.Number == extractFeature.Attributes.Number);
-            if (!extractLeveringFeatures.Any())
+            if (!extractChangeFeatures.Any())
             {
                 processedRecords.Add(new Record(extractFeature, RecordType.Removed));
             }

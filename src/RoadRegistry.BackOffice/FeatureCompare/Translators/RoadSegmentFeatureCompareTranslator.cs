@@ -17,7 +17,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
     {
     }
 
-    private List<RoadSegmentRecord> ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> leveringFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, CancellationToken cancellationToken)
+    private List<RoadSegmentRecord> ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, CancellationToken cancellationToken)
     {
         var openGisGeometryType = OgcGeometryType.LineString;
         var clusterTolerance = 0.10; // cfr WVB in GRB = 0,15
@@ -26,53 +26,53 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
         var processedRecords = new List<RoadSegmentRecord>();
 
-        foreach (var leveringFeature in leveringFeatures)
+        foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var bufferedGeometry = leveringFeature.Attributes.Geometry.Buffer(buffersize);
+            var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(buffersize);
             var intersectingGeometries = extractFeatures
                 .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry.Envelope) && x.Attributes.Geometry.Intersects(bufferedGeometry))
                 .ToList();
 
             if (intersectingGeometries.Any())
             {
-                var overlappingGeometries = intersectingGeometries.FindAll(f => leveringFeature.Attributes.Geometry.OverlapsWith(f.Attributes.Geometry, criticalOverlapPercentage, openGisGeometryType, buffersize));
+                var overlappingGeometries = intersectingGeometries.FindAll(f => changeFeature.Attributes.Geometry.OverlapsWith(f.Attributes.Geometry, criticalOverlapPercentage, openGisGeometryType, buffersize));
                 if (overlappingGeometries.Any())
                 {
                     // Test op verschillen in niet kenmerkende attributen
                     var nonCriticalAttributesUnchanged = overlappingGeometries.FindAll(extractFeature =>
-                        leveringFeature.Attributes.Status == extractFeature.Attributes.Status &&
-                        leveringFeature.Attributes.Category == extractFeature.Attributes.Category &&
-                        leveringFeature.Attributes.LeftStreetNameId == extractFeature.Attributes.LeftStreetNameId &&
-                        leveringFeature.Attributes.RightStreetNameId == extractFeature.Attributes.RightStreetNameId &&
-                        leveringFeature.Attributes.MaintenanceAuthority == extractFeature.Attributes.MaintenanceAuthority &&
-                        leveringFeature.Attributes.Method == extractFeature.Attributes.Method &&
-                        leveringFeature.Attributes.StartNodeId == extractFeature.Attributes.StartNodeId &&
-                        leveringFeature.Attributes.EndNodeId == extractFeature.Attributes.EndNodeId &&
-                        leveringFeature.Attributes.AccessRestriction == extractFeature.Attributes.AccessRestriction &&
-                        leveringFeature.Attributes.Morphology == extractFeature.Attributes.Morphology
+                        changeFeature.Attributes.Status == extractFeature.Attributes.Status &&
+                        changeFeature.Attributes.Category == extractFeature.Attributes.Category &&
+                        changeFeature.Attributes.LeftStreetNameId == extractFeature.Attributes.LeftStreetNameId &&
+                        changeFeature.Attributes.RightStreetNameId == extractFeature.Attributes.RightStreetNameId &&
+                        changeFeature.Attributes.MaintenanceAuthority == extractFeature.Attributes.MaintenanceAuthority &&
+                        changeFeature.Attributes.Method == extractFeature.Attributes.Method &&
+                        changeFeature.Attributes.StartNodeId == extractFeature.Attributes.StartNodeId &&
+                        changeFeature.Attributes.EndNodeId == extractFeature.Attributes.EndNodeId &&
+                        changeFeature.Attributes.AccessRestriction == extractFeature.Attributes.AccessRestriction &&
+                        changeFeature.Attributes.Morphology == extractFeature.Attributes.Morphology
                     );
                     if (nonCriticalAttributesUnchanged.Any())
                     {
-                        var identicalFeatures = nonCriticalAttributesUnchanged.FindAll(extractFeature => leveringFeature.Attributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, clusterTolerance));
+                        var identicalFeatures = nonCriticalAttributesUnchanged.FindAll(extractFeature => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, clusterTolerance));
                         if (identicalFeatures.Any())
                         {
-                            var compareIdn = leveringFeature.Attributes.Id.ToString();
-                            leveringFeature.Attributes.Id = identicalFeatures.First().Attributes.Id;
+                            var compareIdn = changeFeature.Attributes.Id.ToString();
+                            changeFeature.Attributes.Id = identicalFeatures.First().Attributes.Id;
 
-                            processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Identical)
+                            processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes, RecordType.Identical)
                             {
                                 CompareIdn = compareIdn
                             });
                         }
                         else
                         {
-                            var compareIdn = leveringFeature.Attributes.Id.ToString();
-                            leveringFeature.Attributes.Id = nonCriticalAttributesUnchanged.First().Attributes.Id;
+                            var compareIdn = changeFeature.Attributes.Id.ToString();
+                            changeFeature.Attributes.Id = nonCriticalAttributesUnchanged.First().Attributes.Id;
 
                             //update because geometries differ (slightly)
-                            processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Modified)
+                            processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes, RecordType.Modified)
                             {
                                 CompareIdn = compareIdn,
                                 GeometryChanged = true
@@ -82,12 +82,12 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     else
                     {
                         //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
-                        var identicalGeometries = overlappingGeometries.FindAll(f => leveringFeature.Attributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, clusterTolerance));
+                        var identicalGeometries = overlappingGeometries.FindAll(f => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, clusterTolerance));
 
-                        var compareIdn = leveringFeature.Attributes.Id.ToString();
-                        leveringFeature.Attributes.Id = overlappingGeometries.First().Attributes.Id;
+                        var compareIdn = changeFeature.Attributes.Id.ToString();
+                        changeFeature.Attributes.Id = overlappingGeometries.First().Attributes.Id;
 
-                        processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Modified)
+                        processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes, RecordType.Modified)
                         {
                             CompareIdn = compareIdn,
                             GeometryChanged = !identicalGeometries.Any()
@@ -102,7 +102,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                         compareIdn.Append(f.Attributes.Id + ";");
                     }
 
-                    processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Added)
+                    processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes, RecordType.Added)
                     {
                         CompareIdn = compareIdn.ToString()
                     });
@@ -110,7 +110,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
             }
             else
             {
-                processedRecords.Add(new RoadSegmentRecord(leveringFeature.RecordNumber, leveringFeature.Attributes, RecordType.Added));
+                processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes, RecordType.Added));
             }
         }
 
@@ -127,20 +127,20 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
     {
         var entries = context.Entries;
 
-        var (extractFeatures, leveringFeatures, integrationFeatures) = ReadExtractAndLeveringAndIntegrationFeatures(entries, "WEGSEGMENT");
+        var (extractFeatures, changeFeatures, integrationFeatures) = ReadExtractAndLeveringAndIntegrationFeatures(entries, "WEGSEGMENT");
 
         context.RoadSegments.AddRange(integrationFeatures.Select(feature => new RoadSegmentRecord(feature.RecordNumber, feature.Attributes, RecordType.Identical)));
 
         var batchCount = 2;
 
-        if (leveringFeatures.Any())
+        if (changeFeatures.Any())
         {
             var processedLeveringRecords = await Task.WhenAll(
-                leveringFeatures.SplitIntoBatches(batchCount)
-                    .Select(leveringFeaturesBatch => { return Task.Run(() => ProcessLeveringRecords(leveringFeaturesBatch, extractFeatures, cancellationToken), cancellationToken); }));
+                changeFeatures.SplitIntoBatches(batchCount)
+                    .Select(changeFeaturesBatch => { return Task.Run(() => ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, cancellationToken), cancellationToken); }));
             context.RoadSegments.AddRange(processedLeveringRecords.SelectMany(x => x));
 
-            var rootNumber = Convert.ToInt32(leveringFeatures.Max(x => x.Attributes.Id)) + 1;
+            var rootNumber = Convert.ToInt32(changeFeatures.Max(x => x.Attributes.Id)) + 1;
             foreach (var record in context.RoadSegments.Where(x => x.RecordType.Equals(RecordType.Added)))
             {
                 record.TempId = rootNumber++;
