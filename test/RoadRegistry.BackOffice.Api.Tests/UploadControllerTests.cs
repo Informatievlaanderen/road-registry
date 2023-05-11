@@ -42,7 +42,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
 
         var result = await Controller.PostUploadBeforeFeatureCompare(
             new UseFeatureCompareFeatureToggle(true),
-            new UseZipArchiveFeatureCompareTranslatorFeatureToggle(false),
+            new UseZipArchiveFeatureCompareTranslatorFeatureToggle(true),
             formFile, CancellationToken.None);
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
@@ -108,7 +108,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             var page = await StreamStore.ReadAllBackwards(Position.End, 1);
             var message = page.Messages.Single();
             Assert.Equal(nameof(UploadRoadNetworkChangesArchive), message.Type);
-            
+
             var changesArchiveMessage = JsonConvert.DeserializeObject<UploadRoadNetworkChangesArchive>(await message.GetJsonData());
 
             Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(changesArchiveMessage!.ArchiveId)));
@@ -183,7 +183,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
                          typeof(UploadControllerTests).Assembly.GetManifestResourceStream(typeof(UploadControllerTests),
                              "valid-before.zip"))
             {
-                embeddedStream.CopyTo(sourceStream);
+                await embeddedStream.CopyToAsync(sourceStream);
             }
 
             sourceStream.Position = 0;
@@ -191,13 +191,13 @@ public class UploadControllerTests : ControllerTests<UploadController>
             var formFile = new FormFile(sourceStream, 0L, sourceStream.Length, "name", "name")
             {
                 Headers = new HeaderDictionary(new Dictionary<string, StringValues>
-                {
-                    { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
-                })
+                    {
+                        { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
+                    })
             };
             var result = await Controller.PostUploadBeforeFeatureCompare(
                 new UseFeatureCompareFeatureToggle(true),
-                new UseZipArchiveFeatureCompareTranslatorFeatureToggle(false),
+                new UseZipArchiveFeatureCompareTranslatorFeatureToggle(true),
                 formFile, CancellationToken.None);
 
             var typedResult = Assert.IsType<AcceptedResult>(result);
@@ -208,7 +208,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             await using (var openStream = await blob.OpenAsync())
             {
                 var resultStream = new MemoryStream();
-                openStream.CopyTo(resultStream);
+                await openStream.CopyToAsync(resultStream);
                 resultStream.Position = 0;
                 sourceStream.Position = 0;
 
@@ -243,7 +243,7 @@ public class UploadControllerTests : ControllerTests<UploadController>
             {
                 await Controller.PostUploadBeforeFeatureCompare(
                     new UseFeatureCompareFeatureToggle(true),
-                    new UseZipArchiveFeatureCompareTranslatorFeatureToggle(false),
+                    new UseZipArchiveFeatureCompareTranslatorFeatureToggle(true),
                     formFile, CancellationToken.None);
                 throw new ValidationException("This should not be reachable");
             }
