@@ -129,5 +129,5 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
         return Task.FromResult(changes);
     }
 
-    private record Record(Feature<GradeSeparatedJunctionFeatureCompareAttributes> Feature, RecordType RecordType);
+    private sealed record Record(Feature<GradeSeparatedJunctionFeatureCompareAttributes> Feature, RecordType RecordType);
 }

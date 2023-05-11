@@ -126,5 +126,5 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
         return changes;
     }
 
-    private record Record(Feature<RoadNodeFeatureCompareAttributes> Feature, RecordType RecordType, int Id);
+    private sealed record Record(Feature<RoadNodeFeatureCompareAttributes> Feature, RecordType RecordType, int Id);
 }

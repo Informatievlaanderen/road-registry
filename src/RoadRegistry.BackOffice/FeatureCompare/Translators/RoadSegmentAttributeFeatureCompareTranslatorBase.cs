@@ -55,10 +55,7 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             var deletedFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
             if (deletedFeatures.Any())
             {
-                foreach (var feature in deletedFeatures)
-                {
-                    processedRecords.Add(new Record(feature, RecordType.Removed));
-                }
+                processedRecords.AddRange(deletedFeatures.Select(feature => new Record(feature, RecordType.Removed)));
             }
         }
 
@@ -71,15 +68,9 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
 
             if (wegsegmentExtractFeatures.Count != wegsegmentChangeFeatures.Count)
             {
-                foreach (var feature in wegsegmentExtractFeatures)
-                {
-                    processedRecords.Add(new Record(feature, RecordType.Removed));
-                }
+                processedRecords.AddRange(wegsegmentExtractFeatures.Select(feature => new Record(feature, RecordType.Removed)));
 
-                foreach (var feature in wegsegmentChangeFeatures)
-                {
-                    processedRecords.Add(new Record(feature, RecordType.Added));
-                }
+                processedRecords.AddRange(wegsegmentChangeFeatures.Select(feature => new Record(feature, RecordType.Added)));
             }
             else
             {
@@ -115,18 +106,12 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             var removeAndAddLanes = wegsegment.GeometryChanged || wegsegmentExtractFeatures.Count != wegsegmentChangeFeatures.Count;
             if (removeAndAddLanes)
             {
-                foreach (var feature in wegsegmentExtractFeatures)
-                {
-                    if (processedRecords.All(record => record.Feature.Attributes.Id != feature.Attributes.Id))
-                    {
-                        processedRecords.Add(new Record(feature, RecordType.Removed));
-                    }
-                }
-
-                foreach (var feature in wegsegmentChangeFeatures)
-                {
-                    processedRecords.Add(new Record(feature, RecordType.Added, wegsegment.Id));
-                }
+                var removeExtractFeatures = wegsegmentExtractFeatures
+                    .Where(feature => processedRecords.All(record => record.Feature.Attributes.Id != feature.Attributes.Id))
+                    .ToArray();
+                processedRecords.AddRange(removeExtractFeatures.Select(feature => new Record(feature, RecordType.Removed)));
+                
+                processedRecords.AddRange(wegsegmentChangeFeatures.Select(feature => new Record(feature, RecordType.Added, wegsegment.Id)));
             }
             else
             {
