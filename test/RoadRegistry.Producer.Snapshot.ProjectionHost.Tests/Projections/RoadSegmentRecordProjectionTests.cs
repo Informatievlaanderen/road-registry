@@ -3,17 +3,16 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 using System.Globalization;
 using AutoFixture;
 using BackOffice;
-using BackOffice.Framework;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
 using Extensions;
 using Moq;
 using ProjectionHost.Projections;
-using RoadSegment;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
+using RoadSegment;
 using Syndication.Schema;
 
 public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
@@ -59,9 +58,9 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         var message = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
-        
+
         var created = DateTimeOffset.UtcNow;
-        
+
         var expectedRecords = Array.ConvertAll(message.Changes, change =>
         {
             var roadSegmentAdded = change.RoadSegmentAdded;
@@ -136,108 +135,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(message)
-            .Expect(created.UtcDateTime, expectedRecords);
-
-        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
-    }
-
-    [Fact]
-    public async Task When_modifying_road_segments()
-    {
-        _fixture.Freeze<RoadSegmentId>();
-
-        var acceptedRoadSegmentAdded = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
-
-        var acceptedRoadSegmentModified = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
-
-        var created = DateTimeOffset.UtcNow;
-
-        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
-        {
-            var roadSegmentModified = change.RoadSegmentModified;
-            var transactionId = new TransactionId(acceptedRoadSegmentModified.TransactionId);
-            var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod);
-            var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction);
-            var status = RoadSegmentStatus.Parse(roadSegmentModified.Status);
-            var morphology = RoadSegmentMorphology.Parse(roadSegmentModified.Morphology);
-            var category = RoadSegmentCategory.Parse(roadSegmentModified.Category);
-
-            var roadSegmentRecord = new RoadSegmentRecord
-            {
-                Id = roadSegmentModified.Id,
-                Version = roadSegmentModified.Version,
-
-                MaintainerId = roadSegmentModified.MaintenanceAuthority.Code,
-                MaintainerName = roadSegmentModified.MaintenanceAuthority.Name,
-
-                MethodId = method.Translation.Identifier,
-                MethodDutchName = method.Translation.Name,
-
-                CategoryId = category.Translation.Identifier,
-                CategoryDutchName = category.Translation.Name,
-
-                Geometry = GeometryTranslator.Translate(roadSegmentModified.Geometry),
-                GeometryVersion = roadSegmentModified.GeometryVersion,
-
-                MorphologyId = morphology.Translation.Identifier,
-                MorphologyDutchName = morphology.Translation.Name,
-
-                StatusId = status.Translation.Identifier,
-                StatusDutchName = status.Translation.Name,
-
-                AccessRestrictionId = accessRestriction.Translation.Identifier,
-                AccessRestrictionDutchName = accessRestriction.Translation.Name,
-
-                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
-                TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
-
-                LeftSideMunicipalityId = null,
-                LeftSideMunicipalityNisCode = null,
-                LeftSideStreetNameId = roadSegmentModified.LeftSide?.StreetNameId,
-                LeftSideStreetName = null,
-
-                RightSideMunicipalityId = null,
-                RightSideMunicipalityNisCode = null,
-                RightSideStreetNameId = roadSegmentModified.RightSide?.StreetNameId,
-                RightSideStreetName = null,
-
-                RoadSegmentVersion = roadSegmentModified.Version,
-
-                BeginRoadNodeId = roadSegmentModified.StartNodeId,
-                EndRoadNodeId = roadSegmentModified.EndNodeId,
-                StreetNameCachePosition = 0L,
-
-                Origin = acceptedRoadSegmentModified.ToOrigin(),
-                LastChangedTimestamp = created
-            };
-            return (object)roadSegmentRecord;
-        });
-
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
-
-        var streetNameCache = new Mock<IStreetNameCache>();
-        streetNameCache
-            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync((StreetNameRecord)null);
-
-        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
-            .Scenario()
-            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(created.UtcDateTime, expectedRecords);
 
         foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
@@ -460,6 +357,108 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
     }
 
     [Fact]
+    public async Task When_modifying_road_segments()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentModified = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
+
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentModified.Changes, change =>
+        {
+            var roadSegmentModified = change.RoadSegmentModified;
+            var transactionId = new TransactionId(acceptedRoadSegmentModified.TransactionId);
+            var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentModified.GeometryDrawMethod);
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction);
+            var status = RoadSegmentStatus.Parse(roadSegmentModified.Status);
+            var morphology = RoadSegmentMorphology.Parse(roadSegmentModified.Morphology);
+            var category = RoadSegmentCategory.Parse(roadSegmentModified.Category);
+
+            var roadSegmentRecord = new RoadSegmentRecord
+            {
+                Id = roadSegmentModified.Id,
+                Version = roadSegmentModified.Version,
+
+                MaintainerId = roadSegmentModified.MaintenanceAuthority.Code,
+                MaintainerName = roadSegmentModified.MaintenanceAuthority.Name,
+
+                MethodId = method.Translation.Identifier,
+                MethodDutchName = method.Translation.Name,
+
+                CategoryId = category.Translation.Identifier,
+                CategoryDutchName = category.Translation.Name,
+
+                Geometry = GeometryTranslator.Translate(roadSegmentModified.Geometry),
+                GeometryVersion = roadSegmentModified.GeometryVersion,
+
+                MorphologyId = morphology.Translation.Identifier,
+                MorphologyDutchName = morphology.Translation.Name,
+
+                StatusId = status.Translation.Identifier,
+                StatusDutchName = status.Translation.Name,
+
+                AccessRestrictionId = accessRestriction.Translation.Identifier,
+                AccessRestrictionDutchName = accessRestriction.Translation.Name,
+
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                TransactionId = transactionId == TransactionId.Unknown ? default(int?) : transactionId.ToInt32(),
+
+                LeftSideMunicipalityId = null,
+                LeftSideMunicipalityNisCode = null,
+                LeftSideStreetNameId = roadSegmentModified.LeftSide?.StreetNameId,
+                LeftSideStreetName = null,
+
+                RightSideMunicipalityId = null,
+                RightSideMunicipalityNisCode = null,
+                RightSideStreetNameId = roadSegmentModified.RightSide?.StreetNameId,
+                RightSideStreetName = null,
+
+                RoadSegmentVersion = roadSegmentModified.Version,
+
+                BeginRoadNodeId = roadSegmentModified.StartNodeId,
+                EndRoadNodeId = roadSegmentModified.EndNodeId,
+                StreetNameCachePosition = 0L,
+
+                Origin = acceptedRoadSegmentModified.ToOrigin(),
+                LastChangedTimestamp = created
+            };
+            return (object)roadSegmentRecord;
+        });
+
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
+
+        var streetNameCache = new Mock<IStreetNameCache>();
+        streetNameCache
+            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
+            .ReturnsAsync((StreetNameRecord)null);
+
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+    }
+
+    [Fact]
     public async Task When_removing_road_segments()
     {
         _fixture.Freeze<RoadSegmentId>();
@@ -488,7 +487,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             {
                 Id = roadSegmentAdded.Id,
                 Version = roadSegmentAdded.Version,
-                
+
                 MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
                 MaintainerName = roadSegmentAdded.MaintenanceAuthority.Name,
 
@@ -589,11 +588,11 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 var status = RoadSegmentStatus.Parse(@event.Status);
                 var morphology = RoadSegmentMorphology.Parse(@event.Morphology);
                 var category = RoadSegmentCategory.Parse(@event.Category);
-                
+
                 var expectedRecord = new RoadSegmentRecord
                 {
                     Id = @event.Id,
-                    
+
                     MaintainerId = @event.MaintenanceAuthority.Code,
                     MaintainerName = @event.MaintenanceAuthority.Name,
 
@@ -660,7 +659,6 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             .Scenario()
             .Given(data.Select(d => d.ImportedRoadSegment))
             .Expect(created.UtcDateTime, data.Select(d => d.ExpectedRecord));
-
 
         foreach (var expectedRecord in data.AsReadOnly().Select(x => x.ExpectedRecord))
         {

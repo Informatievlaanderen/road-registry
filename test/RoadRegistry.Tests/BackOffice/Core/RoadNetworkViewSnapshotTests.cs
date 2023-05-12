@@ -6,7 +6,6 @@ using KellermanSoftware.CompareNetObjects;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.RoadSegmentLaneAttribute;
 using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute;

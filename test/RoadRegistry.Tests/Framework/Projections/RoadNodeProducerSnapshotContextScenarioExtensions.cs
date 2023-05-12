@@ -1,6 +1,5 @@
 namespace RoadRegistry.Tests.Framework.Projections;
 
-using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
@@ -118,7 +117,10 @@ public static class RoadNodeProducerSnapshotContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -168,7 +170,10 @@ public static class RoadNodeProducerSnapshotContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -189,7 +194,7 @@ public static class RoadNodeProducerSnapshotContextScenarioExtensions
             var projector = new ConnectedProjector<RoadNodeProducerSnapshotContext>(specification.Resolver);
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object>() { { "CreatedUtc", DateTime.Now } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object> { { "CreatedUtc", DateTime.Now } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
             }
 
@@ -200,7 +205,10 @@ public static class RoadNodeProducerSnapshotContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -208,7 +216,6 @@ public static class RoadNodeProducerSnapshotContextScenarioExtensions
     {
         return new ConnectedProjectionScenario<RoadNodeProducerSnapshotContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
-
 }
 
 public static class RoadSegmentProducerSnapshotContextScenarioExtensions
@@ -307,7 +314,10 @@ public static class RoadSegmentProducerSnapshotContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -357,7 +367,10 @@ public static class RoadSegmentProducerSnapshotContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -378,7 +391,7 @@ public static class RoadSegmentProducerSnapshotContextScenarioExtensions
             var projector = new ConnectedProjector<RoadSegmentProducerSnapshotContext>(specification.Resolver);
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object>() { { "CreatedUtc", DateTime.Now } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object> { { "CreatedUtc", DateTime.Now } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
             }
 
@@ -389,7 +402,10 @@ public static class RoadSegmentProducerSnapshotContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -397,5 +413,4 @@ public static class RoadSegmentProducerSnapshotContextScenarioExtensions
     {
         return new ConnectedProjectionScenario<RoadSegmentProducerSnapshotContext>(Resolve.WhenEqualToHandlerMessageType(projection.Handlers));
     }
-
 }

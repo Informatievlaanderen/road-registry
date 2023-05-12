@@ -13,8 +13,16 @@ public class AddRoadSegmentEqualityComparer : IEqualityComparer<AddRoadSegment>
 
     public bool Equals(AddRoadSegment left, AddRoadSegment right)
     {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
+        if (left == null && right == null)
+        {
+            return true;
+        }
+
+        if (left == null || right == null)
+        {
+            return false;
+        }
+
         var sameGeometry =
             (left.Geometry == null && right.Geometry == null)
             || (left.Geometry != null && right.Geometry != null && left.Geometry.EqualsTopologically(right.Geometry));

@@ -6,8 +6,8 @@ using Be.Vlaanderen.Basisregisters.GrAr.Contracts.StreetNameRegistry;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using NodaTime;
-using RoadRegistry.StreetNameConsumer.Projections;
 using Schema;
+using StreetNameConsumer.Projections;
 using Provenance = Be.Vlaanderen.Basisregisters.GrAr.Contracts.Common.Provenance;
 using Reason = BackOffice.Reason;
 

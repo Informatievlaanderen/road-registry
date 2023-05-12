@@ -5,7 +5,6 @@ using AutoFixture;
 using FluentValidation;
 using FluentValidation.Internal;
 using FluentValidation.TestHelper;
-using Xunit;
 
 public abstract class ValidatorTest<TModel, TValidator>
     where TModel : class

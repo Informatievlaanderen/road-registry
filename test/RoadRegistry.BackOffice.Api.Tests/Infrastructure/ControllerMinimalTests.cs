@@ -1,17 +1,27 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 
-using Infrastructure.Containers;
+using Api.Infrastructure.Controllers;
+using Containers;
+using Editor.Schema.RoadNetworkChanges;
+using Hosts.Infrastructure.Options;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using RoadRegistry.Editor.Schema.RoadNetworkChanges;
 
 public abstract class ControllerMinimalTests<TController> where TController : ControllerBase
 {
     protected ControllerMinimalTests(IMediator mediator)
     {
-        Controller = (TController)Activator.CreateInstance(typeof(TController), mediator);
+        if (typeof(TController).IsAssignableTo(typeof(BackofficeApiController)))
+        {
+            Controller = (TController)Activator.CreateInstance(typeof(TController), new TicketingOptions(), mediator);
+        }
+        else
+        {
+            Controller = (TController)Activator.CreateInstance(typeof(TController), mediator);
+        }
+
         Controller!.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         Mediator = mediator;
     }

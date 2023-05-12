@@ -9,7 +9,11 @@ public static class StringBuilderExtensions
         IEnumerable<T> collection,
         Func<T, string> formatter)
     {
-        foreach (var item in collection) builder.AppendLine(formatter(item));
+        foreach (var item in collection)
+        {
+            builder.AppendLine(formatter(item));
+        }
+
         return builder;
     }
 

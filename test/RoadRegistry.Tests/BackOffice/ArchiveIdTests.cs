@@ -6,7 +6,6 @@ using AutoFixture.Idioms;
 using AutoFixture.Kernel;
 using Framework.Assertions;
 using RoadRegistry.BackOffice;
-using Xunit;
 
 public class ArchiveIdTests
 {
@@ -86,7 +85,7 @@ public class ArchiveIdTests
                 Guid.NewGuid().ToString("N")
             )
         );
-        
+
         var assertions = new IIdiomaticAssertion[]
         {
             new ImplicitConversionOperatorAssertion<string>(new CompositeSpecimenBuilder(fixture, _fixture)),

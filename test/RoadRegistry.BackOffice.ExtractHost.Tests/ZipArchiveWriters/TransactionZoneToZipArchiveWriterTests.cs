@@ -79,7 +79,10 @@ public class TransactionZoneToZipArchiveWriterTests
             var header = DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
             var records = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader);
 
-            while (records.MoveNext()) yield return (records.CurrentRecordNumber, records.Current);
+            while (records.MoveNext())
+            {
+                yield return (records.CurrentRecordNumber, records.Current);
+            }
         }
     }
 

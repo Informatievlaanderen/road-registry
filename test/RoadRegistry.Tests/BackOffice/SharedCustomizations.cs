@@ -16,10 +16,10 @@ using RoadRegistry.BackOffice.Uploads;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
-using Reason = RoadRegistry.BackOffice.Reason;
-using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.Core.RoadSegmentLaneAttribute;
-using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.Core.RoadSegmentSurfaceAttribute;
-using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.Core.RoadSegmentWidthAttribute;
+using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
+using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.RoadSegmentWidthAttribute;
 
 public static class SharedCustomizations
 {
@@ -48,12 +48,13 @@ public static class SharedCustomizations
                         fixture.Create<CrabStreetnameId?>(),
                         fixture.Create<OrganizationId>(),
                         fixture.Create<RoadSegmentGeometryDrawMethod>(),
-                        fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentLaneAttribute>(generator.Next(1, 5)).ToArray(),
-                        fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute>(generator.Next(1, 5)).ToArray(),
-                        fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentWidthAttribute>(generator.Next(1, 5)).ToArray()
+                        fixture.CreateMany<RoadSegmentLaneAttribute>(generator.Next(1, 5)).ToArray(),
+                        fixture.CreateMany<RoadSegmentSurfaceAttribute>(generator.Next(1, 5)).ToArray(),
+                        fixture.CreateMany<RoadSegmentWidthAttribute>(generator.Next(1, 5)).ToArray()
                     );
                     var times = generator.Next(0, 10);
                     for (var index = 0; index < times; index++)
+                    {
                         switch (generator.Next(0, 11))
                         {
                             case 0:
@@ -81,15 +82,16 @@ public static class SharedCustomizations
                                 result = result.With(fixture.Create<RoadSegmentGeometryDrawMethod>());
                                 break;
                             case 8:
-                                result = result.With(fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentLaneAttribute>(generator.Next(1, 5)).ToArray());
+                                result = result.With(fixture.CreateMany<RoadSegmentLaneAttribute>(generator.Next(1, 5)).ToArray());
                                 break;
                             case 9:
-                                result = result.With(fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute>(generator.Next(1, 5)).ToArray());
+                                result = result.With(fixture.CreateMany<RoadSegmentSurfaceAttribute>(generator.Next(1, 5)).ToArray());
                                 break;
                             case 10:
-                                result = result.With(fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentWidthAttribute>(generator.Next(1, 5)).ToArray());
+                                result = result.With(fixture.CreateMany<RoadSegmentWidthAttribute>(generator.Next(1, 5)).ToArray());
                                 break;
                         }
+                    }
 
                     if (result.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
                     {
@@ -291,6 +293,13 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeOrganisation(this IFixture fixture)
+    {
+        fixture.Customize<Organisation>(customization =>
+            customization.FromSeed(_ => Organisation.DigitaalVlaanderen)
+        );
+    }
+
     public static void CustomizeOrganizationId(this IFixture fixture)
     {
         fixture.Customize<OrganizationId>(composer =>
@@ -370,13 +379,25 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeProvenanceData(this IFixture fixture)
+    {
+        fixture.Customize<ProvenanceData>(customization =>
+            customization.FromSeed(_ => new ProvenanceData(new Provenance(new FakeClock(NodaConstants.UnixEpoch).GetCurrentInstant(),
+                Application.RoadRegistry,
+                new Reason("TEST"),
+                new Operator("TEST"),
+                Modification.Unknown,
+                fixture.Create<Organisation>())))
+        );
+    }
+
     public static void CustomizeReason(this IFixture fixture)
     {
-        fixture.Customize<Reason>(composer =>
+        fixture.Customize<RoadRegistry.BackOffice.Reason>(composer =>
             composer.FromFactory(generator =>
-                new Reason(new string(
+                new RoadRegistry.BackOffice.Reason(new string(
                     (char)generator.Next(97, 123), // a-z
-                    generator.Next(1, Reason.MaxLength + 1))))
+                    generator.Next(1, RoadRegistry.BackOffice.Reason.MaxLength + 1))))
         );
     }
 
@@ -440,17 +461,17 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadNodeType(this IFixture fixture)
+    {
+        fixture.Customize<RoadNodeType>(composer =>
+            composer.FromFactory<int>(value => RoadNodeType.All[Math.Abs(value) % RoadNodeType.All.Length]));
+    }
+
     public static void CustomizeRoadNodeVersion(this IFixture fixture)
     {
         fixture.Customize<RoadNodeVersion>(composer =>
             composer.FromFactory<int>(value => new RoadNodeVersion(Math.Abs(value)))
         );
-    }
-
-    public static void CustomizeRoadNodeType(this IFixture fixture)
-    {
-        fixture.Customize<RoadNodeType>(composer =>
-            composer.FromFactory<int>(value => RoadNodeType.All[Math.Abs(value) % RoadNodeType.All.Length]));
     }
 
     public static void CustomizeRoadSegmentAccessRestriction(this IFixture fixture)
@@ -507,14 +528,14 @@ public static class SharedCustomizations
 
     public static void CustomizeRoadSegmentLaneAttribute(this IFixture fixture)
     {
-        fixture.Customize<RoadSegmentLaneAttribute>(customization =>
+        fixture.Customize<RoadRegistry.BackOffice.Core.RoadSegmentLaneAttribute>(customization =>
             customization.FromFactory<int>(
                 _ =>
                 {
                     var generator = new Generator<RoadSegmentPosition>(fixture);
                     var from = generator.First();
                     var to = generator.First(candidate => candidate > from);
-                    return new RoadSegmentLaneAttribute(
+                    return new RoadRegistry.BackOffice.Core.RoadSegmentLaneAttribute(
                         fixture.Create<AttributeId>(),
                         fixture.Create<AttributeId>(),
                         fixture.Create<RoadSegmentLaneCount>(),
@@ -527,13 +548,13 @@ public static class SharedCustomizations
             )
         );
 
-        fixture.Customize<RoadRegistry.BackOffice.RoadSegmentLaneAttribute>(customization =>
+        fixture.Customize<RoadSegmentLaneAttribute>(customization =>
             customization.FromFactory<int>(
                 _ =>
                 {
-                    var laneAttribute = fixture.Create<RoadSegmentLaneAttribute>();
-                    
-                    return new RoadRegistry.BackOffice.RoadSegmentLaneAttribute(
+                    var laneAttribute = fixture.Create<RoadRegistry.BackOffice.Core.RoadSegmentLaneAttribute>();
+
+                    return new RoadSegmentLaneAttribute(
                         laneAttribute.From,
                         laneAttribute.To,
                         laneAttribute.Count,
@@ -556,13 +577,6 @@ public static class SharedCustomizations
         );
     }
 
-    public static void CustomizeRoadSegmentOutlineLaneCount(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentLaneCount>(customization =>
-            customization.FromFactory(generator => new RoadSegmentLaneCount(generator.Next(1, RoadSegmentLaneCount.Maximum.ToInt32())))
-        );
-    }
-
     public static void CustomizeRoadSegmentLaneDirection(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentLaneDirection>(customization =>
@@ -577,18 +591,6 @@ public static class SharedCustomizations
         fixture.Customize<RoadSegmentMorphology>(customization =>
             customization.FromFactory(generator =>
                 RoadSegmentMorphology.All[generator.Next() % RoadSegmentMorphology.All.Length]
-            )
-        );
-    }
-
-    public static void CustomizeRoadSegmentOutlineMorphology(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentMorphology>(customization =>
-            customization.FromFactory(generator =>
-                {
-                    var valid = RoadSegmentMorphology.All.Where(x => x != RoadSegmentMorphology.Unknown).ToArray();
-                    return valid[generator.Next() % valid.Length];
-                }
             )
         );
     }
@@ -611,6 +613,67 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadSegmentOutlineGeometryDrawMethod(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentGeometryDrawMethod>(customization =>
+            customization.FromFactory(_ => RoadSegmentGeometryDrawMethod.Outlined)
+        );
+    }
+
+    public static void CustomizeRoadSegmentOutlineLaneCount(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentLaneCount>(customization =>
+            customization.FromFactory(generator => new RoadSegmentLaneCount(generator.Next(1, RoadSegmentLaneCount.Maximum.ToInt32())))
+        );
+    }
+
+    public static void CustomizeRoadSegmentOutlineMorphology(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentMorphology>(customization =>
+            customization.FromFactory(generator =>
+                {
+                    var valid = RoadSegmentMorphology.All.Where(x => x != RoadSegmentMorphology.Unknown).ToArray();
+                    return valid[generator.Next() % valid.Length];
+                }
+            )
+        );
+    }
+
+    public static void CustomizeRoadSegmentOutlineStatus(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentStatus>(customization =>
+            customization.FromFactory(generator =>
+                {
+                    var valid = RoadSegmentStatus.All
+                        .Where(x => x.Translation.Identifier != RoadSegmentStatus.Unknown.Translation.Identifier)
+                        .ToArray();
+                    return valid[generator.Next() % valid.Length];
+                }
+            )
+        );
+    }
+
+    public static void CustomizeRoadSegmentOutlineSurfaceType(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentSurfaceType>(customization =>
+            customization.FromFactory(generator =>
+                {
+                    var valid = RoadSegmentSurfaceType.All.Where(x => x != RoadSegmentSurfaceType.Unknown && x != RoadSegmentSurfaceType.NotApplicable).ToArray();
+                    return valid[generator.Next() % valid.Length];
+                }
+            )
+        );
+    }
+
+    public static void CustomizeRoadSegmentOutlineWidth(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentWidth>(customization =>
+            customization.FromFactory(
+                generator => new RoadSegmentWidth(generator.Next(1, RoadSegmentWidth.Maximum.ToInt32()))
+            )
+        );
+    }
+
     public static void CustomizeRoadSegmentPosition(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentPosition>(customization =>
@@ -629,37 +692,16 @@ public static class SharedCustomizations
         );
     }
 
-    public static void CustomizeRoadSegmentOutlineGeometryDrawMethod(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentGeometryDrawMethod>(customization =>
-            customization.FromFactory(_ => RoadSegmentGeometryDrawMethod.Outlined)
-        );
-    }
-
-    public static void CustomizeRoadSegmentOutlineStatus(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentStatus>(customization =>
-            customization.FromFactory(generator =>
-                {
-                    var valid = RoadSegmentStatus.All
-                        .Where(x => x.Translation.Identifier != RoadSegmentStatus.Unknown.Translation.Identifier)
-                        .ToArray();
-                    return valid[generator.Next() % valid.Length];
-                }
-            )
-        );
-    }
-
     public static void CustomizeRoadSegmentSurfaceAttribute(this IFixture fixture)
     {
-        fixture.Customize<RoadSegmentSurfaceAttribute>(customization =>
+        fixture.Customize<RoadRegistry.BackOffice.Core.RoadSegmentSurfaceAttribute>(customization =>
             customization.FromFactory<int>(
                 value =>
                 {
                     var generator = new Generator<RoadSegmentPosition>(fixture);
                     var from = generator.First();
                     var to = generator.First(candidate => candidate > from);
-                    return new RoadSegmentSurfaceAttribute(
+                    return new RoadRegistry.BackOffice.Core.RoadSegmentSurfaceAttribute(
                         fixture.Create<AttributeId>(),
                         fixture.Create<AttributeId>(),
                         fixture.Create<RoadSegmentSurfaceType>(),
@@ -671,13 +713,13 @@ public static class SharedCustomizations
             )
         );
 
-        fixture.Customize<RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute>(customization =>
+        fixture.Customize<RoadSegmentSurfaceAttribute>(customization =>
             customization.FromFactory<int>(
                 _ =>
                 {
-                    var surfaceAttribute = fixture.Create<RoadSegmentSurfaceAttribute>();
+                    var surfaceAttribute = fixture.Create<RoadRegistry.BackOffice.Core.RoadSegmentSurfaceAttribute>();
 
-                    return new RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute(
+                    return new RoadSegmentSurfaceAttribute(
                         surfaceAttribute.From,
                         surfaceAttribute.To,
                         surfaceAttribute.Type,
@@ -696,17 +738,6 @@ public static class SharedCustomizations
             )
         );
     }
-    public static void CustomizeRoadSegmentOutlineSurfaceType(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentSurfaceType>(customization =>
-            customization.FromFactory(generator =>
-                {
-                    var valid = RoadSegmentSurfaceType.All.Where(x => x != RoadSegmentSurfaceType.Unknown && x != RoadSegmentSurfaceType.NotApplicable).ToArray();
-                    return valid[generator.Next() % valid.Length];
-                }
-            )
-        );
-    }
 
     public static void CustomizeRoadSegmentWidth(this IFixture fixture)
     {
@@ -718,25 +749,17 @@ public static class SharedCustomizations
             )
         );
     }
-    public static void CustomizeRoadSegmentOutlineWidth(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentWidth>(customization =>
-            customization.FromFactory(
-                generator => new RoadSegmentWidth(generator.Next(1, RoadSegmentWidth.Maximum.ToInt32()))
-            )
-        );
-    }
 
     public static void CustomizeRoadSegmentWidthAttribute(this IFixture fixture)
     {
-        fixture.Customize<RoadSegmentWidthAttribute>(customization =>
+        fixture.Customize<RoadRegistry.BackOffice.Core.RoadSegmentWidthAttribute>(customization =>
             customization.FromFactory<int>(
                 value =>
                 {
                     var generator = new Generator<RoadSegmentPosition>(fixture);
                     var from = generator.First();
                     var to = generator.First(candidate => candidate > from);
-                    return new RoadSegmentWidthAttribute(
+                    return new RoadRegistry.BackOffice.Core.RoadSegmentWidthAttribute(
                         fixture.Create<AttributeId>(),
                         fixture.Create<AttributeId>(),
                         fixture.Create<RoadSegmentWidth>(),
@@ -748,13 +771,13 @@ public static class SharedCustomizations
             )
         );
 
-        fixture.Customize<RoadRegistry.BackOffice.RoadSegmentWidthAttribute>(customization =>
+        fixture.Customize<RoadSegmentWidthAttribute>(customization =>
             customization.FromFactory<int>(
                 _ =>
                 {
-                    var widthAttribute = fixture.Create<RoadSegmentWidthAttribute>();
+                    var widthAttribute = fixture.Create<RoadRegistry.BackOffice.Core.RoadSegmentWidthAttribute>();
 
-                    return new RoadRegistry.BackOffice.RoadSegmentWidthAttribute(
+                    return new RoadSegmentWidthAttribute(
                         widthAttribute.From,
                         widthAttribute.To,
                         widthAttribute.Width,
@@ -769,25 +792,6 @@ public static class SharedCustomizations
     {
         fixture.Customize<TransactionId>(composer =>
             composer.FromFactory(generator => new TransactionId(generator.Next()))
-        );
-    }
-
-    public static void CustomizeOrganisation(this IFixture fixture)
-    {
-        fixture.Customize<Organisation>(customization =>
-            customization.FromSeed(_ => Organisation.DigitaalVlaanderen)
-        );
-    }
-
-    public static void CustomizeProvenanceData(this IFixture fixture)
-    {
-        fixture.Customize<ProvenanceData>(customization =>
-            customization.FromSeed(_ => new ProvenanceData(new Provenance(new FakeClock(NodaConstants.UnixEpoch).GetCurrentInstant(),
-                Application.RoadRegistry,
-                new Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason("TEST"),
-                new Operator("TEST"),
-                Modification.Unknown,
-                fixture.Create<Organisation>())))
         );
     }
 

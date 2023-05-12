@@ -10,7 +10,7 @@ public class WhenChangeAttributesWithInvalidAttribuutwaarde : WhenChangeAttribut
     public WhenChangeAttributesWithInvalidAttribuutwaarde(WhenChangeAttributesWithInvalidRequestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
     }
-    
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

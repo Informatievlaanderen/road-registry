@@ -1,10 +1,9 @@
-using RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeometry.Abstractions.Fixtures;
-
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeometry.Fixtures;
 
+using Abstractions.Fixtures;
 using Api.RoadSegments;
+using Editor.Schema;
 using MediatR;
-using RoadRegistry.Editor.Schema;
 using RoadRegistry.Tests.BackOffice;
 
 public class WhenChangeOutlineGeometryWithValidRequestFixture : WhenChangeOutlineGeometryFixture

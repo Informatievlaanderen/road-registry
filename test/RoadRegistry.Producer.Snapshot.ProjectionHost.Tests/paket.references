@@ -1,3 +1,5 @@
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 
 Microsoft.Extensions.DependencyInjection.Abstractions
+Microsoft.NET.Test.Sdk
+xunit.runner.visualstudio

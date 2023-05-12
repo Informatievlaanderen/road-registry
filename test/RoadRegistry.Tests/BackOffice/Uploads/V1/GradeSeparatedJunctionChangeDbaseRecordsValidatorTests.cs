@@ -7,7 +7,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Validation;
-using Xunit;
 
 public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposable
 {
@@ -195,8 +194,13 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
             {
                 record.OK_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
 
                 return record;
             })
@@ -219,8 +223,14 @@ public class GradeSeparatedJunctionChangeDbaseRecordsValidatorTests : IDisposabl
             {
                 record.OK_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+
                 return record;
             })
             .ToDbaseRecordEnumerator();

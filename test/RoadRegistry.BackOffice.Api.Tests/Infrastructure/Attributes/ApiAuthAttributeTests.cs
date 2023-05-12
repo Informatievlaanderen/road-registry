@@ -23,7 +23,7 @@ public class ApiAuthAttributeTests
     [Fact]
     public void ItShouldSerialize()
     {
-        var apiToken = new ApiKeyAuthAttribute.ApiToken("E9536EA5-165C-461A-8E4A-641D0A65154B", "John Doe", new ApiKeyAuthAttribute.ApiTokenMetadata(true, false, false))
+        var apiToken = new ApiKeyAuthAttribute.ApiToken("E9536EA5-165C-461A-8E4A-641D0A65154B", "John Doe", new ApiKeyAuthAttribute.ApiTokenMetadata(true))
         {
             Revoked = false
         };

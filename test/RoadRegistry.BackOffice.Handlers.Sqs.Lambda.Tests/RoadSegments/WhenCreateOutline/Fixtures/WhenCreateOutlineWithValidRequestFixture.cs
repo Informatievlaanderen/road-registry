@@ -2,17 +2,17 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCre
 
 using Abstractions.Fixtures;
 using AutoFixture;
+using BackOffice.Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Hosts;
+using Messages;
 using Microsoft.Extensions.Configuration;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
 using NodaTime.Text;
-using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Hosts;
 using RoadRegistry.Tests.BackOffice;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using LineString = NetTopologySuite.Geometries.LineString;
@@ -39,7 +39,7 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
             ).OmitAutoProperties()
         );
     }
-    
+
     protected override CreateRoadSegmentOutlineRequest Request => new(
         GeometryTranslator.Translate(ObjectProvider.Create<MultiLineString>()),
         ObjectProvider.Create<RoadSegmentStatus>(),

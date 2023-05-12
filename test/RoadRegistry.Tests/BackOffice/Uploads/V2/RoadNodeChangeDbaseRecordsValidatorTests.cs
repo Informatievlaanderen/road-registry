@@ -7,7 +7,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Validation;
-using Xunit;
 
 public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
 {
@@ -75,9 +74,15 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
 
     private static ZipArchiveValidationContext BuildValidationContext(RoadNodeChangeDbaseRecord record, ZipArchiveValidationContext context)
     {
-        if (!record.WEGKNOOPID.HasValue || !record.RECORDTYPE.HasValue) return context;
+        if (!record.WEGKNOOPID.HasValue || !record.RECORDTYPE.HasValue)
+        {
+            return context;
+        }
 
-        if (RecordType.ByIdentifier.TryGetValue(record.RECORDTYPE.Value, out var recordType)) return context.WithRoadNode(new RoadNodeId(record.WEGKNOOPID.Value), recordType);
+        if (RecordType.ByIdentifier.TryGetValue(record.RECORDTYPE.Value, out var recordType))
+        {
+            return context.WithRoadNode(new RoadNodeId(record.WEGKNOOPID.Value), recordType);
+        }
 
         return context;
     }
@@ -126,7 +131,10 @@ public class RoadNodeChangeDbaseRecordsValidatorTests : IDisposable
             .CreateMany<RoadNodeChangeDbaseRecord>(2)
             .Select((record, i) =>
             {
-                if (i < failAt) expectedContext = BuildValidationContext(record, expectedContext);
+                if (i < failAt)
+                {
+                    expectedContext = BuildValidationContext(record, expectedContext);
+                }
 
                 return record;
             })

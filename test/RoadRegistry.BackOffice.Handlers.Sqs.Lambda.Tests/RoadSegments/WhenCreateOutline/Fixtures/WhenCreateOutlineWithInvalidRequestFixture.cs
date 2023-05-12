@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCreateOutline.Fixtures;
 
+using BackOffice.Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NodaTime;
-using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
-using RoadRegistry.Hosts;
 using TicketingService.Abstractions;
 
 public class WhenCreateOutlineWithInvalidRequestFixture : WhenCreateOutlineWithValidRequestFixture
@@ -26,11 +26,6 @@ public class WhenCreateOutlineWithInvalidRequestFixture : WhenCreateOutlineWithV
         SurfaceType = RoadSegmentSurfaceType.Unknown
     };
 
-    protected override Task<bool> VerifyTicketAsync()
-    {
-        return Task.FromResult(VerifyThatTicketHasError("WegsegmentStatusNietCorrect", "Wegsegment status is foutief. 'Unknown' is geen geldige waarde."));
-    }
-
     protected override bool VerifyThatTicketHasError(string code, string message)
     {
         if (Exception is not null)
@@ -42,7 +37,7 @@ public class WhenCreateOutlineWithInvalidRequestFixture : WhenCreateOutlineWithV
         {
             new TicketError("Wegsegment status is foutief. 'Unknown' is geen geldige waarde.", "WegsegmentStatusNietCorrect"),
             new TicketError("Morfologische wegklasse is foutief. 'Unknown' is geen geldige waarde.", "MorfologischeWegklasseNietCorrect"),
-            new TicketError("The 'Type' is not a valid RoadSegmentSurfaceType.", "PredicateValidator"),
+            new TicketError("The 'Type' is not a valid RoadSegmentSurfaceType.", "PredicateValidator")
         });
 
         var invocationArguments = TicketingMock.Invocations.Last().Arguments[1];
@@ -55,4 +50,8 @@ public class WhenCreateOutlineWithInvalidRequestFixture : WhenCreateOutlineWithV
         return true;
     }
 
+    protected override Task<bool> VerifyTicketAsync()
+    {
+        return Task.FromResult(VerifyThatTicketHasError("WegsegmentStatusNietCorrect", "Wegsegment status is foutief. 'Unknown' is geen geldige waarde."));
+    }
 }

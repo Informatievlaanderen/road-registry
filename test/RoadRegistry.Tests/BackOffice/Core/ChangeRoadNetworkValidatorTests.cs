@@ -6,7 +6,6 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 using AddGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.AddGradeSeparatedJunction;
 using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
 using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;

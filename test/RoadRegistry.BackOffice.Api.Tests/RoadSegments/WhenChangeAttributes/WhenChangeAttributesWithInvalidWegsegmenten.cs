@@ -15,7 +15,7 @@ public class WhenChangeAttributesWithInvalidWegsegmenten : WhenChangeAttributesW
     [Theory]
     [InlineData(null)]
     [InlineData(new int[0])]
-    [InlineData(new int[] { 0 })]
+    [InlineData(new[] { 0 })]
     public async Task Wegsegmenten_JsonInvalid(int[] wegsegmenten)
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
@@ -38,7 +38,7 @@ public class WhenChangeAttributesWithInvalidWegsegmenten : WhenChangeAttributesW
             {
                 Attribuut = ChangeRoadSegmentAttribute.Wegbeheerder.ToString(),
                 Attribuutwaarde = Fixture.TestData.ChangedByOrganization,
-                Wegsegmenten = new []{ int.MaxValue }
+                Wegsegmenten = new[] { int.MaxValue }
             }
         }, "NotFound", null);
     }

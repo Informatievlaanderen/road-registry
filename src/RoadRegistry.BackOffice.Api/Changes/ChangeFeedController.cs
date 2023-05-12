@@ -3,7 +3,9 @@ namespace RoadRegistry.BackOffice.Api.Changes;
 using System.Globalization;
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
+using Infrastructure.Controllers;
 using Infrastructure.Controllers.Attributes;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NodaTime;
 using NodaTime.Text;
@@ -19,7 +21,7 @@ public partial class ChangeFeedController : ApiController
     private readonly LocalTimePattern _localTimeOfDayPattern;
     private readonly DateTimeZone _localTimeZone;
 
-    public ChangeFeedController()
+    public ChangeFeedController(IMediator? mediator)
     {
         _localTimeZone = DateTimeZoneProviders.Tzdb["Europe/Brussels"];
         _localMonthPattern = LocalDatePattern.Create("MMM", new CultureInfo("nl-BE"));

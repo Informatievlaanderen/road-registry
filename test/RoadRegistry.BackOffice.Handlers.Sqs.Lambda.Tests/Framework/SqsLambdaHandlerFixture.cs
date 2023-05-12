@@ -36,17 +36,15 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
     private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
-
-    protected readonly IConfiguration Configuration;
-    protected readonly SqsLambdaHandlerOptions Options;
-    protected readonly ICustomRetryPolicy CustomRetryPolicy;
-    protected readonly ILifetimeScope LifetimeScope;
-    protected readonly IIdempotentCommandHandler IdempotentCommandHandler;
-    protected readonly ILoggerFactory LoggerFactory;
     protected readonly IChangeRoadNetworkDispatcher ChangeRoadNetworkDispatcher;
+    protected readonly IConfiguration Configuration;
+    protected readonly ICustomRetryPolicy CustomRetryPolicy;
+    protected readonly IIdempotentCommandHandler IdempotentCommandHandler;
+    protected readonly ILifetimeScope LifetimeScope;
+    protected readonly ILoggerFactory LoggerFactory;
+    protected readonly SqsLambdaHandlerOptions Options;
     protected readonly IRoadRegistryContext RoadRegistryContext;
     protected readonly IStreamStore Store;
-    protected RoadNetworkTestData TestData { get; }
 
     protected SqsLambdaHandlerFixture(
         IConfiguration configuration,
@@ -61,7 +59,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         Configuration = configuration;
         CustomRetryPolicy = customRetryPolicy;
         Store = new InMemoryStreamStore();
-        
+
         var containerBuilder = new ContainerBuilder();
         containerBuilder
             .Register(_ => new EventSourcedEntityMap())
@@ -69,7 +67,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
             .SingleInstance();
         var container = containerBuilder.Build();
         LifetimeScope = container.BeginLifetimeScope();
-        
+
         RoadRegistryContext = new RoadRegistryContext(LifetimeScope.Resolve<EventSourcedEntityMap>(), Store, new FakeRoadNetworkSnapshotReader(), Settings, Mapping, new NullLoggerFactory());
         Clock = clock;
         Options = options;
@@ -86,10 +84,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         Exception = null;
     }
 
-    protected virtual void CustomizeTestData(Fixture fixture)
-    {
-    }
-
+    protected RoadNetworkTestData TestData { get; }
     public IClock Clock { get; }
     protected abstract TSqsLambdaRequestHandler SqsLambdaRequestHandler { get; }
     protected abstract TSqsLambdaRequest SqsLambdaRequest { get; }
@@ -120,6 +115,10 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     }
 
     protected abstract CommandHandlerDispatcher BuildCommandHandlerDispatcher();
+
+    protected virtual void CustomizeTestData(Fixture fixture)
+    {
+    }
 
     protected Task Given(StreamName streamName, params object[] events)
     {

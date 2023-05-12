@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Infrastructure.Containers;
 
-using BackOffice.Abstractions;
+using Abstractions;
 using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;

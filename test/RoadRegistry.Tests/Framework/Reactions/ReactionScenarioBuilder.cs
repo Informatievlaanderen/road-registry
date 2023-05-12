@@ -28,25 +28,41 @@ public class ReactionScenarioBuilder :
 
     public IReactionScenarioGivenStateBuilder Given(IEnumerable<RecordedEvent> events)
     {
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        if (events == null)
+        {
+            throw new ArgumentNullException(nameof(events));
+        }
+
         return new ReactionScenarioBuilder(_givens.Concat(events).ToArray(), _thens);
     }
 
     IReactionScenarioThenStateBuilder IReactionScenarioGivenNoneStateBuilder.Then(IEnumerable<RecordedEvent> events)
     {
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        if (events == null)
+        {
+            throw new ArgumentNullException(nameof(events));
+        }
+
         return new ReactionScenarioBuilder(_givens, _thens.Concat(events).ToArray());
     }
 
     IReactionScenarioThenStateBuilder IReactionScenarioGivenStateBuilder.Then(IEnumerable<RecordedEvent> events)
     {
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        if (events == null)
+        {
+            throw new ArgumentNullException(nameof(events));
+        }
+
         return new ReactionScenarioBuilder(_givens, _thens.Concat(events).ToArray());
     }
 
     IReactionScenarioThenStateBuilder IReactionScenarioThenStateBuilder.Then(IEnumerable<RecordedEvent> events)
     {
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        if (events == null)
+        {
+            throw new ArgumentNullException(nameof(events));
+        }
+
         return new ReactionScenarioBuilder(_givens, _thens.Concat(events).ToArray());
     }
 

@@ -40,7 +40,11 @@ public static class ScenarioAssertions
                     };
                     var comparer = new CompareLogic(config);
                     var comparison = comparer.Compare(recorded.Scenario.Thens, recorded.Actual);
-                    foreach (var difference in comparison.Differences) messageBuilder.AppendLine("\t" + difference);
+                    foreach (var difference in comparison.Differences)
+                    {
+                        messageBuilder.AppendLine("\t" + difference);
+                    }
+
                     messageBuilder.AppendLine("Expected:");
                     foreach (var then in recorded.Scenario.Thens)
                     {
@@ -76,7 +80,11 @@ public static class ScenarioAssertions
             case ScenarioExpectedExceptionButRecordedEvents recorded:
                 var messageBuilder = new StringBuilder();
                 messageBuilder.AppendLine("Expected exception but recorded these events:");
-                foreach (var actual in recorded.Actual) messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event, Formatting.Indented)}");
+                foreach (var actual in recorded.Actual)
+                {
+                    messageBuilder.AppendLine($"\t{actual.Stream} - {actual.Event.GetType().Name} {JsonConvert.SerializeObject(actual.Event, Formatting.Indented)}");
+                }
+
                 throw new XunitException(messageBuilder.ToString());
         }
     }

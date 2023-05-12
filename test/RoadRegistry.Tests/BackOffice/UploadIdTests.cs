@@ -5,7 +5,6 @@ using AutoFixture;
 using AutoFixture.Idioms;
 using Framework.Assertions;
 using RoadRegistry.BackOffice;
-using Xunit;
 
 public class UploadIdTests
 {

@@ -7,7 +7,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using RoadRegistry.BackOffice.Uploads;
-using Xunit;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadSegmentChangeShapeRecordsTranslatorTests : IDisposable

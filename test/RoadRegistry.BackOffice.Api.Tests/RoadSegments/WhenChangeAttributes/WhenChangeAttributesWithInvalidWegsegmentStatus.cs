@@ -13,20 +13,6 @@ public class WhenChangeAttributesWithInvalidWegsegmentStatus : WhenChangeAttribu
     }
 
     [Fact]
-    public async Task WegsegmentStatus_WegsegmentStatusVerplicht()
-    {
-        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
-        {
-            new()
-            {
-                Attribuut = ChangeRoadSegmentAttribute.WegsegmentStatus.ToString(),
-                Attribuutwaarde = null,
-                Wegsegmenten = new []{ Fixture.TestData.Segment1Added.Id }
-            }
-        }, "WegsegmentStatusVerplicht", null);
-    }
-
-    [Fact]
     public async Task WegsegmentStatus_WegsegmentStatusNietCorrect()
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
@@ -35,8 +21,22 @@ public class WhenChangeAttributesWithInvalidWegsegmentStatus : WhenChangeAttribu
             {
                 Attribuut = ChangeRoadSegmentAttribute.WegsegmentStatus.ToString(),
                 Attribuutwaarde = string.Empty,
-                Wegsegmenten = new []{ Fixture.TestData.Segment1Added.Id }
+                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
             }
         }, "WegsegmentStatusNietCorrect", null);
+    }
+
+    [Fact]
+    public async Task WegsegmentStatus_WegsegmentStatusVerplicht()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
+        {
+            new()
+            {
+                Attribuut = ChangeRoadSegmentAttribute.WegsegmentStatus.ToString(),
+                Attribuutwaarde = null,
+                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
+            }
+        }, "WegsegmentStatusVerplicht", null);
     }
 }

@@ -5,7 +5,6 @@ using NodaTime.Testing;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 
 public class EnrichEventTests
 {

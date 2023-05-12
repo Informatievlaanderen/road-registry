@@ -1,13 +1,12 @@
 namespace RoadRegistry.Tests.BackOffice.Uploads;
 
+using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice.Uploads;
-using System.IO.Compression;
-using Xunit;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
@@ -67,7 +66,26 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
     {
         Assert.Throws<ArgumentNullException>(() => new ZipArchiveShapeEntryValidator(_sut).Validate(null, _context));
     }
-    
+
+    [Fact]
+    public void ValidateWithInvalidGeometryTypeReturnsExpectedResult()
+    {
+        var stream = _fixture.CreateRoadSegmentShapeFileWithOneRecord();
+        stream.Position = 0;
+        using (var entryStream = _entry.Open())
+        {
+            stream.CopyTo(entryStream);
+        }
+
+        var (result, context) = _sut.Validate(_entry, RecordNumber.Initial, new LineString(new[] { new Coordinate(0, 0), new Coordinate(1, 0) }), _context);
+
+        var expected = ZipArchiveProblems.Single(_entry
+            .AtShapeRecord(RecordNumber.Initial)
+            .ShapeRecordShapeGeometryTypeMismatch(ShapeGeometryType.Point, nameof(LineString)));
+        Assert.Equal(expected, result);
+        Assert.Same(_context, context);
+    }
+
     [Fact]
     public void ValidateWithoutRecordsReturnsExpectedResult()
     {
@@ -83,25 +101,6 @@ public class RoadNodeChangeShapeRecordsValidatorTests : IDisposable
         Assert.Equal(
             ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
             result);
-        Assert.Same(_context, context);
-    }
-
-    [Fact]
-    public void ValidateWithInvalidGeometryTypeReturnsExpectedResult()
-    {
-        var stream = _fixture.CreateRoadSegmentShapeFileWithOneRecord();
-        stream.Position = 0;
-        using (var entryStream = _entry.Open())
-        {
-            stream.CopyTo(entryStream);
-        }
-
-        var (result, context) = _sut.Validate(_entry, RecordNumber.Initial, new LineString(new []{ new Coordinate(0, 0), new Coordinate(1, 0) }), _context);
-
-        var expected = ZipArchiveProblems.Single(_entry
-            .AtShapeRecord(RecordNumber.Initial)
-            .ShapeRecordShapeGeometryTypeMismatch(ShapeGeometryType.Point, nameof(LineString)));
-        Assert.Equal(expected, result);
         Assert.Same(_context, context);
     }
 

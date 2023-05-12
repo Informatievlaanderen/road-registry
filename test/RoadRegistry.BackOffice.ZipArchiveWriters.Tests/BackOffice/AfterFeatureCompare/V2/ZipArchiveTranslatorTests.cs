@@ -7,10 +7,11 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
+using Uploads;
+using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
+using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveTranslatorTests
@@ -334,6 +335,7 @@ public class ZipArchiveTranslatorTests
                    new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
             {
                 foreach (var file in writeOrder)
+                {
                     switch (file)
                     {
                         case "WEGSEGMENT_ALL.SHP":
@@ -425,6 +427,7 @@ public class ZipArchiveTranslatorTests
 
                             break;
                     }
+                }
             }
 
             archiveStream.Position = 0;
@@ -432,12 +435,16 @@ public class ZipArchiveTranslatorTests
             var temporaryIdForSegment1 = new RoadSegmentId(roadSegmentChangeDbaseRecord1.WS_OIDN.Value);
             if (roadSegmentChangeDbaseRecord1.EVENTIDN.HasValue &&
                 roadSegmentChangeDbaseRecord1.EVENTIDN.Value != 0)
+            {
                 temporaryIdForSegment1 = new RoadSegmentId(roadSegmentChangeDbaseRecord1.EVENTIDN.Value);
+            }
 
             var temporaryIdForSegment2 = new RoadSegmentId(roadSegmentChangeDbaseRecord2.WS_OIDN.Value);
             if (roadSegmentChangeDbaseRecord2.EVENTIDN.HasValue &&
                 roadSegmentChangeDbaseRecord2.EVENTIDN.Value != 0)
+            {
                 temporaryIdForSegment2 = new RoadSegmentId(roadSegmentChangeDbaseRecord2.EVENTIDN.Value);
+            }
 
             yield return new object[]
             {
@@ -448,28 +455,28 @@ public class ZipArchiveTranslatorTests
                             new RecordNumber(1),
                             new RoadNodeId(roadNodeChangeDbaseRecord1.WEGKNOOPID.Value),
                             RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord1.TYPE.Value]
-                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToPoint(((PointShapeContent)roadNodeShapeChangeRecord1.Content).Shape))
+                        ).WithGeometry(GeometryTranslator.ToPoint(((PointShapeContent)roadNodeShapeChangeRecord1.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadNode(
                             new RecordNumber(2),
                             new RoadNodeId(roadNodeChangeDbaseRecord2.WEGKNOOPID.Value),
                             RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord2.TYPE.Value]
-                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToPoint(((PointShapeContent)roadNodeShapeChangeRecord2.Content).Shape))
+                        ).WithGeometry(GeometryTranslator.ToPoint(((PointShapeContent)roadNodeShapeChangeRecord2.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadNode(
                             new RecordNumber(3),
                             new RoadNodeId(roadNodeChangeDbaseRecord3.WEGKNOOPID.Value),
                             RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord3.TYPE.Value]
-                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToPoint(((PointShapeContent)roadNodeShapeChangeRecord3.Content).Shape))
+                        ).WithGeometry(GeometryTranslator.ToPoint(((PointShapeContent)roadNodeShapeChangeRecord3.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadNode(
                             new RecordNumber(4),
                             new RoadNodeId(roadNodeChangeDbaseRecord4.WEGKNOOPID.Value),
                             RoadNodeType.ByIdentifier[roadNodeChangeDbaseRecord4.TYPE.Value]
-                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToPoint(((PointShapeContent)roadNodeShapeChangeRecord4.Content).Shape))
+                        ).WithGeometry(GeometryTranslator.ToPoint(((PointShapeContent)roadNodeShapeChangeRecord4.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadSegment(
@@ -486,7 +493,7 @@ public class ZipArchiveTranslatorTests
                                 roadSegmentChangeDbaseRecord1.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.LSTRNMID.Value.GetValueOrDefault()) : default,
                                 roadSegmentChangeDbaseRecord1.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord1.RSTRNMID.Value.GetValueOrDefault()) : default
                             )
-                            .WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord1.Content).Shape))
+                            .WithGeometry(GeometryTranslator.ToMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord1.Content).Shape))
                             .WithLane(
                                 new RoadSegmentLaneAttribute(
                                     new AttributeId(laneChangeDbaseRecord.RS_OIDN.Value),
@@ -527,7 +534,7 @@ public class ZipArchiveTranslatorTests
                             RoadSegmentAccessRestriction.ByIdentifier[roadSegmentChangeDbaseRecord2.TGBEP.Value],
                             roadSegmentChangeDbaseRecord2.LSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.LSTRNMID.Value.GetValueOrDefault()) : default,
                             roadSegmentChangeDbaseRecord2.RSTRNMID.Value.HasValue ? new CrabStreetnameId(roadSegmentChangeDbaseRecord2.RSTRNMID.Value.GetValueOrDefault()) : default
-                        ).WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord2.Content).Shape))
+                        ).WithGeometry(GeometryTranslator.ToMultiLineString(((PolyLineMShapeContent)roadSegmentShapeChangeRecord2.Content).Shape))
                     )
                     .AppendChange(
                         new AddRoadSegmentToEuropeanRoad
@@ -683,7 +690,7 @@ public class ZipArchiveTranslatorTests
         fixture.Customize<PointShapeContent>(customization =>
             customization
                 .FromFactory(random => new PointShapeContent(
-                    GeometryTranslator.FromGeometryPoint(fixture.Create<Point>())))
+                    Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(fixture.Create<Point>())))
                 .OmitAutoProperties()
         );
 
@@ -708,7 +715,7 @@ public class ZipArchiveTranslatorTests
         );
         fixture.Customize<PolyLineMShapeContent>(customization =>
             customization
-                .FromFactory(random => new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(fixture.Create<MultiLineString>())))
+                .FromFactory(random => new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(fixture.Create<MultiLineString>())))
                 .OmitAutoProperties()
         );
 

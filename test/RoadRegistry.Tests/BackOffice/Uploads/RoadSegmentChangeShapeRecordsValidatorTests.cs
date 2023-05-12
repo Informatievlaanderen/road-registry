@@ -8,7 +8,6 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice.Uploads;
-using Xunit;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
@@ -89,10 +88,28 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
         Assert.Throws<ArgumentNullException>(() => new ZipArchiveShapeEntryValidator(_sut).Validate(null, _context));
     }
 
-    [Fact]
-    public void ValidateWithoutRecordsReturnsExpectedResult()
+    [Theory]
+    [InlineData(double.NaN)]
+    [InlineData(double.PositiveInfinity)]
+    [InlineData(double.NegativeInfinity)]
+    public void ValidateWithGeometryHasInvalidMeasureOrdinatesReturnsExpectedResult(double m)
     {
-        var stream = _fixture.CreateEmptyRoadSegmentShapeFile();
+        var multiLineString = new MultiLineString(
+            new[]
+            {
+                new LineString(new CoordinateArraySequence(new[]
+                {
+                    new CoordinateM(0, 0, m),
+                    new CoordinateM(1, 1, 0)
+                }), GeometryConfiguration.GeometryFactory)
+            });
+
+        var records = new[]
+        {
+            new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(multiLineString))
+        };
+
+        var stream = _fixture.CreateRoadSegmentShapeFile(records);
         stream.Position = 0;
         using (var entryStream = _entry.Open())
         {
@@ -102,7 +119,7 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
         var (result, context) = new ZipArchiveShapeEntryValidator(_sut).Validate(_entry, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
+            ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryHasInvalidMeasureOrdinates()),
             result);
         Assert.Same(_context, context);
     }
@@ -123,6 +140,24 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
             .AtShapeRecord(RecordNumber.Initial)
             .ShapeRecordShapeGeometryTypeMismatch(ShapeGeometryType.LineStringM, nameof(Point)));
         Assert.Equal(expected, result);
+        Assert.Same(_context, context);
+    }
+
+    [Fact]
+    public void ValidateWithoutRecordsReturnsExpectedResult()
+    {
+        var stream = _fixture.CreateEmptyRoadSegmentShapeFile();
+        stream.Position = 0;
+        using (var entryStream = _entry.Open())
+        {
+            stream.CopyTo(entryStream);
+        }
+
+        var (result, context) = new ZipArchiveShapeEntryValidator(_sut).Validate(_entry, _context);
+
+        Assert.Equal(
+            ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
+            result);
         Assert.Same(_context, context);
     }
 
@@ -157,10 +192,10 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
         {
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
-        var records = new []
-            {
-                new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(multiLineString))
-            };
+        var records = new[]
+        {
+            new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(multiLineString))
+        };
 
         var stream = _fixture.CreateRoadSegmentShapeFile(records);
         stream.Position = 0;
@@ -203,7 +238,7 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
         {
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
-        var records = new []
+        var records = new[]
         {
             new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(multiLineString))
         };
@@ -230,9 +265,11 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
             .Select(index =>
             {
                 if (index == 0)
+                {
                     return new PolyLineMShapeContent(
                         GeometryTranslator.FromGeometryMultiLineString(new MultiLineString(Array.Empty<LineString>()))
                     );
+                }
 
                 return new PolyLineMShapeContent(
                     GeometryTranslator.FromGeometryMultiLineString(
@@ -303,42 +340,6 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
 
         Assert.Equal(
             ZipArchiveProblems.None,
-            result);
-        Assert.Same(_context, context);
-    }
-
-    [Theory]
-    [InlineData(double.NaN)]
-    [InlineData(double.PositiveInfinity)]
-    [InlineData(double.NegativeInfinity)]
-    public void ValidateWithGeometryHasInvalidMeasureOrdinatesReturnsExpectedResult(double m)
-    {
-        var multiLineString = new MultiLineString(
-            new[]
-            {
-                new LineString(new CoordinateArraySequence(new[]
-                {
-                    new CoordinateM(0, 0, m),
-                    new CoordinateM(1,1,0)
-                }), GeometryConfiguration.GeometryFactory)
-            });
-
-        var records = new []
-            {
-                new PolyLineMShapeContent(GeometryTranslator.FromGeometryMultiLineString(multiLineString))
-            };
-
-        var stream = _fixture.CreateRoadSegmentShapeFile(records);
-        stream.Position = 0;
-        using (var entryStream = _entry.Open())
-        {
-            stream.CopyTo(entryStream);
-        }
-
-        var (result, context) = new ZipArchiveShapeEntryValidator(_sut).Validate(_entry, _context);
-
-        Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryHasInvalidMeasureOrdinates()),
             result);
         Assert.Same(_context, context);
     }

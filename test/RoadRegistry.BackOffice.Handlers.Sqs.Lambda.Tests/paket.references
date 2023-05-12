@@ -1,2 +1,4 @@
 Amazon.Lambda.SQSEvents
 Amazon.Lambda.TestUtilities
+Microsoft.NET.Test.Sdk
+xunit.runner.visualstudio

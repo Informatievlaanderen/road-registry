@@ -315,38 +315,6 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
     }
 
     [Fact]
-    public async Task When_modifying_road_segments_with_new_surfaces_only()
-    {
-        _fixture.Freeze<RoadSegmentId>();
-
-        var created = DateTimeOffset.UtcNow;
-
-        var acceptedRoadSegmentAdded = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
-
-        var acceptedRoadSegmentModified = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
-
-        var expectedRecords = ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentAdded, created, record =>
-            {
-                record.Origin = acceptedRoadSegmentModified.ToOrigin();
-                record.IsRemoved = true;
-            })
-            .Concat(ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentModified, created))
-            .ToList();
-
-        var kafkaProducer = BuildKafkaProducer();
-        await new RoadSegmentSurfaceRecordProjection(kafkaProducer.Object)
-            .Scenario()
-            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
-            .Expect(created.UtcDateTime, expectedRecords);
-
-        KafkaVerify(kafkaProducer, expectedRecords);
-    }
-
-    [Fact]
     public async Task When_modifying_road_segment_geometry_with_new_surfaces_only()
     {
         _fixture.Freeze<RoadSegmentId>();
@@ -373,6 +341,38 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
         await new RoadSegmentSurfaceRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords);
+    }
+
+    [Fact]
+    public async Task When_modifying_road_segments_with_new_surfaces_only()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var created = DateTimeOffset.UtcNow;
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentModified = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
+
+        var expectedRecords = ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentAdded, created, record =>
+            {
+                record.Origin = acceptedRoadSegmentModified.ToOrigin();
+                record.IsRemoved = true;
+            })
+            .Concat(ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentModified, created))
+            .ToList();
+
+        var kafkaProducer = BuildKafkaProducer();
+        await new RoadSegmentSurfaceRecordProjection(kafkaProducer.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(created.UtcDateTime, expectedRecords);
 
         KafkaVerify(kafkaProducer, expectedRecords);

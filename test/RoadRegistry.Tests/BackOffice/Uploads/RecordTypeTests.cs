@@ -4,7 +4,6 @@ using AutoFixture;
 using AutoFixture.Idioms;
 using Framework.Assertions;
 using RoadRegistry.BackOffice.Uploads;
-using Xunit;
 
 public class RecordTypeTests
 {

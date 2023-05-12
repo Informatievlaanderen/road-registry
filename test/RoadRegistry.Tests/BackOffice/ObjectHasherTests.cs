@@ -2,7 +2,6 @@ namespace RoadRegistry.Tests.BackOffice;
 
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using RoadRegistry.BackOffice;
-using Xunit;
 
 public class ObjectHasherTests
 {
@@ -50,7 +49,7 @@ public class ObjectHasherTests
         };
 
         Assert.Equal(expected, hashFields);
-        
+
         hashFields = ObjectHasher.GetHashFields(complexObject.HashObject);
         expected = new[]
         {

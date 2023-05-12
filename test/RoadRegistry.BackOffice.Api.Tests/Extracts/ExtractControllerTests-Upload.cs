@@ -1,12 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
-using BackOffice.Abstractions.Exceptions;
+using Abstractions.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentValidation;
 using Messages;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using SqlStreamStore.Streams;
 
@@ -17,24 +15,8 @@ public partial class ExtractControllerTests
     {
         try
         {
-            using var sourceStream = new MemoryStream();
-            await using (var embeddedStream =
-                         typeof(ExtractControllerTests).Assembly.GetManifestResourceStream(
-                             typeof(ExtractControllerTests),
-                             "empty.zip"))
-            {
-                embeddedStream.CopyTo(sourceStream);
-            }
-
-            sourceStream.Position = 0;
-
-            var formFile = new FormFile(sourceStream, 0L, sourceStream.Length, "name", "name")
-            {
-                Headers = new HeaderDictionary(new Dictionary<string, StringValues>
-                {
-                    { "Content-Type", StringValues.Concat(StringValues.Empty, "application/zip") }
-                })
-            };
+            await using var sourceStream = await EmbeddedResourceReader.ReadAsync("empty.zip");
+            var formFile = EmbeddedResourceReader.ReadFormFile(sourceStream, "name", "application/zip");
 
             var result = await Controller.Upload(
                 "not_a_guid_without_dashes",
@@ -72,18 +54,12 @@ public partial class ExtractControllerTests
     [Fact]
     public async Task When_uploading_an_extract_after_fc_that_is_not_a_zip()
     {
-        var formFile = new FormFile(new MemoryStream(), 0L, 0L, "name", "name")
-        {
-            Headers = new HeaderDictionary(new Dictionary<string, StringValues>
-            {
-                { "Content-Type", StringValues.Concat(StringValues.Empty, "application/octet-stream") }
-            })
-        };
-
+        var formFile = EmbeddedResourceReader.ReadFormFile(new MemoryStream(), "name", "application/octet-stream");
         var result = await Controller.Upload(
             "not_a_guid_without_dashes",
             formFile,
             CancellationToken.None);
+
         Assert.IsType<UnsupportedMediaTypeResult>(result);
     }
 }

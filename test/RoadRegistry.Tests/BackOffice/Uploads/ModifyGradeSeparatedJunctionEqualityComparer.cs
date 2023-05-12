@@ -13,8 +13,16 @@ public class ModifyGradeSeparatedJunctionEqualityComparer : IEqualityComparer<Mo
 
     public bool Equals(ModifyGradeSeparatedJunction left, ModifyGradeSeparatedJunction right)
     {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
+        if (left == null && right == null)
+        {
+            return true;
+        }
+
+        if (left == null || right == null)
+        {
+            return false;
+        }
+
         return left.Id.Equals(right.Id)
                && left.Type.Equals(right.Type)
                && left.UpperSegmentId.Equals(right.UpperSegmentId)

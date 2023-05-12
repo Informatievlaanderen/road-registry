@@ -29,7 +29,9 @@ public class ImplicitConversionOperatorAssertion<TResult> : IdiomaticAssertion
     public override void Verify(Type type)
     {
         if (type == null)
+        {
             throw new ArgumentNullException(nameof(type));
+        }
 
         var method = type
             .GetMethods()
@@ -40,8 +42,10 @@ public class ImplicitConversionOperatorAssertion<TResult> : IdiomaticAssertion
                 && candidate.ReturnParameter.ParameterType == typeof(TResult));
 
         if (method == null)
+        {
             throw new ImplicitConversionOperatorException(type, typeof(TResult),
                 $"The type '{type.Name}' does not define an implicit conversion operator to type '{typeof(TResult).Name}'.");
+        }
 
         var value = Builder.Create<TResult>();
         var builder = new CompositeSpecimenBuilder(
@@ -62,6 +66,8 @@ public class ImplicitConversionOperatorAssertion<TResult> : IdiomaticAssertion
         }
 
         if (!((TResult)result).Equals(value))
+        {
             throw new ImplicitConversionOperatorException(type, typeof(TResult));
+        }
     }
 }

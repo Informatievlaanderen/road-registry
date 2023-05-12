@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
 using System.Text;
-using BackOffice.Abstractions.Extracts;
+using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentAssertions;
 using FluentValidation;
@@ -34,21 +34,7 @@ public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
 
     private async Task<DownloadExtractByFileRequestItem> GetDownloadExtractByFileRequestItemFromResource(string name)
     {
-        return new DownloadExtractByFileRequestItem(name, await GetEmbeddedResourceStream(name), ContentType.Parse("application/octet-stream"));
-    }
-
-    private async Task<MemoryStream> GetEmbeddedResourceStream(string name)
-    {
-        var sourceStream = new MemoryStream();
-
-        await using (var embeddedStream = typeof(ExtractControllerTests).Assembly.GetManifestResourceStream(typeof(ExtractControllerTests), name))
-        {
-            embeddedStream.CopyTo(sourceStream);
-        }
-
-        sourceStream.Position = 0;
-
-        return sourceStream;
+        return new DownloadExtractByFileRequestItem(name, await EmbeddedResourceReader.ReadAsync(name), ContentType.Parse("application/octet-stream"));
     }
 
     public static IEnumerable<object[]> InvalidDescriptionCases()

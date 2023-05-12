@@ -10,20 +10,6 @@ public class WhenChangeAttributesWithInvalidAttribuut : WhenChangeAttributesWith
     public WhenChangeAttributesWithInvalidAttribuut(WhenChangeAttributesWithInvalidRequestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
     }
-    
-    [Fact]
-    public async Task Attribuut_JsonInvalid()
-    {
-        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
-        {
-            new()
-            {
-                Attribuut = null,
-                Attribuutwaarde = string.Empty,
-                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
-            }
-        }, "JsonInvalid", null);
-    }
 
     [Fact]
     public async Task Attribuut_AttribuutNietGekend()
@@ -37,5 +23,19 @@ public class WhenChangeAttributesWithInvalidAttribuut : WhenChangeAttributesWith
                 Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
             }
         }, "AttribuutNietGekend", null);
+    }
+
+    [Fact]
+    public async Task Attribuut_JsonInvalid()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
+        {
+            new()
+            {
+                Attribuut = null,
+                Attribuutwaarde = string.Empty,
+                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
+            }
+        }, "JsonInvalid", null);
     }
 }

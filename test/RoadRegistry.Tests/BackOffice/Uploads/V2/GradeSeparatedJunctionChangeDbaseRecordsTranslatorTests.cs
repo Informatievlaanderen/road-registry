@@ -7,7 +7,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Validation;
-using Xunit;
 
 public class GradeSeparatedJunctionChangeDbaseRecordsTranslatorTests : IDisposable
 {

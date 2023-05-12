@@ -54,7 +54,7 @@ public class RoadNetworkTestData
         ObjectProvider.CustomizeTransactionId();
 
         ObjectProvider.CustomizeRoadNetworkChangesAccepted();
-        
+
         ObjectProvider.Customize<RoadSegmentEuropeanRoadAttributes>(composer =>
             composer.Do(instance =>
                 {
@@ -127,7 +127,7 @@ public class RoadNetworkTestData
                         GeometryConfiguration.GeometryFactory
                     )
                 })
-        { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         StartPoint2 = new Point(new CoordinateM(0.0, 200.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint2 = new Point(new CoordinateM(50.0, 250.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
@@ -140,7 +140,7 @@ public class RoadNetworkTestData
                         GeometryConfiguration.GeometryFactory
                     )
                 })
-        { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         StartPoint3 = new Point(new CoordinateM(0.0, 500.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
         MiddlePoint3 = new Point(new CoordinateM(50.0, 550.0, 50.0 * Math.Sqrt(2.0))) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
@@ -153,7 +153,7 @@ public class RoadNetworkTestData
                         GeometryConfiguration.GeometryFactory
                     )
                 })
-        { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
 
         AddStartNode1 = new AddRoadNode
         {
@@ -735,16 +735,6 @@ public class RoadNetworkTestData
         };
     }
 
-    public RoadNetworkTestData CopyCustomizationsTo(Fixture target)
-    {
-        foreach (var customization in ObjectProvider.Customizations)
-        {
-            target.Customizations.Add(customization);
-        }
-
-        return this;
-    }
-
     private Fixture ObjectProvider { get; }
     public AddRoadNode AddEndNode1 { get; }
     public AddRoadNode AddEndNode2 { get; }
@@ -1254,4 +1244,14 @@ public class RoadNetworkTestData
     public Point StartPoint2 { get; }
     public Point StartPoint3 { get; }
     public TransactionId TransactionId { get; }
+
+    public RoadNetworkTestData CopyCustomizationsTo(Fixture target)
+    {
+        foreach (var customization in ObjectProvider.Customizations)
+        {
+            target.Customizations.Add(customization);
+        }
+
+        return this;
+    }
 }

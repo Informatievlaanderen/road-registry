@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests.Framework;
 
 using Autofac;
 using AutoFixture;
+using BackOffice;
 using BackOffice.Scenarios;
 using Be.Vlaanderen.Basisregisters.CommandHandling;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
@@ -19,7 +20,6 @@ using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Tests.BackOffice;
 using TicketingService.Abstractions;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
@@ -43,7 +43,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
         LoggerFactory = loggerFactory;
         Options = new FakeSqsLambdaHandlerOptions();
     }
-    
+
     protected async Task AddRoadSegment(RoadSegmentId roadSegmentId)
     {
         var pointA = new Point(new CoordinateM(0.0, 0.0, 0.0)) { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
@@ -139,6 +139,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                                 {
                                     part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
                                 }
+
                                 part.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
                                 part.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
 
@@ -158,6 +159,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                                 {
                                     part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
                                 }
+
                                 part.Width = ObjectProvider.Create<RoadSegmentWidth>();
 
                                 return part;
@@ -176,6 +178,7 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                                 {
                                     part.ToPosition = (index + 1) * (Convert.ToDecimal(line1.Length) / count);
                                 }
+
                                 part.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
 
                                 return part;
@@ -233,16 +236,6 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
         return ticketing;
     }
 
-    protected void VerifyThatTicketHasError(Mock<ITicketing> ticketing, string code, string message)
-    {
-        ticketing.Verify(x =>
-            x.Error(It.IsAny<Guid>(),
-                new TicketError(
-                    message,
-                    code),
-                CancellationToken.None));
-    }
-
     protected void VerifyThatTicketHasCompleted(Mock<ITicketing> ticketing, string location, string eTag)
     {
         ticketing.Verify(x =>
@@ -254,5 +247,15 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
                 CancellationToken.None
             )
         );
+    }
+
+    protected void VerifyThatTicketHasError(Mock<ITicketing> ticketing, string code, string message)
+    {
+        ticketing.Verify(x =>
+            x.Error(It.IsAny<Guid>(),
+                new TicketError(
+                    message,
+                    code),
+                CancellationToken.None));
     }
 }

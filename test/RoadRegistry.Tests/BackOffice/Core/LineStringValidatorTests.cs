@@ -3,7 +3,6 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 using AutoFixture;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
-using Xunit;
 using LineString = RoadRegistry.BackOffice.Messages.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 

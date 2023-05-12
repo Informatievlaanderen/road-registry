@@ -71,7 +71,11 @@ public class ZipArchiveDbaseEntryTranslatorTests
                 using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
                 {
                     header.Write(writer);
-                    foreach (var record in records) record.Write(writer);
+                    foreach (var record in records)
+                    {
+                        record.Write(writer);
+                    }
+
                     writer.Write(DbaseRecord.EndOfFile);
                     entryStream.Flush();
                 }
@@ -154,7 +158,11 @@ public class ZipArchiveDbaseEntryTranslatorTests
         public TranslatedChanges Translate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, TranslatedChanges changes)
         {
             var collected = new List<FakeDbaseRecord>();
-            while (records.MoveNext()) collected.Add(records.Current);
+            while (records.MoveNext())
+            {
+                collected.Add(records.Current);
+            }
+
             Collected = collected.ToArray();
 
             return changes;

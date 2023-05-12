@@ -10,8 +10,6 @@ using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
-using Xunit.Abstractions;
 
 public class ExtractScenarios : RoadRegistryTestBase
 {
@@ -118,6 +116,37 @@ public class ExtractScenarios : RoadRegistryTestBase
     }
 
     [Fact]
+    public Task when_announcing_a_requested_road_network_extract_download_timeout_occurred()
+    {
+        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
+        var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
+        var extractDescription = ObjectProvider.Create<ExtractDescription>();
+        var downloadId = ObjectProvider.Create<DownloadId>();
+        var archiveId = ObjectProvider.Create<ArchiveId>();
+        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
+
+        return Run(scenario => scenario
+            .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
+            {
+                RequestId = extractRequestId,
+                ExternalRequestId = externalExtractRequestId,
+                DownloadId = downloadId,
+                Contour = contour,
+                Description = extractDescription,
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(extractRequestId))
+            .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractDownloadTimeoutOccurred
+            {
+                RequestId = extractRequestId,
+                ExternalRequestId = externalExtractRequestId,
+                Description = extractDescription,
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+        );
+    }
+
+    [Fact]
     public Task when_announcing_an_announced_road_network_extract_download_became_available()
     {
         var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
@@ -147,37 +176,6 @@ public class ExtractScenarios : RoadRegistryTestBase
             })
             .When(OurSystem.AnnouncesRoadNetworkExtractDownloadBecameAvailable(extractRequestId, downloadId, archiveId))
             .ThenNone()
-        );
-    }
-
-    [Fact]
-    public Task when_announcing_a_requested_road_network_extract_download_timeout_occurred()
-    {
-        var externalExtractRequestId = ObjectProvider.Create<ExternalExtractRequestId>();
-        var extractRequestId = ExtractRequestId.FromExternalRequestId(externalExtractRequestId);
-        var extractDescription = ObjectProvider.Create<ExtractDescription>();
-        var downloadId = ObjectProvider.Create<DownloadId>();
-        var archiveId = ObjectProvider.Create<ArchiveId>();
-        var contour = ObjectProvider.Create<RoadNetworkExtractGeometry>();
-
-        return Run(scenario => scenario
-            .Given(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractGotRequestedV2
-            {
-                RequestId = extractRequestId,
-                ExternalRequestId = externalExtractRequestId,
-                DownloadId = downloadId,
-                Contour = contour,
-                Description = extractDescription,
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            })
-            .When(OurSystem.AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(extractRequestId))
-            .Then(RoadNetworkExtracts.ToStreamName(extractRequestId), new RoadNetworkExtractDownloadTimeoutOccurred
-            {
-                RequestId = extractRequestId,
-                ExternalRequestId = externalExtractRequestId,
-                Description = extractDescription,
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            })
         );
     }
 

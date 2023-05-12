@@ -1,11 +1,10 @@
-using RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Abstractions.Fixtures;
-
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Fixtures;
 
+using Abstractions.Fixtures;
 using Api.RoadSegments;
 using AutoFixture;
+using Editor.Schema;
 using MediatR;
-using RoadRegistry.Editor.Schema;
 using RoadRegistry.Tests.BackOffice;
 
 public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture

@@ -15,7 +15,7 @@ public class RoadSegmentSurfaceSnapshotEqualityComparer : IEqualityComparer<Road
         {
             return false;
         }
-        
+
         return left.Id.Equals(right.Id)
                && left.RoadSegmentId.Equals(right.RoadSegmentId)
                && left.RoadSegmentGeometryVersion.Equals(right.RoadSegmentGeometryVersion)

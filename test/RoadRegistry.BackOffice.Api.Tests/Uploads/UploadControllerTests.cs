@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Uploads;
 
-using Abstractions;
 using Api.Uploads;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
@@ -18,19 +17,5 @@ public partial class UploadControllerTests : ControllerTests<UploadController>
         RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
         : base(mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
     {
-    }
-}
-
-public class UploadControllerSingularTests : ControllerMinimalTests<UploadController>
-{
-    public UploadControllerSingularTests(IMediator mediator) : base(mediator)
-    {
-        
-    }
-
-    [Fact]
-    public void RunMe()
-    {
-        Assert.True(false);
     }
 }

@@ -10,7 +10,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Xunit.Sdk;
 using GeometryTranslator = BackOffice.GeometryTranslator;
-using Point = Messages.Point;
+using Point = NetTopologySuite.Geometries.Point;
 
 public partial class ExtractControllerTests
 {
@@ -50,7 +50,7 @@ public partial class ExtractControllerTests
             await Controller.RequestDownload(new DownloadExtractRequestBody
             (
                 externalExtractRequestId,
-                writer.Write(new NetTopologySuite.Geometries.Point(1.0, 2.0))
+                writer.Write(new Point(1.0, 2.0))
             ), CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
         }

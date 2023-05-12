@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeometry.Fixtures;
 
 using Api.RoadSegments;
+using Editor.Schema;
 using MediatR;
-using RoadRegistry.Editor.Schema;
 
 public class WhenChangeOutlineGeometryWithInvalidGeometryLengthFixture : WhenChangeOutlineGeometryWithValidRequestFixture
 {

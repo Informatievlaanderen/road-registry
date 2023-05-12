@@ -4,16 +4,15 @@ using AutoFixture;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using Xunit;
 
 public class FullyDisconnectedRoadNodeTests
 {
     private readonly Fixture _fixture;
     private readonly Point _geometry;
     private readonly RoadNodeId _id;
-    private readonly RoadNodeVersion _version;
     private readonly RoadNode _sut;
     private readonly RoadNodeType _type;
+    private readonly RoadNodeVersion _version;
 
     public FullyDisconnectedRoadNodeTests()
     {
@@ -103,11 +102,11 @@ public class ConnectedRoadNodeTests
     private readonly Fixture _fixture;
     private readonly Point _geometry;
     private readonly RoadNodeId _id;
-    private readonly RoadNodeVersion _version;
     private readonly RoadSegmentId _link1;
     private readonly RoadSegmentId _link2;
     private readonly RoadNode _sut;
     private readonly RoadNodeType _type;
+    private readonly RoadNodeVersion _version;
 
     public ConnectedRoadNodeTests()
     {

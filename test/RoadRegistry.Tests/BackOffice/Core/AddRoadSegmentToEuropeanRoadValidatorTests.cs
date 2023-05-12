@@ -3,7 +3,6 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 using AutoFixture;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using Xunit;
 using AddRoadSegmentToEuropeanRoad = RoadRegistry.BackOffice.Messages.AddRoadSegmentToEuropeanRoad;
 
 public class AddRoadSegmentToEuropeanRoadValidatorTests : ValidatorTest<AddRoadSegmentToEuropeanRoad, AddRoadSegmentToEuropeanRoadValidator>

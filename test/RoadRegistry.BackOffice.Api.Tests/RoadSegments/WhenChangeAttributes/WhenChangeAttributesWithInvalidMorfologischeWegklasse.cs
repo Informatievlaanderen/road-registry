@@ -13,20 +13,6 @@ public class WhenChangeAttributesWithInvalidMorfologischeWegklasse : WhenChangeA
     }
 
     [Fact]
-    public async Task MorfologischeWegklasse_MorfologischeWegklasseVerplicht()
-    {
-        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
-        {
-            new()
-            {
-                Attribuut = ChangeRoadSegmentAttribute.MorfologischeWegklasse.ToString(),
-                Attribuutwaarde = null,
-                Wegsegmenten = new []{ Fixture.TestData.Segment1Added.Id }
-            }
-        }, "MorfologischeWegklasseVerplicht", null);
-    }
-
-    [Fact]
     public async Task MorfologischeWegklasse_MorfologischeWegklasseNietCorrect()
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
@@ -35,8 +21,22 @@ public class WhenChangeAttributesWithInvalidMorfologischeWegklasse : WhenChangeA
             {
                 Attribuut = ChangeRoadSegmentAttribute.MorfologischeWegklasse.ToString(),
                 Attribuutwaarde = string.Empty,
-                Wegsegmenten = new []{ Fixture.TestData.Segment1Added.Id }
+                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
             }
         }, "MorfologischeWegklasseNietCorrect", null);
+    }
+
+    [Fact]
+    public async Task MorfologischeWegklasse_MorfologischeWegklasseVerplicht()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
+        {
+            new()
+            {
+                Attribuut = ChangeRoadSegmentAttribute.MorfologischeWegklasse.ToString(),
+                Attribuutwaarde = null,
+                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
+            }
+        }, "MorfologischeWegklasseVerplicht", null);
     }
 }

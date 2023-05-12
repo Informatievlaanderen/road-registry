@@ -20,37 +20,6 @@ using MediatorModule = Sqs.MediatorModule;
 
 public class Startup : TestStartup
 {
-    protected override void ConfigureContainer(ContainerBuilder builder)
-    {
-        builder
-            .RegisterAssemblyTypes(typeof(MessageHandler).GetTypeInfo().Assembly)
-            .AsImplementedInterfaces();
-
-
-        builder.Register<SqsLambdaHandlerOptions>(c => new FakeSqsLambdaHandlerOptions());
-        builder.Register<IRoadNetworkCommandQueue>(c => new RoadNetworkCommandQueue(c.Resolve<IStreamStore>(), new ApplicationMetadata(RoadRegistryApplication.Lambda)));
-
-        builder
-            .RegisterModule<BackOffice.MediatorModule>()
-            .RegisterModule<ContextModule>()
-            .RegisterModule<BackOffice.Handlers.MediatorModule>()
-            .RegisterModule<MediatorModule>()
-            ;
-    }
-
-    protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
-    {
-        var configuration = hostBuilderContext.Configuration;
-        
-        AddS3ClientAndDistributedCache(services, configuration);
-
-        services
-            .AddSingleton<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
-            .AddTransient<ICustomRetryPolicy>(sp => new FakeRetryPolicy())
-            .AddRoadRegistrySnapshot()
-            ;
-    }
-
     private void AddS3ClientAndDistributedCache(IServiceCollection services, IConfiguration configuration)
     {
         var s3Configuration = configuration.GetOptions<S3Options>();
@@ -66,15 +35,46 @@ public class Startup : TestStartup
         {
             s3ClientOptions = new S3Options(s3OptionsJsonSerializer);
         }
+
         var s3Client = s3ClientOptions.CreateS3Client();
 
         services
             .AddSingleton(s3ClientOptions)
             .AddSingleton(s3Client)
-            .RegisterDistributedS3Cache(s3Client, new()
+            .RegisterDistributedS3Cache(s3Client, new DistributedS3CacheOptions
             {
                 Bucket = "road-registry-snapshots",
                 RootDir = "snapshots"
             });
+    }
+
+    protected override void ConfigureContainer(ContainerBuilder builder)
+    {
+        builder
+            .RegisterAssemblyTypes(typeof(MessageHandler).GetTypeInfo().Assembly)
+            .AsImplementedInterfaces();
+
+        builder.Register<SqsLambdaHandlerOptions>(c => new FakeSqsLambdaHandlerOptions());
+        builder.Register<IRoadNetworkCommandQueue>(c => new RoadNetworkCommandQueue(c.Resolve<IStreamStore>(), new ApplicationMetadata(RoadRegistryApplication.Lambda)));
+
+        builder
+            .RegisterModule<BackOffice.MediatorModule>()
+            .RegisterModule<ContextModule>()
+            .RegisterModule<BackOffice.Handlers.MediatorModule>()
+            .RegisterModule<MediatorModule>()
+            ;
+    }
+
+    protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
+    {
+        var configuration = hostBuilderContext.Configuration;
+
+        AddS3ClientAndDistributedCache(services, configuration);
+
+        services
+            .AddSingleton<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
+            .AddTransient<ICustomRetryPolicy>(sp => new FakeRetryPolicy())
+            .AddRoadRegistrySnapshot()
+            ;
     }
 }

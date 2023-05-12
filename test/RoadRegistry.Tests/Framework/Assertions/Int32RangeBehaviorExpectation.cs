@@ -15,7 +15,11 @@ public class Int32RangeBehaviorExpectation : IBehaviorExpectation
 
     public Int32RangeBehaviorExpectation(int lowerLimitInclusive, int upperLimitInclusive)
     {
-        if (lowerLimitInclusive > upperLimitInclusive) throw new ArgumentException("The inclusive lower limit needs to be less than or equal to the inclusive upper limit.", nameof(lowerLimitInclusive));
+        if (lowerLimitInclusive > upperLimitInclusive)
+        {
+            throw new ArgumentException("The inclusive lower limit needs to be less than or equal to the inclusive upper limit.", nameof(lowerLimitInclusive));
+        }
+
         _lowerLimitInclusive = lowerLimitInclusive;
         _upperLimitInclusive = upperLimitInclusive;
         _exceptions = Array.Empty<int>();
@@ -23,7 +27,11 @@ public class Int32RangeBehaviorExpectation : IBehaviorExpectation
 
     public Int32RangeBehaviorExpectation(int lowerLimitInclusive, int upperLimitInclusive, params int[] exceptions)
     {
-        if (lowerLimitInclusive > upperLimitInclusive) throw new ArgumentException("The inclusive lower limit needs to be less than or equal to the inclusive upper limit.", nameof(lowerLimitInclusive));
+        if (lowerLimitInclusive > upperLimitInclusive)
+        {
+            throw new ArgumentException("The inclusive lower limit needs to be less than or equal to the inclusive upper limit.", nameof(lowerLimitInclusive));
+        }
+
         _lowerLimitInclusive = lowerLimitInclusive;
         _upperLimitInclusive = upperLimitInclusive;
         _exceptions = exceptions ?? throw new ArgumentNullException(nameof(exceptions));
@@ -46,10 +54,14 @@ public class Int32RangeBehaviorExpectation : IBehaviorExpectation
     public void Verify(IGuardClauseCommand command)
     {
         if (command == null)
+        {
             throw new ArgumentNullException(nameof(command));
+        }
 
         if (command.RequestedType != typeof(int))
+        {
             return;
+        }
 
         try
         {
@@ -59,14 +71,20 @@ public class Int32RangeBehaviorExpectation : IBehaviorExpectation
                 if (random.Next() % 2 == 0)
                 {
                     var value = random.Next(int.MinValue, _lowerLimitInclusive + 1);
-                    while (_exceptions.Contains(value)) value = random.Next(int.MinValue, _lowerLimitInclusive + 1);
+                    while (_exceptions.Contains(value))
+                    {
+                        value = random.Next(int.MinValue, _lowerLimitInclusive + 1);
+                    }
 
                     command.Execute(value);
                 }
                 else
                 {
                     var value = random.Next(_upperLimitInclusive, int.MaxValue);
-                    while (_exceptions.Contains(value)) value = random.Next(_upperLimitInclusive, int.MaxValue);
+                    while (_exceptions.Contains(value))
+                    {
+                        value = random.Next(_upperLimitInclusive, int.MaxValue);
+                    }
 
                     command.Execute(value);
                 }
@@ -74,9 +92,13 @@ public class Int32RangeBehaviorExpectation : IBehaviorExpectation
             else
             {
                 if (random.Next() % 2 == 0)
+                {
                     command.Execute(random.Next(int.MinValue, _lowerLimitInclusive + 1));
+                }
                 else
+                {
                     command.Execute(random.Next(_upperLimitInclusive, int.MaxValue));
+                }
             }
         }
         catch (ArgumentOutOfRangeException)

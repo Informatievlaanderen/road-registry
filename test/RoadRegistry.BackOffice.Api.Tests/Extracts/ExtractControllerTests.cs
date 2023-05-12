@@ -1,14 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
-using Abstractions;
 using Api.Extracts;
 using AutoFixture;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Editor.Schema;
+using Infrastructure;
 using Infrastructure.Containers;
 using MediatR;
-using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore;
 

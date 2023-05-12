@@ -1,12 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Changes;
 
-using Abstractions;
 using Api.Changes;
-using Editor.Schema.RoadNetworkChanges;
+using Infrastructure;
 using Infrastructure.Containers;
 using MediatR;
-using Microsoft.Data.SqlClient;
-using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 
 [Collection(nameof(SqlServerCollection))]
 public partial class ChangeFeedControllerTests : ControllerMinimalTests<ChangeFeedController>

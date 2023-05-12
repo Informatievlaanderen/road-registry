@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
-using BackOffice.Abstractions;
+using Abstractions;
 using FluentValidation;
 using Xunit.Sdk;
 
