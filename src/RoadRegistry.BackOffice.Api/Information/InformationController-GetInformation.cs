@@ -11,7 +11,7 @@ using Swashbuckle.AspNetCore.Annotations;
 public partial class InformationController
 {
     /// <summary>
-    /// Gets the information.
+    ///     Gets the information.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <returns>IActionResult.</returns>
@@ -32,72 +32,72 @@ public partial class InformationController
 public class RoadNetworkInformationResponse
 {
     /// <summary>
-    /// Gets or sets a value indicating whether [completed import].
+    ///     Gets or sets a value indicating whether [completed import].
     /// </summary>
     public bool CompletedImport { get; set; }
 
     /// <summary>
-    /// Gets or sets the grade separated junction count.
+    ///     Gets or sets the grade separated junction count.
     /// </summary>
     /// <value>The grade separated junction count.</value>
     public int GradeSeparatedJunctionCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the organization count.
+    ///     Gets or sets the organization count.
     /// </summary>
     /// <value>The organization count.</value>
     public int OrganizationCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the road node count.
+    ///     Gets or sets the road node count.
     /// </summary>
     /// <value>The road node count.</value>
     public int RoadNodeCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the road segment count.
+    ///     Gets or sets the road segment count.
     /// </summary>
     /// <value>The road segment count.</value>
     public int RoadSegmentCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the road segment european road attribute count.
+    ///     Gets or sets the road segment european road attribute count.
     /// </summary>
     /// <value>The road segment european road attribute count.</value>
     public int RoadSegmentEuropeanRoadAttributeCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the road segment lane attribute count.
+    ///     Gets or sets the road segment lane attribute count.
     /// </summary>
     /// <value>The road segment lane attribute count.</value>
     public int RoadSegmentLaneAttributeCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the road segment national road attribute count.
+    ///     Gets or sets the road segment national road attribute count.
     /// </summary>
     /// <value>The road segment national road attribute count.</value>
     public int RoadSegmentNationalRoadAttributeCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the road segment numbered road attribute count.
+    ///     Gets or sets the road segment numbered road attribute count.
     /// </summary>
     /// <value>The road segment numbered road attribute count.</value>
     public int RoadSegmentNumberedRoadAttributeCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the road segment surface attribute count.
+    ///     Gets or sets the road segment surface attribute count.
     /// </summary>
     /// <value>The road segment surface attribute count.</value>
     public int RoadSegmentSurfaceAttributeCount { get; set; }
 
     /// <summary>
-    /// Gets or sets the road segment width attribute count.
+    ///     Gets or sets the road segment width attribute count.
     /// </summary>
     /// <value>The road segment width attribute count.</value>
     public int RoadSegmentWidthAttributeCount { get; set; }
 
     /// <summary>
-    /// Froms the specified information.
+    ///     Froms the specified information.
     /// </summary>
     /// <param name="info">The information.</param>
     /// <returns>RoadNetworkInformationResponse.</returns>

@@ -14,11 +14,14 @@ public partial class ExtractController
     private const string PostUploadRoute = "download/{downloadId}/uploads";
 
     /// <summary>
-    /// Upload after feature compare archive.
+    ///     Upload after feature compare archive.
     /// </summary>
     /// <param name="downloadId">The download identifier.</param>
     /// <param name="archive">The archive.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>Task&lt;IActionResult&gt;.</returns>
     [HttpPost(PostUploadRoute, Name = nameof(Upload))]
     [SwaggerOperation(OperationId = nameof(Upload), Description = "")]

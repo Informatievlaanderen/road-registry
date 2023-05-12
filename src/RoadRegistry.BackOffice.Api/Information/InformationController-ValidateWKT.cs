@@ -9,10 +9,13 @@ using Swashbuckle.AspNetCore.Annotations;
 public partial class InformationController
 {
     /// <summary>
-    /// Validates the WKT.
+    ///     Validates the WKT.
     /// </summary>
     /// <param name="model">The model.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>IActionResult.</returns>
     [HttpPost("validate-wkt", Name = nameof(ValidateWKT))]
     [SwaggerOperation(OperationId = nameof(ValidateWKT), Description = "")]

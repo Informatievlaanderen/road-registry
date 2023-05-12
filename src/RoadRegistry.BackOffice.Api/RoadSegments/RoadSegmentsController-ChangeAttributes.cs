@@ -253,7 +253,7 @@ public class ChangeRoadSegmentAttributesParametersWrapper
 
     public static explicit operator ChangeRoadSegmentAttributesParametersWrapper(ChangeRoadSegmentAttributesParameters p)
     {
-        return new() { Attributes = p };
+        return new ChangeRoadSegmentAttributesParametersWrapper { Attributes = p };
     }
 
     public static implicit operator ChangeRoadSegmentAttributesParameters(ChangeRoadSegmentAttributesParametersWrapper p)

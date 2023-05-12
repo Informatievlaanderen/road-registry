@@ -50,7 +50,7 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerRequestExample(typeof(PostRoadSegmentOutlineParameters), typeof(PostRoadSegmentOutlineParametersExamples))]
-    [SwaggerOperation(OperationId = nameof(CreateOutline) , Description = "Voeg een nieuw wegsegment toe aan het Wegenregister met geometriemethode <ingeschetst>.")]
+    [SwaggerOperation(OperationId = nameof(CreateOutline), Description = "Voeg een nieuw wegsegment toe aan het Wegenregister met geometriemethode <ingeschetst>.")]
     public async Task<IActionResult> CreateOutline(
         [FromServices] UseRoadSegmentOutlineFeatureToggle featureToggle,
         [FromServices] PostRoadSegmentOutlineParametersValidator validator,

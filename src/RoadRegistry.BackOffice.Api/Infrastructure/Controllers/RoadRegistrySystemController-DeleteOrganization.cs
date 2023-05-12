@@ -1,27 +1,30 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
+using System.Threading;
+using System.Threading.Tasks;
 using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Threading;
-using System.Threading.Tasks;
 
 public partial class RoadRegistrySystemController
 {
     private const string DeleteOrganizationRoute = "organization/{id}";
 
     /// <summary>
-    /// Deletes the organization.
+    ///     Deletes the organization.
     /// </summary>
     /// <param name="id">The identifier.</param>
     /// <param name="featureToggle">The feature toggle.</param>
     /// <param name="validator">The validator.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>IActionResult.</returns>
-    [HttpDelete(DeleteOrganizationRoute,  Name = nameof(DeleteOrganization))]
+    [HttpDelete(DeleteOrganizationRoute, Name = nameof(DeleteOrganization))]
     [SwaggerOperation(OperationId = nameof(DeleteOrganization), Description = "")]
     public async Task<IActionResult> DeleteOrganization([FromRoute] string id,
         [FromServices] UseOrganizationDeleteFeatureToggle featureToggle,

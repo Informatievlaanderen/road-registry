@@ -20,7 +20,6 @@ using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Configuration;
 using Controllers.Attributes;
@@ -51,7 +50,6 @@ using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using NetTopologySuite;
 using NetTopologySuite.IO;
-using Newtonsoft.Json;
 using NisCodeService.Abstractions;
 using NisCodeService.Proxy.HttpProxy;
 using NodaTime;
@@ -274,32 +272,32 @@ public class Startup
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
-                            new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
-                                sp.GetService<IStreamStore>(),
-                                sp.GetService<ILifetimeScope>(),
-                                sp.GetService<IRoadNetworkSnapshotReader>(),
-                                sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                                sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
-                                sp.GetService<IClock>(),
-                                sp.GetService<ILoggerFactory>()
-                            ),
-                            new RoadNetworkCommandModule(
-                                sp.GetService<IStreamStore>(),
-                                sp.GetService<ILifetimeScope>(),
-                                sp.GetService<IRoadNetworkSnapshotReader>(),
-                                sp.GetService<IClock>(),
-                                sp.GetService<ILoggerFactory>()
-                            ),
-                            new RoadNetworkExtractCommandModule(
-                                sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
-                                sp.GetService<IStreamStore>(),
-                                sp.GetService<ILifetimeScope>(),
-                                sp.GetService<IRoadNetworkSnapshotReader>(),
-                                sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
-                                sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
-                                sp.GetService<IClock>(),
-                                sp.GetService<ILoggerFactory>()
-                            )
+                    new RoadNetworkChangesArchiveCommandModule(sp.GetService<RoadNetworkUploadsBlobClient>(),
+                        sp.GetService<IStreamStore>(),
+                        sp.GetService<ILifetimeScope>(),
+                        sp.GetService<IRoadNetworkSnapshotReader>(),
+                        sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                        sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
+                        sp.GetService<IClock>(),
+                        sp.GetService<ILoggerFactory>()
+                    ),
+                    new RoadNetworkCommandModule(
+                        sp.GetService<IStreamStore>(),
+                        sp.GetService<ILifetimeScope>(),
+                        sp.GetService<IRoadNetworkSnapshotReader>(),
+                        sp.GetService<IClock>(),
+                        sp.GetService<ILoggerFactory>()
+                    ),
+                    new RoadNetworkExtractCommandModule(
+                        sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
+                        sp.GetService<IStreamStore>(),
+                        sp.GetService<ILifetimeScope>(),
+                        sp.GetService<IRoadNetworkSnapshotReader>(),
+                        sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
+                        sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
+                        sp.GetService<IClock>(),
+                        sp.GetService<ILoggerFactory>()
+                    )
                 })))
             .AddScoped(sp => new TraceDbConnection<EditorContext>(
                 new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EditorProjections)),

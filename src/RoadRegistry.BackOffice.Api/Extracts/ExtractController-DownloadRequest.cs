@@ -11,10 +11,13 @@ public partial class ExtractController
     private const string PostDownloadRequestRoute = "downloadrequests";
 
     /// <summary>
-    /// Requests the download.
+    ///     Requests the download.
     /// </summary>
     /// <param name="body">The body.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>IActionResult.</returns>
     [HttpPost(PostDownloadRequestRoute, Name = nameof(RequestDownload))]
     [SwaggerOperation(OperationId = nameof(RequestDownload), Description = "")]

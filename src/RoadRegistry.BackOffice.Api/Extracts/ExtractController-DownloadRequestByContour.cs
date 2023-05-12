@@ -11,10 +11,13 @@ public partial class ExtractController
     private const string PostDownloadRequestByContourRoute = "downloadrequests/bycontour";
 
     /// <summary>
-    /// Requests the download by contour.
+    ///     Requests the download by contour.
     /// </summary>
     /// <param name="body">The body.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>ActionResult.</returns>
     [HttpPost(PostDownloadRequestByContourRoute, Name = nameof(RequestDownloadByContour))]
     [SwaggerOperation(OperationId = nameof(RequestDownloadByContour), Description = "")]
@@ -27,15 +30,17 @@ public partial class ExtractController
 }
 
 /// <summary>
-/// Class DownloadExtractByContourRequestBody.
-/// Implements the <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
+///     Class DownloadExtractByContourRequestBody.
+///     Implements the
+///     <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
 /// </summary>
 /// <seealso cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
 public record DownloadExtractByContourRequestBody
 {
     /// <summary>
-    /// Class DownloadExtractByContourRequestBody.
-    /// Implements the <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
+    ///     Class DownloadExtractByContourRequestBody.
+    ///     Implements the
+    ///     <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
     /// </summary>
     /// <seealso cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
     public DownloadExtractByContourRequestBody(int Buffer, string Contour, string Description)
@@ -46,10 +51,11 @@ public record DownloadExtractByContourRequestBody
     }
 
     /// <summary>
-    /// Gets the buffer.
+    ///     Gets the buffer.
     /// </summary>
     /// <value>The buffer.</value>
     public int Buffer { get; init; }
+
     public string Contour { get; init; }
     public string Description { get; init; }
 

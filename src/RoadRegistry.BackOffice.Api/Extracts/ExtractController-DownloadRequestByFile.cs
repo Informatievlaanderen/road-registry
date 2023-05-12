@@ -17,10 +17,13 @@ public partial class ExtractController
     private const string PostDownloadRequestByFileRoute = "downloadrequests/byfile";
 
     /// <summary>
-    /// Requests the download by file.
+    ///     Requests the download by file.
     /// </summary>
     /// <param name="body">The body.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>ActionResult.</returns>
     [HttpPost(PostDownloadRequestByFileRoute, Name = nameof(RequestDownloadByFile))]
     [SwaggerOperation(OperationId = nameof(RequestDownloadByFile), Description = "")]

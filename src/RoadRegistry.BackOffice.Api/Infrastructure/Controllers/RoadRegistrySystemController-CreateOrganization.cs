@@ -1,25 +1,28 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
+using System.Threading;
+using System.Threading.Tasks;
 using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Threading;
-using System.Threading.Tasks;
 
 public partial class RoadRegistrySystemController
 {
     private const string CreateOrganizationRoute = "organization";
 
     /// <summary>
-    /// Creates the organization.
+    ///     Creates the organization.
     /// </summary>
     /// <param name="parameters">The parameters.</param>
     /// <param name="featureToggle">The feature toggle.</param>
     /// <param name="validator">The validator.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>IActionResult.</returns>
     [HttpPost(CreateOrganizationRoute, Name = nameof(CreateOrganization))]
     [SwaggerOperation(OperationId = nameof(CreateOrganization), Description = "")]

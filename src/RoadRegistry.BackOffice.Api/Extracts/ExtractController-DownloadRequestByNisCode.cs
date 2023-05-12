@@ -12,10 +12,13 @@ public partial class ExtractController
     private const string PostDownloadRequestByNisCodeRoute = "downloadrequests/byniscode";
 
     /// <summary>
-    /// Requests the download by nis code.
+    ///     Requests the download by nis code.
     /// </summary>
     /// <param name="body">The body.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>ActionResult.</returns>
     [HttpPost(PostDownloadRequestByNisCodeRoute, Name = nameof(PostDownloadRequestByNisCodeRoute))]
     [SwaggerOperation(OperationId = nameof(RequestDownloadByNisCode), Description = "")]

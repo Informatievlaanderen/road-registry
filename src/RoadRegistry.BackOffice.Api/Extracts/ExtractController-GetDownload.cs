@@ -16,11 +16,14 @@ public partial class ExtractController
     private const string GetDownloadRoute = "download/{downloadId}";
 
     /// <summary>
-    /// Gets the download.
+    ///     Gets the download.
     /// </summary>
     /// <param name="downloadId">The download identifier.</param>
     /// <param name="options">The options.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>ActionResult.</returns>
     [HttpGet(GetDownloadRoute, Name = nameof(GetDownload))]
     [SwaggerOperation(OperationId = nameof(GetDownload), Description = "")]

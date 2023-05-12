@@ -1,4 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
+
 using Be.Vlaanderen.Basisregisters.Api;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

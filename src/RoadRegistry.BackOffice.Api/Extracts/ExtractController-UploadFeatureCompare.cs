@@ -1,25 +1,28 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using FeatureToggles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Threading;
-using System.Threading.Tasks;
 
 public partial class ExtractController
 {
     private const string PostFeatureCompareUploadRoute = "download/{downloadId}/uploads/fc";
 
     /// <summary>
-    /// Upload before feature compare archive.
+    ///     Upload before feature compare archive.
     /// </summary>
     /// <param name="useZipArchiveFeatureCompareTranslatorFeatureToggle"></param>
     /// <param name="downloadId"></param>
     /// <param name="archive">The archive.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>Task&lt;IActionResult&gt;.</returns>
     [HttpPost(PostFeatureCompareUploadRoute, Name = nameof(UploadFeatureCompare))]
     [SwaggerOperation(OperationId = nameof(UploadFeatureCompare), Description = "")]

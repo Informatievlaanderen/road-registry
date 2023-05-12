@@ -3,8 +3,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.Uploads;
 using Api.Uploads;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
+using Infrastructure;
 using MediatR;
-using RoadRegistry.BackOffice.Api.Tests.Infrastructure;
 using SqlStreamStore;
 
 public partial class UploadControllerTests : ControllerTests<UploadController>

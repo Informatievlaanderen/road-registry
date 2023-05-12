@@ -13,8 +13,9 @@ using Swashbuckle.AspNetCore.Annotations;
 public partial class ChangeFeedController
 {
     private const string GetContentRoute = "entry/{id}/content";
+
     /// <summary>
-    /// Gets the content of an activity.
+    ///     Gets the content of an activity.
     /// </summary>
     /// <param name="context">The context.</param>
     /// <param name="id">The identifier.</param>

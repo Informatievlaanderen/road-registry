@@ -11,11 +11,15 @@ using Swashbuckle.AspNetCore.Annotations;
 public partial class DownloadController
 {
     private const string GetForProductRoute = "for-product/{date}";
+
     /// <summary>
-    /// Gets for product.
+    ///     Gets for product.
     /// </summary>
     /// <param name="date">The date.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>IActionResult.</returns>
     [HttpGet(GetForProductRoute, Name = nameof(GetForProduct))]
     [SwaggerOperation(OperationId = nameof(GetForProduct), Description = "")]

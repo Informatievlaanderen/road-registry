@@ -13,9 +13,12 @@ public partial class DownloadController
     private const string GetForEditorRoute = "for-editor";
 
     /// <summary>
-    /// Gets for editor.
+    ///     Gets for editor.
     /// </summary>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>IActionResult.</returns>
     [HttpGet(GetForEditorRoute, Name = nameof(GetForEditor))]
     [SwaggerOperation(OperationId = nameof(GetForEditor), Description = "")]

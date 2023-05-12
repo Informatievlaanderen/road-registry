@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions.Extensions;
 using Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
@@ -13,8 +15,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
-using System.Threading;
-using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {

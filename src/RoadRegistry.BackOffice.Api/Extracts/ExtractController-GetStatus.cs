@@ -14,11 +14,14 @@ public partial class ExtractController
     private const string GetStatusRoute = "upload/{uploadId}/status";
 
     /// <summary>
-    /// Gets the status.
+    ///     Gets the status.
     /// </summary>
     /// <param name="uploadId">The upload identifier.</param>
     /// <param name="options">The options.</param>
-    /// <param name="cancellationToken">The cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
+    /// <param name="cancellationToken">
+    ///     The cancellation token that can be used by other objects or threads to receive notice
+    ///     of cancellation.
+    /// </param>
     /// <returns>IActionResult.</returns>
     [HttpGet(GetStatusRoute, Name = nameof(GetStatus))]
     [SwaggerOperation(OperationId = nameof(GetStatus), Description = "")]
