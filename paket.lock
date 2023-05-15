@@ -706,7 +706,7 @@ NUGET
     Microsoft.Extensions.DependencyInjection (6.0.1)
       Microsoft.Extensions.DependencyInjection.Abstractions (>= 6.0)
       System.Runtime.CompilerServices.Unsafe (>= 6.0)
-    Microsoft.Extensions.DependencyInjection.Abstractions (7.0)
+    Microsoft.Extensions.DependencyInjection.Abstractions (6.0)
     Microsoft.Extensions.DependencyModel (7.0)
       System.Text.Encodings.Web (>= 7.0)
       System.Text.Json (>= 7.0)

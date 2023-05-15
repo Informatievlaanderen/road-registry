@@ -133,7 +133,7 @@ nuget Microsoft.Extensions.Configuration.EnvironmentVariables 6.0.1
 nuget Microsoft.Extensions.Configuration.FileExtensions 6.0.0
 nuget Microsoft.Extensions.Configuration.Json 6.0.0
 nuget Microsoft.Extensions.DependencyInjection 6.0.1
-nuget Microsoft.Extensions.DependencyInjection.Abstractions 6.0.1
+nuget Microsoft.Extensions.DependencyInjection.Abstractions 6.0.0
 nuget Microsoft.Extensions.Diagnostics.HealthChecks 6.0.10
 nuget Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions 6.0.10
 nuget Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore 6.0.10
