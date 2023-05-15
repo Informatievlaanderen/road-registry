@@ -1,3 +1,10 @@
+# [3.42.0](https://github.com/informatievlaanderen/road-registry/compare/v3.41.2...v3.42.0) (2023-05-15)
+
+
+### Features
+
+* WR-431 WR-626 migrate FeatureCompare to RoadRegistry + docu text ([#959](https://github.com/informatievlaanderen/road-registry/issues/959)) ([87865bb](https://github.com/informatievlaanderen/road-registry/commit/87865bbab058c02b7329ed33547c065dee9f8591))
+
 ## [3.41.2](https://github.com/informatievlaanderen/road-registry/compare/v3.41.1...v3.41.2) (2023-05-10)
 
 
