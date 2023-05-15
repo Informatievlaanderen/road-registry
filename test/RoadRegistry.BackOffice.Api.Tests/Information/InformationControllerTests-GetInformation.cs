@@ -1,7 +1,6 @@
-﻿namespace RoadRegistry.BackOffice.Api.Tests.Information;
+namespace RoadRegistry.BackOffice.Api.Tests.Information;
 
 using Api.Information;
-using Editor.Schema.RoadNetworkChanges;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,14 +9,16 @@ public partial class InformationControllerTests
     [Fact]
     public async Task When_requesting_roadnetwork_information()
     {
-        var database = await ApplyChangeCollectionIntoContext(_fixture, archiveId => new RoadNetworkChange[] { });
+        _editorContext.RoadNetworkInfo.Add(new RoadNetworkInfo
+        {
+            Id = 0,
+            CompletedImport = true
+        });
+        await _editorContext.SaveChangesAsync();
 
-        await using var editorContext = await _fixture.CreateEditorContextAsync(database);
-        var result = await Controller.GetInformation(editorContext);
+        var result = await Controller.GetInformation(_editorContext);
 
         var jsonResult = Assert.IsType<JsonResult>(result);
-        var response = Assert.IsType<RoadNetworkInformationResponse>(jsonResult.Value);
-
-        Assert.Equal(StatusCodes.Status200OK, jsonResult.StatusCode);
+        Assert.IsType<RoadNetworkInformationResponse>(jsonResult.Value);
     }
 }

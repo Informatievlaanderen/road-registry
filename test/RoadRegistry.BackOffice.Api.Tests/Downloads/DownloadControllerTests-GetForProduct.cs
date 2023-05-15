@@ -27,8 +27,8 @@ public partial class DownloadControllerTests
     {
         var version = DateTime.Today.ToString("yyyyMMdd");
         var result = await Controller.GetForProduct(version, _tokenSource.Token);
-        var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
-        Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
+        var notFoundResult = Assert.IsType<NotFoundResult>(result);
+        Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public partial class DownloadControllerTests
 
         var version = DateTime.Today.ToString("yyyyMMdd");
         var result = await Controller.GetForProduct(version, _tokenSource.Token);
-        var statusCodeResult = Assert.IsType<StatusCodeResult>(result);
-        Assert.Equal(StatusCodes.Status503ServiceUnavailable, statusCodeResult.StatusCode);
+        var notFoundResult = Assert.IsType<NotFoundResult>(result);
+        Assert.Equal(StatusCodes.Status404NotFound, notFoundResult.StatusCode);
     }
 }

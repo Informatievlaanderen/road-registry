@@ -67,10 +67,13 @@ public sealed class EmbeddedResourceReader
             .Select(frame => frame.GetMethod().DeclaringType)
             .LastOrDefault();
 
-        resourceName = resourceType
+        var resourceNames = resourceType
             .Assembly
-            .GetManifestResourceNames()
-            .SingleOrDefault(embeddedResource => embeddedResource.EndsWith(fileName, StringComparison.InvariantCultureIgnoreCase));
+            .GetManifestResourceNames();
+
+        resourceName = resourceNames
+            .Where(embeddedResource => embeddedResource.EndsWith($".{fileName}", StringComparison.InvariantCultureIgnoreCase))
+            .SingleOrDefault();
 
         return resourceName is not null;
     }

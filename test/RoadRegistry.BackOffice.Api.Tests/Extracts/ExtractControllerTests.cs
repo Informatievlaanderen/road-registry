@@ -31,6 +31,7 @@ public partial class ExtractControllerTests : ControllerTests<ExtractController>
         _fixture = new Fixture();
         _fixture.CustomizeExternalExtractRequestId();
         _fixture.CustomizeRoadNetworkExtractGeometry();
+        _fixture.CustomizeMultiPolygon();
     }
 
     public async Task DisposeAsync()

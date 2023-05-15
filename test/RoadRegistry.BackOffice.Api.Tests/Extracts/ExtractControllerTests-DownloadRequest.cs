@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
 using Api.Extracts;
 using AutoFixture;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentValidation;
 using Messages;
@@ -23,10 +24,14 @@ public partial class ExtractControllerTests
         };
 
         var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
-        var contour = _fixture.Create<RoadNetworkExtractGeometry>();
+        var contour = new RoadNetworkExtractGeometry()
+        {
+            SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+            WKT = "MultiPolygon (((64699.86540096173121128 218247.15990484040230513, 91541.66608652254217304 211821.38593515567481518, 91541.66608652254217304 211821.38593515567481518, 91541.66608652254217304 211821.38593515567481518, 91523.78514424958848394 195503.55442933458834887, 88364.38692880698363297 166590.4106055349111557, 50936.49097712300135754 171639.109682597219944, 36050.97635232988977805 199580.85535924322903156, 64699.86540096173121128 218247.15990484040230513)))"
+        };
         var response = await Controller.RequestDownload(new DownloadExtractRequestBody(
-            externalExtractRequestId,
-            writer.Write((Geometry)GeometryTranslator.Translate(contour))
+            writer.Write((Geometry)GeometryTranslator.Translate(contour)),
+            externalExtractRequestId
         ), CancellationToken.None);
         var result = Assert.IsType<AcceptedResult>(response);
         Assert.IsType<DownloadExtractResponseBody>(result.Value);
