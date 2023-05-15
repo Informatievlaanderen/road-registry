@@ -1,13 +1,10 @@
 namespace RoadRegistry.Tests.BackOffice;
 
-using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Schema;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice;
-using Xunit;
 using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
 
 public class GeometryTranslatorTests
@@ -17,21 +14,6 @@ public class GeometryTranslatorTests
     public GeometryTranslatorTests()
     {
         _reader = new WKTReader();
-    }
-
-    [Theory]
-    [InlineData(GeometryTranslatorTestCases.ValidPolygon)]
-    [InlineData(GeometryTranslatorTestCases.ValidMultiPolygon)]
-    [InlineData(GeometryTranslatorTestCases.ValidPolygonWithHoles)]
-    [InlineData(GeometryTranslatorTestCases.ValidMultiPolygonWithHoles)]
-    [InlineData(GeometryTranslatorTestCases.ValidGeometryWithHoles)]
-    public void TranslateToRoadNetworkExtractGeometryCanHandleValidGeometries(string geometryString)
-    {
-        var geometry = _reader.Read(geometryString) as IPolygonal;
-
-        var result = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(geometry);
-
-        result.Should().NotBeNull();
     }
 
     //[Theory]
@@ -57,7 +39,7 @@ public class GeometryTranslatorTests
             points,
             points.Select(x => double.NaN).ToArray()
         );
-        
+
         var geometryLineString = GeometryTranslator.ToMultiLineString(polyline);
 
         var actualMeasures = geometryLineString.GetOrdinates(Ordinate.M);
@@ -92,5 +74,20 @@ public class GeometryTranslatorTests
 
         Assert.NotNull(geometry);
         Assert.Equal(10000, geometry.SRID);
+    }
+
+    [Theory]
+    [InlineData(GeometryTranslatorTestCases.ValidPolygon)]
+    [InlineData(GeometryTranslatorTestCases.ValidMultiPolygon)]
+    [InlineData(GeometryTranslatorTestCases.ValidPolygonWithHoles)]
+    [InlineData(GeometryTranslatorTestCases.ValidMultiPolygonWithHoles)]
+    [InlineData(GeometryTranslatorTestCases.ValidGeometryWithHoles)]
+    public void TranslateToRoadNetworkExtractGeometryCanHandleValidGeometries(string geometryString)
+    {
+        var geometry = _reader.Read(geometryString) as IPolygonal;
+
+        var result = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(geometry);
+
+        result.Should().NotBeNull();
     }
 }

@@ -1,6 +1,5 @@
 namespace RoadRegistry.Tests.BackOffice;
 
-using Amazon.Runtime.Internal.Transform;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.DutchTranslations;
@@ -18,9 +17,9 @@ public class ProblemTranslatorTests
             {
                 ProblemCode.RoadNode.TypeMismatch, new[]
                 {
-                    new ProblemParameter{ Name = "RoadNodeId", Value = "1" },
-                    new ProblemParameter{ Name = "ConnectedSegmentCount", Value = "1" },
-                    new ProblemParameter{ Name = "Actual", Value = RoadNodeType.EndNode.ToString() }
+                    new ProblemParameter { Name = "RoadNodeId", Value = "1" },
+                    new ProblemParameter { Name = "ConnectedSegmentCount", Value = "1" },
+                    new ProblemParameter { Name = "Actual", Value = RoadNodeType.EndNode.ToString() }
                 }
             }
         };

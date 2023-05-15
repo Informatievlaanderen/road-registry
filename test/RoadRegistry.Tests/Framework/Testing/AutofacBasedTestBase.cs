@@ -8,7 +8,6 @@ using Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofa
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Xunit.Abstractions;
 using LogExtensions = Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing.LogExtensions;
 
 public abstract class AutofacBasedTestBase

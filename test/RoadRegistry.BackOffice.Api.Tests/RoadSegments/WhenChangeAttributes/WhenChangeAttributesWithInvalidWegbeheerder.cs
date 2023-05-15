@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
 using Abstractions;
-using Api.RoadSegments.Parameters;
+using Api.RoadSegments;
 using BackOffice.Abstractions.RoadSegments;
 using Fixtures;
 using Xunit.Abstractions;
@@ -13,20 +13,6 @@ public class WhenChangeAttributesWithInvalidWegbeheerder : WhenChangeAttributesW
     }
 
     [Fact]
-    public async Task Wegbeheerder_WegbeheerderVerplicht()
-    {
-        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
-        {
-            new()
-            {
-                Attribuut = ChangeRoadSegmentAttribute.Wegbeheerder.ToString(),
-                Attribuutwaarde = null,
-                Wegsegmenten = new []{ Fixture.TestData.Segment1Added.Id }
-            }
-        }, "WegbeheerderVerplicht", null);
-    }
-
-    [Fact]
     public async Task Wegbeheerder_WegbeheerderNietCorrect()
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
@@ -35,8 +21,22 @@ public class WhenChangeAttributesWithInvalidWegbeheerder : WhenChangeAttributesW
             {
                 Attribuut = ChangeRoadSegmentAttribute.Wegbeheerder.ToString(),
                 Attribuutwaarde = string.Empty,
-                Wegsegmenten = new []{ Fixture.TestData.Segment1Added.Id }
+                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
             }
         }, "WegbeheerderNietCorrect", null);
+    }
+
+    [Fact]
+    public async Task Wegbeheerder_WegbeheerderVerplicht()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
+        {
+            new()
+            {
+                Attribuut = ChangeRoadSegmentAttribute.Wegbeheerder.ToString(),
+                Attribuutwaarde = null,
+                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
+            }
+        }, "WegbeheerderVerplicht", null);
     }
 }

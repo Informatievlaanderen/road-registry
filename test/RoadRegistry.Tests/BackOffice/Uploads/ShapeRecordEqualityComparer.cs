@@ -13,8 +13,16 @@ public class ShapeRecordEqualityComparer : IEqualityComparer<ShapeRecord>
 
     public bool Equals(ShapeRecord left, ShapeRecord right)
     {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
+        if (left == null && right == null)
+        {
+            return true;
+        }
+
+        if (left == null || right == null)
+        {
+            return false;
+        }
+
         var sameHeader = left.Header.Equals(right.Header);
         var sameLength = left.Length.Equals(right.Length);
         var sameContent = _comparer.Equals(left.Content, right.Content);
@@ -33,28 +41,52 @@ public class ShapeRecordEqualityComparer : IEqualityComparer<ShapeRecord>
         public bool Equals(ShapeContent left, ShapeContent right)
         {
             if (left == null && right == null)
+            {
                 return true;
+            }
+
             if (left == null || right == null)
+            {
                 return false;
+            }
+
             if (left is NullShapeContent && right is NullShapeContent)
+            {
                 return true;
+            }
+
             if (left is PointShapeContent leftPointContent && right is PointShapeContent rightPointContent)
+            {
                 return Equals(leftPointContent, rightPointContent);
+            }
+
             if (left is PolyLineMShapeContent leftLineContent && right is PolyLineMShapeContent rightLineContent)
+            {
                 return Equals(leftLineContent, rightLineContent);
+            }
+
             return false;
         }
 
         public int GetHashCode(ShapeContent instance)
         {
             if (instance is NullShapeContent)
+            {
                 return 0;
+            }
+
             if (instance is PointShapeContent pointContent)
+            {
                 return pointContent.ContentLength.GetHashCode() ^ pointContent.ShapeType.GetHashCode() ^
                        pointContent.Shape.GetHashCode();
+            }
+
             if (instance is PolyLineMShapeContent lineContent)
+            {
                 return lineContent.ContentLength.GetHashCode() ^ lineContent.ShapeType.GetHashCode() ^
                        lineContent.Shape.GetHashCode();
+            }
+
             return -1;
         }
 

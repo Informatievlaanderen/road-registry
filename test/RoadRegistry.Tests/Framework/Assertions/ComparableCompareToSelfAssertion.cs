@@ -15,10 +15,15 @@ public class ComparableCompareToSelfAssertion : IdiomaticAssertion
     public override void Verify(Type type)
     {
         if (type == null)
+        {
             throw new ArgumentNullException(nameof(type));
+        }
 
         var equatableType = typeof(IComparable<>).MakeGenericType(type);
-        if (!equatableType.IsAssignableFrom(type)) throw new ComparableCompareToException(type, $"The type {type.Name} does not implement IComparable<{type.Name}>.");
+        if (!equatableType.IsAssignableFrom(type))
+        {
+            throw new ComparableCompareToException(type, $"The type {type.Name} does not implement IComparable<{type.Name}>.");
+        }
 
         var method = equatableType.GetMethods().Single();
         var self = Builder.CreateAnonymous(type);
@@ -27,7 +32,9 @@ public class ComparableCompareToSelfAssertion : IdiomaticAssertion
         {
             var result = (int)method.Invoke(self, new[] { self });
             if (result != 0)
+            {
                 throw new ComparableCompareToException(type);
+            }
         }
         catch (Exception exception)
         {

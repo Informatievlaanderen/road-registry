@@ -1,29 +1,28 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenCreateRoadNetworkSnapshot.Abstractions.Fixtures;
 
 using AutoFixture;
+using BackOffice;
+using BackOffice.Abstractions.RoadNetworks;
 using BackOffice.Configuration;
+using BackOffice.Core;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Framework;
+using Handlers;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NodaTime;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Abstractions.RoadNetworks;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.Hosts;
-using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Handlers;
-using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Requests;
-using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.Framework;
-using RoadRegistry.Snapshot.Handlers.Sqs.RoadNetworks;
+using Requests;
 using SqlStreamStore;
-using Reason = Be.Vlaanderen.Basisregisters.GrAr.Provenance.Reason;
+using Sqs.RoadNetworks;
 
 public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFixture<CreateRoadNetworkSnapshotSqsLambdaRequestHandler, CreateRoadNetworkSnapshotSqsLambdaRequest, CreateRoadNetworkSnapshotSqsRequest>
 {
     protected readonly Mock<IRoadNetworkSnapshotReader> SnapshotReader;
-    protected readonly Mock<IRoadNetworkSnapshotWriter> SnapshotWriter;
     protected readonly RoadNetworkSnapshotStrategyOptions SnapshotStrategyOptions;
+    protected readonly Mock<IRoadNetworkSnapshotWriter> SnapshotWriter;
 
     protected WhenCreateRoadNetworkSnapshotFixture(
         IConfiguration configuration,
@@ -41,9 +40,6 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
         SnapshotWriter = CreateSnapshotWriterMock(snapshotWriter);
         SnapshotStrategyOptions = BuildSnapshotStrategyOptions();
     }
-
-    protected abstract Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader);
-    protected abstract Mock<IRoadNetworkSnapshotWriter> CreateSnapshotWriterMock(IRoadNetworkSnapshotWriter snapshotWriter);
 
     protected Organisation Organisation { get; }
     protected abstract CreateRoadNetworkSnapshotRequest Request { get; }
@@ -70,4 +66,6 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
     );
 
     protected abstract RoadNetworkSnapshotStrategyOptions BuildSnapshotStrategyOptions();
+    protected abstract Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader);
+    protected abstract Mock<IRoadNetworkSnapshotWriter> CreateSnapshotWriterMock(IRoadNetworkSnapshotWriter snapshotWriter);
 }

@@ -75,7 +75,9 @@ public class ImplicitConversionOperatorException : Exception
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         if (info == null)
+        {
             throw new ArgumentNullException(nameof(info));
+        }
 
         base.GetObjectData(info, context);
         info.AddValue("From", From);

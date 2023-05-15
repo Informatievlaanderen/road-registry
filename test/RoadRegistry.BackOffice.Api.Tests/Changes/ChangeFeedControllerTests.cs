@@ -1,0 +1,17 @@
+namespace RoadRegistry.BackOffice.Api.Tests.Changes;
+
+using Api.Changes;
+using Infrastructure;
+using Infrastructure.Containers;
+using MediatR;
+
+[Collection(nameof(SqlServerCollection))]
+public partial class ChangeFeedControllerTests : ControllerMinimalTests<ChangeFeedController>
+{
+    private readonly SqlServer _fixture;
+
+    public ChangeFeedControllerTests(SqlServer fixture, IMediator mediator) : base(mediator)
+    {
+        _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+    }
+}

@@ -38,8 +38,8 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     private static readonly StreamNameConverter StreamNameConverter = StreamNameConversions.PassThru;
     protected readonly IConfiguration Configuration;
     protected readonly ICustomRetryPolicy CustomRetryPolicy;
-    protected readonly ILifetimeScope LifetimeScope;
     protected readonly IIdempotentCommandHandler IdempotentCommandHandler;
+    protected readonly ILifetimeScope LifetimeScope;
     protected readonly ILoggerFactory LoggerFactory;
     protected readonly SqsLambdaHandlerOptions Options;
     protected readonly IRoadNetworkCommandQueue RoadNetworkCommandQueue;

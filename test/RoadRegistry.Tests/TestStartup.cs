@@ -1,10 +1,13 @@
 namespace RoadRegistry.Tests;
 
+using System.Reflection;
+using System.Text;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentValidation;
+using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,10 +25,7 @@ using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
-using RoadRegistry.Tests.Infrastructure.Modules;
 using SqlStreamStore;
-using System.Reflection;
-using System.Text;
 using Xunit.DependencyInjection;
 using Xunit.DependencyInjection.Logging;
 
@@ -36,21 +36,23 @@ public abstract class TestStartup
         loggerFactory.AddProvider(new XunitTestOutputLoggerProvider(accessor));
     }
 
+    protected virtual void ConfigureAppConfiguration(HostBuilderContext hostContext, IConfigurationBuilder builder)
+    {
+    }
+
     protected virtual CommandHandlerDispatcher ConfigureCommandHandlerDispatcher(IServiceProvider sp)
     {
         return default;
     }
 
-    protected virtual void ConfigureAppConfiguration(HostBuilderContext hostContext, IConfigurationBuilder builder)
-    {
-    }
     protected virtual void ConfigureContainer(ContainerBuilder builder)
     {
     }
+
     protected virtual void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder)
     {
     }
-    
+
     public void ConfigureHost(IHostBuilder hostBuilder)
     {
         var availableModuleAssemblyCollection = DetermineAvailableAssemblyCollection();
@@ -79,7 +81,7 @@ public abstract class TestStartup
                     .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
                     .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())
                     .AddSingleton<IClock>(new FakeClock(NodaConstants.UnixEpoch))
-                    .AddScoped<EventSourcedEntityMap>(_ => new EventSourcedEntityMap())
+                    .AddScoped(_ => new EventSourcedEntityMap())
                     .AddSingleton(ConfigureCommandHandlerDispatcher)
                     .AddSingleton(new RecyclableMemoryStreamManager())
                     .AddSingleton(new ZipArchiveWriterOptions())
@@ -112,7 +114,7 @@ public abstract class TestStartup
                     .Register(c => new FakeSqsOptions())
                     .As<SqsOptions>()
                     .SingleInstance();
-                
+
                 builder
                     .Register(c => new FakeSqsQueuePublisher())
                     .As<ISqsQueuePublisher>()
@@ -124,7 +126,7 @@ public abstract class TestStartup
                     .SingleInstance();
             });
     }
-    
+
     protected virtual void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
     }

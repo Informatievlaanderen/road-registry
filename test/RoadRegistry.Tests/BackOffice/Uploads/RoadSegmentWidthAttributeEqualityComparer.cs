@@ -6,8 +6,16 @@ public class RoadSegmentWidthAttributeEqualityComparer : IEqualityComparer<RoadS
 {
     public bool Equals(RoadSegmentWidthAttribute left, RoadSegmentWidthAttribute right)
     {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return true;
+        if (left == null && right == null)
+        {
+            return true;
+        }
+
+        if (left == null || right == null)
+        {
+            return true;
+        }
+
         return left.Width.Equals(right.Width)
                && left.TemporaryId.Equals(right.TemporaryId)
                && left.From.Equals(right.From)

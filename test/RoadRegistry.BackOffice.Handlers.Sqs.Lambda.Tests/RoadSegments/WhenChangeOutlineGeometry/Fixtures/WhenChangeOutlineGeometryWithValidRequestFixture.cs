@@ -4,14 +4,13 @@ using Abstractions.Fixtures;
 using AutoFixture;
 using BackOffice.Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Hosts;
+using Messages;
 using Microsoft.Extensions.Configuration;
 using NetTopologySuite.Geometries;
 using NodaTime;
 using NodaTime.Text;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Hosts;
-using RoadRegistry.Tests;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenChangeOutlineGeometryWithValidRequestFixture : WhenChangeOutlineGeometryFixture
@@ -24,8 +23,8 @@ public class WhenChangeOutlineGeometryWithValidRequestFixture : WhenChangeOutlin
         : base(configuration, customRetryPolicy, clock, options)
     {
         Request = new ChangeRoadSegmentOutlineGeometryRequest(
-                new RoadSegmentId(TestData.Segment1Added.Id),
-                GeometryTranslator.Translate(ObjectProvider.Create<MultiLineString>())
+            new RoadSegmentId(TestData.Segment1Added.Id),
+            GeometryTranslator.Translate(ObjectProvider.Create<MultiLineString>())
         );
     }
 
@@ -39,7 +38,7 @@ public class WhenChangeOutlineGeometryWithValidRequestFixture : WhenChangeOutlin
             Name = Organisation.ToString(),
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
-        
+
         await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
         {
             RequestId = TestData.RequestId,
@@ -73,11 +72,11 @@ public class WhenChangeOutlineGeometryWithValidRequestFixture : WhenChangeOutlin
         var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
 
         await VerifyThatTicketHasCompleted(roadSegmentId);
-        
+
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         var @event = command.Changes.Single().RoadSegmentGeometryModified;
         return @event.Id == roadSegmentId
                && GeometryTranslator.Translate(@event.Geometry) == GeometryTranslator.Translate(Request.Geometry)
-               ;
+            ;
     }
 }

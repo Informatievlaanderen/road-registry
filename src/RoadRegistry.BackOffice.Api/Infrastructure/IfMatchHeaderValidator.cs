@@ -1,44 +1,43 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure
-{
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Abstractions.Exceptions;
-    using Be.Vlaanderen.Basisregisters.Api.ETag;
-    using Editor.Schema;
+namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
-    public interface IIfMatchHeaderValidator
+using System.Threading;
+using System.Threading.Tasks;
+using Abstractions.Exceptions;
+using Be.Vlaanderen.Basisregisters.Api.ETag;
+using Editor.Schema;
+
+public interface IIfMatchHeaderValidator
+{
+    public Task<bool> IsValid(string? ifMatchHeaderValue, RoadSegmentId roadSegmentId, CancellationToken ct);
+}
+
+public class IfMatchHeaderValidator : IIfMatchHeaderValidator
+{
+    private readonly EditorContext _editorContext;
+
+    public IfMatchHeaderValidator(EditorContext editorContext)
     {
-        public Task<bool> IsValid(string? ifMatchHeaderValue, RoadSegmentId roadSegmentId, CancellationToken ct);
+        _editorContext = editorContext;
     }
 
-    public class IfMatchHeaderValidator : IIfMatchHeaderValidator
+    public async Task<bool> IsValid(string? ifMatchHeaderValue, RoadSegmentId roadSegmentId, CancellationToken ct)
     {
-        private readonly EditorContext _editorContext;
-
-        public IfMatchHeaderValidator(EditorContext editorContext)
+        if (ifMatchHeaderValue is null)
         {
-            _editorContext = editorContext;
+            return true;
         }
 
-        public async Task<bool> IsValid(string? ifMatchHeaderValue, RoadSegmentId roadSegmentId, CancellationToken ct)
+        var roadSegment = await _editorContext.RoadSegments.FindAsync(roadSegmentId);
+        if (roadSegment is null)
         {
-            if (ifMatchHeaderValue is null)
-            {
-                return true;
-            }
-
-            var roadSegment = await _editorContext.RoadSegments.FindAsync(roadSegmentId);
-            if (roadSegment is null)
-            {
-                throw new RoadSegmentNotFoundException();
-            }
-            
-            var ifMatchTag = ifMatchHeaderValue.Trim();
-            
-            var lastHash = roadSegment.LastEventHash;
-            var lastHashTag = new ETag(ETagType.Strong, lastHash);
-
-            return ifMatchTag == lastHashTag.ToString();
+            throw new RoadSegmentNotFoundException();
         }
+
+        var ifMatchTag = ifMatchHeaderValue.Trim();
+
+        var lastHash = roadSegment.LastEventHash;
+        var lastHashTag = new ETag(ETagType.Strong, lastHash);
+
+        return ifMatchTag == lastHashTag.ToString();
     }
 }

@@ -7,7 +7,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Validation;
-using Xunit;
 
 public class RoadSegmentSurfaceChangeDbaseRecordsValidatorTests : IDisposable
 {
@@ -173,7 +172,11 @@ public class RoadSegmentSurfaceChangeDbaseRecordsValidatorTests : IDisposable
         var initialContext = ZipArchiveValidationContext.Empty;
         var record = _fixture.Create<RoadSegmentSurfaceChangeDbaseRecord>();
         modifier(record);
-        if (record.WS_OIDN.HasValue) initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+        if (record.WS_OIDN.HasValue)
+        {
+            initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+        }
+
         var records = new[] { record }.ToDbaseRecordEnumerator();
 
         var (result, context) = _sut.Validate(_entry, records, initialContext);
@@ -223,8 +226,14 @@ public class RoadSegmentSurfaceChangeDbaseRecordsValidatorTests : IDisposable
             {
                 record.WV_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+
                 initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                 return record;
             })
@@ -249,8 +258,14 @@ public class RoadSegmentSurfaceChangeDbaseRecordsValidatorTests : IDisposable
             {
                 record.WV_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+
                 initialContext = initialContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
                 return record;
             })

@@ -96,7 +96,10 @@ public static class WmsContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -128,7 +131,10 @@ public static class WmsContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 

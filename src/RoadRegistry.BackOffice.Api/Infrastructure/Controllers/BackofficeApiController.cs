@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System;
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
@@ -22,9 +21,25 @@ public abstract class BackofficeApiController : ApiController
         _ticketingOptions = ticketingOptions;
     }
 
+    protected IActionResult Accepted(LocationResult locationResult)
+    {
+        return Accepted(locationResult
+            .Location
+            .ToString()
+            .Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl));
+    }
+
     private ProvenanceData CreateFakeProvenanceData()
     {
         return new RoadRegistryProvenanceData(Modification.Insert);
+    }
+
+    protected TRequest Enrich<TRequest>(TRequest request)
+        where TRequest : SqsRequest
+    {
+        request.Metadata = GetMetadata();
+        request.ProvenanceData = CreateFakeProvenanceData();
+        return request;
     }
 
     private IDictionary<string, object> GetMetadata()
@@ -37,21 +52,5 @@ public abstract class BackofficeApiController : ApiController
             { "UserId", userId },
             { "CorrelationId", correlationId }
         };
-    }
-
-    protected TRequest Enrich<TRequest>(TRequest request)
-        where TRequest : SqsRequest
-    {
-        request.Metadata = GetMetadata();
-        request.ProvenanceData = CreateFakeProvenanceData();
-        return request;
-    }
-
-    protected IActionResult Accepted(LocationResult locationResult)
-    {
-        return Accepted(locationResult
-            .Location
-            .ToString()
-            .Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl));
     }
 }

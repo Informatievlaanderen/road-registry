@@ -1,19 +1,16 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatureCompare;
 
 using System.IO.Compression;
+using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using FeatureCompare;
 using FeatureCompare.Translators;
-using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;
-using System.Text;
-using System.IO;
 
 public class FeatureReaderUnknownDbaseSchemaTests
 {
-    private static readonly Encoding Encoding = Encoding.UTF8;
     private const string FileName = "TEST";
-
+    private static readonly Encoding Encoding = Encoding.UTF8;
     private readonly ExtractsZipArchiveTestData _testData;
 
     public FeatureReaderUnknownDbaseSchemaTests()
@@ -21,43 +18,41 @@ public class FeatureReaderUnknownDbaseSchemaTests
         _testData = new ExtractsZipArchiveTestData();
     }
 
-    private class TestDbaseSchema : DbaseSchema
+    private ZipArchive CreateZipArchive()
     {
-    }
-    // ReSharper disable once ClassNeverInstantiated.Local
-    private class TestDbaseRecord : DbaseRecord
-    {
-        public static readonly TestDbaseSchema Schema = new();
-    }
+        var dbfStream = _testData.Fixture.CreateEmptyDbfFile<TestDbaseRecord>(TestDbaseRecord.Schema);
 
-    [Fact]
-    public void RoadSegment()
-    {
-        var reader = new RoadSegmentFeatureCompareFeatureReader(Encoding);
-
-        var zipArchive = CreateZipArchive();
-        using (zipArchive)
+        var archiveStream = new MemoryStream();
+        using (var createArchive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
+            dbfStream.Position = 0;
+            using (var entryStream = createArchive.CreateEntry($"{FileName}.dbf").Open())
+            {
+                dbfStream.CopyTo(entryStream);
+            }
         }
-    }
 
-    [Fact]
-    public void RoadNode()
-    {
-        var reader = new RoadNodeFeatureCompareFeatureReader(Encoding);
+        archiveStream.Position = 0;
 
-        var zipArchive = CreateZipArchive();
-        using (zipArchive)
-        {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
-        }
+        return new ZipArchive(archiveStream, ZipArchiveMode.Read, false, Encoding.UTF8);
     }
 
     [Fact]
     public void EuropeanRoad()
     {
         var reader = new EuropeanRoadFeatureCompareFeatureReader(Encoding);
+
+        var zipArchive = CreateZipArchive();
+        using (zipArchive)
+        {
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
+        }
+    }
+
+    [Fact]
+    public void GradeSeparatedJunction()
+    {
+        var reader = new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding);
 
         var zipArchive = CreateZipArchive();
         using (zipArchive)
@@ -91,9 +86,9 @@ public class FeatureReaderUnknownDbaseSchemaTests
     }
 
     [Fact]
-    public void RoadSegmentLane()
+    public void RoadNode()
     {
-        var reader = new RoadSegmentLaneFeatureCompareFeatureReader(Encoding);
+        var reader = new RoadNodeFeatureCompareFeatureReader(Encoding);
 
         var zipArchive = CreateZipArchive();
         using (zipArchive)
@@ -103,9 +98,21 @@ public class FeatureReaderUnknownDbaseSchemaTests
     }
 
     [Fact]
-    public void RoadSegmentWidth()
+    public void RoadSegment()
     {
-        var reader = new RoadSegmentWidthFeatureCompareFeatureReader(Encoding);
+        var reader = new RoadSegmentFeatureCompareFeatureReader(Encoding);
+
+        var zipArchive = CreateZipArchive();
+        using (zipArchive)
+        {
+            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
+        }
+    }
+
+    [Fact]
+    public void RoadSegmentLane()
+    {
+        var reader = new RoadSegmentLaneFeatureCompareFeatureReader(Encoding);
 
         var zipArchive = CreateZipArchive();
         using (zipArchive)
@@ -127,9 +134,9 @@ public class FeatureReaderUnknownDbaseSchemaTests
     }
 
     [Fact]
-    public void GradeSeparatedJunction()
+    public void RoadSegmentWidth()
     {
-        var reader = new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding);
+        var reader = new RoadSegmentWidthFeatureCompareFeatureReader(Encoding);
 
         var zipArchive = CreateZipArchive();
         using (zipArchive)
@@ -149,22 +156,14 @@ public class FeatureReaderUnknownDbaseSchemaTests
             Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, FileName));
         }
     }
-    
-    private ZipArchive CreateZipArchive()
+
+    private class TestDbaseSchema : DbaseSchema
     {
-        var dbfStream = _testData.Fixture.CreateEmptyDbfFile<TestDbaseRecord>(TestDbaseRecord.Schema);
+    }
 
-        var archiveStream = new MemoryStream();
-        using (var createArchive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
-        {
-            dbfStream.Position = 0;
-            using (var entryStream = createArchive.CreateEntry($"{FileName}.dbf").Open())
-            {
-                dbfStream.CopyTo(entryStream);
-            }
-        }
-        archiveStream.Position = 0;
-
-        return new ZipArchive(archiveStream, ZipArchiveMode.Read, false, Encoding.UTF8);
+    // ReSharper disable once ClassNeverInstantiated.Local
+    private class TestDbaseRecord : DbaseRecord
+    {
+        public static readonly TestDbaseSchema Schema = new();
     }
 }

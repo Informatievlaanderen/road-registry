@@ -35,6 +35,7 @@ public static class RestResponseExtensions
     public static IEnumerable<KeyValuePair<string, StringValues>> HeadersToKeyValuePairs(this RestResponse restResponse)
     {
         foreach (var header in restResponse.Headers)
+        {
             switch (header.Value)
             {
                 case string headerValue:
@@ -44,5 +45,6 @@ public static class RestResponseExtensions
                     yield return new KeyValuePair<string, StringValues>(header.Name, new StringValues(headerValues));
                     break;
             }
+        }
     }
 }

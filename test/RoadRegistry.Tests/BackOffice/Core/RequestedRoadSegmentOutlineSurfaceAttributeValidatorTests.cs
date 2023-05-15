@@ -4,7 +4,6 @@ using AutoFixture;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 
 public class RequestedRoadSegmentOutlineSurfaceAttributeValidatorTests : ValidatorTest<RequestedRoadSegmentSurfaceAttribute, RequestedRoadSegmentOutlineSurfaceAttributeValidator>
 {

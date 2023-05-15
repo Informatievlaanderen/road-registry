@@ -7,7 +7,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Validation;
-using Xunit;
 
 public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
 {
@@ -149,39 +148,51 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
         ZipArchiveValidationContext expectedContext)
     {
         if (record.RECORDTYPE.HasValue)
+        {
             switch (record.RECORDTYPE.Value)
             {
                 case RecordType.IdenticalIdentifier:
                     if (record.WS_OIDN.HasValue && RoadSegmentId.Accepts(record.WS_OIDN.Value))
+                    {
                         expectedContext =
                             expectedContext.WithIdenticalRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                    }
 
                     break;
                 case RecordType.AddedIdentifier:
                     if (record.WS_OIDN.HasValue)
                     {
                         if (record.EVENTIDN.HasValue && record.EVENTIDN.Value != 0)
+                        {
                             expectedContext =
                                 expectedContext.WithAddedRoadSegment(new RoadSegmentId(record.EVENTIDN.Value));
+                        }
                         else if (RoadSegmentId.Accepts(record.WS_OIDN.Value))
+                        {
                             expectedContext =
                                 expectedContext.WithAddedRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                        }
                     }
 
                     break;
                 case RecordType.ModifiedIdentifier:
                     if (record.WS_OIDN.HasValue && RoadSegmentId.Accepts(record.WS_OIDN.Value))
+                    {
                         expectedContext =
                             expectedContext.WithModifiedRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                    }
 
                     break;
                 case RecordType.RemovedIdentifier:
                     if (record.WS_OIDN.HasValue && RoadSegmentId.Accepts(record.WS_OIDN.Value))
+                    {
                         expectedContext =
                             expectedContext.WithRemovedRoadSegment(new RoadSegmentId(record.WS_OIDN.Value));
+                    }
 
                     break;
             }
+        }
 
         return expectedContext;
     }
@@ -229,7 +240,10 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
             .CreateMany<RoadSegmentChangeDbaseRecord>(2)
             .Select((record, index) =>
             {
-                if (index == 0) expectedContext = BuildValidationContext(record, expectedContext);
+                if (index == 0)
+                {
+                    expectedContext = BuildValidationContext(record, expectedContext);
+                }
 
                 return record;
             })
@@ -319,8 +333,14 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
             {
                 record.WS_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+
                 expectedContext = BuildValidationContext(record, expectedContext);
 
                 return record;
@@ -345,8 +365,14 @@ public class RoadSegmentChangeDbaseRecordsValidatorTests : IDisposable
             {
                 record.WS_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+
                 expectedContext = BuildValidationContext(record, expectedContext);
                 return record;
             })

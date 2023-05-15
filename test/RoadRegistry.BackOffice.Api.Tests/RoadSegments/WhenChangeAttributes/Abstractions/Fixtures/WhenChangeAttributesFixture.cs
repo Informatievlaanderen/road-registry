@@ -1,31 +1,29 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Abstractions.Fixtures;
 
+using System.Text;
+using Api.RoadSegments;
 using AutoFixture;
+using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Projections;
+using Editor.Schema;
 using Editor.Schema.RoadSegments;
+using FeatureToggles;
+using Hosts.Infrastructure.Options;
+using Infrastructure;
 using MediatR;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
-using RoadRegistry.BackOffice.Api.Tests.Framework;
-using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
-using RoadRegistry.BackOffice.FeatureToggles;
-using RoadRegistry.Editor.Schema;
-using RoadRegistry.Hosts.Infrastructure.Options;
-using RoadRegistry.Tests.BackOffice.Scenarios;
-using System.Text;
 using RoadRegistry.Tests.BackOffice;
+using RoadRegistry.Tests.BackOffice.Scenarios;
 
 public abstract class WhenChangeAttributesFixture : ControllerActionFixture<ChangeRoadSegmentAttributesParameters>
 {
     private readonly EditorContext _editorContext;
     private readonly IMediator _mediator;
-
     public readonly RoadNetworkTestData TestData = new();
 
     protected WhenChangeAttributesFixture(IMediator mediator, EditorContext editorContext)
@@ -49,6 +47,25 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
                 var valid = RoadSegmentStatus.All.Where(x => x != RoadSegmentStatus.Unknown).ToArray();
                 return valid[generator.Next() % valid.Length];
             })
+        );
+    }
+
+    protected override async Task<IActionResult> GetResultAsync(ChangeRoadSegmentAttributesParameters parameters)
+    {
+        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            }
+        };
+
+        return await controller.ChangeAttributes(
+            new UseRoadSegmentChangeAttributesFeatureToggle(true),
+            parameters,
+            new ChangeRoadSegmentAttributesParametersValidator(),
+            new ChangeRoadSegmentAttributesParametersWrapperValidator(_editorContext),
+            CancellationToken.None
         );
     }
 
@@ -110,24 +127,5 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
         });
 
         await _editorContext.SaveChangesAsync(CancellationToken.None);
-    }
-
-    protected override async Task<IActionResult> GetResultAsync(ChangeRoadSegmentAttributesParameters parameters)
-    {
-        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
-        {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            }
-        };
-
-        return await controller.PostChangeAttributes(
-            new UseRoadSegmentChangeAttributesFeatureToggle(true),
-            parameters,
-            new ChangeRoadSegmentAttributesParametersValidator(),
-            new ChangeRoadSegmentAttributesParametersWrapperValidator(_editorContext),
-            CancellationToken.None
-        );
     }
 }

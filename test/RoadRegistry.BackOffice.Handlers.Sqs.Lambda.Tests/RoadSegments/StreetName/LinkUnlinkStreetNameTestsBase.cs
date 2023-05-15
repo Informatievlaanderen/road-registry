@@ -4,11 +4,10 @@ using Abstractions;
 using Autofac;
 using BackOffice.Framework;
 using Core;
+using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NodaTime.Text;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
-using RoadRegistry.Tests.Framework;
 using StreetNameConsumer.Schema;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
@@ -21,10 +20,10 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
         : base(testOutputHelper, loggerFactory)
     {
         StreetNameCache = new FakeStreetNameCache()
-            .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))
-            .AddStreetName(WellKnownStreetNameIds.Current, "Current street", nameof(StreetNameStatus.Current))
-            .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired))
-            .AddStreetName(WellKnownStreetNameIds.Null, "Not found street", null)
+                .AddStreetName(WellKnownStreetNameIds.Proposed, "Proposed street", nameof(StreetNameStatus.Proposed))
+                .AddStreetName(WellKnownStreetNameIds.Current, "Current street", nameof(StreetNameStatus.Current))
+                .AddStreetName(WellKnownStreetNameIds.Retired, "Retired street", nameof(StreetNameStatus.Retired))
+                .AddStreetName(WellKnownStreetNameIds.Null, "Not found street", null)
             ;
     }
 

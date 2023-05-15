@@ -1,14 +1,14 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenDeleteOutline.Fixtures;
 
 using Abstractions.Fixtures;
+using BackOffice.Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Hosts;
+using Messages;
 using Microsoft.Extensions.Configuration;
 using NodaTime;
 using NodaTime.Text;
-using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Hosts;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
@@ -21,7 +21,7 @@ public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
         : base(configuration, customRetryPolicy, clock, options)
     {
     }
-    
+
     protected override DeleteRoadSegmentOutlineRequest Request => new(
         new RoadSegmentId(TestData.Segment1Added.Id)
     );

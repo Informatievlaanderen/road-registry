@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCreateOutline.Fixtures;
 
+using BackOffice.Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using NodaTime;
-using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
-using RoadRegistry.Hosts;
 
 public class WhenCreateOutlineWithInvalidStatusFixture : WhenCreateOutlineWithValidRequestFixture
 {

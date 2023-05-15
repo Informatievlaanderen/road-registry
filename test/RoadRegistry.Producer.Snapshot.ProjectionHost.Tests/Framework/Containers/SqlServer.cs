@@ -37,6 +37,18 @@ public class SqlServer : ISqlServerDatabase
         return _inner.InitializeAsync();
     }
 
+    public async Task<RoadNodeProducerSnapshotContext> CreateEmptyProducerSnapshotContextAsync(SqlConnectionStringBuilder builder)
+    {
+        var context = await CreateRoadNodeProducerSnapshotContextAsync(builder);
+
+        context.RoadNodes.RemoveRange(context.RoadNodes);
+
+        context.ProjectionStates.RemoveRange(context.ProjectionStates);
+        await context.SaveChangesAsync();
+
+        return context;
+    }
+
     public async Task<RoadNodeProducerSnapshotContext> CreateRoadNodeProducerSnapshotContextAsync(SqlConnectionStringBuilder builder)
     {
         var options = new DbContextOptionsBuilder<RoadNodeProducerSnapshotContext>()
@@ -47,18 +59,6 @@ public class SqlServer : ISqlServerDatabase
 
         var context = new RoadNodeProducerSnapshotContext(options);
         await context.Database.MigrateAsync();
-        return context;
-    }
-
-    public async Task<RoadNodeProducerSnapshotContext> CreateEmptyProducerSnapshotContextAsync(SqlConnectionStringBuilder builder)
-    {
-        var context = await CreateRoadNodeProducerSnapshotContextAsync(builder);
-        
-        context.RoadNodes.RemoveRange(context.RoadNodes);
-
-        context.ProjectionStates.RemoveRange(context.ProjectionStates);
-        await context.SaveChangesAsync();
-
         return context;
     }
 }

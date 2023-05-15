@@ -7,7 +7,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Validation;
-using Xunit;
 using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public class RoadSegmentWidthChangeDbaseRecordsTranslatorTests : IDisposable
@@ -97,7 +96,9 @@ public class RoadSegmentWidthChangeDbaseRecordsTranslatorTests : IDisposable
                 record.WS_OIDN.Value = segment.Id;
                 record.TOTPOSITIE.Value = record.VANPOSITIE.Value + 1.0;
                 if (index == 0) // force at least one lane change to promote the provisional change to an actual change
+                {
                     record.RECORDTYPE.Value = RecordType.AddedIdentifier;
+                }
 
                 return record;
             })

@@ -7,7 +7,6 @@ public class WhenDeleteOutlineWithInvalidIdFixture : WhenDeleteOutlineWithValidR
 {
     public WhenDeleteOutlineWithInvalidIdFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
     {
-        
     }
 
     protected override int CreateRequest()

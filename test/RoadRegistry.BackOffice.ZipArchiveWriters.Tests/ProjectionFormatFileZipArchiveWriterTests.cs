@@ -45,6 +45,7 @@ public class ProjectionFormatFileZipArchiveWriterTests
             {
                 Assert.Single(readArchive.Entries);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "file.prj":
@@ -60,6 +61,7 @@ public class ProjectionFormatFileZipArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 

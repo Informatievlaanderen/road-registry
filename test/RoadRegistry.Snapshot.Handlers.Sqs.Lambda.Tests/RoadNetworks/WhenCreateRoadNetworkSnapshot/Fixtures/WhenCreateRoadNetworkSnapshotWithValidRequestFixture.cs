@@ -1,18 +1,17 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.WhenCreateRoadNetworkSnapshot.Fixtures;
 
 using Abstractions.Fixtures;
+using BackOffice;
+using BackOffice.Abstractions.RoadNetworks;
 using BackOffice.Configuration;
+using BackOffice.Core;
+using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using NodaTime;
 using NodaTime.Text;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Abstractions.RoadNetworks;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Hosts;
-using RoadRegistry.Tests.BackOffice.Core;
 using SqlStreamStore;
 using AcceptedChange = BackOffice.Messages.AcceptedChange;
 
@@ -36,6 +35,11 @@ public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRo
         StreamVersion = 3
     };
 
+    protected override RoadNetworkSnapshotStrategyOptions BuildSnapshotStrategyOptions()
+    {
+        return new RoadNetworkSnapshotStrategyOptions { EventCount = 3 };
+    }
+
     protected override Mock<IRoadNetworkSnapshotReader> CreateSnapshotReaderMock(IRoadNetworkSnapshotReader snapshotReader)
     {
         var mock = new Mock<IRoadNetworkSnapshotReader>();
@@ -48,11 +52,6 @@ public class WhenCreateRoadNetworkSnapshotWithValidRequestFixture : WhenCreateRo
     {
         var mock = new Mock<IRoadNetworkSnapshotWriter>();
         return mock;
-    }
-
-    protected override RoadNetworkSnapshotStrategyOptions BuildSnapshotStrategyOptions()
-    {
-        return new() { EventCount = 3 };
     }
 
     protected override async Task SetupAsync()

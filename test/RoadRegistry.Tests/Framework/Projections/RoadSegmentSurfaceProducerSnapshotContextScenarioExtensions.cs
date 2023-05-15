@@ -1,6 +1,5 @@
 namespace RoadRegistry.Tests.Framework.Projections;
 
-using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing;
@@ -110,7 +109,10 @@ public static class RoadSegmentSurfaceProducerSnapshotContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -160,7 +162,10 @@ public static class RoadSegmentSurfaceProducerSnapshotContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 
@@ -181,7 +186,7 @@ public static class RoadSegmentSurfaceProducerSnapshotContextScenarioExtensions
             var projector = new ConnectedProjector<RoadSegmentSurfaceProducerSnapshotContext>(specification.Resolver);
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object>() { { "CreatedUtc", DateTime.Now } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object> { { "CreatedUtc", DateTime.Now } }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
             }
 
@@ -192,7 +197,10 @@ public static class RoadSegmentSurfaceProducerSnapshotContextScenarioExtensions
         {
             var result = await specification.Verification(context, CancellationToken.None);
 
-            if (result.Failed) throw specification.CreateFailedScenarioExceptionFor(result);
+            if (result.Failed)
+            {
+                throw specification.CreateFailedScenarioExceptionFor(result);
+            }
         }
     }
 

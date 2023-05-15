@@ -3,7 +3,6 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 using AutoFixture;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using Xunit;
 using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.Core.RoadSegmentSurfaceAttribute;
 
 public class RoadSegmentSurfaceAttributeTests

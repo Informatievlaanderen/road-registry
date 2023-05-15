@@ -41,7 +41,9 @@ public static class AcceptTypeExtensions
         var acceptHeaders = requestHeaders.Accept;
 
         if (acceptHeaders == null || acceptHeaders.Count == 0)
+        {
             return AcceptType.Json;
+        }
 
         var headersByQuality = acceptHeaders
             .OrderByDescending(header => header, MediaTypeHeaderValueComparer.QualityComparer)
@@ -50,26 +52,38 @@ public static class AcceptTypeExtensions
         foreach (var headerValue in headersByQuality)
         {
             if (headerValue.Contains(AcceptTypes.Atom))
+            {
                 return AcceptType.Atom;
+            }
 
             if (headerValue.Contains(AcceptTypes.Xml))
+            {
                 return AcceptType.Xml;
+            }
 
             if (headerValue.Contains(AcceptTypes.JsonProblem))
+            {
                 return AcceptType.JsonProblem;
+            }
 
             if (headerValue.Contains(AcceptTypes.JsonLd))
+            {
                 return AcceptType.JsonLd;
+            }
 
             if (headerValue.Contains(AcceptTypes.Json))
+            {
                 return AcceptType.Json;
+            }
 
             if (headerValue.Contains(AcceptTypes.Any))
             {
                 // We like to default to json,
                 // but we need to pick something the controller actually produces
                 if (!(actionDescriptor is ControllerActionDescriptor controllerActionDescriptor))
+                {
                     return AcceptType.Json;
+                }
 
                 var producesAttribute = controllerActionDescriptor
                     .ControllerTypeInfo
@@ -78,9 +92,12 @@ public static class AcceptTypeExtensions
                     .SingleOrDefault();
 
                 if (producesAttribute == null)
+                {
                     return AcceptType.Json;
+                }
 
                 foreach (var possibleContentType in producesAttribute.ContentTypes)
+                {
                     switch (possibleContentType)
                     {
                         case AcceptTypes.Atom:
@@ -95,6 +112,7 @@ public static class AcceptTypeExtensions
                         case AcceptTypes.Json:
                             return AcceptType.Json;
                     }
+                }
 
                 return AcceptType.Json;
             }

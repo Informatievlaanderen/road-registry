@@ -1,9 +1,8 @@
-using RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Abstractions.Fixtures;
-
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Fixtures;
 
-using MediatR;
+using Abstractions.Fixtures;
 using Editor.Schema;
+using MediatR;
 
 public class WhenChangeAttributesWithInvalidRequestFixture : WhenChangeAttributesFixture
 {

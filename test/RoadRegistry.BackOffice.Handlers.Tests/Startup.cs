@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Tests;
 
 using Autofac;
+using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
@@ -9,21 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using RoadRegistry.BackOffice.Extensions;
 using SqlStreamStore;
+using DomainAssemblyMarker = BackOffice.DomainAssemblyMarker;
 
 public class Startup : TestStartup
 {
-    protected override void ConfigureContainer(ContainerBuilder builder)
-    {
-        builder.RegisterModulesFromAssemblyContaining<BackOffice.DomainAssemblyMarker>();
-        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
-    }
-
-    protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
-    {
-    }
-
     protected override CommandHandlerDispatcher ConfigureCommandHandlerDispatcher(IServiceProvider sp)
     {
         return Dispatch.Using(Resolve.WhenEqualToMessage(
@@ -57,5 +48,15 @@ public class Startup : TestStartup
                     sp.GetService<ILoggerFactory>()
                 )
             }));
+    }
+
+    protected override void ConfigureContainer(ContainerBuilder builder)
+    {
+        builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
+        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
+    }
+
+    protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
+    {
     }
 }

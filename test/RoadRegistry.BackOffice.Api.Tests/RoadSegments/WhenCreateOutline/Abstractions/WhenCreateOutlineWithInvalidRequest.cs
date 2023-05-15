@@ -22,22 +22,21 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
     protected abstract string ExpectedErrorMessagePrefix { get; }
 
     [Fact]
-    public void ItShouldHaveExpectedMessage()
-    {
-        var err = ItShouldHaveValidationException();
-        var errMessage = err.Single().ErrorMessage;
-
-        Assert.StartsWith(ExpectedErrorMessagePrefix, errMessage);
-    }
-
-
-    [Fact]
     public void ItShouldHaveExpectedCode()
     {
         var err = ItShouldHaveValidationException();
         var errMessage = err.Single().ErrorCode;
 
         Assert.Equal(ExpectedErrorCode, errMessage);
+    }
+
+    [Fact]
+    public void ItShouldHaveExpectedMessage()
+    {
+        var err = ItShouldHaveValidationException();
+        var errMessage = err.Single().ErrorMessage;
+
+        Assert.StartsWith(ExpectedErrorMessagePrefix, errMessage);
     }
 
     [Fact]

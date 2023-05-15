@@ -60,13 +60,21 @@ public class Scenario : IScenarioInitialStateBuilder
 
         IScenarioGivenStateBuilder IScenarioGivenStateBuilder.Given(IEnumerable<RecordedEvent> events)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
+            if (events == null)
+            {
+                throw new ArgumentNullException(nameof(events));
+            }
+
             return new ScenarioBuilder(_givens.Concat(events).ToArray(), _when, _thens, _throws);
         }
 
         IScenarioGivenStateBuilder IScenarioInitialStateBuilder.Given(IEnumerable<RecordedEvent> events)
         {
-            if (events == null) throw new ArgumentNullException(nameof(events));
+            if (events == null)
+            {
+                throw new ArgumentNullException(nameof(events));
+            }
+
             return new ScenarioBuilder(events.ToArray(), _when, _thens, _throws);
         }
 
@@ -112,7 +120,11 @@ public class Scenario : IScenarioInitialStateBuilder
 
         private IScenarioWhenStateBuilder When(Command command)
         {
-            if (command == null) throw new ArgumentNullException(nameof(command));
+            if (command == null)
+            {
+                throw new ArgumentNullException(nameof(command));
+            }
+
             return new ScenarioBuilder(_givens, command, _thens, _throws);
         }
     }

@@ -18,6 +18,8 @@
     <None Remove="Projections\TestData\importedRoadSegment.4.json" />
     <None Remove="Projections\TestData\importedRoadSegment.458.json" />
     <None Remove="Projections\TestData\importedRoadSegment.904.json" />
+    <None Remove="TestFiles\ident2.txt" />
+    <None Remove="TestFiles\ident8.txt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,6 +41,11 @@
     <Content Include="Projections\TestData\importedRoadSegment.904.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="TestFiles\ident2.txt" />
+    <EmbeddedResource Include="TestFiles\ident8.txt" />
   </ItemGroup>
 
   <ItemGroup>

@@ -15,7 +15,9 @@ public class InequalityOperatorEqualsSelfAssertion : IdiomaticAssertion
     public override void Verify(Type type)
     {
         if (type == null)
+        {
             throw new ArgumentNullException(nameof(type));
+        }
 
         var method = type
             .GetMethods()
@@ -26,7 +28,9 @@ public class InequalityOperatorEqualsSelfAssertion : IdiomaticAssertion
                 && candidate.GetParameters()[1].ParameterType == type);
 
         if (method == null)
+        {
             throw new InequalityOperatorException(type, $"The type {type.Name} does not implement an inequality operator for {type.Name}.");
+        }
 
         var self = Builder.CreateAnonymous(type);
 
@@ -41,6 +45,8 @@ public class InequalityOperatorEqualsSelfAssertion : IdiomaticAssertion
         }
 
         if ((bool)result)
+        {
             throw new InequalityOperatorException(type);
+        }
     }
 }

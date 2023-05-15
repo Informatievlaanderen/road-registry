@@ -24,7 +24,9 @@ public static class CollectionExtensions
         void ExecuteOnCollection(IEnumerable<T> items)
         {
             foreach (var item in items)
+            {
                 executeOnItem(item);
+            }
         }
 
         return collection.Debug(ExecuteOnCollection);

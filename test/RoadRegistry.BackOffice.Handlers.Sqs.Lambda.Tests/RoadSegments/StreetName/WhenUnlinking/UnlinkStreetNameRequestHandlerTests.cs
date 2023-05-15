@@ -1,25 +1,24 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName.WhenUnlinking;
 
+using Abstractions.RoadSegments;
 using Autofac;
 using AutoFixture;
 using BackOffice.Extensions;
+using BackOffice.Framework;
 using BackOffice.Handlers.RoadSegments;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Core;
+using Handlers;
 using Hosts;
-using Moq;
-using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.StreetName;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
-using RoadRegistry.BackOffice.Messages;
-using TicketingService.Abstractions;
-using Xunit.Abstractions;
+using Messages;
 using Microsoft.Extensions.Logging;
+using Moq;
+using Requests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
+using Sqs.RoadSegments;
+using TicketingService.Abstractions;
+using Xunit.Abstractions;
 
 public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 {
@@ -56,11 +55,31 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     }
 
     [Fact]
-    public Task WhenProcessing_UnlinkStreetNameSqsRequest_Then_UnlinkStreetNameSqsLambdaRequest_IsSent()
+    public async Task UnlinkStreetNameFromRoadSegment_LeftAndRightStreetName_Succeeded()
     {
-        return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<UnlinkStreetNameSqsRequest, UnlinkStreetNameSqsLambdaRequest, UnlinkStreetNameRequest>();
+        //Arrange
+        var ticketing = new Mock<ITicketing>();
+        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
+
+        TestData.Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+        TestData.Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
+
+        await GivenSegment1Added();
+
+        //Act
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, StreetNamePuri(WellKnownStreetNameIds.Proposed), StreetNamePuri(WellKnownStreetNameIds.Proposed)));
+
+        //Assert
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
+        var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+        VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
+
+        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
+        var roadSegmentModified = command!.Changes.Single().RoadSegmentModified;
+        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.LeftSide.StreetNameId);
+        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.RightSide.StreetNameId);
     }
-    
+
     [Fact]
     public void UnlinkStreetNameFromRoadSegment_LeftOrRightStreetName_IsRequired()
     {
@@ -213,29 +232,9 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     }
 
     [Fact]
-    public async Task UnlinkStreetNameFromRoadSegment_LeftAndRightStreetName_Succeeded()
+    public Task WhenProcessing_UnlinkStreetNameSqsRequest_Then_UnlinkStreetNameSqsLambdaRequest_IsSent()
     {
-        //Arrange
-        var ticketing = new Mock<ITicketing>();
-        var roadSegmentId = new RoadSegmentId(TestData.Segment1Added.Id);
-
-        TestData.Segment1Added.LeftSide.StreetNameId = WellKnownStreetNameIds.Proposed;
-        TestData.Segment1Added.RightSide.StreetNameId = WellKnownStreetNameIds.Proposed;
-
-        await GivenSegment1Added();
-
-        //Act
-        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, StreetNamePuri(WellKnownStreetNameIds.Proposed), StreetNamePuri(WellKnownStreetNameIds.Proposed)));
-
-        //Assert
-        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
-        var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
-        VerifyThatTicketHasCompleted(ticketing, string.Format(Options.DetailUrl, roadSegmentId), roadSegment.LastEventHash);
-
-        var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
-        var roadSegmentModified = command!.Changes.Single().RoadSegmentModified;
-        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.LeftSide.StreetNameId);
-        Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.RightSide.StreetNameId);
+        return WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<UnlinkStreetNameSqsRequest, UnlinkStreetNameSqsLambdaRequest, UnlinkStreetNameRequest>();
     }
 
     private new static class WellKnownStreetNameIds
@@ -245,5 +244,3 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         public const int Retired = 3;
     }
 }
-
-

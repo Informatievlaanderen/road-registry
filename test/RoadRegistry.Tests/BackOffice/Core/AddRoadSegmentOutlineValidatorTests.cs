@@ -6,7 +6,6 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;
 
 public class AddRoadSegmentOutlineValidatorTests : ValidatorTest<AddRoadSegment, AddRoadSegmentValidator>
@@ -141,7 +140,7 @@ public class AddRoadSegmentOutlineValidatorTests : ValidatorTest<AddRoadSegment,
     {
         ShouldHaveValidationErrorFor(c => c.Geometry, null);
     }
-    
+
     [Fact]
     public void LaneMustNotBeNull()
     {
@@ -157,7 +156,7 @@ public class AddRoadSegmentOutlineValidatorTests : ValidatorTest<AddRoadSegment,
     {
         Validator.ShouldHaveChildValidator(c => c.Lanes, typeof(RequestedRoadSegmentLaneAttributeValidator));
     }
-    
+
     [Fact]
     public void LanesMustNotBeNull()
     {
@@ -165,15 +164,15 @@ public class AddRoadSegmentOutlineValidatorTests : ValidatorTest<AddRoadSegment,
     }
 
     [Fact]
-    public void MorphologyMustBeWithinDomain()
-    {
-        ShouldHaveValidationErrorFor(c => c.Morphology, Fixture.Create<string>());
-    }
-
-    [Fact]
     public void MorphologyMustBeNotUnknown()
     {
         ShouldHaveValidationErrorFor(c => c.Morphology, RoadSegmentMorphology.Unknown.ToString());
+    }
+
+    [Fact]
+    public void MorphologyMustBeWithinDomain()
+    {
+        ShouldHaveValidationErrorFor(c => c.Morphology, Fixture.Create<string>());
     }
 
     [Theory]
@@ -185,17 +184,17 @@ public class AddRoadSegmentOutlineValidatorTests : ValidatorTest<AddRoadSegment,
     {
         ShouldHaveValidationErrorFor(c => c.StartNodeId, value);
     }
-    
-    [Fact]
-    public void StatusMustBeWithinDomain()
-    {
-        ShouldHaveValidationErrorFor(c => c.Status, Fixture.Create<string>());
-    }
 
     [Fact]
     public void StatusMustBeNotUnknown()
     {
         ShouldHaveValidationErrorFor(c => c.Status, RoadSegmentStatus.Unknown.ToString());
+    }
+
+    [Fact]
+    public void StatusMustBeWithinDomain()
+    {
+        ShouldHaveValidationErrorFor(c => c.Status, Fixture.Create<string>());
     }
 
     [Fact]

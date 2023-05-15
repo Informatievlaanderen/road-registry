@@ -1,5 +1,4 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios;
-using Xunit.Abstractions;
 
 public class RoadNetworkTestBase : RoadRegistryTestBase
 {

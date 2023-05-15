@@ -25,8 +25,16 @@ public class ProblematicDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumer
     {
         get
         {
-            if (_index == -1) throw new Exception("The enumeration has not started. Call MoveNext().");
-            if (_index == _records.Length) throw new Exception("The enumeration has ended. Call Reset().");
+            if (_index == -1)
+            {
+                throw new Exception("The enumeration has not started. Call MoveNext().");
+            }
+
+            if (_index == _records.Length)
+            {
+                throw new Exception("The enumeration has ended. Call Reset().");
+            }
+
             return _records[_index];
         }
     }
@@ -40,12 +48,20 @@ public class ProblematicDbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumer
 
     public bool MoveNext()
     {
-        if (_index == _records.Length) return false;
+        if (_index == _records.Length)
+        {
+            return false;
+        }
+
         _number = _index == -1
             ? RecordNumber.Initial
             : _number.Next();
         _index++;
-        if (_index == _failAt) throw _failure;
+        if (_index == _failAt)
+        {
+            throw _failure;
+        }
+
         return _index != _records.Length;
     }
 

@@ -7,8 +7,6 @@ using NodaTime.Text;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
-using Xunit.Abstractions;
 using ModifyGradeSeparatedJunction = RoadRegistry.BackOffice.Messages.ModifyGradeSeparatedJunction;
 using ModifyRoadNode = RoadRegistry.BackOffice.Messages.ModifyRoadNode;
 using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;

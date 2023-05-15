@@ -3,7 +3,6 @@ namespace RoadRegistry.Tests.BackOffice.Core;
 using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 
 public class RequestedChangeValidatorTests : ValidatorTest<RequestedChange, RequestedChangeValidator>
 {

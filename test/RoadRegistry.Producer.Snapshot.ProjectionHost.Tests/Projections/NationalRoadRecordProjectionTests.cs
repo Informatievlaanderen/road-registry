@@ -2,14 +2,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 
 using System.Globalization;
 using AutoFixture;
-using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
 using Extensions;
 using Moq;
-using ProjectionHost.Projections;
 using NationalRoad;
+using ProjectionHost.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
@@ -65,6 +64,48 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
     }
 
     [Fact]
+    public async Task When_adding_road_segments_to_national_roads()
+    {
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAddedToNationalRoad>());
+
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        {
+            var nationalRoadAdded = change.RoadSegmentAddedToNationalRoad;
+
+            return (object)new NationalRoadRecord(
+                nationalRoadAdded.AttributeId,
+                nationalRoadAdded.SegmentId,
+                nationalRoadAdded.Number,
+                message.ToOrigin(),
+                created);
+        });
+
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<NationalRoadSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<NationalRoadSnapshot>.Success(It.IsAny<NationalRoadSnapshot>()));
+
+        await new NationalRoadRecordProjection(kafkaProducer.Object)
+            .Scenario()
+            .Given(message)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        foreach (var expectedRecord in expectedRecords.Cast<NationalRoadRecord>())
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new NationalRoadSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+    }
+
+    [Fact]
     public async Task When_national_roads_were_imported()
     {
         var created = DateTimeOffset.UtcNow;
@@ -104,24 +145,49 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
     }
 
     [Fact]
-    public async Task When_adding_road_segments_to_national_roads()
+    public async Task When_removing_road_segments()
     {
-        var message = _fixture
+        var acceptedNationalRoadAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAddedToNationalRoad>());
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNationalRoad>());
+
+        var acceptedRoadSegmentRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(
+                acceptedNationalRoadAdded.Changes
+                    .Select(change => change.RoadSegmentAddedToNationalRoad.SegmentId)
+                    .Distinct()
+                    .Select(roadSegmentId =>
+                        new RoadSegmentRemoved
+                        {
+                            Id = roadSegmentId
+                        }));
 
         var created = DateTimeOffset.UtcNow;
 
-        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+        var expectedRecords = Array.ConvertAll(acceptedNationalRoadAdded.Changes, change =>
         {
             var nationalRoadAdded = change.RoadSegmentAddedToNationalRoad;
 
             return (object)new NationalRoadRecord(
-                nationalRoadAdded.AttributeId,
-                nationalRoadAdded.SegmentId,
-                nationalRoadAdded.Number,
-                message.ToOrigin(),
-                created);
+                    nationalRoadAdded.AttributeId,
+                    nationalRoadAdded.SegmentId,
+                    nationalRoadAdded.Number,
+                    acceptedNationalRoadAdded.ToOrigin(),
+                    created.AddDays(-1))
+                { IsRemoved = true };
+        });
+
+        expectedRecords = Array.ConvertAll(acceptedRoadSegmentRemoved.Changes, change =>
+        {
+            var roadSegmentRemoved = change.RoadSegmentRemoved;
+
+            var record = expectedRecords.Cast<NationalRoadRecord>().Single(x => x.RoadSegmentId == roadSegmentRemoved.Id);
+            record.Origin = acceptedRoadSegmentRemoved.ToOrigin();
+            record.IsRemoved = true;
+            record.LastChangedTimestamp = created;
+
+            return (object)record;
         });
 
         var kafkaProducer = new Mock<IKafkaProducer>();
@@ -130,9 +196,9 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
             .ReturnsAsync(Result<NationalRoadSnapshot>.Success(It.IsAny<NationalRoadSnapshot>()));
 
         await new NationalRoadRecordProjection(kafkaProducer.Object)
-             .Scenario()
-             .Given(message)
-             .Expect(created.UtcDateTime, expectedRecords);
+            .Scenario()
+            .Given(acceptedNationalRoadAdded, acceptedRoadSegmentRemoved)
+            .Expect(created.UtcDateTime, expectedRecords);
 
         foreach (var expectedRecord in expectedRecords.Cast<NationalRoadRecord>())
         {
@@ -175,7 +241,7 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
                     nationalRoadAdded.Number,
                     acceptedNationalRoadAdded.ToOrigin(),
                     created.AddDays(-1))
-            { IsRemoved = true };
+                { IsRemoved = true };
         });
 
         expectedRecords = Array.ConvertAll(acceptedNationalRoadRemoved.Changes, change =>
@@ -198,73 +264,6 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
         await new NationalRoadRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(acceptedNationalRoadAdded, acceptedNationalRoadRemoved)
-            .Expect(created.UtcDateTime, expectedRecords);
-
-        foreach (var expectedRecord in expectedRecords.Cast<NationalRoadRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new NationalRoadSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
-    }
-
-    [Fact]
-    public async Task When_removing_road_segments()
-    {
-        var acceptedNationalRoadAdded = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNationalRoad>());
-
-        var acceptedRoadSegmentRemoved = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(
-                acceptedNationalRoadAdded.Changes
-                    .Select(change => change.RoadSegmentAddedToNationalRoad.SegmentId)
-                    .Distinct()
-                    .Select(roadSegmentId =>
-                    new RoadSegmentRemoved
-                    {
-                        Id = roadSegmentId
-                    }));
-
-        var created = DateTimeOffset.UtcNow;
-
-        var expectedRecords = Array.ConvertAll(acceptedNationalRoadAdded.Changes, change =>
-        {
-            var nationalRoadAdded = change.RoadSegmentAddedToNationalRoad;
-
-            return (object)new NationalRoadRecord(
-                    nationalRoadAdded.AttributeId,
-                    nationalRoadAdded.SegmentId,
-                    nationalRoadAdded.Number,
-                    acceptedNationalRoadAdded.ToOrigin(),
-                    created.AddDays(-1))
-            { IsRemoved = true };
-        });
-
-        expectedRecords = Array.ConvertAll(acceptedRoadSegmentRemoved.Changes, change =>
-        {
-            var roadSegmentRemoved = change.RoadSegmentRemoved;
-
-            var record = expectedRecords.Cast<NationalRoadRecord>().Single(x => x.RoadSegmentId == roadSegmentRemoved.Id);
-            record.Origin = acceptedRoadSegmentRemoved.ToOrigin();
-            record.IsRemoved = true;
-            record.LastChangedTimestamp = created;
-
-            return (object)record;
-        });
-
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<NationalRoadSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<NationalRoadSnapshot>.Success(It.IsAny<NationalRoadSnapshot>()));
-
-        await new NationalRoadRecordProjection(kafkaProducer.Object)
-            .Scenario()
-            .Given(acceptedNationalRoadAdded, acceptedRoadSegmentRemoved)
             .Expect(created.UtcDateTime, expectedRecords);
 
         foreach (var expectedRecord in expectedRecords.Cast<NationalRoadRecord>())

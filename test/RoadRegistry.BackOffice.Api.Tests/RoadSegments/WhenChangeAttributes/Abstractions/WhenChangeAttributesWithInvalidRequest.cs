@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Abstractions;
 
-using Api.RoadSegments.Parameters;
+using Api.RoadSegments;
 using Extensions;
 using Fixtures;
 using FluentValidation;
@@ -18,7 +18,7 @@ public abstract class WhenChangeAttributesWithInvalidRequest<TFixture> : IClassF
         Fixture = fixture;
         OutputHelper = outputHelper;
     }
-    
+
     protected async Task ItShouldHaveExpectedError(ChangeRoadSegmentAttributesParameters request, string expectedErrorCode, string expectedErrorMessagePrefix)
     {
         await Fixture.ExecuteAsync(request);
@@ -35,7 +35,7 @@ public abstract class WhenChangeAttributesWithInvalidRequest<TFixture> : IClassF
             Assert.True(errors != null && errors.Any(x => x.ErrorMessage.StartsWith(expectedErrorMessagePrefix)));
         }
     }
-    
+
     private IEnumerable<ValidationFailure> ItShouldHaveValidationException()
     {
         var ex = Assert.IsType<ValidationException>(Fixture.Exception);

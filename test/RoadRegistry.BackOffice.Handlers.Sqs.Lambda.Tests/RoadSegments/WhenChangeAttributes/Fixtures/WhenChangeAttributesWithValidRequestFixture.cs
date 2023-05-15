@@ -1,16 +1,14 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenChangeAttributes.Fixtures;
 
 using Abstractions.Fixtures;
-using AutoFixture;
 using BackOffice.Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Hosts;
+using Messages;
 using Microsoft.Extensions.Configuration;
 using NodaTime;
 using NodaTime.Text;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Hosts;
-using RoadRegistry.Tests;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesFixture
@@ -43,7 +41,7 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
             Name = Organisation.ToString(),
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
-        
+
         await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
         {
             RequestId = TestData.RequestId,
@@ -87,6 +85,6 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
                && @event.MaintenanceAuthority.Code == change.MaintenanceAuthority
                && @event.Morphology == change.Morphology
                && @event.Status == change.Status
-               ;
+            ;
     }
 }

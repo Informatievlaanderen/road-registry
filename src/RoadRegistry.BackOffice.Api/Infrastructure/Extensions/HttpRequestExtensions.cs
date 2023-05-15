@@ -20,7 +20,9 @@ public static class HttpRequestExtensions
     public static string GetValueFromRouteData(this ActionContext context, string key)
     {
         if (!context.RouteData.Values.TryGetValue(key, out var value))
+        {
             return null;
+        }
 
         var routeValue = value?.ToString();
 
@@ -31,7 +33,9 @@ public static class HttpRequestExtensions
     {
         // convert Atom to Xml to support problem-details
         if (request.GetTypedHeaders().Contains(AcceptType.Atom))
+        {
             request.SetAcceptType(AcceptType.Xml);
+        }
     }
 
     public static void SetAcceptType(this HttpRequest request, AcceptType? acceptType)

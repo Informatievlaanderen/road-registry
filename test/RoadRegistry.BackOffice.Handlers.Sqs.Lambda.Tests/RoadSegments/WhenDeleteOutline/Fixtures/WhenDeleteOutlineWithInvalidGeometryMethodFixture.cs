@@ -1,12 +1,12 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenDeleteOutline.Fixtures;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Hosts;
+using Messages;
 using Microsoft.Extensions.Configuration;
 using NodaTime;
 using NodaTime.Text;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.Hosts;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenDeleteOutlineWithInvalidGeometryMethodFixture : WhenDeleteOutlineWithValidRequestFixture
