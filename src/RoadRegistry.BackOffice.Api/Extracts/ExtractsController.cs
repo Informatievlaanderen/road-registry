@@ -226,5 +226,19 @@ public class ExtractsController : ControllerBase
         {
             return NotFound();
         }
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
+        {
+            throw new ApiProblemDetailsException(
+                "Can not upload roadnetwork extract changes archive for superseded download",
+                409,
+                new ExceptionProblemDetails(exception), exception);
+        }
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException exception)
+        {
+            throw new ApiProblemDetailsException(
+                "Can not upload roadnetwork extract changes archive for same download more than once",
+                409,
+                new ExceptionProblemDetails(exception), exception);
+        }
     }
 }
