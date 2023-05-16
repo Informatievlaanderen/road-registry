@@ -13,7 +13,7 @@ using Xunit.Sdk;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using Point = NetTopologySuite.Geometries.Point;
 
-public partial class ExtractControllerTests
+public partial class ExtractsControllerTests
 {
     [Fact]
     public async Task When_requesting_an_extract_for_the_first_time()

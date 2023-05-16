@@ -11,7 +11,7 @@ using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class ExtractController
+public partial class ExtractsController
 {
     private const string GetDownloadRoute = "download/{downloadId}";
 

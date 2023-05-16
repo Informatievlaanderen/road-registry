@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using SqlStreamStore.Streams;
 
-public partial class ExtractControllerTests
+public partial class ExtractsControllerTests
 {
     [Fact]
     public async Task When_uploading_an_extract_after_fc_that_is_an_empty_zip()

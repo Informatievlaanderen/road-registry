@@ -3,7 +3,10 @@ namespace RoadRegistry.BackOffice.Api.Extracts;
 using System;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
+using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Core.ProblemCodes;
 using FluentValidation;
 using FluentValidation.Results;
@@ -18,11 +21,11 @@ using Version = Infrastructure.Version;
 [ApiRoute("extracts")]
 [ApiExplorerSettings(GroupName = "Extract")]
 [ApiKeyAuth(WellKnownAuthRoles.Road)]
-public partial class ExtractController : ApiController
+public partial class ExtractsController : ApiController
 {
     private readonly IMediator _mediator;
 
-    public ExtractController(IMediator mediator)
+    public ExtractsController(IMediator mediator)
     {
         _mediator = mediator;
     }
@@ -52,6 +55,20 @@ public partial class ExtractController : ApiController
         catch (ExtractDownloadNotFoundException)
         {
             return NotFound();
+        }
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
+        {
+            throw new ApiProblemDetailsException(
+                "Can not upload roadnetwork extract changes archive for superseded download",
+                409,
+                new ExceptionProblemDetails(exception), exception);
+        }
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException exception)
+        {
+            throw new ApiProblemDetailsException(
+                "Can not upload roadnetwork extract changes archive for same download more than once",
+                409,
+                new ExceptionProblemDetails(exception), exception);
         }
     }
 }

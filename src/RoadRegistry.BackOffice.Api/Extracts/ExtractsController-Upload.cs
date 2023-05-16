@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using UploadExtractRequest = Abstractions.Extracts.UploadExtractRequest;
 
-public partial class ExtractController
+public partial class ExtractsController
 {
     private const string PostUploadRoute = "download/{downloadId}/uploads";
 
