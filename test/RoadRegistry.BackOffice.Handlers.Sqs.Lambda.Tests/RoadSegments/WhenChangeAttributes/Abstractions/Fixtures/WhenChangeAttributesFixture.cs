@@ -2,19 +2,19 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCha
 
 using AutoFixture;
 using BackOffice.Abstractions.RoadSegments;
+using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Framework;
+using Handlers;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
-using RoadRegistry.Hosts;
+using Requests;
 using RoadRegistry.Tests.BackOffice;
+using Sqs.RoadSegments;
 
 public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<ChangeRoadSegmentAttributesSqsLambdaRequestHandler, ChangeRoadSegmentAttributesSqsLambdaRequest, ChangeRoadSegmentAttributesSqsRequest>
 {
@@ -33,7 +33,6 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
     }
 
     protected Organisation Organisation { get; }
-    
     protected abstract ChangeRoadSegmentAttributesRequest Request { get; }
 
     protected override ChangeRoadSegmentAttributesSqsRequest SqsRequest => new()

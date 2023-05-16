@@ -7,6 +7,7 @@ using Configuration;
 using Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.IO;
 
 public sealed class SqsHandlersModule : Module
 {
@@ -17,6 +18,8 @@ public sealed class SqsHandlersModule : Module
             {
                 var configuration = c.Resolve<IConfiguration>();
                 var jsonSerializerSettings = SqsJsonSerializerSettingsProvider.CreateSerializerSettings();
+
+                var serializer = new GeoJsonSerializer();
 
                 var sqsConfiguration = configuration.GetOptions<SqsConfiguration>();
                 if (sqsConfiguration?.ServiceUrl != null)

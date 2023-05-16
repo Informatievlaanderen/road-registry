@@ -15,7 +15,9 @@ public class LessThanOrEqualOperatorCompareToSelfAssertion : IdiomaticAssertion
     public override void Verify(Type type)
     {
         if (type == null)
+        {
             throw new ArgumentNullException(nameof(type));
+        }
 
         var method = type
             .GetMethods()
@@ -26,7 +28,9 @@ public class LessThanOrEqualOperatorCompareToSelfAssertion : IdiomaticAssertion
                 && candidate.GetParameters()[1].ParameterType == type);
 
         if (method == null)
+        {
             throw new EqualityOperatorException(type, $"The type {type.Name} does not implement a less than or equal operator for {type.Name}.");
+        }
 
         var self = Builder.CreateAnonymous(type);
 
@@ -40,6 +44,9 @@ public class LessThanOrEqualOperatorCompareToSelfAssertion : IdiomaticAssertion
             throw new LessThanOrEqualOperatorException(type, $"The less than or equal operator of type {type.Name} threw an exception", exception);
         }
 
-        if (!(bool)result) throw new LessThanOrEqualOperatorException(type);
+        if (!(bool)result)
+        {
+            throw new LessThanOrEqualOperatorException(type);
+        }
     }
 }

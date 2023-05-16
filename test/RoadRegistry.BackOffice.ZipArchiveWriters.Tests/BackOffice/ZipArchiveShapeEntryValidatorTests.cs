@@ -1,14 +1,16 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice;
 
+using System.IO.Compression;
+using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
-using System.IO.Compression;
-using System.Text;
 using Uploads;
+using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveShapeEntryValidatorTests
@@ -31,12 +33,12 @@ public class ZipArchiveShapeEntryValidatorTests
             customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
         _fixture.Customize<ShapeRecord>(customization =>
             customization.FromFactory(random =>
-                new PointShapeContent(GeometryTranslator.FromGeometryPoint(_fixture.Create<Point>())).RecordAs(_fixture.Create<RecordNumber>())
+                new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(_fixture.Create<Point>())).RecordAs(_fixture.Create<RecordNumber>())
             ).OmitAutoProperties()
         );
         _context = ZipArchiveValidationContext.Empty;
     }
-    
+
     [Fact]
     public void ValidateContextCanNotBeNull()
     {
@@ -78,7 +80,7 @@ public class ZipArchiveShapeEntryValidatorTests
             fileSize,
             ShapeType.Point,
             BoundingBox3D.Empty);
-        var geometries = records.Select(x => RoadRegistry.BackOffice.GeometryTranslator.ToPoint(((PointShapeContent)x.Content).Shape)).ToArray();
+        var geometries = records.Select(x => GeometryTranslator.ToPoint(((PointShapeContent)x.Content).Shape)).ToArray();
 
         using (var stream = new MemoryStream())
         {
@@ -89,8 +91,11 @@ public class ZipArchiveShapeEntryValidatorTests
                 using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
                 {
                     header.Write(writer);
-                    foreach (var record in records) record.Write(writer);
-                    
+                    foreach (var record in records)
+                    {
+                        record.Write(writer);
+                    }
+
                     entryStream.Flush();
                 }
             }
@@ -143,7 +148,7 @@ public class ZipArchiveShapeEntryValidatorTests
 
                 var expected = ZipArchiveProblems.Single(entry
                     .AtShapeRecord(RecordNumber.Initial)
-                    .HasShapeRecordFormatError(new NetTopologySuite.IO.ShapefileException("The first four bytes of this file indicate this is not a shape file."))
+                    .HasShapeRecordFormatError(new ShapefileException("The first four bytes of this file indicate this is not a shape file."))
                 );
                 Assert.Equal(expected, result, new FileProblemComparer());
                 Assert.Same(_context, context);
@@ -225,7 +230,7 @@ public class ZipArchiveShapeEntryValidatorTests
             }
         }
     }
-    
+
     [Fact]
     public void ValidatorCanNotBeNull()
     {
@@ -237,7 +242,7 @@ public class ZipArchiveShapeEntryValidatorTests
     private class CollectShapeRecordValidator : IZipArchiveShapeRecordValidator
     {
         public List<Geometry> Collected { get; } = new();
-        
+
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, RecordNumber recordNumber, Geometry geometry, ZipArchiveValidationContext context)
         {
             Collected.Add(geometry);
@@ -253,7 +258,7 @@ public class ZipArchiveShapeEntryValidatorTests
         {
             _problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
-        
+
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, RecordNumber recordNumber, Geometry geometry, ZipArchiveValidationContext context)
         {
             return (ZipArchiveProblems.None.AddRange(_problems), context);

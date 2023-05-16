@@ -1,25 +1,26 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
+using System.Reflection;
 using Autofac;
+using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
+using Editor.Schema;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
+using Infrastructure.Modules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.Editor.Schema;
-using RoadRegistry.Product.Schema;
+using Product.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using SqlStreamStore;
-using System.Reflection;
-using MediatorModule = BackOffice.MediatorModule;
+using MediatorModule = Sqs.MediatorModule;
 
 public class Startup : TestStartup
 {
@@ -32,11 +33,11 @@ public class Startup : TestStartup
             .AsImplementedInterfaces();
 
         builder
-            .RegisterModule<MediatorModule>()
+            .RegisterModule<BackOffice.MediatorModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<BackOffice.Handlers.MediatorModule>()
-            .RegisterModule<Sqs.MediatorModule>()
-            .RegisterModule<Sqs.Lambda.Infrastructure.Modules.SyndicationModule>()
+            .RegisterModule<MediatorModule>()
+            .RegisterModule<SyndicationModule>()
             ;
 
         builder.Register<SqsLambdaHandlerOptions>(c => new FakeSqsLambdaHandlerOptions());

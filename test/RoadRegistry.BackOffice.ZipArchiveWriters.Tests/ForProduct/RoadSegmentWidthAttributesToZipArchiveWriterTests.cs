@@ -49,6 +49,7 @@ public class RoadSegmentWidthAttributesToZipArchiveWriterTests
             {
                 Assert.Single(readArchive.Entries);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "AttWegbreedte.dbf":
@@ -69,6 +70,7 @@ public class RoadSegmentWidthAttributesToZipArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 }

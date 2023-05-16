@@ -31,7 +31,10 @@ public static class HttpResponseMessageExtensions
     public static ProblemDetails GetProblemDetails(this HttpResponseMessage response, string responseContent)
     {
         if (response.Content.Headers.ContentType.MediaType.Contains("xml", StringComparison.InvariantCultureIgnoreCase))
+        {
             return DataContractDeserializeXlmResponse<ProblemDetails>(responseContent);
+        }
+
         return JsonConvert.DeserializeObject<ProblemDetails>(responseContent);
     }
 

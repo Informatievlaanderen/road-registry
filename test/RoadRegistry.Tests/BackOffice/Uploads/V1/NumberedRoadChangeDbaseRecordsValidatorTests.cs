@@ -7,7 +7,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Validation;
-using Xunit;
 
 public class NumberedRoadChangeDbaseRecordsValidatorTests : IDisposable
 {
@@ -205,8 +204,13 @@ public class NumberedRoadChangeDbaseRecordsValidatorTests : IDisposable
             {
                 record.GW_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
 
                 return record;
             })
@@ -229,8 +233,14 @@ public class NumberedRoadChangeDbaseRecordsValidatorTests : IDisposable
             {
                 record.GW_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Identical.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+
                 return record;
             })
             .ToDbaseRecordEnumerator();
@@ -250,8 +260,14 @@ public class NumberedRoadChangeDbaseRecordsValidatorTests : IDisposable
             {
                 record.GW_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
+                }
+
                 return record;
             })
             .ToDbaseRecordEnumerator();

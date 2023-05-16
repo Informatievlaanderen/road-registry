@@ -25,7 +25,7 @@ public abstract class WhenChangeAttributesWithValidRequest<TFixture> : IClassFix
             OutputHelper.WriteLine($"{nameof(Fixture.Request)}: {JsonConvert.SerializeObject(Fixture.Request)}");
             OutputHelper.WriteLine(Fixture.Exception.ToString());
         }
-        
+
         Assert.IsType<AcceptedResult>(Fixture.Result);
     }
 }

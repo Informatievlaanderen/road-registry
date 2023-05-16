@@ -1,7 +1,10 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatureCompare;
 
+using System.IO.Compression;
+using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Exceptions;
 using FeatureCompare;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
@@ -10,62 +13,16 @@ using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
-using System.IO.Compression;
-using System.Text;
-using Exceptions;
 using Uploads;
 
 public class FeatureCompareTranslatorScenarios
 {
     private static readonly Encoding Encoding = Encoding.UTF8;
-
     private readonly ILogger<ZipArchiveFeatureCompareTranslator> _logger;
 
     public FeatureCompareTranslatorScenarios(ILogger<ZipArchiveFeatureCompareTranslator> logger)
     {
         _logger = logger;
-    }
-
-    [Fact]
-    public void EncodingCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => new ZipArchiveFeatureCompareTranslator(null, null));
-    }
-
-    [Fact]
-    public void IsZipArchiveFeatureCompareTranslator()
-    {
-        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger);
-
-        Assert.IsAssignableFrom<IZipArchiveFeatureCompareTranslator>(sut);
-    }
-
-    [Fact]
-    public async Task TranslateArchiveCanNotBeNull()
-    {
-        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger);
-
-        await Assert.ThrowsAsync<ArgumentNullException>(() => sut.Translate(null, CancellationToken.None));
-    }
-
-    private async Task TranslateReturnsExpectedResult(ZipArchive archive, TranslatedChanges expected)
-    {
-        using (archive)
-        {
-            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger);
-
-            var result = await sut.Translate(archive, CancellationToken.None);
-
-            Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
-        }
-    }
-
-    [Fact]
-    public async Task EmptyArchiveShouldHaveNoChanges()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-
-        await TranslateReturnsExpectedResult(testData.ZipArchiveWithEmptyFiles, TranslatedChanges.Empty);
     }
 
     [Fact]
@@ -543,6 +500,125 @@ public class FeatureCompareTranslatorScenarios
     }
 
     [Fact]
+    public async Task All_NoChanges()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+
+        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+
+        var europeanRoadDbaseRecord = fixture.Create<RoadSegmentEuropeanRoadAttributeDbaseRecord>();
+        europeanRoadDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        var europeanRoadExtractStream = fixture.CreateDbfFile(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, new[] { europeanRoadDbaseRecord });
+
+        var europeanRoadDbaseRecordExtractEuropeanRoadNumber = EuropeanRoadNumber.Parse(europeanRoadDbaseRecord.EUNUMMER.Value);
+        var europeanRoadChangeStream = fixture.CreateDbfFile(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, new[] { europeanRoadDbaseRecord });
+
+        var nationalRoadDbaseRecord = fixture.Create<RoadSegmentNationalRoadAttributeDbaseRecord>();
+        nationalRoadDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        var nationalRoadExtractStream = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, new[] { nationalRoadDbaseRecord });
+
+        var nationalRoadDbaseRecordExtractNationalRoadNumber = NationalRoadNumber.Parse(nationalRoadDbaseRecord.IDENT2.Value);
+        var nationalRoadChangeStream = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, new[] { nationalRoadDbaseRecord });
+
+        var numberedRoadDbaseRecord = fixture.Create<RoadSegmentNumberedRoadAttributeDbaseRecord>();
+        numberedRoadDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        var numberedRoadExtractStream = fixture.CreateDbfFile(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, new[] { numberedRoadDbaseRecord });
+
+        var numberedRoadDbaseRecordExtractNumberedRoadNumber = NumberedRoadNumber.Parse(numberedRoadDbaseRecord.IDENT8.Value);
+        var numberedRoadChangeStream = fixture.CreateDbfFile(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, new[] { numberedRoadDbaseRecord });
+
+        var laneDbaseRecord = fixture.Create<RoadSegmentLaneAttributeDbaseRecord>();
+        laneDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        laneDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        laneDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var laneExtractStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
+        var laneChangeStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
+
+        var widthDbaseRecord = fixture.Create<RoadSegmentWidthAttributeDbaseRecord>();
+        widthDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        widthDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        widthDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var widthExtractStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
+        var widthChangeStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
+
+        var surfaceDbaseRecord = fixture.Create<RoadSegmentSurfaceAttributeDbaseRecord>();
+        surfaceDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        surfaceDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var surfaceExtractStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
+
+        var surfaceChangeStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
+
+        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
+        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
+        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+
+        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+
+        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
+        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
+            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
+            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
+            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
+            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
+            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
+            europeanRoadExtractStream: europeanRoadExtractStream,
+            europeanRoadChangeStream: europeanRoadChangeStream,
+            numberedRoadExtractStream: numberedRoadExtractStream,
+            numberedRoadChangeStream: numberedRoadChangeStream,
+            nationalRoadExtractStream: nationalRoadExtractStream,
+            nationalRoadChangeStream: nationalRoadChangeStream,
+            laneExtractStream: laneExtractStream,
+            laneChangeStream: laneChangeStream,
+            widthExtractStream: widthExtractStream,
+            widthChangeStream: widthChangeStream,
+            surfaceExtractStream: surfaceExtractStream,
+            surfaceChangeStream: surfaceChangeStream,
+            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
+            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
+        );
+
+        var expected = TranslatedChanges.Empty;
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    [Fact]
     public async Task All_Removed()
     {
         var testData = new ExtractsZipArchiveTestData();
@@ -699,743 +775,6 @@ public class FeatureCompareTranslatorScenarios
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
-    [Fact]
-    public async Task All_NoChanges()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-        var fixture = CreateFixture(testData);
-
-        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-
-        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-
-        var europeanRoadDbaseRecord = fixture.Create<RoadSegmentEuropeanRoadAttributeDbaseRecord>();
-        europeanRoadDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        var europeanRoadExtractStream = fixture.CreateDbfFile(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, new[] { europeanRoadDbaseRecord });
-
-        var europeanRoadDbaseRecordExtractEuropeanRoadNumber = EuropeanRoadNumber.Parse(europeanRoadDbaseRecord.EUNUMMER.Value);
-        var europeanRoadChangeStream = fixture.CreateDbfFile(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, new[] { europeanRoadDbaseRecord });
-
-        var nationalRoadDbaseRecord = fixture.Create<RoadSegmentNationalRoadAttributeDbaseRecord>();
-        nationalRoadDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        var nationalRoadExtractStream = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, new[] { nationalRoadDbaseRecord });
-
-        var nationalRoadDbaseRecordExtractNationalRoadNumber = NationalRoadNumber.Parse(nationalRoadDbaseRecord.IDENT2.Value);
-        var nationalRoadChangeStream = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, new[] { nationalRoadDbaseRecord });
-
-        var numberedRoadDbaseRecord = fixture.Create<RoadSegmentNumberedRoadAttributeDbaseRecord>();
-        numberedRoadDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        var numberedRoadExtractStream = fixture.CreateDbfFile(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, new[] { numberedRoadDbaseRecord });
-
-        var numberedRoadDbaseRecordExtractNumberedRoadNumber = NumberedRoadNumber.Parse(numberedRoadDbaseRecord.IDENT8.Value);
-        var numberedRoadChangeStream = fixture.CreateDbfFile(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, new[] { numberedRoadDbaseRecord });
-
-        var laneDbaseRecord = fixture.Create<RoadSegmentLaneAttributeDbaseRecord>();
-        laneDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        laneDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
-        laneDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
-        var laneExtractStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
-        var laneChangeStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
-
-        var widthDbaseRecord = fixture.Create<RoadSegmentWidthAttributeDbaseRecord>();
-        widthDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        widthDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
-        widthDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
-        var widthExtractStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
-        var widthChangeStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
-
-        var surfaceDbaseRecord = fixture.Create<RoadSegmentSurfaceAttributeDbaseRecord>();
-        surfaceDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        surfaceDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
-        surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
-        var surfaceExtractStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
-
-        var surfaceChangeStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
-
-        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
-        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
-        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-
-        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-
-        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
-        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
-        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
-            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
-            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
-            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
-            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
-            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
-            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
-            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
-            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
-            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
-            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
-            europeanRoadExtractStream: europeanRoadExtractStream,
-            europeanRoadChangeStream: europeanRoadChangeStream,
-            numberedRoadExtractStream: numberedRoadExtractStream,
-            numberedRoadChangeStream: numberedRoadChangeStream,
-            nationalRoadExtractStream: nationalRoadExtractStream,
-            nationalRoadChangeStream: nationalRoadChangeStream,
-            laneExtractStream: laneExtractStream,
-            laneChangeStream: laneChangeStream,
-            widthExtractStream: widthExtractStream,
-            widthChangeStream: widthChangeStream,
-            surfaceExtractStream: surfaceExtractStream,
-            surfaceChangeStream: surfaceChangeStream,
-            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
-            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
-        );
-
-        var expected = TranslatedChanges.Empty;
-
-        await TranslateReturnsExpectedResult(zipArchive, expected);
-    }
-
-    [Fact]
-    public async Task RoadSegment_ModifiedNonCriticalAttribute()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-        var fixture = CreateFixture(testData);
-
-        // extract
-        var roadSegmentDbaseRecord = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentShapeContent = fixture.Create<PolyLineMShapeContent>();
-
-        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord });
-        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent });
-
-        // change
-        roadSegmentDbaseRecord.STATUS.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord.STATUS.Value]).Translation.Identifier;
-
-        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent });
-        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord });
-
-        // assert
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
-            roadSegmentProjectionFormatStream: fixture.CreateProjectionFormatFileWithOneRecord(),
-            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
-            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
-            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
-            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream
-        );
-
-        var expected = TranslatedChanges.Empty
-            .AppendChange(new ModifyRoadSegment(
-                new RecordNumber(1),
-                new RoadSegmentId(roadSegmentDbaseRecord.WS_OIDN.Value),
-                new RoadNodeId(roadSegmentDbaseRecord.B_WK_OIDN.Value),
-                new RoadNodeId(roadSegmentDbaseRecord.E_WK_OIDN.Value),
-                new OrganizationId(roadSegmentDbaseRecord.BEHEER.Value),
-                RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord.METHODE.Value],
-                RoadSegmentMorphology.ByIdentifier[roadSegmentDbaseRecord.MORF.Value],
-                RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord.STATUS.Value],
-                RoadSegmentCategory.ByIdentifier[roadSegmentDbaseRecord.WEGCAT.Value],
-                RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord.TGBEP.Value],
-                CrabStreetnameId.FromValue(roadSegmentDbaseRecord.LSTRNMID.Value),
-                CrabStreetnameId.FromValue(roadSegmentDbaseRecord.RSTRNMID.Value)
-            ).WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContent.Shape)));
-
-        await TranslateReturnsExpectedResult(zipArchive, expected);
-    }
-
-    [Fact]
-    public async Task RoadSegment_ModifiedGeometrySlightly()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-        var fixture = CreateFixture(testData);
-
-        // extract
-        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
-
-        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
-        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1 });
-
-        var laneDbaseRecord = fixture.Create<RoadSegmentLaneAttributeDbaseRecord>();
-        laneDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        laneDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
-        laneDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
-        var laneExtractStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
-
-        var widthDbaseRecord = fixture.Create<RoadSegmentWidthAttributeDbaseRecord>();
-        widthDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        widthDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
-        widthDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
-        var widthExtractStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
-
-        var surfaceDbaseRecord = fixture.Create<RoadSegmentSurfaceAttributeDbaseRecord>();
-        surfaceDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        surfaceDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
-        surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
-        var surfaceExtractStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
-
-        // change
-        var geometry = GeometryTranslator.ToMultiLineString(roadSegmentShapeContent1.Shape);
-        var lineString = (LineString)geometry[0];
-        lineString = new LineString(new[]
-        {
-            lineString.Coordinates[0],
-            new CoordinateM(lineString.Coordinates[1].X + 1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M)
-        });
-        geometry = new MultiLineString(new[] { lineString });
-        var roadSegmentShapeContent1Changed = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
-
-        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1Changed });
-        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
-
-        // assert
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
-            roadSegmentProjectionFormatStream: fixture.CreateProjectionFormatFileWithOneRecord(),
-            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
-            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
-            laneExtractStream: laneExtractStream,
-            widthExtractStream: widthExtractStream,
-            surfaceExtractStream: surfaceExtractStream,
-            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
-            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
-            laneChangeStream: laneExtractStream,
-            widthChangeStream: widthExtractStream,
-            surfaceChangeStream: surfaceExtractStream
-        );
-
-        var expected = TranslatedChanges.Empty
-            .AppendChange(new ModifyRoadSegment(
-                new RecordNumber(1),
-                new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
-                new RoadNodeId(roadSegmentDbaseRecord1.B_WK_OIDN.Value),
-                new RoadNodeId(roadSegmentDbaseRecord1.E_WK_OIDN.Value),
-                new OrganizationId(roadSegmentDbaseRecord1.BEHEER.Value),
-                RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord1.METHODE.Value],
-                RoadSegmentMorphology.ByIdentifier[roadSegmentDbaseRecord1.MORF.Value],
-                RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord1.STATUS.Value],
-                RoadSegmentCategory.ByIdentifier[roadSegmentDbaseRecord1.WEGCAT.Value],
-                RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord1.TGBEP.Value],
-                CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.LSTRNMID.Value),
-                CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.RSTRNMID.Value)
-            )
-                .WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContent1Changed.Shape))
-                .WithLane(
-                    new RoadSegmentLaneAttribute(
-                        new AttributeId(laneDbaseRecord.RS_OIDN.Value),
-                        new RoadSegmentLaneCount(laneDbaseRecord.AANTAL.Value),
-                        RoadSegmentLaneDirection.ByIdentifier[laneDbaseRecord.RICHTING.Value],
-                        new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.VANPOS.Value)),
-                        new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.TOTPOS.Value))
-                    )
-                )
-                .WithWidth(
-                    new RoadSegmentWidthAttribute(
-                        new AttributeId(widthDbaseRecord.WB_OIDN.Value),
-                        new RoadSegmentWidth(widthDbaseRecord.BREEDTE.Value),
-                        new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.VANPOS.Value)),
-                        new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.TOTPOS.Value))
-                    )
-                )
-                .WithSurface(
-                    new RoadSegmentSurfaceAttribute(
-                        new AttributeId(surfaceDbaseRecord.WV_OIDN.Value),
-                        RoadSegmentSurfaceType.ByIdentifier[surfaceDbaseRecord.TYPE.Value],
-                        new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.VANPOS.Value)),
-                        new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.TOTPOS.Value))
-                    )
-                ));
-
-        await TranslateReturnsExpectedResult(zipArchive, expected);
-    }
-
-    [Fact]
-    public async Task RoadSegment_ModifiedGeometryToLessThan70PercentOverlap()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-        var fixture = CreateFixture(testData);
-
-        // extract
-        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
-
-        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
-        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1 });
-
-        var laneDbaseRecord = fixture.Create<RoadSegmentLaneAttributeDbaseRecord>();
-        laneDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        laneDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
-        laneDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
-        var laneExtractStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
-
-        var widthDbaseRecord = fixture.Create<RoadSegmentWidthAttributeDbaseRecord>();
-        widthDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        widthDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
-        widthDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
-        var widthExtractStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
-
-        var surfaceDbaseRecord = fixture.Create<RoadSegmentSurfaceAttributeDbaseRecord>();
-        surfaceDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        surfaceDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
-        surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
-        var surfaceExtractStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
-
-        // change
-        var geometry = GeometryTranslator.ToMultiLineString(roadSegmentShapeContent1.Shape);
-        var lineString = (LineString)geometry[0];
-        lineString = new LineString(new[]
-        {
-            lineString.Coordinates[0],
-            new CoordinateM(lineString.Coordinates[1].X + 9000, lineString.Coordinates[1].Y, lineString.Coordinates[1].M)
-        });
-        geometry = new MultiLineString(new[] { lineString });
-        var roadSegmentShapeContentChanged = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
-
-        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContentChanged });
-        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
-
-        // assert
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
-            roadSegmentProjectionFormatStream: fixture.CreateProjectionFormatFileWithOneRecord(),
-            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
-            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
-            laneExtractStream: laneExtractStream,
-            widthExtractStream: widthExtractStream,
-            surfaceExtractStream: surfaceExtractStream,
-            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
-            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
-            laneChangeStream: laneExtractStream,
-            widthChangeStream: widthExtractStream,
-            surfaceChangeStream: surfaceExtractStream
-        );
-
-        var expected = TranslatedChanges.Empty
-            .AppendChange(new AddRoadSegment(
-                new RecordNumber(1),
-                new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value + 1),
-                new RoadNodeId(roadSegmentDbaseRecord1.B_WK_OIDN.Value),
-                new RoadNodeId(roadSegmentDbaseRecord1.E_WK_OIDN.Value),
-                new OrganizationId(roadSegmentDbaseRecord1.BEHEER.Value),
-                RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord1.METHODE.Value],
-                RoadSegmentMorphology.ByIdentifier[roadSegmentDbaseRecord1.MORF.Value],
-                RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord1.STATUS.Value],
-                RoadSegmentCategory.ByIdentifier[roadSegmentDbaseRecord1.WEGCAT.Value],
-                RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord1.TGBEP.Value],
-                CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.LSTRNMID.Value),
-                CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.RSTRNMID.Value)
-            )
-                .WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContentChanged.Shape))
-                .WithLane(
-                    new RoadSegmentLaneAttribute(
-                        new AttributeId(laneDbaseRecord.RS_OIDN.Value),
-                        new RoadSegmentLaneCount(laneDbaseRecord.AANTAL.Value),
-                        RoadSegmentLaneDirection.ByIdentifier[laneDbaseRecord.RICHTING.Value],
-                        new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.VANPOS.Value)),
-                        new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.TOTPOS.Value))
-                    )
-                )
-                .WithWidth(
-                    new RoadSegmentWidthAttribute(
-                        new AttributeId(widthDbaseRecord.WB_OIDN.Value),
-                        new RoadSegmentWidth(widthDbaseRecord.BREEDTE.Value),
-                        new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.VANPOS.Value)),
-                        new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.TOTPOS.Value))
-                    )
-                )
-                .WithSurface(
-                    new RoadSegmentSurfaceAttribute(
-                        new AttributeId(surfaceDbaseRecord.WV_OIDN.Value),
-                        RoadSegmentSurfaceType.ByIdentifier[surfaceDbaseRecord.TYPE.Value],
-                        new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.VANPOS.Value)),
-                        new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.TOTPOS.Value))
-                    )
-                ))
-            .AppendChange(new RemoveRoadSegment(
-                new RecordNumber(1),
-                new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value)
-            ));
-
-        await TranslateReturnsExpectedResult(zipArchive, expected);
-    }
-
-    [Fact]
-    public async Task GradeSeperatedJunction_UnknownRoadSegmentShouldGiveError()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-        var fixture = CreateFixture(testData);
-
-        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-
-        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-
-        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
-        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
-        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-
-        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-
-        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
-        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = fixture.CreateWhichIsDifferentThan(roadSegmentDbaseRecord1.WS_OIDN.Value, roadSegmentDbaseRecord2.WS_OIDN.Value);
-        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = fixture.CreateWhichIsDifferentThan(roadSegmentDbaseRecord1.WS_OIDN.Value, roadSegmentDbaseRecord2.WS_OIDN.Value, gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value);
-        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
-            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
-            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
-            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
-            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
-            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
-            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
-            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
-            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
-            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
-            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
-            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
-            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
-        );
-
-        await Assert.ThrowsAsync<RoadSegmentNotFoundInZipArchiveException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
-    }
-
-    [Fact]
-    public async Task GradeSeperatedJunction_RemovedRoadSegmentShouldGiveError()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-        var fixture = CreateFixture(testData);
-
-        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
-
-        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1 });
-
-        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
-        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
-        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-
-        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-
-        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
-        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
-        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
-            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
-            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
-            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
-            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
-            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
-            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
-            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
-            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
-            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
-            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
-            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
-            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
-        );
-
-        await Assert.ThrowsAsync<RoadSegmentNotFoundInZipArchiveException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
-    }
-
-    [Fact]
-    public async Task GradeSeperatedJunction_Identical()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-        var fixture = CreateFixture(testData);
-
-        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-
-        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-
-        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
-        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
-        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-
-        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-
-        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
-        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
-        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
-            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
-            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
-            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
-            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
-            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
-            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
-            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
-            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
-            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
-            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
-            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
-            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
-        );
-
-        var expected = TranslatedChanges.Empty;
-
-        await TranslateReturnsExpectedResult(zipArchive, expected);
-    }
-
-    [Fact]
-    public async Task GradeSeperatedJunction_Updated_SameId()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-        var fixture = CreateFixture(testData);
-
-        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-
-        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-
-        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
-        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
-        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-
-        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-
-        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
-        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
-        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-
-        gradeSeparatedJunctionDbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord.TYPE.Value]).Translation.Identifier;
-        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
-
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
-            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
-            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
-            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
-            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
-            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
-            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
-            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
-            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
-            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
-            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
-            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
-            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
-        );
-
-        var expected = TranslatedChanges.Empty
-            .AppendChange(
-                new AddGradeSeparatedJunction
-                (
-                    new RecordNumber(1),
-                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
-                    GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord.TYPE.Value],
-                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
-                    new RoadSegmentId(roadSegmentDbaseRecord2.WS_OIDN.Value)
-                )
-            )
-            .AppendChange(
-                new RemoveGradeSeparatedJunction
-                (
-                    new RecordNumber(1),
-                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord.OK_OIDN.Value)
-                )
-            );
-
-        await TranslateReturnsExpectedResult(zipArchive, expected);
-    }
-
-    [Fact]
-    public async Task GradeSeperatedJunction_Updated_DifferentId()
-    {
-        var testData = new ExtractsZipArchiveTestData();
-        var fixture = CreateFixture(testData);
-
-        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
-        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
-
-        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
-        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
-
-        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-
-        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
-        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
-        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
-        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
-        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
-
-        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
-        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
-
-        var gradeSeparatedJunctionDbaseRecord1 = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
-        gradeSeparatedJunctionDbaseRecord1.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
-        gradeSeparatedJunctionDbaseRecord1.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
-        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord1 });
-
-        var gradeSeparatedJunctionDbaseRecord2 = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
-        gradeSeparatedJunctionDbaseRecord2.BO_WS_OIDN.Value = gradeSeparatedJunctionDbaseRecord1.BO_WS_OIDN.Value;
-        gradeSeparatedJunctionDbaseRecord2.ON_WS_OIDN.Value = gradeSeparatedJunctionDbaseRecord1.ON_WS_OIDN.Value;
-        gradeSeparatedJunctionDbaseRecord2.OK_OIDN.Value = fixture.CreateWhichIsDifferentThan(new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord1.OK_OIDN.Value));
-        gradeSeparatedJunctionDbaseRecord2.TYPE.Value = fixture.CreateWhichIsDifferentThan(GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord1.TYPE.Value]).Translation.Identifier;
-        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord2 });
-
-        var zipArchive = fixture.CreateUploadZipArchive(testData,
-            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
-            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
-            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
-            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
-            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
-            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
-            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
-            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
-            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
-            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
-            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
-            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
-        );
-
-        var expected = TranslatedChanges.Empty
-            .AppendChange(
-                new AddGradeSeparatedJunction
-                (
-                    new RecordNumber(1),
-                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord2.OK_OIDN.Value),
-                    GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord2.TYPE.Value],
-                    new RoadSegmentId(gradeSeparatedJunctionDbaseRecord2.BO_WS_OIDN.Value),
-                    new RoadSegmentId(gradeSeparatedJunctionDbaseRecord2.ON_WS_OIDN.Value)
-                )
-            )
-            .AppendChange(
-                new RemoveGradeSeparatedJunction
-                (
-                    new RecordNumber(1),
-                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord1.OK_OIDN.Value)
-                )
-            );
-
-        await TranslateReturnsExpectedResult(zipArchive, expected);
-    }
 
     private static Fixture CreateFixture(ExtractsZipArchiveTestData testData)
     {
@@ -1563,5 +902,666 @@ public class FeatureCompareTranslatorScenarios
                 .OmitAutoProperties());
 
         return fixture;
+    }
+
+    [Fact]
+    public async Task EmptyArchiveShouldHaveNoChanges()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+
+        await TranslateReturnsExpectedResult(testData.ZipArchiveWithEmptyFiles, TranslatedChanges.Empty);
+    }
+
+    [Fact]
+    public void EncodingCanNotBeNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new ZipArchiveFeatureCompareTranslator(null, null));
+    }
+
+    [Fact]
+    public async Task GradeSeperatedJunction_Identical()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+
+        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+
+        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
+        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
+        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+
+        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+
+        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
+        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
+            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
+            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
+            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
+            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
+            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
+            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
+            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
+        );
+
+        var expected = TranslatedChanges.Empty;
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    [Fact]
+    public async Task GradeSeperatedJunction_RemovedRoadSegmentShouldGiveError()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
+
+        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1 });
+
+        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
+        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
+        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+
+        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+
+        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
+        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
+            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
+            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
+            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
+            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
+            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
+            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
+            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
+        );
+
+        await Assert.ThrowsAsync<RoadSegmentNotFoundInZipArchiveException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
+    }
+
+    [Fact]
+    public async Task GradeSeperatedJunction_UnknownRoadSegmentShouldGiveError()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+
+        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+
+        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
+        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
+        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+
+        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+
+        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = fixture.CreateWhichIsDifferentThan(roadSegmentDbaseRecord1.WS_OIDN.Value, roadSegmentDbaseRecord2.WS_OIDN.Value);
+        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = fixture.CreateWhichIsDifferentThan(roadSegmentDbaseRecord1.WS_OIDN.Value, roadSegmentDbaseRecord2.WS_OIDN.Value, gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value);
+        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
+            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
+            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
+            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
+            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
+            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
+            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
+            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
+        );
+
+        await Assert.ThrowsAsync<RoadSegmentNotFoundInZipArchiveException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
+    }
+
+    [Fact]
+    public async Task GradeSeperatedJunction_Updated_DifferentId()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+
+        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+
+        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
+        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
+        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+
+        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+
+        var gradeSeparatedJunctionDbaseRecord1 = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+        gradeSeparatedJunctionDbaseRecord1.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        gradeSeparatedJunctionDbaseRecord1.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
+        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord1 });
+
+        var gradeSeparatedJunctionDbaseRecord2 = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+        gradeSeparatedJunctionDbaseRecord2.BO_WS_OIDN.Value = gradeSeparatedJunctionDbaseRecord1.BO_WS_OIDN.Value;
+        gradeSeparatedJunctionDbaseRecord2.ON_WS_OIDN.Value = gradeSeparatedJunctionDbaseRecord1.ON_WS_OIDN.Value;
+        gradeSeparatedJunctionDbaseRecord2.OK_OIDN.Value = fixture.CreateWhichIsDifferentThan(new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord1.OK_OIDN.Value));
+        gradeSeparatedJunctionDbaseRecord2.TYPE.Value = fixture.CreateWhichIsDifferentThan(GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord1.TYPE.Value]).Translation.Identifier;
+        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord2 });
+
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
+            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
+            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
+            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
+            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
+            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
+            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
+            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
+        );
+
+        var expected = TranslatedChanges.Empty
+            .AppendChange(
+                new AddGradeSeparatedJunction
+                (
+                    new RecordNumber(1),
+                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord2.OK_OIDN.Value),
+                    GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord2.TYPE.Value],
+                    new RoadSegmentId(gradeSeparatedJunctionDbaseRecord2.BO_WS_OIDN.Value),
+                    new RoadSegmentId(gradeSeparatedJunctionDbaseRecord2.ON_WS_OIDN.Value)
+                )
+            )
+            .AppendChange(
+                new RemoveGradeSeparatedJunction
+                (
+                    new RecordNumber(1),
+                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord1.OK_OIDN.Value)
+                )
+            );
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    [Fact]
+    public async Task GradeSeperatedJunction_Updated_SameId()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseRecord2 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1, roadSegmentDbaseRecord2 });
+
+        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeContent2 = fixture.Create<PolyLineMShapeContent>();
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1, roadSegmentShapeContent2 });
+
+        var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+
+        var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord1.WK_OIDN.Value = roadSegmentDbaseRecord1.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord2.WK_OIDN.Value = roadSegmentDbaseRecord1.E_WK_OIDN.Value;
+        var roadNodeDbaseRecord3 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord3.WK_OIDN.Value = roadSegmentDbaseRecord2.B_WK_OIDN.Value;
+        var roadNodeDbaseRecord4 = fixture.Create<RoadNodeDbaseRecord>();
+        roadNodeDbaseRecord4.WK_OIDN.Value = roadSegmentDbaseRecord2.E_WK_OIDN.Value;
+        var roadNodeDbaseExtractStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+        var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2, roadNodeDbaseRecord3, roadNodeDbaseRecord4 });
+
+        var roadNodeShapeContent1 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent2 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent3 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeContent4 = fixture.Create<PointShapeContent>();
+        var roadNodeShapeExtractStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+        var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { roadNodeShapeContent1, roadNodeShapeContent2, roadNodeShapeContent3, roadNodeShapeContent4 });
+
+        var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
+        gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentDbaseRecord2.WS_OIDN.Value;
+        var gradeSeparatedJunctionExtractStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+
+        gradeSeparatedJunctionDbaseRecord.TYPE.Value = fixture.CreateWhichIsDifferentThan(GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord.TYPE.Value]).Translation.Identifier;
+        var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, new[] { gradeSeparatedJunctionDbaseRecord });
+
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: roadSegmentProjectionFormatStream,
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
+            roadNodeProjectionFormatStream: roadNodeProjectionFormatStream,
+            roadNodeShapeExtractStream: roadNodeShapeExtractStream,
+            roadNodeShapeChangeStream: roadNodeShapeChangeStream,
+            roadNodeDbaseExtractStream: roadNodeDbaseExtractStream,
+            roadNodeDbaseChangeStream: roadNodeDbaseChangeStream,
+            gradeSeparatedJunctionExtractStream: gradeSeparatedJunctionExtractStream,
+            gradeSeparatedJunctionChangeStream: gradeSeparatedJunctionChangeStream
+        );
+
+        var expected = TranslatedChanges.Empty
+            .AppendChange(
+                new AddGradeSeparatedJunction
+                (
+                    new RecordNumber(1),
+                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord.OK_OIDN.Value),
+                    GradeSeparatedJunctionType.ByIdentifier[gradeSeparatedJunctionDbaseRecord.TYPE.Value],
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                    new RoadSegmentId(roadSegmentDbaseRecord2.WS_OIDN.Value)
+                )
+            )
+            .AppendChange(
+                new RemoveGradeSeparatedJunction
+                (
+                    new RecordNumber(1),
+                    new GradeSeparatedJunctionId(gradeSeparatedJunctionDbaseRecord.OK_OIDN.Value)
+                )
+            );
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    [Fact]
+    public void IsZipArchiveFeatureCompareTranslator()
+    {
+        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger);
+
+        Assert.IsAssignableFrom<IZipArchiveFeatureCompareTranslator>(sut);
+    }
+
+    [Fact]
+    public async Task RoadSegment_ModifiedGeometrySlightly()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        // extract
+        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
+
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1 });
+
+        var laneDbaseRecord = fixture.Create<RoadSegmentLaneAttributeDbaseRecord>();
+        laneDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        laneDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        laneDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var laneExtractStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
+
+        var widthDbaseRecord = fixture.Create<RoadSegmentWidthAttributeDbaseRecord>();
+        widthDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        widthDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        widthDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var widthExtractStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
+
+        var surfaceDbaseRecord = fixture.Create<RoadSegmentSurfaceAttributeDbaseRecord>();
+        surfaceDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        surfaceDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var surfaceExtractStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
+
+        // change
+        var geometry = GeometryTranslator.ToMultiLineString(roadSegmentShapeContent1.Shape);
+        var lineString = (LineString)geometry[0];
+        lineString = new LineString(new[]
+        {
+            lineString.Coordinates[0],
+            new CoordinateM(lineString.Coordinates[1].X + 1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M)
+        });
+        geometry = new MultiLineString(new[] { lineString });
+        var roadSegmentShapeContent1Changed = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
+
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1Changed });
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
+
+        // assert
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: fixture.CreateProjectionFormatFileWithOneRecord(),
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            laneExtractStream: laneExtractStream,
+            widthExtractStream: widthExtractStream,
+            surfaceExtractStream: surfaceExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
+            laneChangeStream: laneExtractStream,
+            widthChangeStream: widthExtractStream,
+            surfaceChangeStream: surfaceExtractStream
+        );
+
+        var expected = TranslatedChanges.Empty
+            .AppendChange(new ModifyRoadSegment(
+                    new RecordNumber(1),
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
+                    new RoadNodeId(roadSegmentDbaseRecord1.B_WK_OIDN.Value),
+                    new RoadNodeId(roadSegmentDbaseRecord1.E_WK_OIDN.Value),
+                    new OrganizationId(roadSegmentDbaseRecord1.BEHEER.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord1.METHODE.Value],
+                    RoadSegmentMorphology.ByIdentifier[roadSegmentDbaseRecord1.MORF.Value],
+                    RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord1.STATUS.Value],
+                    RoadSegmentCategory.ByIdentifier[roadSegmentDbaseRecord1.WEGCAT.Value],
+                    RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord1.TGBEP.Value],
+                    CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.LSTRNMID.Value),
+                    CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.RSTRNMID.Value)
+                )
+                .WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContent1Changed.Shape))
+                .WithLane(
+                    new RoadSegmentLaneAttribute(
+                        new AttributeId(laneDbaseRecord.RS_OIDN.Value),
+                        new RoadSegmentLaneCount(laneDbaseRecord.AANTAL.Value),
+                        RoadSegmentLaneDirection.ByIdentifier[laneDbaseRecord.RICHTING.Value],
+                        new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.VANPOS.Value)),
+                        new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.TOTPOS.Value))
+                    )
+                )
+                .WithWidth(
+                    new RoadSegmentWidthAttribute(
+                        new AttributeId(widthDbaseRecord.WB_OIDN.Value),
+                        new RoadSegmentWidth(widthDbaseRecord.BREEDTE.Value),
+                        new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.VANPOS.Value)),
+                        new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.TOTPOS.Value))
+                    )
+                )
+                .WithSurface(
+                    new RoadSegmentSurfaceAttribute(
+                        new AttributeId(surfaceDbaseRecord.WV_OIDN.Value),
+                        RoadSegmentSurfaceType.ByIdentifier[surfaceDbaseRecord.TYPE.Value],
+                        new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.VANPOS.Value)),
+                        new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.TOTPOS.Value))
+                    )
+                ));
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    [Fact]
+    public async Task RoadSegment_ModifiedGeometryToLessThan70PercentOverlap()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        // extract
+        var roadSegmentDbaseRecord1 = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentShapeContent1 = fixture.Create<PolyLineMShapeContent>();
+
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent1 });
+
+        var laneDbaseRecord = fixture.Create<RoadSegmentLaneAttributeDbaseRecord>();
+        laneDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        laneDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        laneDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var laneExtractStream = fixture.CreateDbfFile(RoadSegmentLaneAttributeDbaseRecord.Schema, new[] { laneDbaseRecord });
+
+        var widthDbaseRecord = fixture.Create<RoadSegmentWidthAttributeDbaseRecord>();
+        widthDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        widthDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        widthDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var widthExtractStream = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, new[] { widthDbaseRecord });
+
+        var surfaceDbaseRecord = fixture.Create<RoadSegmentSurfaceAttributeDbaseRecord>();
+        surfaceDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord1.WS_OIDN.Value;
+        surfaceDbaseRecord.VANPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Min;
+        surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeContent1.Shape.MeasureRange.Max;
+        var surfaceExtractStream = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, new[] { surfaceDbaseRecord });
+
+        // change
+        var geometry = GeometryTranslator.ToMultiLineString(roadSegmentShapeContent1.Shape);
+        var lineString = (LineString)geometry[0];
+        lineString = new LineString(new[]
+        {
+            lineString.Coordinates[0],
+            new CoordinateM(lineString.Coordinates[1].X + 9000, lineString.Coordinates[1].Y, lineString.Coordinates[1].M)
+        });
+        geometry = new MultiLineString(new[] { lineString });
+        var roadSegmentShapeContentChanged = new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(geometry));
+
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContentChanged });
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord1 });
+
+        // assert
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: fixture.CreateProjectionFormatFileWithOneRecord(),
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            laneExtractStream: laneExtractStream,
+            widthExtractStream: widthExtractStream,
+            surfaceExtractStream: surfaceExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream,
+            laneChangeStream: laneExtractStream,
+            widthChangeStream: widthExtractStream,
+            surfaceChangeStream: surfaceExtractStream
+        );
+
+        var expected = TranslatedChanges.Empty
+            .AppendChange(new AddRoadSegment(
+                    new RecordNumber(1),
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value + 1),
+                    new RoadNodeId(roadSegmentDbaseRecord1.B_WK_OIDN.Value),
+                    new RoadNodeId(roadSegmentDbaseRecord1.E_WK_OIDN.Value),
+                    new OrganizationId(roadSegmentDbaseRecord1.BEHEER.Value),
+                    RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord1.METHODE.Value],
+                    RoadSegmentMorphology.ByIdentifier[roadSegmentDbaseRecord1.MORF.Value],
+                    RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord1.STATUS.Value],
+                    RoadSegmentCategory.ByIdentifier[roadSegmentDbaseRecord1.WEGCAT.Value],
+                    RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord1.TGBEP.Value],
+                    CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.LSTRNMID.Value),
+                    CrabStreetnameId.FromValue(roadSegmentDbaseRecord1.RSTRNMID.Value)
+                )
+                .WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContentChanged.Shape))
+                .WithLane(
+                    new RoadSegmentLaneAttribute(
+                        new AttributeId(laneDbaseRecord.RS_OIDN.Value),
+                        new RoadSegmentLaneCount(laneDbaseRecord.AANTAL.Value),
+                        RoadSegmentLaneDirection.ByIdentifier[laneDbaseRecord.RICHTING.Value],
+                        new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.VANPOS.Value)),
+                        new RoadSegmentPosition(Convert.ToDecimal(laneDbaseRecord.TOTPOS.Value))
+                    )
+                )
+                .WithWidth(
+                    new RoadSegmentWidthAttribute(
+                        new AttributeId(widthDbaseRecord.WB_OIDN.Value),
+                        new RoadSegmentWidth(widthDbaseRecord.BREEDTE.Value),
+                        new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.VANPOS.Value)),
+                        new RoadSegmentPosition(Convert.ToDecimal(widthDbaseRecord.TOTPOS.Value))
+                    )
+                )
+                .WithSurface(
+                    new RoadSegmentSurfaceAttribute(
+                        new AttributeId(surfaceDbaseRecord.WV_OIDN.Value),
+                        RoadSegmentSurfaceType.ByIdentifier[surfaceDbaseRecord.TYPE.Value],
+                        new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.VANPOS.Value)),
+                        new RoadSegmentPosition(Convert.ToDecimal(surfaceDbaseRecord.TOTPOS.Value))
+                    )
+                ))
+            .AppendChange(new RemoveRoadSegment(
+                new RecordNumber(1),
+                new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value)
+            ));
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    [Fact]
+    public async Task RoadSegment_ModifiedNonCriticalAttribute()
+    {
+        var testData = new ExtractsZipArchiveTestData();
+        var fixture = CreateFixture(testData);
+
+        // extract
+        var roadSegmentDbaseRecord = fixture.Create<RoadSegmentDbaseRecord>();
+        var roadSegmentShapeContent = fixture.Create<PolyLineMShapeContent>();
+
+        var roadSegmentDbaseExtractStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord });
+        var roadSegmentShapeExtractStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent });
+
+        // change
+        roadSegmentDbaseRecord.STATUS.Value = fixture.CreateWhichIsDifferentThan(RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord.STATUS.Value]).Translation.Identifier;
+
+        var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFile(new[] { roadSegmentShapeContent });
+        var roadSegmentDbaseChangeStream = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, new[] { roadSegmentDbaseRecord });
+
+        // assert
+        var zipArchive = fixture.CreateUploadZipArchive(testData,
+            roadSegmentProjectionFormatStream: fixture.CreateProjectionFormatFileWithOneRecord(),
+            roadSegmentShapeExtractStream: roadSegmentShapeExtractStream,
+            roadSegmentDbaseExtractStream: roadSegmentDbaseExtractStream,
+            roadSegmentShapeChangeStream: roadSegmentShapeChangeStream,
+            roadSegmentDbaseChangeStream: roadSegmentDbaseChangeStream
+        );
+
+        var expected = TranslatedChanges.Empty
+            .AppendChange(new ModifyRoadSegment(
+                new RecordNumber(1),
+                new RoadSegmentId(roadSegmentDbaseRecord.WS_OIDN.Value),
+                new RoadNodeId(roadSegmentDbaseRecord.B_WK_OIDN.Value),
+                new RoadNodeId(roadSegmentDbaseRecord.E_WK_OIDN.Value),
+                new OrganizationId(roadSegmentDbaseRecord.BEHEER.Value),
+                RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord.METHODE.Value],
+                RoadSegmentMorphology.ByIdentifier[roadSegmentDbaseRecord.MORF.Value],
+                RoadSegmentStatus.ByIdentifier[roadSegmentDbaseRecord.STATUS.Value],
+                RoadSegmentCategory.ByIdentifier[roadSegmentDbaseRecord.WEGCAT.Value],
+                RoadSegmentAccessRestriction.ByIdentifier[roadSegmentDbaseRecord.TGBEP.Value],
+                CrabStreetnameId.FromValue(roadSegmentDbaseRecord.LSTRNMID.Value),
+                CrabStreetnameId.FromValue(roadSegmentDbaseRecord.RSTRNMID.Value)
+            ).WithGeometry(GeometryTranslator.ToMultiLineString(roadSegmentShapeContent.Shape)));
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    [Fact]
+    public async Task TranslateArchiveCanNotBeNull()
+    {
+        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger);
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() => sut.Translate(null, CancellationToken.None));
+    }
+
+    private async Task TranslateReturnsExpectedResult(ZipArchive archive, TranslatedChanges expected)
+    {
+        using (archive)
+        {
+            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger);
+
+            var result = await sut.Translate(archive, CancellationToken.None);
+
+            Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
+        }
     }
 }

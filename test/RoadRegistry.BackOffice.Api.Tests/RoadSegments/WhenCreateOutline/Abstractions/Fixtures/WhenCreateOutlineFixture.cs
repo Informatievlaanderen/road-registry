@@ -1,15 +1,14 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Abstractions.Fixtures;
 
+using Api.RoadSegments;
+using BackOffice.Extracts.Dbase.Organizations;
+using Editor.Schema;
+using FeatureToggles;
+using Hosts.Infrastructure.Options;
+using Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RoadRegistry.BackOffice.Api.RoadSegments;
-using RoadRegistry.BackOffice.Api.RoadSegments.Parameters;
-using RoadRegistry.BackOffice.Api.Tests.Framework;
-using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
-using RoadRegistry.BackOffice.FeatureToggles;
-using RoadRegistry.Editor.Schema;
-using RoadRegistry.Hosts.Infrastructure.Options;
 
 public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoadSegmentOutlineParameters>
 {
@@ -43,6 +42,6 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
         };
 
         var validator = new PostRoadSegmentOutlineParametersValidator(_editorContext);
-        return await controller.PostCreateOutline(new UseRoadSegmentOutlineFeatureToggle(true), validator, request, CancellationToken.None);
+        return await controller.CreateOutline(new UseRoadSegmentOutlineFeatureToggle(true), validator, request, CancellationToken.None);
     }
 }

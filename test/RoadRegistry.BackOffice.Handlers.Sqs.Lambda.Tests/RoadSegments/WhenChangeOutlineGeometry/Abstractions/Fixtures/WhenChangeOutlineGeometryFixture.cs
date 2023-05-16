@@ -2,19 +2,19 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCha
 
 using AutoFixture;
 using BackOffice.Abstractions.RoadSegmentsOutline;
+using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Framework;
+using Handlers;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
-using RoadRegistry.Hosts;
+using Requests;
 using RoadRegistry.Tests.BackOffice;
+using Sqs.RoadSegments;
 
 public abstract class WhenChangeOutlineGeometryFixture : SqsLambdaHandlerFixture<ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler, ChangeRoadSegmentOutlineGeometrySqsLambdaRequest, ChangeRoadSegmentOutlineGeometrySqsRequest>
 {
@@ -26,13 +26,7 @@ public abstract class WhenChangeOutlineGeometryFixture : SqsLambdaHandlerFixture
         Organisation = ObjectProvider.Create<Organisation>();
     }
 
-    protected override void CustomizeTestData(Fixture fixture)
-    {
-        fixture.CustomizeRoadSegmentOutlineGeometryDrawMethod();
-    }
-
     protected Organisation Organisation { get; }
-    
     protected abstract ChangeRoadSegmentOutlineGeometryRequest Request { get; }
 
     protected override ChangeRoadSegmentOutlineGeometrySqsRequest SqsRequest => new()
@@ -68,5 +62,10 @@ public abstract class WhenChangeOutlineGeometryFixture : SqsLambdaHandlerFixture
                     LoggerFactory
                 )
             }), ApplicationMetadata);
+    }
+
+    protected override void CustomizeTestData(Fixture fixture)
+    {
+        fixture.CustomizeRoadSegmentOutlineGeometryDrawMethod();
     }
 }

@@ -15,7 +15,10 @@ public class GeometryMultiPolygonComparer : BaseTypeComparer
         var left = (MultiPolygon)parms.Object1;
         var right = (MultiPolygon)parms.Object2;
 
-        if (!left.EqualsExact(right)) AddDifference(parms);
+        if (!left.EqualsExact(right))
+        {
+            AddDifference(parms);
+        }
     }
 
     public override bool IsTypeMatch(Type type1, Type type2)

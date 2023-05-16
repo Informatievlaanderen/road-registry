@@ -4,7 +4,6 @@ using AutoFixture;
 using AutoFixture.Idioms;
 using Framework.Assertions;
 using RoadRegistry.BackOffice;
-using Xunit;
 
 public class NumberedRoadNumberTests
 {
@@ -29,10 +28,17 @@ public class NumberedRoadNumberTests
         var not_a_digit_position = _fixture.Create<int>() % 6;
         var all_digits_except_for_one = new char[6];
         for (var index = 0; index < 6; index++)
+        {
             if (index == not_a_digit_position)
+            {
                 all_digits_except_for_one[index] = generator.First(candidate => !char.IsDigit(candidate));
+            }
             else
+            {
                 all_digits_except_for_one[index] = generator.First(char.IsDigit);
+            }
+        }
+
         var value =
             new string(new[] { roadType }.Concat(all_digits_except_for_one).Concat(new[] { '1' }).ToArray());
 
@@ -50,7 +56,11 @@ public class NumberedRoadNumberTests
                     RoadTypes.All.Any(
                         letter => letter.Equals(candidate)));
         var all_digits = new char[6];
-        for (var index = 0; index < 6; index++) all_digits[index] = generator.First(char.IsDigit);
+        for (var index = 0; index < 6; index++)
+        {
+            all_digits[index] = generator.First(char.IsDigit);
+        }
+
         var not_one_nor_two = generator
             .First(candidate =>
                 char.IsDigit(candidate) && candidate != '1' && candidate != '2');
@@ -123,10 +133,17 @@ public class NumberedRoadNumberTests
         var not_a_digit_position = _fixture.Create<int>() % 6;
         var all_digits_except_for_one = new char[6];
         for (var index = 0; index < 6; index++)
+        {
             if (index == not_a_digit_position)
+            {
                 all_digits_except_for_one[index] = generator.First(candidate => !char.IsDigit(candidate));
+            }
             else
+            {
                 all_digits_except_for_one[index] = generator.First(char.IsDigit);
+            }
+        }
+
         var value =
             new string(new[] { roadType }.Concat(all_digits_except_for_one).Concat(new[] { '1' }).ToArray());
 
@@ -143,7 +160,11 @@ public class NumberedRoadNumberTests
                     RoadTypes.All.Any(
                         letter => letter.Equals(candidate)));
         var all_digits = new char[6];
-        for (var index = 0; index < 6; index++) all_digits[index] = generator.First(char.IsDigit);
+        for (var index = 0; index < 6; index++)
+        {
+            all_digits[index] = generator.First(char.IsDigit);
+        }
+
         var not_one_nor_two = generator
             .First(candidate =>
                 char.IsDigit(candidate) && candidate != '1' && candidate != '2');
@@ -207,10 +228,17 @@ public class NumberedRoadNumberTests
         var not_a_digit_position = _fixture.Create<int>() % 6;
         var all_digits_except_for_one = new char[6];
         for (var index = 0; index < 6; index++)
+        {
             if (index == not_a_digit_position)
+            {
                 all_digits_except_for_one[index] = generator.First(candidate => !char.IsDigit(candidate));
+            }
             else
+            {
                 all_digits_except_for_one[index] = generator.First(char.IsDigit);
+            }
+        }
+
         var value =
             new string(new[] { roadType }.Concat(all_digits_except_for_one).Concat(new[] { '1' }).ToArray());
 
@@ -229,7 +257,11 @@ public class NumberedRoadNumberTests
                     RoadTypes.All.Any(
                         letter => letter.Equals(candidate)));
         var all_digits = new char[6];
-        for (var index = 0; index < 6; index++) all_digits[index] = generator.First(char.IsDigit);
+        for (var index = 0; index < 6; index++)
+        {
+            all_digits[index] = generator.First(char.IsDigit);
+        }
+
         var not_one_nor_two = generator
             .First(candidate =>
                 char.IsDigit(candidate) && candidate != '1' && candidate != '2');

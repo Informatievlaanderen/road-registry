@@ -16,26 +16,23 @@ public class ZipArchiveShapeFileReaderTests
     {
         var sut = new ZipArchiveShapeFileReader();
 
-        using (var beforeFcArchiveStream = new MemoryStream())
+        using var beforeFcArchiveStream = new MemoryStream();
+        await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.Resources.ZipArchiveShapeFileReaderTests.{resourceName}"))
         {
-            await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.Resources.ZipArchiveShapeFileReaderTests.{resourceName}"))
-            {
-                await embeddedStream!.CopyToAsync(beforeFcArchiveStream);
-            }
+            await embeddedStream!.CopyToAsync(beforeFcArchiveStream);
+        }
 
-            beforeFcArchiveStream.Position = 0;
+        beforeFcArchiveStream.Position = 0;
 
-            using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
-            {
-                var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, $"{entryFileName}.shp", StringComparison.InvariantCultureIgnoreCase));
+        using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
+        {
+            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, $"{entryFileName}.shp", StringComparison.InvariantCultureIgnoreCase));
 
-                var dbfRecords = new SimpleDbfReader<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema)
-                    .Read(beforeFcArchive.Entries, entryFileName);
-                Assert.True(dbfRecords.Any());
+            var dbfRecords = new SimpleDbfReader<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema).Read(beforeFcArchive.Entries, entryFileName);
+            Assert.True(dbfRecords.Any());
 
-                var records = sut.Read(shpEntry).ToArray();
-                Assert.Equal(dbfRecords.Count, records.Length);
-            }
+            var records = sut.Read(shpEntry).ToArray();
+            Assert.Equal(dbfRecords.Count, records.Length);
         }
     }
 
@@ -45,26 +42,23 @@ public class ZipArchiveShapeFileReaderTests
     {
         var sut = new ZipArchiveShapeFileReader();
 
-        using (var beforeFcArchiveStream = new MemoryStream())
+        using var beforeFcArchiveStream = new MemoryStream();
+        await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.Resources.ZipArchiveShapeFileReaderTests.{resourceName}"))
         {
-            await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.Resources.ZipArchiveShapeFileReaderTests.{resourceName}"))
-            {
-                await embeddedStream!.CopyToAsync(beforeFcArchiveStream);
-            }
+            await embeddedStream!.CopyToAsync(beforeFcArchiveStream);
+        }
 
-            beforeFcArchiveStream.Position = 0;
+        beforeFcArchiveStream.Position = 0;
 
-            using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
-            {
-                var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, $"{entryFileName}.shp", StringComparison.InvariantCultureIgnoreCase));
+        using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
+        {
+            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, $"{entryFileName}.shp", StringComparison.InvariantCultureIgnoreCase));
 
-                var dbfRecords = new SimpleDbfReader<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema)
-                    .Read(beforeFcArchive.Entries, entryFileName);
-                Assert.True(dbfRecords.Any());
+            var dbfRecords = new SimpleDbfReader<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema).Read(beforeFcArchive.Entries, entryFileName);
+            Assert.True(dbfRecords.Any());
 
-                var records = sut.Read(shpEntry).ToArray();
-                Assert.Equal(dbfRecords.Count, records.Length);
-            }
+            var records = sut.Read(shpEntry).ToArray();
+            Assert.Equal(dbfRecords.Count, records.Length);
         }
     }
 
@@ -76,14 +70,14 @@ public class ZipArchiveShapeFileReaderTests
         {
         }
 
-        public List<object> Read(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
-        {
-            return Read(entries, FeatureType.Change, fileName);
-        }
-
         protected override object ConvertDbfRecordToFeature(RecordNumber recordNumber, TDbaseRecord dbaseRecord)
         {
             return dbaseRecord;
+        }
+
+        public List<object> Read(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+        {
+            return Read(entries, FeatureType.Change, fileName);
         }
     }
 }

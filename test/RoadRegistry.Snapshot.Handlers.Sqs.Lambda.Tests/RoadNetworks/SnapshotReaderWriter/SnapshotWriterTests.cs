@@ -1,6 +1,6 @@
 namespace RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.SnapshotReaderWriter;
 
-using RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.RoadNetworks.SnapshotReaderWriter.Fixtures;
+using Fixtures;
 
 public class SnapshotWriterTests : IClassFixture<SnapshotWriterFixture>
 {

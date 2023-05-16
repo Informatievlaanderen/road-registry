@@ -1,6 +1,1 @@
-Be.Vlaanderen.Basisregisters.EventHandling
-
-AWSSDK.Lambda
-Amazon.Lambda.Core
-Amazon.Lambda.Serialization.Json
 Amazon.Lambda.SQSEvents

@@ -12,12 +12,12 @@ public class LocalStackFixture : IAsyncLifetime
     {
         var credentials = new BasicAWSCredentials("dummy", "dummy");
 
-        AmazonS3Config = new()
+        AmazonS3Config = new AmazonS3Config
         {
             ServiceURL = "http://localhost:4566",
             ForcePathStyle = true
         };
-        AmazonS3Client = new(credentials, AmazonS3Config);
+        AmazonS3Client = new AmazonS3Client(credentials, AmazonS3Config);
 
         await AmazonS3Client.PutBucketAsync("road-registry-tests", CancellationToken.None);
     }

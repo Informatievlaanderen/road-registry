@@ -3,24 +3,23 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Microsoft.Extensions.Logging;
 using FeatureCompare;
-using Uploads;
+using Microsoft.Extensions.Logging;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
+using Uploads;
 using Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
 
 public class FeaturesReaderTests
 {
     private static readonly Encoding Encoding = Encoding.UTF8;
-
     private readonly ILogger<ZipArchiveFeatureCompareTranslator> _logger;
 
     public FeaturesReaderTests(ILogger<ZipArchiveFeatureCompareTranslator> logger)
     {
         _logger = logger;
     }
-    
+
     [Fact]
     public async Task AllFeatureReadersCanRead()
     {
@@ -246,7 +245,7 @@ public class FeaturesReaderTests
             Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
         }
     }
-    
+
     private static Fixture CreateFixture(ExtractsZipArchiveTestData testData)
     {
         var fixture = testData.Fixture;

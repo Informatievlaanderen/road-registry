@@ -5,7 +5,6 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using RoadRegistry.BackOffice.Uploads;
-using Xunit;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNodeChangeShapeRecordsTranslatorTests : IDisposable

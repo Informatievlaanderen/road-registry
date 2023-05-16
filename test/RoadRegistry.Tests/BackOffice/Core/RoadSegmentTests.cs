@@ -4,7 +4,6 @@ using AutoFixture;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using Xunit;
 
 public class RoadSegmentTests
 {
@@ -13,9 +12,9 @@ public class RoadSegmentTests
     private readonly MultiLineString _geometry;
     private readonly GeometryVersion _geometryVersion;
     private readonly RoadSegmentId _id;
-    private readonly RoadSegmentVersion _version;
     private readonly RoadNodeId _start;
     private readonly RoadSegment _sut;
+    private readonly RoadSegmentVersion _version;
 
     public RoadSegmentTests()
     {

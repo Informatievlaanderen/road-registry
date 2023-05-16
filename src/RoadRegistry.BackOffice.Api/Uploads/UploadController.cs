@@ -1,53 +1,35 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
+using System;
+using System.Threading.Tasks;
 using Abstractions.Exceptions;
-using Abstractions.Uploads;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
-using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core.ProblemCodes;
-using FeatureToggles;
 using FluentValidation;
 using FluentValidation.Results;
-using Framework;
+using Hosts.Infrastructure.Options;
+using Infrastructure.Controllers;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Version = Infrastructure.Version;
 
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("upload")]
-[ApiExplorerSettings(GroupName = "Uploads")]
+[ApiExplorerSettings(GroupName = "Upload")]
 [ApiKeyAuth(WellKnownAuthRoles.Road)]
-public class UploadController : ControllerBase
+public partial class UploadController : BackofficeApiController
 {
     private readonly IMediator _mediator;
 
-    public UploadController(IMediator mediator)
+    public UploadController(TicketingOptions ticketingOptions, IMediator mediator) : base(ticketingOptions)
     {
         _mediator = mediator;
-    }
-
-    [HttpGet("{identifier}")]
-    public async Task<IActionResult> Get(string identifier, CancellationToken cancellationToken)
-    {
-        try
-        {
-            DownloadExtractRequest request = new(identifier);
-            var response = await _mediator.Send(request, cancellationToken);
-            return new FileCallbackResult(response);
-        }
-        catch (ExtractDownloadNotFoundException)
-        {
-            return NotFound();
-        }
     }
 
     private static async Task<IActionResult> PostUpload(IFormFile archive, Func<Task<IActionResult>> callback)
@@ -87,54 +69,4 @@ public class UploadController : ControllerBase
                 new ExceptionProblemDetails(exception), exception);
         }
     }
-
-    [HttpPost("")]
-    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadAfterFeatureCompare(IFormFile archive, CancellationToken cancellationToken)
-    {
-        return await PostUpload(archive, async () =>
-        {
-            UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractRequest(archive.FileName, requestArchive);
-            await _mediator.Send(request, cancellationToken);
-            return Ok();
-        });
-    }
-
-    [HttpPost("fc")]
-    [RequestFormLimits(MultipartBodyLengthLimit = int.MaxValue, ValueLengthLimit = int.MaxValue)]
-    public async Task<IActionResult> PostUploadBeforeFeatureCompare(
-        [FromServices] UseFeatureCompareFeatureToggle useFeatureCompareToggle,
-        [FromServices] UseZipArchiveFeatureCompareTranslatorFeatureToggle useZipArchiveFeatureCompareTranslatorFeatureToggle,
-        IFormFile archive,
-        CancellationToken cancellationToken)
-    {
-        if (!useFeatureCompareToggle.FeatureEnabled)
-        {
-            return NotFound();
-        }
-
-        return await PostUpload(archive, async () =>
-        {
-            if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
-            {
-                UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-                var request = new UploadExtractRequest(archive.FileName, requestArchive)
-                {
-                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled
-                };
-                var response = await _mediator.Send(request, cancellationToken);
-                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
-            }
-            else
-            {
-                UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-                var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
-                var response = await _mediator.Send(request, cancellationToken);
-                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
-            }
-        });
-    }
 }
-
-public sealed record UploadExtractFeatureCompareResponseBody(string ArchiveId);

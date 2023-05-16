@@ -2,9 +2,9 @@ namespace RoadRegistry.BackOffice.MessagingHost.Sqs.Tests.FeatureCompare.Fixture
 
 using Abstractions.Configuration;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Consumers;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.MessagingHost.Sqs.Consumers;
 
 public abstract class WhenMessageReceivedFixture : IAsyncLifetime
 {

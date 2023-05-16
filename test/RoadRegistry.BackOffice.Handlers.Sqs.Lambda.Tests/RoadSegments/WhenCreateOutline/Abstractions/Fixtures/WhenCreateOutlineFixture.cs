@@ -1,19 +1,19 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCreateOutline.Abstractions.Fixtures;
 
 using AutoFixture;
+using BackOffice.Abstractions.RoadSegmentsOutline;
+using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Framework;
+using Handlers;
+using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
-using RoadRegistry.BackOffice.Abstractions.RoadSegmentsOutline;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
-using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
-using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
-using RoadRegistry.Hosts;
+using Requests;
+using Sqs.RoadSegments;
 
 public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateRoadSegmentOutlineSqsLambdaRequestHandler, CreateRoadSegmentOutlineSqsLambdaRequest, CreateRoadSegmentOutlineSqsRequest>
 {

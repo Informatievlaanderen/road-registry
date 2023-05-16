@@ -15,7 +15,7 @@ public class SqlServer : ISqlServerDatabase
     public SqlServer()
     {
         _inner = SqlServerDatabaseFactory.Create(RoadRegistryAssembly.BackOfficeZipArchiveWriters);
-        
+
         MemoryStreamManager = new RecyclableMemoryStreamManager();
         StreetNameCache = new FakeStreetNameCache();
     }

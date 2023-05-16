@@ -13,8 +13,16 @@ public class RemoveRoadNodeEqualityComparer : IEqualityComparer<RemoveRoadNode>
 
     public bool Equals(RemoveRoadNode left, RemoveRoadNode right)
     {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
+        if (left == null && right == null)
+        {
+            return true;
+        }
+
+        if (left == null || right == null)
+        {
+            return false;
+        }
+
         return left.Id.Equals(right.Id)
                && (_ignoreRecordNumber || left.RecordNumber.Equals(right.RecordNumber));
     }

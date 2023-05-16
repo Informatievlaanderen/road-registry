@@ -15,7 +15,10 @@ public class FrozenSpecimenBuilder<T> : ISpecimenBuilder
     {
         if (request is SeededRequest seededRequest)
         {
-            if (seededRequest.Request is Type type && type == typeof(T)) return Value;
+            if (seededRequest.Request is Type type && type == typeof(T))
+            {
+                return Value;
+            }
         }
         else if (request != null && request.Equals(typeof(T)))
         {

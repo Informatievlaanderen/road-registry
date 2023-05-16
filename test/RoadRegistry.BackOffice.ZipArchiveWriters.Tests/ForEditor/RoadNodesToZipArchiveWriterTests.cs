@@ -54,6 +54,7 @@ public class RoadNodesToZipArchiveWriterTests
             {
                 Assert.Equal(3, readArchive.Entries.Count);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "Wegknoop.dbf":
@@ -102,6 +103,7 @@ public class RoadNodesToZipArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 

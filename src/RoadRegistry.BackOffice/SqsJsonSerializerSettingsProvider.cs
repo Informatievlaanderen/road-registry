@@ -35,6 +35,12 @@ public static class SqsJsonSerializerSettingsProvider
         settings.Converters.Add(new RoadSegmentSurfaceTypeConverter());
         settings.Converters.Add(new RoadSegmentWidthConverter());
 
+        foreach (var converter in WellKnownJsonConverters.Converters)
+        {
+            settings.Converters.Add(converter);
+
+        }
+
         return settings;
     }
 }

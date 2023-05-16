@@ -5,7 +5,9 @@ using AutoFixture.Idioms;
 using Framework.Assertions;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using Xunit;
+using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.RoadSegmentWidthAttribute;
 
 public class AttributeHashTests
 {
@@ -48,6 +50,28 @@ public class AttributeHashTests
         var value1 = _fixture.Create<RoadSegmentCategory>();
         var value2 = new Generator<RoadSegmentCategory>(_fixture)
             .First(candidate => candidate != value1);
+        var sut = _fixture.Create<AttributeHash>();
+        var left = sut.With(value1);
+        var right = sut.With(value2);
+        Assert.NotEqual(left, right);
+    }
+
+    [Fact]
+    public void DiffersWhenGeometryDrawMethodDiffers()
+    {
+        var value1 = RoadSegmentGeometryDrawMethod.Measured;
+        var value2 = RoadSegmentGeometryDrawMethod.Outlined;
+        var sut = _fixture.Create<AttributeHash>();
+        var left = sut.With(value1);
+        var right = sut.With(value2);
+        Assert.NotEqual(left, right);
+    }
+
+    [Fact]
+    public void DiffersWhenLanesDiffers()
+    {
+        var value1 = _fixture.CreateMany<RoadSegmentLaneAttribute>().ToArray();
+        var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.With(value1);
         var right = sut.With(value2);
@@ -112,31 +136,9 @@ public class AttributeHashTests
     }
 
     [Fact]
-    public void DiffersWhenGeometryDrawMethodDiffers()
-    {
-        var value1 = RoadSegmentGeometryDrawMethod.Measured;
-        var value2 = RoadSegmentGeometryDrawMethod.Outlined;
-        var sut = _fixture.Create<AttributeHash>();
-        var left = sut.With(value1);
-        var right = sut.With(value2);
-        Assert.NotEqual(left, right);
-    }
-
-    [Fact]
-    public void DiffersWhenLanesDiffers()
-    {
-        var value1 = _fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentLaneAttribute>().ToArray();
-        var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
-        var sut = _fixture.Create<AttributeHash>();
-        var left = sut.With(value1);
-        var right = sut.With(value2);
-        Assert.NotEqual(left, right);
-    }
-
-    [Fact]
     public void DiffersWhenSurfacesDiffers()
     {
-        var value1 = _fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute>().ToArray();
+        var value1 = _fixture.CreateMany<RoadSegmentSurfaceAttribute>().ToArray();
         var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.With(value1);
@@ -147,7 +149,7 @@ public class AttributeHashTests
     [Fact]
     public void DiffersWhenWidthsDiffers()
     {
-        var value1 = _fixture.CreateMany<RoadRegistry.BackOffice.RoadSegmentWidthAttribute>().ToArray();
+        var value1 = _fixture.CreateMany<RoadSegmentWidthAttribute>().ToArray();
         var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
         var sut = _fixture.Create<AttributeHash>();
         var left = sut.With(value1);

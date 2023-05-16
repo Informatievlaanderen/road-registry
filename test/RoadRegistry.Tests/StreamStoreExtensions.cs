@@ -1,12 +1,11 @@
 namespace RoadRegistry.Tests;
 
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.Generators.Guid;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Framework;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.Generators.Guid;
-using Xunit;
 
 public static class StreamStoreExtensions
 {

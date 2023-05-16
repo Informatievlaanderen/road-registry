@@ -15,7 +15,10 @@ public class GeometryPolygonComparer : BaseTypeComparer
         var left = (Polygon)parms.Object1;
         var right = (Polygon)parms.Object2;
 
-        if (!left.EqualsExact(right)) AddDifference(parms);
+        if (!left.EqualsExact(right))
+        {
+            AddDifference(parms);
+        }
     }
 
     public override bool IsTypeMatch(Type type1, Type type2)

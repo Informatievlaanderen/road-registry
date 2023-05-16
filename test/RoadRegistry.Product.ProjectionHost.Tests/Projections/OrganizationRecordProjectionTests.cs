@@ -35,66 +35,6 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
     }
 
     [Fact]
-    public Task When_organizations_are_imported()
-    {
-        var data = _fixture
-            .CreateMany<ImportedOrganization>(new Random().Next(1, 100))
-            .Select((@event, i) =>
-            {
-                var expected = new OrganizationRecord
-                {
-                    Id = i + 1,
-                    Code = @event.Code,
-                    SortableCode = OrganizationRecordProjection.GetSortableCodeFor(@event.Code),
-                    DbaseRecord = new OrganizationDbaseRecord
-                    {
-                        ORG = { Value = @event.Code },
-                        LBLORG = { Value = @event.Name }
-                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-                };
-                return new
-                {
-                    ImportedOrganization = @event,
-                    Expected = expected
-                };
-            }).ToList();
-
-        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
-            .Scenario()
-            .Given(data.Select(d => d.ImportedOrganization))
-            .Expect(data.Select(d => d.Expected));
-    }
-
-
-    [Fact]
-    public Task When_organization_is_renamed()
-    {
-        var importedOrganization = new ImportedOrganization { Code = "ABC", Name = "Organization Inc." };
-        var renameOrganizationAccepted = new RenameOrganizationAccepted
-        {
-            Code = "ABC",
-            Name = "Alphabet"
-        };
-
-        var expected = new OrganizationRecord
-        {
-            Id = 1,
-            Code = "ABC",
-            SortableCode = OrganizationRecordProjection.GetSortableCodeFor("ABC"),
-            DbaseRecord = new OrganizationDbaseRecord
-            {
-                ORG = { Value = "ABC" },
-                LBLORG = { Value = "Alphabet" }
-            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-        };
-
-        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
-            .Scenario()
-            .Given(importedOrganization, renameOrganizationAccepted)
-            .Expect(expected);
-    }
-
-    [Fact]
     public Task When_organization_is_created()
     {
         var createOrganizationAccepted = new CreateOrganizationAccepted { Code = "ABC", Name = "Alphabet" };
@@ -127,5 +67,64 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
             .Scenario()
             .Given(createOrganizationAccepted, deleteOrganizationAccepted)
             .Expect(Enumerable.Empty<OrganizationRecord>());
+    }
+
+    [Fact]
+    public Task When_organization_is_renamed()
+    {
+        var importedOrganization = new ImportedOrganization { Code = "ABC", Name = "Organization Inc." };
+        var renameOrganizationAccepted = new RenameOrganizationAccepted
+        {
+            Code = "ABC",
+            Name = "Alphabet"
+        };
+
+        var expected = new OrganizationRecord
+        {
+            Id = 1,
+            Code = "ABC",
+            SortableCode = OrganizationRecordProjection.GetSortableCodeFor("ABC"),
+            DbaseRecord = new OrganizationDbaseRecord
+            {
+                ORG = { Value = "ABC" },
+                LBLORG = { Value = "Alphabet" }
+            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+        };
+
+        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            .Scenario()
+            .Given(importedOrganization, renameOrganizationAccepted)
+            .Expect(expected);
+    }
+
+    [Fact]
+    public Task When_organizations_are_imported()
+    {
+        var data = _fixture
+            .CreateMany<ImportedOrganization>(new Random().Next(1, 100))
+            .Select((@event, i) =>
+            {
+                var expected = new OrganizationRecord
+                {
+                    Id = i + 1,
+                    Code = @event.Code,
+                    SortableCode = OrganizationRecordProjection.GetSortableCodeFor(@event.Code),
+                    DbaseRecord = new OrganizationDbaseRecord
+                    {
+                        ORG = { Value = @event.Code },
+                        LBLORG = { Value = @event.Name }
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                };
+                return new
+                {
+                    ImportedOrganization = @event,
+                    Expected = expected
+                };
+            }).ToList();
+
+        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            .Scenario()
+            .Given(data.Select(d => d.ImportedOrganization))
+            .Expect(data.Select(d => d.Expected));
     }
 }

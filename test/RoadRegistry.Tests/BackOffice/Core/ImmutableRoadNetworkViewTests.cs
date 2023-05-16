@@ -6,7 +6,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using Scenarios;
-using Xunit;
 using AcceptedChange = RoadRegistry.BackOffice.Messages.AcceptedChange;
 using Problem = RoadRegistry.BackOffice.Messages.Problem;
 
@@ -65,7 +64,7 @@ public class ImmutableRoadNetworkViewTests
                 Problems = Array.Empty<Problem>()
             }
         };
-        
+
         roadNetwork = roadNetwork.RestoreFromEvent(given);
 
         // WHEN

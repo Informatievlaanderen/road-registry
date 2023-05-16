@@ -7,7 +7,6 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Validation;
-using Xunit;
 
 public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
 {
@@ -187,8 +186,13 @@ public class NationalRoadChangeDbaseRecordsValidatorTests : IDisposable
             {
                 record.NW_OIDN.Value = 1;
                 if (index == 0)
+                {
                     record.RECORDTYPE.Value = (short)RecordType.Added.Translation.Identifier;
-                else if (index == 1) record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
+                else if (index == 1)
+                {
+                    record.RECORDTYPE.Value = (short)RecordType.Removed.Translation.Identifier;
+                }
 
                 return record;
             })

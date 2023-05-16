@@ -49,6 +49,7 @@ public class OrganizationsToZipArchiveWriterTests
             {
                 Assert.Single(readArchive.Entries);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "LstOrg.dbf":
@@ -69,6 +70,7 @@ public class OrganizationsToZipArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 }

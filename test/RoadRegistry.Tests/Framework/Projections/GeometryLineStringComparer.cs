@@ -15,7 +15,10 @@ public class GeometryLineStringComparer : BaseTypeComparer
         var lineString1 = (LineString)parms.Object1;
         var lineString2 = (LineString)parms.Object2;
 
-        if (!lineString1.EqualsExact(lineString2)) AddDifference(parms);
+        if (!lineString1.EqualsExact(lineString2))
+        {
+            AddDifference(parms);
+        }
     }
 
     public override bool IsTypeMatch(Type type1, Type type2)

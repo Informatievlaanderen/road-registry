@@ -111,8 +111,16 @@ public class TranslatedChangeEqualityComparer : IEqualityComparer<ITranslatedCha
 
     public bool Equals(ITranslatedChange left, ITranslatedChange right)
     {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
+        if (left == null && right == null)
+        {
+            return true;
+        }
+
+        if (left == null || right == null)
+        {
+            return false;
+        }
+
         return _comparers.TryGetValue((left.GetType(), right.GetType()), out var comparer)
                && comparer.Equals(left, right);
     }

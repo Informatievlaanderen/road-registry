@@ -5,7 +5,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNodeGeometryValidatorTests : ValidatorTest<RoadNodeGeometry, RoadNodeGeometryValidator>

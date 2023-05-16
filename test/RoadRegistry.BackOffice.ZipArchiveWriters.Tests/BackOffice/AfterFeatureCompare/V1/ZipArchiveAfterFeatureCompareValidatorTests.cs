@@ -8,10 +8,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
-using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using RoadRegistry.Tests.BackOffice;
+using Uploads;
+using Uploads.Dbase.AfterFeatureCompare.V1.Schema;
+using Validation;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveAfterFeatureCompareValidatorTests
@@ -272,163 +272,221 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
                        new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
                 {
                     foreach (var requiredFile in requiredFiles)
+                    {
                         switch (requiredFile)
                         {
                             case "WEGSEGMENT_ALL.SHP":
                                 if (requiredFiles[index] == "WEGSEGMENT_ALL.SHP")
+                                {
                                     errors = errors.RequiredFileMissing("WEGSEGMENT_ALL.SHP");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("WEGSEGMENT_ALL.SHP").Open())
                                     {
                                         roadSegmentShapeChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "WEGSEGMENT_ALL.PRJ":
                                 if (requiredFiles[index] == "WEGSEGMENT_ALL.PRJ")
+                                {
                                     errors = errors.RequiredFileMissing("WEGSEGMENT_ALL.PRJ");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("WEGSEGMENT_ALL.PRJ").Open())
                                     {
                                         roadSegmentProjectionFormatStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "WEGSEGMENT_ALL.DBF":
                                 if (requiredFiles[index] == "WEGSEGMENT_ALL.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("WEGSEGMENT_ALL.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("WEGSEGMENT_ALL.DBF").Open())
                                     {
                                         roadSegmentDbaseChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "WEGKNOOP_ALL.SHP":
                                 if (requiredFiles[index] == "WEGKNOOP_ALL.SHP")
+                                {
                                     errors = errors.RequiredFileMissing("WEGKNOOP_ALL.SHP");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("WEGKNOOP_ALL.SHP").Open())
                                     {
                                         roadNodeShapeChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "WEGKNOOP_ALL.PRJ":
                                 if (requiredFiles[index] == "WEGKNOOP_ALL.PRJ")
+                                {
                                     errors = errors.RequiredFileMissing("WEGKNOOP_ALL.PRJ");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("WEGKNOOP_ALL.PRJ").Open())
                                     {
                                         roadNodeProjectionFormatStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "WEGKNOOP_ALL.DBF":
                                 if (requiredFiles[index] == "WEGKNOOP_ALL.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("WEGKNOOP_ALL.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("WEGKNOOP_ALL.DBF").Open())
                                     {
                                         roadNodeDbaseChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "ATTEUROPWEG_ALL.DBF":
                                 if (requiredFiles[index] == "ATTEUROPWEG_ALL.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("ATTEUROPWEG_ALL.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("ATTEUROPWEG_ALL.DBF").Open())
                                     {
                                         europeanRoadChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "ATTGENUMWEG_ALL.DBF":
                                 if (requiredFiles[index] == "ATTGENUMWEG_ALL.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("ATTGENUMWEG_ALL.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("ATTGENUMWEG_ALL.DBF").Open())
                                     {
                                         numberedRoadChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "ATTNATIONWEG_ALL.DBF":
                                 if (requiredFiles[index] == "ATTNATIONWEG_ALL.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("ATTNATIONWEG_ALL.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("ATTNATIONWEG_ALL.DBF").Open())
                                     {
                                         nationalRoadChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "ATTRIJSTROKEN_ALL.DBF":
                                 if (requiredFiles[index] == "ATTRIJSTROKEN_ALL.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("ATTRIJSTROKEN_ALL.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("ATTRIJSTROKEN_ALL.DBF").Open())
                                     {
                                         laneChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "ATTWEGBREEDTE_ALL.DBF":
                                 if (requiredFiles[index] == "ATTWEGBREEDTE_ALL.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("ATTWEGBREEDTE_ALL.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("ATTWEGBREEDTE_ALL.DBF").Open())
                                     {
                                         widthChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "ATTWEGVERHARDING_ALL.DBF":
                                 if (requiredFiles[index] == "ATTWEGVERHARDING_ALL.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("ATTWEGVERHARDING_ALL.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("ATTWEGVERHARDING_ALL.DBF").Open())
                                     {
                                         surfaceChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "RLTOGKRUISING_ALL.DBF":
                                 if (requiredFiles[index] == "RLTOGKRUISING_ALL.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("RLTOGKRUISING_ALL.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("RLTOGKRUISING_ALL.DBF").Open())
                                     {
                                         gradeSeparatedJunctionChangeStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                             case "TRANSACTIEZONES.DBF":
                                 if (requiredFiles[index] == "TRANSACTIEZONES.DBF")
+                                {
                                     errors = errors.RequiredFileMissing("TRANSACTIEZONES.DBF");
+                                }
                                 else
+                                {
                                     using (var entryStream =
                                            createArchive.CreateEntry("TRANSACTIEZONES.DBF").Open())
                                     {
                                         transactionZoneStream.CopyTo(entryStream);
                                     }
+                                }
 
                                 break;
                         }
+                    }
                 }
 
                 archiveStream.Position = 0;

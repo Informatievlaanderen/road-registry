@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
 using Abstractions;
-using Api.RoadSegments.Parameters;
+using Api.RoadSegments;
 using Fixtures;
 using Xunit.Abstractions;
 
@@ -10,7 +10,7 @@ public class WhenChangeAttributesWithInvalidAttribuutwaarde : WhenChangeAttribut
     public WhenChangeAttributesWithInvalidAttribuutwaarde(WhenChangeAttributesWithInvalidRequestFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
     }
-    
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]

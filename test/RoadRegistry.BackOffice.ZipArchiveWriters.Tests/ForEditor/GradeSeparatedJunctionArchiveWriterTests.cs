@@ -48,6 +48,7 @@ public class GradeSeparatedJunctionArchiveWriterTests
             {
                 Assert.Single(readArchive.Entries);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "RltOgkruising.dbf":
@@ -68,6 +69,7 @@ public class GradeSeparatedJunctionArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 }

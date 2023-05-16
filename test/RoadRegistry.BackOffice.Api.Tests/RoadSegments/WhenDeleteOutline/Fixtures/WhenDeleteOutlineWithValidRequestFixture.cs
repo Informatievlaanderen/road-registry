@@ -1,7 +1,6 @@
-using RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Abstractions.Fixtures;
-
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Fixtures;
 
+using Abstractions.Fixtures;
 using Editor.Schema;
 using MediatR;
 

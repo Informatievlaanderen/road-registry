@@ -1,7 +1,5 @@
 namespace RoadRegistry.Tests.BackOffice;
 
-using Xunit;
-
 public class NumberedRoadNumbersTests
 {
     [Fact]

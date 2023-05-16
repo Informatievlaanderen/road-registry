@@ -18,7 +18,9 @@ public class ConstructorBasedInequalityOperatorEqualsSelfAssertion : IdiomaticAs
     public override void Verify(Type type)
     {
         if (type == null)
+        {
             throw new ArgumentNullException(nameof(type));
+        }
 
         var method = type
             .GetMethods()
@@ -29,10 +31,16 @@ public class ConstructorBasedInequalityOperatorEqualsSelfAssertion : IdiomaticAs
                 && candidate.GetParameters()[1].ParameterType == type);
 
         if (method == null)
+        {
             throw new InequalityOperatorException(type, $"The type {type.Name} does not implement an inequality operator for {type.Name}.");
+        }
 
         var selfParameters = new object[Constructor.GetParameters().Length];
-        foreach (var parameter in Constructor.GetParameters()) selfParameters[parameter.Position] = Builder.CreateAnonymous(parameter.ParameterType);
+        foreach (var parameter in Constructor.GetParameters())
+        {
+            selfParameters[parameter.Position] = Builder.CreateAnonymous(parameter.ParameterType);
+        }
+
         var self = Constructor.Invoke(selfParameters);
 
         object result;
@@ -46,7 +54,9 @@ public class ConstructorBasedInequalityOperatorEqualsSelfAssertion : IdiomaticAs
         }
 
         if ((bool)result)
+        {
             throw new InequalityOperatorException(type);
+        }
     }
 }
 
@@ -64,7 +74,9 @@ public class StaticFactoryMethodBasedInequalityOperatorEqualsSelfAssertion : Idi
     public override void Verify(Type type)
     {
         if (type == null)
+        {
             throw new ArgumentNullException(nameof(type));
+        }
 
         var method = type
             .GetMethods()
@@ -75,10 +87,16 @@ public class StaticFactoryMethodBasedInequalityOperatorEqualsSelfAssertion : Idi
                 && candidate.GetParameters()[1].ParameterType == type);
 
         if (method == null)
+        {
             throw new InequalityOperatorException(type, $"The type {type.Name} does not implement an inequality operator for {type.Name}.");
+        }
 
         var selfParameters = new object[Constructor.GetParameters().Length];
-        foreach (var parameter in Constructor.GetParameters()) selfParameters[parameter.Position] = Builder.CreateAnonymous(parameter.ParameterType);
+        foreach (var parameter in Constructor.GetParameters())
+        {
+            selfParameters[parameter.Position] = Builder.CreateAnonymous(parameter.ParameterType);
+        }
+
         var self = Constructor.Invoke(null, selfParameters);
 
         object result;
@@ -92,6 +110,8 @@ public class StaticFactoryMethodBasedInequalityOperatorEqualsSelfAssertion : Idi
         }
 
         if ((bool)result)
+        {
             throw new InequalityOperatorException(type);
+        }
     }
 }

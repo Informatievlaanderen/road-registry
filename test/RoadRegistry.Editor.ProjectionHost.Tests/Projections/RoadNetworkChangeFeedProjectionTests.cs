@@ -41,10 +41,10 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
-        
+
         var changeRequestId = ChangeRequestId
             .FromArchiveId(archiveId);
-        
+
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
             .Given(new RoadNetworkExtractChangesArchiveUploaded
@@ -372,7 +372,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
-        
+
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
             .Given(new RoadNetworkExtractDownloadBecameAvailable
@@ -408,7 +408,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             {
                 Description = description,
                 ExternalRequestId = externalExtractRequestId,
-                RequestId = extractRequestId,
+                RequestId = extractRequestId
             })
             .Expect(new RoadNetworkChange
             {
@@ -520,7 +520,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                         Id = archiveId,
                         Available = true,
                         Filename = filename
-                    },
+                    }
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {

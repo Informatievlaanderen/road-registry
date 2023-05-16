@@ -25,7 +25,7 @@ public abstract class WhenChangeOutlineGeometryWithValidRequest<TFixture> : ICla
             OutputHelper.WriteLine($"{nameof(_fixture.Request)}: {JsonConvert.SerializeObject(_fixture.Request)}");
             OutputHelper.WriteLine(_fixture.Exception.ToString());
         }
-        
+
         Assert.IsType<AcceptedResult>(_fixture.Result);
     }
 }

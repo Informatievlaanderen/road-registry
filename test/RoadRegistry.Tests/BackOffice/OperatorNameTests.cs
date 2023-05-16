@@ -5,7 +5,6 @@ using AutoFixture.Idioms;
 using AutoFixture.Kernel;
 using Framework.Assertions;
 using RoadRegistry.BackOffice;
-using Xunit;
 
 public class OperatorNameTests
 {

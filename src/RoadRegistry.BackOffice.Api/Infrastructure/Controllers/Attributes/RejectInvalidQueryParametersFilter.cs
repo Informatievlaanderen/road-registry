@@ -18,7 +18,10 @@ public class RejectInvalidQueryParametersFilterAttribute : Attribute, IResourceF
 
     public void OnResourceExecuting(ResourceExecutingContext context)
     {
-        if (!context.HttpContext.Request.Query.Keys.Any(x => x.Contains("."))) return;
+        if (!context.HttpContext.Request.Query.Keys.Any(x => x.Contains(".")))
+        {
+            return;
+        }
 
         context.SetContentFormatAcceptType();
 

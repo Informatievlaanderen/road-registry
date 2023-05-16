@@ -8,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Framework.Testing;
+using Hosts;
 using KellermanSoftware.CompareNetObjects;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -22,9 +23,7 @@ using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Infrastructure.Modules;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.Hosts;
 using SqlStreamStore;
-using Xunit.Abstractions;
 
 public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
 {
@@ -70,6 +69,31 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     public void Dispose()
     {
         Store?.Dispose();
+    }
+
+    protected override void ConfigureCommandHandling(ContainerBuilder builder)
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string>
+            {
+                { "ConnectionStrings:Events", "x" },
+                { "ConnectionStrings:Snapshots", "x" }
+            })
+            .Build();
+
+        builder.Register(a => (IConfiguration)configuration);
+        builder.RegisterInstance<SqsLambdaHandlerOptions>(new FakeSqsLambdaHandlerOptions());
+
+        builder
+            .RegisterModule(new CommandHandlingModule())
+            .RegisterModule(new SqlStreamStoreModule())
+            .RegisterModule(new SqlSnapshotStoreModule());
+    }
+
+    protected override void ConfigureEventHandling(ContainerBuilder builder)
+    {
+        var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+        builder.RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
     }
 
     public Task Given(StreamName streamName, params object[] events)
@@ -122,30 +146,5 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         };
 
         return this;
-    }
-
-    protected override void ConfigureCommandHandling(ContainerBuilder builder)
-    {
-        var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "ConnectionStrings:Events", "x" },
-                { "ConnectionStrings:Snapshots", "x" }
-            })
-            .Build();
-
-        builder.Register((a) => (IConfiguration)configuration);
-        builder.RegisterInstance<SqsLambdaHandlerOptions>(new FakeSqsLambdaHandlerOptions());
-
-        builder
-            .RegisterModule(new CommandHandlingModule())
-            .RegisterModule(new SqlStreamStoreModule())
-            .RegisterModule(new SqlSnapshotStoreModule());
-    }
-
-    protected override void ConfigureEventHandling(ContainerBuilder builder)
-    {
-        var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        builder.RegisterModule(new EventHandlingModule(typeof(DomainAssemblyMarker).Assembly, eventSerializerSettings));
     }
 }
