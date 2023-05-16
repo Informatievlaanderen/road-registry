@@ -354,7 +354,7 @@ export default Vue.extend({
     contourFlowHasValidInput(): Boolean {
       switch (this.contourFlow.contourType) {
         case "wkt":
-          return !!this.contourFlow.wkt && this.contourFlow.wktIsValid;
+          return !!this.contourFlow.wkt && this.contourFlow.wktIsValid && !this.contourFlow.wktIsLargerThanMaximumArea;
         case "shp":
           return this.hasAllRequiredUploadFiles;
       }
