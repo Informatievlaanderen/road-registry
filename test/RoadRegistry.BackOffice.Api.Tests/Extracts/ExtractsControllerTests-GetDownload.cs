@@ -4,7 +4,7 @@ using Abstractions;
 using FluentValidation;
 using Xunit.Sdk;
 
-public partial class ExtractControllerTests
+public partial class ExtractsControllerTests
 {
     // TODO: Figure out how to use Geometry with InMemoryDatabase (or switch to integration testing)
     // [Fact]

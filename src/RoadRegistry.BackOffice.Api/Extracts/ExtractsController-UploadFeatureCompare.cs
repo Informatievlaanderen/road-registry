@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class ExtractController
+public partial class ExtractsController
 {
     private const string PostFeatureCompareUploadRoute = "download/{downloadId}/uploads/fc";
 

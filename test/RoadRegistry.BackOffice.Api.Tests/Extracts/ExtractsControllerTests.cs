@@ -12,13 +12,13 @@ using RoadRegistry.Tests.BackOffice;
 using SqlStreamStore;
 
 [Collection(nameof(SqlServerCollection))]
-public partial class ExtractControllerTests : ControllerTests<ExtractController>, IAsyncLifetime
+public partial class ExtractsControllerTests : ControllerTests<ExtractsController>, IAsyncLifetime
 {
     private readonly Fixture _fixture;
     private readonly SqlServer _sqlServerFixture;
     private EditorContext _editorContext;
 
-    public ExtractControllerTests(
+    public ExtractsControllerTests(
         SqlServer sqlServerFixture,
         IMediator mediator,
         IStreamStore streamStore,

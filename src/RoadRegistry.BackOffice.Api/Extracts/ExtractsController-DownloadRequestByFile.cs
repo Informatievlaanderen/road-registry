@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class ExtractController
+public partial class ExtractsController
 {
     private const string PostDownloadRequestByFileRoute = "downloadrequests/byfile";
 

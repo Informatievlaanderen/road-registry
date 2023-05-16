@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 using FeatureToggles;
 using Microsoft.AspNetCore.Mvc;
 
-public partial class ExtractControllerTests
+public partial class ExtractsControllerTests
 {
     [Fact]
     public async Task When_uploading_an_extract_before_fc_that_is_not_a_zip()

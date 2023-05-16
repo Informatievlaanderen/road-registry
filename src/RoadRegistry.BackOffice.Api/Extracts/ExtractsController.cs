@@ -21,11 +21,11 @@ using Version = Infrastructure.Version;
 [ApiRoute("extracts")]
 [ApiExplorerSettings(GroupName = "Extract")]
 [ApiKeyAuth(WellKnownAuthRoles.Road)]
-public partial class ExtractController : ApiController
+public partial class ExtractsController : ApiController
 {
     private readonly IMediator _mediator;
 
-    public ExtractController(IMediator mediator)
+    public ExtractsController(IMediator mediator)
     {
         _mediator = mediator;
     }

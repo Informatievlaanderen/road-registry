@@ -35,7 +35,6 @@
 		<Content Include="appsettings.*.json" CopyToOutputDirectory="Always">
 			<DependentUpon>appsettings.json</DependentUpon>
 		</Content>
-		<Compile Remove="Extracts\ExtractsController.cs" />
 		<Content Include="init.sh" CopyToOutputDirectory="Always" />
 	</ItemGroup>
 

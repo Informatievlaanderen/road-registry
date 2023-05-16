@@ -9,7 +9,7 @@ using Abstractions.Extracts;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class ExtractController
+public partial class ExtractsController
 {
     private const string GetStatusRoute = "upload/{uploadId}/status";
 
