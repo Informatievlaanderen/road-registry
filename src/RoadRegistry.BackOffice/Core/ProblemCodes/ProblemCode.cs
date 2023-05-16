@@ -19,7 +19,7 @@ public sealed partial record ProblemCode
 
     public static ProblemCode FromReason(string problemReason)
     {
-        if (Values.TryGetValue(problemReason, out var problemCode))
+        if (problemReason is not null && Values.TryGetValue(problemReason, out var problemCode))
         {
             return problemCode;
         }
