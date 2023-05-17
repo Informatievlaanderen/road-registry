@@ -1,3 +1,19 @@
+# [3.43.0](https://github.com/informatievlaanderen/road-registry/compare/v3.42.0...v3.43.0) (2023-05-17)
+
+
+### Bug Fixes
+
+* Next button not disabled when incorrect flow ([#964](https://github.com/informatievlaanderen/road-registry/issues/964)) ([9d5fd01](https://github.com/informatievlaanderen/road-registry/commit/9d5fd0158e9b4f8ad21b84f620c2dca43b83d4e9))
+* ProblemCode.FromReason can deal with null value ([#963](https://github.com/informatievlaanderen/road-registry/issues/963)) ([44d0448](https://github.com/informatievlaanderen/road-registry/commit/44d0448387c4e691931c2c133dbe860519eaca66))
+* Removed straggler csproj file ([#966](https://github.com/informatievlaanderen/road-registry/issues/966)) ([6f4c103](https://github.com/informatievlaanderen/road-registry/commit/6f4c1037d3c997634a4a55cd2dd024f8c9a37cb7))
+* WR-713 register MessageHandler in RoadRegistryLambdaFunction ([#965](https://github.com/informatievlaanderen/road-registry/issues/965)) ([8134e05](https://github.com/informatievlaanderen/road-registry/commit/8134e052e31cca03380731a4b2fc9304b14aa7ef))
+* WR-715 return 409 when doing multiple uploads for same extract ([#961](https://github.com/informatievlaanderen/road-registry/issues/961)) ([5328c65](https://github.com/informatievlaanderen/road-registry/commit/5328c659ccfd9ff7db47fb54376f14e55869ec31))
+
+
+### Features
+
+* Update paket dependencies ([#962](https://github.com/informatievlaanderen/road-registry/issues/962)) ([ae3ae1d](https://github.com/informatievlaanderen/road-registry/commit/ae3ae1d8a181362d28441e7a2e033fea79b2f19e))
+
 # [3.42.0](https://github.com/informatievlaanderen/road-registry/compare/v3.41.2...v3.42.0) (2023-05-15)
 
 
