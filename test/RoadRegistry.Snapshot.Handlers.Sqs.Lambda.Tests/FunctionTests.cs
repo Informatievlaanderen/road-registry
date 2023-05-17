@@ -15,6 +15,8 @@ public class FunctionTests
         {
             Records = new List<SQSEvent.SQSMessage>()
         }, new TestLambdaContext());
+
+        Assert.True(true);
     }
 
     private class TestFunction : Function

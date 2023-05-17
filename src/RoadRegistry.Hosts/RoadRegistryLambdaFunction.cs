@@ -92,7 +92,14 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
 
         return sp;
     }
-    
+
+    protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+    {
+    }
+    protected virtual void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
+    {
+    }
+
     private void ConfigureDefaultServices(HostBuilderContext context, IServiceCollection services)
     {
         services
@@ -109,10 +116,6 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             ;
     }
 
-    protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-    {
-    }
-
     private void ConfigureDefaultContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder
@@ -127,9 +130,6 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             .RegisterModule<BlobClientModule>();
 
         builder.RegisterType<OptionsValidator>();
-    }
-    protected virtual void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
-    {
     }
 
     protected virtual async Task Initialize(IServiceProvider sp)
