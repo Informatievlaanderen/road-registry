@@ -1,5 +1,7 @@
 framework: net6.0
 source https://api.nuget.org/v3/index.json
+references: strict
+strategy: max
 
 // PRODUCTION STUFF
 nuget Amazon.Lambda.Core 2.1.0
@@ -36,7 +38,7 @@ nuget NodaTime 3.1.9
 nuget NodaTime.Testing 3.1.9
 nuget NuGet.Frameworks 6.4.0
 nuget Polly 7.2.3
-nuget RestSharp 108.0.2
+nuget RestSharp 110.2.0
 nuget Serilog 2.12.0
 nuget Serilog.AspNetCore 3.4.0
 nuget Serilog.Enrichers.Environment 2.2.0
@@ -57,10 +59,23 @@ nuget Swashbuckle.AspNetCore.Swagger 6.2.3
 nuget Swashbuckle.AspNetCore.SwaggerGen 6.2.3
 nuget Swashbuckle.AspNetCore.SwaggerUI 6.2.3
 nuget System.Collections.Immutable 6.0.0
-nuget System.Text.Encoding.CodePages 6.0.0
+nuget System.Configuration.ConfigurationManager 6.0.1
+nuget System.Diagnostics.DiagnosticSource 7.0.0
+nuget System.Diagnostics.EventLog 7.0.0
+nuget System.Drawing.Common 6.0.0
+nuget System.Formats.Asn1 6.0.0
+nuget System.IO.Pipelines 6.0.0
 nuget System.IdentityModel.Tokens.Jwt 6.24.0
+nuget System.Memory.Data 6.0.0
+nuget System.Runtime.Caching 6.0.0
+nuget System.Security.Cryptography.ProtectedData 6.0.0
+nuget System.Security.Permissions 6.0.0
+nuget System.Text.Encoding.CodePages 6.0.0
+nuget System.Text.Encodings.Web 7.0.0
+nuget System.Text.Json 7.0.2
 nuget System.Threading.Channels 6.0.0
 nuget System.Threading.Tasks.Dataflow 6.0.0
+nuget System.Windows.Extensions 6.0.0
 nuget SourceLink.Copy.PdbFiles 2.8.3
 nuget SourceLink.Embed.AllSourceFiles 2.8.3
 nuget xunit 2.4.2
@@ -118,32 +133,41 @@ nuget Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore 6.0.10
 nuget Microsoft.AspNetCore.JsonPatch 6.0.10
 nuget Microsoft.AspNetCore.Mvc.NewtonsoftJson 6.0.10
 nuget Microsoft.Data.SqlClient 5.1.1
-nuget Microsoft.EntityFrameworkCore 6.0.10
-nuget Microsoft.EntityFrameworkCore.Abstractions 6.0.10
-nuget Microsoft.EntityFrameworkCore.Design 6.0.10
-nuget Microsoft.EntityFrameworkCore.InMemory 6.0.10
-nuget Microsoft.EntityFrameworkCore.Relational 6.0.10
-nuget Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite 6.0.10
-nuget Microsoft.Extensions.ApiDescription.Server 6.0.10
-nuget Microsoft.Extensions.Configuration 6.0.1
-nuget Microsoft.Extensions.Configuration.Abstractions 6.0.0
-nuget Microsoft.Extensions.Configuration.Binder 6.0.0
-nuget Microsoft.Extensions.Configuration.CommandLine 6.0.0
-nuget Microsoft.Extensions.Configuration.EnvironmentVariables 6.0.1
-nuget Microsoft.Extensions.Configuration.FileExtensions 6.0.0
-nuget Microsoft.Extensions.Configuration.Json 6.0.0
-nuget Microsoft.Extensions.DependencyInjection 6.0.1
-nuget Microsoft.Extensions.DependencyInjection.Abstractions 6.0.0
-nuget Microsoft.Extensions.Diagnostics.HealthChecks 6.0.10
-nuget Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions 6.0.10
-nuget Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore 6.0.10
-nuget Microsoft.Extensions.FileProviders.Embedded 6.0.10
-nuget Microsoft.Extensions.Hosting 6.0.1
-nuget Microsoft.Extensions.Http.Polly 6.0.10
-nuget Microsoft.Extensions.Localization 6.0.10
-nuget Microsoft.Extensions.Localization.Abstractions 6.0.10
-nuget Microsoft.Extensions.Logging 6.0.0
-nuget Microsoft.Extensions.Options.ConfigurationExtensions 6.0.0
+nuget Microsoft.EntityFrameworkCore 6.0.16
+nuget Microsoft.EntityFrameworkCore.Abstractions 6.0.16
+nuget Microsoft.EntityFrameworkCore.Design 6.0.16
+nuget Microsoft.EntityFrameworkCore.InMemory 6.0.16
+nuget Microsoft.EntityFrameworkCore.Relational 6.0.16
+nuget Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite 6.0.16
+nuget Microsoft.Extensions.ApiDescription.Server 7.0.0
+nuget Microsoft.Extensions.Caching.Abstractions 7.0.0
+nuget Microsoft.Extensions.Configuration 7.0.0
+nuget Microsoft.Extensions.Configuration.Abstractions 7.0.0
+nuget Microsoft.Extensions.Configuration.Binder 7.0.4
+nuget Microsoft.Extensions.Configuration.CommandLine 7.0.0
+nuget Microsoft.Extensions.Configuration.EnvironmentVariables 7.0.0
+nuget Microsoft.Extensions.Configuration.FileExtensions 7.0.0
+nuget Microsoft.Extensions.Configuration.Json 7.0.0
+nuget Microsoft.Extensions.DependencyInjection 7.0.0
+nuget Microsoft.Extensions.DependencyInjection.Abstractions 7.0.0
+nuget Microsoft.Extensions.DependencyModel 7.0.0
+nuget Microsoft.Extensions.Diagnostics.HealthChecks 6.0.16
+nuget Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions 6.0.16
+nuget Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore 6.0.16
+nuget Microsoft.Extensions.FileProviders.Abstractions 7.0.0
+nuget Microsoft.Extensions.FileProviders.Embedded 7.0.0
+nuget Microsoft.Extensions.FileProviders.Physical 7.0.0
+nuget Microsoft.Extensions.FileSystemGlobbing 7.0.0
+nuget Microsoft.Extensions.Hosting 7.0.0
+nuget Microsoft.Extensions.Hosting.Abstractions 7.0.0
+nuget Microsoft.Extensions.Http 7.0.0
+nuget Microsoft.Extensions.Http.Polly 7.0.0
+nuget Microsoft.Extensions.Localization 7.0.0
+nuget Microsoft.Extensions.Localization.Abstractions 7.0.0
+nuget Microsoft.Extensions.Logging 7.0.0
+nuget Microsoft.Extensions.Logging.Abstractions 7.0.0
+nuget Microsoft.Extensions.Options.ConfigurationExtensions 7.0.0
+nuget Microsoft.Extensions.Primitives 7.0.0
 nuget Microsoft.IO.RecyclableMemoryStream 2.2.1
 nuget Microsoft.Identity.Client 4.53.0
 nuget Microsoft.Identity.Client.Extensions.Msal 2.29.0
@@ -154,4 +178,6 @@ nuget Microsoft.NET.StringTools 17.5.0
 nuget Microsoft.NET.Test.Sdk 17.5.0
 nuget Microsoft.NETCore.Platforms 6.0.6
 nuget Microsoft.OpenApi 1.6.4
+nuget Microsoft.Win32.SystemEvents 6.0.1
 nuget NETStandard.Library 2.0.3
+

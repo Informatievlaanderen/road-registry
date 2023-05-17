@@ -9,7 +9,7 @@ public class S3Options : IHasConfigurationKey
 {
     public string ServiceUrl { get; set; }
 
-    public AWSCredentials? Credentials { get; set; }
+    public AWSCredentials Credentials { get; set; }
     public RegionEndpoint RegionEndpoint { get; }
     public JsonSerializerSettings JsonSerializerSettings { get; }
 
@@ -20,7 +20,7 @@ public class S3Options : IHasConfigurationKey
     {
     }
 
-    public S3Options(RegionEndpoint? regionEndpoint, JsonSerializerSettings? jsonSerializerSettings = null)
+    public S3Options(RegionEndpoint regionEndpoint, JsonSerializerSettings jsonSerializerSettings = null)
     {
         RegionEndpoint = regionEndpoint ?? RegionEndpoint.EUWest1;
         JsonSerializerSettings = jsonSerializerSettings ?? new JsonSerializerSettings();

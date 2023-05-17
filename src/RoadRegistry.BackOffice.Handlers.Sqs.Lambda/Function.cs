@@ -6,23 +6,24 @@ using Abstractions;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Infrastructure.Modules;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
+using FluentValidation;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Infrastructure.Modules;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System.Reflection;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
-using FluentValidation;
 
-public sealed class Function : RoadRegistryLambdaFunction
+public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
+    protected override string ApplicationName => "RoadRegistry.BackOffice.Handlers.Sqs.Lambda";
+
     public Function()
-        : base("RoadRegistry.BackOffice.Handlers.Sqs.Lambda",
-            new List<Assembly>
+        : base(new List<Assembly>
             {
                 typeof(BackOffice.Handlers.Sqs.DomainAssemblyMarker).Assembly,
                 typeof(RoadRegistry.BackOffice.Abstractions.BlobRequest).Assembly
@@ -30,7 +31,7 @@ public sealed class Function : RoadRegistryLambdaFunction
     {
     }
     
-    protected override IServiceProvider ConfigureServices(IServiceCollection services)
+    protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         services
             .AddSingleton<IStreetNameCache, StreetNameCache>()
@@ -45,25 +46,13 @@ public sealed class Function : RoadRegistryLambdaFunction
                 })
             )
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
-            .AddLogging(configure =>
-            {
-                configure.AddRoadRegistryLambdaLogger();
-            })
             ;
-
-        return base.ConfigureServices(services);
     }
 
-    protected override void ConfigureContainer(ContainerBuilder builder, IConfiguration configuration)
+    protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
-        base.ConfigureContainer(builder, configuration);
-
         builder
-            .RegisterAssemblyTypes(typeof(MessageHandler).GetTypeInfo().Assembly)
-            .AsImplementedInterfaces();
-
-        builder
-            .RegisterModule(new DataDogModule(configuration))
+            .RegisterModule(new DataDogModule(context.Configuration))
             .RegisterModule<EnvelopeModule>()
             .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<CommandHandlingModule>()

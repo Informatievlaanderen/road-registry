@@ -5,33 +5,31 @@ using Autofac;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Hosts;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using RoadRegistry.BackOffice;
 
-public class Function : RoadRegistryLambdaFunction
+public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
-    public Function() : base("RoadRegistry.Snapshot.Handlers.Sqs.Lambda", new[] { typeof(Sqs.DomainAssemblyMarker).Assembly })
+    protected override string ApplicationName => "RoadRegistry.Snapshot.Handlers.Sqs.Lambda";
+
+    public Function() : base(new[] { typeof(Sqs.DomainAssemblyMarker).Assembly })
     {
     }
 
-    protected override void ConfigureContainer(ContainerBuilder builder, IConfiguration configuration)
+    protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        base.ConfigureContainer(builder, configuration);
+        services
+            .AddRoadNetworkSnapshotStrategyOptions()
+            ;
+    }
 
+    protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
+    {
         builder
             .RegisterModule(new EventHandlingModule(typeof(Sqs.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<ContextModule>()
             .RegisterModule<MediatorModule>()
             ;
-    }
-
-    protected override IServiceProvider ConfigureServices(IServiceCollection services)
-    {
-        services
-            .AddRoadNetworkSnapshotStrategyOptions()
-            ;
-
-        return base.ConfigureServices(services);
     }
 }

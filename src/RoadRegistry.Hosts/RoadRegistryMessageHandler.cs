@@ -17,7 +17,7 @@ public abstract class RoadRegistryMessageHandler : IMessageHandler
         _container = container;
     }
 
-    public async Task HandleMessage(object? messageData, MessageMetadata messageMetadata, CancellationToken cancellationToken)
+    public async Task HandleMessage(object messageData, MessageMetadata messageMetadata, CancellationToken cancellationToken)
     {
         messageMetadata.Logger?.LogInformation($"Handling message {messageData?.GetType().Name}");
 
