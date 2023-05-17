@@ -27,7 +27,7 @@ public static class AmazonS3Extensions
             {
                 await amazonS3Client.PutBucketAsync(bucketName, cancellationToken);
             }
-            catch (AmazonS3Exception ex)
+            catch (AmazonS3Exception)
             {
                 // ignore if bucket already was created by a different host
             }

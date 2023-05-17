@@ -1,4 +1,14 @@
 Be.Vlaanderen.Basisregisters.Api
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
+Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
+Be.Vlaanderen.Basisregisters.EventHandling
+Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 
 AspNetCore.HealthChecks.SqlServer
 Dapper
+Microsoft.Data.SqlClient
+Microsoft.Extensions.DependencyInjection.Abstractions
+Microsoft.IdentityModel.Abstractions
+Microsoft.IdentityModel.JsonWebTokens
+Microsoft.IdentityModel.Logging
+Microsoft.IdentityModel.Tokens

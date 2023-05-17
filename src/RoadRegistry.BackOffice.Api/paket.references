@@ -1,7 +1,16 @@
 Be.Vlaanderen.Basisregisters.AcmIdm
 Be.Vlaanderen.Basisregisters.Api
-
-Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
+Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
+Be.Vlaanderen.Basisregisters.GrAr.Provenance
+Be.Vlaanderen.Basisregisters.Shaperon
 
 AspNetCore.HealthChecks.SqlServer
+AWSSDK.Core
+MediatR
+
+Microsoft.Extensions.FileProviders.Abstractions
+Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+
 RestSharp
+Serilog.Sinks.Seq
