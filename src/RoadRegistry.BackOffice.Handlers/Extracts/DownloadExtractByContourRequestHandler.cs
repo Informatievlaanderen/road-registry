@@ -30,10 +30,11 @@ public class DownloadExtractByContourRequestHandler : EndpointRequestHandler<Dow
                 ExternalRequestId = randomExternalRequestId,
                 Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(_reader.Read(request.Contour) as IPolygonal, request.Buffer),
                 DownloadId = downloadId,
-                Description = request.Description
+                Description = request.Description,
+                UploadExpected = request.UploadExpected
             });
         await Dispatcher(message, cancellationToken);
 
-        return new DownloadExtractByContourResponse(downloadId);
+        return new DownloadExtractByContourResponse(downloadId, request.UploadExpected);
     }
 }

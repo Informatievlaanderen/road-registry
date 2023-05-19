@@ -25,10 +25,10 @@ public partial class ExtractsController
     {
         var request = new DownloadExtractRequest(body.RequestId, body.Contour);
         var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString()));
+        return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.UploadExpected));
     }
 }
 
 public record DownloadExtractRequestBody(string Contour, string RequestId);
 
-public record DownloadExtractResponseBody(string DownloadId);
+public record DownloadExtractResponseBody(string DownloadId, bool UploadExpected);

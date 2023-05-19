@@ -34,11 +34,12 @@ public class DownloadExtractByNisCodeRequestHandler : EndpointRequestHandler<Dow
                 Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(
                     municipalityGeometry.Geometry as MultiPolygon, request.Buffer),
                 DownloadId = downloadId,
-                Description = request.Description
+                Description = request.Description,
+                UploadExpected = request.UploadExpected
             });
 
         await Dispatcher(message, cancellationToken);
 
-        return new DownloadExtractByNisCodeResponse(downloadId);
+        return new DownloadExtractByNisCodeResponse(downloadId, request.UploadExpected);
     }
 }

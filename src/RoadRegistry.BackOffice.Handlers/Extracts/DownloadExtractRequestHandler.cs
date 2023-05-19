@@ -26,11 +26,12 @@ public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtr
                 ExternalRequestId = request.RequestId,
                 Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)_reader.Read(request.Contour)),
                 DownloadId = downloadId,
-                Description = request.RequestId
+                Description = request.RequestId,
+                UploadExpected = request.UploadExpected
             });
 
         await Dispatcher(message, cancellationToken);
 
-        return new DownloadExtractResponse(downloadId);
+        return new DownloadExtractResponse(downloadId, request.UploadExpected);
     }
 }

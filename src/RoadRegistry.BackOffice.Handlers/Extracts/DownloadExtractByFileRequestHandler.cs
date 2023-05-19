@@ -35,6 +35,6 @@ public class DownloadExtractByFileRequestHandler : EndpointRequestHandler<Downlo
             });
         await Dispatcher(message, cancellationToken);
 
-        return new DownloadExtractByFileResponse(downloadId);
+        return new DownloadExtractByFileResponse(downloadId, request.UploadExpected);
     }
 }
