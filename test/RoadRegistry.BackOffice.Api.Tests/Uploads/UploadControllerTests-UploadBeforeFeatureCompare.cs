@@ -46,8 +46,8 @@ public partial class UploadControllerTests
         var typedResult = Assert.IsType<AcceptedResult>(result);
         var response = Assert.IsType<UploadExtractFeatureCompareResponseBody>(typedResult.Value);
 
-        Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(response.ArchiveId)));
-        var blob = await UploadBlobClient.GetBlobAsync(new BlobName(response.ArchiveId));
+        Assert.True(await UploadBlobClient.BlobExistsAsync(new BlobName(response.UploadId)));
+        var blob = await UploadBlobClient.GetBlobAsync(new BlobName(response.UploadId));
 
         await using var openStream = await blob.OpenAsync();
         var resultStream = new MemoryStream();
