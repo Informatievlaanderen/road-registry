@@ -20,7 +20,7 @@ using Newtonsoft.Json;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 internal class ApiKeyAuthAttribute : Attribute, IAsyncAuthorizationFilter
 {
-    private const string ApiKeyHeaderName = "x-api-key";
+    internal const string ApiKeyHeaderName = "x-api-key";
     private const string ApiKeyQueryName = "apikey";
     private const string ApiTokenHeaderName = "x-api-token";
     private readonly WellKnownAuthRoles _requiredAccess;
