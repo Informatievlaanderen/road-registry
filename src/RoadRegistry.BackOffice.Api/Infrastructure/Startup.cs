@@ -185,7 +185,7 @@ public class Startup
         var baseUrlForExceptions = baseUrl.EndsWith("/")
             ? baseUrl.Substring(0, baseUrl.Length - 1)
             : baseUrl;
-
+        
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
             {
@@ -196,6 +196,7 @@ public class Startup
                         .GetChildren()
                         .Select(c => c.Value)
                         .ToArray(),
+                    Headers = new[] {ApiKeyAuthAttribute.ApiKeyHeaderName},
                     ExposedHeaders = new[] { "Retry-After" }
                 },
                 Server =
