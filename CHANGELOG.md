@@ -1,3 +1,18 @@
+## [3.43.2](https://github.com/informatievlaanderen/road-registry/compare/v3.43.1...v3.43.2) (2023-05-23)
+
+
+### Bug Fixes
+
+* Bugfix for incorrect json output ([#971](https://github.com/informatievlaanderen/road-registry/issues/971)) ([dcb2e48](https://github.com/informatievlaanderen/road-registry/commit/dcb2e48306127f15772d08b8de3233c9f3e54ab4))
+
+## [3.43.1](https://github.com/informatievlaanderen/road-registry/compare/v3.43.0...v3.43.1) (2023-05-23)
+
+
+### Bug Fixes
+
+* WR-487 stop using nginx for API calls to backoffice-api or public-api ([#968](https://github.com/informatievlaanderen/road-registry/issues/968)) ([5112513](https://github.com/informatievlaanderen/road-registry/commit/5112513b041d124f6bd3295628c9e5e8c471bf77))
+* WR-715 return UploadId for before-FC extracts upload ([#969](https://github.com/informatievlaanderen/road-registry/issues/969)) ([ca99eee](https://github.com/informatievlaanderen/road-registry/commit/ca99eeeb7a157cb61e78fd5fab448b13ba0687e0))
+
 # [3.43.0](https://github.com/informatievlaanderen/road-registry/compare/v3.42.0...v3.43.0) (2023-05-17)
 
 
