@@ -33,7 +33,7 @@ class AxiosHttpApiClient implements IApiClient {
     this.axios = axios.create();
 
     this.axios.interceptors.request.use((config: any) => {
-      config.withCredentials = true;
+      config.withCredentials = false;
       config.headers["x-api-key"] = AuthService.getApiKey();
       return config;
     });
