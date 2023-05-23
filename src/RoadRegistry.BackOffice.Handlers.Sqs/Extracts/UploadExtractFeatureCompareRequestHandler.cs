@@ -126,7 +126,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
             await WriteRoadNetworkChangesArchiveUploadedToStore(extract, download, uploadId, cancellationToken);
         }
 
-        return new UploadExtractFeatureCompareResponse(archiveId);
+        return new UploadExtractFeatureCompareResponse(uploadId);
     }
 
     private async Task WriteRoadNetworkChangesArchiveUploadedToStore(RoadNetworkExtract extract, ExtractDownloadRecord download, UploadId uploadId, CancellationToken cancellationToken)

@@ -8,6 +8,8 @@ using FeatureToggles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using UploadExtractFeatureCompareRequest = Abstractions.Extracts.UploadExtractFeatureCompareRequest;
+using UploadExtractRequest = Abstractions.Extracts.UploadExtractRequest;
 
 public partial class ExtractsController
 {
@@ -38,22 +40,22 @@ public partial class ExtractsController
             if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
             {
                 UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-                var request = new UploadExtractRequest(archive.FileName, requestArchive)
+                var request = new UploadExtractRequest(downloadId, requestArchive)
                 {
                     UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled
                 };
                 var response = await _mediator.Send(request, cancellationToken);
-                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.UploadId.ToString()));
             }
             else
             {
                 UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-                var request = new UploadExtractFeatureCompareRequest(archive.FileName, requestArchive);
+                var request = new UploadExtractFeatureCompareRequest(downloadId, requestArchive);
                 var response = await _mediator.Send(request, cancellationToken);
-                return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));
+                return Accepted(new UploadExtractFeatureCompareResponseBody(response.UploadId.ToString()));
             }
         });
     }
 }
 
-public record UploadExtractFeatureCompareResponseBody(string ArchiveId);
+public record UploadExtractFeatureCompareResponseBody(string UploadId);
