@@ -25,8 +25,16 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
         return new ExtractDetailsResponse
         {
             //Description = record.Description
+            DownloadId = record.DownloadId,
             ExtractRequestId = ExtractRequestId.FromString(record.RequestId),
+            ArchiveId = record.ArchiveId,
+            Available = record.Available,
+            AvailableOn = record.AvailableOn,
+            ExternalRequestId = record.ExternalRequestId,
+            RequestId = record.RequestId,
+            RequestOn = record.RequestedOn,
             DownloadId = new DownloadId(record.DownloadId),
+            
             UploadExpected = record.UploadExpected,
         };
     }

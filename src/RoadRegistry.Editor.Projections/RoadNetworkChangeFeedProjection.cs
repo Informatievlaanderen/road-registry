@@ -20,8 +20,6 @@ using RejectedChange = Schema.RoadNetworkChanges.RejectedChange;
 
 public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext>
 {
-    private const string UploadExpectedMessage = "(informatieve extractaanvraag)";
-
     private string FormattedTitle(bool uploadExpected, string description) => uploadExpected
         ? $"Extractaanvraag \"{description}\""
         : $"Informatieve extractaanvraag \"{description}\"";

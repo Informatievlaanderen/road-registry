@@ -17,13 +17,15 @@ public partial class ExtractsController
     [SwaggerOperation(OperationId = nameof(SetUploadExpected), Description = "")]
     public async Task<IActionResult> SetUploadExpected(
         [FromRoute] string downloadId,
+        [FromBody] ExtractUploadExpectedRequestBody requestBody,
         [FromServices] ExtractUploadsOptions options,
         CancellationToken cancellationToken)
     {
         try
         {
-            //TODO-Jan craft body for this
-            var request = new ExtractUploadExpectedRequest(downloadId);
+            if (!DownloadId.CanParse(downloadId)) throw new DownloadExtractNotFoundException("");
+
+            var request = new ExtractUploadExpectedRequest(DownloadId.Parse(downloadId), requestBody.UploadExpected);
             var response = await _mediator.Send(request, cancellationToken);
             return Accepted();
         }
@@ -32,4 +34,9 @@ public partial class ExtractsController
             return NotFound();
         }
     }
+}
+
+public sealed record ExtractUploadExpectedRequestBody
+{
+    public bool UploadExpected { get; set; }
 }
