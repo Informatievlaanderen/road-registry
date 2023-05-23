@@ -1,3 +1,10 @@
+## [3.43.2](https://github.com/informatievlaanderen/road-registry/compare/v3.43.1...v3.43.2) (2023-05-23)
+
+
+### Bug Fixes
+
+* Bugfix for incorrect json output ([#971](https://github.com/informatievlaanderen/road-registry/issues/971)) ([dcb2e48](https://github.com/informatievlaanderen/road-registry/commit/dcb2e48306127f15772d08b8de3233c9f3e54ab4))
+
 ## [3.43.1](https://github.com/informatievlaanderen/road-registry/compare/v3.43.0...v3.43.1) (2023-05-23)
 
 
