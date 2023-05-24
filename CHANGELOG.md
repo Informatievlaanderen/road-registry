@@ -1,3 +1,11 @@
+## [3.43.5](https://github.com/informatievlaanderen/road-registry/compare/v3.43.4...v3.43.5) (2023-05-24)
+
+
+### Bug Fixes
+
+* WR-705 fix measure ordinates when reading SHP ([#974](https://github.com/informatievlaanderen/road-registry/issues/974)) ([b1f1265](https://github.com/informatievlaanderen/road-registry/commit/b1f1265aa99c4ee51425293449cd362a9c39c8c4))
+* WR-715 upload through UI should read http status 202 succesful upload ([#975](https://github.com/informatievlaanderen/road-registry/issues/975)) ([bbfe4b6](https://github.com/informatievlaanderen/road-registry/commit/bbfe4b6af2343eee75524296ebe99df75db41c44))
+
 ## [3.43.4](https://github.com/informatievlaanderen/road-registry/compare/v3.43.3...v3.43.4) (2023-05-24)
 
 
