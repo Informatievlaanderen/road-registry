@@ -47,7 +47,7 @@ export const PublicApi = {
             const data = new FormData();
             data.append("archive", file, filename);
             const response = await apiClient.post(path,data)
-            return response.status == 200;
+            return response.status == 200 || response.status == 202;
         },
         download: async(identifier: string): Promise<void> => {
             const path = `${apiEndpoint}/v1/wegen/upload/${identifier}`;
