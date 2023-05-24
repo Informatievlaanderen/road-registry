@@ -168,6 +168,7 @@
                 rows="4"
                 v-model="contourFlow.wkt"
                 @input="contourFlowWktChanged"
+                @paste="contourFlowWktChanged"
               ></textarea>
             </div>
           </template>
@@ -176,7 +177,7 @@
             <vl-action-group>
               <vl-button @click="currentStep = steps.Step1">Vorige</vl-button>
               <vl-button
-                @click="currentStep = steps.Step3_Contour"
+                @click="approveStep2()"
                 :class="{ 'vl-button--disabled': !contourFlowHasValidInput }"
                 :disabled="!contourFlowHasValidInput"
               >
@@ -229,7 +230,12 @@
 
           <div class="vl-form-col--8-12"></div>
           <div class="vl-form-col--6-12">
-            <vl-alert v-if="!isDescriptionValid(contourFlow.description)" mod-warning title="Validatie fouten" mod-small>
+            <vl-alert
+              v-if="!isDescriptionValid(contourFlow.description)"
+              mod-warning
+              title="Validatie fouten"
+              mod-small
+            >
               Gelieve een beschrijving mee te geven van minimaal 5 en maximaal 250 karakters.
             </vl-alert>
             <vl-alert v-if="contourFlow.hasGenericError" mod-error mod-small>
@@ -370,18 +376,18 @@ export default Vue.extend({
         text: "",
       };
 
-      if (
-        this.contourFlow.contourType === "wkt" &&
-        this.contourFlow.wkt &&
-        !this.isCheckingWkt
-      ) {
-        if(!this.contourFlow.wktIsValid) {
+      if (this.contourFlow.contourType === "wkt" && this.contourFlow.wkt && !this.isCheckingWkt) {
+        if (!this.contourFlow.wktIsValid) {
           status.title = "Ongeldige contour";
-          status.text = "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
+          status.text =
+            "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
           status.error = true;
-        } else if(this.contourFlow.wktIsLargerThanMaximumArea) {
+        } else if (this.contourFlow.wktIsLargerThanMaximumArea) {
           status.title = "Ongeldige contour";
-          status.text = "Gelieve als contour een maximum van " + this.contourFlow.areaMaximumSquareKilometers + " km² aan te houden.";
+          status.text =
+            "Gelieve als contour een maximum van " +
+            this.contourFlow.areaMaximumSquareKilometers +
+            " km² aan te houden.";
           status.error = true;
         } else {
           status.title = "";
@@ -435,6 +441,14 @@ export default Vue.extend({
     });
   },
   methods: {
+    async approveStep2() {
+      await this.checkIfContourWktIsValid();
+      if (!this.contourFlowHasValidInput) {
+        return;
+      }
+
+      this.currentStep = this.steps.Step3_Contour;
+    },
     contourTypeChanged(value: string) {
       this.contourFlow.contourType = value;
     },
@@ -452,10 +466,10 @@ export default Vue.extend({
         const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
 
         // wait a little bit to give the projection time to process the request to show in the activity feed
-        await new Promise(resolve => {
+        await new Promise((resolve) => {
           setTimeout(resolve, 1000);
         });
-        
+
         this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
       } catch (error) {
         console.error("Submit municipality failed", error);
@@ -531,21 +545,22 @@ export default Vue.extend({
       this.contourFlow.files.splice(index, 1);
     },
     async contourFlowWktChanged() {
-      this.contourFlow.wktIsValid = false;
-      this.contourFlow.wktIsLargerThanMaximumArea = false;
-      this.contourFlow.area = 0;
-      this.contourFlow.areaMaximumSquareKilometers = 0;     
+      this.resetContourFlow();
       this.isCheckingWkt = true;
       this.debouncedCheckIfContourWktIsValid();
     },
-    async checkIfContourWktIsValid(): Promise<RoadRegistry.ValidateWktResponse | void> {
+    resetContourFlow() {
       this.contourFlow.wktIsValid = false;
       this.contourFlow.wktIsLargerThanMaximumArea = false;
-
+      this.contourFlow.area = 0;
+      this.contourFlow.areaMaximumSquareKilometers = 0;
+    },
+    async checkIfContourWktIsValid(): Promise<RoadRegistry.ValidateWktResponse | void> {
       if (!this.contourFlow.wkt) {
         return;
       }
 
+      this.resetContourFlow();
       this.isCheckingWkt = true;
 
       try {
@@ -553,13 +568,13 @@ export default Vue.extend({
         this.contourFlow.wktIsValid = response.isValid;
         this.contourFlow.wktIsLargerThanMaximumArea = response.isLargerThanMaximumArea;
         this.contourFlow.area = response.area;
-        this.contourFlow.areaMaximumSquareKilometers = response.areaMaximumSquareKilometers;     
+        this.contourFlow.areaMaximumSquareKilometers = response.areaMaximumSquareKilometers;
       } catch (err) {
         console.error("WKT is invalid", err);
         this.contourFlow.wktIsValid = false;
         this.contourFlow.wktIsLargerThanMaximumArea = false;
         this.contourFlow.area = 0;
-        this.contourFlow.areaMaximumSquareKilometers = 0;     
+        this.contourFlow.areaMaximumSquareKilometers = 0;
       } finally {
         this.isCheckingWkt = false;
       }
