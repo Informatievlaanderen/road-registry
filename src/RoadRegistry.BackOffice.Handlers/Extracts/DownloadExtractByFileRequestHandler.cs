@@ -29,7 +29,7 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
             new ExtractRequestRecord
             {
                 DownloadId = downloadId,
-                Contour = BackOffice.GeometryTranslator.Translate(contour) as Geometry,
+                Contour = (Geometry)GeometryTranslator.Translate(contour),
                 Description = request.Description,
                 UploadExpected = request.UploadExpected
             },
