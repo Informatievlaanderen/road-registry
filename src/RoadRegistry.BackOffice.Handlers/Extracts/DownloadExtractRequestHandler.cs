@@ -26,7 +26,7 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
     {
         var downloadId = new DownloadId(Guid.NewGuid());
 
-        await DispatchCommandAfterConditionalContextUpsertAsync(
+        await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
                 DownloadId = downloadId,

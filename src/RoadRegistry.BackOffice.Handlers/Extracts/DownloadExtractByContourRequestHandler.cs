@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using Abstractions;
 using Abstractions.Extracts;
 using Editor.Schema;
 using Editor.Schema.Extracts;
@@ -23,12 +22,12 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }
 
-    public override async Task<DownloadExtractByContourResponse> HandleAsync(DownloadExtractByContourRequest request, DownloadId downloadId, string randomExternalRequestId, , CancellationToken cancellationToken)
+    public override async Task<DownloadExtractByContourResponse> HandleRequestAsync(DownloadExtractByContourRequest request, DownloadId downloadId, string randomExternalRequestId, , CancellationToken cancellationToken)
     {
         var geometry = _reader.Read(request.Contour);
 
-        await DispatchCommandAfterConditionalContextUpsertAsync(
-            new ExtractRequestRecord()
+        await DispatchCommandWithContextAddAsync(
+            new ExtractRequestRecord
             {
                 DownloadId = downloadId,
                 Contour = geometry,

@@ -24,7 +24,7 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
     {
         var contour = _translator.Translate(request.ShpFile, request.Buffer);
 
-        await DispatchCommandAfterConditionalContextUpsertAsync(
+        await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
                 DownloadId = downloadId,

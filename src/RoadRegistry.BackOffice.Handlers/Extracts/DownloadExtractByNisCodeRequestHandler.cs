@@ -24,7 +24,7 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
         var municipalityGeometry = await _context.MunicipalityGeometries.SingleOrDefaultAsync(x => x.NisCode == request.NisCode, cancellationToken)
                                    ?? throw new DownloadExtractByNisCodeNotFoundException("Could not find details about the supplied NIS code");
 
-        await DispatchCommandAfterConditionalContextUpsertAsync(
+        await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
                 DownloadId = downloadId,

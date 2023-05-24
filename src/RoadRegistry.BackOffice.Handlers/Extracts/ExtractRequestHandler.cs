@@ -20,7 +20,7 @@ public abstract class ExtractRequestHandler<TRequest, TResponse> : EndpointReque
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
-    protected async Task DispatchCommandAfterConditionalContextUpsertAsync(ExtractRequestRecord record, object message, CancellationToken cancellationToken)
+    protected async Task DispatchCommandWithContextAddAsync(ExtractRequestRecord record, object message, CancellationToken cancellationToken)
     {
         var command = new Command(message);
         await Dispatcher(command, cancellationToken);
