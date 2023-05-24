@@ -32,6 +32,7 @@ public class RoadSegmentChangeShapeRecordValidator : IZipArchiveShapeRecordValid
             else
             {
                 var lines = multiLineString
+                    .WithMeasureOrdinates()
                     .Geometries
                     .OfType<LineString>()
                     .ToArray();
