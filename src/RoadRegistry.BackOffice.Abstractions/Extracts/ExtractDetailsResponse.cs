@@ -4,6 +4,11 @@ public sealed record ExtractDetailsResponse : EndpointResponse
 {
     public DownloadId DownloadId { get; init; }
     public ExtractRequestId ExtractRequestId { get; init; }
-    public string Description { get; init; }
+    public ExtractDescription Description { get; init; }
+    public string ExternalRequestId { get; set; }
+    public bool Available { get; set; }
+    public DateTime AvailableOn { get; set; }
+    public string RequestId { get; set; }
+    public DateTime RequestOn { get; set; }
     public bool UploadExpected { get; init; }
 }

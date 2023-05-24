@@ -14,10 +14,14 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
             .HasKey(p => p.DownloadId)
             .IsClustered(false);
 
-        b.Property(p => p.DownloadId).ValueGeneratedNever().IsRequired();
+        b.Property(p => p.DownloadId)
+            .ValueGeneratedNever()
+            .IsRequired();
 
         b.Property(p => p.Description).IsRequired();
-        b.Property(p => p.Contour).IsRequired();
+        b.Property(p => p.Contour)
+            .HasColumnType("Geometry")
+            .IsRequired();
 
         b.Property(p => p.RequestId).IsRequired();
         b.Property(p => p.RequestedOn).IsRequired();
@@ -26,6 +30,8 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
         b.Property(p => p.Available).IsRequired();
         b.Property(p => p.AvailableOn).IsRequired();
 
-        b.Property(p => p.UploadExpected).IsRequired();
+        b.Property(p => p.UploadExpected)
+            .HasDefaultValue(true)
+            .IsRequired();
     }
 }

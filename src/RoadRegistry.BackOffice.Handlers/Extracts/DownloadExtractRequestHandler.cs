@@ -1,18 +1,23 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using Abstractions;
 using Abstractions.Extracts;
+using Editor.Schema;
+using Editor.Schema.Extracts;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
-public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtractRequest, DownloadExtractResponse>
+public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtractRequest, DownloadExtractResponse>
 {
     private readonly WKTReader _reader;
 
-    public DownloadExtractRequestHandler(CommandHandlerDispatcher dispatcher, WKTReader reader, ILogger<DownloadExtractRequestHandler> logger) : base(dispatcher, logger)
+    public DownloadExtractRequestHandler(
+        EditorContext context,
+        CommandHandlerDispatcher dispatcher,
+        WKTReader reader,
+        ILogger<DownloadExtractRequestHandler> logger) : base(context, dispatcher, logger)
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }
@@ -20,7 +25,15 @@ public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtr
     public override async Task<DownloadExtractResponse> HandleAsync(DownloadExtractRequest request, CancellationToken cancellationToken)
     {
         var downloadId = new DownloadId(Guid.NewGuid());
-        var message = new Command(
+
+        await DispatchCommandAfterConditionalContextUpsertAsync(
+            new ExtractRequestRecord
+            {
+                DownloadId = downloadId,
+                Contour = _reader.Read(request.Contour),
+                Description = request.RequestId,
+                UploadExpected = request.UploadExpected
+            },
             new RequestRoadNetworkExtract
             {
                 ExternalRequestId = request.RequestId,
@@ -28,9 +41,7 @@ public class DownloadExtractRequestHandler : EndpointRequestHandler<DownloadExtr
                 DownloadId = downloadId,
                 Description = request.RequestId,
                 UploadExpected = request.UploadExpected
-            });
-
-        await Dispatcher(message, cancellationToken);
+            }, cancellationToken);
 
         return new DownloadExtractResponse(downloadId, request.UploadExpected);
     }
