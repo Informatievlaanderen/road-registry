@@ -1,3 +1,10 @@
+## [3.43.3](https://github.com/informatievlaanderen/road-registry/compare/v3.43.2...v3.43.3) (2023-05-24)
+
+
+### Bug Fixes
+
+* WR-705 always fill in measure values when receiving geometries ([#972](https://github.com/informatievlaanderen/road-registry/issues/972)) ([d27ad76](https://github.com/informatievlaanderen/road-registry/commit/d27ad761841becd037da5bd04b5828913a1c2e7a))
+
 ## [3.43.2](https://github.com/informatievlaanderen/road-registry/compare/v3.43.1...v3.43.2) (2023-05-23)
 
 
