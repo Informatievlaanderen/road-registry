@@ -22,10 +22,8 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }
 
-    public override async Task<DownloadExtractResponse> HandleAsync(DownloadExtractRequest request, CancellationToken cancellationToken)
+    public override async Task<DownloadExtractResponse> HandleRequestAsync(DownloadExtractRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
     {
-        var downloadId = new DownloadId(Guid.NewGuid());
-
         await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {

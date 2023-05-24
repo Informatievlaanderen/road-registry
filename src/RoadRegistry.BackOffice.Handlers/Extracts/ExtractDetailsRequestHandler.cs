@@ -30,8 +30,6 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
             Description = record.Description,
             ExtractRequestId = ExtractRequestId.FromString(record.RequestId),
             ExternalRequestId = record.ExternalRequestId,
-            Available = record.Available,
-            AvailableOn = new DateTime(record.AvailableOn),
             RequestId = record.RequestId,
             RequestOn = new DateTime(record.RequestedOn),
             UploadExpected = record.UploadExpected

@@ -6,6 +6,7 @@ using Editor.Schema.Extracts;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 
 public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<DownloadExtractByFileRequest, DownloadExtractByFileResponse>
 {
@@ -28,7 +29,7 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
             new ExtractRequestRecord
             {
                 DownloadId = downloadId,
-                Contour = contour,
+                Contour = BackOffice.GeometryTranslator.Translate(contour) as Geometry,
                 Description = request.Description,
                 UploadExpected = request.UploadExpected
             },

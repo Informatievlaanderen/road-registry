@@ -22,7 +22,7 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }
 
-    public override async Task<DownloadExtractByContourResponse> HandleRequestAsync(DownloadExtractByContourRequest request, DownloadId downloadId, string randomExternalRequestId, , CancellationToken cancellationToken)
+    public override async Task<DownloadExtractByContourResponse> HandleRequestAsync(DownloadExtractByContourRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
     {
         var geometry = _reader.Read(request.Contour);
 

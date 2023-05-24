@@ -12,9 +12,5 @@ public class ExtractRequestRecord
     public string RequestId { get; set; }
     public long RequestedOn { get; set; }
     public string ExternalRequestId { get; set; }
-
-    public bool Available { get; set; }
-    public long AvailableOn { get; set; }
-
     public bool UploadExpected { get; set; }
 }
