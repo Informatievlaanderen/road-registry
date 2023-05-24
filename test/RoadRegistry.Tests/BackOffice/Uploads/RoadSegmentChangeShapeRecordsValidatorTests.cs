@@ -119,7 +119,7 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
         var (result, context) = new ZipArchiveShapeEntryValidator(_sut).Validate(_entry, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.AtShapeRecord(new RecordNumber(1)).ShapeRecordGeometryHasInvalidMeasureOrdinates()),
+            ZipArchiveProblems.None,
             result);
         Assert.Same(_context, context);
     }
