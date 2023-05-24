@@ -641,8 +641,8 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         TestData.Segment1Added.Widths = Array.Empty<RoadSegmentWidthAttributes>();
         TestData.Segment1Added.Surfaces = Array.Empty<RoadSegmentSurfaceAttributes>();
 
-        var startPoint2 = new Point(new CoordinateM(0.0, 50.0, 0.0));
-        var endPoint2 = new Point(new CoordinateM(50.0, 0.0, 70.71067));
+        var startPoint2 = new Point(new CoordinateM(0.0, 50.0));
+        var endPoint2 = new Point(new CoordinateM(50.0, 0.0));
         TestData.AddSegment2.Geometry = GeometryTranslator.Translate(new MultiLineString(new[]
         {
             new LineString(
@@ -655,6 +655,9 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         {
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         });
+        startPoint2.M = TestData.AddSegment2.Geometry.MultiLineString[0].Measures[0];
+        endPoint2.M = TestData.AddSegment2.Geometry.MultiLineString[0].Measures[1];
+
         TestData.AddSegment2.Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>();
         TestData.AddSegment2.Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>();
         TestData.AddSegment2.Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>();
@@ -986,460 +989,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             }));
     }
-
-    [Fact]
-    public Task when_adding_a_segment_where_first_measure_is_not_zero()
-    {
-        var startPoint = new Point(new CoordinateM(0.0, 0.0, 10.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var endPoint = new Point(new CoordinateM(14.0, 14.0, Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0))))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        TestData.AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-        TestData.AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
-        TestData.AddSegment1.Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>();
-        TestData.AddSegment1.Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>();
-        TestData.AddSegment1.Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>();
-        TestData.AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new[]
-        {
-            new LineString(
-                new CoordinateArraySequence(new[]
-                {
-                    startPoint.Coordinate,
-                    new CoordinateM(11.0, 11.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0))),
-                    new CoordinateM(12.0, 12.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0))),
-                    new CoordinateM(13.0, 13.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0))),
-                    endPoint.Coordinate
-                }),
-                GeometryConfiguration.GeometryFactory)
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            }
-        })
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        });
-        return Run(scenario => scenario
-            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
-                new ImportedOrganization
-                {
-                    Code = TestData.ChangedByOrganization,
-                    Name = TestData.ChangedByOrganizationName,
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddStartNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddEndNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadSegment = TestData.AddSegment1
-                }
-            ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-            {
-                RequestId = TestData.RequestId,
-                Reason = TestData.ReasonForChange,
-                Operator = TestData.ChangedByOperator,
-                OrganizationId = TestData.ChangedByOrganization,
-                Organization = TestData.ChangedByOrganizationName,
-                TransactionId = new TransactionId(1),
-                Changes = new[]
-                {
-                    new RejectedChange
-                    {
-                        AddRoadSegment = TestData.AddSegment1,
-                        Problems = new[]
-                        {
-                            new Problem
-                            {
-                                Reason = "RoadSegmentStartPointMeasureValueNotEqualToZero",
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointX", Value = "0"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointY", Value = "0"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Measure", Value = "10"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            }));
-    }
-
-    [Fact]
-    public Task when_adding_a_segment_where_last_measure_is_not_equal_to_length()
-    {
-        var startPoint = new Point(new CoordinateM(0.0, 0.0, 0.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var length = Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0));
-        var endPoint = new Point(new CoordinateM(14.0, 14.0, 100.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        TestData.AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-        TestData.AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
-        TestData.AddSegment1.Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>();
-        TestData.AddSegment1.Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>();
-        TestData.AddSegment1.Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>();
-        TestData.AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new[]
-        {
-            new LineString(
-                new CoordinateArraySequence(new[]
-                {
-                    startPoint.Coordinate,
-                    new CoordinateM(11.0, 11.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0))),
-                    new CoordinateM(12.0, 12.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0))),
-                    new CoordinateM(13.0, 13.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0))),
-                    endPoint.Coordinate
-                }),
-                GeometryConfiguration.GeometryFactory)
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            }
-        })
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        });
-        return Run(scenario => scenario
-            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
-                new ImportedOrganization
-                {
-                    Code = TestData.ChangedByOrganization,
-                    Name = TestData.ChangedByOrganizationName,
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddStartNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddEndNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadSegment = TestData.AddSegment1
-                }
-            ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-            {
-                RequestId = TestData.RequestId,
-                Reason = TestData.ReasonForChange,
-                Operator = TestData.ChangedByOperator,
-                OrganizationId = TestData.ChangedByOrganization,
-                Organization = TestData.ChangedByOrganizationName,
-                TransactionId = new TransactionId(1),
-                Changes = new[]
-                {
-                    new RejectedChange
-                    {
-                        AddRoadSegment = TestData.AddSegment1,
-                        Problems = new[]
-                        {
-                            new Problem
-                            {
-                                Reason = "RoadSegmentEndPointMeasureValueNotEqualToLength",
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointX", Value = "14"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointY", Value = "14"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Measure", Value = "100"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Length",
-                                        Value = length.ToString(CultureInfo.InvariantCulture)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            }));
-    }
-
-    [Fact]
-    public Task when_adding_a_segment_where_measure_is_not_an_increasing_distance_from_start_point()
-    {
-        var startPoint = new Point(new CoordinateM(0.0, 0.0, 0.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var length = Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0));
-        var endPoint = new Point(new CoordinateM(14.0, 14.0, length))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        TestData.AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-        TestData.AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
-        TestData.AddSegment1.Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>();
-        TestData.AddSegment1.Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>();
-        TestData.AddSegment1.Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>();
-        TestData.AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new[]
-        {
-            new LineString(
-                new CoordinateArraySequence(new[]
-                {
-                    startPoint.Coordinate,
-                    new CoordinateM(11.0, 11.0, Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0))),
-                    new CoordinateM(12.0, 12.0, Math.Sqrt(Math.Pow(10.0, 2.0) + Math.Pow(10.0, 2.0))),
-                    new CoordinateM(13.0, 13.0, Math.Sqrt(Math.Pow(13.0, 2.0) + Math.Pow(13.0, 2.0))),
-                    endPoint.Coordinate
-                }),
-                GeometryConfiguration.GeometryFactory)
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            }
-        })
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        });
-        return Run(scenario => scenario
-            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
-                new ImportedOrganization
-                {
-                    Code = TestData.ChangedByOrganization,
-                    Name = TestData.ChangedByOrganizationName,
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddStartNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddEndNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadSegment = TestData.AddSegment1
-                }
-            ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-            {
-                RequestId = TestData.RequestId,
-                Reason = TestData.ReasonForChange,
-                Operator = TestData.ChangedByOperator,
-                OrganizationId = TestData.ChangedByOrganization,
-                Organization = TestData.ChangedByOrganizationName,
-                TransactionId = new TransactionId(1),
-                Changes = new[]
-                {
-                    new RejectedChange
-                    {
-                        AddRoadSegment = TestData.AddSegment1,
-                        Problems = new[]
-                        {
-                            new Problem
-                            {
-                                Reason = "RoadSegmentPointMeasureValueDoesNotIncrease",
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointX", Value = "12"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointY", Value = "12"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Measure",
-                                        Value = Math.Sqrt(Math.Pow(10.0, 2.0) + Math.Pow(10.0, 2.0)).ToString(CultureInfo.InvariantCulture)
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "PreviousMeasure",
-                                        Value = Math.Sqrt(Math.Pow(11.0, 2.0) + Math.Pow(11.0, 2.0)).ToString(CultureInfo.InvariantCulture)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            }));
-    }
-
-    [Fact]
-    public Task when_adding_a_segment_where_measure_is_out_of_range()
-    {
-        var startPoint = new Point(new CoordinateM(0.0, 0.0, 0.0))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        var length = Math.Sqrt(Math.Pow(14.0, 2.0) + Math.Pow(14.0, 2.0));
-        var endPoint = new Point(new CoordinateM(14.0, 14.0, length))
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        };
-        TestData.AddStartNode1.Geometry = GeometryTranslator.Translate(startPoint);
-        TestData.AddEndNode1.Geometry = GeometryTranslator.Translate(endPoint);
-        TestData.AddSegment1.Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>();
-        TestData.AddSegment1.Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>();
-        TestData.AddSegment1.Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>();
-        TestData.AddSegment1.Geometry = GeometryTranslator.Translate(new MultiLineString(new[]
-        {
-            new LineString(
-                new CoordinateArraySequence(new[]
-                {
-                    startPoint.Coordinate,
-                    new CoordinateM(11.0, 11.0, -1.0),
-                    new CoordinateM(12.0, 12.0, Math.Sqrt(Math.Pow(12.0, 2.0) + Math.Pow(12.0, 2.0))),
-                    new CoordinateM(13.0, 13.0, 100.0),
-                    endPoint.Coordinate
-                }),
-                GeometryConfiguration.GeometryFactory)
-            {
-                SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-            }
-        })
-        {
-            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
-        });
-        return Run(scenario => scenario
-            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
-                new ImportedOrganization
-                {
-                    Code = TestData.ChangedByOrganization,
-                    Name = TestData.ChangedByOrganizationName,
-                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-                }
-            )
-            .When(TheOperator.ChangesTheRoadNetwork(
-                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddStartNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadNode = TestData.AddEndNode1
-                },
-                new RequestedChange
-                {
-                    AddRoadSegment = TestData.AddSegment1
-                }
-            ))
-            .Then(RoadNetworks.Stream, new RoadNetworkChangesRejected
-            {
-                RequestId = TestData.RequestId,
-                Reason = TestData.ReasonForChange,
-                Operator = TestData.ChangedByOperator,
-                OrganizationId = TestData.ChangedByOrganization,
-                Organization = TestData.ChangedByOrganizationName,
-                TransactionId = new TransactionId(1),
-                Changes = new[]
-                {
-                    new RejectedChange
-                    {
-                        AddRoadSegment = TestData.AddSegment1,
-                        Problems = new[]
-                        {
-                            new Problem
-                            {
-                                Reason = "RoadSegmentPointMeasureValueOutOfRange",
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointX", Value = "11"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointY", Value = "11"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Measure", Value = "-1"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "MeasureLowerBoundary",
-                                        Value = "0"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "MeasureUpperBoundary",
-                                        Value = length.ToString(CultureInfo.InvariantCulture)
-                                    }
-                                }
-                            },
-                            new Problem
-                            {
-                                Reason = "RoadSegmentPointMeasureValueOutOfRange",
-                                Parameters = new[]
-                                {
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointX", Value = "13"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "PointY", Value = "13"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "Measure", Value = "100"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "MeasureLowerBoundary",
-                                        Value = "0"
-                                    },
-                                    new ProblemParameter
-                                    {
-                                        Name = "MeasureUpperBoundary",
-                                        Value = length.ToString(CultureInfo.InvariantCulture)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
-            }));
-    }
-
+    
     [Fact]
     public Task when_adding_a_segment_whose_end_point_does_not_match_its_end_node_geometry()
     {
@@ -1814,11 +1364,11 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         {
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
-        var middlePoint2 = new Point(new CoordinateM(5.0, 20.0, 21.1803))
+        var middlePoint2 = new Point(new CoordinateM(5.0, 20.0, 21.18033988749895))
         {
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
-        var endPoint = new Point(new CoordinateM(5.0, 0.0, 41.1803))
+        var endPoint = new Point(new CoordinateM(5.0, 0.0, 41.180339887498945))
         {
             SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
         };
@@ -3916,7 +3466,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     TestData.StartPoint1.X + random.Next(1, 1000) / 1000.0 * Distances.TooClose,
                     TestData.StartPoint1.Y + random.Next(1, 1000) / 1000.0 * Distances.TooClose
                 ))
-                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() };
             TestData.AddSegment2.Geometry = GeometryTranslator.Translate(
                 new MultiLineString(
                         new[]
@@ -3932,7 +3482,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                                 GeometryConfiguration.GeometryFactory
                             )
                         })
-                    { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
             );
             TestData.AddStartNode2.Geometry = GeometryTranslator.Translate(startPoint);
 
@@ -4062,7 +3612,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             GeometryConfiguration.GeometryFactory
                         )
                     })
-                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
         );
         TestData.AddStartNode2.Geometry = TestData.StartNode1Added.Geometry;
 
@@ -4939,7 +4489,7 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                             GeometryConfiguration.GeometryFactory
                         )
                     })
-                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
         );
         TestData.AddEndNode2.Geometry = GeometryTranslator.Translate(endPoint);
         return Run(scenario => scenario
@@ -5044,14 +4594,14 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                         new LineString(
                             new CoordinateArraySequence(new Coordinate[]
                             {
-                                new CoordinateM(TestData.StartPoint2.X, TestData.StartPoint2.Y, 0.0),
-                                new CoordinateM(TestData.MiddlePoint2.X, TestData.MiddlePoint2.Y, 70.7107),
-                                new CoordinateM(TestData.EndPoint1.X, TestData.EndPoint1.Y, 228.8245)
+                                new CoordinateM(TestData.StartPoint2.X, TestData.StartPoint2.Y),
+                                new CoordinateM(TestData.MiddlePoint2.X, TestData.MiddlePoint2.Y),
+                                new CoordinateM(TestData.EndPoint1.X, TestData.EndPoint1.Y)
                             }),
                             GeometryConfiguration.GeometryFactory
                         )
                     })
-                { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
+            { SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32() }
         );
         TestData.AddEndNode2.Geometry = TestData.EndNode1Added.Geometry;
 

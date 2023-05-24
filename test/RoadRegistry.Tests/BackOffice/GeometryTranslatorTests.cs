@@ -5,6 +5,8 @@ using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Messages;
+using LineString = NetTopologySuite.Geometries.LineString;
 using Point = Be.Vlaanderen.Basisregisters.Shaperon.Point;
 
 public class GeometryTranslatorTests
@@ -30,19 +32,64 @@ public class GeometryTranslatorTests
     //}
 
     [Fact]
-    public void MissingMeasuresAreFilledInCorrectly()
+    public void MeasuresAreUpdatedCorrectly_PolylineM()
     {
         var points = new[] { new Point(0, 0), new Point(0, 3), new Point(0, 10) };
+        var invalidMeasures = points.Select(x => 1.0).ToArray();
         var polyline = new PolyLineM(
             new BoundingBox2D(points.Min(p => p.X), points.Min(p => p.Y), points.Max(p => p.X), points.Max(p => p.Y)),
             new[] { 0 },
             points,
-            points.Select(x => double.NaN).ToArray()
+            invalidMeasures
         );
 
         var geometryLineString = GeometryTranslator.ToMultiLineString(polyline);
 
         var actualMeasures = geometryLineString.GetOrdinates(Ordinate.M);
+        var expectedMeasures = points.Select(x => x.Y).ToArray();
+
+        Assert.Equal(expectedMeasures, actualMeasures);
+    }
+
+    [Fact]
+    public void MeasuresAreUpdatedCorrectly_RoadSegmentGeometry()
+    {
+        var points = new[] { new Point(0, 0), new Point(0, 3), new Point(0, 10) };
+        var invalidMeasures = points.Select(x => 1.0).ToArray();
+        var polyline = new RoadSegmentGeometry
+        {
+            SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+            MultiLineString = new[]
+            {
+                new RoadRegistry.BackOffice.Messages.LineString
+                {
+                    Measures = invalidMeasures,
+                    Points = points.Select(point => new RoadRegistry.BackOffice.Messages.Point { X = point.X, Y = point.Y }).ToArray()
+                }
+            }
+        };
+
+        var geometryLineString = GeometryTranslator.Translate(polyline);
+
+        var actualMeasures = geometryLineString.GetOrdinates(Ordinate.M);
+        var expectedMeasures = points.Select(x => x.Y).ToArray();
+
+        Assert.Equal(expectedMeasures, actualMeasures);
+    }
+
+    [Fact]
+    public void MeasuresAreUpdatedCorrectly_MultiLineString()
+    {
+        var points = new[] { new Point(0, 0), new Point(0, 3), new Point(0, 10) };
+        
+        var polyline = new MultiLineString(new [] { new LineString(points.Select(point => (Coordinate)new CoordinateM(point.X, point.Y, 1.0)).ToArray()) })
+        {
+            SRID = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+
+        var geometryLineString = GeometryTranslator.Translate(polyline);
+        
+        var actualMeasures = geometryLineString.MultiLineString[0].Measures;
         var expectedMeasures = points.Select(x => x.Y).ToArray();
 
         Assert.Equal(expectedMeasures, actualMeasures);
@@ -56,7 +103,7 @@ public class GeometryTranslatorTests
         var geometry = GeometryTranslator.ParseGmlLineString(gml);
 
         Assert.NotNull(geometry);
-        Assert.Equal(31370, geometry.SRID);
+        Assert.Equal(SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(), geometry.SRID);
     }
 
     [Theory]
@@ -89,5 +136,18 @@ public class GeometryTranslatorTests
         var result = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(geometry);
 
         result.Should().NotBeNull();
+    }
+
+    [Theory]
+    [InlineData("MULTILINESTRING ((0 0, 1 0))", new[] { 0.0, 1.0 })]
+    [InlineData("MULTILINESTRING ((0 0, 1 0, 2 0))", new[] { 0.0, 1.0, 2.0 })]
+    [InlineData("MULTILINESTRING ((0 0, 1 0, 2 0, 1 0))", new[] { 0.0, 1.0, 2.0, 3.0 })]
+    public void WithMeasureOrdinatesIsCorrect(string wkt, double[] expectedMeasures)
+    {
+        var geometry = (MultiLineString)new WKTReader().Read(wkt);
+        var geometryWithMeasures = geometry.WithMeasureOrdinates();
+        var actualMeasures = geometryWithMeasures.GetOrdinates(Ordinate.M);
+
+        Assert.Equal(expectedMeasures, actualMeasures);
     }
 }

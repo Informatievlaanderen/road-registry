@@ -13,6 +13,7 @@ using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
+using System.Linq;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = RoadRegistry.BackOffice.Messages.Point;
 using Polygon = RoadRegistry.BackOffice.Messages.Polygon;
@@ -495,13 +496,27 @@ public static class SharedCustomizations
     public static void CustomizeRoadSegmentGeometry(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentGeometry>(customizer =>
-            customizer.FromFactory(_ => new RoadSegmentGeometry
+            customizer.FromFactory(_ =>
             {
-                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                MultiLineString = new[]
+                var lineString = fixture.Create<RoadRegistry.BackOffice.Messages.LineString>();
+                var previousPoint = new Coordinate(lineString.Points[0].X, lineString.Points[0].Y);
+                var measure = 0.0;
+                lineString.Measures = lineString.Points.Select(point =>
                 {
-                    fixture.Create<RoadRegistry.BackOffice.Messages.LineString>()
-                }
+                    var currentPoint = new Coordinate(point.X, point.Y);
+                    measure += previousPoint.Distance(currentPoint);
+                    previousPoint = currentPoint;
+                    return measure;
+                }).ToArray();
+
+                return new RoadSegmentGeometry
+                {
+                    SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+                    MultiLineString = new[]
+                    {
+                        lineString
+                    }
+                };
             }).OmitAutoProperties());
     }
 

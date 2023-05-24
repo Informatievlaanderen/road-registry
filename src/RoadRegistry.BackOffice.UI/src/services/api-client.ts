@@ -2,6 +2,7 @@ import Vue from "vue";
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from "axios";
 import { AuthService } from "@/auth";
 import router from "@/router";
+import { featureToggles } from "@/environment";
 
 export interface IApiClient {
   get<T = any>(url: string, query?: any, headers?: any, config?: any): Promise<IApiResponse<T>>;
@@ -33,7 +34,7 @@ class AxiosHttpApiClient implements IApiClient {
     this.axios = axios.create();
 
     this.axios.interceptors.request.use((config: any) => {
-      config.withCredentials = false;
+      config.withCredentials = !featureToggles.useDirectApiCalls;
       config.headers["x-api-key"] = AuthService.getApiKey();
       return config;
     });
