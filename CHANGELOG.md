@@ -1,3 +1,10 @@
+## [3.43.4](https://github.com/informatievlaanderen/road-registry/compare/v3.43.3...v3.43.4) (2023-05-24)
+
+
+### Bug Fixes
+
+* WR-321 validate WKT on paste and when clicking next ([#973](https://github.com/informatievlaanderen/road-registry/issues/973)) ([4aee4c1](https://github.com/informatievlaanderen/road-registry/commit/4aee4c12ffe714ed20d4c7a6f7c16633d7243519))
+
 ## [3.43.3](https://github.com/informatievlaanderen/road-registry/compare/v3.43.2...v3.43.3) (2023-05-24)
 
 
