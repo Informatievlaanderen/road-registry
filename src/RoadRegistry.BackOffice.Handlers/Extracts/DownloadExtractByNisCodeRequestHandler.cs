@@ -9,6 +9,7 @@ using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using System.Reflection.PortableExecutable;
 
 public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>
 {
@@ -27,8 +28,10 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
         await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
-                DownloadId = downloadId,
+                RequestedOn = DateTime.UtcNow.ToFileTimeUtc(),
+                ExternalRequestId = randomExternalRequestId,
                 Contour = municipalityGeometry.Geometry,
+                DownloadId = downloadId,
                 Description = request.Description,
                 UploadExpected = request.UploadExpected
             },

@@ -27,8 +27,10 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
         await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
-                DownloadId = downloadId,
+                RequestedOn = DateTime.UtcNow.ToFileTimeUtc(),
+                ExternalRequestId = request.RequestId,
                 Contour = _reader.Read(request.Contour),
+                DownloadId = downloadId,
                 Description = request.RequestId,
                 UploadExpected = request.UploadExpected
             },

@@ -29,8 +29,10 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
         await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
-                DownloadId = downloadId,
+                RequestedOn = DateTime.UtcNow.ToFileTimeUtc(),
+                ExternalRequestId = randomExternalRequestId,
                 Contour = geometry,
+                DownloadId = downloadId,
                 Description = request.Description,
                 UploadExpected = request.UploadExpected
             },

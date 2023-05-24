@@ -7,6 +7,7 @@ using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using System.Reflection.PortableExecutable;
 
 public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<DownloadExtractByFileRequest, DownloadExtractByFileResponse>
 {
@@ -28,8 +29,10 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
         await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
-                DownloadId = downloadId,
+                RequestedOn = DateTime.UtcNow.ToFileTimeUtc(),
+                ExternalRequestId = randomExternalRequestId,
                 Contour = (Geometry)GeometryTranslator.Translate(contour),
+                DownloadId = downloadId,
                 Description = request.Description,
                 UploadExpected = request.UploadExpected
             },

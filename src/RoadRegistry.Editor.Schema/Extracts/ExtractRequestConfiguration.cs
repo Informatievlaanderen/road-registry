@@ -23,9 +23,8 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
             .HasColumnType("Geometry")
             .IsRequired();
 
-        b.Property(p => p.RequestId).IsRequired();
-        b.Property(p => p.RequestedOn).IsRequired();
         b.Property(p => p.ExternalRequestId).IsRequired();
+        b.Property(p => p.RequestedOn).IsRequired();
 
         b.Property(p => p.UploadExpected)
             .HasDefaultValue(true)

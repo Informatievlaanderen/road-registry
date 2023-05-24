@@ -28,9 +28,8 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
         {
             DownloadId = new DownloadId(record.DownloadId),
             Description = record.Description,
-            ExtractRequestId = ExtractRequestId.FromString(record.RequestId),
-            ExternalRequestId = record.ExternalRequestId,
-            RequestId = record.RequestId,
+            Contour = record.Contour,
+            ExtractRequestId = ExtractRequestId.FromExternalRequestId(record.ExternalRequestId),
             RequestOn = new DateTime(record.RequestedOn),
             UploadExpected = record.UploadExpected
         };
