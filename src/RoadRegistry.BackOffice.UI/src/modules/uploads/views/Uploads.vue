@@ -124,7 +124,7 @@ export default Vue.extend({
         return status;
       }
 
-      if (this.uploadResult.uploadResponseCode == 200) {
+      if (this.uploadResult.uploadResponseCode == 200 || this.uploadResult.uploadResponseCode == 202) {
         status.success = true;
         status.title = "Gelukt!";
         status.text =
