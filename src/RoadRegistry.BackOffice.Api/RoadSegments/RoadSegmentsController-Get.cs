@@ -55,7 +55,7 @@ public partial class RoadSegmentsController
                     ObjectId = detailResponse.RoadSegmentId.ToString(),
                     VersieId = detailResponse.BeginTime
                 },
-                MiddellijnGeometrie = GeometryTranslator.ToGeoJson(geoJsonGeometry),
+                MiddellijnGeometrie = geoJsonGeometry.ToGeoJson(),
                 MethodeWegsegmentgeometrie = detailResponse.GeometryDrawMethod.Translation.Name,
                 BeginknoopObjectId = detailResponse.StartNodeId,
                 EindknoopObjectId = detailResponse.EndNodeId,

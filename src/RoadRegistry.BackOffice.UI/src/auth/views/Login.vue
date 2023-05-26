@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div class="vl-typography">
-      <h2>Aanmelden</h2>
-    </div>
+    <wr-h2>Aanmelden</wr-h2>
 
     <div class="vl-form-grid vl-form-grid--is-stacked">
       <div class="vl-form-col--12-12">

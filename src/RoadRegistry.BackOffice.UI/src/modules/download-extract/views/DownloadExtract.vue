@@ -1,7 +1,7 @@
 <template>
   <div>
+    <wr-h2>Wizard extract downloaden</wr-h2>
     <div class="vl-typography">
-      <h2>Wizard extract downloaden</h2>
       <p>Volg de stappen hieronder om een extract van het Wegenregister te downloaden.</p>
 
       <div v-if="currentStep == steps.Step1">

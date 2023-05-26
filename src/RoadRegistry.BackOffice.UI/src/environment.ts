@@ -4,6 +4,7 @@ export const API_ENDPOINT = window.API_ENDPOINT || process.env.VUE_APP_API_ENDPO
 export const API_OLDENDPOINT = window.API_OLDENDPOINT || process.env.VUE_APP_API_OLDENDPOINT;
 export const featureToggles = {
     useFeatureCompare: `${(window.featureToggles?.useFeatureCompare ?? process.env.VUE_APP_FEATURETOGGLES_USEFEATURECOMPARE)}` === 'true',
-    useDirectApiCalls: `${(window.featureToggles?.useDirectApiCalls ?? process.env.VUE_APP_FEATURETOGGLES_USEDIRECTAPICALLS)}` === 'true'
+    useDirectApiCalls: `${(window.featureToggles?.useDirectApiCalls ?? process.env.VUE_APP_FEATURETOGGLES_USEDIRECTAPICALLS)}` === 'true',
+    useTransactionZonesTab: `${(window.featureToggles?.useTransactionZonesTab ?? process.env.VUE_APP_FEATURETOGGLES_USETRANSACTIONZONESTAB)}` === 'true'
 };
 
