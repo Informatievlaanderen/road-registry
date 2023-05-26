@@ -55,7 +55,7 @@ public partial class RoadSegmentsController
                     ObjectId = detailResponse.RoadSegmentId.ToString(),
                     VersieId = detailResponse.BeginTime
                 },
-                MiddellijnGeometrie = GeometryTranslator.ToGeoJson(geoJsonGeometry).ToString(),
+                MiddellijnGeometrie = GeometryTranslator.ToGeoJson(geoJsonGeometry),
                 MethodeWegsegmentgeometrie = detailResponse.GeometryDrawMethod.Translation.Name,
                 BeginknoopObjectId = detailResponse.StartNodeId,
                 EindknoopObjectId = detailResponse.EndNodeId,
@@ -204,7 +204,7 @@ public class GetRoadSegmentResponse
     /// </summary>
     [DataMember(Name = "MiddellijnGeometrie", Order = 2)]
     [JsonProperty]
-    public string MiddellijnGeometrie { get; set; }
+    public MultiLineString MiddellijnGeometrie { get; set; }
 
     /// <summary>
     ///     De geometriemethode van het wegsegment.
@@ -318,7 +318,7 @@ public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadS
                     new[] { 243261.3599999994, 160239.0 },
                     new[] { 243279.0160000026, 160244.1570000015 }
                 }
-            }).ToString(),
+            }),
             MethodeWegsegmentgeometrie = RoadSegmentGeometryDrawMethod.Outlined.Translation.Name,
             BeginknoopObjectId = 287335,
             EindknoopObjectId = 287336,

@@ -1,3 +1,40 @@
+## [3.43.5](https://github.com/informatievlaanderen/road-registry/compare/v3.43.4...v3.43.5) (2023-05-24)
+
+
+### Bug Fixes
+
+* WR-705 fix measure ordinates when reading SHP ([#974](https://github.com/informatievlaanderen/road-registry/issues/974)) ([b1f1265](https://github.com/informatievlaanderen/road-registry/commit/b1f1265aa99c4ee51425293449cd362a9c39c8c4))
+* WR-715 upload through UI should read http status 202 succesful upload ([#975](https://github.com/informatievlaanderen/road-registry/issues/975)) ([bbfe4b6](https://github.com/informatievlaanderen/road-registry/commit/bbfe4b6af2343eee75524296ebe99df75db41c44))
+
+## [3.43.4](https://github.com/informatievlaanderen/road-registry/compare/v3.43.3...v3.43.4) (2023-05-24)
+
+
+### Bug Fixes
+
+* WR-321 validate WKT on paste and when clicking next ([#973](https://github.com/informatievlaanderen/road-registry/issues/973)) ([4aee4c1](https://github.com/informatievlaanderen/road-registry/commit/4aee4c12ffe714ed20d4c7a6f7c16633d7243519))
+
+## [3.43.3](https://github.com/informatievlaanderen/road-registry/compare/v3.43.2...v3.43.3) (2023-05-24)
+
+
+### Bug Fixes
+
+* WR-705 always fill in measure values when receiving geometries ([#972](https://github.com/informatievlaanderen/road-registry/issues/972)) ([d27ad76](https://github.com/informatievlaanderen/road-registry/commit/d27ad761841becd037da5bd04b5828913a1c2e7a))
+
+## [3.43.2](https://github.com/informatievlaanderen/road-registry/compare/v3.43.1...v3.43.2) (2023-05-23)
+
+
+### Bug Fixes
+
+* Bugfix for incorrect json output ([#971](https://github.com/informatievlaanderen/road-registry/issues/971)) ([dcb2e48](https://github.com/informatievlaanderen/road-registry/commit/dcb2e48306127f15772d08b8de3233c9f3e54ab4))
+
+## [3.43.1](https://github.com/informatievlaanderen/road-registry/compare/v3.43.0...v3.43.1) (2023-05-23)
+
+
+### Bug Fixes
+
+* WR-487 stop using nginx for API calls to backoffice-api or public-api ([#968](https://github.com/informatievlaanderen/road-registry/issues/968)) ([5112513](https://github.com/informatievlaanderen/road-registry/commit/5112513b041d124f6bd3295628c9e5e8c471bf77))
+* WR-715 return UploadId for before-FC extracts upload ([#969](https://github.com/informatievlaanderen/road-registry/issues/969)) ([ca99eee](https://github.com/informatievlaanderen/road-registry/commit/ca99eeeb7a157cb61e78fd5fab448b13ba0687e0))
+
 # [3.43.0](https://github.com/informatievlaanderen/road-registry/compare/v3.42.0...v3.43.0) (2023-05-17)
 
 
