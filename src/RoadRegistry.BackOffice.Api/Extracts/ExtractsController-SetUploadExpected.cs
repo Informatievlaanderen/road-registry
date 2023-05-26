@@ -27,7 +27,12 @@ public partial class ExtractsController
 
             var request = new ExtractUploadExpectedRequest(DownloadId.Parse(downloadId), requestBody.UploadExpected);
             var response = await _mediator.Send(request, cancellationToken);
-            return Accepted();
+            return Accepted(new ExtractUploadExpectedResponseBody
+            {
+                DownloadId = response.DownloadId.ToString(),
+                Description = response.Description,
+                UploadExpected = response.UploadExpected
+            });
         }
         catch (UploadExtractNotFoundException exception)
         {
@@ -39,4 +44,12 @@ public partial class ExtractsController
 public sealed record ExtractUploadExpectedRequestBody
 {
     public bool UploadExpected { get; set; }
+}
+
+public sealed record ExtractUploadExpectedResponseBody
+{
+    public string DownloadId { get; set; }
+    public string Description { get; set; }
+    public bool UploadExpected { get; set; }
+
 }
