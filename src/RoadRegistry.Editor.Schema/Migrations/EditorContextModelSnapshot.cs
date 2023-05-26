@@ -332,13 +332,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("RequestedOn")
-                        .HasColumnType("bigint");
+                    b.Property<DateTimeOffset>("RequestedOn")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("UploadExpected")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.HasKey("DownloadId");
 

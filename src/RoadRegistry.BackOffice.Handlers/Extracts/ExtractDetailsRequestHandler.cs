@@ -6,6 +6,7 @@ using Editor.Schema;
 using Exceptions;
 using Framework;
 using Microsoft.Extensions.Logging;
+using NetTopologySuite.Geometries;
 
 public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetailsRequest, ExtractDetailsResponse>
 {
@@ -21,16 +22,16 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
 
     public override async Task<ExtractDetailsResponse> HandleAsync(ExtractDetailsRequest request, CancellationToken cancellationToken)
     {
-        var record = await _context.ExtractRequests.FindAsync(new object[] { request.DownloadId.ToString() }, cancellationToken)
+        var record = await _context.ExtractRequests.FindAsync(new object[] { request.DownloadId.ToGuid() }, cancellationToken)
                      ?? throw new ExtractRequestNotFoundException(request.DownloadId);
 
         return new ExtractDetailsResponse
         {
             DownloadId = new DownloadId(record.DownloadId),
             Description = record.Description,
-            Contour = record.Contour,
+            Contour = (MultiPolygon)record.Contour,
             ExtractRequestId = ExtractRequestId.FromExternalRequestId(record.ExternalRequestId),
-            RequestOn = new DateTime(record.RequestedOn),
+            RequestedOn = record.RequestedOn,
             UploadExpected = record.UploadExpected
         };
     }

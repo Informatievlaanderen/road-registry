@@ -24,12 +24,12 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
 
     public override async Task<DownloadExtractByContourResponse> HandleRequestAsync(DownloadExtractByContourRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
     {
-        var geometry = _reader.Read(request.Contour);
+        var geometry = (MultiPolygon)_reader.Read(request.Contour);
 
         await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
-                RequestedOn = DateTime.UtcNow.ToFileTimeUtc(),
+                RequestedOn = DateTime.UtcNow,
                 ExternalRequestId = randomExternalRequestId,
                 Contour = geometry,
                 DownloadId = downloadId,
@@ -39,7 +39,7 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
             new RequestRoadNetworkExtract
             {
                 ExternalRequestId = randomExternalRequestId,
-                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(geometry as IPolygonal, request.Buffer),
+                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(geometry, request.Buffer),
                 DownloadId = downloadId,
                 Description = request.Description,
                 UploadExpected = request.UploadExpected

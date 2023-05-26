@@ -29,9 +29,9 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
         await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
-                RequestedOn = DateTime.UtcNow.ToFileTimeUtc(),
+                RequestedOn = DateTime.UtcNow,
                 ExternalRequestId = randomExternalRequestId,
-                Contour = (Geometry)GeometryTranslator.Translate(contour),
+                Contour = (MultiPolygon)GeometryTranslator.Translate(contour),
                 DownloadId = downloadId,
                 Description = request.Description,
                 UploadExpected = request.UploadExpected

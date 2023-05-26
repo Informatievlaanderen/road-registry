@@ -13,8 +13,8 @@ using RoadRegistry.Editor.Schema;
 namespace RoadRegistry.Editor.Schema.Migrations
 {
     [DbContext(typeof(EditorContext))]
-    [Migration("20230524133125_RemoveExtractRequestRecordRequestId")]
-    partial class RemoveExtractRequestRecordRequestId
+    [Migration("20230526131541_AddExtractRequestRecord")]
+    partial class AddExtractRequestRecord
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -334,13 +334,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("RequestedOn")
-                        .HasColumnType("bigint");
+                    b.Property<DateTimeOffset>("RequestedOn")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<bool>("UploadExpected")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.HasKey("DownloadId");
 

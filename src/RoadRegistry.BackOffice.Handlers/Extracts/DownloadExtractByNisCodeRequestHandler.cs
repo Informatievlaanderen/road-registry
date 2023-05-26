@@ -28,9 +28,9 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
         await DispatchCommandWithContextAddAsync(
             new ExtractRequestRecord
             {
-                RequestedOn = DateTime.UtcNow.ToFileTimeUtc(),
+                RequestedOn = DateTime.UtcNow,
                 ExternalRequestId = randomExternalRequestId,
-                Contour = municipalityGeometry.Geometry,
+                Contour = (MultiPolygon)municipalityGeometry.Geometry,
                 DownloadId = downloadId,
                 Description = request.Description,
                 UploadExpected = request.UploadExpected
@@ -38,8 +38,7 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
             new RequestRoadNetworkExtract
             {
                 ExternalRequestId = randomExternalRequestId,
-                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(
-                    municipalityGeometry.Geometry as MultiPolygon, request.Buffer),
+                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry((MultiPolygon)municipalityGeometry.Geometry, request.Buffer),
                 DownloadId = downloadId,
                 Description = request.Description,
                 UploadExpected = request.UploadExpected

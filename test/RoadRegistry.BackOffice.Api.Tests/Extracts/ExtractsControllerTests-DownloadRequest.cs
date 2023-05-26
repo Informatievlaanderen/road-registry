@@ -31,7 +31,7 @@ public partial class ExtractsControllerTests
         };
         var response = await Controller.RequestDownload(new DownloadExtractRequestBody(
             writer.Write((Geometry)GeometryTranslator.Translate(contour)),
-            externalExtractRequestId
+            externalExtractRequestId, false
         ), CancellationToken.None);
         var result = Assert.IsType<AcceptedResult>(response);
         Assert.IsType<DownloadExtractResponseBody>(result.Value);
@@ -55,7 +55,7 @@ public partial class ExtractsControllerTests
             await Controller.RequestDownload(new DownloadExtractRequestBody
             (
                 externalExtractRequestId,
-                writer.Write(new Point(1.0, 2.0))
+                writer.Write(new Point(1.0, 2.0)), false
             ), CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
@@ -78,7 +78,8 @@ public partial class ExtractsControllerTests
             await Controller.RequestDownload(new DownloadExtractRequestBody
             (
                 null,
-                externalExtractRequestId
+                externalExtractRequestId,
+                false
             ), CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
         }
@@ -105,7 +106,8 @@ public partial class ExtractsControllerTests
             await Controller.RequestDownload(new DownloadExtractRequestBody
             (
                 writer.Write((Geometry)GeometryTranslator.Translate(contour)),
-                null
+                null,
+                false
             ), CancellationToken.None);
             throw new XunitException("Expected a validation exception but did not receive any");
         }

@@ -26,12 +26,9 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     DownloadId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Contour = table.Column<Geometry>(type: "Geometry", nullable: false),
-                    RequestId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RequestedOn = table.Column<long>(type: "bigint", nullable: false),
                     ExternalRequestId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Available = table.Column<bool>(type: "bit", nullable: false),
-                    AvailableOn = table.Column<long>(type: "bigint", nullable: false),
-                    UploadExpected = table.Column<bool>(type: "bit", nullable: false, defaultValue: true)
+                    RequestedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UploadExpected = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {

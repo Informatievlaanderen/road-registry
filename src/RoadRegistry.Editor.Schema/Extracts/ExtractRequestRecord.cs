@@ -9,6 +9,6 @@ public class ExtractRequestRecord
     public string Description { get; set; }
     public Geometry Contour { get; set; }
     public string ExternalRequestId { get; set; }
-    public long RequestedOn { get; set; }
+    public DateTimeOffset RequestedOn { get; set; }
     public bool UploadExpected { get; set; }
 }

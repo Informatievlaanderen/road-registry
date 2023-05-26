@@ -27,7 +27,6 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
         b.Property(p => p.RequestedOn).IsRequired();
 
         b.Property(p => p.UploadExpected)
-            .HasDefaultValue(true)
             .IsRequired();
     }
 }

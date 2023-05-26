@@ -23,12 +23,12 @@ public partial class ExtractsController
     [SwaggerOperation(OperationId = nameof(RequestDownload), Description = "")]
     public async Task<IActionResult> RequestDownload([FromBody] DownloadExtractRequestBody body, CancellationToken cancellationToken)
     {
-        var request = new DownloadExtractRequest(body.RequestId, body.Contour);
+        var request = new DownloadExtractRequest(body.RequestId, body.Contour, body.UploadExpected);
         var response = await _mediator.Send(request, cancellationToken);
         return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.UploadExpected));
     }
 }
 
-public record DownloadExtractRequestBody(string Contour, string RequestId);
+public record DownloadExtractRequestBody(string Contour, string RequestId, bool UploadExpected);
 
 public record DownloadExtractResponseBody(string DownloadId, bool UploadExpected);
