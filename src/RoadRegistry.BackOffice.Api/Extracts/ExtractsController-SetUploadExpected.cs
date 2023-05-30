@@ -23,7 +23,7 @@ public partial class ExtractsController
     {
         try
         {
-            if (!DownloadId.CanParse(downloadId)) throw new DownloadExtractNotFoundException("");
+            if (!DownloadId.CanParse(downloadId)) throw new DownloadExtractNotFoundException();
 
             var request = new ExtractUploadExpectedRequest(DownloadId.Parse(downloadId), requestBody.UploadExpected);
             var response = await _mediator.Send(request, cancellationToken);

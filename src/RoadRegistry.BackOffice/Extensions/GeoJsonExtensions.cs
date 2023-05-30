@@ -1,3 +1,5 @@
+namespace RoadRegistry.BackOffice.Extensions;
+
 using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
@@ -6,6 +8,7 @@ using MultiLineString = GeoJSON.Net.Geometry.MultiLineString;
 using MultiPolygon = GeoJSON.Net.Geometry.MultiPolygon;
 using Polygon = GeoJSON.Net.Geometry.Polygon;
 using Position = GeoJSON.Net.Geometry.Position;
+
 public static class GeoJsonExtensions
 {
     public static MultiLineString ToGeoJson(this NetTopologySuite.Geometries.MultiLineString multiLineString)

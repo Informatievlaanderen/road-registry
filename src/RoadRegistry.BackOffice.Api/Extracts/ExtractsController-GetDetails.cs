@@ -8,6 +8,7 @@ using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Extensions;
 using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using NetTopologySuite.Geometries;
@@ -27,7 +28,7 @@ public partial class ExtractsController
     {
         try
         {
-            if (!DownloadId.CanParse(downloadId)) throw new DownloadExtractNotFoundException("");
+            if (!DownloadId.CanParse(downloadId)) throw new DownloadExtractNotFoundException();
 
             var request = new ExtractDetailsRequest(DownloadId.Parse(downloadId));
             var response = await _mediator.Send(request, cancellationToken);
