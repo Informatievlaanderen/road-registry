@@ -381,12 +381,49 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
-                ArchiveId = archiveId
+                ArchiveId = archiveId,
+                UploadExpected = true
             })
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
                 Title = $"Extractaanvraag \"{description}\": download beschikbaar",
+                Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
+                Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
+                {
+                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
+                })
+            });
+    }
+
+    [Fact]
+    public async Task When_extract_informative_download_became_available()
+    {
+        var description = _fixture.Create<ExtractDescription>();
+        var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
+        var extractRequestId = _fixture.Create<ExtractRequestId>();
+        var downloadId = _fixture.Create<DownloadId>();
+        var archiveId = _fixture.Create<ArchiveId>();
+        var filename = _fixture.Create<string>();
+        await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
+            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+            ContentType.Parse("application/zip"), Stream.Null);
+
+        await new RoadNetworkChangeFeedProjection(_client)
+            .Scenario()
+            .Given(new RoadNetworkExtractDownloadBecameAvailable
+            {
+                Description = description,
+                ExternalRequestId = externalExtractRequestId,
+                RequestId = extractRequestId,
+                DownloadId = downloadId,
+                ArchiveId = archiveId,
+                UploadExpected = false
+            })
+            .Expect(new RoadNetworkChange
+            {
+                Id = 0,
+                Title = $"Informatieve extractaanvraag \"{description}\": download beschikbaar",
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
                 {
@@ -408,12 +445,43 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
             {
                 Description = description,
                 ExternalRequestId = externalExtractRequestId,
-                RequestId = extractRequestId
+                RequestId = extractRequestId,
+                UploadExpected = true
             })
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
                 Title = $"Extractaanvraag \"{description}\": download niet beschikbaar, contour te complex of te groot",
+                Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
+                Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadTimeoutOccurredEntry
+                {
+                    ExternalRequestId = externalExtractRequestId,
+                    RequestId = extractRequestId,
+                    Description = description
+                })
+            });
+    }
+
+    [Fact]
+    public async Task When_extract_informative_download_timeout_occurred()
+    {
+        var description = _fixture.Create<ExtractDescription>();
+        var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
+        var extractRequestId = _fixture.Create<ExtractRequestId>();
+
+        await new RoadNetworkChangeFeedProjection(_client)
+            .Scenario()
+            .Given(new RoadNetworkExtractDownloadTimeoutOccurred
+            {
+                Description = description,
+                ExternalRequestId = externalExtractRequestId,
+                RequestId = extractRequestId,
+                UploadExpected = false
+            })
+            .Expect(new RoadNetworkChange
+            {
+                Id = 0,
+                Title = $"Informatieve extractaanvraag \"{description}\": download niet beschikbaar, contour te complex of te groot",
                 Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadTimeoutOccurredEntry
                 {

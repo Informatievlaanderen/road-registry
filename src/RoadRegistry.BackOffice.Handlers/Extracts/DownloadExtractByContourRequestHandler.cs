@@ -1,39 +1,50 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
-using Abstractions;
 using Abstractions.Extracts;
+using Editor.Schema;
+using Editor.Schema.Extracts;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 
-public class DownloadExtractByContourRequestHandler : EndpointRequestHandler<DownloadExtractByContourRequest, DownloadExtractByContourResponse>
+public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<DownloadExtractByContourRequest, DownloadExtractByContourResponse>
 {
     private readonly WKTReader _reader;
 
     public DownloadExtractByContourRequestHandler(
+        EditorContext context,
         CommandHandlerDispatcher dispatcher,
         WKTReader reader,
-        ILogger<DownloadExtractByContourRequestHandler> logger) : base(dispatcher, logger)
+        ILogger<DownloadExtractByContourRequestHandler> logger) : base(context, dispatcher, logger)
     {
         _reader = reader ?? throw new ArgumentNullException(nameof(reader));
     }
 
-    public override async Task<DownloadExtractByContourResponse> HandleAsync(DownloadExtractByContourRequest request, CancellationToken cancellationToken)
+    public override async Task<DownloadExtractByContourResponse> HandleRequestAsync(DownloadExtractByContourRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
     {
-        var downloadId = new DownloadId(Guid.NewGuid());
-        var randomExternalRequestId = Guid.NewGuid().ToString("N");
-        var message = new Command(
+        var geometry = (MultiPolygon)_reader.Read(request.Contour);
+
+        await DispatchCommandWithContextAddAsync(
+            new ExtractRequestRecord
+            {
+                RequestedOn = DateTime.UtcNow,
+                ExternalRequestId = randomExternalRequestId,
+                Contour = geometry,
+                DownloadId = downloadId,
+                Description = request.Description,
+                UploadExpected = request.UploadExpected
+            },
             new RequestRoadNetworkExtract
             {
                 ExternalRequestId = randomExternalRequestId,
-                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(_reader.Read(request.Contour) as IPolygonal, request.Buffer),
+                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(geometry, request.Buffer),
                 DownloadId = downloadId,
-                Description = request.Description
-            });
-        await Dispatcher(message, cancellationToken);
+                Description = request.Description,
+                UploadExpected = request.UploadExpected
+            }, cancellationToken);
 
-        return new DownloadExtractByContourResponse(downloadId);
+        return new DownloadExtractByContourResponse(downloadId, request.UploadExpected);
     }
 }
