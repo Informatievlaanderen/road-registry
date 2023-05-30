@@ -1,3 +1,10 @@
+# [3.44.0](https://github.com/informatievlaanderen/road-registry/compare/v3.43.5...v3.44.0) (2023-05-30)
+
+
+### Features
+
+* Extract request should have upload expected and details endpoints WR-224 ([#976](https://github.com/informatievlaanderen/road-registry/issues/976)) ([9cc6446](https://github.com/informatievlaanderen/road-registry/commit/9cc6446722ec89089c369c0398b0ea9f562368aa))
+
 ## [3.43.5](https://github.com/informatievlaanderen/road-registry/compare/v3.43.4...v3.43.5) (2023-05-24)
 
 
