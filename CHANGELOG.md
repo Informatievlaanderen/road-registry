@@ -1,3 +1,10 @@
+# [3.45.0](https://github.com/informatievlaanderen/road-registry/compare/v3.44.0...v3.45.0) (2023-05-30)
+
+
+### Features
+
+* WR-258 tab TransactionZones with map ([#978](https://github.com/informatievlaanderen/road-registry/issues/978)) ([c79689c](https://github.com/informatievlaanderen/road-registry/commit/c79689ccb58e3245fed42a2ca08def3f1698c1b7))
+
 # [3.44.0](https://github.com/informatievlaanderen/road-registry/compare/v3.43.5...v3.44.0) (2023-05-30)
 
 
