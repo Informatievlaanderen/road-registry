@@ -1,13 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
-using Editor.Schema;
-using Extensions;
-using GeoJSON.Net.Feature;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Abstractions.Extracts;
 using Swashbuckle.AspNetCore.Annotations;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,24 +13,17 @@ public partial class ExtractsController
     /// <summary>
     ///     Gets the municipalities in a GeoJson format.
     /// </summary>
-    /// <param name="context">The EditorContext.</param>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
     /// </param>
-    /// <returns>IActionResult.</returns>
+    /// <returns>JsonResult.</returns>
     [HttpGet(GetMunicipalitiesGeoJsonRoute, Name = nameof(GetMunicipalitiesGeoJson))]
-    [SwaggerOperation(OperationId = nameof(GetMunicipalitiesGeoJson), Description = "")]
-    public async Task<IActionResult> GetMunicipalitiesGeoJson([FromServices] EditorContext context, CancellationToken cancellationToken)
+    [SwaggerOperation(OperationId = nameof(GetMunicipalitiesGeoJson))]
+    public async Task<JsonResult> GetMunicipalitiesGeoJson(CancellationToken cancellationToken)
     {
-        var municipalities = await context.MunicipalityGeometries.ToListAsync(cancellationToken);
-
-        return new JsonResult(new FeatureCollection(municipalities
-            .Select(municipality => new Feature(((MultiPolygon)municipality.Geometry).ToGeoJson(), new
-            {
-                municipality.NisCode
-            }))
-            .ToList()
-        ));
+        var response = await _mediator.Send(new GetMunicipalitiesGeoJsonRequest(), cancellationToken);
+        
+        return new JsonResult(response.FeatureCollection);
     }
 }
