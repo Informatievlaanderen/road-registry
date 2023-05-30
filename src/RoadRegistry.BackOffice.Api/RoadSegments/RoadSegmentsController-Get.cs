@@ -9,6 +9,7 @@ using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Extensions;
 using GeoJSON.Net.Geometry;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

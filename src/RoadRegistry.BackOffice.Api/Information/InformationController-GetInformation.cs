@@ -1,18 +1,12 @@
 namespace RoadRegistry.BackOffice.Api.Information;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
-using GeoJSON.Net.Feature;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
 using Swashbuckle.AspNetCore.Annotations;
+using System;
+using System.Threading.Tasks;
 
 public partial class InformationController
 {
@@ -33,47 +27,6 @@ public partial class InformationController
 
         return new JsonResult(RoadNetworkInformationResponse.From(info));
     }
-
-    [HttpGet("municipalities.geojson", Name = nameof(GetMunicipalities))]
-    [SwaggerOperation(OperationId = nameof(GetMunicipalities), Description = "")]
-    public async Task<IActionResult> GetMunicipalities([FromServices] EditorContext context)
-    {
-        var municipalities = await context.MunicipalityGeometries.ToListAsync(HttpContext.RequestAborted);
-
-        return new JsonResult(new FeatureCollection(municipalities
-            .Select(municipality => new Feature(((MultiPolygon)municipality.Geometry).ToGeoJson(), new
-            {
-                municipality.NisCode
-            }))
-            .ToList()
-        ));
-    }
-
-    //[HttpGet("wms", Name = nameof(Wms))]
-    //[SwaggerOperation(OperationId = nameof(Wms), Description = "")]
-    //public async Task Wms()
-    //{
-    //    var client = new HttpClient();
-    //    var url = "https://geo.api.beta-vlaanderen.be/Wegenregister/wms";
-    //    var request = new HttpRequestMessage(HttpMethod.Get, $"{url}{HttpContext.Request.QueryString}");
-    //    foreach (var header in HttpContext.Request.Headers.Where(x => x.Key != "Host"))
-    //        foreach (var headerValue in header.Value)
-    //        {
-    //            request.Headers.Add(header.Key, headerValue);
-    //        }
-
-    //    var responseMessage = await client.SendAsync(request, HttpContext.RequestAborted);
-
-    //    var response = HttpContext.Response;
-    //    response.StatusCode = (int)responseMessage.StatusCode;
-
-    //    response.Headers.Clear();
-    //    foreach (var header in responseMessage.Headers)
-    //    {
-    //        response.Headers[header.Key] = header.Value.ToArray();
-    //    }
-    //    await responseMessage.Content.CopyToAsync(response.Body);
-    //}
 }
 
 public class RoadNetworkInformationResponse
