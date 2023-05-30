@@ -34,7 +34,7 @@ public class DownloadExtractByContourRequestValidatorTests
     [InlineData(100)]
     public async Task Validate_will_allow_valid_buffer(int givenBuffer)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, givenBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, givenBuffer, ValidDescription, false));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
@@ -42,7 +42,7 @@ public class DownloadExtractByContourRequestValidatorTests
     [MemberData(nameof(ValidDescriptionCases))]
     public async Task Validate_will_allow_valid_description(string givenDescription)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, ValidBuffer, givenDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, ValidBuffer, givenDescription, false));
 
         await act.Should().NotThrowAsync<ValidationException>();
     }
@@ -50,7 +50,7 @@ public class DownloadExtractByContourRequestValidatorTests
     [Fact]
     public async Task Validate_will_allow_valid_geometry()
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, ValidBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, ValidBuffer, ValidDescription, false));
 
         await act.Should().NotThrowAsync<ValidationException>();
     }
@@ -60,7 +60,7 @@ public class DownloadExtractByContourRequestValidatorTests
     [InlineData(null)]
     public async Task Validate_will_not_allow_empty_geometry(string givenContour)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(givenContour, ValidBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(givenContour, ValidBuffer, ValidDescription, false));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
@@ -71,7 +71,7 @@ public class DownloadExtractByContourRequestValidatorTests
     [InlineData(int.MaxValue)]
     public async Task Validate_will_not_allow_invalid_buffer(int givenBuffer)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, givenBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, givenBuffer, ValidDescription, false));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
@@ -79,7 +79,7 @@ public class DownloadExtractByContourRequestValidatorTests
     [MemberData(nameof(InvalidDescriptionCases))]
     public async Task Validate_will_not_allow_invalid_description(string givenDescription)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, ValidBuffer, givenDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest(ValidContour, ValidBuffer, givenDescription, false));
 
         await act.Should().ThrowAsync<ValidationException>();
     }
@@ -87,7 +87,7 @@ public class DownloadExtractByContourRequestValidatorTests
     [Fact]
     public async Task Validate_will_not_allow_invalid_geometry()
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest("invalid", ValidBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByContourRequest("invalid", ValidBuffer, ValidDescription, false));
         await act.Should().ThrowAsync<ValidationException>();
     }
 

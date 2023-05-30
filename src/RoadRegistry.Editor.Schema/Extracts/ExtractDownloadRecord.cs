@@ -11,4 +11,5 @@ public class ExtractDownloadRecord
     public string ExternalRequestId { get; set; }
     public long RequestedOn { get; set; }
     public string RequestId { get; set; }
+    public bool UploadExpected { get; set; }
 }

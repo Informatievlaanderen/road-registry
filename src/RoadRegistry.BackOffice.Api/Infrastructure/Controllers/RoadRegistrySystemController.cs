@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
+using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,7 +12,7 @@ using SqlStreamStore;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("system")]
 [ApiExplorerSettings(GroupName = "Infrastructuur")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "wegen-beheerder")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
 public partial class RoadRegistrySystemController : BackofficeApiController
 {
     public RoadRegistrySystemController(

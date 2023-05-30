@@ -23,7 +23,8 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
                 ArchiveId = null,
                 Available = false,
                 AvailableOn = 0L,
-                RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds()
+                RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds(),
+                UploadExpected = envelope.Message.UploadExpected
             };
             await context.ExtractDownloads.AddAsync(record, ct);
         });
@@ -38,7 +39,8 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
                 ArchiveId = null,
                 Available = false,
                 AvailableOn = 0L,
-                RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds()
+                RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds(),
+                UploadExpected = envelope.Message.UploadExpected
             };
             await context.ExtractDownloads.AddAsync(record, ct);
         });
@@ -51,6 +53,7 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
             record.ArchiveId = envelope.Message.ArchiveId;
             record.Available = true;
             record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
+            record.UploadExpected = envelope.Message.UploadExpected;
         });
 
         When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>
@@ -60,6 +63,7 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
                 ?? await context.ExtractDownloads.SingleAsync(download => download.RequestId == envelope.Message.RequestId, ct);
             record.Available = true;
             record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
+            record.UploadExpected = envelope.Message.UploadExpected;
         });
     }
 }

@@ -32,9 +32,9 @@ public partial class ExtractsController
     {
         try
         {
-            var request = new DownloadExtractByFileRequest(BuildRequestItem(".shp"), BuildRequestItem(".prj"), body.Buffer, body.Description);
+            var request = new DownloadExtractByFileRequest(BuildRequestItem(".shp"), BuildRequestItem(".prj"), body.Buffer, body.Description, body.UploadExpected);
             var response = await _mediator.Send(request, cancellationToken);
-            return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString()));
+            return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.UploadExpected));
 
             DownloadExtractByFileRequestItem BuildRequestItem(string extension)
             {
@@ -52,4 +52,4 @@ public partial class ExtractsController
     }
 }
 
-public record DownloadExtractByFileRequestBody(int Buffer, string Description, IFormFileCollection Files);
+public record DownloadExtractByFileRequestBody(int Buffer, string Description, IFormFileCollection Files, bool UploadExpected);

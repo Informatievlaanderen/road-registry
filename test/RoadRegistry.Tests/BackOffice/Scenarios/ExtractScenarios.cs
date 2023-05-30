@@ -100,6 +100,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                 DownloadId = downloadId,
                 Contour = contour,
                 Description = extractDescription,
+                UploadExpected = true,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
             .When(OurSystem.AnnouncesRoadNetworkExtractDownloadBecameAvailable(extractRequestId, downloadId, archiveId))
@@ -110,6 +111,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                 DownloadId = downloadId,
                 ArchiveId = archiveId,
                 Description = extractDescription,
+                UploadExpected = true,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
         );
@@ -133,6 +135,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                 DownloadId = downloadId,
                 Contour = contour,
                 Description = extractDescription,
+                UploadExpected = true,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
             .When(OurSystem.AnnouncesRoadNetworkExtractDownloadTimeoutOccurred(extractRequestId))
@@ -141,6 +144,7 @@ public class ExtractScenarios : RoadRegistryTestBase
                 RequestId = extractRequestId,
                 ExternalRequestId = externalExtractRequestId,
                 Description = extractDescription,
+                UploadExpected = true,
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
         );

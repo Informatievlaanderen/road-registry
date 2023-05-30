@@ -1,5 +1,5 @@
 namespace RoadRegistry.BackOffice.Abstractions.Extracts;
 
-public sealed record DownloadExtractByFileResponse(DownloadId DownloadId) : EndpointResponse
+public sealed record DownloadExtractByFileResponse(DownloadId DownloadId, bool UploadExpected) : EndpointResponse
 {
 }

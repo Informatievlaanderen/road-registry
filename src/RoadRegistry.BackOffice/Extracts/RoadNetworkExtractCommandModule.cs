@@ -46,16 +46,17 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
 
                 var downloadId = new DownloadId(message.Body.DownloadId);
                 var contour = GeometryTranslator.Translate(message.Body.Contour);
+                var uploadExpected = message.Body.UploadExpected;
 
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
                 if (extract == null)
                 {
-                    extract = RoadNetworkExtract.Request(externalRequestId, downloadId, extractDescription, contour);
+                    extract = RoadNetworkExtract.Request(externalRequestId, downloadId, extractDescription, contour, uploadExpected);
                     context.RoadNetworkExtracts.Add(extract);
                 }
                 else
                 {
-                    extract.RequestAgain(downloadId, contour);
+                    extract.RequestAgain(downloadId, contour, uploadExpected);
                 }
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RequestRoadNetworkExtract));

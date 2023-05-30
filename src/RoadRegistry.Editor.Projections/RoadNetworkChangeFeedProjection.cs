@@ -20,6 +20,10 @@ using RejectedChange = Schema.RoadNetworkChanges.RejectedChange;
 
 public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext>
 {
+    private string FormattedTitle(bool uploadExpected, string description) => uploadExpected
+        ? $"Extractaanvraag \"{description}\""
+        : $"Informatieve extractaanvraag \"{description}\"";
+
     public RoadNetworkChangeFeedProjection(IBlobClient client)
     {
         ArgumentNullException.ThrowIfNull(client);
@@ -51,7 +55,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Extractaanvraag \"{envelope.Message.Description}\": ontvangen",
+                    Title = $"{FormattedTitle(envelope.Message.UploadExpected, envelope.Message.Description)}: ontvangen",
                     Type = nameof(RoadNetworkExtractGotRequested),
                     Content = null,
                     When = envelope.Message.When
@@ -62,7 +66,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Extractaanvraag \"{envelope.Message.Description}\": ontvangen",
+                    Title = $"{FormattedTitle(envelope.Message.UploadExpected, envelope.Message.Description)}: ontvangen",
                     Type = nameof(RoadNetworkExtractGotRequestedV2),
                     Content = null,
                     When = envelope.Message.When
@@ -80,7 +84,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
             {
                 Id = envelope.Position,
-                Title = $"Extractaanvraag \"{envelope.Message.Description}\": download beschikbaar",
+                Title = $"{FormattedTitle(envelope.Message.UploadExpected, envelope.Message.Description)}: download beschikbaar",
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When
@@ -99,7 +103,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
             {
                 Id = envelope.Position,
-                Title = $"Extractaanvraag \"{envelope.Message.Description}\": download niet beschikbaar, contour te complex of te groot",
+                Title = $"{FormattedTitle(envelope.Message.UploadExpected, envelope.Message.Description)}: download niet beschikbaar, contour te complex of te groot",
                 Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When

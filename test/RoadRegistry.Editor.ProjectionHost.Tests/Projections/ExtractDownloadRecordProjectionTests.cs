@@ -145,7 +145,8 @@ public class ExtractDownloadRecordProjectionTests
                     ArchiveId = null,
                     Available = false,
                     AvailableOn = 0L,
-                    RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeSeconds()
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeSeconds(),
+                    UploadExpected = true
                 };
 
                 return new
