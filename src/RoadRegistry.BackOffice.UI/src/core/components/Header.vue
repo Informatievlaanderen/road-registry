@@ -13,9 +13,12 @@
       <div class="vl-layout">
         <div class="vl-functional-header__row">
           <div class="vl-functional-header__content">
-            <h1 class="vl-title"><a class="vl-functional-header__title" href="#">{{ getTitle }}</a></h1>
+            <h1 class="vl-title">
+              <a class="vl-functional-header__title" href="#">{{ getTitle }}</a>
+            </h1>
           </div>
-          <vl-button v-if="isAuthenticated" mod-secondary v-vl-positioning:float-right v-on:click="logout">Logout
+          <vl-button v-if="isAuthenticated" mod-secondary v-vl-positioning:float-right v-on:click="logout"
+            >Logout
           </vl-button>
         </div>
         <div class="vl-functional-header__sub">
@@ -29,6 +32,7 @@
                     <router-link :to="`/download-extract`" class="vl-tab" role="tab">Download Extract</router-link>
                     <router-link :to="`/download-product`" class="vl-tab" role="tab">Download Product</router-link>
                     <router-link :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
+                    <router-link v-if="featureToggles.useTransactionZonesTab" :to="`/transaction-zones`" class="vl-tab" role="tab">Bijwerkingszones</router-link>
                   </div>
                 </div>
               </div>
@@ -42,42 +46,45 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { AuthService, isAuthenticated as HasAuth } from '@/auth';
+import { AuthService, isAuthenticated as HasAuth } from "@/auth";
 import * as environment from "@/environment";
 
 export default Vue.extend({
   name: "Header",
   computed: {
+    featureToggles() {
+      return environment.featureToggles;
+    },
     isAuthenticated() {
-      return HasAuth.state
+      return HasAuth.state;
     },
     getStyle() {
-      const style: any = {} 
+      const style: any = {};
       const env = environment.WR_ENV;
-      if(env === "staging") {
+      if (env === "staging") {
         style["backgroundColor"] = "#32cd32";
       }
-      if(env === "test") {
+      if (env === "test") {
         style["backgroundColor"] = "#ffff00";
       }
       return style;
     },
     getTitle(): string {
-      const title = "Wegenregister" 
+      const title = "Wegenregister";
       const env = environment.WR_ENV;
-      if(env === "production") {
+      if (env === "production") {
         return title;
       }
       return `${title} ${env}`;
-    }
+    },
   },
   methods: {
     logout() {
-      AuthService.logout()
-      AuthService.checkAuthentication()
-    }
-  }
-})
+      AuthService.logout();
+      AuthService.checkAuthentication();
+    },
+  },
+});
 </script>
 
 <style lang="scss" scoped>
@@ -134,7 +141,7 @@ export default Vue.extend({
   background-position: 11px center;
 }
 
-#vlaanderen-link>span {
+#vlaanderen-link > span {
   font-family: flanders-sans;
 }
 

@@ -1,12 +1,12 @@
 namespace RoadRegistry.BackOffice.Api.Information;
 
-using System;
-using System.Threading.Tasks;
 using Editor.Schema;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
+using System;
+using System.Threading.Tasks;
 
 public partial class InformationController
 {

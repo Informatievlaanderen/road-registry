@@ -9,6 +9,7 @@ using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Extensions;
 using GeoJSON.Net.Geometry;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -55,7 +56,7 @@ public partial class RoadSegmentsController
                     ObjectId = detailResponse.RoadSegmentId.ToString(),
                     VersieId = detailResponse.BeginTime
                 },
-                MiddellijnGeometrie = GeometryTranslator.ToGeoJson(geoJsonGeometry),
+                MiddellijnGeometrie = geoJsonGeometry.ToGeoJson(),
                 MethodeWegsegmentgeometrie = detailResponse.GeometryDrawMethod.Translation.Name,
                 BeginknoopObjectId = detailResponse.StartNodeId,
                 EindknoopObjectId = detailResponse.EndNodeId,

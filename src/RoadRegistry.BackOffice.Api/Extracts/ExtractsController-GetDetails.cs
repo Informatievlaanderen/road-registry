@@ -1,19 +1,16 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
-using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Extensions;
-using Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using NetTopologySuite.Geometries;
 using Swashbuckle.AspNetCore.Annotations;
-using MultiLineString = GeoJSON.Net.Geometry.MultiLineString;
+using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class ExtractsController
 {

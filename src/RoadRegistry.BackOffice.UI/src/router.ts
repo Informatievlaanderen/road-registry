@@ -5,6 +5,7 @@ import { InformationRoutes } from "./modules/information";
 import { DownloadExtractRoutes } from "./modules/download-extract";
 import { DownloadProductRoutes } from "./modules/download-product";
 import { UploadRoutes } from "./modules/uploads";
+import { TransactionZonesRoutes } from "./modules/transaction-zones";
 import { AuthRoutes, AuthService, isAuthenticated } from "./auth";
 
 Vue.use(Router);
@@ -19,7 +20,8 @@ const routes: RouteConfig[] = [
     ...InformationRoutes,
     ...DownloadExtractRoutes,
     ...DownloadProductRoutes,
-    ...UploadRoutes
+    ...UploadRoutes,
+    ...TransactionZonesRoutes
 ];
 
 function ensureRouteMetaValue(route: Route, predicate: (meta: any) => boolean) {

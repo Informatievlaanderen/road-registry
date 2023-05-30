@@ -49,11 +49,13 @@ export namespace RoadRegistry {
     export interface DownloadExtractByContourRequest {
         contour: string;
         description: string;
+        uploadExpected: Boolean;
     }
 
     export interface DownloadExtractByFileRequest {
         files: File[];
         description: string;
+        uploadExpected: Boolean;
     }
 
     export interface PerContourErrorResponse {
@@ -73,6 +75,7 @@ export namespace RoadRegistry {
         buffer: number;
         nisCode: string;
         description: string;
+        uploadExpected: Boolean;
     }
 
     export interface ValidateWktResponse {
