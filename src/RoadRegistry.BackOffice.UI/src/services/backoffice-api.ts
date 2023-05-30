@@ -98,6 +98,7 @@ export const BackOfficeApi = {
 
         const data = new FormData();
         data.append("description", downloadRequest.description);
+        data.append("uploadExpected", downloadRequest.uploadExpected.toString());
         downloadRequest.files.forEach(file => {
             data.append("files", file, file.name);
         })        
