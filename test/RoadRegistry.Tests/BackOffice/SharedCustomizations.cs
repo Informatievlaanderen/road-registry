@@ -5,6 +5,7 @@ using AutoFixture.Dsl;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NodaTime;
@@ -458,7 +459,7 @@ public static class SharedCustomizations
     public static void CustomizeRoadNodeId(this IFixture fixture)
     {
         fixture.Customize<RoadNodeId>(composer =>
-            composer.FromFactory<int>(value => new RoadNodeId(Math.Abs(value)))
+            composer.FromFactory(generator => new RoadNodeId(generator.Next(1, 1000000)))
         );
     }
 
