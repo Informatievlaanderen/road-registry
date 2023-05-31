@@ -5,6 +5,7 @@ using RoadRegistry.BackOffice.Abstractions.Extracts;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 public partial class ExtractsController
 {
@@ -18,6 +19,7 @@ public partial class ExtractsController
     ///     of cancellation.
     /// </param>
     /// <returns>JsonResult.</returns>
+    [AllowAnonymous]
     [HttpGet(GetOverlappingTransactionZonesGeoJsonRoute, Name = nameof(GetOverlappingTransactionZonesGeoJson))]
     [SwaggerOperation(OperationId = nameof(GetOverlappingTransactionZonesGeoJson))]
     public async Task<JsonResult> GetOverlappingTransactionZonesGeoJson(CancellationToken cancellationToken)
