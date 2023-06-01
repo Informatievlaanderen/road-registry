@@ -6,12 +6,17 @@ public static class RoadSegmentValidationExtensions
 {
     public static bool IsValidForRoadSegmentOutline(this RoadSegmentMorphology morphology)
     {
-        return RoadSegmentMorphology.AllOutlined.Contains(morphology);
+        return RoadSegmentMorphology.Outlined.All.Contains(morphology);
     }
 
     public static bool IsValidForRoadSegmentOutline(this RoadSegmentStatus status)
     {
-        return RoadSegmentStatus.AllOutlined.Contains(status);
+        return RoadSegmentStatus.Outlined.All.Contains(status);
+    }
+
+    public static bool IsValidForRoadSegmentOutline(this RoadSegmentSurfaceType surfaceType)
+    {
+        return RoadSegmentSurfaceType.Outlined.All.Contains(surfaceType);
     }
 
     public static bool IsValidStartRoadNodeIdForRoadSegmentOutline(this int nodeId)

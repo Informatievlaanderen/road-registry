@@ -54,6 +54,8 @@ using NisCodeService.Abstractions;
 using NisCodeService.Proxy.HttpProxy;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Api.Infrastructure.Options;
+using SchemaFilters;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
@@ -185,7 +187,7 @@ public class Startup
         var baseUrlForExceptions = baseUrl.EndsWith("/")
             ? baseUrl.Substring(0, baseUrl.Length - 1)
             : baseUrl;
-        
+
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
             {
@@ -218,7 +220,23 @@ public class Startup
                         }
                     },
 
-                    XmlCommentPaths = new[] { typeof(Startup).GetTypeInfo().Assembly.GetName().Name }
+                    XmlCommentPaths = new[] { typeof(Startup).GetTypeInfo().Assembly.GetName().Name },
+                    MiddlewareHooks =
+                    {
+                        AfterSwaggerGen = options =>
+                        {
+                            options.SchemaFilter<OutlinedRoadSegmentMorphologySchemaFilter>();
+                            options.SchemaFilter<OutlinedRoadSegmentStatusSchemaFilter>();
+                            options.SchemaFilter<OutlinedRoadSegmentSurfaceTypeSchemaFilter>();
+                            options.SchemaFilter<RoadSegmentAccessRestrictionSchemaFilter>();
+                            options.SchemaFilter<RoadSegmentCategorySchemaFilter>();
+                            options.SchemaFilter<RoadSegmentGeometryDrawMethodSchemaFilter>();
+                            options.SchemaFilter<RoadSegmentLaneDirectionSchemaFilter>();
+                            options.SchemaFilter<RoadSegmentMorphologySchemaFilter>();
+                            options.SchemaFilter<RoadSegmentStatusSchemaFilter>();
+                            options.SchemaFilter<RoadSegmentSurfaceTypeSchemaFilter>();
+                        }
+                    }
                 },
                 MiddlewareHooks =
                 {
@@ -346,6 +364,7 @@ public class Startup
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
+            .Configure<ResponseOptions>(_configuration)
             .AddAcmIdmAuth(oAuth2IntrospectionOptions!);
 
         services

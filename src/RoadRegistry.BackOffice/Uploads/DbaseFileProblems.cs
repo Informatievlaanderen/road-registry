@@ -487,7 +487,7 @@ public static class DbaseFileProblems
                 new ProblemParameter(
                     "ExpectedOneOf",
                     string.Join(",", outline
-                        ? RoadSegmentMorphology.AllOutlined.Select(status => status.Translation.Identifier.ToString())
+                        ? RoadSegmentMorphology.Outlined.All.Select(status => status.Translation.Identifier.ToString())
                         : RoadSegmentMorphology.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )
@@ -503,7 +503,7 @@ public static class DbaseFileProblems
                 new ProblemParameter(
                     "ExpectedOneOf",
                     string.Join(",", outline
-                        ? RoadSegmentStatus.AllOutlined.Select(status => status.Translation.Identifier.ToString())
+                        ? RoadSegmentStatus.Outlined.All.Select(status => status.Translation.Identifier.ToString())
                         : RoadSegmentStatus.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )

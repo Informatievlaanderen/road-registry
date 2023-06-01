@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
+public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutchToString
 {
     public static readonly RoadSegmentCategory LocalRoad =
         new(
@@ -276,11 +276,15 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
         if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment access restriction.");
         return parsed;
     }
-
-
+    
     public override string ToString()
     {
         return _value;
+    }
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
     }
 
     public static bool TryParse(string value, out RoadSegmentCategory parsed)
