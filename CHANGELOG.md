@@ -1,3 +1,10 @@
+# [3.46.0](https://github.com/informatievlaanderen/road-registry/compare/v3.45.1...v3.46.0) (2023-06-02)
+
+
+### Features
+
+* WR224 Extract or informative extract ([#982](https://github.com/informatievlaanderen/road-registry/issues/982)) ([db2280c](https://github.com/informatievlaanderen/road-registry/commit/db2280ccfec6678722c02146425cbc29ad2cfa60))
+
 ## [3.45.1](https://github.com/informatievlaanderen/road-registry/compare/v3.45.0...v3.45.1) (2023-06-02)
 
 
