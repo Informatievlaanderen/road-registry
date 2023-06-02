@@ -73,13 +73,13 @@
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="municipalityFlow.uploadExpected" type="radio" :value="true" />
+              <input v-model="municipalityFlow.isInformative" type="radio" :value="false" />
               Ja, ik wens een oplading uit te voeren
             </label>
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="municipalityFlow.uploadExpected" type="radio" :value="false" />
+              <input v-model="municipalityFlow.isInformative" type="radio" :value="true" />
               Nee, ik vraag een informatief extract aan
             </label>
           </div>
@@ -105,7 +105,7 @@
                 :mod-disabled="
                   isSubmitting ||
                   !isDescriptionValid(municipalityFlow.description) ||
-                  !municipalityFlowHasUploadExpected
+                  !municipalityFlowHasIsInformative
                 "
               >
                 Extract aanvragen
@@ -225,13 +225,13 @@
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="contourFlow.uploadExpected" type="radio" :value="true" />
+              <input v-model="contourFlow.isInformative" type="radio" :value="false" />
               Ja, ik wens een oplading uit te voeren
             </label>
           </div>
           <div class="vl-form-col--12-12">
             <label>
-              <input v-model="contourFlow.uploadExpected" type="radio" :value="false" />
+              <input v-model="contourFlow.isInformative" type="radio" :value="true" />
               Nee, ik vraag een informatief extract aan
             </label>
           </div>
@@ -256,7 +256,7 @@
               <vl-button
                 @click="submitContourRequest"
                 :mod-disabled="
-                  isSubmitting || !isDescriptionValid(contourFlow.description) || !contourFlowHasUploadExpected
+                  isSubmitting || !isDescriptionValid(contourFlow.description) || !contourFlowHasIsInformative
                 "
               >
                 Extract aanvragen
@@ -325,7 +325,7 @@ export default Vue.extend({
         buffer: false,
         description: "",
         hasGenericError: false,
-        uploadExpected: null as Boolean | null,
+        isInformative: null as Boolean | null,
       },
       contourFlow: {
         contourTypes,
@@ -340,7 +340,7 @@ export default Vue.extend({
         hasValidationErrors: false,
         validationErrors: {} as RoadRegistry.PerContourValidationErrors,
         hasGenericError: false,
-        uploadExpected: null as Boolean | null,
+        isInformative: null as Boolean | null,
       },
       validation: {
         description: {
@@ -395,11 +395,11 @@ export default Vue.extend({
         }).length === requiredFileExtensions.length
       );
     },
-    municipalityFlowHasUploadExpected(): Boolean {
-      return this.municipalityFlow.uploadExpected !== null;
+    municipalityFlowHasIsInformative(): Boolean {
+      return this.municipalityFlow.isInformative !== null;
     },
-    contourFlowHasUploadExpected(): Boolean {
-      return this.contourFlow.uploadExpected !== null;
+    contourFlowHasIsInformative(): Boolean {
+      return this.contourFlow.isInformative !== null;
     },
     contourFlowHasValidInput(): Boolean {
       switch (this.contourFlow.contourType) {
@@ -501,7 +501,7 @@ export default Vue.extend({
       try {
         this.municipalityFlow.hasGenericError = false;
 
-        if (!this.municipalityFlowHasUploadExpected) {
+        if (!this.municipalityFlowHasIsInformative) {
           return;
         }
 
@@ -509,7 +509,7 @@ export default Vue.extend({
           buffer: this.municipalityFlow.buffer ? 100 : 0,
           nisCode: this.municipalityFlow.nisCode,
           description: this.municipalityFlow.description,
-          uploadExpected: this.municipalityFlow.uploadExpected as Boolean
+          isInformative: this.municipalityFlow.isInformative as Boolean
         };
 
         const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
@@ -534,7 +534,7 @@ export default Vue.extend({
         this.contourFlow.hasValidationErrors = false;
         this.contourFlow.hasGenericError = false;
 
-        if (!this.contourFlowHasUploadExpected) {
+        if (!this.contourFlowHasIsInformative) {
           return;
         }
 
@@ -546,7 +546,7 @@ export default Vue.extend({
               const requestData: RoadRegistry.DownloadExtractByFileRequest = {
                 files: this.contourFlow.files,
                 description: this.contourFlow.description,
-                uploadExpected: this.contourFlow.uploadExpected as Boolean
+                isInformative: this.contourFlow.isInformative as Boolean
               };
               response = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
             }
@@ -556,7 +556,7 @@ export default Vue.extend({
               const requestData: RoadRegistry.DownloadExtractByContourRequest = {
                 contour: this.contourFlow.wkt,
                 description: this.contourFlow.description,
-                uploadExpected: this.contourFlow.uploadExpected as Boolean
+                isInformative: this.contourFlow.isInformative as Boolean
               };
 
               response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
