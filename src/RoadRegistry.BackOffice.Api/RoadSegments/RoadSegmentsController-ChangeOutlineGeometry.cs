@@ -89,7 +89,7 @@ public record PostChangeOutlineGeometryParameters
     ///     coördinatenstelsel Lambert 72 (EPSG:31370).
     /// </summary>
     [DataMember(Name = "MiddellijnGeometrie", Order = 1)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.Always)]
     public string MiddellijnGeometrie { get; set; }
 }
 

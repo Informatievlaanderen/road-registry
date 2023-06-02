@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -9,12 +10,15 @@ using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
+using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
+using Be.Vlaanderen.Basisregisters.GrAr.Legacy.SpatialTools;
 using Extensions;
-using GeoJSON.Net.Geometry;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Infrastructure.Options;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 
@@ -26,6 +30,7 @@ public partial class RoadSegmentsController
     ///     Vraag een wegsegment op.
     /// </summary>
     /// <param name="id">De identificator van het wegsegment.</param>
+    /// <param name="responseOptions"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het wegsegment gevonden is.</response>
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
@@ -41,6 +46,7 @@ public partial class RoadSegmentsController
     [SwaggerOperation(OperationId = nameof(GetRoadSegment), Description = "Attributen wijzigen van een wegsegment: status, toegangsbeperking, wegklasse, wegbeheerder en wegcategorie.")]
     public async Task<IActionResult> GetRoadSegment(
         [FromRoute] int id,
+        [FromServices] IOptions<ResponseOptions> responseOptions,
         CancellationToken cancellationToken = default)
     {
         try
@@ -51,12 +57,11 @@ public partial class RoadSegmentsController
 
             var result = new GetRoadSegmentResponse
             {
-                Identificator = new Identificator
+                Identificator = new WegsegmentIdentificator(responseOptions.Value.WegsegmentNaamruimte, detailResponse.RoadSegmentId.ToString(), detailResponse.BeginTime),
+                MiddellijnGeometrie = new GeoJSONMultiLineString
                 {
-                    ObjectId = detailResponse.RoadSegmentId.ToString(),
-                    VersieId = detailResponse.BeginTime
+                    Coordinates = geoJsonGeometry.ToGeoJson().ToCoordinateArray()
                 },
-                MiddellijnGeometrie = geoJsonGeometry.ToGeoJson(),
                 MethodeWegsegmentgeometrie = detailResponse.GeometryDrawMethod.Translation.Name,
                 BeginknoopObjectId = detailResponse.StartNodeId,
                 EindknoopObjectId = detailResponse.EndNodeId,
@@ -115,15 +120,18 @@ public partial class RoadSegmentsController
 }
 
 [DataContract(Name = "Identificator", Namespace = "")]
-public class Identificator
+public class WegsegmentIdentificator : Identificator
 {
-    [DataMember(Name = "ObjectId", Order = 1)]
-    [JsonProperty]
-    public string ObjectId { get; set; }
+    public WegsegmentIdentificator(string naamruimte, string objectId, DateTimeOffset? versie)
+        : base(naamruimte, objectId, versie) { }
 
-    [DataMember(Name = "VersieId", Order = 2)]
-    [JsonProperty]
-    public DateTime VersieId { get; set; }
+    public WegsegmentIdentificator(string naamruimte, string objectId, string versie)
+        : base(naamruimte, objectId, versie) { }
+
+    public WegsegmentIdentificator()
+        : base(null, null, (string)null)
+    {
+    }
 }
 
 [DataContract(Name = "Straatnaam", Namespace = "")]
@@ -142,15 +150,16 @@ public class StraatnaamObject
 public class WegverhardingObject
 {
     [DataMember(Name = "VanPositie", Order = 1)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double VanPositie { get; set; }
 
     [DataMember(Name = "TotPositie", Order = 2)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double TotPositie { get; set; }
 
     [DataMember(Name = "Verharding", Order = 3)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
+    [EnumDataType(typeof(RoadSegmentSurfaceType))]
     public string Verharding { get; set; }
 }
 
@@ -158,15 +167,15 @@ public class WegverhardingObject
 public class WegbreedteObject
 {
     [DataMember(Name = "VanPositie", Order = 1)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double VanPositie { get; set; }
 
     [DataMember(Name = "TotPositie", Order = 2)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double TotPositie { get; set; }
 
     [DataMember(Name = "Breedte", Order = 3)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public int Breedte { get; set; }
 }
 
@@ -174,11 +183,11 @@ public class WegbreedteObject
 public class AantalRijstrokenObject
 {
     [DataMember(Name = "VanPositie", Order = 1)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double VanPositie { get; set; }
 
     [DataMember(Name = "TotPositie", Order = 2)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double TotPositie { get; set; }
 
     [DataMember(Name = "Aantal", Order = 3)]
@@ -186,7 +195,8 @@ public class AantalRijstrokenObject
     public int Aantal { get; set; }
 
     [DataMember(Name = "Richting", Order = 4)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
+    [EnumDataType(typeof(RoadSegmentLaneDirection))]
     public string Richting { get; set; }
 }
 
@@ -197,35 +207,36 @@ public class GetRoadSegmentResponse
     ///     De unieke identificator van het wegsegment.
     /// </summary>
     [DataMember(Name = "Identificator", Order = 1)]
-    [JsonProperty]
-    public Identificator Identificator { get; set; }
+    [JsonProperty(Required = Required.DisallowNull)]
+    public WegsegmentIdentificator Identificator { get; set; }
 
     /// <summary>
     ///     De middellijngeometrie van het wegsegment.
     /// </summary>
     [DataMember(Name = "MiddellijnGeometrie", Order = 2)]
-    [JsonProperty]
-    public MultiLineString MiddellijnGeometrie { get; set; }
+    [JsonProperty(Required = Required.DisallowNull)]
+    public GeoJSONMultiLineString MiddellijnGeometrie { get; set; }
 
     /// <summary>
     ///     De geometriemethode van het wegsegment.
     /// </summary>
     [DataMember(Name = "MethodeWegsegmentgeometrie", Order = 3)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
+    [EnumDataType(typeof(RoadSegmentGeometryDrawMethod))]
     public string MethodeWegsegmentgeometrie { get; set; }
 
     /// <summary>
     ///     De identificator van het beginknoop object.
     /// </summary>
     [DataMember(Name = "BeginknoopObjectId", Order = 4)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public int BeginknoopObjectId { get; set; }
 
     /// <summary>
     ///     De identificator van het eindknoop object.
     /// </summary>
     [DataMember(Name = "EindknoopObjectId", Order = 5)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public int EindknoopObjectId { get; set; }
 
     /// <summary>
@@ -246,56 +257,60 @@ public class GetRoadSegmentResponse
     ///     De status van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegsegmentstatus", Order = 8)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
+    [EnumDataType(typeof(RoadSegmentStatus))]
     public string Wegsegmentstatus { get; set; }
 
     /// <summary>
     ///     De morfologische wegklasse van het wegsegment.
     /// </summary>
     [DataMember(Name = "MorfologischeWegklasse", Order = 9)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
+    [EnumDataType(typeof(RoadSegmentMorphology))]
     public string MorfologischeWegklasse { get; set; }
 
     /// <summary>
     ///     De toegangsbeperking van het wegsegment.
     /// </summary>
     [DataMember(Name = "Toegangsbeperking", Order = 10)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
+    [EnumDataType(typeof(RoadSegmentAccessRestriction))]
     public string Toegangsbeperking { get; set; }
 
     /// <summary>
     ///     De wegbeheerder van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegbeheerder", Order = 11)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public string Wegbeheerder { get; set; }
 
     /// <summary>
     ///     De wegcategorie van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegcategorie", Order = 12)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
+    [EnumDataType(typeof(RoadSegmentCategory))]
     public string Wegcategorie { get; set; }
 
     /// <summary>
     ///     De wegverharding van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegverharding", Order = 13)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public WegverhardingObject[] Wegverharding { get; set; }
 
     /// <summary>
     ///     De wegbreedte van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegbreedte", Order = 14)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public WegbreedteObject[] Wegbreedte { get; set; }
 
     /// <summary>
     ///     Het aantal rijstroken van het wegsegment.
     /// </summary>
     [DataMember(Name = "AantalRijstroken", Order = 15)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public AantalRijstrokenObject[] AantalRijstroken { get; set; }
 }
 
@@ -305,21 +320,20 @@ public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadS
     {
         return new GetRoadSegmentResponse
         {
-            Identificator = new Identificator
+            Identificator = new WegsegmentIdentificator("https://data.vlaanderen.be/id/wegsegment", "643556", new DateTime(2015, 11, 27, 13, 46, 14)),
+            MiddellijnGeometrie = new GeoJSONMultiLineString
             {
-                ObjectId = "643556",
-                VersieId = new DateTime(2015, 11, 27, 13, 46, 14)
-            },
-            MiddellijnGeometrie = new MultiLineString(new[]
-            {
-                new[]
+                Coordinates = new[]
                 {
-                    new[] { 243234.8929999992, 160239.3830000013 },
-                    new[] { 243245.9949999973, 160238.7989999987 },
-                    new[] { 243261.3599999994, 160239.0 },
-                    new[] { 243279.0160000026, 160244.1570000015 }
+                    new[]
+                    {
+                        new[] { 243234.8929999992, 160239.3830000013 },
+                        new[] { 243245.9949999973, 160238.7989999987 },
+                        new[] { 243261.3599999994, 160239.0 },
+                        new[] { 243279.0160000026, 160244.1570000015 }
+                    }
                 }
-            }),
+            },
             MethodeWegsegmentgeometrie = RoadSegmentGeometryDrawMethod.Outlined.Translation.Name,
             BeginknoopObjectId = 287335,
             EindknoopObjectId = 287336,

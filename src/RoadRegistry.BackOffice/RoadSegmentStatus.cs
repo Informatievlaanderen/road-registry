@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
+public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToString
 {
     public static readonly RoadSegmentStatus BuildingPermitGranted =
         new(
@@ -70,10 +70,18 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
     {
         Unknown, PermitRequested, BuildingPermitGranted, UnderConstruction, InUse, OutOfUse
     };
-    public static readonly RoadSegmentStatus[] AllOutlined =
+
+    public sealed record Outlined
     {
-        PermitRequested, BuildingPermitGranted, UnderConstruction, InUse, OutOfUse
-    };
+        public static readonly RoadSegmentStatus[] AllOutlined =
+        {
+            PermitRequested,
+            BuildingPermitGranted,
+            UnderConstruction,
+            InUse,
+            OutOfUse
+        };
+    }
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentStatus> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
@@ -146,6 +154,11 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
     public override string ToString()
     {
         return _value;
+    }
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
     }
 
     public static bool TryParse(string value, out RoadSegmentStatus parsed)

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
+public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>, IDutchToString
 {
     public static readonly RoadSegmentSurfaceType LooseSurface =
         new(
@@ -50,6 +50,15 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
     {
         NotApplicable, Unknown, SolidSurface, LooseSurface
     };
+
+    public sealed record Outlined
+    {
+        public static readonly RoadSegmentSurfaceType[] AllOutlined =
+        {
+            LooseSurface,
+            SolidSurface
+        };
+    }
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentSurfaceType> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
@@ -123,7 +132,12 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>
     {
         return _value;
     }
-    
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
+    }
+
     public static bool TryParse(string value, out RoadSegmentSurfaceType parsed)
     {
         ArgumentNullException.ThrowIfNull(value);
