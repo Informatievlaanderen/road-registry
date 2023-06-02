@@ -64,41 +64,6 @@ public class RoadSegmentNotFoundResponseExamples : IExamplesProvider<ProblemDeta
     }
 }
 
-public class RoadSegmentLaneParameters
-{
-    /// <summary>Aantal rijstroken van de wegsegmentschets.</summary>
-    [JsonProperty]
-    [DataMember(Name = "Aantal", Order = 1)]
-    public int? Aantal { get; set; }
-
-    /// <summary>De richting van deze rijstroken t.o.v. de richting van het wegsegment (begin- naar eindknoop).</summary>
-    [JsonProperty]
-    [DataMember(Name = "Richting", Order = 2)]
-    public string Richting { get; set; }
-}
-
-public class RoadSegmentLaneParametersValidator : AbstractValidator<RoadSegmentLaneParameters>
-{
-    public RoadSegmentLaneParametersValidator()
-    {
-        RuleFor(x => x.Aantal)
-            .Cascade(CascadeMode.Stop)
-            .NotNull()
-            .WithProblemCode(ProblemCode.RoadSegment.Lane.IsRequired)
-            .GreaterThan(0)
-            .WithProblemCode(ProblemCode.RoadSegment.Lane.GreaterThanZero)
-            .LessThanOrEqualTo(RoadSegmentLaneCount.Maximum)
-            .WithProblemCode(ProblemCode.RoadSegment.Lane.LessThanOrEqualToMaximum);
-
-        RuleFor(x => x.Richting)
-            .Cascade(CascadeMode.Stop)
-            .NotNull()
-            .WithProblemCode(ProblemCode.RoadSegment.LaneDirection.IsRequired)
-            .Must(RoadSegmentLaneDirection.CanParseUsingDutchName)
-            .WithProblemCode(ProblemCode.RoadSegment.LaneDirection.NotValid);
-    }
-}
-
 public class RoadSegmentIdValidator : AbstractValidator<int>
 {
     public RoadSegmentIdValidator(EditorContext editorContext)

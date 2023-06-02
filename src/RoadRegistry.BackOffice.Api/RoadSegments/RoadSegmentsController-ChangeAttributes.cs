@@ -268,21 +268,21 @@ public record ChangeAttributeParameters
     ///     Het attribuut dat gewijzigd moet worden.
     /// </summary>
     [DataMember(Name = "attribuut", Order = 1)]
-    [JsonProperty("attribuut")]
+    [JsonProperty("attribuut", Required = Required.Always)]
     public string Attribuut { get; set; }
 
     /// <summary>
     ///     De attribuutwaarde van het te wijzigen attribuut.
     /// </summary>
     [DataMember(Name = "attribuutwaarde", Order = 2)]
-    [JsonProperty("attribuutwaarde")]
+    [JsonProperty("attribuutwaarde", Required = Required.Always)]
     public string Attribuutwaarde { get; set; }
 
     /// <summary>
     ///     Lijst van identificatoren van wegsegmenten waarvoor het attribuut moet gewijzigd worden.
     /// </summary>
     [DataMember(Name = "wegsegmenten", Order = 3)]
-    [JsonProperty("wegsegmenten")]
+    [JsonProperty("wegsegmenten", Required = Required.Always)]
     public int[] Wegsegmenten { get; set; }
 }
 

@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
+public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>, IDutchToString
 {
     public static readonly RoadSegmentMorphology Entry_or_exit_of_a_car_park =
         new(
@@ -220,27 +220,31 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         PrimitiveRoad,
         Ferry
     };
-    public static readonly RoadSegmentMorphology[] AllOutlined =
+
+    public sealed record Outlined
     {
-        Motorway,
-        Road_with_separate_lanes_that_is_not_a_motorway,
-        Road_consisting_of_one_roadway,
-        TrafficCircle,
-        SpecialTrafficSituation,
-        TrafficSquare,
-        Entry_or_exit_ramp_belonging_to_a_grade_separated_junction,
-        Entry_or_exit_ramp_belonging_to_a_level_junction,
-        ParallelRoad,
-        FrontageRoad,
-        Entry_or_exit_of_a_car_park,
-        Entry_or_exit_of_a_service,
-        PedestrainZone,
-        Walking_or_cycling_path_not_accessible_to_other_vehicles,
-        Tramway_not_accessible_to_other_vehicles,
-        ServiceRoad,
-        PrimitiveRoad,
-        Ferry
-    };
+        public static readonly RoadSegmentMorphology[] AllOutlined =
+        {
+            Motorway,
+            Road_with_separate_lanes_that_is_not_a_motorway,
+            Road_consisting_of_one_roadway,
+            TrafficCircle,
+            SpecialTrafficSituation,
+            TrafficSquare,
+            Entry_or_exit_ramp_belonging_to_a_grade_separated_junction,
+            Entry_or_exit_ramp_belonging_to_a_level_junction,
+            ParallelRoad,
+            FrontageRoad,
+            Entry_or_exit_of_a_car_park,
+            Entry_or_exit_of_a_service,
+            PedestrainZone,
+            Walking_or_cycling_path_not_accessible_to_other_vehicles,
+            Tramway_not_accessible_to_other_vehicles,
+            ServiceRoad,
+            PrimitiveRoad,
+            Ferry
+        };
+    }
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentMorphology> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
@@ -313,6 +317,11 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
     public override string ToString()
     {
         return _value;
+    }
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
     }
 
     public static bool TryParse(string value, out RoadSegmentMorphology parsed)

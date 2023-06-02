@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Extensions;
 
 using System.Collections.Generic;
 using System.Linq;
+using GeoJSON.Net.Geometry;
 using NetTopologySuite.Geometries;
 using LineString = GeoJSON.Net.Geometry.LineString;
 using MultiLineString = GeoJSON.Net.Geometry.MultiLineString;
@@ -11,22 +12,38 @@ using Position = GeoJSON.Net.Geometry.Position;
 
 public static class GeoJsonExtensions
 {
-    public static MultiLineString ToGeoJson(this NetTopologySuite.Geometries.MultiLineString multiLineString)
+    public static MultiPolygon ToGeoJson(this NetTopologySuite.Geometries.MultiPolygon geometry)
     {
-        return new MultiLineString(multiLineString.Geometries.Cast<NetTopologySuite.Geometries.LineString>().Select(lineString => lineString.ToGeoJson()));
+        return new MultiPolygon(geometry.Geometries.Cast<NetTopologySuite.Geometries.Polygon>().Select(polygon => polygon.ToGeoJson()));
     }
-    public static LineString ToGeoJson(this NetTopologySuite.Geometries.LineString lineString)
+    public static Polygon ToGeoJson(this NetTopologySuite.Geometries.Polygon geometry)
     {
-        return new LineString(lineString.Coordinates.Select(x => x.ToPosition()));
+        return new Polygon(geometry.GetRings().Select(lineString => lineString.ToGeoJson()));
     }
-    public static MultiPolygon ToGeoJson(this NetTopologySuite.Geometries.MultiPolygon multiPolygon)
+    public static MultiLineString ToGeoJson(this NetTopologySuite.Geometries.MultiLineString geometry)
     {
-        return new MultiPolygon(multiPolygon.Geometries.Cast<NetTopologySuite.Geometries.Polygon>().Select(polygon => polygon.ToGeoJson()));
+        return new MultiLineString(geometry.Geometries.Cast<NetTopologySuite.Geometries.LineString>().Select(lineString => lineString.ToGeoJson()));
     }
-    public static Polygon ToGeoJson(this NetTopologySuite.Geometries.Polygon polygon)
+    public static LineString ToGeoJson(this NetTopologySuite.Geometries.LineString geometry)
     {
-        return new Polygon(polygon.GetRings().Select(lineString => lineString.ToGeoJson()));
+        return new LineString(geometry.Coordinates.Select(x => x.ToPosition()));
     }
+
+    public static double[][][] ToCoordinateArray(this MultiLineString geometry)
+    {
+        return geometry.Coordinates.Select(x1 => x1.ToCoordinateArray()).ToArray();
+    }
+
+    public static double[][] ToCoordinateArray(this LineString geometry)
+    {
+        return geometry.Coordinates.Select(x1 => x1.ToCoordinateArray()).ToArray();
+    }
+
+    public static double[] ToCoordinateArray(this IPosition position)
+    {
+        return new[] { position.Longitude, position.Latitude };
+    }
+
     private static IEnumerable<NetTopologySuite.Geometries.LineString> GetRings(this NetTopologySuite.Geometries.Polygon polygon)
     {
         yield return polygon.ExteriorRing;

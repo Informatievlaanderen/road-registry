@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirection>
+public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirection>, IDutchToString
 {
     public static readonly RoadSegmentLaneDirection Backward =
         new(
@@ -122,6 +122,11 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
     public override string ToString()
     {
         return _value;
+    }
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
     }
 
     public static bool TryParse(string value, out RoadSegmentLaneDirection parsed)

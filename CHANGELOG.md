@@ -1,3 +1,11 @@
+## [3.45.1](https://github.com/informatievlaanderen/road-registry/compare/v3.45.0...v3.45.1) (2023-06-02)
+
+
+### Bug Fixes
+
+* WR-258 use GRB basiskaart for municipalities ([#979](https://github.com/informatievlaanderen/road-registry/issues/979)) ([4ca03e2](https://github.com/informatievlaanderen/road-registry/commit/4ca03e225cc4b899d48f6331585f5712de56f92e))
+* WR-725 WR-726 use GeoJSONMultiLineString and decorate swagger enum/required/notnull values ([#980](https://github.com/informatievlaanderen/road-registry/issues/980)) ([dfb0a13](https://github.com/informatievlaanderen/road-registry/commit/dfb0a132d206a4e2688120b41d2c5046db7d2fb2))
+
 # [3.45.0](https://github.com/informatievlaanderen/road-registry/compare/v3.44.0...v3.45.0) (2023-05-30)
 
 

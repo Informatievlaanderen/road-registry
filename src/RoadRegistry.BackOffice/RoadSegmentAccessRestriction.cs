@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessRestriction>
+public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessRestriction>, IDutchToString
 {
     public static readonly RoadSegmentAccessRestriction LegallyForbidden =
         new(
@@ -148,7 +148,12 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
     {
         return _value;
     }
-    
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
+    }
+
     public static bool TryParse(string value, out RoadSegmentAccessRestriction parsed)
     {
         ArgumentNullException.ThrowIfNull(value);
