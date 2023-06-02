@@ -28,7 +28,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SchemaFilters
             _items = items;
         }
 
-        public void Apply(OpenApiSchema model, SchemaFilterContext context)
+        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
         {
             var enumDataTypeAttribute = context.MemberInfo?.CustomAttributes.SingleOrDefault(x => x.AttributeType == typeof(EnumDataTypeAttribute));
             if (enumDataTypeAttribute is not null)
@@ -36,7 +36,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SchemaFilters
                 var enumType = (Type)enumDataTypeAttribute.ConstructorArguments.Single().Value;
                 if (enumType == typeof(TEnum))
                 {
-                    model.Enum = _items
+                    schema.Enum = _items
                         .Select(x => new OpenApiString(x.ToDutchString()))
                         .OrderBy(x => x.Value)
                         .Cast<IOpenApiAny>()

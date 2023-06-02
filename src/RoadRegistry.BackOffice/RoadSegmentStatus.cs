@@ -71,9 +71,9 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
         Unknown, PermitRequested, BuildingPermitGranted, UnderConstruction, InUse, OutOfUse
     };
 
-    public sealed class Outlined
+    public sealed record Outlined
     {
-        public static readonly RoadSegmentStatus[] All =
+        public static readonly RoadSegmentStatus[] AllOutlined =
         {
             PermitRequested,
             BuildingPermitGranted,

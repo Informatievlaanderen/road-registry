@@ -51,9 +51,9 @@ public sealed class RoadSegmentSurfaceType : IEquatable<RoadSegmentSurfaceType>,
         NotApplicable, Unknown, SolidSurface, LooseSurface
     };
 
-    public sealed class Outlined
+    public sealed record Outlined
     {
-        public static readonly RoadSegmentSurfaceType[] All =
+        public static readonly RoadSegmentSurfaceType[] AllOutlined =
         {
             LooseSurface,
             SolidSurface
