@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Extracts;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Framework;
 using Messages;
 using NetTopologySuite.Geometries;
@@ -22,41 +23,56 @@ public class RoadNetworkExtract : EventSourcedEntity
 
         On<RoadNetworkExtractGotRequested>(e =>
         {
+            _requestedDownloads.Add(new DownloadId(e.DownloadId));
+
             Id = ExtractRequestId.FromString(e.RequestId);
             Description = new ExtractDescription(e.Description ?? string.Empty);
-            UploadExpected = e.UploadExpected;
+            IsInformative = e.IsInformative;
+            DateRequested = DateTime.UtcNow;
             _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
-            _requestedDownloads.Add(new DownloadId(e.DownloadId));
         });
         On<RoadNetworkExtractGotRequestedV2>(e =>
         {
-            Id = ExtractRequestId.FromString(e.RequestId);
-            Description = new ExtractDescription(e.Description);
-            UploadExpected = e.UploadExpected;
-            _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
             _requestedDownloads.Add(new DownloadId(e.DownloadId));
+
+            Id = ExtractRequestId.FromString(e.RequestId);
+            Description = new ExtractDescription(e.Description);
+            IsInformative = e.IsInformative;
+            DateRequested = DateTime.UtcNow;
+            _externalExtractRequestId = new ExternalExtractRequestId(e.ExternalRequestId);
         });
-        On<RoadNetworkExtractDownloadTimeoutOccurred>(e => {
+        On<RoadNetworkExtractDownloadTimeoutOccurred>(e =>
+        {
             Id = ExtractRequestId.FromString(e.RequestId);
             Description = new ExtractDescription(e.Description);
         });
-        On<RoadNetworkExtractDownloadBecameAvailable>(e => { _announcedDownloads.Add(new DownloadId(e.DownloadId)); });
+        On<RoadNetworkExtractDownloadBecameAvailable>(e =>
+        {
+            _announcedDownloads.Add(new DownloadId(e.DownloadId));
+        });
         On<RoadNetworkExtractChangesArchiveUploaded>(e =>
         {
             _knownUploads.Add(new UploadId(e.UploadId));
+
             FeatureCompareCompleted = false;
+            IsInformative = false;
         });
         On<RoadNetworkExtractChangesArchiveFeatureCompareCompleted>(e =>
         {
             _knownUploads.Add(new UploadId(e.UploadId));
             FeatureCompareCompleted = true;
         });
+        On<RoadNetworkExtractClosed>(e =>
+        {
+            IsInformative = false;
+        });
     }
 
     public ExtractRequestId Id { get; private set; }
     public ExtractDescription Description { get; private set; }
+    public DateTime DateRequested { get; private set; }
     public bool FeatureCompareCompleted { get; private set; }
-    public bool UploadExpected { get; private set; }
+    public bool IsInformative { get; private set; }
 
     public void AnnounceAvailable(DownloadId downloadId, ArchiveId archiveId)
     {
@@ -68,7 +84,7 @@ public class RoadNetworkExtract : EventSourcedEntity
                 ExternalRequestId = _externalExtractRequestId,
                 DownloadId = downloadId,
                 ArchiveId = archiveId,
-                UploadExpected = UploadExpected
+                IsInformative = IsInformative
             });
     }
 
@@ -79,7 +95,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             Description = Description,
             RequestId = Id.ToString(),
             ExternalRequestId = _externalExtractRequestId,
-            UploadExpected = UploadExpected
+            IsInformative = IsInformative
         });
     }
 
@@ -88,7 +104,7 @@ public class RoadNetworkExtract : EventSourcedEntity
         DownloadId downloadId,
         ExtractDescription extractDescription,
         IPolygonal contour,
-        bool uploadExpected)
+        bool IsInformative)
     {
         var instance = Factory();
         instance.Apply(new RoadNetworkExtractGotRequestedV2
@@ -98,12 +114,12 @@ public class RoadNetworkExtract : EventSourcedEntity
             ExternalRequestId = externalExtractRequestId,
             DownloadId = downloadId,
             Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour),
-            UploadExpected = uploadExpected
+            IsInformative = IsInformative
         });
         return instance;
     }
 
-    public void RequestAgain(DownloadId downloadId, IPolygonal contour, bool uploadExpected)
+    public void RequestAgain(DownloadId downloadId, IPolygonal contour, bool IsInformative)
     {
         if (!_requestedDownloads.Contains(downloadId))
             Apply(new RoadNetworkExtractGotRequestedV2
@@ -113,7 +129,7 @@ public class RoadNetworkExtract : EventSourcedEntity
                 ExternalRequestId = _externalExtractRequestId,
                 DownloadId = downloadId,
                 Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(contour),
-                UploadExpected = uploadExpected
+                IsInformative = IsInformative
             });
     }
 
@@ -123,9 +139,9 @@ public class RoadNetworkExtract : EventSourcedEntity
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException(
                 _externalExtractRequestId, Id, downloadId, uploadId);
 
-        if (_requestedDownloads[_requestedDownloads.Count - 1] != downloadId)
+        if (_requestedDownloads[^1] != downloadId)
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException(
-                _externalExtractRequestId, Id, downloadId, _requestedDownloads[_requestedDownloads.Count - 1], uploadId);
+                _externalExtractRequestId, Id, downloadId, _requestedDownloads[^1], uploadId);
 
         if (_knownUploads.Count == 1)
             throw new CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException(
@@ -164,5 +180,17 @@ public class RoadNetworkExtract : EventSourcedEntity
             uploadId,
             archiveId,
             Apply);
+    }
+
+    public void Close(RoadNetworkExtractCloseReason reason)
+    {
+        Apply(new RoadNetworkExtractClosed
+        {
+            RequestId = Id,
+            ExternalRequestId = _externalExtractRequestId,
+            DownloadIds = _requestedDownloads.Select(requestedDownload => requestedDownload.ToString()).ToArray(),
+            DateRequested = DateRequested,
+            Reason = reason
+        });
     }
 }

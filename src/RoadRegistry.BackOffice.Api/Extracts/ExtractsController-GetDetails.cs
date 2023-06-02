@@ -36,8 +36,8 @@ public partial class ExtractsController
                 Description = response.Description,
                 Contour = response.Contour.ToGeoJson(),
                 ExtractRequestId = response.ExtractRequestId,
-                RequestOn = response.RequestedOn,
-                UploadExpected = response.UploadExpected
+                RequestedOn = response.RequestedOn,
+                IsInformative = response.IsInformative
             });
         }
         catch (BlobNotFoundException) // This condition can only occur if the blob no longer exists in the bucket
@@ -61,6 +61,6 @@ internal record ExtractDetailsResponseBody()
     public string Description { get; set; }
     public GeoJSON.Net.Geometry.MultiPolygon Contour { get; set; }
     public string ExtractRequestId { get; set; }
-    public DateTimeOffset RequestOn { get; set; }
-    public bool UploadExpected { get; set; }
+    public DateTimeOffset RequestedOn { get; set; }
+    public bool IsInformative { get; set; }
 }

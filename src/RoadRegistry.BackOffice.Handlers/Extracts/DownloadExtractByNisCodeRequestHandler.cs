@@ -3,13 +3,11 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using Editor.Schema;
-using Editor.Schema.Extracts;
 using Framework;
 using Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
-using System.Reflection.PortableExecutable;
 
 public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<DownloadExtractByNisCodeRequest, DownloadExtractByNisCodeResponse>
 {
@@ -25,25 +23,18 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
         var municipalityGeometry = await _context.MunicipalityGeometries.SingleOrDefaultAsync(x => x.NisCode == request.NisCode, cancellationToken)
                                    ?? throw new DownloadExtractByNisCodeNotFoundException("Could not find details about the supplied NIS code");
 
-        await DispatchCommandWithContextAddAsync(
-            new ExtractRequestRecord
-            {
-                RequestedOn = DateTime.UtcNow,
-                ExternalRequestId = randomExternalRequestId,
-                Contour = (MultiPolygon)municipalityGeometry.Geometry,
-                DownloadId = downloadId,
-                Description = request.Description,
-                UploadExpected = request.UploadExpected
-            },
-            new RequestRoadNetworkExtract
-            {
-                ExternalRequestId = randomExternalRequestId,
-                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry((MultiPolygon)municipalityGeometry.Geometry, request.Buffer),
-                DownloadId = downloadId,
-                Description = request.Description,
-                UploadExpected = request.UploadExpected
-            }, cancellationToken);
+        var message = new RequestRoadNetworkExtract
+        {
+            ExternalRequestId = randomExternalRequestId,
+            Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry((MultiPolygon)municipalityGeometry.Geometry, request.Buffer),
+            DownloadId = downloadId,
+            Description = request.Description,
+            IsInformative = request.IsInformative
+        };
 
-        return new DownloadExtractByNisCodeResponse(downloadId, request.UploadExpected);
+        var command = new Command(message);
+        await Dispatcher(command, cancellationToken);
+
+        return new DownloadExtractByNisCodeResponse(downloadId, request.IsInformative);
     }
 }

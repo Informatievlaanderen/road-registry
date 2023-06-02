@@ -382,7 +382,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
                 ArchiveId = archiveId,
-                UploadExpected = true
+                IsInformative = false
             })
             .Expect(new RoadNetworkChange
             {
@@ -418,7 +418,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
                 ArchiveId = archiveId,
-                UploadExpected = false
+                IsInformative = true
             })
             .Expect(new RoadNetworkChange
             {
@@ -446,7 +446,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
-                UploadExpected = true
+                IsInformative = false
             })
             .Expect(new RoadNetworkChange
             {
@@ -476,7 +476,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
-                UploadExpected = false
+                IsInformative = true
             })
             .Expect(new RoadNetworkChange
             {
@@ -545,7 +545,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
-                Contour = new RoadNetworkExtractGeometry { Polygon = null, MultiPolygon = Array.Empty<Polygon>(), SpatialReferenceSystemIdentifier = 0 }
+                Contour = new RoadNetworkExtractGeometry { Polygon = null, MultiPolygon = Array.Empty<Polygon>(), SpatialReferenceSystemIdentifier = 0 },
+                IsInformative = false
             })
             .Expect(new RoadNetworkChange
             {

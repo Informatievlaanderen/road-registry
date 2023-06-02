@@ -23,9 +23,9 @@ public partial class ExtractsController
     [SwaggerOperation(OperationId = nameof(RequestDownloadByContour), Description = "")]
     public async Task<ActionResult> RequestDownloadByContour([FromBody] DownloadExtractByContourRequestBody body, CancellationToken cancellationToken)
     {
-        var request = new DownloadExtractByContourRequest(body.Contour, body.Buffer, body.Description, body.UploadExpected);
+        var request = new DownloadExtractByContourRequest(body.Contour, body.Buffer, body.Description, body.IsInformative);
         var response = await _mediator.Send(request, cancellationToken);
-        return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.UploadExpected));
+        return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.IsInformative));
     }
 }
 
@@ -43,12 +43,12 @@ public record DownloadExtractByContourRequestBody
     ///     <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
     /// </summary>
     /// <seealso cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
-    public DownloadExtractByContourRequestBody(int Buffer, string Contour, string Description, bool UploadExpected = true)
+    public DownloadExtractByContourRequestBody(int Buffer, string Contour, string Description, bool IsInformative = true)
     {
         this.Buffer = Buffer;
         this.Contour = Contour;
         this.Description = Description;
-        this.UploadExpected = UploadExpected;
+        this.IsInformative = IsInformative;
     }
 
     /// <summary>
@@ -59,13 +59,13 @@ public record DownloadExtractByContourRequestBody
 
     public string Contour { get; init; }
     public string Description { get; init; }
-    public bool UploadExpected { get; init; }
+    public bool IsInformative { get; init; }
 
-    public void Deconstruct(out int Buffer, out string Contour, out string Description, out bool UploadExpected)
+    public void Deconstruct(out int Buffer, out string Contour, out string Description, out bool IsInformative)
     {
         Buffer = this.Buffer;
         Contour = this.Contour;
         Description = this.Description;
-        UploadExpected = this.UploadExpected;
+        IsInformative = this.IsInformative;
     }
 }

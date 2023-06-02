@@ -14,5 +14,5 @@ public class RoadNetworkExtractGotRequested : IRoadNetworkExtractGotRequestedMes
     public string RequestId { get; set; }
     public string Description { get; set; }
     public string When { get; set; }
-    public bool UploadExpected { get; set; } = true;
+    public bool IsInformative { get; set; } = true;
 }

@@ -2,12 +2,9 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
 using Editor.Schema;
-using Editor.Schema.Extracts;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
-using NetTopologySuite.Geometries;
-using System.Reflection.PortableExecutable;
 
 public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<DownloadExtractByFileRequest, DownloadExtractByFileResponse>
 {
@@ -26,25 +23,18 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
     {
         var contour = _translator.Translate(request.ShpFile, request.Buffer);
 
-        await DispatchCommandWithContextAddAsync(
-            new ExtractRequestRecord
-            {
-                RequestedOn = DateTime.UtcNow,
-                ExternalRequestId = randomExternalRequestId,
-                Contour = (MultiPolygon)GeometryTranslator.Translate(contour),
-                DownloadId = downloadId,
-                Description = request.Description,
-                UploadExpected = request.UploadExpected
-            },
-            new RequestRoadNetworkExtract
-            {
-                ExternalRequestId = randomExternalRequestId,
-                Contour = contour,
-                DownloadId = downloadId,
-                Description = request.Description,
-                UploadExpected = request.UploadExpected
-            }, cancellationToken);
+        var message = new RequestRoadNetworkExtract
+        {
+            ExternalRequestId = randomExternalRequestId,
+            Contour = contour,
+            DownloadId = downloadId,
+            Description = request.Description,
+            IsInformative = request.IsInformative
+        };
 
-        return new DownloadExtractByFileResponse(downloadId, request.UploadExpected);
+        var command = new Command(message);
+        await Dispatcher(command, cancellationToken);
+
+        return new DownloadExtractByFileResponse(downloadId, request.IsInformative);
     }
 }

@@ -75,6 +75,7 @@ public static class EditorContextScenarioExtensions
         records.AddRange(await context.RoadNetworkChangeRequestsBasedOnArchive.ToArrayAsync());
         records.AddRange(await context.MunicipalityGeometries.ToArrayAsync());
         records.AddRange(await context.ExtractDownloads.ToArrayAsync());
+        records.AddRange(await context.ExtractRequests.ToArrayAsync());
         records.AddRange(await context.ExtractUploads.ToArrayAsync());
 
         return records.ToArray();

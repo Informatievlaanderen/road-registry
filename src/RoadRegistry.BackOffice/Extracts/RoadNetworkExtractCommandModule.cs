@@ -46,20 +46,34 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
 
                 var downloadId = new DownloadId(message.Body.DownloadId);
                 var contour = GeometryTranslator.Translate(message.Body.Contour);
-                var uploadExpected = message.Body.UploadExpected;
+                var IsInformative = message.Body.IsInformative;
 
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
                 if (extract == null)
                 {
-                    extract = RoadNetworkExtract.Request(externalRequestId, downloadId, extractDescription, contour, uploadExpected);
+                    extract = RoadNetworkExtract.Request(externalRequestId, downloadId, extractDescription, contour, IsInformative);
                     context.RoadNetworkExtracts.Add(extract);
                 }
                 else
                 {
-                    extract.RequestAgain(downloadId, contour, uploadExpected);
+                    extract.RequestAgain(downloadId, contour, IsInformative);
                 }
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(RequestRoadNetworkExtract));
+            });
+
+        For<CloseRoadNetworkExtract>()
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .Handle(async (context, message, _, ct) =>
+            {
+                logger.LogInformation("Command handler started for {Command}", nameof(CloseRoadNetworkExtract));
+
+                var extractRequestId = ExtractRequestId.FromExternalRequestId(message.Body.ExternalRequestId);
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
+
+                extract.Close(message.Body.Reason);
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(CloseRoadNetworkExtract));
             });
 
         For<AnnounceRoadNetworkExtractDownloadBecameAvailable>()

@@ -11,7 +11,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "UploadExpected",
+                name: "IsInformative",
                 schema: "RoadRegistryEditor",
                 table: "ExtractDownload",
                 type: "bit",
@@ -28,7 +28,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     Contour = table.Column<Geometry>(type: "Geometry", nullable: false),
                     ExternalRequestId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RequestedOn = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    UploadExpected = table.Column<bool>(type: "bit", nullable: false)
+                    IsInformative = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,7 +44,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                 schema: "RoadRegistryEditor");
 
             migrationBuilder.DropColumn(
-                name: "UploadExpected",
+                name: "IsInformative",
                 schema: "RoadRegistryEditor",
                 table: "ExtractDownload");
         }

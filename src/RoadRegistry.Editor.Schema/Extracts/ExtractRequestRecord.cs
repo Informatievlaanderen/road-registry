@@ -10,5 +10,5 @@ public class ExtractRequestRecord
     public Geometry Contour { get; set; }
     public string ExternalRequestId { get; set; }
     public DateTimeOffset RequestedOn { get; set; }
-    public bool UploadExpected { get; set; }
+    public bool IsInformative { get; set; }
 }

@@ -296,17 +296,17 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsInformative")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("RequestId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("RequestedOn")
                         .HasColumnType("bigint");
-
-                    b.Property<bool>("UploadExpected")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
 
                     b.HasKey("DownloadId");
 
@@ -332,11 +332,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsInformative")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset>("RequestedOn")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("UploadExpected")
-                        .HasColumnType("bit");
 
                     b.HasKey("DownloadId");
 

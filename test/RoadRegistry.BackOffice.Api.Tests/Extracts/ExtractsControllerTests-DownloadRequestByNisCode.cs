@@ -41,7 +41,7 @@ public class DownloadExtractByNisCodeRequestValidatorTests
 
         var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
-        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(nisCode, ValidBuffer, ValidDescription));
+        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(nisCode, ValidBuffer, ValidDescription, false));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
@@ -61,7 +61,7 @@ public class DownloadExtractByNisCodeRequestValidatorTests
 
         var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
-        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(validNisCode, ValidBuffer, givenDescription));
+        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(validNisCode, ValidBuffer, givenDescription, false));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
@@ -73,7 +73,7 @@ public class DownloadExtractByNisCodeRequestValidatorTests
         await using var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
         var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
-        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(givenNisCode, ValidBuffer, ValidDescription));
+        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(givenNisCode, ValidBuffer, ValidDescription, false));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
@@ -93,7 +93,7 @@ public class DownloadExtractByNisCodeRequestValidatorTests
 
         var validator = new DownloadExtractByNisCodeRequestValidator(context);
 
-        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(validNisCode, ValidBuffer, givenDescription));
+        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(validNisCode, ValidBuffer, givenDescription, false));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
@@ -110,7 +110,8 @@ public class DownloadExtractByNisCodeRequestValidatorTests
         var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest(
             givenNisCode,
             ValidBuffer,
-            ValidDescription
+            ValidDescription,
+            false
         ));
         await act.Should().ThrowAsync<ValidationException>();
     }
@@ -120,7 +121,7 @@ public class DownloadExtractByNisCodeRequestValidatorTests
     {
         await using var context = await _sqlServerFixture.CreateEmptyEditorContextAsync(await _sqlServerFixture.CreateDatabaseAsync());
         var validator = new DownloadExtractByNisCodeRequestValidator(context);
-        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest("12345", ValidBuffer, ValidDescription));
+        var act = () => validator.ValidateAndThrowAsync(new DownloadExtractByNisCodeRequest("12345", ValidBuffer, ValidDescription, false));
         await act.Should().ThrowAsync<ValidationException>();
     }
 

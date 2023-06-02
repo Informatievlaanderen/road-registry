@@ -32,7 +32,7 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
             Contour = (MultiPolygon)record.Contour,
             ExtractRequestId = ExtractRequestId.FromExternalRequestId(record.ExternalRequestId),
             RequestedOn = record.RequestedOn,
-            UploadExpected = record.UploadExpected
+            IsInformative = record.IsInformative
         };
     }
 }

@@ -50,7 +50,7 @@ public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
     [InlineData(100)]
     public async Task Validate_will_allow_valid_buffer(int givenBuffer)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, givenBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, givenBuffer, ValidDescription, false));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
@@ -58,14 +58,14 @@ public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
     [MemberData(nameof(ValidDescriptionCases))]
     public async Task Validate_will_allow_valid_description(string givenDescription)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, ValidBuffer, givenDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, ValidBuffer, givenDescription, false));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
     [Fact]
     public async Task Validate_will_allow_valid_geometry()
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, ValidBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, ValidBuffer, ValidDescription, false));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
@@ -76,7 +76,7 @@ public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
     [InlineData(int.MaxValue)]
     public async Task Validate_will_not_allow_invalid_buffer(int givenBuffer)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, givenBuffer, ValidDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, givenBuffer, ValidDescription, false));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
@@ -84,7 +84,7 @@ public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
     [MemberData(nameof(InvalidDescriptionCases))]
     public async Task Validate_will_not_allow_invalid_description(string givenDescription)
     {
-        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, ValidBuffer, givenDescription));
+        var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, _prjFilePolygon, ValidBuffer, givenDescription, false));
         await act.Should().ThrowAsync<ValidationException>();
     }
 
@@ -94,7 +94,7 @@ public class DownloadExtractByFileRequestValidatorTests : IAsyncLifetime
         var prjFileInvalid = await GetDownloadExtractByFileRequestItemFromResource("invalid.prj");
         using (prjFileInvalid.ReadStream)
         {
-            var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, prjFileInvalid, ValidBuffer, ValidDescription));
+            var act = () => _validator.ValidateAndThrowAsync(new DownloadExtractByFileRequest(_shpFilePolygon, prjFileInvalid, ValidBuffer, ValidDescription, false));
             await act.Should().ThrowAsync<ValidationException>();
         }
     }

@@ -6,17 +6,18 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Projections;
 using Editor.Schema.Extracts;
+using NetTopologySuite.Geometries;
 using NodaTime;
 using NodaTime.Text;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using Polygon = BackOffice.Messages.Polygon;
 
-public class ExtractDownloadRecordProjectionTests
+public class ExtractRequestRecordProjectionTests
 {
     private readonly Fixture _fixture;
 
-    public ExtractDownloadRecordProjectionTests()
+    public ExtractRequestRecordProjectionTests()
     {
         _fixture = new Fixture();
         _fixture.CustomizeArchiveId();
@@ -41,7 +42,7 @@ public class ExtractDownloadRecordProjectionTests
                                     Polygon = null
                                 },
                                 When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
-                                IsInformative = true
+                                IsInformative = false
                             };
                         }
                     )
@@ -67,94 +68,31 @@ public class ExtractDownloadRecordProjectionTests
                                     Polygon = null
                                 },
                                 When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
-                                IsInformative = true
+                                IsInformative = false
                             };
                         }
                     )
                     .OmitAutoProperties()
         );
-        _fixture.Customize<RoadNetworkExtractDownloadBecameAvailable>(
+        _fixture.Customize<RoadNetworkExtractClosed>(
             customization =>
                 customization
                     .FromFactory(generator =>
                         {
                             var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
-                            return new RoadNetworkExtractDownloadBecameAvailable
+                            return new RoadNetworkExtractClosed
                             {
-                                Description = _fixture.Create<ExtractDescription>(),
-                                DownloadId = _fixture.Create<Guid>(),
-                                ExternalRequestId = externalRequestId,
                                 RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
-                                ArchiveId = _fixture.Create<ArchiveId>(),
+                                ExternalRequestId = externalRequestId,
+                                DownloadIds = _fixture.CreateMany<string>(Random.Shared.Next(1, 5)).ToArray(),
+                                DateRequested = DateTime.UtcNow,
+                                Reason = RoadNetworkExtractCloseReason.NoDownloadReceived,
                                 When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
                             };
                         }
                     )
                     .OmitAutoProperties()
         );
-        _fixture.Customize<RoadNetworkExtractDownloadTimeoutOccurred>(
-            customization =>
-                customization
-                    .FromFactory(generator =>
-                        {
-                            var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
-                            return new RoadNetworkExtractDownloadTimeoutOccurred
-                            {
-                                Description = _fixture.Create<ExtractDescription>(),
-                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
-                                ExternalRequestId = externalRequestId,
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
-                            };
-                        }
-                    )
-                    .OmitAutoProperties()
-        );
-    }
-
-    [Fact]
-    public Task When_extract_download_became_available()
-    {
-        var data = _fixture
-            .CreateMany<RoadNetworkExtractDownloadBecameAvailable>()
-            .Select(available =>
-            {
-                var expected = new ExtractDownloadRecord
-                {
-                    DownloadId = available.DownloadId,
-                    RequestId = available.RequestId,
-                    ExternalRequestId = available.ExternalRequestId,
-                    ArchiveId = available.ArchiveId,
-                    Available = true,
-                    AvailableOn = InstantPattern.ExtendedIso.Parse(available.When).Value.ToUnixTimeSeconds(),
-                    RequestedOn = InstantPattern.ExtendedIso.Parse(available.When).Value.ToUnixTimeSeconds()
-                };
-
-                return new
-                {
-                    given = new RoadNetworkExtractGotRequested
-                    {
-                        Description = _fixture.Create<ExtractDescription>(),
-                        ExternalRequestId = available.ExternalRequestId,
-                        RequestId = available.RequestId,
-                        DownloadId = available.DownloadId,
-                        Contour = new RoadNetworkExtractGeometry
-                        {
-                            SpatialReferenceSystemIdentifier =
-                                SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                            MultiPolygon = Array.Empty<Polygon>(),
-                            Polygon = null
-                        },
-                        When = InstantPattern.ExtendedIso.Format(InstantPattern.ExtendedIso.Parse(available.When).Value)
-                    },
-                    @event = available,
-                    expected
-                };
-            }).ToList();
-
-        return new ExtractDownloadRecordProjection()
-            .Scenario()
-            .Given(data.SelectMany(d => new object[] { d.given, d.@event }))
-            .Expect(data.Select(d => d.expected));
     }
 
     [Fact]
@@ -164,16 +102,14 @@ public class ExtractDownloadRecordProjectionTests
             .CreateMany<RoadNetworkExtractGotRequested>()
             .Select(requested =>
             {
-                var expected = new ExtractDownloadRecord
+                var expected = new ExtractRequestRecord
                 {
                     DownloadId = requested.DownloadId,
-                    RequestId = requested.RequestId,
                     ExternalRequestId = requested.ExternalRequestId,
-                    ArchiveId = null,
-                    Available = false,
-                    AvailableOn = 0L,
-                    RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeSeconds(),
-                    IsInformative = true
+                    Description = requested.Description,
+                    Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
+                    RequestedOn = DateTime.Parse(requested.When),
+                    IsInformative = requested.IsInformative
                 };
 
                 return new
@@ -183,9 +119,100 @@ public class ExtractDownloadRecordProjectionTests
                 };
             }).ToList();
 
-        return new ExtractDownloadRecordProjection()
+        return new ExtractRequestRecordProjection()
             .Scenario()
             .Given(data.Select(d => d.@event))
             .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_extract_got_requested_v2()
+    {
+        var data = _fixture
+            .CreateMany<RoadNetworkExtractGotRequestedV2>()
+            .Select(requested =>
+            {
+                var expected = new ExtractRequestRecord
+                {
+                    RequestedOn = DateTime.Parse(requested.When),
+                    ExternalRequestId = requested.ExternalRequestId,
+                    Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
+                    DownloadId = requested.DownloadId,
+                    Description = requested.Description,
+                    IsInformative = requested.IsInformative
+                };
+
+                return new
+                {
+                    @event = requested,
+                    expected
+                };
+            }).ToList();
+
+        return new ExtractRequestRecordProjection()
+            .Scenario()
+            .Given(data.Select(d => d.@event))
+            .Expect(data.Select(d => d.expected));
+    }
+
+    [Fact]
+    public Task When_extract_closed()
+    {
+        var requestedData = _fixture
+            .CreateMany<RoadNetworkExtractGotRequestedV2>()
+            .Select(requested =>
+            {
+                var expected = new ExtractRequestRecord
+                {
+                    RequestedOn = DateTime.Parse(requested.When),
+                    ExternalRequestId = requested.ExternalRequestId,
+                    Contour = (Geometry)GeometryTranslator.Translate(requested.Contour),
+                    DownloadId = requested.DownloadId,
+                    Description = requested.Description,
+                    IsInformative = requested.IsInformative
+                };
+
+                return new
+                {
+                    @event = requested,
+                    expected
+                };
+            }).ToList();
+
+        var closedData = requestedData
+            .Select(knownRequested =>
+            {
+                var @event = new RoadNetworkExtractClosed
+                {
+                    RequestId = knownRequested.@event.RequestId,
+                    ExternalRequestId = knownRequested.@event.ExternalRequestId,
+                    DownloadIds = new [] { knownRequested.@event.DownloadId.ToString() },
+                    DateRequested = DateTime.UtcNow,
+                    Reason = _fixture.Create<RoadNetworkExtractCloseReason>(),
+                    When = knownRequested.@event.When
+                };
+
+                var expected = new ExtractRequestRecord
+                {
+                    DownloadId = knownRequested.expected.DownloadId,
+                    ExternalRequestId = knownRequested.expected.ExternalRequestId,
+                    Description = knownRequested.expected.Description,
+                    Contour = knownRequested.expected.Contour,
+                    RequestedOn = knownRequested.expected.RequestedOn,
+                    IsInformative = true
+                };
+
+                return new
+                {
+                    @event = @event,
+                    expected
+                };
+            }).ToList();
+
+        return new ExtractRequestRecordProjection()
+            .Scenario()
+            .Given(requestedData.Select(d => d.@event))
+            .Given(closedData.Select(d => d.@event))
+            .Expect(closedData.Select(d => d.expected));
     }
 }

@@ -81,6 +81,9 @@ public static class EnrichEvent
                 case RoadNetworkExtractGotRequestedV2 m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
+                case RoadNetworkExtractClosed m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
                 case RoadNetworkExtractDownloadBecameAvailable m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;

@@ -10,6 +10,6 @@ public interface IRoadNetworkExtractGotRequestedMessage : IMessage
     Guid DownloadId { get; set; }
     string ExternalRequestId { get; set; }
     string RequestId { get; set; }
-    bool UploadExpected { get; set; }
+    bool IsInformative { get; set; }
     string When { get; set; }
 }
