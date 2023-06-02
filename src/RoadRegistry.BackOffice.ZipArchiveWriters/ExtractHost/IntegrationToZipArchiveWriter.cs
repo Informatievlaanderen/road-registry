@@ -58,30 +58,35 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 
         // segments integration
         var integrationBufferedSegmentsGeometries = segmentsInContour.Select(x => x.Geometry.Buffer(IntegrationBufferInMeters)).ToList();
-        var integrationBufferedContourGeometry = GeometryConfiguration.GeometryFactory
-            .BuildGeometry(integrationBufferedSegmentsGeometries)
-            .ConvexHull();
 
-        var segmentsInIntegrationBuffer = await context.RoadSegments
-            .InsideContour((IPolygonal)integrationBufferedContourGeometry)
-            .ToListAsync(cancellationToken);
+        var integrationSegments = new List<RoadSegmentRecord>();
+        var integrationNodes = new List<RoadNodeRecord>();
 
-        var integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
-        integrationSegments = integrationSegments.Where(integrationSegment =>
-            {
-                return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry));
-            })
-            .ToList();
+        if (integrationBufferedSegmentsGeometries.Any())
+        {
+            var integrationBufferedContourGeometry = GeometryConfiguration.GeometryFactory
+                .BuildGeometry(integrationBufferedSegmentsGeometries)
+                .ConvexHull();
 
-        // nodes integration
-        var nodesInIntegrationBuffer = await context.RoadNodes
-            .InsideContour((IPolygonal)integrationBufferedContourGeometry)
-            .ToListAsync(cancellationToken);
+            var segmentsInIntegrationBuffer = await context.RoadSegments
+                .InsideContour((IPolygonal)integrationBufferedContourGeometry)
+                .ToListAsync(cancellationToken);
 
-        var integrationNodeIds = integrationSegments.SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId }).Distinct().ToList();
-        var integrationNodes = nodesInIntegrationBuffer.Where(integrationNode => integrationNodeIds.Contains(integrationNode.Id))
-            .ToList();
-        integrationNodes = integrationNodes.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
+            integrationSegments = segmentsInIntegrationBuffer.Except(segmentsInContour, new RoadSegmentRecordEqualityComparerById()).ToList();
+            integrationSegments = integrationSegments.Where(integrationSegment => { return integrationBufferedSegmentsGeometries.Any(segmentBufferedGeometry => segmentBufferedGeometry.Intersects(integrationSegment.Geometry)); })
+                .ToList();
+
+            // nodes integration
+            var nodesInIntegrationBuffer = await context.RoadNodes
+                .InsideContour((IPolygonal)integrationBufferedContourGeometry)
+                .ToListAsync(cancellationToken);
+
+
+            var integrationNodeIds = integrationSegments.SelectMany(segment => new[] { segment.StartNodeId, segment.EndNodeId }).Distinct().ToList();
+            integrationNodes = nodesInIntegrationBuffer.Where(integrationNode => integrationNodeIds.Contains(integrationNode.Id))
+                .ToList();
+            integrationNodes = integrationNodes.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
+        }
 
         await WriteRoadSegments();
         await WriteRoadNodes();

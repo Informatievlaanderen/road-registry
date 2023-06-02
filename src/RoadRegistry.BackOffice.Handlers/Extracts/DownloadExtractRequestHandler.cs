@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
 using Editor.Schema;
-using Editor.Schema.Extracts;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -24,25 +23,18 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
 
     public override async Task<DownloadExtractResponse> HandleRequestAsync(DownloadExtractRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
     {
-        await DispatchCommandWithContextAddAsync(
-            new ExtractRequestRecord
-            {
-                RequestedOn = DateTime.UtcNow,
-                ExternalRequestId = request.RequestId,
-                Contour = _reader.Read(request.Contour),
-                DownloadId = downloadId,
-                Description = request.RequestId,
-                UploadExpected = request.UploadExpected
-            },
-            new RequestRoadNetworkExtract
-            {
-                ExternalRequestId = request.RequestId,
-                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)_reader.Read(request.Contour)),
-                DownloadId = downloadId,
-                Description = request.RequestId,
-                UploadExpected = request.UploadExpected
-            }, cancellationToken);
+        var message = new RequestRoadNetworkExtract
+        {
+            ExternalRequestId = request.RequestId,
+            Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)_reader.Read(request.Contour)),
+            DownloadId = downloadId,
+            Description = request.RequestId,
+            IsInformative = request.IsInformative
+        };
 
-        return new DownloadExtractResponse(downloadId, request.UploadExpected);
+        var command = new Command(message);
+        await Dispatcher(command, cancellationToken);
+
+        return new DownloadExtractResponse(downloadId, request.IsInformative);
     }
 }

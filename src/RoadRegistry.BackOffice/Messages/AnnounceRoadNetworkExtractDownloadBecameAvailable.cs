@@ -7,7 +7,7 @@ public class AnnounceRoadNetworkExtractDownloadBecameAvailable : IMessage
 {
     public string ArchiveId { get; set; }
     public Guid DownloadId { get; set; }
-    public bool UploadExpected { get; set; }
+    public bool IsInformative { get; set; }
     public string RequestId { get; set; }
 
     //TODO: - Extend all road network events with a RoadNetworkRevision

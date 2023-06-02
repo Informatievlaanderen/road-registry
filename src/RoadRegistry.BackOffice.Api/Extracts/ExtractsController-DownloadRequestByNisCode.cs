@@ -26,9 +26,9 @@ public partial class ExtractsController
     {
         try
         {
-            var request = new DownloadExtractByNisCodeRequest(body.NisCode, body.Buffer, body.Description, body.UploadExpected);
+            var request = new DownloadExtractByNisCodeRequest(body.NisCode, body.Buffer, body.Description, body.IsInformative);
             var response = await _mediator.Send(request, cancellationToken);
-            return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.UploadExpected));
+            return Accepted(new DownloadExtractResponseBody(response.DownloadId.ToString(), response.IsInformative));
         }
         catch (DownloadExtractByNisCodeNotFoundException)
         {
@@ -37,4 +37,4 @@ public partial class ExtractsController
     }
 }
 
-public record DownloadExtractByNisCodeRequestBody(int Buffer, string Description, string NisCode, bool UploadExpected);
+public record DownloadExtractByNisCodeRequestBody(int Buffer, string Description, string NisCode, bool IsInformative);

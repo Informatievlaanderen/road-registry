@@ -9,5 +9,5 @@ public sealed record ExtractDetailsResponse : EndpointResponse
     public MultiPolygon Contour { get; init; }
     public ExtractRequestId ExtractRequestId { get; init; }
     public DateTimeOffset RequestedOn { get; set; }
-    public bool UploadExpected { get; init; }
+    public bool IsInformative { get; init; }
 }

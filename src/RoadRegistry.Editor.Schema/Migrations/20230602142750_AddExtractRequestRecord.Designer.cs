@@ -13,7 +13,7 @@ using RoadRegistry.Editor.Schema;
 namespace RoadRegistry.Editor.Schema.Migrations
 {
     [DbContext(typeof(EditorContext))]
-    [Migration("20230526131541_AddExtractRequestRecord")]
+    [Migration("20230602142750_AddExtractRequestRecord")]
     partial class AddExtractRequestRecord
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -298,17 +298,15 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsInformative")
+                        .HasColumnType("bit");
+
                     b.Property<string>("RequestId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("RequestedOn")
                         .HasColumnType("bigint");
-
-                    b.Property<bool>("UploadExpected")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
 
                     b.HasKey("DownloadId");
 
@@ -334,11 +332,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsInformative")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset>("RequestedOn")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<bool>("UploadExpected")
-                        .HasColumnType("bit");
 
                     b.HasKey("DownloadId");
 

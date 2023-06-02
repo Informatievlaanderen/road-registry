@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
 using Editor.Schema;
-using Editor.Schema.Extracts;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -26,25 +25,19 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
     {
         var geometry = (MultiPolygon)_reader.Read(request.Contour);
 
-        await DispatchCommandWithContextAddAsync(
-            new ExtractRequestRecord
-            {
-                RequestedOn = DateTime.UtcNow,
-                ExternalRequestId = randomExternalRequestId,
-                Contour = geometry,
-                DownloadId = downloadId,
-                Description = request.Description,
-                UploadExpected = request.UploadExpected
-            },
-            new RequestRoadNetworkExtract
-            {
-                ExternalRequestId = randomExternalRequestId,
-                Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(geometry, request.Buffer),
-                DownloadId = downloadId,
-                Description = request.Description,
-                UploadExpected = request.UploadExpected
-            }, cancellationToken);
 
-        return new DownloadExtractByContourResponse(downloadId, request.UploadExpected);
+        var message = new RequestRoadNetworkExtract
+        {
+            ExternalRequestId = randomExternalRequestId,
+            Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry(geometry, request.Buffer),
+            DownloadId = downloadId,
+            Description = request.Description,
+            IsInformative = request.IsInformative
+        };
+
+        var command = new Command(message);
+        await Dispatcher(command, cancellationToken);
+
+        return new DownloadExtractByContourResponse(downloadId, request.IsInformative);
     }
 }
