@@ -25,7 +25,7 @@ public class GetTransactionZonesGeoJsonRequestHandler : EndpointRequestHandler<G
     public override async Task<GetTransactionZonesGeoJsonResponse> HandleAsync(GetTransactionZonesGeoJsonRequest request, CancellationToken cancellationToken)
     {
         var transactionZones = await _context.ExtractRequests
-            .Where(x => x.IsInformative == true)
+            .Where(x => !x.IsInformative)
             .ToListAsync(cancellationToken);
         
         return new GetTransactionZonesGeoJsonResponse

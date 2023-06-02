@@ -16,7 +16,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                 table: "ExtractDownload",
                 type: "bit",
                 nullable: false,
-                defaultValue: true);
+                defaultValue: false);
 
             migrationBuilder.CreateTable(
                 name: "ExtractRequest",

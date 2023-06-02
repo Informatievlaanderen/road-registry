@@ -43,7 +43,7 @@ public record DownloadExtractByContourRequestBody
     ///     <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
     /// </summary>
     /// <seealso cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
-    public DownloadExtractByContourRequestBody(int Buffer, string Contour, string Description, bool IsInformative = true)
+    public DownloadExtractByContourRequestBody(int Buffer, string Contour, string Description, bool IsInformative)
     {
         this.Buffer = Buffer;
         this.Contour = Contour;

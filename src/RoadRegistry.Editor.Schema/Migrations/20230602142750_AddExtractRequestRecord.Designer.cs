@@ -13,7 +13,7 @@ using RoadRegistry.Editor.Schema;
 namespace RoadRegistry.Editor.Schema.Migrations
 {
     [DbContext(typeof(EditorContext))]
-    [Migration("20230602112215_AddExtractRequestRecord")]
+    [Migration("20230602142750_AddExtractRequestRecord")]
     partial class AddExtractRequestRecord
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -299,9 +299,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsInformative")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("RequestId")
                         .IsRequired()

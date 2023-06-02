@@ -297,9 +297,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsInformative")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<string>("RequestId")
                         .IsRequired()

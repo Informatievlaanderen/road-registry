@@ -21,6 +21,6 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
         b.Property(p => p.RequestedOn).IsRequired();
         b.Property(p => p.Available).IsRequired();
         b.Property(p => p.AvailableOn).IsRequired();
-        b.Property(p => p.IsInformative).HasDefaultValue(true).IsRequired();
+        b.Property(p => p.IsInformative).IsRequired();
     }
 }

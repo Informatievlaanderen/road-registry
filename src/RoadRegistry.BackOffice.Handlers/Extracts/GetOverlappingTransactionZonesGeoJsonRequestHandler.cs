@@ -25,7 +25,7 @@ public class GetOverlappingTransactionZonesGeoJsonRequestHandler : EndpointReque
     public override async Task<GetOverlappingTransactionZonesGeoJsonResponse> HandleAsync(GetOverlappingTransactionZonesGeoJsonRequest request, CancellationToken cancellationToken)
     {
         var transactionZones = await _context.ExtractRequests
-            .Where(x => x.IsInformative == true)
+            .Where(x => !x.IsInformative)
             .ToListAsync(cancellationToken);
 
         var intersectionGeometries = (
