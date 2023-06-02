@@ -150,15 +150,15 @@ public class StraatnaamObject
 public class WegverhardingObject
 {
     [DataMember(Name = "VanPositie", Order = 1)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double VanPositie { get; set; }
 
     [DataMember(Name = "TotPositie", Order = 2)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double TotPositie { get; set; }
 
     [DataMember(Name = "Verharding", Order = 3)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     [EnumDataType(typeof(RoadSegmentSurfaceType))]
     public string Verharding { get; set; }
 }
@@ -167,15 +167,15 @@ public class WegverhardingObject
 public class WegbreedteObject
 {
     [DataMember(Name = "VanPositie", Order = 1)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double VanPositie { get; set; }
 
     [DataMember(Name = "TotPositie", Order = 2)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double TotPositie { get; set; }
 
     [DataMember(Name = "Breedte", Order = 3)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public int Breedte { get; set; }
 }
 
@@ -183,11 +183,11 @@ public class WegbreedteObject
 public class AantalRijstrokenObject
 {
     [DataMember(Name = "VanPositie", Order = 1)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double VanPositie { get; set; }
 
     [DataMember(Name = "TotPositie", Order = 2)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public double TotPositie { get; set; }
 
     [DataMember(Name = "Aantal", Order = 3)]
@@ -195,7 +195,7 @@ public class AantalRijstrokenObject
     public int Aantal { get; set; }
 
     [DataMember(Name = "Richting", Order = 4)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     [EnumDataType(typeof(RoadSegmentLaneDirection))]
     public string Richting { get; set; }
 }
@@ -207,21 +207,21 @@ public class GetRoadSegmentResponse
     ///     De unieke identificator van het wegsegment.
     /// </summary>
     [DataMember(Name = "Identificator", Order = 1)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public WegsegmentIdentificator Identificator { get; set; }
 
     /// <summary>
     ///     De middellijngeometrie van het wegsegment.
     /// </summary>
     [DataMember(Name = "MiddellijnGeometrie", Order = 2)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public GeoJSONMultiLineString MiddellijnGeometrie { get; set; }
 
     /// <summary>
     ///     De geometriemethode van het wegsegment.
     /// </summary>
     [DataMember(Name = "MethodeWegsegmentgeometrie", Order = 3)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     [EnumDataType(typeof(RoadSegmentGeometryDrawMethod))]
     public string MethodeWegsegmentgeometrie { get; set; }
 
@@ -229,14 +229,14 @@ public class GetRoadSegmentResponse
     ///     De identificator van het beginknoop object.
     /// </summary>
     [DataMember(Name = "BeginknoopObjectId", Order = 4)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public int BeginknoopObjectId { get; set; }
 
     /// <summary>
     ///     De identificator van het eindknoop object.
     /// </summary>
     [DataMember(Name = "EindknoopObjectId", Order = 5)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public int EindknoopObjectId { get; set; }
 
     /// <summary>
@@ -257,7 +257,7 @@ public class GetRoadSegmentResponse
     ///     De status van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegsegmentstatus", Order = 8)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     [EnumDataType(typeof(RoadSegmentStatus))]
     public string Wegsegmentstatus { get; set; }
 
@@ -265,7 +265,7 @@ public class GetRoadSegmentResponse
     ///     De morfologische wegklasse van het wegsegment.
     /// </summary>
     [DataMember(Name = "MorfologischeWegklasse", Order = 9)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     [EnumDataType(typeof(RoadSegmentMorphology))]
     public string MorfologischeWegklasse { get; set; }
 
@@ -273,7 +273,7 @@ public class GetRoadSegmentResponse
     ///     De toegangsbeperking van het wegsegment.
     /// </summary>
     [DataMember(Name = "Toegangsbeperking", Order = 10)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     [EnumDataType(typeof(RoadSegmentAccessRestriction))]
     public string Toegangsbeperking { get; set; }
 
@@ -281,14 +281,14 @@ public class GetRoadSegmentResponse
     ///     De wegbeheerder van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegbeheerder", Order = 11)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public string Wegbeheerder { get; set; }
 
     /// <summary>
     ///     De wegcategorie van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegcategorie", Order = 12)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     [EnumDataType(typeof(RoadSegmentCategory))]
     public string Wegcategorie { get; set; }
 
@@ -296,21 +296,21 @@ public class GetRoadSegmentResponse
     ///     De wegverharding van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegverharding", Order = 13)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public WegverhardingObject[] Wegverharding { get; set; }
 
     /// <summary>
     ///     De wegbreedte van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegbreedte", Order = 14)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public WegbreedteObject[] Wegbreedte { get; set; }
 
     /// <summary>
     ///     Het aantal rijstroken van het wegsegment.
     /// </summary>
     [DataMember(Name = "AantalRijstroken", Order = 15)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.DisallowNull)]
     public AantalRijstrokenObject[] AantalRijstroken { get; set; }
 }
 

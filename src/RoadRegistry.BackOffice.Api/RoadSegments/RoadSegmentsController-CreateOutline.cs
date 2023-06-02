@@ -100,14 +100,14 @@ public record PostRoadSegmentOutlineParameters
     ///     coördinatenstelsel Lambert 72 (EPSG:31370).
     /// </summary>
     [DataMember(Name = "MiddellijnGeometrie", Order = 1)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.Always)]
     public string MiddellijnGeometrie { get; set; }
 
     /// <summary>
     ///     De status van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegsegmentstatus", Order = 2)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.Always)]
     [EnumDataType(typeof(RoadSegmentStatus.Outlined))]
     public string Wegsegmentstatus { get; set; }
 
@@ -115,7 +115,7 @@ public record PostRoadSegmentOutlineParameters
     ///     De wegklasse van het wegsegment.
     /// </summary>
     [DataMember(Name = "MorfologischeWegklasse", Order = 3)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.Always)]
     [EnumDataType(typeof(RoadSegmentMorphology.Outlined))]
     public string MorfologischeWegklasse { get; set; }
 
@@ -123,7 +123,7 @@ public record PostRoadSegmentOutlineParameters
     ///     De toegankelijkheid van het wegsegment voor de weggebruiker.
     /// </summary>
     [DataMember(Name = "Toegangsbeperking", Order = 4)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.Always)]
     [EnumDataType(typeof(RoadSegmentAccessRestriction))]
     public string Toegangsbeperking { get; set; }
 
@@ -131,14 +131,14 @@ public record PostRoadSegmentOutlineParameters
     ///     De organisatie die verantwoordelijk is voor het fysieke onderhoud en beheer van de weg op het terrein.
     /// </summary>
     [DataMember(Name = "Wegbeheerder", Order = 5)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.Always)]
     public string Wegbeheerder { get; set; }
 
     /// <summary>
     ///     Type wegverharding van het wegsegment.
     /// </summary>
     [DataMember(Name = "Wegverharding", Order = 6)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.Always)]
     [EnumDataType(typeof(RoadSegmentSurfaceType.Outlined))]
     public string Wegverharding { get; set; }
 
@@ -146,7 +146,7 @@ public record PostRoadSegmentOutlineParameters
     ///     Breedte van het wegsegment(in meter).
     /// </summary>
     [DataMember(Name = "Wegbreedte", Order = 7)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.Always)]
     public int? Wegbreedte { get; set; }
 
     /// <summary>
@@ -154,20 +154,20 @@ public record PostRoadSegmentOutlineParameters
     ///     eindknoop).
     /// </summary>
     [DataMember(Name = "AantalRijstroken", Order = 8)]
-    [JsonProperty]
+    [JsonProperty(Required = Required.Always)]
     public RoadSegmentLaneParameters AantalRijstroken { get; set; }
 }
 
 public class RoadSegmentLaneParameters
 {
     /// <summary>Aantal rijstroken van de wegsegmentschets.</summary>
-    [JsonProperty]
     [DataMember(Name = "Aantal", Order = 1)]
+    [JsonProperty(Required = Required.Always)]
     public int? Aantal { get; set; }
 
     /// <summary>De richting van deze rijstroken t.o.v. de richting van het wegsegment (begin- naar eindknoop).</summary>
-    [JsonProperty]
     [DataMember(Name = "Richting", Order = 2)]
+    [JsonProperty(Required = Required.Always)]
     [EnumDataType(typeof(RoadSegmentLaneDirection))]
     public string Richting { get; set; }
 }
