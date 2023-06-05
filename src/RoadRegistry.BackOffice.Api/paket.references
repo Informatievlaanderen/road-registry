@@ -13,5 +13,4 @@ MediatR
 Microsoft.Extensions.FileProviders.Abstractions
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 
-RestSharp
 Serilog.Sinks.Seq
