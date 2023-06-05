@@ -1,11 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
+using System.Text;
 using Autofac;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Core;
 using Editor.Schema;
 using Extensions;
+using FeatureCompare.Translators;
 using Framework;
 using Handlers.Sqs;
 using Hosts.Infrastructure.Extensions;
@@ -82,6 +84,8 @@ public class Startup : TestStartup
             .AddDbContext<ProductContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")));
+                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
+            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
+            ;
     }
 }
