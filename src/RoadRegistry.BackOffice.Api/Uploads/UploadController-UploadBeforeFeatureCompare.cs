@@ -51,7 +51,7 @@ public partial class UploadController
             if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
             {
                 UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-                var request = new UploadExtractRequest(archive.FileName, requestArchive)
+                var request = new UploadExtractRequest(requestArchive)
                 {
                     UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled
                 };

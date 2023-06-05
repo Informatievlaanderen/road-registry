@@ -8,7 +8,6 @@ public sealed class UploadExtractRequestValidator : AbstractValidator<UploadExtr
 {
     public UploadExtractRequestValidator()
     {
-        RuleFor(req => req.DownloadId).NotEmpty();
         RuleFor(req => req.Archive).NotNull();
     }
 

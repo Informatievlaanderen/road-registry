@@ -10,6 +10,8 @@ using Schema;
 using Schema.Extracts;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
 {
@@ -44,12 +46,39 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
             };
             await context.ExtractRequests.AddAsync(record, ct);
         });
-
+        
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
         {
-            var record = context.ExtractRequests.Local.SingleOrDefault(record => record.ExternalRequestId == envelope.Message.ExternalRequestId)
-                ?? await context.ExtractRequests.SingleAsync(record => record.ExternalRequestId == envelope.Message.ExternalRequestId, ct);
-            record.IsInformative = true;
+            await CloseExtractRequests(context, envelope.Message.ExternalRequestId, ct);
         });
+
+        When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
+        {
+            if (envelope.Message.DownloadId is null)
+            {
+                return;
+            }
+            
+            var downloadRecord = context.ExtractRequests.Local.SingleOrDefault(record => record.DownloadId == envelope.Message.DownloadId.Value)
+                ?? await context.ExtractRequests.SingleAsync(record => record.DownloadId == envelope.Message.DownloadId.Value, ct);
+
+            await CloseExtractRequests(context, downloadRecord.ExternalRequestId, ct);
+        });
+    }
+
+    private async Task CloseExtractRequests(EditorContext editorContext, string externalRequestId, CancellationToken cancellationToken)
+    {
+        var records = editorContext.ExtractRequests.Local
+            .Where(record => record.ExternalRequestId == externalRequestId)
+            .ToList()
+            .Concat(await editorContext.ExtractRequests
+                .Where(record => record.ExternalRequestId == externalRequestId)
+                .ToListAsync(cancellationToken))
+            ;
+
+        foreach (var record in records)
+        {
+            record.IsInformative = true;
+        }
     }
 }

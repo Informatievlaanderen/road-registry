@@ -29,6 +29,7 @@ public class RoadNetwork : EventSourcedEntity
 
     public void Change(
         ChangeRequestId requestId,
+        DownloadId? downloadId,
         Reason reason,
         OperatorName @operator,
         Organization.DutchTranslation organization,
@@ -91,6 +92,7 @@ public class RoadNetwork : EventSourcedEntity
             Apply(new RoadNetworkChangesAccepted
             {
                 RequestId = requestId,
+                DownloadId = downloadId,
                 Reason = reason,
                 Operator = @operator,
                 OrganizationId = organization.Identifier,
