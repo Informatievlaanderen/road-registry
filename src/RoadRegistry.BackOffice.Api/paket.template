@@ -25,7 +25,6 @@ dependencies
     AWSSDK.Core >= LOCKEDVERSION
     MediatR >= LOCKEDVERSION
     Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite >= LOCKEDVERSION
-    RestSharp >= LOCKEDVERSION
     Serilog.Sinks.Seq >= LOCKEDVERSION
 
 files
