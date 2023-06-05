@@ -1,3 +1,11 @@
+## [3.46.1](https://github.com/informatievlaanderen/road-registry/compare/v3.46.0...v3.46.1) (2023-06-05)
+
+
+### Bug Fixes
+
+* Informative extract requests should be blocked ([#984](https://github.com/informatievlaanderen/road-registry/issues/984)) ([1651bf3](https://github.com/informatievlaanderen/road-registry/commit/1651bf3dcf440b4b7fe4bd1c12443376ea264e47))
+* remove unused restsharp dependency ([#983](https://github.com/informatievlaanderen/road-registry/issues/983)) ([7ac1880](https://github.com/informatievlaanderen/road-registry/commit/7ac18806f84442a801d6a8adb1a78b78f11f7fe6))
+
 # [3.46.0](https://github.com/informatievlaanderen/road-registry/compare/v3.45.1...v3.46.0) (2023-06-02)
 
 
