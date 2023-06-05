@@ -1,3 +1,10 @@
+## [3.46.2](https://github.com/informatievlaanderen/road-registry/compare/v3.46.1...v3.46.2) (2023-06-05)
+
+
+### Bug Fixes
+
+* WR-244 Block incoming informative extract requests and close extract requests when upload change accepted ([#988](https://github.com/informatievlaanderen/road-registry/issues/988)) ([2c64341](https://github.com/informatievlaanderen/road-registry/commit/2c6434124ce744e069fa3c739cef596f8c0d4976))
+
 ## [3.46.1](https://github.com/informatievlaanderen/road-registry/compare/v3.46.0...v3.46.1) (2023-06-05)
 
 
