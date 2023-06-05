@@ -87,7 +87,6 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 .ToList();
             integrationNodes = integrationNodes.Except(nodesInContour, new RoadNodeRecordEqualityComparerById()).ToList();
         }
-
         await WriteRoadSegments();
         await WriteRoadNodes();
 

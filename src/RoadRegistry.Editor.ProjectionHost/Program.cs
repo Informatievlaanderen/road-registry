@@ -65,6 +65,7 @@ public class Program
                     new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new ExtractDownloadRecordProjection(),
+                    new ExtractRequestRecordProjection(),
                     new ExtractUploadRecordProjection()
                 })
                 .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp

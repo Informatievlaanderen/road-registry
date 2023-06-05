@@ -56,19 +56,26 @@ public partial class ExtractsController : ApiController
         {
             return NotFound();
         }
-        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
+        catch (ExtractRequestMarkedInformativeException ex)
+        {
+            throw new ApiProblemDetailsException(
+                "The roadnetwork extract is marked informative. Upload not allowed.",
+                409,
+                new ExceptionProblemDetails(ex), ex);
+        }
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException ex)
         {
             throw new ApiProblemDetailsException(
                 "Can not upload roadnetwork extract changes archive for superseded download",
                 409,
-                new ExceptionProblemDetails(exception), exception);
+                new ExceptionProblemDetails(ex), ex);
         }
-        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException exception)
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException ex)
         {
             throw new ApiProblemDetailsException(
                 "Can not upload roadnetwork extract changes archive for same download more than once",
                 409,
-                new ExceptionProblemDetails(exception), exception);
+                new ExceptionProblemDetails(ex), ex);
         }
     }
 }

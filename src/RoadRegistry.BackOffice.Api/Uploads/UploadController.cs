@@ -54,6 +54,13 @@ public partial class UploadController : BackofficeApiController
         {
             return new UnsupportedMediaTypeResult();
         }
+        catch (ExtractRequestMarkedInformativeException ex)
+        {
+            throw new ApiProblemDetailsException(
+                "The roadnetwork extract is marked informative. Upload not allowed.",
+                409,
+                new ExceptionProblemDetails(ex), ex);
+        }
         catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
         {
             throw new ApiProblemDetailsException(

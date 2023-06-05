@@ -62,6 +62,7 @@ public class Program
 
         var streamStore = host.Services.GetRequiredService<IStreamStore>();
         var logger = host.Services.GetRequiredService<ILogger<Program>>();
+
         try
         {
             await WaitFor.SeqToBecomeAvailable(configuration).ConfigureAwait(false);

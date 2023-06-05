@@ -25,6 +25,7 @@ using Configuration;
 using Controllers.Attributes;
 using Core;
 using Editor.Schema;
+using FeatureCompare.Translators;
 using FluentValidation;
 using Framework;
 using Handlers.Extensions;
@@ -198,7 +199,7 @@ public class Startup
                         .GetChildren()
                         .Select(c => c.Value)
                         .ToArray(),
-                    Headers = new[] {ApiKeyAuthAttribute.ApiKeyHeaderName},
+                    Headers = new[] { ApiKeyAuthAttribute.ApiKeyHeaderName },
                     ExposedHeaders = new[] { "Retry-After" }
                 },
                 Server =
@@ -338,6 +339,7 @@ public class Startup
                             )
                             .Options)
             )
+            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
