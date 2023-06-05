@@ -16,6 +16,7 @@ public class ChangeRoadNetwork : IMessage, IHasCommandProvenance
     public string OrganizationId { get; set; }
     public string Reason { get; set; }
     public string RequestId { get; set; }
+    public Guid? DownloadId { get; set; }
 
     public Provenance Provenance { get; }
 

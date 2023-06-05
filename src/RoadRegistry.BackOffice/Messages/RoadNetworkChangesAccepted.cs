@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using System;
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
@@ -17,6 +18,7 @@ public class RoadNetworkChangesAccepted : IMessage, IHaveHash
     public string OrganizationId { get; set; }
     public string Reason { get; set; }
     public string RequestId { get; set; }
+    public Guid? DownloadId { get; set; }
     public int TransactionId { get; set; }
     public string When { get; set; }
 

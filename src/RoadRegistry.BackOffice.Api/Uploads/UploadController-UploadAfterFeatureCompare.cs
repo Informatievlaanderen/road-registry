@@ -34,7 +34,7 @@ public partial class UploadController
         return await PostUpload(archive, async () =>
         {
             UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractRequest(archive.FileName, requestArchive);
+            var request = new UploadExtractRequest(requestArchive);
             await _mediator.Send(request, cancellationToken);
             return Ok();
         });

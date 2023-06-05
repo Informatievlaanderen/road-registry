@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Extensions;
 using FeatureCompare;
+using FeatureCompare.Translators;
 using Uploads;
 
 public class Program
@@ -60,6 +61,7 @@ public class Program
                             new ZipArchiveFeatureCompareTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
+                            new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()),
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
                         new RoadNetworkBackOfficeEventModule(
