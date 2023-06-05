@@ -76,6 +76,14 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
             throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
         }
 
+        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
+                             ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+
+        if (extractRequest.IsInformative)
+        {
+            throw new ExtractRequestMarkedInformativeException(new DownloadId(parsedDownloadId));
+        }
+
         var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
                        ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
         

@@ -4,8 +4,11 @@ using System.IO.Compression;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
+using BackOffice.FeatureCompare;
+using BackOffice.FeatureCompare.Translators;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Editor.Schema;
 using Exceptions;
 using Framework;
 using Messages;
@@ -24,14 +27,18 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     };
 
     private readonly RoadNetworkUploadsBlobClient _client;
+    private readonly EditorContext _editorContext;
     private readonly IZipArchiveBeforeFeatureCompareValidator _beforeFeatureCompareValidator;
     private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
     private readonly IZipArchiveAfterFeatureCompareValidator _afterFeatureCompareValidator;
+    private readonly TransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureReader;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkUploadsBlobClient client,
+        TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
+        EditorContext editorContext,
         IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
         IZipArchiveAfterFeatureCompareValidator afterFeatureCompareValidator,
         UseUploadZipArchiveValidationFeatureToggle uploadZipArchiveValidationFeatureToggle,
@@ -39,10 +46,13 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
+        _editorContext = editorContext;
         _beforeFeatureCompareValidator = beforeFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(beforeFeatureCompareValidator));
         _afterFeatureCompareValidator = afterFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(afterFeatureCompareValidator));
         _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle ?? throw new ArgumentNullException(nameof(uploadZipArchiveValidationFeatureToggle));
         _roadNetworkCommandQueue = roadNetworkCommandQueue;
+        _transactionZoneFeatureReader = transactionZoneFeatureReader ?? throw new ArgumentNullException(nameof(transactionZoneFeatureReader));
+        _editorContext = editorContext ?? throw new EditorContextNotFoundException(nameof(editorContext));
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -105,6 +115,17 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             if (fileProblems.Any())
             {
                 throw new ZipArchiveValidationException(problems);
+            }
+
+            var features = _transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, "Transactiezones");
+            var downloadId = DownloadId.Parse(features.Single().Attributes.DownloadId);
+
+            var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken)
+                                 ?? throw new ExtractDownloadNotFoundException(downloadId);
+
+            if (extractRequest.IsInformative)
+            {
+                throw new ExtractRequestMarkedInformativeException(downloadId);
             }
 
             await UploadAndDispatchCommand(request, readStream, archiveId, metadata, cancellationToken);
