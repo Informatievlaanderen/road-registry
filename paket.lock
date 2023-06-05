@@ -965,8 +965,6 @@ NUGET
     Polly (7.2.3)
     Polly.Extensions.Http (3.0)
       Polly (>= 7.1)
-    RestSharp (110.2)
-      System.Text.Json (>= 7.0.2)
     runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
     runtime.debian.9-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
     runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
