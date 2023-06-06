@@ -38,6 +38,8 @@ NUGET
       AWSSDK.Core (>= 3.7.106.34 < 4.0)
     AWSSDK.S3 (3.7.104.13)
       AWSSDK.Core (>= 3.7.106.34 < 4.0)
+    AWSSDK.SimpleNotificationService (3.7.101.63)
+      AWSSDK.Core (>= 3.7.106.34 < 4.0)
     AWSSDK.SQS (3.7.102.2)
       AWSSDK.Core (>= 3.7.106.34 < 4.0)
     Azure.Core (1.27)
