@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
+using NodaTime.Text;
 using Schema;
 using Schema.Extracts;
 using System;
@@ -26,7 +27,7 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
                 ExternalRequestId = message.ExternalRequestId,
                 Contour = (Geometry)GeometryTranslator.Translate(message.Contour),
                 DownloadId = message.DownloadId,
-                Description = message.Description,
+                Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend",
                 IsInformative = message.IsInformative
             };
             await context.ExtractRequests.AddAsync(record, ct);
@@ -41,12 +42,25 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
                 ExternalRequestId = message.ExternalRequestId,
                 Contour = (Geometry)GeometryTranslator.Translate(message.Contour),
                 DownloadId = message.DownloadId,
-                Description = message.Description,
+                Description = !string.IsNullOrEmpty(message.Description) ? message.Description : "onbekend",
                 IsInformative = message.IsInformative
             };
             await context.ExtractRequests.AddAsync(record, ct);
         });
-        
+
+        When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
+        {
+            if (envelope.Message.DownloadId == Guid.Empty)
+            {
+                return;
+            }
+
+            var record = context.ExtractRequests.Local.SingleOrDefault(record => record.DownloadId == envelope.Message.DownloadId)
+                                 ?? await context.ExtractRequests.SingleAsync(record => record.DownloadId == envelope.Message.DownloadId, ct);
+
+            record.DownloadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
+        });
+
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
         {
             await CloseExtractRequests(context, envelope.Message.ExternalRequestId, ct);
