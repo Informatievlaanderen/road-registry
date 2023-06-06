@@ -52,6 +52,10 @@ public partial class ExtractsController : ApiController
         {
             return new UnsupportedMediaTypeResult();
         }
+        catch (DownloadExtractNotFoundException)
+        {
+            return NotFound();
+        }
         catch (ExtractDownloadNotFoundException)
         {
             return NotFound();

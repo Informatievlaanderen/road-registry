@@ -32,7 +32,7 @@ public partial class UploadController : BackofficeApiController
         _mediator = mediator;
     }
 
-    private static async Task<IActionResult> PostUpload(IFormFile archive, Func<Task<IActionResult>> callback)
+    private async Task<IActionResult> PostUpload(IFormFile archive, Func<Task<IActionResult>> callback)
     {
         if (archive == null)
         {
@@ -54,26 +54,46 @@ public partial class UploadController : BackofficeApiController
         {
             return new UnsupportedMediaTypeResult();
         }
-        catch (ExtractRequestMarkedInformativeException ex)
+        catch (DownloadExtractNotFoundException)
         {
-            throw new ApiProblemDetailsException(
-                "The roadnetwork extract is marked informative. Upload not allowed.",
-                409,
-                new ExceptionProblemDetails(ex), ex);
+            return NotFound();
         }
-        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException exception)
+        catch (ExtractDownloadNotFoundException)
         {
-            throw new ApiProblemDetailsException(
-                "Can not upload roadnetwork extract changes archive for superseded download",
-                409,
-                new ExceptionProblemDetails(exception), exception);
+            return NotFound();
         }
-        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException exception)
+        catch (ExtractRequestMarkedInformativeException)
         {
-            throw new ApiProblemDetailsException(
-                "Can not upload roadnetwork extract changes archive for same download more than once",
-                409,
-                new ExceptionProblemDetails(exception), exception);
+            throw new ValidationException("The roadnetwork extract is marked informative. Upload not allowed.", new[]
+            {
+                new ValidationFailure
+                {
+                    PropertyName = string.Empty,
+                    ErrorCode = ProblemCode.Upload.UploadNotAllowedForInformativeExtract
+                }
+            });
+        }
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException)
+        {
+            throw new ValidationException("Can not upload roadnetwork extract changes archive for superseded download.", new[]
+            {
+                new ValidationFailure
+                {
+                    PropertyName = string.Empty,
+                    ErrorCode = ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload
+                }
+            });
+        }
+        catch (CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException)
+        {
+            throw new ValidationException("Can not upload roadnetwork extract changes archive for same download more than once.", new[]
+            {
+                new ValidationFailure
+                {
+                    PropertyName = string.Empty,
+                    ErrorCode = ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce
+                }
+            });
         }
     }
 }
