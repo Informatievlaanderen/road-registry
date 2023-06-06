@@ -30,9 +30,9 @@ public partial class ExtractsControllerTests
             WKT = "MultiPolygon (((64699.86540096173121128 218247.15990484040230513, 91541.66608652254217304 211821.38593515567481518, 91541.66608652254217304 211821.38593515567481518, 91541.66608652254217304 211821.38593515567481518, 91523.78514424958848394 195503.55442933458834887, 88364.38692880698363297 166590.4106055349111557, 50936.49097712300135754 171639.109682597219944, 36050.97635232988977805 199580.85535924322903156, 64699.86540096173121128 218247.15990484040230513)))"
         };
         var response = await Controller.RequestDownload(new DownloadExtractRequestBody(
-            Contour: writer.Write((Geometry)GeometryTranslator.Translate(contour)),
-            RequestId: externalExtractRequestId,
-            IsInformative: false
+            writer.Write((Geometry)GeometryTranslator.Translate(contour)),
+            externalExtractRequestId,
+            false
         ), CancellationToken.None);
         var result = Assert.IsType<AcceptedResult>(response);
         Assert.IsType<DownloadExtractResponseBody>(result.Value);
