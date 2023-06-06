@@ -50,11 +50,6 @@ public class ExtractRequestRecordProjection : ConnectedProjection<EditorContext>
 
         When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
         {
-            if (envelope.Message.DownloadId == Guid.Empty)
-            {
-                return;
-            }
-
             var record = context.ExtractRequests.Local.SingleOrDefault(record => record.DownloadId == envelope.Message.DownloadId)
                                  ?? await context.ExtractRequests.SingleAsync(record => record.DownloadId == envelope.Message.DownloadId, ct);
 
