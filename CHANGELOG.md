@@ -1,3 +1,16 @@
+# [3.47.0](https://github.com/informatievlaanderen/road-registry/compare/v3.46.2...v3.47.0) (2023-06-06)
+
+
+### Bug Fixes
+
+* Maximum lenght error inside unit test fixture ([#992](https://github.com/informatievlaanderen/road-registry/issues/992)) ([d32eb29](https://github.com/informatievlaanderen/road-registry/commit/d32eb292bdaf3ba5b05ae8d9fb021594511d131a))
+* WR-224 return validation errors for uploads endpoint instead of 409 ([#990](https://github.com/informatievlaanderen/road-registry/issues/990)) ([f0e05ef](https://github.com/informatievlaanderen/road-registry/commit/f0e05efe1586fcd86d7744c64a751bfb794d2dcc))
+
+
+### Features
+
+* Added cleanup task for roadnetwork extracts and now keeps track of when extracts are downloaded ([#991](https://github.com/informatievlaanderen/road-registry/issues/991)) ([5f1ab26](https://github.com/informatievlaanderen/road-registry/commit/5f1ab267d85c1df46cd2a2ccdc8b329b663e8fc2))
+
 ## [3.46.2](https://github.com/informatievlaanderen/road-registry/compare/v3.46.1...v3.46.2) (2023-06-05)
 
 
