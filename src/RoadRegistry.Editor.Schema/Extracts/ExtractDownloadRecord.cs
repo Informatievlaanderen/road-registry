@@ -12,4 +12,5 @@ public class ExtractDownloadRecord
     public long RequestedOn { get; set; }
     public string RequestId { get; set; }
     public bool IsInformative { get; set; }
+    public DateTimeOffset? DownloadedOn { get; set; }
 }

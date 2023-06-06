@@ -99,6 +99,18 @@ public class RoadNetworkExtract : EventSourcedEntity
         });
     }
 
+    public void Download(DownloadId downloadId)
+    {
+        Apply(new RoadNetworkExtractDownloaded
+        {
+            DownloadId = downloadId,
+            Description = Description,
+            RequestId = Id.ToString(),
+            ExternalRequestId = _externalExtractRequestId,
+            IsInformative = IsInformative
+        });
+    }
+
     public static RoadNetworkExtract Request(
         ExternalExtractRequestId externalExtractRequestId,
         DownloadId downloadId,
