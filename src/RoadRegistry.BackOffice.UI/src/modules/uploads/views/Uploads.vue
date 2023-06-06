@@ -140,6 +140,14 @@ export default Vue.extend({
         return status;
       }
 
+      if (this.uploadResult.uploadResponseCode == 404) {
+        status.error = true;
+        status.title = "Opgelet!";
+        status.text = "Het extractaanvraag werd niet gevonden.";
+
+        return status;
+      }
+
       if (this.uploadResult.uploadResponseCode == 408) {
         status.warning = true;
         status.title = "Technische storing";
@@ -216,8 +224,11 @@ export default Vue.extend({
               };
             });
             this.uploadResult = { uploadResponseCode: 400, fileProblems };
+          } else if (err?.response?.status === 404) {
+            this.uploadResult = { uploadResponseCode: 404, fileProblems: undefined };
           } else {
-            throw err;
+            console.error('Upload failed', err);
+            this.uploadResult = { uploadResponseCode: 500, fileProblems: undefined };
           }
         }
       } finally {
