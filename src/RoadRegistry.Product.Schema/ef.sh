@@ -1,1 +1,1 @@
-dotnet ef --startup-project ../RoadRegistry.Product.ProjectionHost "$@"
+dotnet ef --startup-project ../RoadRegistry.Product.ProjectionHost "$@" --context ProductContext
