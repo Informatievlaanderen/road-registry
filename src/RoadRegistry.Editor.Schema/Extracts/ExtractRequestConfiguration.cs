@@ -28,5 +28,6 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
 
         b.Property(p => p.IsInformative)
             .IsRequired();
+        b.Property(p => p.DownloadedOn).IsRequired(false);
     }
 }

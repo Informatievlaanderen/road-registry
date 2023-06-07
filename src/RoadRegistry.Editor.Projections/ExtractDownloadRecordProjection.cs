@@ -45,6 +45,27 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
             await context.ExtractDownloads.AddAsync(record, ct);
         });
 
+        When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
+        {
+            var record =
+                context.ExtractDownloads.Local.SingleOrDefault(download => download.DownloadId == envelope.Message.DownloadId)
+                ?? await context.ExtractDownloads.SingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
+            record.DownloadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
+        });
+
+        When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
+        {
+            var records = context.ExtractDownloads.Local
+                    .Where(record => record.ExternalRequestId == envelope.Message.ExternalRequestId)
+                    .ToList()
+                    .Concat(await context.ExtractDownloads
+                        .Where(record => record.ExternalRequestId == envelope.Message.ExternalRequestId)
+                        .ToListAsync(ct))
+                    .ToList();
+
+            records.ForEach(record => record.IsInformative = true);
+        });
+
         When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
         {
             var record =

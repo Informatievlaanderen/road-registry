@@ -1,3 +1,38 @@
+## [3.47.1](https://github.com/informatievlaanderen/road-registry/compare/v3.47.0...v3.47.1) (2023-06-07)
+
+
+### Bug Fixes
+
+* projections behavior when removing a removed entity + change projection RecordPositionThreshold to 1 ([#993](https://github.com/informatievlaanderen/road-registry/issues/993)) ([5d893e2](https://github.com/informatievlaanderen/road-registry/commit/5d893e23ef46213d167ecc7df05b0646cd1f9db5))
+
+# [3.47.0](https://github.com/informatievlaanderen/road-registry/compare/v3.46.2...v3.47.0) (2023-06-06)
+
+
+### Bug Fixes
+
+* Maximum lenght error inside unit test fixture ([#992](https://github.com/informatievlaanderen/road-registry/issues/992)) ([d32eb29](https://github.com/informatievlaanderen/road-registry/commit/d32eb292bdaf3ba5b05ae8d9fb021594511d131a))
+* WR-224 return validation errors for uploads endpoint instead of 409 ([#990](https://github.com/informatievlaanderen/road-registry/issues/990)) ([f0e05ef](https://github.com/informatievlaanderen/road-registry/commit/f0e05efe1586fcd86d7744c64a751bfb794d2dcc))
+
+
+### Features
+
+* Added cleanup task for roadnetwork extracts and now keeps track of when extracts are downloaded ([#991](https://github.com/informatievlaanderen/road-registry/issues/991)) ([5f1ab26](https://github.com/informatievlaanderen/road-registry/commit/5f1ab267d85c1df46cd2a2ccdc8b329b663e8fc2))
+
+## [3.46.2](https://github.com/informatievlaanderen/road-registry/compare/v3.46.1...v3.46.2) (2023-06-05)
+
+
+### Bug Fixes
+
+* WR-244 Block incoming informative extract requests and close extract requests when upload change accepted ([#988](https://github.com/informatievlaanderen/road-registry/issues/988)) ([2c64341](https://github.com/informatievlaanderen/road-registry/commit/2c6434124ce744e069fa3c739cef596f8c0d4976))
+
+## [3.46.1](https://github.com/informatievlaanderen/road-registry/compare/v3.46.0...v3.46.1) (2023-06-05)
+
+
+### Bug Fixes
+
+* Informative extract requests should be blocked ([#984](https://github.com/informatievlaanderen/road-registry/issues/984)) ([1651bf3](https://github.com/informatievlaanderen/road-registry/commit/1651bf3dcf440b4b7fe4bd1c12443376ea264e47))
+* remove unused restsharp dependency ([#983](https://github.com/informatievlaanderen/road-registry/issues/983)) ([7ac1880](https://github.com/informatievlaanderen/road-registry/commit/7ac18806f84442a801d6a8adb1a78b78f11f7fe6))
+
 # [3.46.0](https://github.com/informatievlaanderen/road-registry/compare/v3.45.1...v3.46.0) (2023-06-02)
 
 

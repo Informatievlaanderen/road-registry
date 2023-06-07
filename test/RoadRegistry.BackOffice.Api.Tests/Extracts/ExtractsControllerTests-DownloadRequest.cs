@@ -31,7 +31,8 @@ public partial class ExtractsControllerTests
         };
         var response = await Controller.RequestDownload(new DownloadExtractRequestBody(
             writer.Write((Geometry)GeometryTranslator.Translate(contour)),
-            externalExtractRequestId, false
+            externalExtractRequestId,
+            false
         ), CancellationToken.None);
         var result = Assert.IsType<AcceptedResult>(response);
         Assert.IsType<DownloadExtractResponseBody>(result.Value);

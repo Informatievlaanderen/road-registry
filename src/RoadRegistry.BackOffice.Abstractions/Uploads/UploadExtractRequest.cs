@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Abstractions.Uploads;
 
 using Be.Vlaanderen.Basisregisters.BlobStore;
 
-public record UploadExtractRequest(string DownloadId, UploadExtractArchiveRequest Archive) : EndpointRequest<UploadExtractResponse>
+public record UploadExtractRequest(UploadExtractArchiveRequest Archive) : EndpointRequest<UploadExtractResponse>
 {
     public bool UseZipArchiveFeatureCompareTranslator { get; set; }
 }

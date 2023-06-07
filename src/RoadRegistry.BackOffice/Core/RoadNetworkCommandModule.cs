@@ -34,6 +34,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 logger.LogInformation("Command handler started for {CommandName}", nameof(ChangeRoadNetwork));
 
                 var request = ChangeRequestId.FromString(message.Body.RequestId);
+                DownloadId? downloadId = message.Body.DownloadId is not null ? new DownloadId(message.Body.DownloadId.Value) : null;
                 var @operator = new OperatorName(message.Body.Operator);
                 var reason = new Reason(message.Body.Reason);
                 var organizationId = new OrganizationId(message.Body.OrganizationId);
@@ -58,7 +59,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 );
                 var requestedChanges = await translator.Translate(message.Body.Changes, context.Organizations, ct);
 
-                network.Change(request, reason, @operator, translation, requestedChanges);
+                network.Change(request, downloadId, reason, @operator, translation, requestedChanges);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(ChangeRoadNetwork));
             });

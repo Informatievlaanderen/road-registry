@@ -62,6 +62,20 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 logger.LogInformation("Command handler finished for {Command}", nameof(RequestRoadNetworkExtract));
             });
 
+        For<DownloadRoadNetworkExtract>()
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
+            .Handle(async (context, message, _, ct) =>
+            {
+                logger.LogInformation("Command handler started for {Command}", nameof(DownloadRoadNetworkExtract));
+
+                var extractRequestId = ExtractRequestId.FromExternalRequestId(message.Body.ExternalRequestId);
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
+
+                extract.Download(message.Body.DownloadId);
+
+                logger.LogInformation("Command handler finished for {Command}", nameof(DownloadRoadNetworkExtract));
+            });
+
         For<CloseRoadNetworkExtract>()
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>

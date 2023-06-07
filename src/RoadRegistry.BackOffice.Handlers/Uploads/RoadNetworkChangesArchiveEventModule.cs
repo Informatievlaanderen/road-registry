@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using BackOffice.FeatureCompare;
+using BackOffice.FeatureCompare.Translators;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 {
@@ -19,6 +20,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         IZipArchiveFeatureCompareTranslator featureCompareTranslator,
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
+        TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
         ILogger<RoadNetworkChangesArchiveEventModule> logger)
     {
         ArgumentNullException.ThrowIfNull(client);
@@ -26,6 +28,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(featureCompareTranslator);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(applicationMetadata);
+        ArgumentNullException.ThrowIfNull(transactionZoneFeatureReader);
 
         For<RoadNetworkChangesArchiveAccepted>()
             .UseRoadNetworkCommandQueue(store, applicationMetadata)
@@ -51,9 +54,13 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                         requestedChanges.Add(requestedChange);
                     }
 
+                    var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, "Transactiezones");
+                    var downloadId = DownloadId.Parse(transactionZoneFeatures.Single().Attributes.DownloadId);
+
                     var command = new Command(new ChangeRoadNetwork
                         {
                             RequestId = requestId,
+                            DownloadId = downloadId,
                             Changes = requestedChanges.ToArray(),
                             Reason = translatedChanges.Reason,
                             Operator = translatedChanges.Operator,

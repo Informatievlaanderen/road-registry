@@ -2,15 +2,14 @@ namespace RoadRegistry.Wms.Projections;
 
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Triangulate;
 using Schema;
 using Syndication.Schema;
 
@@ -382,6 +381,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WmsContext context)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id).ConfigureAwait(false);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
+        }
 
         context.RoadSegments.Remove(roadSegmentRecord);
     }

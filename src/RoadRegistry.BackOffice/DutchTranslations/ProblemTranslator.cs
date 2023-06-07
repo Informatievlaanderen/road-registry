@@ -107,6 +107,9 @@ public static class ProblemTranslator
         {ProblemCode.ShapeFile.InvalidHeader, problem => new(problem.Severity, problem.Reason, $"Kan header van de shape file niet lezen: '{problem.Parameters[0].Value}'")},
         {ProblemCode.ShapeFile.InvalidPolygonShellOrientation, problem => new(problem.Severity, problem.Reason, "De orientatie van de polygoon moet in wijzerzin zijn.")},
         {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.")},
+        {ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce, problem => new(problem.Severity, "CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce", "Kan geen meerdere uploads uitvoeren voor hetzelfde extractaanvraag.")},
+        {ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload, problem => new(problem.Severity, "CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload", "Upload is enkel toegelaten voor de laatste download van het extractaanvraag.")},
+        {ProblemCode.Upload.UploadNotAllowedForInformativeExtract, problem => new(problem.Severity, "ExtractRequestMarkedInformative", "Upload is niet toegelaten voor een informatieve extractaanvraag.")},
     };
 
     public static readonly Converter<Problem, ProblemTranslation> Dutch = problem =>

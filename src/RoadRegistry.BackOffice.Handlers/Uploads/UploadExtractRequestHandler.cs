@@ -117,7 +117,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 throw new ZipArchiveValidationException(problems);
             }
 
-            var features = _transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, "Transactiezones");
+            var features = _transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, "TRANSACTIEZONES");
             var downloadId = DownloadId.Parse(features.Single().Attributes.DownloadId);
 
             var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken)

@@ -55,6 +55,7 @@ using NisCodeService.Abstractions;
 using NisCodeService.Proxy.HttpProxy;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using SchemaFilters;
 using Serilog.Extensions.Logging;
@@ -226,16 +227,7 @@ public class Startup
                     {
                         AfterSwaggerGen = options =>
                         {
-                            options.SchemaFilter<OutlinedRoadSegmentMorphologySchemaFilter>();
-                            options.SchemaFilter<OutlinedRoadSegmentStatusSchemaFilter>();
-                            options.SchemaFilter<OutlinedRoadSegmentSurfaceTypeSchemaFilter>();
-                            options.SchemaFilter<RoadSegmentAccessRestrictionSchemaFilter>();
-                            options.SchemaFilter<RoadSegmentCategorySchemaFilter>();
-                            options.SchemaFilter<RoadSegmentGeometryDrawMethodSchemaFilter>();
-                            options.SchemaFilter<RoadSegmentLaneDirectionSchemaFilter>();
-                            options.SchemaFilter<RoadSegmentMorphologySchemaFilter>();
-                            options.SchemaFilter<RoadSegmentStatusSchemaFilter>();
-                            options.SchemaFilter<RoadSegmentSurfaceTypeSchemaFilter>();
+                            options.AddRoadRegistrySchemaFilters();
                         }
                     }
                 },
