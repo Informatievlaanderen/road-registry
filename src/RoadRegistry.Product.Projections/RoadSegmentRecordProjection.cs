@@ -11,7 +11,6 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
-using NetTopologySuite.Triangulate;
 using Schema;
 using Schema.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
