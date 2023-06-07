@@ -124,6 +124,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             {
                 throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is not found");
             }
+            if (nationalRoadRecord.IsRemoved)
+            {
+                throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is already removed");
+            }
 
             nationalRoadRecord.Origin = envelope.Message.ToOrigin();
             nationalRoadRecord.LastChangedTimestamp = envelope.CreatedUtc;

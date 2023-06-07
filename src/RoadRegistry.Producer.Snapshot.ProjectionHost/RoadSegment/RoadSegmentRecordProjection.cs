@@ -371,6 +371,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
             }
+            if (roadSegmentRecord.IsRemoved)
+            {
+                throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is already removed");
+            }
 
             roadSegmentRecord.Origin = envelope.Message.ToOrigin();
             roadSegmentRecord.LastChangedTimestamp = envelope.CreatedUtc;

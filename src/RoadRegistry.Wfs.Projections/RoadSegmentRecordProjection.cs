@@ -276,7 +276,11 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
     private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WfsContext context)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id).ConfigureAwait(false);
-        if (roadSegmentRecord == null) return;
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
+        }
+
         context.RoadSegments.Remove(roadSegmentRecord);
     }
 
