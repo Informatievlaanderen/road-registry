@@ -2,14 +2,12 @@ namespace RoadRegistry.Wms.Projections;
 
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.EntityFrameworkCore;
 using Schema;
 using Syndication.Schema;

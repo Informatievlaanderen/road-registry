@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
+using NetTopologySuite.Triangulate;
 using Schema;
 using Schema.RoadSegments;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
@@ -174,7 +175,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id);
         if (roadSegmentRecord == null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentModified.Id} is not found");
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
         }
 
         roadSegmentRecord.Id = roadSegmentModified.Id;
@@ -220,7 +221,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id);
         if (roadSegmentRecord == null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentAttributesModified.Id} is not found");
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
         }
 
         roadSegmentRecord.Id = roadSegmentAttributesModified.Id;
@@ -285,7 +286,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id);
         if (roadSegmentRecord == null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {segment.Id} is not found");
+            throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
         }
 
         roadSegmentRecord.Id = segment.Id;
@@ -314,6 +315,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
     private static async Task RemoveRoadSegment(ProductContext context, RoadSegmentRemoved roadSegmentRemoved)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
+        }
 
         context.RoadSegments.Remove(roadSegmentRecord);
     }
