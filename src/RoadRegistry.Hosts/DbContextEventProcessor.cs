@@ -24,7 +24,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 {
     private const int CatchUpBatchSize = 5000;
     private const int CatchUpThreshold = 1000;
-    private const int RecordPositionThreshold = 1000;
+    private const int RecordPositionThreshold = 1;
 
     public static readonly EventMapping EventMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);

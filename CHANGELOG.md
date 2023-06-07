@@ -1,3 +1,10 @@
+## [3.47.1](https://github.com/informatievlaanderen/road-registry/compare/v3.47.0...v3.47.1) (2023-06-07)
+
+
+### Bug Fixes
+
+* projections behavior when removing a removed entity + change projection RecordPositionThreshold to 1 ([#993](https://github.com/informatievlaanderen/road-registry/issues/993)) ([5d893e2](https://github.com/informatievlaanderen/road-registry/commit/5d893e23ef46213d167ecc7df05b0646cd1f9db5))
+
 # [3.47.0](https://github.com/informatievlaanderen/road-registry/compare/v3.46.2...v3.47.0) (2023-06-06)
 
 
