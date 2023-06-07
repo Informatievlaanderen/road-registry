@@ -1,106 +1,64 @@
-using Amazon.Lambda.Core;
-using Amazon.Lambda.Serialization.Json;
-
 [assembly: LambdaSerializer(typeof(JsonSerializer))]
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using System.Reflection;
 using Abstractions;
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using BackOffice.Extensions;
 using BackOffice.Infrastructure.Modules;
-using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.EventHandling.Autofac;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
+using FluentValidation;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
-using Hosts.Infrastructure.Modules;
-using Infrastructure;
-using Infrastructure.Extensions;
 using Infrastructure.Modules;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Internal;
-using Newtonsoft.Json;
-using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
+using System.Reflection;
 
-public sealed class Function : FunctionBase
+public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
-    private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.Lambda);
+    protected override string ApplicationName => "RoadRegistry.BackOffice.Handlers.Sqs.Lambda";
 
     public Function()
-        : base(new List<Assembly> { typeof(BackOffice.Handlers.Sqs.DomainAssemblyMarker).Assembly })
+        : base(new List<Assembly>
+            {
+                typeof(BackOffice.Handlers.Sqs.DomainAssemblyMarker).Assembly,
+                typeof(RoadRegistry.BackOffice.Abstractions.BlobRequest).Assembly
+            })
     {
     }
-
-    protected override IServiceProvider ConfigureServices(IServiceCollection services)
+    
+    protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        services.AddSingleton<IHostEnvironment>(sp => new HostingEnvironment
-        {
-            ApplicationName = "RoadRegistry.BackOffice.Handlers.Sqs.Lambda",
-            EnvironmentName = Environments.Production
-        });
-
-        var tempProvider = services.BuildServiceProvider();
-        var hostEnvironment = tempProvider.GetRequiredService<IHostEnvironment>();
-
-        var configuration = new ConfigurationBuilder()
-            .UseDefaultConfiguration(hostEnvironment)
-            .Build();
-
-        var eventSourcedEntityMap = new EventSourcedEntityMap();
-
         services
-            .AddSingleton(ApplicationMetadata)
-            .AddTicketing()
             .AddSingleton<IStreetNameCache, StreetNameCache>()
-            .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => eventSourcedEntityMap)
-            .AddStreamStore()
+            .AddDistributedStreamStoreLockOptions()
             .AddRoadNetworkCommandQueue()
+            .AddRoadNetworkEventWriter()
+            .AddChangeRoadNetworkDispatcher()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
                     CommandModules.RoadNetwork(sp)
-                }))
+                })
+            )
+            .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             ;
-
-        var builder = new ContainerBuilder();
-        builder.RegisterConfiguration(configuration);
-        builder.Populate(services);
-
-        ConfigureContainer(builder, configuration);
-        
-        return new AutofacServiceProvider(builder.Build());
     }
 
-    private void ConfigureContainer(ContainerBuilder builder, IConfiguration configuration)
+    protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
-        var eventSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        JsonConvert.DefaultSettings = () => eventSerializerSettings;
-
         builder
-            .RegisterMediator();
-
-        builder
-            .RegisterAssemblyTypes(typeof(MessageHandler).GetTypeInfo().Assembly)
-            .AsImplementedInterfaces();
-
-        builder.RegisterRetryPolicy(configuration);
-
-        builder
-            .RegisterModule(new DataDogModule(configuration))
+            .RegisterModule(new DataDogModule(context.Configuration))
             .RegisterModule<EnvelopeModule>()
-            .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, eventSerializerSettings))
-            .RegisterModule<RoadNetworkSnapshotModule>()
+            .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
             .RegisterModule<SyndicationModule>()
+            .RegisterModule<SqsHandlersModule>()
             ;
 
         builder.RegisterIdempotentCommandHandler();

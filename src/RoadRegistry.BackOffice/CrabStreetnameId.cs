@@ -32,6 +32,13 @@ public readonly struct CrabStreetnameId : IEquatable<CrabStreetnameId>
         return value == UnknownValue || value == NotApplicableValue || 0 <= value;
     }
 
+    public static CrabStreetnameId? FromValue(int? value)
+    {
+        return value.HasValue
+            ? new CrabStreetnameId(value.Value)
+            : new CrabStreetnameId?();
+    }
+
     [Pure]
     public int ToInt32()
     {

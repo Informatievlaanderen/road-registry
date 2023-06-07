@@ -3,8 +3,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForEditor;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.RoadSegments;
 using Editor.Schema;
+using Extracts.Dbase.RoadSegments;
 using Framework.Containers;
 using ZipArchiveWriters.ForEditor;
 
@@ -49,6 +49,7 @@ public class RoadSegmentWidthAttributesToZipArchiveWriterTests
             {
                 Assert.Single(readArchive.Entries);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "AttWegbreedte.dbf":
@@ -69,6 +70,7 @@ public class RoadSegmentWidthAttributesToZipArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 }

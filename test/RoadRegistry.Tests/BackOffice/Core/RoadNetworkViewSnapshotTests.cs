@@ -6,8 +6,10 @@ using KellermanSoftware.CompareNetObjects;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 using Point = RoadRegistry.BackOffice.Messages.Point;
+using RoadSegmentLaneAttribute = RoadRegistry.BackOffice.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = RoadRegistry.BackOffice.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = RoadRegistry.BackOffice.RoadSegmentWidthAttribute;
 
 public class RoadNetworkViewSnapshotTests
 {
@@ -33,6 +35,13 @@ public class RoadNetworkViewSnapshotTests
         _fixture.CustomizeTransactionId();
         _fixture.CustomizeAttributeId();
         _fixture.CustomizeRoadSegmentGeometryDrawMethod();
+        _fixture.CustomizeRoadSegmentLaneDirection();
+        _fixture.CustomizeRoadSegmentLaneCount();
+        _fixture.CustomizeRoadSegmentLaneAttribute();
+        _fixture.CustomizeRoadSegmentSurfaceType();
+        _fixture.CustomizeRoadSegmentSurfaceAttribute();
+        _fixture.CustomizeRoadSegmentWidth();
+        _fixture.CustomizeRoadSegmentWidthAttribute();
 
         _fixture.Customize<RoadNodeGeometry>(customizer =>
             customizer.FromFactory(_ => new RoadNodeGeometry
@@ -50,27 +59,64 @@ public class RoadNetworkViewSnapshotTests
                 Segments = _fixture.CreateMany<RoadSegmentId>(10).Distinct().Select(id => id.ToInt32()).ToArray()
             }).OmitAutoProperties());
 
-        _fixture.Customize<RoadSegmentGeometry>(customizer =>
-            customizer.FromFactory(_ => new RoadSegmentGeometry
+        _fixture.CustomizeRoadSegmentGeometry();
+
+        _fixture.Customize<RoadNetworkSnapshotSegmentLaneAttribute>(customizer =>
+            customizer.FromFactory(_ =>
             {
-                SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
-                MultiLineString = new[]
+                var attribute = _fixture.Create<RoadSegmentLaneAttribute>();
+                return new RoadNetworkSnapshotSegmentLaneAttribute
                 {
-                    _fixture.Create<LineString>()
-                }
+                    FromPosition = attribute.From,
+                    ToPosition = attribute.To,
+                    Count = attribute.Count,
+                    Direction = attribute.Direction.Translation.Identifier
+                };
+            }).OmitAutoProperties());
+
+        _fixture.Customize<RoadNetworkSnapshotSegmentSurfaceAttribute>(customizer =>
+            customizer.FromFactory(_ =>
+            {
+                var attribute = _fixture.Create<RoadSegmentSurfaceAttribute>();
+                return new RoadNetworkSnapshotSegmentSurfaceAttribute
+                {
+                    FromPosition = attribute.From,
+                    ToPosition = attribute.To,
+                    Type = attribute.Type.Translation.Identifier
+                };
+            }).OmitAutoProperties());
+
+        _fixture.Customize<RoadNetworkSnapshotSegmentWidthAttribute>(customizer =>
+            customizer.FromFactory(_ =>
+            {
+                var attribute = _fixture.Create<RoadSegmentWidthAttribute>();
+                return new RoadNetworkSnapshotSegmentWidthAttribute
+                {
+                    FromPosition = attribute.From,
+                    ToPosition = attribute.To,
+                    Width = attribute.Width
+                };
             }).OmitAutoProperties());
 
         _fixture.Customize<RoadNetworkSnapshotSegmentAttributeHash>(customizer =>
-            customizer.FromFactory(_ => new RoadNetworkSnapshotSegmentAttributeHash
+            customizer.FromFactory(_ =>
             {
-                AccessRestriction = _fixture.Create<RoadSegmentAccessRestriction>(),
-                Category = _fixture.Create<RoadSegmentCategory>(),
-                Morphology = _fixture.Create<RoadSegmentMorphology>(),
-                Status = _fixture.Create<RoadSegmentStatus>(),
-                OrganizationId = _fixture.Create<OrganizationId>(),
-                LeftSideStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32(),
-                RightSideStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32(),
-                GeometryDrawMethod = _fixture.Create<RoadSegmentGeometryDrawMethod>().ToString()
+                var geometryDrawMethod = _fixture.Create<RoadSegmentGeometryDrawMethod>();
+
+                return new RoadNetworkSnapshotSegmentAttributeHash
+                {
+                    AccessRestriction = _fixture.Create<RoadSegmentAccessRestriction>(),
+                    Category = _fixture.Create<RoadSegmentCategory>(),
+                    Morphology = _fixture.Create<RoadSegmentMorphology>(),
+                    Status = _fixture.Create<RoadSegmentStatus>(),
+                    OrganizationId = _fixture.Create<OrganizationId>(),
+                    LeftSideStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32(),
+                    RightSideStreetNameId = _fixture.Create<CrabStreetnameId>().ToInt32(),
+                    GeometryDrawMethod = geometryDrawMethod.ToString(),
+                    Lanes = _fixture.CreateMany<RoadNetworkSnapshotSegmentLaneAttribute>(geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? 1 : 10).ToArray(),
+                    Surfaces = _fixture.CreateMany<RoadNetworkSnapshotSegmentSurfaceAttribute>(geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? 1 : 10).ToArray(),
+                    Widths = _fixture.CreateMany<RoadNetworkSnapshotSegmentWidthAttribute>(geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? 1 : 10).ToArray()
+                };
             }).OmitAutoProperties());
 
         _fixture.Customize<RoadNetworkSnapshotSegment>(customizer =>

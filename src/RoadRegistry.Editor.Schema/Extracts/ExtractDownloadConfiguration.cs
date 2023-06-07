@@ -1,6 +1,6 @@
 namespace RoadRegistry.Editor.Schema.Extracts;
 
-using Hosts;
+using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -21,5 +21,7 @@ public class ExtractDownloadConfiguration : IEntityTypeConfiguration<ExtractDown
         b.Property(p => p.RequestedOn).IsRequired();
         b.Property(p => p.Available).IsRequired();
         b.Property(p => p.AvailableOn).IsRequired();
+        b.Property(p => p.IsInformative).IsRequired();
+        b.Property(p => p.DownloadedOn).IsRequired(false);
     }
 }

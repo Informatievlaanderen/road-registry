@@ -3,7 +3,6 @@ namespace RoadRegistry.Tests.Framework.Containers;
 using System.Globalization;
 using Docker.DotNet;
 using Docker.DotNet.Models;
-using Xunit;
 
 public abstract class DockerContainer : IAsyncLifetime
 {
@@ -38,7 +37,10 @@ public abstract class DockerContainer : IAsyncLifetime
             if (found != null)
             {
                 await StopContainer(found);
-                if (Configuration.Container.RemoveContainer) await RemoveContainer(found);
+                if (Configuration.Container.RemoveContainer)
+                {
+                    await RemoveContainer(found);
+                }
             }
         }
 
@@ -54,14 +56,20 @@ public abstract class DockerContainer : IAsyncLifetime
             await RemoveContainer(found);
 
             var created = await CreateContainer();
-            if (created != null) await StartContainer(created);
+            if (created != null)
+            {
+                await StartContainer(created);
+            }
         }
         else
         {
             await CreateImageIfNotExists();
 
             var created = await CreateContainer();
-            if (created != null) await StartContainer(created);
+            if (created != null)
+            {
+                await StartContainer(created);
+            }
         }
     }
 
@@ -96,6 +104,7 @@ public abstract class DockerContainer : IAsyncLifetime
     private async Task CreateImageIfNotExists()
     {
         if (!await ImageExists().ConfigureAwait(false))
+        {
             await _client
                 .Images
                 .CreateImageAsync(
@@ -107,6 +116,7 @@ public abstract class DockerContainer : IAsyncLifetime
                     null,
                     Progress.IsBeingIgnored)
                 .ConfigureAwait(false);
+        }
     }
 
     private async Task<bool> ImageExists()

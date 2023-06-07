@@ -1,8 +1,7 @@
 <template>
   <div>
-    <div class="vl-typography">
-      <h2>Downloaden</h2>
-    </div>
+    <wr-h2>Downloaden</wr-h2>
+    
     <vl-button v-if="isDownloadInProgress" mod-loading>Download het wegenregister product...</vl-button>
     <vl-button v-else v-on:click="download">Download het wegenregister product</vl-button>
   </div>

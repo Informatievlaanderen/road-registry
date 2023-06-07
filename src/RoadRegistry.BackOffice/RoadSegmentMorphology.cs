@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
+public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>, IDutchToString
 {
     public static readonly RoadSegmentMorphology Entry_or_exit_of_a_car_park =
         new(
@@ -221,8 +221,36 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         Ferry
     };
 
+    public sealed record Outlined
+    {
+        public static readonly RoadSegmentMorphology[] AllOutlined =
+        {
+            Motorway,
+            Road_with_separate_lanes_that_is_not_a_motorway,
+            Road_consisting_of_one_roadway,
+            TrafficCircle,
+            SpecialTrafficSituation,
+            TrafficSquare,
+            Entry_or_exit_ramp_belonging_to_a_grade_separated_junction,
+            Entry_or_exit_ramp_belonging_to_a_level_junction,
+            ParallelRoad,
+            FrontageRoad,
+            Entry_or_exit_of_a_car_park,
+            Entry_or_exit_of_a_service,
+            PedestrainZone,
+            Walking_or_cycling_path_not_accessible_to_other_vehicles,
+            Tramway_not_accessible_to_other_vehicles,
+            ServiceRoad,
+            PrimitiveRoad,
+            Ferry
+        };
+    }
+
     public static readonly IReadOnlyDictionary<int, RoadSegmentMorphology> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
+
+    public static readonly IReadOnlyDictionary<string, RoadSegmentMorphology> ByName =
+        All.ToDictionary(key => key.Translation.Name);
 
     private readonly string _value;
 
@@ -241,9 +269,12 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public static bool CanParse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        return TryParse(value.ThrowIfNull(), out _);
+    }
 
-        return Array.Find(All, candidate => candidate._value == value) != null;
+    public static bool CanParseUsingDutchName(string value)
+    {
+        return TryParseUsingDutchName(value, out _);
     }
 
     public override bool Equals(object obj)
@@ -263,7 +294,7 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public static implicit operator string(RoadSegmentMorphology instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentMorphology left, RoadSegmentMorphology right)
@@ -273,9 +304,13 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
 
     public static RoadSegmentMorphology Parse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (!TryParse(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment morphology.");
+        return parsed;
+    }
 
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment morphology.");
+    public static RoadSegmentMorphology ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment morphology.");
         return parsed;
     }
 
@@ -284,11 +319,22 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>
         return _value;
     }
 
+    public string ToDutchString()
+    {
+        return Translation.Name;
+    }
+
     public static bool TryParse(string value, out RoadSegmentMorphology parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentMorphology parsed)
+    {
+        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 

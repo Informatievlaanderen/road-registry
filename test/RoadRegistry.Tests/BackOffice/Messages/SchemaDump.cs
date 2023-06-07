@@ -2,8 +2,6 @@ namespace RoadRegistry.Tests.BackOffice.Messages;
 
 using System.Text;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
-using Xunit.Abstractions;
 
 public class SchemaDump
 {
@@ -41,6 +39,7 @@ public class SchemaDump
             builder.AppendLine("| Property | Data Type |");
             builder.AppendLine("| ---- | ---- |");
             foreach (var property in @event.GetProperties())
+            {
                 if (property.PropertyType.IsArray)
                 {
                     var elementType = property.PropertyType.GetElementType();
@@ -96,6 +95,7 @@ public class SchemaDump
 
                     builder.AppendLine();
                 }
+            }
 
             builder.AppendLine();
         }
@@ -124,6 +124,7 @@ public class SchemaDump
                 builder.AppendLine("| Property | Data Type |");
                 builder.AppendLine("| ---- | ---- |");
                 foreach (var property in dataType.GetProperties())
+                {
                     if (property.PropertyType.IsArray)
                     {
                         var elementType = property.PropertyType.GetElementType();
@@ -200,6 +201,7 @@ public class SchemaDump
 
                         builder.AppendLine();
                     }
+                }
             }
 
             builder.AppendLine();

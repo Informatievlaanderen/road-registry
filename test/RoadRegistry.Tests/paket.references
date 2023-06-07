@@ -4,6 +4,8 @@ Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac
 Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit
 Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector.Testing
+Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
+Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy
 
 Autofac.Extensions.DependencyInjection
 AutoFixture.Idioms
@@ -14,6 +16,7 @@ Docker.DotNet
 FluentAssertions
 FluentValidation.DependencyInjectionExtensions
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
+Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.IdentityModel.Protocols
 Microsoft.IdentityModel.Protocols.OpenIdConnect
 Microsoft.IO.RecyclableMemoryStream

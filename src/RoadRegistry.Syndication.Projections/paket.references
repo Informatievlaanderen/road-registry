@@ -3,3 +3,4 @@ Be.Vlaanderen.Basisregisters.ProjectionHandling.Syndication
 
 AWSSDK.Core
 Microsoft.Extensions.DependencyInjection
+Microsoft.Extensions.DependencyInjection.Abstractions

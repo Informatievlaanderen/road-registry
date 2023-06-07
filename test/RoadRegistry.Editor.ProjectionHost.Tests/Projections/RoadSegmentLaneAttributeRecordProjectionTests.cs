@@ -3,8 +3,8 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 using System.Text;
 using AutoFixture;
 using BackOffice;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
-using Dbase.RoadSegments;
 using Editor.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
@@ -55,6 +55,7 @@ public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<Proje
         _fixture.CustomizeRoadSegmentLaneAttributes();
         _fixture.CustomizeRoadSegmentAdded();
         _fixture.CustomizeRoadSegmentModified();
+        _fixture.CustomizeRoadSegmentGeometryModified();
         _fixture.CustomizeRoadSegmentRemoved();
         _fixture.CustomizeRoadNetworkChangesAccepted();
     }
@@ -396,6 +397,50 @@ public class RoadSegmentLaneAttributeRecordProjectionTests : IClassFixture<Proje
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_modifying_road_segment_geometry_with_new_lanes_only()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentGeometryModified = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentGeometryModified>());
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentGeometryModified.Changes, change =>
+        {
+            var segment = change.RoadSegmentGeometryModified;
+
+            return segment.Lanes.Select(lane => (object)new RoadSegmentLaneAttributeRecord
+            {
+                Id = lane.AttributeId,
+                RoadSegmentId = segment.Id,
+                DbaseRecord = new RoadSegmentLaneAttributeDbaseRecord
+                {
+                    RS_OIDN = { Value = lane.AttributeId },
+                    WS_OIDN = { Value = segment.Id },
+                    WS_GIDN = { Value = segment.Id + "_" + lane.AsOfGeometryVersion },
+                    AANTAL = { Value = lane.Count },
+                    RICHTING = { Value = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Identifier },
+                    LBLRICHT = { Value = RoadSegmentLaneDirection.Parse(lane.Direction).Translation.Name },
+                    VANPOS = { Value = (double)lane.FromPosition },
+                    TOTPOS = { Value = (double)lane.ToPosition },
+                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentGeometryModified.When) },
+                    BEGINORG = { Value = acceptedRoadSegmentGeometryModified.OrganizationId },
+                    LBLBGNORG = { Value = acceptedRoadSegmentGeometryModified.Organization }
+                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            });
+        }).SelectMany(x => x);
+
+        return new RoadSegmentLaneAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
+            .ExpectInAnyOrder(expectedRecords);
     }
 
     [Fact]

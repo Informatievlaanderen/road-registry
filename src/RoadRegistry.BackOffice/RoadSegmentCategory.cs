@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
+public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>, IDutchToString
 {
     public static readonly RoadSegmentCategory LocalRoad =
         new(
@@ -235,9 +235,12 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 
     public static bool CanParse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        return TryParse(value.ThrowIfNull(), out _);
+    }
 
-        return Array.Find(All, candidate => candidate._value == value) != null;
+    public static bool CanParseUsingDutchName(string value)
+    {
+        return TryParseUsingDutchName(value, out _);
     }
 
     public override int GetHashCode()
@@ -252,7 +255,7 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 
     public static implicit operator string(RoadSegmentCategory instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentCategory left, RoadSegmentCategory right)
@@ -268,10 +271,20 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
 
         return parsed;
     }
-
+    public static RoadSegmentCategory ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment access restriction.");
+        return parsed;
+    }
+    
     public override string ToString()
     {
         return _value;
+    }
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
     }
 
     public static bool TryParse(string value, out RoadSegmentCategory parsed)
@@ -279,6 +292,12 @@ public sealed class RoadSegmentCategory : IEquatable<RoadSegmentCategory>
         if (value == null) throw new ArgumentNullException(nameof(value));
 
         parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentCategory parsed)
+    {
+        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 

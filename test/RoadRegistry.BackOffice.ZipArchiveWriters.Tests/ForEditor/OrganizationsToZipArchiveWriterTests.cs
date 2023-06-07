@@ -4,8 +4,8 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
-using Dbase.Organizations;
 using Editor.Schema;
+using Extracts.Dbase.Organizations;
 using Framework.Containers;
 using ZipArchiveWriters.ForEditor;
 
@@ -49,6 +49,7 @@ public class OrganizationsToZipArchiveWriterTests
             {
                 Assert.Single(readArchive.Entries);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "LstOrg.dbf":
@@ -69,6 +70,7 @@ public class OrganizationsToZipArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 }

@@ -11,6 +11,8 @@
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <NoWarn>CS0618;1822</NoWarn>
+	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
+	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +21,13 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <Using Include="Xunit" />
+	  <Using Include="Xunit.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Api\RoadRegistry.BackOffice.Api.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
@@ -32,6 +40,9 @@
   <ItemGroup>
     <EmbeddedResource Include="BackOffice\ident2.txt" />
     <EmbeddedResource Include="BackOffice\ident8.txt" />
+    <EmbeddedResource Include="BackOffice\Uploads\FeatureCompareZipArchiveTranslatorData\*.zip" />
+    <EmbeddedResource Include="s3-bucket-tester.zip" />
+    <EmbeddedResource Include="Resources\**\*" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

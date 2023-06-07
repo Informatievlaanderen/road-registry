@@ -1,22 +1,36 @@
 namespace RoadRegistry.Tests;
 
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
+using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 
 public class FakeSqsQueueConsumer : ISqsQueueConsumer
 {
-    public async Task Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
+    private readonly JsonSerializer _serializer;
+
+    public FakeSqsQueueConsumer()
+    {
+        _serializer = JsonSerializer.Create(new FakeSqsOptions().JsonSerializerSettings);
+    }
+
+    public async Task<Result<SqsJsonMessage>> Consume(string queueUrl, Func<object, Task> messageHandler, CancellationToken cancellationToken)
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            var messages = FakeSqsQueue.GetMessages(queueUrl);
-            if (messages.Length == 0) break;
+            var messages = MemorySqsQueue.GetMessages(queueUrl);
+            if (messages.Length == 0)
+            {
+                break;
+            }
 
             var sqsJsonMessage = messages[0];
-            var messageData = sqsJsonMessage.Map() ?? throw new ArgumentException("SQS message data is null.");
+            var messageData = sqsJsonMessage.Map(_serializer) ?? throw new ArgumentException("SQS message data is null.");
 
             await messageHandler(messageData);
 
-            FakeSqsQueue.Consume(queueUrl);
+            MemorySqsQueue.Consume(queueUrl);
         }
+
+        return Result<SqsJsonMessage>.Success(new SqsJsonMessage());
     }
 }

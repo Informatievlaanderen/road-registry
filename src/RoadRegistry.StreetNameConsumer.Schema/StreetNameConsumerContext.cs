@@ -1,7 +1,7 @@
 namespace RoadRegistry.StreetNameConsumer.Schema;
 
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
-using Hosts;
 using Microsoft.EntityFrameworkCore;
 
 public class StreetNameConsumerContext : RunnerDbContext<StreetNameConsumerContext>

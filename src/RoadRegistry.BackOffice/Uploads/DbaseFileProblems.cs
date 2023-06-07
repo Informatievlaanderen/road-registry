@@ -33,7 +33,7 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    private static string Describe(DbaseSchema schema)
+    public static string Describe(this DbaseSchema schema)
     {
         var builder = new StringBuilder();
         var index = 0;
@@ -399,6 +399,14 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadNodeIdOutOfRange(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadNodeIdOutOfRange))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+
     public static FileError RoadNodeTypeMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
     {
         return builder
@@ -448,7 +456,7 @@ public static class DbaseFileProblems
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", RoadSegmentGeometryDrawMethod.ByIdentifier.Keys.Select(key => key.ToString()))
+                    string.Join(",", RoadSegmentGeometryDrawMethod.Allowed.Select(geometryDrawMethod => geometryDrawMethod.Translation.Identifier.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
@@ -471,28 +479,32 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError RoadSegmentMorphologyMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    public static FileError RoadSegmentMorphologyMismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
     {
         return builder
             .Error(nameof(RoadSegmentMorphologyMismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", RoadSegmentMorphology.ByIdentifier.Keys.Select(key => key.ToString()))
+                    string.Join(",", outline
+                        ? RoadSegmentMorphology.Outlined.AllOutlined.Select(status => status.Translation.Identifier.ToString())
+                        : RoadSegmentMorphology.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
             .Build();
     }
 
-    public static FileError RoadSegmentStatusMismatch(this IDbaseFileRecordProblemBuilder builder, int actual)
+    public static FileError RoadSegmentStatusMismatch(this IDbaseFileRecordProblemBuilder builder, int actual, bool outline = false)
     {
         return builder
             .Error(nameof(RoadSegmentStatusMismatch))
             .WithParameter(
                 new ProblemParameter(
                     "ExpectedOneOf",
-                    string.Join(",", RoadSegmentStatus.ByIdentifier.Keys.Select(key => key.ToString()))
+                    string.Join(",", outline
+                        ? RoadSegmentStatus.Outlined.AllOutlined.Select(status => status.Translation.Identifier.ToString())
+                        : RoadSegmentStatus.ByIdentifier.Keys.Select(key => key.ToString()))
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))

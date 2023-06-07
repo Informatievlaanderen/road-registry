@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.DutchTranslations;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -19,6 +20,10 @@ using RejectedChange = Schema.RoadNetworkChanges.RejectedChange;
 
 public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext>
 {
+    private static string FormattedTitle(bool isInformative, string description) => isInformative
+        ? $"Informatieve extractaanvraag \"{description}\""
+        : $"Extractaanvraag \"{description}\"";
+
     public RoadNetworkChangeFeedProjection(IBlobClient client)
     {
         ArgumentNullException.ThrowIfNull(client);
@@ -50,7 +55,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Extractaanvraag \"{envelope.Message.Description}\": ontvangen",
+                    Title = $"{FormattedTitle(envelope.Message.IsInformative, envelope.Message.Description)}: ontvangen",
                     Type = nameof(RoadNetworkExtractGotRequested),
                     Content = null,
                     When = envelope.Message.When
@@ -61,7 +66,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 new RoadNetworkChange
                 {
                     Id = envelope.Position,
-                    Title = $"Extractaanvraag \"{envelope.Message.Description}\": ontvangen",
+                    Title = $"{FormattedTitle(envelope.Message.IsInformative, envelope.Message.Description)}: ontvangen",
                     Type = nameof(RoadNetworkExtractGotRequestedV2),
                     Content = null,
                     When = envelope.Message.When
@@ -79,7 +84,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
             {
                 Id = envelope.Position,
-                Title = $"Extractaanvraag \"{envelope.Message.Description}\": download beschikbaar",
+                Title = $"{FormattedTitle(envelope.Message.IsInformative, envelope.Message.Description)}: download beschikbaar",
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When
@@ -98,7 +103,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             await context.RoadNetworkChanges.AddAsync(new RoadNetworkChange
             {
                 Id = envelope.Position,
-                Title = $"Extractaanvraag \"{envelope.Message.Description}\": download niet beschikbaar, contour te complex of te groot",
+                Title = $"{FormattedTitle(envelope.Message.IsInformative, envelope.Message.Description)}: download niet beschikbaar, contour te complex of te groot",
                 Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
                 Content = JsonConvert.SerializeObject(content),
                 When = envelope.Message.When
@@ -169,82 +174,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 }, ct);
         });
 
-        When<Envelope<RoadNetworkChangesArchiveAccepted>>(async (context, envelope, ct) =>
-        {
-            var content = new RoadNetworkChangesArchiveAcceptedEntry
-            {
-                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
-                Files = envelope.Message.Problems
-                    .GroupBy(problem => problem.File)
-                    .Select(group => new FileProblems
-                    {
-                        File = group.Key,
-                        Problems = group
-                            .Select(problem => new ProblemWithFile
-                            {
-                                Severity = problem.Severity.ToString(),
-                                Text = ProblemWithZipArchive.Translator(problem)
-                            })
-                            .ToArray()
-                    })
-                    .ToArray()
-            };
-
-            await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
-
-            var description = envelope.Message.Description;
-            var changeRequestId = ChangeRequestId
-                .FromArchiveId(new ArchiveId(envelope.Message.ArchiveId));
-
-            await context.RoadNetworkChanges.AddAsync(
-                new RoadNetworkChange
-                {
-                    Id = envelope.Position,
-                    Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": gevalideerd",
-                    Type = nameof(RoadNetworkChangesArchiveAccepted),
-                    Content = JsonConvert.SerializeObject(content),
-                    When = envelope.Message.When
-                }, ct);
-        });
-
-        When<Envelope<RoadNetworkExtractChangesArchiveAccepted>>(async (context, envelope, ct) =>
-        {
-            var content = new RoadNetworkExtractChangesArchiveAcceptedEntry
-            {
-                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
-                Files = envelope.Message.Problems
-                    .GroupBy(problem => problem.File)
-                    .Select(group => new FileProblems
-                    {
-                        File = group.Key,
-                        Problems = group
-                            .Select(problem => new ProblemWithFile
-                            {
-                                Severity = problem.Severity.ToString(),
-                                Text = ProblemWithZipArchive.Translator(problem)
-                            })
-                            .ToArray()
-                    })
-                    .ToArray()
-            };
-
-            await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);
-
-            var description = envelope.Message.Description;
-            var changeRequestId = ChangeRequestId
-                .FromArchiveId(new ArchiveId(envelope.Message.ArchiveId));
-
-            await context.RoadNetworkChanges.AddAsync(
-                new RoadNetworkChange
-                {
-                    Id = envelope.Position,
-                    Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": gevalideerd",
-                    Type = nameof(RoadNetworkExtractChangesArchiveAccepted),
-                    Content = JsonConvert.SerializeObject(content),
-                    When = envelope.Message.When
-                }, ct);
-        });
-
         When<Envelope<RoadNetworkChangesArchiveRejected>>(async (context, envelope, ct) =>
         {
             var content = new RoadNetworkChangesArchiveRejectedEntry
@@ -259,7 +188,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithFile
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = ProblemWithZipArchive.Translator(problem)
+                                Text = FileProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
                     })
@@ -297,7 +226,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithFile
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = ProblemWithZipArchive.Translator(problem)
+                                Text = FileProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
                     })
@@ -336,14 +265,15 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 Changes = envelope.Message.Changes
                     .Select(change => new AcceptedChange
                     {
-                        Change = DutchTranslations.AcceptedChange.Translator(change),
-                        Problems = change.Problems
+                        Change = BackOffice.DutchTranslations.AcceptedChange.Translator(change),
+                        Problems = change.Problems?
                             .Select(problem => new ProblemWithChange
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = DutchTranslations.ProblemWithChange.Translator(problem)
+                                Text = BackOffice.DutchTranslations.ProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
+                            ?? Array.Empty<ProblemWithChange>()
                     })
                     .ToArray()
             };
@@ -381,12 +311,12 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                 Changes = envelope.Message.Changes
                     .Select(change => new RejectedChange
                     {
-                        Change = DutchTranslations.RejectedChange.Translator(change),
+                        Change = BackOffice.DutchTranslations.RejectedChange.Translator(change),
                         Problems = change.Problems
                             .Select(problem => new ProblemWithChange
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = DutchTranslations.ProblemWithChange.Translator(problem)
+                                Text = BackOffice.DutchTranslations.ProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
                     })

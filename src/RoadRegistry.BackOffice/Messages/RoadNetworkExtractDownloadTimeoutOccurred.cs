@@ -10,4 +10,5 @@ public class RoadNetworkExtractDownloadTimeoutOccurred : IMessage
     public string RequestId { get; set; }
     public string ExternalRequestId { get; set; }
     public string When { get; set; }
+    public bool IsInformative { get; set; }
 }

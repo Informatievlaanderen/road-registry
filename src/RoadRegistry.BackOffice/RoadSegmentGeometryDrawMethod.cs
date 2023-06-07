@@ -6,7 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeometryDrawMethod>
+public interface IDutchToString
+{
+    string ToDutchString();
+}
+
+public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeometryDrawMethod>, IDutchToString
 {
     public static readonly RoadSegmentGeometryDrawMethod Measured =
         new(
@@ -41,6 +46,10 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
     public static readonly RoadSegmentGeometryDrawMethod[] All =
     {
         Outlined, Measured, Measured_according_to_GRB_specifications
+    };
+    public static readonly RoadSegmentGeometryDrawMethod[] Allowed =
+    {
+        Outlined, Measured
     };
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentGeometryDrawMethod> ByIdentifier =
@@ -85,7 +94,7 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
 
     public static implicit operator string(RoadSegmentGeometryDrawMethod instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentGeometryDrawMethod left, RoadSegmentGeometryDrawMethod right)
@@ -105,7 +114,12 @@ public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeomet
     {
         return _value;
     }
-    
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
+    }
+
     public static bool TryParse(string value, out RoadSegmentGeometryDrawMethod parsed)
     {
         if (value == null) throw new ArgumentNullException(nameof(value));

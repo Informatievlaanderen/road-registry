@@ -10,7 +10,9 @@ declare global {
   }
 
   class FeatureToggles {
-    useFeatureCompare: boolean
+    useFeatureCompare: boolean;
+    useDirectApiCalls: boolean;
+    useTransactionZonesTab: boolean;
   }
 
   interface Window { 

@@ -20,6 +20,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Modules;
+using Options;
 using Product.Schema;
 using Syndication.Schema;
 using Wfs.Schema;
@@ -60,8 +61,8 @@ public class Startup
                 },
                 Toggles =
                 {
-                    Enable = datadogToggle,
-                    Debug = debugDataDogToggle
+                    Enable = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDataDogToggle(datadogToggle.FeatureEnabled),
+                    Debug = new Be.Vlaanderen.Basisregisters.DataDog.Tracing.Microsoft.ApiDebugDataDogToggle(debugDataDogToggle.FeatureEnabled)
                 },
                 Tracing =
                 {
@@ -152,6 +153,7 @@ public class Startup
                         var connectionStrings = _configuration
                             .GetSection("ConnectionStrings")
                             .GetChildren();
+                        var projectionOptions = _configuration.GetOptions<ProjectionOptions>("Projections");
 
                         foreach (var connectionString in connectionStrings)
                         {
@@ -161,16 +163,41 @@ public class Startup
                                 tags: new[] { DatabaseTag, "sql", "sqlserver" });
                         }
 
-                        health.AddDbContextCheck<WfsContext>();
-                        health.AddDbContextCheck<WmsContext>();
-                        health.AddDbContextCheck<EditorContext>();
-                        health.AddDbContextCheck<ProductContext>();
-                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeProducerSnapshotContext>();
-                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadSegment.RoadSegmentProducerSnapshotContext>();
-                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadSegmentSurface.RoadSegmentSurfaceProducerSnapshotContext>();
-                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.GradeSeparatedJunction.GradeSeparatedJunctionProducerSnapshotContext>();
-                        health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.NationalRoad.NationalRoadProducerSnapshotContext>();
-                        health.AddDbContextCheck<SyndicationContext>();
+                        if (projectionOptions.Product.Enabled)
+                        {
+                            health.AddDbContextCheck<ProductContext>();
+                        }
+
+                        if (projectionOptions.Editor.Enabled)
+                        {
+                            health.AddDbContextCheck<EditorContext>();
+                        }
+
+                        if (projectionOptions.Syndication.Enabled)
+                        {
+                            health.AddDbContextCheck<SyndicationContext>();
+                        }
+
+                        if (projectionOptions.Wms.Enabled)
+                        {
+                            health.AddDbContextCheck<WmsContext>();
+                        }
+
+                        if (projectionOptions.Wfs.Enabled)
+                        {
+                            health.AddDbContextCheck<WfsContext>();
+                        }
+
+                        if (projectionOptions.ProducerSnapshot.Enabled)
+                        {
+                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeProducerSnapshotContext>();
+                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadSegment.RoadSegmentProducerSnapshotContext>();
+                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadSegmentSurface.RoadSegmentSurfaceProducerSnapshotContext>();
+                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.GradeSeparatedJunction.GradeSeparatedJunctionProducerSnapshotContext>();
+                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.NationalRoad.NationalRoadProducerSnapshotContext>();
+
+                        }
+
                     }
                 }
             })

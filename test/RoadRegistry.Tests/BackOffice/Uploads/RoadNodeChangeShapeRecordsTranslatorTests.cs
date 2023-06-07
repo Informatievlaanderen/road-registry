@@ -5,7 +5,6 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using RoadRegistry.BackOffice.Uploads;
-using Xunit;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class RoadNodeChangeShapeRecordsTranslatorTests : IDisposable
@@ -87,7 +86,7 @@ public class RoadNodeChangeShapeRecordsTranslatorTests : IDisposable
 
         var result = _sut.Translate(_entry, enumerator, changes);
 
-        var expected = TranslatedChanges.Empty.AppendChange(node.WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToGeometryPoint(((PointShapeContent)record.Content).Shape)));
+        var expected = TranslatedChanges.Empty.AppendChange(node.WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToPoint(((PointShapeContent)record.Content).Shape)));
 
         Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
     }
@@ -103,7 +102,7 @@ public class RoadNodeChangeShapeRecordsTranslatorTests : IDisposable
 
         var result = _sut.Translate(_entry, enumerator, changes);
 
-        var expected = TranslatedChanges.Empty.AppendChange(node.WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToGeometryPoint(((PointShapeContent)record.Content).Shape)));
+        var expected = TranslatedChanges.Empty.AppendChange(node.WithGeometry(RoadRegistry.BackOffice.GeometryTranslator.ToPoint(((PointShapeContent)record.Content).Shape)));
 
         Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
     }

@@ -3,16 +3,19 @@
   <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
   <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>RoadRegistry.BackOffice</RootNamespace>
     <AssemblyName>RoadRegistry.BackOffice</AssemblyName>
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <PackageProjectUrl>https://github.com/informatievlaanderen/road-registry.git</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/informatievlaanderen/road-registry.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <AnalysisLevel>latest</AnalysisLevel>
+	<PublishReadyToRun>false</PublishReadyToRun>
+	<EnableDefaultContentItems>false</EnableDefaultContentItems>
+	<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="RoadSegmentMeasurement.cs" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />

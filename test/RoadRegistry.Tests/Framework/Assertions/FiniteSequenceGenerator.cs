@@ -10,14 +10,20 @@ public class FiniteSequenceGenerator<T> : ISpecimenBuilder
     public FiniteSequenceGenerator(T[] sequence)
     {
         if (sequence.Length == 0)
+        {
             throw new ArgumentException("The sequence can not be empty.", nameof(sequence));
+        }
+
         _sequence = sequence;
         _cursor = 0;
     }
 
     public object Create(object request, ISpecimenContext context)
     {
-        if (request is SeededRequest seededRequest) return Create(seededRequest);
+        if (request is SeededRequest seededRequest)
+        {
+            return Create(seededRequest);
+        }
 
         if (request is Type type && type == typeof(T))
         {

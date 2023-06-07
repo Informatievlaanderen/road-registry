@@ -6,7 +6,6 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;
 
 public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoadSegmentValidator>

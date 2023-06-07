@@ -41,10 +41,10 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
-        
+
         var changeRequestId = ChangeRequestId
             .FromArchiveId(archiveId);
-        
+
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
             .Given(new RoadNetworkExtractChangesArchiveUploaded
@@ -96,30 +96,6 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractChangesArchiveUploadedEntry
                 {
                     Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
-                })
-            }, new RoadNetworkChange
-            {
-                Id = 1,
-                Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": gevalideerd",
-                Type = nameof(RoadNetworkExtractChangesArchiveAccepted),
-                Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
-                {
-                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename },
-                    Files = new[]
-                    {
-                        new FileProblems
-                        {
-                            File = file,
-                            Problems = new[]
-                            {
-                                new ProblemWithFile
-                                {
-                                    Severity = "Error",
-                                    Text = "De shape record 1 geometrie is ongeldig."
-                                }
-                            }
-                        }
-                    }
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {
@@ -288,31 +264,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                         Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
                     })
                 },
-                new RoadNetworkChange
-                {
-                    Id = 1,
-                    Title = $"Extractaanvraag \"{description}\" - oplading \"{changeRequestId}\": gevalideerd",
-                    Type = nameof(RoadNetworkChangesArchiveAccepted),
-                    Content = JsonConvert.SerializeObject(new RoadNetworkChangesArchiveAcceptedEntry
-                    {
-                        Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename },
-                        Files = new[]
-                        {
-                            new FileProblems
-                            {
-                                File = file,
-                                Problems = new[]
-                                {
-                                    new ProblemWithFile
-                                    {
-                                        Severity = "Error",
-                                        Text = "De shape record 1 geometrie is ongeldig."
-                                    }
-                                }
-                            }
-                        }
-                    })
-                }, new RoadNetworkChangeRequestBasedOnArchive
+                new RoadNetworkChangeRequestBasedOnArchive
                 {
                     ChangeRequestId = changeRequestId.ToBytes().ToArray(),
                     ArchiveId = archiveId
@@ -420,7 +372,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
         await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
             Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
             ContentType.Parse("application/zip"), Stream.Null);
-        
+
         await new RoadNetworkChangeFeedProjection(_client)
             .Scenario()
             .Given(new RoadNetworkExtractDownloadBecameAvailable
@@ -429,12 +381,49 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
-                ArchiveId = archiveId
+                ArchiveId = archiveId,
+                IsInformative = false
             })
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
                 Title = $"Extractaanvraag \"{description}\": download beschikbaar",
+                Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
+                Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
+                {
+                    Archive = new ArchiveInfo { Id = archiveId, Available = true, Filename = filename }
+                })
+            });
+    }
+
+    [Fact]
+    public async Task When_extract_informative_download_became_available()
+    {
+        var description = _fixture.Create<ExtractDescription>();
+        var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
+        var extractRequestId = _fixture.Create<ExtractRequestId>();
+        var downloadId = _fixture.Create<DownloadId>();
+        var archiveId = _fixture.Create<ArchiveId>();
+        var filename = _fixture.Create<string>();
+        await _client.CreateBlobAsync(new BlobName(archiveId.ToString()),
+            Metadata.None.Add(new KeyValuePair<MetadataKey, string>(new MetadataKey("filename"), filename)),
+            ContentType.Parse("application/zip"), Stream.Null);
+
+        await new RoadNetworkChangeFeedProjection(_client)
+            .Scenario()
+            .Given(new RoadNetworkExtractDownloadBecameAvailable
+            {
+                Description = description,
+                ExternalRequestId = externalExtractRequestId,
+                RequestId = extractRequestId,
+                DownloadId = downloadId,
+                ArchiveId = archiveId,
+                IsInformative = true
+            })
+            .Expect(new RoadNetworkChange
+            {
+                Id = 0,
+                Title = $"Informatieve extractaanvraag \"{description}\": download beschikbaar",
                 Type = nameof(RoadNetworkExtractDownloadBecameAvailable),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadBecameAvailableEntry
                 {
@@ -457,11 +446,42 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 Description = description,
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
+                IsInformative = false
             })
             .Expect(new RoadNetworkChange
             {
                 Id = 0,
                 Title = $"Extractaanvraag \"{description}\": download niet beschikbaar, contour te complex of te groot",
+                Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
+                Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadTimeoutOccurredEntry
+                {
+                    ExternalRequestId = externalExtractRequestId,
+                    RequestId = extractRequestId,
+                    Description = description
+                })
+            });
+    }
+
+    [Fact]
+    public async Task When_extract_informative_download_timeout_occurred()
+    {
+        var description = _fixture.Create<ExtractDescription>();
+        var externalExtractRequestId = _fixture.Create<ExternalExtractRequestId>();
+        var extractRequestId = _fixture.Create<ExtractRequestId>();
+
+        await new RoadNetworkChangeFeedProjection(_client)
+            .Scenario()
+            .Given(new RoadNetworkExtractDownloadTimeoutOccurred
+            {
+                Description = description,
+                ExternalRequestId = externalExtractRequestId,
+                RequestId = extractRequestId,
+                IsInformative = true
+            })
+            .Expect(new RoadNetworkChange
+            {
+                Id = 0,
+                Title = $"Informatieve extractaanvraag \"{description}\": download niet beschikbaar, contour te complex of te groot",
                 Type = nameof(RoadNetworkExtractDownloadTimeoutOccurred),
                 Content = JsonConvert.SerializeObject(new RoadNetworkExtractDownloadTimeoutOccurredEntry
                 {
@@ -525,7 +545,8 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                 ExternalRequestId = externalExtractRequestId,
                 RequestId = extractRequestId,
                 DownloadId = downloadId,
-                Contour = new RoadNetworkExtractGeometry { Polygon = null, MultiPolygon = Array.Empty<Polygon>(), SpatialReferenceSystemIdentifier = 0 }
+                Contour = new RoadNetworkExtractGeometry { Polygon = null, MultiPolygon = Array.Empty<Polygon>(), SpatialReferenceSystemIdentifier = 0 },
+                IsInformative = false
             })
             .Expect(new RoadNetworkChange
             {
@@ -568,7 +589,7 @@ public class RoadNetworkChangeFeedProjectionTests : IClassFixture<ProjectionTest
                         Id = archiveId,
                         Available = true,
                         Filename = filename
-                    },
+                    }
                 })
             }, new RoadNetworkChangeRequestBasedOnArchive
             {

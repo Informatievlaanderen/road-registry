@@ -9,4 +9,14 @@ public static class GeometryTranslatorTestCases
     public const string ValidMultiPolygonWithHoles = "MULTIPOLYGON (((40 40, 20 45, 45 30, 40 40)),((20 35, 10 30, 10 10, 30 5, 45 20, 20 35),(30 20, 20 15, 20 25, 30 20)))";
     public const string ValidPolygon = "POLYGON ((30 10, 40 40, 20 40, 10 20, 30 10))";
     public const string ValidPolygonWithHoles = "POLYGON ((35 10, 45 45, 15 40, 10 20, 35 10),(20 30, 35 35, 30 20, 20 30))";
+
+    public const string ValidGmlLineString = @"<gml:LineString srsName=""https://www.opengis.net/def/crs/EPSG/0/31370"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368.75 181577.016 217400.11 181499.516</gml:posList>
+</gml:LineString>";
+
+    public const string ValidGmlMultiLineString = @"<gml:MultiLineString srsName=""https://www.opengis.net/def/crs/EPSG/0/31370"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:lineStringMember srsName=""https://www.opengis.net/def/crs/EPSG/0/31370"" xmlns:gml=""http://www.opengis.net/gml/3.2"">
+<gml:posList>217368.75 181577.016 217400.11 181499.516</gml:posList>
+</gml:lineStringMember>
+</gml:MultiLineString>";
 }

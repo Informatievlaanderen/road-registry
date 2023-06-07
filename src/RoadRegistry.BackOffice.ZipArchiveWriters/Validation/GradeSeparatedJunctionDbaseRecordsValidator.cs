@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
 using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.GradeSeparatedJuntions;
+using Extracts.Dbase.GradeSeparatedJuntions;
 using Uploads;
 
 public class GradeSeparatedJunctionDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<GradeSeparatedJunctionDbaseRecord>
@@ -57,6 +57,14 @@ public class GradeSeparatedJunctionDbaseRecordsValidator : IZipArchiveDbaseRecor
                         {
                             problems += recordContext.UpperRoadSegmentIdOutOfRange(record.BO_WS_OIDN.Value);
                         }
+                        else
+                        {
+                            var boRoadSegmentId = new RoadSegmentId(record.BO_WS_OIDN.Value);
+                            if (!context.KnownRoadSegments.Contains(boRoadSegmentId))
+                            {
+                                problems += recordContext.RoadSegmentMissing(record.BO_WS_OIDN.Value);
+                            }
+                        }
 
                         if (!record.ON_WS_OIDN.HasValue)
                         {
@@ -65,6 +73,14 @@ public class GradeSeparatedJunctionDbaseRecordsValidator : IZipArchiveDbaseRecor
                         else if (!RoadSegmentId.Accepts(record.ON_WS_OIDN.Value))
                         {
                             problems += recordContext.LowerRoadSegmentIdOutOfRange(record.ON_WS_OIDN.Value);
+                        }
+                        else
+                        {
+                            var onRoadSegmentId = new RoadSegmentId(record.ON_WS_OIDN.Value);
+                            if (!context.KnownRoadSegments.Contains(onRoadSegmentId))
+                            {
+                                problems += recordContext.RoadSegmentMissing(record.ON_WS_OIDN.Value);
+                            }
                         }
 
                         moved = records.MoveNext();

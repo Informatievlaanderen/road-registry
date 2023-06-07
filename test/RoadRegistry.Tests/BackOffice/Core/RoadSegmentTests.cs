@@ -4,16 +4,17 @@ using AutoFixture;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
-using Xunit;
 
 public class RoadSegmentTests
 {
     private readonly AttributeHash _attributeHash;
     private readonly RoadNodeId _end;
     private readonly MultiLineString _geometry;
+    private readonly GeometryVersion _geometryVersion;
     private readonly RoadSegmentId _id;
     private readonly RoadNodeId _start;
     private readonly RoadSegment _sut;
+    private readonly RoadSegmentVersion _version;
 
     public RoadSegmentTests()
     {
@@ -26,14 +27,23 @@ public class RoadSegmentTests
         fixture.CustomizeRoadSegmentStatus();
         fixture.CustomizeRoadSegmentAccessRestriction();
         fixture.CustomizeOrganizationId();
+        fixture.CustomizeRoadSegmentLaneCount();
+        fixture.CustomizeRoadSegmentLaneDirection();
+        fixture.CustomizeRoadSegmentLaneAttribute();
+        fixture.CustomizeRoadSegmentSurfaceType();
+        fixture.CustomizeRoadSegmentSurfaceAttribute();
+        fixture.CustomizeRoadSegmentWidth();
+        fixture.CustomizeRoadSegmentWidthAttribute();
         fixture.CustomizeAttributeHash();
         fixture.CustomizeRoadSegmentGeometryDrawMethod();
         _id = fixture.Create<RoadSegmentId>();
+        _version = fixture.Create<RoadSegmentVersion>();
         _start = fixture.Create<RoadNodeId>();
         _end = fixture.Create<RoadNodeId>();
         _geometry = fixture.Create<MultiLineString>();
+        _geometryVersion = fixture.Create<GeometryVersion>();
         _attributeHash = fixture.Create<AttributeHash>();
-        _sut = new RoadSegment(_id, _geometry, _start, _end, _attributeHash, null);
+        _sut = new RoadSegment(_id, _version, _geometry, _geometryVersion, _start, _end, _attributeHash, null);
     }
 
     [Fact]
@@ -79,7 +89,9 @@ public class RoadSegmentTests
     {
         var sut = new RoadSegment(
             _id,
+            _version,
             _geometry,
+            _geometryVersion,
             new RoadNodeId(start),
             new RoadNodeId(end),
             _attributeHash,
@@ -100,6 +112,6 @@ public class RoadSegmentTests
     [Fact]
     public void ThrowsWhenStartIsSameAsEnd()
     {
-        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _geometry, _start, _start, _attributeHash, null));
+        Assert.Throws<ArgumentException>(() => new RoadSegment(_id, _version, _geometry, _geometryVersion, _start, _start, _attributeHash, null));
     }
 }

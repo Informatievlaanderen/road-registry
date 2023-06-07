@@ -1,6 +1,6 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 {
-    using Hosts;
+    using BackOffice;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -17,6 +17,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             builder.Property(p => p.Id)
                 .ValueGeneratedNever()
                 .IsRequired();
+
+            builder.Property(p => p.Version);
 
             builder.Property(p => p.RoadSegmentVersion);
             builder.Property(p => p.Geometry).HasColumnType("Geometry");

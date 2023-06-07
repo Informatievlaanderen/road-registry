@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Abstractions;
+using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Framework;
 using Hosts;
@@ -34,6 +35,7 @@ public class CommandProcessor : IHostedService
     private readonly CancellationTokenSource _messagePumpCancellation;
     private readonly Scheduler _scheduler;
     private readonly RoadRegistryApplication _applicationProcessor;
+    private DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public CommandProcessor(
         IStreamStore streamStore,
@@ -42,6 +44,7 @@ public class CommandProcessor : IHostedService
         CommandHandlerDispatcher dispatcher,
         Scheduler scheduler,
         RoadRegistryApplication applicationProcessor,
+        DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<CommandProcessor> logger)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
@@ -51,6 +54,7 @@ public class CommandProcessor : IHostedService
         _scheduler = scheduler.ThrowIfNull();
         _applicationProcessor = applicationProcessor;
         _logger = logger.ThrowIfNull();
+        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, queue, _logger);
 
         _messagePumpCancellation = new CancellationTokenSource();
         _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
@@ -114,14 +118,17 @@ public class CommandProcessor : IHostedService
                                     var messageProcessor = JsonConvert.DeserializeObject<MessageMetadata>(process.Message.JsonMetadata, SerializerSettings)?.Processor ?? RoadRegistryApplication.BackOffice;
                                     if (messageProcessor == _applicationProcessor)
                                     {
-                                        var body = JsonConvert.DeserializeObject(
-                                            await process.Message
-                                                .GetJsonData(_messagePumpCancellation.Token)
-                                                .ConfigureAwait(false),
-                                            CommandMapping.GetEventType(process.Message.Type),
-                                            SerializerSettings);
-                                        var command = new Command(body).WithMessageId(process.Message.MessageId);
-                                        await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
+                                        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+                                        {
+                                            var body = JsonConvert.DeserializeObject(
+                                                await process.Message
+                                                    .GetJsonData(_messagePumpCancellation.Token)
+                                                    .ConfigureAwait(false),
+                                                CommandMapping.GetEventType(process.Message.Type),
+                                                SerializerSettings);
+                                            var command = new Command(body).WithMessageId(process.Message.MessageId);
+                                            await dispatcher(command, _messagePumpCancellation.Token).ConfigureAwait(false);
+                                        }, _messagePumpCancellation.Token);
                                     }
                                     else
                                     {
@@ -134,6 +141,10 @@ public class CommandProcessor : IHostedService
                                             _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
                                     process.Complete();
+
+                                    logger.LogInformation(
+                                        "Processed {MessageType} at {Position}",
+                                        process.Message.Type, process.Message.Position);
                                 }
                                 catch (Exception exception)
                                 {
@@ -203,6 +214,7 @@ public class CommandProcessor : IHostedService
             catch (Exception exception)
             {
                 logger.LogError(exception, "CommandProcessor message pump is exiting due to a bug.");
+                throw;
             }
             finally
             {

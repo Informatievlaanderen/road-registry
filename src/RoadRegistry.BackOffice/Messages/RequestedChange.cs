@@ -11,6 +11,8 @@ public class RequestedChange
     public ModifyGradeSeparatedJunction ModifyGradeSeparatedJunction { get; set; }
     public ModifyRoadNode ModifyRoadNode { get; set; }
     public ModifyRoadSegment ModifyRoadSegment { get; set; }
+    public ModifyRoadSegmentAttributes ModifyRoadSegmentAttributes { get; set; }
+    public ModifyRoadSegmentGeometry ModifyRoadSegmentGeometry { get; set; }
     public ModifyRoadSegmentOnNumberedRoad ModifyRoadSegmentOnNumberedRoad { get; set; }
     public RemoveGradeSeparatedJunction RemoveGradeSeparatedJunction { get; set; }
     public RemoveRoadNode RemoveRoadNode { get; set; }

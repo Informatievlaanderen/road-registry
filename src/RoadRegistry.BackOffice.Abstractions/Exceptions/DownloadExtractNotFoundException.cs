@@ -5,11 +5,16 @@ using System.Runtime.Serialization;
 [Serializable]
 public class DownloadExtractNotFoundException : DownloadExtractException
 {
+    public DownloadExtractNotFoundException()
+        : this("Download extract could not be found")
+    {
+    }
+
     public DownloadExtractNotFoundException(string? message)
         : base(message ?? "Download extract could not be found")
     {
     }
-
+    
     public DownloadExtractNotFoundException(int retryAfterSeconds)
         : this("Download extract could not be found")
     {

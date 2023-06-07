@@ -81,14 +81,16 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         message.RoadSegmentAdded = new RoadSegmentAdded
         {
             Id = Id,
+            Version = RoadSegmentVersion.Initial,
             TemporaryId = TemporaryId,
             StartNodeId = StartNodeId,
             EndNodeId = EndNodeId,
             Geometry = GeometryTranslator.Translate(Geometry),
+            GeometryVersion = GeometryVersion.Initial,
             MaintenanceAuthority = new MaintenanceAuthority
             {
                 Code = MaintenanceAuthorityId,
-                Name = MaintenanceAuthorityName ?? ""
+                Name = MaintenanceAuthorityName ?? string.Empty
             },
             GeometryDrawMethod = GeometryDrawMethod,
             Morphology = Morphology,
@@ -188,9 +190,20 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
 
     public Problems VerifyAfter(AfterVerificationContext context)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = Problems.None;
+
+        var line = Geometry.Geometries
+            .OfType<LineString>()
+            .Single();
+
+        if (GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        {
+            problems.AddRange(line.GetProblemsForRoadSegmentOutlinedGeometry(context.Tolerances));
+
+            return problems;
+        }
 
         var byOtherSegment =
             context.AfterView.Segments.Values.FirstOrDefault(segment =>
@@ -201,9 +214,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
                 context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
             ));
 
-        var line = Geometry.Geometries
-            .OfType<LineString>()
-            .Single();
+
         if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
         {
             problems = problems.Add(new RoadSegmentStartNodeMissing());
@@ -245,53 +256,13 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
 
     public Problems VerifyBefore(BeforeVerificationContext context)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        var problems = Problems.None;
-
-        if (Math.Abs(Geometry.Length) <= context.Tolerances.GeometryTolerance) problems = problems.Add(new RoadSegmentGeometryLengthIsZero());
-
+        ArgumentNullException.ThrowIfNull(context);
+        
         var line = Geometry.Geometries
             .OfType<LineString>()
             .Single();
 
-        if (line.SelfOverlaps())
-            problems = problems.Add(new RoadSegmentGeometrySelfOverlaps());
-        else if (line.SelfIntersects()) problems = problems.Add(new RoadSegmentGeometrySelfIntersects());
-
-        if (line.NumPoints > 0)
-        {
-            var previousPointMeasure = 0.0;
-            for (var index = 0; index < line.CoordinateSequence.Count; index++)
-            {
-                var measure = line.CoordinateSequence.GetOrdinate(index, Ordinate.M);
-                var x = line.CoordinateSequence.GetX(index);
-                var y = line.CoordinateSequence.GetY(index);
-                if (index == 0 && Math.Abs(measure) > context.Tolerances.MeasurementTolerance)
-                {
-                    problems =
-                        problems.Add(new RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure));
-                }
-                else if (index == line.CoordinateSequence.Count - 1 && Math.Abs(measure - line.Length) > context.Tolerances.MeasurementTolerance)
-                {
-                    problems =
-                        problems.Add(new RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length));
-                }
-                else if (measure < 0.0 || (measure - line.Length) > context.Tolerances.MeasurementTolerance)
-                {
-                    problems =
-                        problems.Add(new RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length));
-                }
-                else
-                {
-                    if (index != 0 && Math.Sign(measure - previousPointMeasure) <= 0)
-                        problems =
-                            problems.Add(new RoadSegmentPointMeasureValueDoesNotIncrease(x, y, measure, previousPointMeasure));
-                    else
-                        previousPointMeasure = measure;
-                }
-            }
-        }
+        var problems = line.GetProblemsForRoadSegmentGeometry(context.Tolerances);
 
         RoadSegmentLaneAttribute previousLane = null;
         foreach (var lane in Lanes)

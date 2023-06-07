@@ -5,7 +5,6 @@ using FluentValidation.TestHelper;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 using AddRoadNode = RoadRegistry.BackOffice.Messages.AddRoadNode;
 
 public class AddRoadNodeValidatorTests : ValidatorTest<AddRoadNode, AddRoadNodeValidator>

@@ -31,20 +31,30 @@ internal static class LineStringExtensions
                     new CoordinateArraySequence(
                         new[]
                         {
-                            new Coordinate(Math.Round(fromPoint.X, 3), Math.Round(fromPoint.Y, 3)),
-                            new Coordinate(toPoint.X, toPoint.Y)
+                            new Coordinate(Math.Round(fromPoint.X, Precisions.MeasurementPrecision), Math.Round(fromPoint.Y, Precisions.MeasurementPrecision)),
+                            new Coordinate(Math.Round(toPoint.X, Precisions.MeasurementPrecision), Math.Round(toPoint.Y, Precisions.MeasurementPrecision))
                         })
                     , GeometryConfiguration.GeometryFactory);
             fromPoint = toPoint;
         }
 
-        return
-        (
-            from left in lines
-            from right in lines
-            where !ReferenceEquals(left, right)
-            select left.Overlaps(right) || left.Covers(right)
-        ).Any(overlaps => overlaps);
+        var overlappings =
+            (
+                from left in lines
+                from right in lines
+                where !ReferenceEquals(left, right)
+                select new
+                {
+                    Left = left,
+                    Right = right,
+                    LeftOverlapsRight = left.Overlaps(right),
+                    LeftCoversRight = left.Covers(right)
+                }
+            )
+            .Where(x => x.LeftOverlapsRight || x.LeftCoversRight)
+            .ToArray();
+
+        return overlappings.Any();
     }
 
     public static bool HasInvalidMeasureOrdinates(this LineString instance)

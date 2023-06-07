@@ -6,7 +6,6 @@ using NetTopologySuite.IO;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 
 public class RoadNetworkExtractGeometryValidatorTests
 {

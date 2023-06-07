@@ -3,8 +3,8 @@ namespace RoadRegistry.Product.ProjectionHost.Tests.Projections;
 using System.Text;
 using AutoFixture;
 using BackOffice;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
-using Dbase.RoadSegments;
 using Product.Projections;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
@@ -56,6 +56,7 @@ public class RoadSegmentWidthAttributeRecordProjectionTests : IClassFixture<Proj
         _fixture.CustomizeRoadSegmentWidthAttributes();
         _fixture.CustomizeRoadSegmentAdded();
         _fixture.CustomizeRoadSegmentModified();
+        _fixture.CustomizeRoadSegmentGeometryModified();
         _fixture.CustomizeRoadSegmentRemoved();
         _fixture.CustomizeRoadNetworkChangesAccepted();
     }
@@ -385,6 +386,47 @@ public class RoadSegmentWidthAttributeRecordProjectionTests : IClassFixture<Proj
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_modifying_road_segment_geometry_with_new_widths_only()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentGeometryModified = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentGeometryModified>());
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentGeometryModified.Changes, change =>
+        {
+            var segment = change.RoadSegmentGeometryModified;
+
+            return segment.Widths.Select(width => (object)new RoadSegmentWidthAttributeRecord
+            {
+                Id = width.AttributeId,
+                RoadSegmentId = segment.Id,
+                DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
+                {
+                    WB_OIDN = { Value = width.AttributeId },
+                    WS_OIDN = { Value = segment.Id },
+                    WS_GIDN = { Value = $"{segment.Id}_{width.AsOfGeometryVersion}" },
+                    BREEDTE = { Value = width.Width },
+                    VANPOS = { Value = (double)width.FromPosition },
+                    TOTPOS = { Value = (double)width.ToPosition }, BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentGeometryModified.When) },
+                    BEGINORG = { Value = acceptedRoadSegmentGeometryModified.OrganizationId },
+                    LBLBGNORG = { Value = acceptedRoadSegmentGeometryModified.Organization }
+                }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            });
+        }).SelectMany(x => x);
+
+        return new RoadSegmentWidthAttributeRecordProjection(_services.MemoryStreamManager, Encoding.UTF8)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
+            .ExpectInAnyOrder(expectedRecords);
     }
 
     [Fact]

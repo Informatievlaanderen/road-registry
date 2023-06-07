@@ -1,48 +1,58 @@
 namespace RoadRegistry.BackOffice.Uploads;
 
-using System;
-using System.IO;
-using System.IO.Compression;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using FeatureCompare;
+using System;
+using System.IO.Compression;
 
 public class ZipArchiveShapeEntryValidator : IZipArchiveEntryValidator
 {
-    private readonly Encoding _encoding;
-    private readonly IZipArchiveShapeRecordsValidator _recordValidator;
+    private readonly IZipArchiveShapeRecordValidator _recordValidator;
 
-    public ZipArchiveShapeEntryValidator(Encoding encoding, IZipArchiveShapeRecordsValidator recordValidator)
+    public ZipArchiveShapeEntryValidator(IZipArchiveShapeRecordValidator recordValidator)
     {
-        _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
         _recordValidator = recordValidator ?? throw new ArgumentNullException(nameof(recordValidator));
     }
 
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
-        using (var stream = entry.Open())
-        using (var reader = new BinaryReader(stream, _encoding))
-        {
-            ShapeFileHeader header = null;
-            try
-            {
-                header = ShapeFileHeader.Read(reader);
-            }
-            catch (Exception exception)
-            {
-                problems += entry.HasShapeHeaderFormatError(exception);
-            }
 
-            if (header != null)
-                using (var records = header.CreateShapeRecordEnumerator(reader))
+        var shpReader = new ZipArchiveShapeFileReader();
+        RecordNumber? previousRecordNumber = null;
+        try
+        {
+            var hasRecord = false;
+            foreach (var (geometry, recordNumber) in shpReader.Read(entry))
+            {
+                hasRecord = true;
+
+                if (!geometry.IsValid)
                 {
-                    var (recordProblems, recordContext) = _recordValidator.Validate(entry, records, context);
+                    var recordContext = entry.AtShapeRecord(recordNumber);
+                    problems += recordContext.ShapeRecordGeometryMismatch();
+                }
+                else
+                {
+                    var (recordProblems, recordContext) = _recordValidator.Validate(entry, recordNumber, geometry, context);
                     problems += recordProblems;
                     context = recordContext;
                 }
+
+                previousRecordNumber = recordNumber;
+            }
+
+            if (!hasRecord)
+            {
+                problems += entry.HasNoShapeRecords();
+            }
+        }
+        catch (Exception exception)
+        {
+            problems += entry.AtShapeRecord(previousRecordNumber?.Next() ?? RecordNumber.Initial).HasShapeRecordFormatError(exception);
         }
 
         return (problems, context);

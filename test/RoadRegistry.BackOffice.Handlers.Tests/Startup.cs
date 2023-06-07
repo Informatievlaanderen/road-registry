@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Tests;
 
 using Autofac;
+using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Uploads;
@@ -9,21 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using RoadRegistry.BackOffice.Extensions;
 using SqlStreamStore;
+using DomainAssemblyMarker = BackOffice.DomainAssemblyMarker;
 
 public class Startup : TestStartup
 {
-    protected override void ConfigureContainer(ContainerBuilder builder)
-    {
-        builder.RegisterModulesFromAssemblyContaining<BackOffice.DomainAssemblyMarker>();
-        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
-    }
-
-    protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
-    {
-    }
-
     protected override CommandHandlerDispatcher ConfigureCommandHandlerDispatcher(IServiceProvider sp)
     {
         return Dispatch.Using(Resolve.WhenEqualToMessage(
@@ -32,29 +23,40 @@ public class Startup : TestStartup
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetService<RoadNetworkUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
+                    sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),
-                    sp.GetService<ILogger<RoadNetworkChangesArchiveCommandModule>>()
+                    sp.GetService<ILoggerFactory>()
                 ),
                 new RoadNetworkCommandModule(
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
-                    sp.GetService<IRoadNetworkSnapshotWriter>(),
                     sp.GetService<IClock>(),
-                    sp.GetService<ILogger<RoadNetworkCommandModule>>()
+                    sp.GetService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(
                     sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                     sp.GetService<IStreamStore>(),
-                    sp.GetService<Func<EventSourcedEntityMap>>(),
+                    sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
+                    sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
                     sp.GetService<IClock>(),
-                    sp.GetService<ILogger<RoadNetworkExtractCommandModule>>()
+                    sp.GetService<ILoggerFactory>()
                 )
             }));
+    }
+
+    protected override void ConfigureContainer(ContainerBuilder builder)
+    {
+        builder.RegisterModulesFromAssemblyContaining<DomainAssemblyMarker>();
+        builder.RegisterModulesFromAssemblyContaining<Handlers.DomainAssemblyMarker>();
+    }
+
+    protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
+    {
     }
 }

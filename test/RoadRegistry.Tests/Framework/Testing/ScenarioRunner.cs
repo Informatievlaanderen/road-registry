@@ -1,14 +1,12 @@
 namespace RoadRegistry.Tests.Framework.Testing;
 
 using Be.Vlaanderen.Basisregisters.EventHandling;
-using Be.Vlaanderen.Basisregisters.Generators.Guid;
 using FluentValidation.Results;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Framework;
 using SqlStreamStore;
-using SqlStreamStore.Streams;
 
 public class ScenarioRunner
 {
@@ -34,6 +32,7 @@ public class ScenarioRunner
         var recorded = new List<RecordedEvent>();
         var page = await _store.ReadAllForwards(position, 1024);
         foreach (var then in page.Messages)
+        {
             recorded.Add(
                 new RecordedEvent(
                     new StreamName(then.StreamId),
@@ -44,10 +43,13 @@ public class ScenarioRunner
                     )
                 )
             );
+        }
+
         while (!page.IsEnd)
         {
             page = await page.ReadNext();
             foreach (var then in page.Messages)
+            {
                 recorded.Add(
                     new RecordedEvent(
                         new StreamName(then.StreamId),
@@ -58,6 +60,7 @@ public class ScenarioRunner
                         )
                     )
                 );
+            }
         }
 
         return recorded.ToArray();
@@ -67,7 +70,10 @@ public class ScenarioRunner
     {
         var checkpoint = await WriteGivens(scenario.Givens);
         var exception = await Catch.Exception(() => _resolver(scenario.When)(scenario.When, null, ct));
-        if (exception != null) return scenario.ButThrewException(exception);
+        if (exception != null)
+        {
+            return scenario.ButThrewException(exception);
+        }
 
         var recordedEvents = await ReadThens(checkpoint);
         var config = ComparisonConfig ?? new ComparisonConfig
@@ -79,7 +85,11 @@ public class ScenarioRunner
         var expectedEvents = Array.ConvertAll(scenario.Thens,
             then => new RecordedEvent(_converter(new StreamName(then.Stream)), then.Event));
         var result = comparer.Compare(expectedEvents, recordedEvents);
-        if (result.AreEqual) return scenario.Pass();
+        if (result.AreEqual)
+        {
+            return scenario.Pass();
+        }
+
         return scenario.ButRecordedOtherEvents(recordedEvents);
     }
 
@@ -91,7 +101,11 @@ public class ScenarioRunner
         if (exception == null)
         {
             var recordedEvents = await ReadThens(checkpoint);
-            if (recordedEvents.Length != 0) return scenario.ButRecordedEvents(recordedEvents);
+            if (recordedEvents.Length != 0)
+            {
+                return scenario.ButRecordedEvents(recordedEvents);
+            }
+
             return scenario.ButThrewNoException();
         }
 
@@ -114,7 +128,11 @@ public class ScenarioRunner
         };
         var comparer = new CompareLogic(config);
         var result = comparer.Compare(scenario.Throws, exception);
-        if (result.AreEqual) return scenario.Pass();
+        if (result.AreEqual)
+        {
+            return scenario.Pass();
+        }
+
         return scenario.ButThrewException(exception);
     }
 
@@ -155,26 +173,11 @@ public class ScenarioRunner
     //            }
     //        }
 
-    public async Task<long> WriteGivens(RecordedEvent[] givens)
+    public Task<long> WriteGivens(RecordedEvent[] givens)
     {
-        var checkpoint = Position.Start;
-        foreach (var stream in givens.GroupBy(given => given.Stream))
-        {
-            var result = await _store.AppendToStream(
-                _converter(new StreamName(stream.Key)).ToString(),
-                ExpectedVersion.NoStream,
-                stream.Select((given, index) => new NewStreamMessage(
-                    Deterministic.Create(Deterministic.Namespaces.Events,
-                        $"{given.Stream}-{index}"),
-                    _mapping.GetEventName(given.Event.GetType()),
-                    JsonConvert.SerializeObject(given.Event, _settings)
-                )).ToArray());
-            checkpoint = result.CurrentPosition + 1;
-        }
-
-        return checkpoint;
+        return _store.Given(_mapping, _settings, _converter, givens);
     }
-    
+
     private class ValidationFailureComparer : BaseTypeComparer
     {
         public ValidationFailureComparer(RootComparer comparer)

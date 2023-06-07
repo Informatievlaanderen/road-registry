@@ -96,6 +96,14 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
                         await ModifyRoadSegment(streetNameCache, context, envelope, roadSegmentModified, token);
                         break;
 
+                    case RoadSegmentAttributesModified roadSegmentAttributesModified:
+                        await ModifyRoadSegmentAttributes(streetNameCache, context, envelope, roadSegmentAttributesModified, token);
+                        break;
+
+                    case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                        await ModifyRoadSegmentGeometry(streetNameCache, context, envelope, roadSegmentGeometryModified, token);
+                        break;
+
                     case RoadSegmentRemoved roadSegmentRemoved:
                         await RemoveRoadSegment(roadSegmentRemoved, context);
                         break;
@@ -169,7 +177,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
 
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id).ConfigureAwait(false);
 
-        if (roadSegmentRecord == null) throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found!");
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
+        }
 
         roadSegmentRecord.Id = roadSegmentModified.Id;
         roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
@@ -190,10 +201,86 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
 
+    private static async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
+        WfsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadSegmentAttributesModified roadSegmentAttributesModified,
+        CancellationToken token)
+    {
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id).ConfigureAwait(false);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
+        }
+
+        if (roadSegmentAttributesModified.AccessRestriction is not null)
+        {
+            var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAttributesModified.AccessRestriction);
+
+            roadSegmentRecord.AccessRestriction = accessRestriction.Translation.Name;
+        }
+
+        if (roadSegmentAttributesModified.Status is not null)
+        {
+            var status = RoadSegmentStatus.Parse(roadSegmentAttributesModified.Status);
+
+            roadSegmentRecord.StatusDutchName = status.Translation.Name;
+        }
+
+        if (roadSegmentAttributesModified.Morphology is not null)
+        {
+            var morphology = RoadSegmentMorphology.Parse(roadSegmentAttributesModified.Morphology);
+
+            roadSegmentRecord.MorphologyDutchName = morphology.Translation.Name;
+        }
+
+        if (roadSegmentAttributesModified.Category is not null)
+        {
+            var category = RoadSegmentCategory.Parse(roadSegmentAttributesModified.Category);
+
+            roadSegmentRecord.CategoryDutchName = category.Translation.Name;
+        }
+
+        if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
+        {
+            roadSegmentRecord.MaintainerId = roadSegmentAttributesModified.MaintenanceAuthority.Code;
+            roadSegmentRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
+        }
+
+        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+        roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
+    }
+
+    private static async Task ModifyRoadSegmentGeometry(IStreetNameCache streetNameCache,
+        WfsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        RoadSegmentGeometryModified segment,
+        CancellationToken token)
+    {
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
+        }
+        
+        roadSegmentRecord.Geometry2D = WfsGeometryTranslator.Translate2D(segment.Geometry);
+
+        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+
+        var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
+        roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
+    }
+
     private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WfsContext context)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id).ConfigureAwait(false);
-        if (roadSegmentRecord == null) return;
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
+        }
+
         context.RoadSegments.Remove(roadSegmentRecord);
     }
 

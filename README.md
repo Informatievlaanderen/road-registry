@@ -72,7 +72,7 @@ This host exposes the website the operator can interact with to download, upload
 Please make sure you've ran `./build.sh publish` so that the self-contained .NET Core apps and their docker files are published (into the `dist` folder)
 and ready to be consumed.
 
-Blobs that usually end up in AWS S3 will in this environment be stored in a Minio container (an S3 compatible, docker-based blob store).
+Blobs that usually end up in AWS S3 will in this environment be stored in a Localstack S3 container (an S3 compatible, docker-based blob store).
 Data that ends up or originates from AWS RDS SQL Server will in this environment be stored in a SQL Server container (multiple).
 Logging that usually ends up in DataDog will in this environment be accessible via the Seq container (Seq is a docker-based log server).
 
@@ -148,4 +148,5 @@ and
 To test whether building the syndication projection works you can type
 
 `docker-compose up --build syndication-projection-host`
+
 

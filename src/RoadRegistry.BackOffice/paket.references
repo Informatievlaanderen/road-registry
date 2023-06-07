@@ -1,4 +1,5 @@
 Be.Vlaanderen.Basisregisters.AggregateSource
+Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache
 Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.Generators.Guid.Deterministic
@@ -7,22 +8,26 @@ Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 
+Amazon.Lambda.Core
 AWSSDK.DynamoDBv2
 DotSpatial.Projections
 FeatureToggle.Common
 FluentValidation
-MediatR.Extensions.Autofac.DependencyInjection
+MediatR
 MessagePack
 Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.Abstractions
 Microsoft.Extensions.Configuration.Binder
 Microsoft.Extensions.Logging.Abstractions
+Microsoft.Extensions.Logging.Console
 Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens
 Microsoft.IdentityModel.Logging
 Microsoft.IdentityModel.Tokens
 Microsoft.IO.RecyclableMemoryStream
 NetTopologySuite
+NetTopologySuite.IO.GeoJSON
+NetTopologySuite.IO.ShapeFile
 Polly
 SqlStreamStore
 System.IdentityModel.Tokens.Jwt

@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
 using System.IO.Compression;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.RoadNodes;
+using Extracts.Dbase.RoadNodes;
 using Uploads;
 
 public class RoadNodeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<RoadNodeDbaseRecord>
@@ -30,6 +30,14 @@ public class RoadNodeDbaseRecordsValidator : IZipArchiveDbaseRecordsValidator<Ro
                             if (record.WK_OIDN.Value == 0)
                             {
                                 problems += recordContext.IdentifierZero();
+                            }
+                            else if (!RoadNodeId.Accepts(record.WK_OIDN.Value))
+                            {
+                                problems += recordContext.RoadNodeIdOutOfRange(record.WK_OIDN.Value);
+                            }
+                            else
+                            {
+                                context = context.WithKnownRoadNode(new RoadNodeId(record.WK_OIDN.Value));
                             }
                         }
                         else

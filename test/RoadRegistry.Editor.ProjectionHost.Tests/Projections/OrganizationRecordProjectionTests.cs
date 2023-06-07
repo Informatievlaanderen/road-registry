@@ -3,8 +3,8 @@ namespace RoadRegistry.Editor.ProjectionHost.Tests.Projections;
 using System.Text;
 using AutoFixture;
 using BackOffice;
+using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Messages;
-using Dbase.Organizations;
 using Editor.Projections;
 using Microsoft.IO;
 using RoadRegistry.Tests.BackOffice;
@@ -35,34 +35,38 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
     }
 
     [Fact]
-    public Task When_organizations_are_imported()
+    public Task When_organization_is_created()
     {
-        var data = _fixture
-            .CreateMany<ImportedOrganization>(new Random().Next(1, 100))
-            .Select((@event, i) =>
+        var createOrganizationAccepted = new CreateOrganizationAccepted { Code = "ABC", Name = "Alphabet" };
+
+        var expected = new OrganizationRecord
+        {
+            Id = 1,
+            Code = "ABC",
+            SortableCode = OrganizationRecordProjection.GetSortableCodeFor("ABC"),
+            DbaseRecord = new OrganizationDbaseRecord
             {
-                var expected = new OrganizationRecord
-                {
-                    Id = i + 1,
-                    Code = @event.Code,
-                    SortableCode = OrganizationRecordProjection.GetSortableCodeFor(@event.Code),
-                    DbaseRecord = new OrganizationDbaseRecord
-                    {
-                        ORG = { Value = @event.Code },
-                        LBLORG = { Value = @event.Name }
-                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-                };
-                return new
-                {
-                    ImportedOrganization = @event,
-                    Expected = expected
-                };
-            }).ToList();
+                ORG = { Value = "ABC" },
+                LBLORG = { Value = "Alphabet" }
+            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+        };
 
         return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
             .Scenario()
-            .Given(data.Select(d => d.ImportedOrganization))
-            .Expect(data.Select(d => d.Expected));
+            .Given(createOrganizationAccepted)
+            .Expect(expected);
+    }
+
+    [Fact]
+    public Task When_organization_is_deleted()
+    {
+        var createOrganizationAccepted = new CreateOrganizationAccepted { Code = "ABC", Name = "Alphabet" };
+        var deleteOrganizationAccepted = new DeleteOrganizationAccepted { Code = "ABC" };
+
+        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+            .Scenario()
+            .Given(createOrganizationAccepted, deleteOrganizationAccepted)
+            .Expect(Enumerable.Empty<OrganizationRecord>());
     }
 
     [Fact]
@@ -94,37 +98,33 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
     }
 
     [Fact]
-    public Task When_organization_is_created()
+    public Task When_organizations_are_imported()
     {
-        var createOrganizationAccepted = new CreateOrganizationAccepted { Code = "ABC", Name = "Alphabet" };
-
-        var expected = new OrganizationRecord
-        {
-            Id = 1,
-            Code = "ABC",
-            SortableCode = OrganizationRecordProjection.GetSortableCodeFor("ABC"),
-            DbaseRecord = new OrganizationDbaseRecord
+        var data = _fixture
+            .CreateMany<ImportedOrganization>(new Random().Next(1, 100))
+            .Select((@event, i) =>
             {
-                ORG = { Value = "ABC" },
-                LBLORG = { Value = "Alphabet" }
-            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
-        };
+                var expected = new OrganizationRecord
+                {
+                    Id = i + 1,
+                    Code = @event.Code,
+                    SortableCode = OrganizationRecordProjection.GetSortableCodeFor(@event.Code),
+                    DbaseRecord = new OrganizationDbaseRecord
+                    {
+                        ORG = { Value = @event.Code },
+                        LBLORG = { Value = @event.Name }
+                    }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+                };
+                return new
+                {
+                    ImportedOrganization = @event,
+                    Expected = expected
+                };
+            }).ToList();
 
         return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
             .Scenario()
-            .Given(createOrganizationAccepted)
-            .Expect(expected);
-    }
-
-    [Fact]
-    public Task When_organization_is_deleted()
-    {
-        var createOrganizationAccepted = new CreateOrganizationAccepted { Code = "ABC", Name = "Alphabet" };
-        var deleteOrganizationAccepted = new DeleteOrganizationAccepted { Code = "ABC" };
-        
-        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
-            .Scenario()
-            .Given(createOrganizationAccepted, deleteOrganizationAccepted)
-            .Expect(Enumerable.Empty<OrganizationRecord>());
+            .Given(data.Select(d => d.ImportedOrganization))
+            .Expect(data.Select(d => d.Expected));
     }
 }

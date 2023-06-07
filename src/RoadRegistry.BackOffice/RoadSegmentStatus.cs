@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
+public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToString
 {
     public static readonly RoadSegmentStatus BuildingPermitGranted =
         new(
@@ -71,8 +71,23 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
         Unknown, PermitRequested, BuildingPermitGranted, UnderConstruction, InUse, OutOfUse
     };
 
+    public sealed record Outlined
+    {
+        public static readonly RoadSegmentStatus[] AllOutlined =
+        {
+            PermitRequested,
+            BuildingPermitGranted,
+            UnderConstruction,
+            InUse,
+            OutOfUse
+        };
+    }
+
     public static readonly IReadOnlyDictionary<int, RoadSegmentStatus> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
+
+    public static readonly IReadOnlyDictionary<string, RoadSegmentStatus> ByName =
+        All.ToDictionary(key => key.Translation.Name);
 
     private readonly string _value;
 
@@ -91,9 +106,12 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 
     public static bool CanParse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        return TryParse(value.ThrowIfNull(), out _);
+    }
 
-        return Array.Find(All, candidate => candidate._value == value) != null;
+    public static bool CanParseUsingDutchName(string value)
+    {
+        return TryParseUsingDutchName(value, out _);
     }
 
     public override bool Equals(object obj)
@@ -113,7 +131,7 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 
     public static implicit operator string(RoadSegmentStatus instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentStatus left, RoadSegmentStatus right)
@@ -123,9 +141,13 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
 
     public static RoadSegmentStatus Parse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (!TryParse(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment status.");
+        return parsed;
+    }
 
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment status.");
+    public static RoadSegmentStatus ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment status.");
         return parsed;
     }
 
@@ -134,11 +156,22 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>
         return _value;
     }
 
+    public string ToDutchString()
+    {
+        return Translation.Name;
+    }
+
     public static bool TryParse(string value, out RoadSegmentStatus parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentStatus parsed)
+    {
+        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 

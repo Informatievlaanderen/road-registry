@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessRestriction>
+public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessRestriction>, IDutchToString
 {
     public static readonly RoadSegmentAccessRestriction LegallyForbidden =
         new(
@@ -79,6 +79,9 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
     public static readonly IReadOnlyDictionary<int, RoadSegmentAccessRestriction> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
+    public static readonly IReadOnlyDictionary<string, RoadSegmentAccessRestriction> ByName =
+        All.ToDictionary(key => key.Translation.Name);
+
     private readonly string _value;
 
     private RoadSegmentAccessRestriction(string value, DutchTranslation dutchTranslation)
@@ -101,9 +104,12 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
 
     public static bool CanParse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        return TryParse(value.ThrowIfNull(), out _);
+    }
 
-        return Array.Find(All, candidate => candidate._value == value) != null;
+    public static bool CanParseUsingDutchName(string value)
+    {
+        return TryParseUsingDutchName(value, out _);
     }
 
     public override int GetHashCode()
@@ -118,7 +124,7 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
 
     public static implicit operator string(RoadSegmentAccessRestriction instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentAccessRestriction left, RoadSegmentAccessRestriction right)
@@ -128,9 +134,13 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
 
     public static RoadSegmentAccessRestriction Parse(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        if (!TryParse(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment access restriction.");
+        return parsed;
+    }
 
-        if (!TryParse(value, out var parsed)) throw new FormatException($"The value {value} is not a well known road segment access restriction.");
+    public static RoadSegmentAccessRestriction ParseUsingDutchName(string value)
+    {
+        if (!TryParseUsingDutchName(value.ThrowIfNull(), out var parsed)) throw new FormatException($"The value {value} is not a well known road segment access restriction.");
         return parsed;
     }
 
@@ -139,11 +149,22 @@ public sealed class RoadSegmentAccessRestriction : IEquatable<RoadSegmentAccessR
         return _value;
     }
 
+    public string ToDutchString()
+    {
+        return Translation.Name;
+    }
+
     public static bool TryParse(string value, out RoadSegmentAccessRestriction parsed)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
 
         parsed = Array.Find(All, candidate => candidate._value == value);
+        return parsed != null;
+    }
+
+    public static bool TryParseUsingDutchName(string value, out RoadSegmentAccessRestriction parsed)
+    {
+        parsed = Array.Find(All, candidate => candidate.Translation.Name == value);
         return parsed != null;
     }
 

@@ -8,4 +8,5 @@ public class RequestRoadNetworkExtract
     public string Description { get; set; }
     public Guid DownloadId { get; set; }
     public string ExternalRequestId { get; set; }
+    public bool IsInformative { get; set; }
 }

@@ -1,12 +1,16 @@
+Be.Vlaanderen.Basisregisters.AcmIdm
 Be.Vlaanderen.Basisregisters.Api
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
+Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac
+Be.Vlaanderen.Basisregisters.GrAr.Legacy
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 Be.Vlaanderen.Basisregisters.Shaperon
-Be.Vlaanderen.Basisregisters.TicketingService.Abstractions
-Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy
 
 AspNetCore.HealthChecks.SqlServer
 AWSSDK.Core
-MediatR.Extensions.Autofac.DependencyInjection
+MediatR
+
+Microsoft.Extensions.FileProviders.Abstractions
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
-RestSharp
+
 Serilog.Sinks.Seq

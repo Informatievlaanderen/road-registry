@@ -3,8 +3,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForEditor;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.RoadSegments;
 using Editor.Schema;
+using Extracts.Dbase.RoadSegments;
 using Framework.Containers;
 using ZipArchiveWriters.ForEditor;
 
@@ -48,6 +48,7 @@ public class RoadSegmentEuropeanRoadAttributesToZipArchiveWriterTests
             {
                 Assert.Single(readArchive.Entries);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "AttEuropweg.dbf":
@@ -68,6 +69,7 @@ public class RoadSegmentEuropeanRoadAttributesToZipArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 }

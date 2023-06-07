@@ -101,7 +101,11 @@ public class ZipArchiveDbaseEntryValidatorTests
                 using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
                 {
                     header.Write(writer);
-                    foreach (var record in records) record.Write(writer);
+                    foreach (var record in records)
+                    {
+                        record.Write(writer);
+                    }
+
                     writer.Write(DbaseRecord.EndOfFile);
                     entryStream.Flush();
                 }
@@ -312,7 +316,11 @@ public class ZipArchiveDbaseEntryValidatorTests
         public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IDbaseRecordEnumerator<FakeDbaseRecord> records, ZipArchiveValidationContext context)
         {
             var collected = new List<FakeDbaseRecord>();
-            while (records.MoveNext()) collected.Add(records.Current);
+            while (records.MoveNext())
+            {
+                collected.Add(records.Current);
+            }
+
             Collected = collected.ToArray();
 
             return (ZipArchiveProblems.None, context);

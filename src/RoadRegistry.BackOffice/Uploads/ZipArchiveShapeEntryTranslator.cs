@@ -19,9 +19,9 @@ public class ZipArchiveShapeEntryTranslator : IZipArchiveEntryTranslator
 
     public TranslatedChanges Translate(ZipArchiveEntry entry, TranslatedChanges changes)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-        if (changes == null) throw new ArgumentNullException(nameof(changes));
-
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(changes);
+        
         using (var stream = entry.Open())
         using (var reader = new BinaryReader(stream, _encoding))
         {

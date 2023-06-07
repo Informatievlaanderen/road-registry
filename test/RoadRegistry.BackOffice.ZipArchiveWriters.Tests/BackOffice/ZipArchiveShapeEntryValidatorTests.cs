@@ -5,10 +5,12 @@ using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Core;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Uploads;
+using GeometryTranslator = RoadRegistry.BackOffice.GeometryTranslator;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveShapeEntryValidatorTests
@@ -31,27 +33,16 @@ public class ZipArchiveShapeEntryValidatorTests
             customizer.FromFactory(random => new RecordNumber(random.Next(1, int.MaxValue))));
         _fixture.Customize<ShapeRecord>(customization =>
             customization.FromFactory(random =>
-                new PointShapeContent(GeometryTranslator.FromGeometryPoint(_fixture.Create<Point>())).RecordAs(_fixture.Create<RecordNumber>())
+                new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(_fixture.Create<Point>())).RecordAs(_fixture.Create<RecordNumber>())
             ).OmitAutoProperties()
         );
         _context = ZipArchiveValidationContext.Empty;
     }
 
     [Fact]
-    public void EncodingCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(
-            () => new ZipArchiveShapeEntryValidator(
-                null,
-                new FakeShapeRecordValidator()));
-    }
-
-    [Fact]
     public void ValidateContextCanNotBeNull()
     {
-        var sut = new ZipArchiveShapeEntryValidator(
-            Encoding.Default,
-            new FakeShapeRecordValidator());
+        var sut = new ZipArchiveShapeEntryValidator(new FakeShapeRecordValidator());
         using (var stream = new MemoryStream())
         {
             using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, true))
@@ -73,7 +64,6 @@ public class ZipArchiveShapeEntryValidatorTests
     public void ValidateEntryCanNotBeNull()
     {
         var sut = new ZipArchiveShapeEntryValidator(
-            Encoding.Default,
             new FakeShapeRecordValidator());
 
         Assert.Throws<ArgumentNullException>(() => sut.Validate(null, _context));
@@ -83,13 +73,14 @@ public class ZipArchiveShapeEntryValidatorTests
     public void ValidatePassesExpectedShapeRecordsToShapeRecordValidator()
     {
         var validator = new CollectShapeRecordValidator();
-        var sut = new ZipArchiveShapeEntryValidator(Encoding.UTF8, validator);
+        var sut = new ZipArchiveShapeEntryValidator(validator);
         var records = _fixture.CreateMany<ShapeRecord>(2).ToArray();
         var fileSize = records.Aggregate(ShapeFileHeader.Length, (length, record) => length.Plus(record.Length));
         var header = new ShapeFileHeader(
             fileSize,
             ShapeType.Point,
             BoundingBox3D.Empty);
+        var geometries = records.Select(x => GeometryTranslator.ToPoint(((PointShapeContent)x.Content).Shape)).ToArray();
 
         using (var stream = new MemoryStream())
         {
@@ -100,7 +91,10 @@ public class ZipArchiveShapeEntryValidatorTests
                 using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
                 {
                     header.Write(writer);
-                    foreach (var record in records) record.Write(writer);
+                    foreach (var record in records)
+                    {
+                        record.Write(writer);
+                    }
 
                     entryStream.Flush();
                 }
@@ -116,7 +110,7 @@ public class ZipArchiveShapeEntryValidatorTests
                 var (result, context) = sut.Validate(entry, _context);
 
                 Assert.Equal(ZipArchiveProblems.None, result);
-                Assert.Equal(records, validator.Collected, new ShapeRecordEqualityComparer());
+                Assert.Equal(geometries, validator.Collected);
                 Assert.Same(_context, context);
             }
         }
@@ -126,7 +120,6 @@ public class ZipArchiveShapeEntryValidatorTests
     public void ValidateReturnsExpectedResultWhenEntryStreamContainsMalformedShapeHeader()
     {
         var sut = new ZipArchiveShapeEntryValidator(
-            Encoding.Default,
             new FakeShapeRecordValidator());
 
         using (var stream = new MemoryStream())
@@ -153,12 +146,11 @@ public class ZipArchiveShapeEntryValidatorTests
 
                 var (result, context) = sut.Validate(entry, _context);
 
-                Assert.Equal(
-                    ZipArchiveProblems.Single(entry.HasShapeHeaderFormatError(
-                        new ShapeFileHeaderException("The File Code field does not match 9994."))
-                    ),
-                    result,
-                    new FileProblemComparer());
+                var expected = ZipArchiveProblems.Single(entry
+                    .AtShapeRecord(RecordNumber.Initial)
+                    .HasShapeRecordFormatError(new ShapefileException("The first four bytes of this file indicate this is not a shape file."))
+                );
+                Assert.Equal(expected, result, new FileProblemComparer());
                 Assert.Same(_context, context);
             }
         }
@@ -168,7 +160,6 @@ public class ZipArchiveShapeEntryValidatorTests
     public void ValidateReturnsExpectedResultWhenEntryStreamIsEmpty()
     {
         var sut = new ZipArchiveShapeEntryValidator(
-            Encoding.Default,
             new FakeShapeRecordValidator());
 
         using (var stream = new MemoryStream())
@@ -188,7 +179,7 @@ public class ZipArchiveShapeEntryValidatorTests
                 var (result, context) = sut.Validate(entry, _context);
 
                 Assert.Equal(
-                    ZipArchiveProblems.Single(entry.HasShapeHeaderFormatError(
+                    ZipArchiveProblems.Single(entry.AtShapeRecord(RecordNumber.Initial).HasShapeRecordFormatError(
                         new EndOfStreamException("Unable to read beyond the end of the stream."))
                     ),
                     result,
@@ -199,16 +190,11 @@ public class ZipArchiveShapeEntryValidatorTests
     }
 
     [Fact]
-    public void ValidateReturnsExpectedResultWhenShapeRecordValidatorReturnsErrors()
+    public void ValidateReturnsExpectedResultWhenShapeFileIsEmpty()
     {
-        var problems = new FileProblem[]
-        {
-            new FileError("file1", "error1", new ProblemParameter("parameter1", "value1")),
-            new FileWarning("file2", "error2", new ProblemParameter("parameter2", "value2"))
-        };
         var sut = new ZipArchiveShapeEntryValidator(
-            Encoding.UTF8,
-            new FakeShapeRecordValidator(problems));
+            new FakeShapeRecordValidator());
+
         var header = new ShapeFileHeader(
             ShapeFileHeader.Length,
             ShapeType.Point,
@@ -237,8 +223,9 @@ public class ZipArchiveShapeEntryValidatorTests
                 var (result, context) = sut.Validate(entry, _context);
 
                 Assert.Equal(
-                    ZipArchiveProblems.None.AddRange(problems),
-                    result);
+                    ZipArchiveProblems.Single(entry.HasNoShapeRecords()),
+                    result,
+                    new FileProblemComparer());
                 Assert.Same(_context, context);
             }
         }
@@ -249,26 +236,21 @@ public class ZipArchiveShapeEntryValidatorTests
     {
         Assert.Throws<ArgumentNullException>(
             () => new ZipArchiveShapeEntryValidator(
-                Encoding.Default,
                 null));
     }
 
-    private class CollectShapeRecordValidator : IZipArchiveShapeRecordsValidator
+    private class CollectShapeRecordValidator : IZipArchiveShapeRecordValidator
     {
-        public ShapeRecord[] Collected { get; private set; }
+        public List<Geometry> Collected { get; } = new();
 
-        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, RecordNumber recordNumber, Geometry geometry, ZipArchiveValidationContext context)
         {
-            var collected = new List<ShapeRecord>();
-            while (records.MoveNext()) collected.Add(records.Current);
-
-            Collected = collected.ToArray();
-
+            Collected.Add(geometry);
             return (ZipArchiveProblems.None, context);
         }
     }
 
-    private class FakeShapeRecordValidator : IZipArchiveShapeRecordsValidator
+    private class FakeShapeRecordValidator : IZipArchiveShapeRecordValidator
     {
         private readonly FileProblem[] _problems;
 
@@ -277,7 +259,7 @@ public class ZipArchiveShapeEntryValidatorTests
             _problems = problems ?? throw new ArgumentNullException(nameof(problems));
         }
 
-        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, ZipArchiveValidationContext context)
+        public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry, RecordNumber recordNumber, Geometry geometry, ZipArchiveValidationContext context)
         {
             return (ZipArchiveProblems.None.AddRange(_problems), context);
         }

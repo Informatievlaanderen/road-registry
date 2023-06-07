@@ -15,7 +15,7 @@
           </vl-column>
 
           <vl-column>
-            <h2 class="vl-title vl-title--h2">Opladen</h2>
+            <wr-h2>Opladen</wr-h2>
           </vl-column>
 
           <!-- 
@@ -33,7 +33,7 @@
               id="upload-component"
               name="upload-component"
               url="#"
-              upload-drag-text="Selecteer het zip‑bestand met de op te laden verschillen."
+              upload-drag-text="Selecteer het zip-bestand met bronbestanden en doelbestanden voor het extract."
               upload-label="Archief opladen"
               :auto-process="false"
               :options="options"
@@ -67,6 +67,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { orderBy } from "lodash";
 import { BackOfficeApi } from "../../../services";
 import ActivityProblems from "../../activity/components/ActivityProblems.vue";
 import { featureToggles } from "@/environment";
@@ -123,7 +124,7 @@ export default Vue.extend({
         return status;
       }
 
-      if (this.uploadResult.uploadResponseCode == 200) {
+      if (this.uploadResult.uploadResponseCode == 200 || this.uploadResult.uploadResponseCode == 202) {
         status.success = true;
         status.title = "Gelukt!";
         status.text =
@@ -135,6 +136,14 @@ export default Vue.extend({
         status.warning = true;
         status.title = "Technische storing";
         status.text = "Door een technische storing is dit loket tijdelijk niet beschikbaar.";
+
+        return status;
+      }
+
+      if (this.uploadResult.uploadResponseCode == 404) {
+        status.error = true;
+        status.title = "Opgelet!";
+        status.text = "Het extractaanvraag werd niet gevonden.";
 
         return status;
       }
@@ -203,17 +212,23 @@ export default Vue.extend({
           if (err?.response?.status === 400) {
             let validationErrors = err?.response?.data?.validationErrors;
             let fileProblems = Object.keys(validationErrors).map((key) => {
+              let problems = validationErrors[key].map((validationError: any) => ({
+                severity: (validationError.code ?? "").startsWith("Warning") ? "Warning" : "Error",
+                text: validationError.reason,
+              }));
+              problems = orderBy(problems, "severity");
+
               return {
                 file: key,
-                problems: validationErrors[key].map((validationError: any) => ({
-                  severity: "Error",
-                  text: validationError.reason,
-                })),
+                problems,
               };
             });
             this.uploadResult = { uploadResponseCode: 400, fileProblems };
+          } else if (err?.response?.status === 404) {
+            this.uploadResult = { uploadResponseCode: 404, fileProblems: undefined };
           } else {
-            throw err;
+            console.error('Upload failed', err);
+            this.uploadResult = { uploadResponseCode: 500, fileProblems: undefined };
           }
         }
       } finally {

@@ -6,9 +6,9 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Dbase.AfterFeatureCompare.V2.Schema;
 using Framework;
 using Messages;
-using Schema.V2;
 
 public class RoadNetworkChangesArchive : EventSourcedEntity
 {
@@ -69,7 +69,7 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
         return instance;
     }
 
-    public ZipArchiveProblems ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator)
+    public ZipArchiveProblems ValidateArchiveUsing(ZipArchive archive, IZipArchiveValidator validator, bool useZipArchiveFeatureCompareTranslator = false)
     {
         var problems = validator.Validate(archive, ZipArchiveMetadata.Empty);
         if (!problems.OfType<FileError>().Any())
@@ -78,7 +78,8 @@ public class RoadNetworkChangesArchive : EventSourcedEntity
                 {
                     ArchiveId = Id,
                     Description = Description,
-                    Problems = problems.Select(problem => problem.Translate()).ToArray()
+                    Problems = problems.Select(problem => problem.Translate()).ToArray(),
+                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslator
                 });
         else
             Apply(

@@ -1,7 +1,7 @@
 <template>
   <div>
+    <wr-h2>Wizard extract downloaden</wr-h2>
     <div class="vl-typography">
-      <h2>Wizard extract downloaden</h2>
       <p>Volg de stappen hieronder om een extract van het Wegenregister te downloaden.</p>
 
       <div v-if="currentStep == steps.Step1">
@@ -69,6 +69,21 @@
         <h3>Stap 3: Beschrijving van het extract</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
+            <p>Wenst u een oplading uit te voeren voor deze extractaanvraag?</p>
+          </div>
+          <div class="vl-form-col--12-12">
+            <label>
+              <input v-model="municipalityFlow.isInformative" type="radio" :value="false" />
+              Ja, ik wens een oplading uit te voeren
+            </label>
+          </div>
+          <div class="vl-form-col--12-12">
+            <label>
+              <input v-model="municipalityFlow.isInformative" type="radio" :value="true" />
+              Nee, ik vraag een informatief extract aan
+            </label>
+          </div>
+          <div class="vl-form-col--12-12">
             <label for="municipality-description" class="vl-form__label __field__label">
               Geef een beschrijving op van het extract.
             </label>
@@ -76,7 +91,7 @@
           <div class="vl-form-col--12-12">
             <vl-textarea
               id="municipality-description"
-              cols="40"
+              cols="200"
               rows="4"
               v-model="municipalityFlow.description"
               mod-block
@@ -87,7 +102,11 @@
               <vl-button @click="currentStep = steps.Step2_Municipality">Vorige</vl-button>
               <vl-button
                 @click="submitMunicipalityRequest"
-                :mod-disabled="isSubmitting || !isDescriptionValid(municipalityFlow.description)"
+                :mod-disabled="
+                  isSubmitting ||
+                  !isDescriptionValid(municipalityFlow.description) ||
+                  !municipalityFlowHasIsInformative
+                "
               >
                 Extract aanvragen
               </vl-button>
@@ -95,13 +114,12 @@
           </div>
           <div class="vl-form-col--12-12">
             <vl-alert
-              icon="warning"
-              title="Opgelet!"
-              mod-small
-              role="alertdialog"
               v-if="!isDescriptionValid(municipalityFlow.description)"
+              mod-warning
+              title="Validatie fouten"
+              mod-small
             >
-              <p>Gelieve een beschrijving mee te geven van maximaal 250 karakters.</p>
+              Gelieve een beschrijving mee te geven van minimaal 5 en maximaal 250 karakters.
             </vl-alert>
             <vl-alert v-if="municipalityFlow.hasGenericError" mod-error mod-small>
               <p>Er is een onverwachte fout opgetreden.</p>
@@ -168,6 +186,7 @@
                 rows="4"
                 v-model="contourFlow.wkt"
                 @input="contourFlowWktChanged"
+                @paste="contourFlowWktChanged"
               ></textarea>
             </div>
           </template>
@@ -176,7 +195,7 @@
             <vl-action-group>
               <vl-button @click="currentStep = steps.Step1">Vorige</vl-button>
               <vl-button
-                @click="currentStep = steps.Step3_Contour"
+                @click="approveStep2()"
                 :class="{ 'vl-button--disabled': !contourFlowHasValidInput }"
                 :disabled="!contourFlowHasValidInput"
               >
@@ -202,17 +221,33 @@
         <h3>Stap 3: Beschrijving van het extract</h3>
         <div class="vl-form-grid vl-form-grid--is-stacked">
           <div class="vl-form-col--12-12">
-            <label for="municipality-description" class="vl-form__label __field__label">
+            <p>Wenst u een oplading uit te voeren voor deze extractaanvraag?</p>
+          </div>
+          <div class="vl-form-col--12-12">
+            <label>
+              <input v-model="contourFlow.isInformative" type="radio" :value="false" />
+              Ja, ik wens een oplading uit te voeren
+            </label>
+          </div>
+          <div class="vl-form-col--12-12">
+            <label>
+              <input v-model="contourFlow.isInformative" type="radio" :value="true" />
+              Nee, ik vraag een informatief extract aan
+            </label>
+          </div>
+          <div class="vl-form-col--12-12">
+            <label for="contour-description" class="vl-form__label __field__label">
               Geef een beschrijving op van het extract.
             </label>
           </div>
           <div class="vl-form-col--12-12">
             <textarea
               class="vl-textarea"
-              id="municipality-description"
+              id="contour-description"
               cols="200"
               rows="4"
               v-model="contourFlow.description"
+              mod-block
             ></textarea>
           </div>
           <div class="vl-form-col--12-12">
@@ -220,7 +255,9 @@
               <vl-button @click="currentStep = steps.Step2_Contour">Vorige</vl-button>
               <vl-button
                 @click="submitContourRequest"
-                :mod-disabled="isSubmitting || !isDescriptionValid(contourFlow.description)"
+                :mod-disabled="
+                  isSubmitting || !isDescriptionValid(contourFlow.description) || !contourFlowHasIsInformative
+                "
               >
                 Extract aanvragen
               </vl-button>
@@ -229,9 +266,14 @@
 
           <div class="vl-form-col--8-12"></div>
           <div class="vl-form-col--6-12">
-            <span v-if="!isDescriptionValid(contourFlow.description)">
-              Gelieve een beschrijving mee te geven van maximaal 250 karakters.
-            </span>
+            <vl-alert
+              v-if="!isDescriptionValid(contourFlow.description)"
+              mod-warning
+              title="Validatie fouten"
+              mod-small
+            >
+              Gelieve een beschrijving mee te geven van minimaal 5 en maximaal 250 karakters.
+            </vl-alert>
             <vl-alert v-if="contourFlow.hasGenericError" mod-error mod-small>
               <p>Er is een onverwachte fout opgetreden.</p>
             </vl-alert>
@@ -283,21 +325,26 @@ export default Vue.extend({
         buffer: false,
         description: "",
         hasGenericError: false,
+        isInformative: null as Boolean | null,
       },
       contourFlow: {
         contourTypes,
         contourType: contourTypes[0],
         wkt: "",
         wktIsValid: false,
+        wktIsLargerThanMaximumArea: false,
+        area: 0,
+        areaMaximumSquareKilometers: 0,
         files: [] as Array<File>,
         description: "",
         hasValidationErrors: false,
         validationErrors: {} as RoadRegistry.PerContourValidationErrors,
         hasGenericError: false,
+        isInformative: null as Boolean | null,
       },
       validation: {
         description: {
-          minLength: 1,
+          minLength: 5,
           maxLength: 250,
         },
       },
@@ -348,10 +395,16 @@ export default Vue.extend({
         }).length === requiredFileExtensions.length
       );
     },
+    municipalityFlowHasIsInformative(): Boolean {
+      return this.municipalityFlow.isInformative !== null;
+    },
+    contourFlowHasIsInformative(): Boolean {
+      return this.contourFlow.isInformative !== null;
+    },
     contourFlowHasValidInput(): Boolean {
       switch (this.contourFlow.contourType) {
         case "wkt":
-          return !!this.contourFlow.wkt && this.contourFlow.wktIsValid;
+          return !!this.contourFlow.wkt && this.contourFlow.wktIsValid && !this.contourFlow.wktIsLargerThanMaximumArea;
         case "shp":
           return this.hasAllRequiredUploadFiles;
       }
@@ -367,16 +420,23 @@ export default Vue.extend({
         text: "",
       };
 
-      if (
-        this.contourFlow.contourType === "wkt" &&
-        this.contourFlow.wkt &&
-        !this.contourFlow.wktIsValid &&
-        !this.isCheckingWkt
-      ) {
-        status.title = "Ongeldige contour";
-        status.text =
-          "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
-        status.error = true;
+      if (this.contourFlow.contourType === "wkt" && this.contourFlow.wkt && !this.isCheckingWkt) {
+        if (!this.contourFlow.wktIsValid) {
+          status.title = "Ongeldige contour";
+          status.text =
+            "Gelieve als contour een multipolygoon in WKT-formaat mee te geven die de OGC standaard respecteert.";
+          status.error = true;
+        } else if (this.contourFlow.wktIsLargerThanMaximumArea) {
+          status.title = "Ongeldige contour";
+          status.text =
+            "Gelieve als contour een maximum van " +
+            this.contourFlow.areaMaximumSquareKilometers +
+            " km² aan te houden.";
+          status.error = true;
+        } else {
+          status.title = "";
+          status.error = false;
+        }
       }
 
       if (
@@ -425,6 +485,14 @@ export default Vue.extend({
     });
   },
   methods: {
+    async approveStep2() {
+      await this.checkIfContourWktIsValid();
+      if (!this.contourFlowHasValidInput) {
+        return;
+      }
+
+      this.currentStep = this.steps.Step3_Contour;
+    },
     contourTypeChanged(value: string) {
       this.contourFlow.contourType = value;
     },
@@ -433,19 +501,24 @@ export default Vue.extend({
       try {
         this.municipalityFlow.hasGenericError = false;
 
+        if (!this.municipalityFlowHasIsInformative) {
+          return;
+        }
+
         const requestData: RoadRegistry.DownloadExtractByNisCodeRequest = {
           buffer: this.municipalityFlow.buffer ? 100 : 0,
           nisCode: this.municipalityFlow.nisCode,
           description: this.municipalityFlow.description,
+          isInformative: this.municipalityFlow.isInformative as Boolean
         };
 
         const response = await PublicApi.Extracts.postDownloadRequestByNisCode(requestData);
 
         // wait a little bit to give the projection time to process the request to show in the activity feed
-        await new Promise(resolve => {
-          setTimeout(resolve, 1000);
+        await new Promise((resolve) => {
+          setTimeout(resolve, 2000);
         });
-        
+
         this.$router.push({ name: "activiteit", params: { downloadId: response.downloadId } });
       } catch (error) {
         console.error("Submit municipality failed", error);
@@ -461,6 +534,10 @@ export default Vue.extend({
         this.contourFlow.hasValidationErrors = false;
         this.contourFlow.hasGenericError = false;
 
+        if (!this.contourFlowHasIsInformative) {
+          return;
+        }
+
         let response: RoadRegistry.DownloadExtractResponse;
 
         switch (this.contourFlow.contourType) {
@@ -469,6 +546,7 @@ export default Vue.extend({
               const requestData: RoadRegistry.DownloadExtractByFileRequest = {
                 files: this.contourFlow.files,
                 description: this.contourFlow.description,
+                isInformative: this.contourFlow.isInformative as Boolean
               };
               response = await BackOfficeApi.Extracts.postDownloadRequestByFile(requestData);
             }
@@ -478,6 +556,7 @@ export default Vue.extend({
               const requestData: RoadRegistry.DownloadExtractByContourRequest = {
                 contour: this.contourFlow.wkt,
                 description: this.contourFlow.description,
+                isInformative: this.contourFlow.isInformative as Boolean
               };
 
               response = await PublicApi.Extracts.postDownloadRequestByContour(requestData);
@@ -521,25 +600,36 @@ export default Vue.extend({
       this.contourFlow.files.splice(index, 1);
     },
     async contourFlowWktChanged() {
-      this.contourFlow.wktIsValid = false;
+      this.resetContourFlow();
       this.isCheckingWkt = true;
       this.debouncedCheckIfContourWktIsValid();
     },
-    async checkIfContourWktIsValid(): Promise<void> {
+    resetContourFlow() {
       this.contourFlow.wktIsValid = false;
-
+      this.contourFlow.wktIsLargerThanMaximumArea = false;
+      this.contourFlow.area = 0;
+      this.contourFlow.areaMaximumSquareKilometers = 0;
+    },
+    async checkIfContourWktIsValid(): Promise<RoadRegistry.ValidateWktResponse | void> {
       if (!this.contourFlow.wkt) {
         return;
       }
 
+      this.resetContourFlow();
       this.isCheckingWkt = true;
 
       try {
-        await BackOfficeApi.Information.postValidateWkt(this.contourFlow.wkt);
-        this.contourFlow.wktIsValid = true;
+        let response = await BackOfficeApi.Information.postValidateWkt(this.contourFlow.wkt);
+        this.contourFlow.wktIsValid = response.isValid;
+        this.contourFlow.wktIsLargerThanMaximumArea = response.isLargerThanMaximumArea;
+        this.contourFlow.area = response.area;
+        this.contourFlow.areaMaximumSquareKilometers = response.areaMaximumSquareKilometers;
       } catch (err) {
         console.error("WKT is invalid", err);
         this.contourFlow.wktIsValid = false;
+        this.contourFlow.wktIsLargerThanMaximumArea = false;
+        this.contourFlow.area = 0;
+        this.contourFlow.areaMaximumSquareKilometers = 0;
       } finally {
         this.isCheckingWkt = false;
       }

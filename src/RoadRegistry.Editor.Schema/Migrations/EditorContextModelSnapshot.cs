@@ -18,7 +18,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.10")
+                .HasAnnotation("ProductVersion", "6.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -47,7 +47,7 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("ProjectionStates", "RoadRegistryEditorMeta");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Dbase.Organizations.OrganizationRecord", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Extracts.Dbase.Organizations.OrganizationRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -76,7 +76,133 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("Organization", "RoadRegistryEditor");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Dbase.RoadNetworkInfo", b =>
+            modelBuilder.Entity("RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("DbaseRecord")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.ToTable("RoadSegmentEuropeanRoadAttribute", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentLaneAttributeRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("DbaseRecord")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.ToTable("RoadSegmentLaneAttribute", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentNationalRoadAttributeRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("DbaseRecord")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.ToTable("RoadSegmentNationalRoadAttribute", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("DbaseRecord")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.ToTable("RoadSegmentNumberedRoadAttribute", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentSurfaceAttributeRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("DbaseRecord")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.ToTable("RoadSegmentSurfaceAttribute", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentWidthAttributeRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("DbaseRecord")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("RoadSegmentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.HasIndex("RoadSegmentId");
+
+                    b.ToTable("RoadSegmentWidthAttribute", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.BackOffice.RoadNetworkInfo", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int")
@@ -152,132 +278,6 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("RoadNetworkInfo", "RoadRegistryEditor");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("DbaseRecord")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("RoadSegmentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                    b.HasIndex("RoadSegmentId");
-
-                    b.ToTable("RoadSegmentEuropeanRoadAttribute", "RoadRegistryEditor");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Dbase.RoadSegments.RoadSegmentLaneAttributeRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("DbaseRecord")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("RoadSegmentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                    b.HasIndex("RoadSegmentId");
-
-                    b.ToTable("RoadSegmentLaneAttribute", "RoadRegistryEditor");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Dbase.RoadSegments.RoadSegmentNationalRoadAttributeRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("DbaseRecord")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("RoadSegmentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                    b.HasIndex("RoadSegmentId");
-
-                    b.ToTable("RoadSegmentNationalRoadAttribute", "RoadRegistryEditor");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Dbase.RoadSegments.RoadSegmentNumberedRoadAttributeRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("DbaseRecord")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("RoadSegmentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                    b.HasIndex("RoadSegmentId");
-
-                    b.ToTable("RoadSegmentNumberedRoadAttribute", "RoadRegistryEditor");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Dbase.RoadSegments.RoadSegmentSurfaceAttributeRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("DbaseRecord")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("RoadSegmentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                    b.HasIndex("RoadSegmentId");
-
-                    b.ToTable("RoadSegmentSurfaceAttribute", "RoadRegistryEditor");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Dbase.RoadSegments.RoadSegmentWidthAttributeRecord", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("DbaseRecord")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<int>("RoadSegmentId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
-
-                    b.HasIndex("RoadSegmentId");
-
-                    b.ToTable("RoadSegmentWidthAttribute", "RoadRegistryEditor");
-                });
-
             modelBuilder.Entity("RoadRegistry.Editor.Schema.Extracts.ExtractDownloadRecord", b =>
                 {
                     b.Property<Guid>("DownloadId")
@@ -292,9 +292,15 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<long>("AvailableOn")
                         .HasColumnType("bigint");
 
+                    b.Property<DateTimeOffset?>("DownloadedOn")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("ExternalRequestId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsInformative")
+                        .HasColumnType("bit");
 
                     b.Property<string>("RequestId")
                         .IsRequired()
@@ -308,6 +314,39 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"), false);
 
                     b.ToTable("ExtractDownload", "RoadRegistryEditor");
+                });
+
+            modelBuilder.Entity("RoadRegistry.Editor.Schema.Extracts.ExtractRequestRecord", b =>
+                {
+                    b.Property<Guid>("DownloadId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Geometry>("Contour")
+                        .IsRequired()
+                        .HasColumnType("Geometry");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DownloadedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ExternalRequestId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsInformative")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("RequestedOn")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("DownloadId");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("DownloadId"), false);
+
+                    b.ToTable("ExtractRequest", "RoadRegistryEditor");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.Extracts.ExtractUploadRecord", b =>

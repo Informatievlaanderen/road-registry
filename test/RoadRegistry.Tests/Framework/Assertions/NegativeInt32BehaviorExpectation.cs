@@ -38,10 +38,14 @@ public class NegativeInt32BehaviorExpectation : IBehaviorExpectation
     public void Verify(IGuardClauseCommand command)
     {
         if (command == null)
+        {
             throw new ArgumentNullException(nameof(command));
+        }
 
         if (command.RequestedType != typeof(int))
+        {
             return;
+        }
 
         try
         {
@@ -49,7 +53,11 @@ public class NegativeInt32BehaviorExpectation : IBehaviorExpectation
             if (_exceptions.Length != 0)
             {
                 var value = random.Next(int.MinValue, -1);
-                while (_exceptions.Contains(value)) value = random.Next(int.MinValue, -1);
+                while (_exceptions.Contains(value))
+                {
+                    value = random.Next(int.MinValue, -1);
+                }
+
                 command.Execute(value);
             }
             else

@@ -5,7 +5,7 @@ using System.Diagnostics.Contracts;
 
 public readonly struct RoadSegmentLaneCount : IEquatable<RoadSegmentLaneCount>
 {
-    private const int MaximumValue = 7;
+    private const int MaximumValue = 10;
     private const int UnknownValue = -8;
     private const int NotApplicableValue = -9;
     public static readonly RoadSegmentLaneCount Maximum = new(MaximumValue);
@@ -15,11 +15,10 @@ public readonly struct RoadSegmentLaneCount : IEquatable<RoadSegmentLaneCount>
 
     public RoadSegmentLaneCount(int value)
     {
-        if (value != UnknownValue
-            && value != NotApplicableValue
-            && (value < 0 || value > MaximumValue))
-            throw new ArgumentOutOfRangeException(nameof(value), value,
-                "The road segment lane count must be greater than or equal to 0 and less than or equal to 7.");
+        if (!Accepts(value))
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), value, $"The road segment lane count must be greater than or equal to 0 and less than or equal to {MaximumValue}.");
+        }
 
         _value = value;
     }

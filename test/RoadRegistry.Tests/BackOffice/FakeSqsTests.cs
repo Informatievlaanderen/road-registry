@@ -3,7 +3,6 @@ namespace RoadRegistry.Tests.BackOffice;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 
 public class FakeSqsTests
 {

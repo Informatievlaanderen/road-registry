@@ -2,15 +2,12 @@ namespace RoadRegistry.Tests;
 
 using System.Reflection;
 using System.Text;
-using Amazon;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Be.Vlaanderen.Basisregisters.BlobStore;
-using Be.Vlaanderen.Basisregisters.BlobStore.Memory;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentValidation;
+using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,12 +16,12 @@ using Microsoft.IO;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
+using NodaTime.Testing;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions;
 using RoadRegistry.BackOffice.Abstractions.Configuration;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
-using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
@@ -39,6 +36,10 @@ public abstract class TestStartup
         loggerFactory.AddProvider(new XunitTestOutputLoggerProvider(accessor));
     }
 
+    protected virtual void ConfigureAppConfiguration(HostBuilderContext hostContext, IConfigurationBuilder builder)
+    {
+    }
+
     protected virtual CommandHandlerDispatcher ConfigureCommandHandlerDispatcher(IServiceProvider sp)
     {
         return default;
@@ -47,6 +48,7 @@ public abstract class TestStartup
     protected virtual void ConfigureContainer(ContainerBuilder builder)
     {
     }
+
     protected virtual void ConfigureContainer(HostBuilderContext hostContext, ContainerBuilder builder)
     {
     }
@@ -61,6 +63,8 @@ public abstract class TestStartup
                 configurationBuilder
                     .AddJsonFile("appsettings.json", true, true)
                     .AddJsonFile($"appsettings.{Environment.MachineName.ToLowerInvariant()}.json", true, false);
+
+                ConfigureAppConfiguration(hostContext, configurationBuilder);
             })
             .UseServiceProviderFactory(new AutofacServiceProviderFactory())
             .ConfigureServices((context, services) =>
@@ -72,18 +76,12 @@ public abstract class TestStartup
                             GeometryConfiguration.GeometryFactory.SRID
                         )
                     ))
-                    .AddSingleton<IBlobClient>(new MemoryBlobClient())
-                    .AddSingleton(sp => new RoadNetworkUploadsBlobClient(sp.GetService<IBlobClient>()))
-                    .AddSingleton(sp => new RoadNetworkExtractUploadsBlobClient(sp.GetService<IBlobClient>()))
-                    .AddSingleton(sp => new RoadNetworkExtractDownloadsBlobClient(sp.GetService<IBlobClient>()))
-                    .AddSingleton(sp => new RoadNetworkFeatureCompareBlobClient(sp.GetService<IBlobClient>()))
-                    .AddSingleton(sp => new RoadNetworkSnapshotsBlobClient(sp.GetService<IBlobClient>()))
-                    .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
-                    .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())
-                    .AddSingleton<IClock>(SystemClock.Instance)
                     .AddSingleton<IRoadNetworkSnapshotWriter>(sp => new FakeRoadNetworkSnapshotWriter())
                     .AddSingleton<IRoadNetworkSnapshotReader>(sp => new FakeRoadNetworkSnapshotReader())
-                    .AddSingleton<Func<EventSourcedEntityMap>>(_ => () => new EventSourcedEntityMap())
+                    .AddSingleton<IStreamStore>(sp => new InMemoryStreamStore())
+                    .AddSingleton<IStreetNameCache>(_ => new FakeStreetNameCache())
+                    .AddSingleton<IClock>(new FakeClock(NodaConstants.UnixEpoch))
+                    .AddScoped(_ => new EventSourcedEntityMap())
                     .AddSingleton(ConfigureCommandHandlerDispatcher)
                     .AddSingleton(new RecyclableMemoryStreamManager())
                     .AddSingleton(new ZipArchiveWriterOptions())
@@ -91,12 +89,12 @@ public abstract class TestStartup
                     .AddSingleton(new ExtractUploadsOptions())
                     .AddSingleton(new FeatureCompareMessagingOptions
                     {
-                        DockerQueueUrl = "docker.fifo",
                         RequestQueueUrl = "request.fifo",
                         ResponseQueueUrl = "response.fifo"
                     })
-                    .AddTransient<IZipArchiveBeforeFeatureCompareValidator>(sp => new ZipArchiveBeforeFeatureCompareValidator(Encoding.UTF8))
-                    .AddTransient<IZipArchiveAfterFeatureCompareValidator>(sp => new ZipArchiveAfterFeatureCompareValidator(Encoding.UTF8))
+                    .AddSingleton(new FileEncoding(Encoding.UTF8))
+                    .AddTransient<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
+                    .AddTransient<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
                     .AddLogging();
@@ -105,13 +103,16 @@ public abstract class TestStartup
             })
             .ConfigureContainer<ContainerBuilder>((hostContext, builder) =>
             {
+                builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
+
                 ConfigureContainer(hostContext, builder);
                 ConfigureContainer(builder);
 
-                builder.RegisterAssemblyModules(availableModuleAssemblyCollection.ToArray());
+                builder.RegisterModule<BlobClientTestModule>();
 
                 builder
-                    .Register(c => new SqsOptions(RegionEndpoint.EUWest1, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()))
+                    .Register(c => new FakeSqsOptions())
+                    .As<SqsOptions>()
                     .SingleInstance();
 
                 builder
@@ -125,7 +126,7 @@ public abstract class TestStartup
                     .SingleInstance();
             });
     }
-    
+
     protected virtual void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
     }

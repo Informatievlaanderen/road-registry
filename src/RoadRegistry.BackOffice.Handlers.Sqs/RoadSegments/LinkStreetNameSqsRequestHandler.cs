@@ -1,21 +1,20 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
-using Be.Vlaanderen.Basisregisters.Sqs;
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
-using Dbase;
+using Core;
 using TicketingService.Abstractions;
 
 public class LinkStreetNameSqsRequestHandler : SqsHandler<LinkStreetNameSqsRequest>
 {
     public const string Action = "LinkStreetName";
 
-    public LinkStreetNameSqsRequestHandler(ISqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
+    public LinkStreetNameSqsRequestHandler(IBackOfficeS3SqsQueue sqsQueue, ITicketing ticketing, ITicketingUrl ticketingUrl) : base(sqsQueue, ticketing, ticketingUrl)
     {
     }
 
     protected override string WithAggregateId(LinkStreetNameSqsRequest request)
     {
-        return RoadNetworkInfo.Identifier.ToString();
+        return RoadNetwork.Identifier.ToString();
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, LinkStreetNameSqsRequest sqsRequest)

@@ -1,22 +1,24 @@
 namespace RoadRegistry.BackOffice;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using Exceptions;
 using Messages;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
 using NetTopologySuite.IO;
+using NetTopologySuite.IO.GML2;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
 
 public static class GeometryTranslator
 {
+    private static readonly GeometryFactory NoSridGeometryFactory = new(GeometryConfiguration.GeometryFactory.PrecisionModel, 0, GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory);
+
     private static Geometry ApplyBuffer(IPolygonal geometry, double buffer)
     {
         switch (geometry)
@@ -42,35 +44,94 @@ public static class GeometryTranslator
         }.SingleOrDefault(value => !ReferenceEquals(value, null));
     }
 
-    public static MultiLineString ToGeometryMultiLineString(PolyLineM polyLineM)
+    public static bool GmlIsValidLineString(string gml)
     {
-        if (polyLineM.Points.Any() && (!polyLineM.Measures.Any() || polyLineM.Measures.All(x => double.IsNaN(x) || double.IsInfinity(x))))
+        try
         {
-            var measures = new double[polyLineM.Points.Length];
-            measures[0] = 0;
-            var currentMeasure = measures[0];
-
-            for (var i = 1; i < polyLineM.Points.Length; i++)
-            {
-                var currentPoint = polyLineM.Points[i];
-                var previousPoint = polyLineM.Points[i - 1];
-
-                var distanceToPreviousPoint = new LineString(new[]
-                {
-                    new Coordinate(previousPoint.X, previousPoint.Y),
-                    new Coordinate(currentPoint.X, currentPoint.Y)
-                }).Length;
-                currentMeasure += distanceToPreviousPoint;
-                measures[i] = currentMeasure;
-            }
-
-            polyLineM = new PolyLineM(polyLineM.BoundingBox, polyLineM.Parts, polyLineM.Points, measures);
+            ParseGmlLineString(gml);
+            return true;
         }
-
-        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(polyLineM);
+        catch
+        {
+            return false;
+        }
     }
 
-    public static MultiPolygon ToGeometryMultiPolygon(Polygon polygon)
+    public static MultiLineString ParseGmlLineString(string gml)
+    {
+        var geometry = ParseGml(gml.ThrowIfNull());
+        if (geometry == null)
+        {
+            throw new InvalidOperationException("The GML is invalid");
+        }
+
+        if (geometry is MultiLineString multiLineString)
+        {
+            return multiLineString.WithMeasureOrdinates();
+        }
+
+        if (geometry is LineString lineString)
+        {
+            return new MultiLineString(new[] { lineString }, NoSridGeometryFactory) { SRID = geometry.SRID }
+                .WithMeasureOrdinates();
+        }
+
+        throw new InvalidOperationException(
+            $"The geometry must be either a linestring or a multilinestring. The geometry was a {geometry.GetType().Name}");
+    }
+
+    public static MultiLineString WithMeasureOrdinates(this MultiLineString multiLineString)
+    {
+        var lineStrings = multiLineString.Geometries
+            .Cast<LineString>()
+            .Select(lineString =>
+            {
+                if (lineString.Count == 0)
+                {
+                    return lineString;
+                }
+
+                var coordinates = new Coordinate[lineString.Count];
+                coordinates[0] = new CoordinateM(lineString.StartPoint.X, lineString.StartPoint.Y, 0);
+
+                var currentMeasure = coordinates[0].M;
+
+                for (var i = 1; i < lineString.Count; i++)
+                {
+                    var currentPoint = lineString[i];
+                    var previousPoint = lineString[i - 1];
+
+                    var distanceToPreviousPoint = previousPoint.Distance(currentPoint);
+                    currentMeasure += distanceToPreviousPoint;
+                    coordinates[i] = new CoordinateM(currentPoint.X, currentPoint.Y, currentMeasure);
+                }
+
+                return new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory)
+                {
+                    SRID = multiLineString.SRID
+                };
+            })
+            .ToArray();
+
+        return new MultiLineString(lineStrings, multiLineString.Factory)
+        {
+            SRID = multiLineString.SRID
+        };
+    }
+
+    private static Geometry ParseGml(string gml)
+    {
+        var gmlReader = new GMLReader(NoSridGeometryFactory);
+        return gmlReader.Read(gml);
+    }
+
+    public static MultiLineString ToMultiLineString(PolyLineM polyLineM)
+    {
+        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(polyLineM)
+            .WithMeasureOrdinates();
+    }
+
+    public static MultiPolygon ToMultiPolygon(Polygon polygon)
     {
         try
         {
@@ -80,22 +141,22 @@ public static class GeometryTranslator
         {
             if (ex.Message == "The shell of a polygon must have a clockwise orientation.")
             {
-                throw new InvalidPolygonShellOrientationException();
+                return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiPolygon(new Polygon(polygon.BoundingBox, polygon.Parts, polygon.Points.Reverse().ToArray()));
             }
             throw;
         }
     }
 
-    public static Point ToGeometryPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
+    public static Point ToPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
     {
         return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(point);
     }
 
-    public static NetTopologySuite.Geometries.Polygon ToGeometryPolygon(Polygon polygon)
+    public static NetTopologySuite.Geometries.Polygon ToPolygon(Polygon polygon)
     {
         return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPolygon(polygon);
     }
-
+    
     public static Point Translate(RoadNodeGeometry geometry)
     {
         if (geometry == null) throw new ArgumentNullException(nameof(geometry));
@@ -123,7 +184,7 @@ public static class GeometryTranslator
 
     public static MultiLineString Translate(RoadSegmentGeometry geometry)
     {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+        ArgumentNullException.ThrowIfNull(geometry);
 
         var toLineStrings = new List<LineString>();
         foreach (var fromLineString in geometry.MultiLineString)
@@ -146,14 +207,15 @@ public static class GeometryTranslator
             );
         }
 
-        return new MultiLineString(
-            toLineStrings.ToArray(),
-            GeometryConfiguration.GeometryFactory);
+        return new MultiLineString(toLineStrings.ToArray(), GeometryConfiguration.GeometryFactory)
+            .WithMeasureOrdinates();
     }
 
     public static RoadSegmentGeometry Translate(MultiLineString geometry)
     {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        geometry = geometry.WithMeasureOrdinates();
 
         var toMultiLineString = new Messages.LineString[geometry.NumGeometries];
         var lineIndex = 0;
@@ -208,7 +270,7 @@ public static class GeometryTranslator
             var geometryServices = new NtsGeometryServices(GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory, GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID);
             return (IPolygonal)new WKTReader(geometryServices).Read(geometry.WKT);
         }
-        
+
         switch (geometry.Flatten())
         {
             case Messages.Polygon[] multiPolygon:
@@ -257,16 +319,62 @@ public static class GeometryTranslator
         switch (geometryWithBuffer)
         {
             case MultiPolygon multiPolygon:
-            {
-                var polygons = new Messages.Polygon[multiPolygon.NumGeometries];
-                var polygonIndex = 0;
-                foreach (var fromPolygon in multiPolygon.Geometries.OfType<NetTopologySuite.Geometries.Polygon>())
+                {
+                    var polygons = new Messages.Polygon[multiPolygon.NumGeometries];
+                    var polygonIndex = 0;
+                    foreach (var fromPolygon in multiPolygon.Geometries.OfType<NetTopologySuite.Geometries.Polygon>())
+                    {
+                        var toShell = new Ring
+                        {
+                            Points = new Messages.Point[fromPolygon.Shell.NumPoints]
+                        };
+                        var fromShell = fromPolygon.Shell;
+                        for (var shellPointIndex = 0; shellPointIndex < fromShell.NumPoints; shellPointIndex++)
+                            toShell.Points[shellPointIndex] = new Messages.Point
+                            {
+                                X = fromShell.Coordinates[shellPointIndex].X,
+                                Y = fromShell.Coordinates[shellPointIndex].Y
+                            };
+
+                        var toHoles = new Ring[fromPolygon.Holes.Length];
+                        for (var holeIndex = 0; holeIndex < fromPolygon.Holes.Length; holeIndex++)
+                        {
+                            var fromHole = fromPolygon.Holes[holeIndex];
+                            toHoles[holeIndex] = new Ring
+                            {
+                                Points = new Messages.Point[fromHole.NumPoints]
+                            };
+                            for (var holePointIndex = 0; holePointIndex < fromHole.NumPoints; holePointIndex++)
+                                toHoles[holeIndex].Points[holePointIndex] = new Messages.Point
+                                {
+                                    X = fromHole.Coordinates[holePointIndex].X,
+                                    Y = fromHole.Coordinates[holePointIndex].Y
+                                };
+                        }
+
+                        polygons[polygonIndex] = new Messages.Polygon
+                        {
+                            Shell = toShell,
+                            Holes = toHoles
+                        };
+                        polygonIndex++;
+                    }
+
+                    return new RoadNetworkExtractGeometry
+                    {
+                        SpatialReferenceSystemIdentifier = multiPolygon.SRID,
+                        WKT = multiPolygon.ToText(),
+                        MultiPolygon = polygons,
+                        Polygon = null
+                    };
+                }
+            case NetTopologySuite.Geometries.Polygon polygon:
                 {
                     var toShell = new Ring
                     {
-                        Points = new Messages.Point[fromPolygon.Shell.NumPoints]
+                        Points = new Messages.Point[polygon.Shell.NumPoints]
                     };
-                    var fromShell = fromPolygon.Shell;
+                    var fromShell = polygon.Shell;
                     for (var shellPointIndex = 0; shellPointIndex < fromShell.NumPoints; shellPointIndex++)
                         toShell.Points[shellPointIndex] = new Messages.Point
                         {
@@ -274,10 +382,10 @@ public static class GeometryTranslator
                             Y = fromShell.Coordinates[shellPointIndex].Y
                         };
 
-                    var toHoles = new Ring[fromPolygon.Holes.Length];
-                    for (var holeIndex = 0; holeIndex < fromPolygon.Holes.Length; holeIndex++)
+                    var toHoles = new Ring[polygon.Holes.Length];
+                    for (var holeIndex = 0; holeIndex < polygon.Holes.Length; holeIndex++)
                     {
-                        var fromHole = fromPolygon.Holes[holeIndex];
+                        var fromHole = polygon.Holes[holeIndex];
                         toHoles[holeIndex] = new Ring
                         {
                             Points = new Messages.Point[fromHole.NumPoints]
@@ -290,63 +398,18 @@ public static class GeometryTranslator
                             };
                     }
 
-                    polygons[polygonIndex] = new Messages.Polygon
+                    return new RoadNetworkExtractGeometry
                     {
-                        Shell = toShell, Holes = toHoles
-                    };
-                    polygonIndex++;
-                }
-
-                return new RoadNetworkExtractGeometry
-                {
-                    SpatialReferenceSystemIdentifier = multiPolygon.SRID,
-                    WKT = multiPolygon.ToText(),
-                    MultiPolygon = polygons,
-                    Polygon = null
-                };
-            }
-            case NetTopologySuite.Geometries.Polygon polygon:
-            {
-                var toShell = new Ring
-                {
-                    Points = new Messages.Point[polygon.Shell.NumPoints]
-                };
-                var fromShell = polygon.Shell;
-                for (var shellPointIndex = 0; shellPointIndex < fromShell.NumPoints; shellPointIndex++)
-                    toShell.Points[shellPointIndex] = new Messages.Point
-                    {
-                        X = fromShell.Coordinates[shellPointIndex].X,
-                        Y = fromShell.Coordinates[shellPointIndex].Y
-                    };
-
-                var toHoles = new Ring[polygon.Holes.Length];
-                for (var holeIndex = 0; holeIndex < polygon.Holes.Length; holeIndex++)
-                {
-                    var fromHole = polygon.Holes[holeIndex];
-                    toHoles[holeIndex] = new Ring
-                    {
-                        Points = new Messages.Point[fromHole.NumPoints]
-                    };
-                    for (var holePointIndex = 0; holePointIndex < fromHole.NumPoints; holePointIndex++)
-                        toHoles[holeIndex].Points[holePointIndex] = new Messages.Point
+                        SpatialReferenceSystemIdentifier = polygon.SRID,
+                        WKT = polygon.ToText(),
+                        MultiPolygon = null,
+                        Polygon = new Messages.Polygon
                         {
-                            X = fromHole.Coordinates[holePointIndex].X,
-                            Y = fromHole.Coordinates[holePointIndex].Y
-                        };
+                            Shell = toShell,
+                            Holes = toHoles
+                        }
+                    };
                 }
-
-                return new RoadNetworkExtractGeometry
-                {
-                    SpatialReferenceSystemIdentifier = polygon.SRID,
-                    WKT = polygon.ToText(),
-                    MultiPolygon = null,
-                    Polygon = new Messages.Polygon
-                    {
-                        Shell = toShell,
-                        Holes = toHoles
-                    }
-                };
-            }
             default:
                 throw new InvalidOperationException(
                     $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");

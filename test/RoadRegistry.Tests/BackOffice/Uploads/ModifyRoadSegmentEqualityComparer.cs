@@ -4,10 +4,25 @@ using RoadRegistry.BackOffice.Uploads;
 
 public class ModifyRoadSegmentEqualityComparer : IEqualityComparer<ModifyRoadSegment>
 {
+    private readonly bool _ignoreRecordNumber;
+
+    public ModifyRoadSegmentEqualityComparer(bool ignoreRecordNumber = false)
+    {
+        _ignoreRecordNumber = ignoreRecordNumber;
+    }
+
     public bool Equals(ModifyRoadSegment left, ModifyRoadSegment right)
     {
-        if (left == null && right == null) return true;
-        if (left == null || right == null) return false;
+        if (left == null && right == null)
+        {
+            return true;
+        }
+
+        if (left == null || right == null)
+        {
+            return false;
+        }
+
         var sameGeometry =
             (left.Geometry == null && right.Geometry == null)
             || (left.Geometry != null && right.Geometry != null && left.Geometry.EqualsTopologically(right.Geometry));
@@ -26,7 +41,7 @@ public class ModifyRoadSegmentEqualityComparer : IEqualityComparer<ModifyRoadSeg
                && left.Lanes.SequenceEqual(right.Lanes, new RoadSegmentLaneAttributeEqualityComparer())
                && left.Widths.SequenceEqual(right.Widths, new RoadSegmentWidthAttributeEqualityComparer())
                && left.Surfaces.SequenceEqual(right.Surfaces, new RoadSegmentSurfaceAttributeEqualityComparer())
-               && left.RecordNumber.Equals(right.RecordNumber);
+               && (_ignoreRecordNumber || left.RecordNumber.Equals(right.RecordNumber));
     }
 
     public int GetHashCode(ModifyRoadSegment instance)

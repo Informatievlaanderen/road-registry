@@ -10,7 +10,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Extensions;
     using Projections;
-    
+
     public class RoadNodeRecordProjection : ConnectedProjection<RoadNodeProducerSnapshotContext>
     {
         private readonly IKafkaProducer _kafkaProducer;
@@ -26,6 +26,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
                 var roadNode = await context.RoadNodes.AddAsync(
                     new RoadNodeRecord(
                         envelope.Message.Id,
+                        envelope.Message.Version,
                         typeTranslation.Identifier,
                         typeTranslation.Name,
                         geometry,
@@ -61,9 +62,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             CancellationToken token)
         {
             var typeTranslation = RoadNodeType.Parse(roadNodeAdded.Type).Translation;
-            
+
             var roadNode = await context.RoadNodes.AddAsync(new RoadNodeRecord(
                 roadNodeAdded.Id,
+                roadNodeAdded.Version,
                 typeTranslation.Identifier,
                 typeTranslation.Name,
                 GeometryTranslator.Translate(roadNodeAdded.Geometry),
@@ -81,11 +83,15 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
         {
             var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeModified.Id, cancellationToken: token).ConfigureAwait(false);
 
-            if (roadNodeRecord == null) throw new InvalidOperationException($"{nameof(RoadNodeRecord)} with id {roadNodeModified.Id} is not found!");
+            if (roadNodeRecord == null)
+            {
+                throw new InvalidOperationException($"{nameof(RoadNodeRecord)} with id {roadNodeModified.Id} is not found");
+            }
 
             var typeTranslation = RoadNodeType.Parse(roadNodeModified.Type).Translation;
 
             roadNodeRecord.Id = roadNodeModified.Id;
+            roadNodeRecord.Version = roadNodeModified.Version;
             roadNodeRecord.TypeId = typeTranslation.Identifier;
             roadNodeRecord.TypeDutchName = typeTranslation.Name;
             roadNodeRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
@@ -102,8 +108,14 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             CancellationToken token)
         {
             var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id).ConfigureAwait(false);
-
-            if (roadNodeRecord == null) throw new InvalidOperationException($"{nameof(RoadNodeRecord)} with id {roadNodeRemoved.Id} is not found!");
+            if (roadNodeRecord == null)
+            {
+                throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is not found");
+            }
+            if (roadNodeRecord.IsRemoved)
+            {
+                throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is already removed");
+            }
 
             roadNodeRecord.Origin = envelope.Message.ToOrigin();
             roadNodeRecord.LastChangedTimestamp = envelope.CreatedUtc;

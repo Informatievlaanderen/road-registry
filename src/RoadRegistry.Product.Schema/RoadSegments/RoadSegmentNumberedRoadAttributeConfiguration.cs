@@ -1,7 +1,7 @@
 namespace RoadRegistry.Product.Schema.RoadSegments;
 
-using Dbase.RoadSegments;
-using Hosts;
+using BackOffice;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

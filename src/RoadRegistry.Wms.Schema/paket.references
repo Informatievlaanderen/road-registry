@@ -3,6 +3,7 @@ Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.Shaperon
 Be.Vlaanderen.Basisregisters.Shaperon.Geometries
+Be.Vlaanderen.Basisregisters.Sqs
 
 AWSSDK.Core
 Microsoft.EntityFrameworkCore.Design

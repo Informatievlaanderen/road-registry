@@ -7,15 +7,17 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class ModifyRoadNode : IRequestedChange
 {
-    public ModifyRoadNode(RoadNodeId id, RoadNodeType type, Point geometry)
+    public ModifyRoadNode(RoadNodeId id, RoadNodeVersion version, RoadNodeType type, Point geometry)
     {
         Id = id;
+        Version = version;
         Type = type ?? throw new ArgumentNullException(nameof(type));
         Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
     }
 
     public Point Geometry { get; }
     public RoadNodeId Id { get; }
+    public RoadNodeVersion Version { get; }
     public RoadNodeType Type { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
@@ -25,6 +27,7 @@ public class ModifyRoadNode : IRequestedChange
         message.RoadNodeModified = new RoadNodeModified
         {
             Id = Id,
+            Version = Version,
             Type = Type.ToString(),
             Geometry = new RoadNodeGeometry
             {

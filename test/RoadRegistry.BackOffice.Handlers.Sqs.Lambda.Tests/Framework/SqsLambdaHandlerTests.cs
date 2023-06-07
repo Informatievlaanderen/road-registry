@@ -2,28 +2,28 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 
 using Abstractions.Exceptions;
 using Abstractions.RoadSegments;
-using Abstractions.Validation;
 using Autofac;
 using AutoFixture;
-using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Dbase;
-using Handlers;
-using Microsoft.Extensions.Configuration;
+using Core;
+using Hosts;
+using Infrastructure;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Requests;
+using RoadRegistry.Tests.Framework;
 using Sqs.RoadSegments;
 using TicketingService.Abstractions;
 using Xunit.Abstractions;
 
 public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 {
-    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
+    public SqsLambdaHandlerTests(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory) : base(testOutputHelper, loggerFactory)
     {
     }
 
@@ -38,22 +38,23 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             Request = new LinkStreetNameRequest(1, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         });
 
         var sut = new FakeLambdaHandler(
-            Container.Resolve<IConfiguration>(),
+            Container.Resolve<SqsLambdaHandlerOptions>(),
             new FakeRetryPolicy(),
             ticketing.Object,
             idempotentCommandHandler.Object,
-            RoadRegistryContext);
+            RoadRegistryContext,
+            new NullLogger<FakeLambdaHandler>());
 
         await sut.Handle(sqsLambdaRequest, CancellationToken.None);
 
         ticketing.Verify(x => x.Pending(sqsLambdaRequest.TicketId, CancellationToken.None), Times.Once);
         ticketing.Verify(
             x => x.Complete(sqsLambdaRequest.TicketId,
-                new TicketResult(new ETagResponse("bla", "etag")), CancellationToken.None), Times.Once);
+                new TicketResult(new ETagResponse(string.Empty, string.Empty)), CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -67,20 +68,21 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
         await AddRoadSegment(roadSegmentId);
 
         var sut = new FakeLambdaHandler(
-            Container.Resolve<IConfiguration>(),
+            Container.Resolve<SqsLambdaHandlerOptions>(),
             new FakeRetryPolicy(),
             ticketing.Object,
             MockExceptionIdempotentCommandHandler(() => new IdempotencyException(string.Empty)).Object,
-            RoadRegistryContext);
+            RoadRegistryContext,
+            new NullLogger<FakeLambdaHandler>());
 
         // Act
-        await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetworkInfo.Identifier.ToString(), new LinkStreetNameSqsRequest
+        await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetwork.Identifier.ToString(), new LinkStreetNameSqsRequest
         {
             IfMatchHeaderValue = "Outdated",
             Request = new LinkStreetNameRequest(roadSegmentId, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         }), CancellationToken.None);
 
         //Assert
@@ -101,15 +103,16 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             Request = new LinkStreetNameRequest(0, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         });
 
         var sut = new FakeLambdaHandler(
-            Container.Resolve<IConfiguration>(),
+            Container.Resolve<SqsLambdaHandlerOptions>(),
             new FakeRetryPolicy(),
             Mock.Of<ITicketing>(),
             idempotentCommandHandler.Object,
-            RoadRegistryContext);
+            RoadRegistryContext,
+            new NullLogger<FakeLambdaHandler>());
 
         await sut.Handle(sqsLambdaRequest, CancellationToken.None);
 
@@ -130,21 +133,22 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             Request = new LinkStreetNameRequest(0, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
-            ProvenanceData = Fixture.Create<ProvenanceData>()
+            ProvenanceData = ObjectProvider.Create<ProvenanceData>()
         });
 
         var sut = new FakeLambdaHandler(
-            Container.Resolve<IConfiguration>(),
+            Container.Resolve<SqsLambdaHandlerOptions>(),
             new FakeRetryPolicy(),
             ticketing.Object,
             MockExceptionIdempotentCommandHandler<RoadSegmentNotFoundException>().Object,
-            RoadRegistryContext);
+            RoadRegistryContext,
+            new NullLogger<FakeLambdaHandler>());
 
         await sut.Handle(sqsLambdaRequest, CancellationToken.None);
 
         //Assert
         ticketing.Verify(x =>
-            x.Error(sqsLambdaRequest.TicketId, new TicketError(ValidationErrors.RoadSegment.NotFound.Message, ValidationErrors.RoadSegment.NotFound.Code),
+            x.Error(sqsLambdaRequest.TicketId, new TicketError("Dit wegsegment bestaat niet.", "NotFound"),
                 CancellationToken.None));
         ticketing.Verify(x => x.Complete(It.IsAny<Guid>(), It.IsAny<TicketResult>(), CancellationToken.None),
             Times.Never);
@@ -154,33 +158,30 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 public sealed class FakeLambdaHandler : SqsLambdaHandler<LinkStreetNameSqsLambdaRequest>
 {
     public FakeLambdaHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
-        IRoadRegistryContext roadRegistryContext)
+        IRoadRegistryContext roadRegistryContext,
+        ILogger<FakeLambdaHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
-            roadRegistryContext)
+            roadRegistryContext,
+            logger)
     {
     }
 
-    protected override Task<ETagResponse> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        IdempotentCommandHandler.Dispatch(
+        await IdempotentCommandHandler.Dispatch(
             Guid.NewGuid(),
             new object(),
             new Dictionary<string, object>(),
             cancellationToken);
 
-        return Task.FromResult(new ETagResponse("bla", "etag"));
-    }
-
-    protected override TicketError? InnerMapDomainException(DomainException exception, LinkStreetNameSqsLambdaRequest request)
-    {
-        return null;
+        return new ETagResponse(string.Empty, string.Empty);
     }
 }

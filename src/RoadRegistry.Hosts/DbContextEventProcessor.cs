@@ -24,7 +24,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 {
     private const int CatchUpBatchSize = 5000;
     private const int CatchUpThreshold = 1000;
-    private const int RecordPositionThreshold = 1000;
+    private const int RecordPositionThreshold = 1;
 
     public static readonly EventMapping EventMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
@@ -35,6 +35,23 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
     private readonly Scheduler _scheduler;
+    public event EventHandler CatchUpCompleted;
+
+    protected DbContextEventProcessor(
+        string queueName,
+        IStreamStore streamStore,
+        AcceptStreamMessage<TDbContext> acceptStreamMessage,
+        EnvelopeFactory envelopeFactory,
+        ConnectedProjectionHandlerResolver<TDbContext> resolver,
+        IDbContextFactory<TDbContext> dbContextFactory,
+        Scheduler scheduler,
+        ILogger<DbContextEventProcessor<TDbContext>> logger,
+        int catchUpBatchSize = CatchUpBatchSize,
+        int catchUpThreshold = CatchUpThreshold) : this(queueName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
+        catchUpBatchSize, catchUpThreshold)
+    {
+
+    }
 
     protected DbContextEventProcessor(
         string queueName,
@@ -189,7 +206,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                 }
 
                                 await context.DisposeAsync().ConfigureAwait(false);
-
+                                CatchUpCompleted?.Invoke(this, EventArgs.Empty);
                                 //switch to subscription as of the last page
                                 await _messageChannel.Writer
                                     .WriteAsync(
@@ -342,6 +359,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
             catch (Exception exception)
             {
                 logger.LogError(exception, "EventProcessor message pump is exiting due to a bug");
+                throw;
             }
             finally
             {

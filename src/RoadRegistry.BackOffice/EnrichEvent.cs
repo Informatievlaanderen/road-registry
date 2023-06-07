@@ -9,6 +9,7 @@ public static class EnrichEvent
     public static EventEnricher WithTime(IClock clock)
     {
         var pattern = InstantPattern.ExtendedIso;
+
         return @event =>
         {
             switch (@event)
@@ -81,6 +82,12 @@ public static class EnrichEvent
                 case RoadNetworkExtractGotRequestedV2 m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
+                case RoadNetworkExtractDownloaded m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case RoadNetworkExtractClosed m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
                 case RoadNetworkExtractDownloadBecameAvailable m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
@@ -94,6 +101,9 @@ public static class EnrichEvent
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
                 case RoadNetworkExtractChangesArchiveRejected m:
+                    m.When = pattern.Format(clock.GetCurrentInstant());
+                    break;
+                case RoadNetworkExtractChangesArchiveFeatureCompareCompleted m:
                     m.When = pattern.Format(clock.GetCurrentInstant());
                     break;
             }

@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 
 public interface IRoadNetworks
 {
-    Task<RoadNetwork> Get(CancellationToken ct = default);
-    Task<(RoadNetwork, int)> GetWithVersion(CancellationToken ct = default);
+    Task<RoadNetwork> Get(CancellationToken cancellationToken);
+    Task<RoadNetwork> Get(bool restoreSnapshot, ProcessMessageHandler processMessage, CancellationToken cancellationToken);
+    Task<(RoadNetwork, int)> GetWithVersion(CancellationToken cancellationToken);
+    Task<(RoadNetwork, int)> GetWithVersion(bool restoreSnapshot, ProcessMessageHandler processMessage, CancellationToken cancellationToken);
 }

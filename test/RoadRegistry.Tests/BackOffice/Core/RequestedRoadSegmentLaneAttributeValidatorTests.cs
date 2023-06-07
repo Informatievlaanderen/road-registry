@@ -4,7 +4,6 @@ using AutoFixture;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 
 public class RequestedRoadSegmentLaneAttributeValidatorTests : ValidatorTest<RequestedRoadSegmentLaneAttribute, RequestedRoadSegmentLaneAttributeValidator>
 {
@@ -58,8 +57,8 @@ public class RequestedRoadSegmentLaneAttributeValidatorTests : ValidatorTest<Req
 
     [Theory]
     [InlineData(int.MaxValue)]
-    [InlineData(8)]
-    public void CountMustBeLessThanOrEqualTo7(int value)
+    [InlineData(11)]
+    public void CountMustBeLessThanOrEqualTo10(int value)
     {
         ShouldHaveValidationErrorFor(c => c.Count, value);
     }

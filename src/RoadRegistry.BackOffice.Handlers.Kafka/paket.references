@@ -11,6 +11,7 @@ Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner
 Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac
 Be.Vlaanderen.Basisregisters.Projector
+Be.Vlaanderen.Basisregisters.Sqs
 
 Serilog
 Serilog.Settings.Configuration
@@ -27,6 +28,7 @@ SourceLink.Copy.PdbFiles
 Autofac.Extensions.DependencyInjection
 
 MediatR
+MediatR.Contracts
 AWSSDK.Core
 
 Microsoft.Data.SqlClient
@@ -37,6 +39,7 @@ Microsoft.Extensions.Configuration.CommandLine
 Microsoft.Extensions.Configuration.FileExtensions
 Microsoft.Extensions.Configuration.EnvironmentVariables
 Microsoft.Extensions.Configuration.Json
+Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Hosting
 

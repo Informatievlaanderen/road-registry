@@ -13,7 +13,10 @@ public class NullToInt32Converter : NullableConverter
     public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
     {
         if (text == "NULL" && UnderlyingType == typeof(int))
+        {
             return null;
+        }
+
         return base.ConvertFromString(text, row, memberMapData);
     }
 }
@@ -23,7 +26,10 @@ public class NullToStringConverter : StringConverter
     public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
     {
         if (text == "NULL")
+        {
             return null;
+        }
+
         return base.ConvertFromString(text, row, memberMapData);
     }
 }

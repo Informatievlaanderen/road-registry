@@ -72,6 +72,16 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
     }
 
+    public TranslatedChanges AppendChange(ModifyRoadSegmentAttributes change)
+    {
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+    }
+
+    public TranslatedChanges AppendChange(ModifyRoadSegmentGeometry change)
+    {
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
+    }
+
     public TranslatedChanges AppendChange(RemoveRoadSegment change)
     {
         return new TranslatedChanges(Reason, Operator, Organization, _changes.Add(change), _provisionalChanges);
@@ -135,17 +145,17 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
 
     public TranslatedChanges ReplaceChange(AddRoadNode before, AddRoadNode after)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Remove(before).Add(after), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.SetItem(_changes.IndexOf(before), after), _provisionalChanges);
     }
 
     public TranslatedChanges ReplaceChange(ModifyRoadNode before, ModifyRoadNode after)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Remove(before).Add(after), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.SetItem(_changes.IndexOf(before), after), _provisionalChanges);
     }
 
     public TranslatedChanges ReplaceChange(AddRoadSegment before, AddRoadSegment after)
     {
-        return new TranslatedChanges(Reason, Operator, Organization, _changes.Remove(before).Add(after), _provisionalChanges);
+        return new TranslatedChanges(Reason, Operator, Organization, _changes.SetItem(_changes.IndexOf(before), after), _provisionalChanges);
     }
 
     public TranslatedChanges ReplaceChange(ModifyRoadSegment before, ModifyRoadSegment after)
@@ -153,14 +163,14 @@ public class TranslatedChanges : IReadOnlyCollection<ITranslatedChange>
         //NOTE: ReplaceChange automatically converts a provisional change into a change - by design.
         return _provisionalChanges.Contains(before)
             ? new TranslatedChanges(Reason, Operator, Organization, _changes.Add(after), _provisionalChanges.Remove(before))
-            : new TranslatedChanges(Reason, Operator, Organization, _changes.Remove(before).Add(after), _provisionalChanges);
+            : new TranslatedChanges(Reason, Operator, Organization, _changes.SetItem(_changes.IndexOf(before), after), _provisionalChanges);
     }
 
     public TranslatedChanges ReplaceProvisionalChange(ModifyRoadSegment before, ModifyRoadSegment after)
     {
         //NOTE: ReplaceProvisionalChange replaces an existing provisional change (if found).
         return _provisionalChanges.Contains(before)
-            ? new TranslatedChanges(Reason, Operator, Organization, _changes, _provisionalChanges.Remove(before).Add(after))
+            ? new TranslatedChanges(Reason, Operator, Organization, _changes, _provisionalChanges.SetItem(_provisionalChanges.IndexOf(before), after))
             : this;
     }
 

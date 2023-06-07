@@ -5,8 +5,8 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.Schema.V2;
-using Xunit;
+using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
+using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Validation;
 
 public class TransactionZoneDbaseRecordsValidatorTests : IDisposable
 {

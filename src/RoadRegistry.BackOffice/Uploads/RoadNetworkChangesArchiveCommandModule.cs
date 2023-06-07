@@ -9,28 +9,31 @@ using NodaTime;
 using SqlStreamStore;
 using System;
 using System.IO.Compression;
-using SqlStreamStore.Streams;
+using Autofac;
 
 public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
 {
     public RoadNetworkChangesArchiveCommandModule(
         RoadNetworkUploadsBlobClient blobClient,
         IStreamStore store,
-        Func<EventSourcedEntityMap> entityMapFactory,
+        ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
-        IZipArchiveAfterFeatureCompareValidator validator,
+        IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
+        IZipArchiveAfterFeatureCompareValidator afterFeatureCompareValidator,
         IClock clock,
-        ILogger<RoadNetworkChangesArchiveCommandModule> logger)
+        ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(blobClient);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
-        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(afterFeatureCompareValidator);
         ArgumentNullException.ThrowIfNull(clock);
-        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+
+        var logger = loggerFactory.CreateLogger<RoadNetworkChangesArchiveCommandModule>();
 
         For<UploadRoadNetworkChangesArchive>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, EnrichEvent.WithTime(clock))
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
             .Handle(async (context, message, _, ct) =>
             {
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
@@ -49,8 +52,9 @@ public class RoadNetworkChangesArchiveCommandModule : CommandHandlerModule
                 {
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
+                        IZipArchiveValidator validator = message.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
                         logger.LogInformation("Validation started for archive with validator {Validator}", validator.GetType().Name);
-                        upload.ValidateArchiveUsing(archive, validator);
+                        upload.ValidateArchiveUsing(archive, validator, message.Body.UseZipArchiveFeatureCompareTranslator);
                         logger.LogInformation("Validation completed for archive with validator {Validator}", validator.GetType().Name);
                     }
                     context.RoadNetworkChangesArchives.Add(upload);

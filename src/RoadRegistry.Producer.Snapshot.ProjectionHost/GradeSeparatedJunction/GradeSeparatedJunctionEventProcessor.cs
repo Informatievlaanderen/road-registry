@@ -4,6 +4,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Hosts;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using SqlStreamStore;
 
@@ -13,16 +14,16 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
 
         public GradeSeparatedJunctionEventProcessor(
             IStreamStore streamStore,
-            AcceptStreamMessageFilter filter,
+            AcceptStreamMessage<GradeSeparatedJunctionProducerSnapshotContext> acceptStreamMessage,
             EnvelopeFactory envelopeFactory,
             ConnectedProjectionHandlerResolver<GradeSeparatedJunctionProducerSnapshotContext> resolver,
-            Func<GradeSeparatedJunctionProducerSnapshotContext> dbContextFactory,
+            IDbContextFactory<GradeSeparatedJunctionProducerSnapshotContext> dbContextFactory,
             Scheduler scheduler,
             ILogger<DbContextEventProcessor<GradeSeparatedJunctionProducerSnapshotContext>> logger)
             : base(
                 QueueName,
                 streamStore,
-                filter,
+                acceptStreamMessage,
                 envelopeFactory,
                 resolver,
                 dbContextFactory,

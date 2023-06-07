@@ -4,9 +4,8 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase;
-using Dbase.RoadSegments;
 using Editor.Schema;
+using Extracts.Dbase.RoadSegments;
 using Framework.Containers;
 using ZipArchiveWriters.ForEditor;
 
@@ -56,6 +55,7 @@ public class RoadSegmentsArchiveWriterTests
             {
                 Assert.Equal(3, readArchive.Entries.Count);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "Wegsegment.dbf":
@@ -104,6 +104,7 @@ public class RoadSegmentsArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 

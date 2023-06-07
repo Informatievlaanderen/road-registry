@@ -12,7 +12,7 @@ public class RoadNodeBoundingBox
 
     public static RoadNodeBoundingBox From(Point shape)
     {
-        var point = GeometryTranslator.ToGeometryPoint(shape);
+        var point = GeometryTranslator.ToPoint(shape);
 
         return new RoadNodeBoundingBox
         {

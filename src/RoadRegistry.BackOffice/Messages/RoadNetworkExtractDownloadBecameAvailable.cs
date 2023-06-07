@@ -13,4 +13,5 @@ public class RoadNetworkExtractDownloadBecameAvailable : IMessage
     public string ExternalRequestId { get; set; }
     public string RequestId { get; set; }
     public string When { get; set; }
+    public bool IsInformative { get; set; }
 }

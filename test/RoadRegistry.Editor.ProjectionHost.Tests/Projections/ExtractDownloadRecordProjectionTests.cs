@@ -40,7 +40,34 @@ public class ExtractDownloadRecordProjectionTests
                                     MultiPolygon = Array.Empty<Polygon>(),
                                     Polygon = null
                                 },
-                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant())
+                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
+                                IsInformative = true
+                            };
+                        }
+                    )
+                    .OmitAutoProperties()
+        );
+        _fixture.Customize<RoadNetworkExtractGotRequestedV2>(
+            customization =>
+                customization
+                    .FromFactory(generator =>
+                        {
+                            var externalRequestId = _fixture.Create<ExternalExtractRequestId>();
+                            return new RoadNetworkExtractGotRequestedV2
+                            {
+                                Description = _fixture.Create<ExtractDescription>(),
+                                DownloadId = _fixture.Create<Guid>(),
+                                ExternalRequestId = externalRequestId,
+                                RequestId = ExtractRequestId.FromExternalRequestId(externalRequestId),
+                                Contour = new RoadNetworkExtractGeometry
+                                {
+                                    SpatialReferenceSystemIdentifier =
+                                        SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32(),
+                                    MultiPolygon = Array.Empty<Polygon>(),
+                                    Polygon = null
+                                },
+                                When = InstantPattern.ExtendedIso.Format(SystemClock.Instance.GetCurrentInstant()),
+                                IsInformative = true
                             };
                         }
                     )
@@ -145,7 +172,8 @@ public class ExtractDownloadRecordProjectionTests
                     ArchiveId = null,
                     Available = false,
                     AvailableOn = 0L,
-                    RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeSeconds()
+                    RequestedOn = InstantPattern.ExtendedIso.Parse(requested.When).Value.ToUnixTimeSeconds(),
+                    IsInformative = true
                 };
 
                 return new

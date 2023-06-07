@@ -9,8 +9,16 @@ public static class ScenarioExtensions
         string stream,
         params object[] events)
     {
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        if (stream == null)
+        {
+            throw new ArgumentNullException(nameof(stream));
+        }
+
+        if (events == null)
+        {
+            throw new ArgumentNullException(nameof(events));
+        }
+
         var name = new StreamName(stream);
         return builder.Given(events.Select(@event => new RecordedEvent(name, @event)));
     }
@@ -20,8 +28,16 @@ public static class ScenarioExtensions
         string stream,
         params object[] events)
     {
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        if (stream == null)
+        {
+            throw new ArgumentNullException(nameof(stream));
+        }
+
+        if (events == null)
+        {
+            throw new ArgumentNullException(nameof(events));
+        }
+
         var name = new StreamName(stream);
         return builder.Given(events.Select(@event => new RecordedEvent(name, @event)));
     }
@@ -31,8 +47,16 @@ public static class ScenarioExtensions
         string stream,
         params object[] events)
     {
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        if (stream == null)
+        {
+            throw new ArgumentNullException(nameof(stream));
+        }
+
+        if (events == null)
+        {
+            throw new ArgumentNullException(nameof(events));
+        }
+
         var name = new StreamName(stream);
         return builder.Then(events.Select(@event => new RecordedEvent(name, @event)));
     }
@@ -42,8 +66,16 @@ public static class ScenarioExtensions
         string stream,
         params object[] events)
     {
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
-        if (events == null) throw new ArgumentNullException(nameof(events));
+        if (stream == null)
+        {
+            throw new ArgumentNullException(nameof(stream));
+        }
+
+        if (events == null)
+        {
+            throw new ArgumentNullException(nameof(events));
+        }
+
         var name = new StreamName(stream);
         return builder.Then(events.Select(@event => new RecordedEvent(name, @event)));
     }

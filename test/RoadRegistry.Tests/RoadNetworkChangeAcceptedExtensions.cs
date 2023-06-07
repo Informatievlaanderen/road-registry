@@ -42,6 +42,12 @@ public static class RoadNetworkChangeAcceptedExtensions
                 case RoadSegmentModified roadSegmentModified:
                     acceptedChange.RoadSegmentModified = roadSegmentModified;
                     break;
+                case RoadSegmentAttributesModified roadSegmentAttributesModified:
+                    acceptedChange.RoadSegmentAttributesModified = roadSegmentAttributesModified;
+                    break;
+                case RoadSegmentGeometryModified roadSegmentGeometryModified:
+                    acceptedChange.RoadSegmentGeometryModified = roadSegmentGeometryModified;
+                    break;
                 case RoadSegmentRemoved roadSegmentRemoved:
                     acceptedChange.RoadSegmentRemoved = roadSegmentRemoved;
                     break;

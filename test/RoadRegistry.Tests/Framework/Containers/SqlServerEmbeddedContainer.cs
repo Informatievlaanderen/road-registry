@@ -8,10 +8,10 @@ public class SqlServerEmbeddedContainer : DockerContainer, ISqlServerDatabase
     private readonly int _hostPort;
     private int _db;
 
-    public SqlServerEmbeddedContainer(int hostPort)
+    public SqlServerEmbeddedContainer(RoadRegistryAssembly sqlServerInstance)
     {
-        _hostPort = hostPort;
-        Configuration = new SqlServerContainerConfiguration(CreateMasterConnectionStringBuilder(), hostPort);
+        _hostPort = 21533 + (int)sqlServerInstance;
+        Configuration = new SqlServerContainerConfiguration(CreateMasterConnectionStringBuilder(), _hostPort);
     }
 
     public async Task<SqlConnectionStringBuilder> CreateDatabaseAsync()

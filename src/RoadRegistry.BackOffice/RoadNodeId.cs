@@ -7,6 +7,8 @@ public readonly struct RoadNodeId : IEquatable<RoadNodeId>, IComparable<RoadNode
 {
     private readonly int _value;
 
+    public static readonly RoadNodeId Zero = new(0);
+
     public RoadNodeId(int value)
     {
         if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), value, "The road node identifier must be greater than or equal to zero.");

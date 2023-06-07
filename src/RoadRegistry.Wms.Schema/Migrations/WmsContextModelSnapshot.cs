@@ -131,10 +131,6 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("beginapplicatie");
 
-                    b.Property<string>("BeginOperator")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("beginoperator");
-
                     b.Property<string>("BeginOrganizationId")
                         .HasColumnType("varchar(18)")
                         .HasColumnName("beginorganisatie");

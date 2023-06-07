@@ -72,6 +72,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                     case RoadSegmentModified roadSegmentSurface:
                         await RoadSegmentModified(context, envelope, roadSegmentSurface, token);
                         break;
+                    case RoadSegmentGeometryModified roadSegmentSurface:
+                        await RoadSegmentGeometryModified(context, envelope, roadSegmentSurface, token);
+                        break;
                     case RoadSegmentRemoved roadSegmentSurface:
                         await RoadSegmentRemoved(context, envelope, roadSegmentSurface, token);
                         break;
@@ -114,11 +117,94 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                 await Produce(roadSegmentSurfaceRecord.Entity.Id, roadSegmentSurfaceRecord.Entity.ToContract(), token);
             }
         }
-
+        
         private async Task RoadSegmentModified(
             RoadSegmentSurfaceProducerSnapshotContext context,
             Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentModified roadSegmentModified,
+            CancellationToken token)
+        {
+            if (roadSegmentModified.Lanes.Length == 0)
+            {
+                var roadSegmentSurfaceRecords = context
+                    .RoadSegmentSurfaces
+                    .Local.Where(a => a.RoadSegmentId == roadSegmentModified.Id)
+                    .Concat(await context
+                        .RoadSegmentSurfaces
+                        .Where(a => a.RoadSegmentId == roadSegmentModified.Id)
+                        .ToArrayAsync(token)
+                        .ConfigureAwait(false)
+                    );
+
+                foreach (var roadSegmentSurfaceRecord in roadSegmentSurfaceRecords)
+                {
+                    MarkRoadSegmentSurfaceAsRemoved(roadSegmentSurfaceRecord, envelope);
+
+                    await Produce(roadSegmentSurfaceRecord.Id, roadSegmentSurfaceRecord.ToContract(), token);
+                }
+            }
+            else
+            {
+                //Causes all attributes to be loaded into Local
+                await context
+                    .RoadSegmentSurfaces
+                    .Where(a => a.RoadSegmentId == roadSegmentModified.Id)
+                    .ToArrayAsync(token)
+                    .ConfigureAwait(false);
+                var currentSet = context
+                    .RoadSegmentSurfaces
+                    .Local.Where(a => a.RoadSegmentId == roadSegmentModified.Id)
+                    .ToDictionary(a => a.Id);
+
+                var nextSet = roadSegmentModified
+                    .Surfaces
+                    .Select(surface =>
+                    {
+                        var typeTranslation = RoadSegmentSurfaceType.Parse(surface.Type).Translation;
+
+                        return new RoadSegmentSurfaceRecord(
+                            surface.AttributeId,
+                            roadSegmentModified.Id,
+                            surface.AsOfGeometryVersion,
+                            typeTranslation.Identifier,
+                            typeTranslation.Name,
+                            (double)surface.FromPosition,
+                            (double)surface.ToPosition,
+                            envelope.Message.ToOrigin(),
+                            envelope.CreatedUtc
+                        );
+                    })
+                    .ToDictionary(a => a.Id);
+
+                var roadSegmentSurfaceRecords = context.RoadSegmentSurfaces.Synchronize(currentSet, nextSet,
+                    (current, next) =>
+                    {
+                        current.RoadSegmentId = next.RoadSegmentId;
+                        current.RoadSegmentGeometryVersion = next.RoadSegmentGeometryVersion;
+                        current.TypeId = next.TypeId;
+                        current.TypeDutchName = next.TypeDutchName;
+                        current.FromPosition = next.FromPosition;
+                        current.ToPosition = next.ToPosition;
+                        current.Origin = next.Origin;
+                        current.LastChangedTimestamp = next.LastChangedTimestamp;
+                        current.IsRemoved = next.IsRemoved;
+                    },
+                    current =>
+                    {
+                        MarkRoadSegmentSurfaceAsRemoved(current, envelope);
+                    });
+
+                foreach (var roadSegmentSurfaceRecord in roadSegmentSurfaceRecords)
+                {
+                    await Produce(roadSegmentSurfaceRecord.Id, roadSegmentSurfaceRecord.ToContract(), token);
+                }
+            }
+        }
+        
+        private async Task RoadSegmentGeometryModified(
+            RoadSegmentSurfaceProducerSnapshotContext context,
+            Envelope<RoadNetworkChangesAccepted> envelope,
+            RoadSegmentGeometryModified roadSegmentModified,
             CancellationToken token)
         {
             if (roadSegmentModified.Lanes.Length == 0)

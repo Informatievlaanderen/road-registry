@@ -16,30 +16,28 @@ description Road Registry.
 
 dependencies
   framework: net6.0
+    AWSSDK.Core
+    Microsoft.IdentityModel.Abstractions >= LOCKEDVERSION
+    Microsoft.IdentityModel.JsonWebTokens >= LOCKEDVERSION
+    Microsoft.IdentityModel.Logging >= LOCKEDVERSION
+    Microsoft.IdentityModel.Tokens >= LOCKEDVERSION
     Microsoft.IO.RecyclableMemoryStream >= LOCKEDVERSION
-    AWSSDK.Core >= LOCKEDVERSION
 
 files
-
-  RoadRegistry.BackOffice.Abstractions.dll => lib\net6.0
-  RoadRegistry.BackOffice.Abstractions.pdb => lib\net6.0
-
-  RoadRegistry.BackOffice.dll => lib\net6.0
-  RoadRegistry.BackOffice.pdb => lib\net6.0
 
   RoadRegistry.BackOffice.ZipArchiveWriters.dll => lib\net6.0
   RoadRegistry.BackOffice.ZipArchiveWriters.pdb => lib\net6.0
   RoadRegistry.BackOffice.ZipArchiveWriters.xml => lib\net6.0
   RoadRegistry.BackOffice.ZipArchiveWriters.xml => content
 
-  RoadRegistry.Dbase.dll => lib\net6.0
-  RoadRegistry.Dbase.pdb => lib\net6.0
+  RoadRegistry.BackOffice.dll => lib\net6.0
+  RoadRegistry.BackOffice.pdb => lib\net6.0
+
+  RoadRegistry.BackOffice.Abstractions.dll => lib\net6.0
+  RoadRegistry.BackOffice.Abstractions.pdb => lib\net6.0
 
   RoadRegistry.Editor.Schema.dll => lib\net6.0
   RoadRegistry.Editor.Schema.pdb => lib\net6.0
-
-  RoadRegistry.Hosts.dll => lib\net6.0
-  RoadRegistry.Hosts.pdb => lib\net6.0
 
   RoadRegistry.Product.Schema.dll => lib\net6.0
   RoadRegistry.Product.Schema.pdb => lib\net6.0

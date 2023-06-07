@@ -1,6 +1,6 @@
 namespace RoadRegistry.Wms.Schema.EntityTypeConfigurations;
 
-using Hosts;
+using BackOffice;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -42,7 +42,6 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(p => p.MaintainerName).HasColumnName("lblBeheerder").HasColumnType("varchar(64)");
 
         b.Property(p => p.BeginTime).HasColumnName("begintijd").HasColumnType("varchar(100)");
-        b.Property(p => p.BeginOperator).HasColumnName("beginoperator");
         b.Property(p => p.BeginOrganizationId).HasColumnName("beginorganisatie").HasColumnType("varchar(18)");
         b.Property(p => p.BeginOrganizationName).HasColumnName("lblOrganisatie").HasColumnType("varchar(64)");
         b.Property(p => p.BeginApplication).HasColumnName("beginapplicatie").HasColumnType("varchar(100)");

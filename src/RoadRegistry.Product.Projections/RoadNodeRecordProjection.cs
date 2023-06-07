@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Extracts.Dbase.RoadNodes;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.RoadNodes;
 using Microsoft.IO;
 using Schema;
 using Schema.RoadNodes;
@@ -80,7 +80,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
         var dbaseRecord = new RoadNodeDbaseRecord
         {
             WK_OIDN = { Value = node.Id },
-            WK_UIDN = { Value = node.Id + "_0" }, // 1?
+            WK_UIDN = { Value = $"{node.Id}_{node.Version}" },
             TYPE = { Value = typeTranslation.Identifier },
             LBLTYPE = { Value = typeTranslation.Name },
             BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
@@ -111,7 +111,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
         var dbaseRecord = new RoadNodeDbaseRecord
         {
             WK_OIDN = { Value = node.Id },
-            WK_UIDN = { Value = node.Id + "_0" }, // 1?
+            WK_UIDN = { Value = $"{node.Id}_{node.Version}" },
             TYPE = { Value = typeTranslation.Identifier },
             LBLTYPE = { Value = typeTranslation.Name },
             BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },

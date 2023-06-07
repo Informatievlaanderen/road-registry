@@ -1,9 +1,10 @@
 namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
+
 using System.Runtime.Serialization;
 using BackOffice.Exceptions;
 
 [Serializable]
-public sealed class RoadSegmentNotFoundException : RoadRegistryException
+public class RoadSegmentNotFoundException : RoadRegistryException
 {
     public RoadSegmentNotFoundException() : base("Road segment could not be found.")
     {
@@ -13,7 +14,7 @@ public sealed class RoadSegmentNotFoundException : RoadRegistryException
     {
     }
 
-    private RoadSegmentNotFoundException(SerializationInfo info, StreamingContext context)
+    protected RoadSegmentNotFoundException(SerializationInfo info, StreamingContext context)
         : base(info, context)
     {
     }

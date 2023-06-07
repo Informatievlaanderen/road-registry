@@ -4,7 +4,7 @@ using System;
 using Framework;
 using SqlStreamStore;
 
-internal static class EventHandlerModulePipelines
+public static class EventHandlerModulePipelines
 {
     public static IEventHandlerBuilder<IRoadNetworkCommandQueue, TEvent> UseRoadNetworkCommandQueue<TEvent>(
         this IEventHandlerBuilder<TEvent> builder, IStreamStore store, ApplicationMetadata applicationMetadata)

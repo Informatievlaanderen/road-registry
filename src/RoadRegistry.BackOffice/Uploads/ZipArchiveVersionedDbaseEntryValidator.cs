@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public class ZipArchiveVersionedDbaseEntryValidator : IZipArchiveEntryValidator
@@ -18,25 +19,31 @@ public class ZipArchiveVersionedDbaseEntryValidator : IZipArchiveEntryValidator
     public (ZipArchiveProblems, ZipArchiveValidationContext) Validate(ZipArchiveEntry entry,
         ZipArchiveValidationContext context)
     {
-        if (entry == null) throw new ArgumentNullException(nameof(entry));
-
-        if (context == null) throw new ArgumentNullException(nameof(context));
-
-        IZipArchiveDbaseEntryValidator validator = null;
-
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(context);
+        
         var problems = ZipArchiveProblems.None;
-        foreach (var validatorCandidate in _versionedValidators)
+        
+        DbaseSchema uploadedSchema = null;
+
+        foreach (var validator in _versionedValidators)
+        {
             using (var stream = entry.Open())
-            using (var reader = new BinaryReader(stream, validatorCandidate.Encoding))
+            using (var reader = new BinaryReader(stream, validator.Encoding))
             {
-                var header = DbaseFileHeader.Read(reader, validatorCandidate.HeaderReadBehavior);
-                if (!header.Schema.Equals(validatorCandidate.Schema)) continue;
+                var header = DbaseFileHeader.Read(reader, validator.HeaderReadBehavior);
+                uploadedSchema = header.Schema;
 
-                validator = validatorCandidate;
-                break;
+                if (!header.Schema.Equals(validator.Schema))
+                {
+                    continue;
+                }
+
+                return validator.Validate(entry, context);
             }
+        }
 
-        if (validator != null) (problems, context) = validator.Validate(entry, context);
+        problems = problems.Add(entry.HasDbaseSchemaMismatch(_versionedValidators.First().Schema, uploadedSchema));
 
         return (problems, context);
     }

@@ -16,6 +16,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         public Geometry Geometry { get; set; }
         public int? GeometryVersion { get; set; }
         public int Id { get; set; }
+        public int Version { get; set; }
         public int? LeftSideMunicipalityId { get; set; }
         public string LeftSideMunicipalityNisCode { get; set; }
         public string LeftSideStreetName { get; set; }
@@ -36,7 +37,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         public int? StatusId { get; set; }
         public long StreetNameCachePosition { get; set; }
         public int? TransactionId { get; set; }
-
         public Origin Origin { get; set; }
         public DateTimeOffset LastChangedTimestamp { get; set; }
         public bool IsRemoved { get; set; }
@@ -56,6 +56,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 Geometry,
                 GeometryVersion,
                 Id,
+                Version,
                 LeftSideMunicipalityId,
                 LeftSideMunicipalityNisCode,
                 LeftSideStreetName,

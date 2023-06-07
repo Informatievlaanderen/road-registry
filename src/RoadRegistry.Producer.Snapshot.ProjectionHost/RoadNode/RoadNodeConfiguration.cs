@@ -1,6 +1,6 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
 {
-    using Hosts;
+    using BackOffice;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,6 +18,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
                 .Property(p => p.Id)
                 .ValueGeneratedNever()
                 .IsRequired();
+
+            builder.Property(p => p.Version);
 
             builder
                 .Property(p => p.Geometry)

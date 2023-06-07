@@ -96,6 +96,7 @@ public class Scheduler
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Scheduler message pump is exiting due to a bug.");
+                throw;
             }
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }

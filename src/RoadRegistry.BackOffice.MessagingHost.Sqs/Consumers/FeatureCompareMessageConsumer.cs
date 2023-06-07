@@ -4,12 +4,13 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.Configuration;
-using Abstractions.FeatureCompare;
+using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Exceptions;
 using MediatR;
 using Messages;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 public class FeatureCompareMessageConsumer : BackgroundService
@@ -31,7 +32,7 @@ public class FeatureCompareMessageConsumer : BackgroundService
         _sqsConsumer = sqsQueueConsumer;
         _logger = logger;
     }
-
+    
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
@@ -42,7 +43,6 @@ public class FeatureCompareMessageConsumer : BackgroundService
                 {
                     _logger.LogInformation("SQS message from feature compare received!");
                     await HandleMessageAsync(message, stoppingToken);
-
                 }, stoppingToken);
             }
             catch (TaskCanceledException ex)
@@ -67,27 +67,22 @@ public class FeatureCompareMessageConsumer : BackgroundService
             case UploadRoadNetworkChangesArchive uploadRoadNetworkChangesArchive:
                 {
                     _logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkChangesArchive.ArchiveId);
-                    var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
+                    var request = new Abstractions.Uploads.FeatureCompare.FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
                     await _mediator.Send(request, stoppingToken);
                 }
                 break;
             case UploadRoadNetworkExtractChangesArchive uploadRoadNetworkExtractChangesArchive:
                 {
                     _logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkExtractChangesArchive.ArchiveId);
-                    var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkExtractChangesArchive.ArchiveId);
+                    var request = new Abstractions.Extracts.FeatureCompare.FeatureCompareProcessOutputMessageRequest(
+                        uploadRoadNetworkExtractChangesArchive.ArchiveId,
+                        uploadRoadNetworkExtractChangesArchive.DownloadId,
+                        uploadRoadNetworkExtractChangesArchive.RequestId,
+                        uploadRoadNetworkExtractChangesArchive.UploadId
+                    );
                     await _mediator.Send(request, stoppingToken);
                 }
                 break;
-            case JObject jObject:
-                {
-                    var uploadRoadNetworkChangesArchive = jObject.ToObject<UploadRoadNetworkChangesArchive>();
-
-                    _logger.LogInformation("Received message for archive {ArchiveId}", uploadRoadNetworkChangesArchive.ArchiveId);
-                    var request = new FeatureCompareProcessOutputMessageRequest(uploadRoadNetworkChangesArchive.ArchiveId);
-                    await _mediator.Send(request, stoppingToken);
-                }
-                break;
-
             default:
                 throw new UnknownSqsMessageTypeException($"Unhandled message type '{message.GetType()}' found on queue '{_messagingOptions.ResponseQueueUrl}'", message.GetType().FullName);
         }

@@ -16,7 +16,7 @@ public readonly struct RoadSegmentId : IEquatable<RoadSegmentId>, IComparable<Ro
 
     public static bool Accepts(int value)
     {
-        return value >= 0;
+        return value > 0;
     }
 
     public RoadSegmentId Next()

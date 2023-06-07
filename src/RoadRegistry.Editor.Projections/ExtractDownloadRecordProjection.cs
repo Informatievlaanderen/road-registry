@@ -23,7 +23,8 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
                 ArchiveId = null,
                 Available = false,
                 AvailableOn = 0L,
-                RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds()
+                RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds(),
+                IsInformative = envelope.Message.IsInformative
             };
             await context.ExtractDownloads.AddAsync(record, ct);
         });
@@ -38,9 +39,31 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
                 ArchiveId = null,
                 Available = false,
                 AvailableOn = 0L,
-                RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds()
+                RequestedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds(),
+                IsInformative = envelope.Message.IsInformative
             };
             await context.ExtractDownloads.AddAsync(record, ct);
+        });
+
+        When<Envelope<RoadNetworkExtractDownloaded>>(async (context, envelope, ct) =>
+        {
+            var record =
+                context.ExtractDownloads.Local.SingleOrDefault(download => download.DownloadId == envelope.Message.DownloadId)
+                ?? await context.ExtractDownloads.SingleAsync(download => download.DownloadId == envelope.Message.DownloadId, ct);
+            record.DownloadedOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToDateTimeOffset();
+        });
+
+        When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
+        {
+            var records = context.ExtractDownloads.Local
+                    .Where(record => record.ExternalRequestId == envelope.Message.ExternalRequestId)
+                    .ToList()
+                    .Concat(await context.ExtractDownloads
+                        .Where(record => record.ExternalRequestId == envelope.Message.ExternalRequestId)
+                        .ToListAsync(ct))
+                    .ToList();
+
+            records.ForEach(record => record.IsInformative = true);
         });
 
         When<Envelope<RoadNetworkExtractDownloadBecameAvailable>>(async (context, envelope, ct) =>
@@ -51,6 +74,7 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
             record.ArchiveId = envelope.Message.ArchiveId;
             record.Available = true;
             record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
+            record.IsInformative = envelope.Message.IsInformative;
         });
 
         When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>
@@ -60,6 +84,7 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
                 ?? await context.ExtractDownloads.SingleAsync(download => download.RequestId == envelope.Message.RequestId, ct);
             record.Available = true;
             record.AvailableOn = InstantPattern.ExtendedIso.Parse(envelope.Message.When).Value.ToUnixTimeSeconds();
+            record.IsInformative = envelope.Message.IsInformative;
         });
     }
 }

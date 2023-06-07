@@ -1,0 +1,16 @@
+CREATE OR REPLACE STREAM IF NOT EXISTS ROAD_ROADSEGMENTSURFACE_SNAPSHOT_STREAM_FLATTEN_GEOLOCATION
+WITH (KAFKA_TOPIC='road.roadsegmentsurface.snapshot.stream.flatten.geolocation', PARTITIONS=1, VALUE_FORMAT='JSON_SR', KEY_FORMAT='JSON_SR')
+AS SELECT
+	data->id id,
+    data->roadSegmentId roadSegmentId,
+    data->roadSegmentGeometryVersion roadSegmentGeometryVersion,
+	data->typeId typeId,
+	data->typeDutchName typeDutchName,
+    data->fromPosition fromPosition,
+    data->toPosition toPosition,
+	data->origin->`timestamp` `timestamp`,
+	data->origin->organization organization,
+	data->lastChangedTimestamp lastChangedTimestamp,
+	data->isRemoved removed
+FROM ROAD_ROADSEGMENTSURFACE_SNAPSHOT_STREAM
+PARTITION BY data->id;

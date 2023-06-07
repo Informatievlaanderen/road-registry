@@ -287,11 +287,17 @@ export default Vue.extend({
         isLoadingTop: false,
       },
       isDownloading: false,
+      autoRefreshInterval: null as any,
     };
   },
   async mounted() {
     await this.loadToTop();
-    setInterval(this.loadToTop, 10000);
+    this.autoRefreshInterval = setInterval(this.loadToTop, 10000);
+  },
+  beforeDestroy() {
+    if(this.autoRefreshInterval){
+      clearInterval(this.autoRefreshInterval);
+    }
   },
   methods: {
     async loadToTop(): Promise<any> {

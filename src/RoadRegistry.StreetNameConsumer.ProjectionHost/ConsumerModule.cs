@@ -1,10 +1,10 @@
 namespace RoadRegistry.StreetNameConsumer.ProjectionHost;
 
 using Autofac;
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.Projector;
 using Be.Vlaanderen.Basisregisters.Projector.ConnectedProjections;
 using Extensions;
-using Hosts;
 using Projections;
 using Schema;
 

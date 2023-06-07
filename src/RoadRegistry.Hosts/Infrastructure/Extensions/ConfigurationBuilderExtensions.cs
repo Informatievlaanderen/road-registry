@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 
 public static class ConfigurationBuilderExtensions
 {
-    public static ConfigurationBuilder UseDefaultConfiguration(this ConfigurationBuilder builder, IHostEnvironment environment, string[] args = null)
+    public static IConfigurationBuilder UseDefaultConfiguration(this IConfigurationBuilder builder, IHostEnvironment environment, string[] args = null)
     {
         if (environment.IsProduction())
         {

@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 using Core;
 using Framework;
 using Messages;
+using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 
 public class ContextModule : Module
@@ -20,9 +21,10 @@ public class ContextModule : Module
             var store = context.Resolve<IStreamStore>();
             var snapshotReader = context.Resolve<IRoadNetworkSnapshotReader>();
             var serializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-            var map = context.Resolve<Func<EventSourcedEntityMap>>()();
+            var map = context.Resolve<EventSourcedEntityMap>();
+            var loggerFactory = context.Resolve<ILoggerFactory>();
 
-            return new RoadRegistryContext(map, store, snapshotReader, serializerSettings, RoadNetworkEventsEventMapping);
+            return new RoadRegistryContext(map, store, snapshotReader, serializerSettings, RoadNetworkEventsEventMapping, loggerFactory);
         });
     }
 }

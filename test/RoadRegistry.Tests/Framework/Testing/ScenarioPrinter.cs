@@ -13,12 +13,18 @@ public class ScenarioPrinter
 
     public async Task WriteAsync(ExpectEventsScenario scenario)
     {
-        if (scenario == null) throw new ArgumentNullException(nameof(scenario));
+        if (scenario == null)
+        {
+            throw new ArgumentNullException(nameof(scenario));
+        }
 
         await Writer.WriteLineAsync("Given");
         await Writer.WriteLineAsync("");
 
-        foreach (var given in scenario.Givens) await Writer.WriteLineAsync(string.Format("\t[{0}] {1}", given.Stream, Translator.Translate(given.Event)));
+        foreach (var given in scenario.Givens)
+        {
+            await Writer.WriteLineAsync(string.Format("\t[{0}] {1}", given.Stream, Translator.Translate(given.Event)));
+        }
 
         await Writer.WriteLineAsync("When");
         await Writer.WriteLineAsync("");
@@ -32,17 +38,26 @@ public class ScenarioPrinter
         await Writer.WriteLineAsync("Then");
         await Writer.WriteLineAsync("");
 
-        foreach (var then in scenario.Thens) await Writer.WriteLineAsync(string.Format("\t[{0}] {1}", then.Stream, Translator.Translate(then.Event)));
+        foreach (var then in scenario.Thens)
+        {
+            await Writer.WriteLineAsync(string.Format("\t[{0}] {1}", then.Stream, Translator.Translate(then.Event)));
+        }
     }
 
     public async Task WriteAsync(ExpectExceptionScenario scenario)
     {
-        if (scenario == null) throw new ArgumentNullException(nameof(scenario));
+        if (scenario == null)
+        {
+            throw new ArgumentNullException(nameof(scenario));
+        }
 
         await Writer.WriteLineAsync("Given");
         await Writer.WriteLineAsync("");
 
-        foreach (var given in scenario.Givens) await Writer.WriteLineAsync(string.Format("\t[{0}] {1}", given.Stream, Translator.Translate(given.Event)));
+        foreach (var given in scenario.Givens)
+        {
+            await Writer.WriteLineAsync(string.Format("\t[{0}] {1}", given.Stream, Translator.Translate(given.Event)));
+        }
 
         await Writer.WriteLineAsync("When");
         await Writer.WriteLineAsync("");

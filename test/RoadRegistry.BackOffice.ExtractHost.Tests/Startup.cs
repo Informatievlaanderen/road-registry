@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.ExtractHost.Tests;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
-using Hosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

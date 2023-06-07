@@ -21,6 +21,7 @@ public class MediatorModule : Module
         typeof(IStreamRequestHandler<,>)
     };
 
+    //TODO-jan assemblies shouldn't be registered dynamically
     private static IEnumerable<Assembly> DetermineAvailableAssemblyCollection()
     {
         var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
@@ -34,11 +35,6 @@ public class MediatorModule : Module
     {
         builder.RegisterAssemblyTypes(typeof(IMediator).GetTypeInfo().Assembly).AsImplementedInterfaces();
         builder.RegisterGeneric(typeof(ValidationPipelineBehavior<,>)).As(typeof(IPipelineBehavior<,>));
-        builder.Register<ServiceFactory>(ctx =>
-        {
-            var c = ctx.Resolve<IComponentContext>();
-            return t => c.Resolve(t);
-        });
 
         RegisterAvailableAssemblyModules(builder);
     }

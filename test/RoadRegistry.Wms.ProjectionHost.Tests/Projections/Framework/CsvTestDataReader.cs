@@ -9,8 +9,7 @@ public class CsvTestDataReader : CsvReader
     public CsvTestDataReader(TextReader reader) :
         base(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
         {
-            HasHeaderRecord = true,
-            LeaveOpen = false
+            HasHeaderRecord = true
         })
     {
         base.Context.TypeConverterCache.AddConverter<int>(new NullToInt32Converter(typeof(int?), base.Context.TypeConverterCache));

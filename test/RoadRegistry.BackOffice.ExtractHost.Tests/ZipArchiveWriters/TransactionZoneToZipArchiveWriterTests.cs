@@ -6,8 +6,8 @@ using AutoFixture;
 using BackOffice.ZipArchiveWriters.ExtractHost;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
-using Editor.Schema.Extracts;
 using Extracts;
+using Extracts.Dbase;
 using FluentAssertions;
 using Messages;
 using Microsoft.EntityFrameworkCore;
@@ -79,7 +79,10 @@ public class TransactionZoneToZipArchiveWriterTests
             var header = DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
             var records = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader);
 
-            while (records.MoveNext()) yield return (records.CurrentRecordNumber, records.Current);
+            while (records.MoveNext())
+            {
+                yield return (records.CurrentRecordNumber, records.Current);
+            }
         }
     }
 

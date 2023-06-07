@@ -89,7 +89,10 @@ public class ZipArchiveShapeEntryTranslatorTests
                 using (var writer = new BinaryWriter(entryStream, Encoding.UTF8))
                 {
                     header.Write(writer);
-                    foreach (var record in records) record.Write(writer);
+                    foreach (var record in records)
+                    {
+                        record.Write(writer);
+                    }
 
                     entryStream.Flush();
                 }
@@ -170,7 +173,10 @@ public class ZipArchiveShapeEntryTranslatorTests
         public TranslatedChanges Translate(ZipArchiveEntry entry, IEnumerator<ShapeRecord> records, TranslatedChanges changes)
         {
             var collected = new List<ShapeRecord>();
-            while (records.MoveNext()) collected.Add(records.Current);
+            while (records.MoveNext())
+            {
+                collected.Add(records.Current);
+            }
 
             Collected = collected.ToArray();
 

@@ -20,7 +20,7 @@ public class Warning : Problem
     {
         return new Messages.Problem
         {
-            Severity = ProblemSeverity.Warning,
+            Severity = Messages.ProblemSeverity.Warning,
             Reason = Reason,
             Parameters = Parameters.Select(parameter => parameter.Translate()).ToArray()
         };

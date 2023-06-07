@@ -49,11 +49,13 @@ export namespace RoadRegistry {
     export interface DownloadExtractByContourRequest {
         contour: string;
         description: string;
+        isInformative: Boolean;
     }
 
     export interface DownloadExtractByFileRequest {
         files: File[];
         description: string;
+        isInformative: Boolean;
     }
 
     export interface PerContourErrorResponse {
@@ -73,6 +75,14 @@ export namespace RoadRegistry {
         buffer: number;
         nisCode: string;
         description: string;
+        isInformative: Boolean;
+    }
+
+    export interface ValidateWktResponse {
+        area: number;
+        areaMaximumSquareKilometers: number;
+        isValid: boolean;
+        isLargerThanMaximumArea: boolean;
     }
 }
 export default RoadRegistry;

@@ -26,10 +26,14 @@ public class NegativeInt64BehaviorExpectation : IBehaviorExpectation
     public void Verify(IGuardClauseCommand command)
     {
         if (command == null)
+        {
             throw new ArgumentNullException(nameof(command));
+        }
 
         if (command.RequestedType != typeof(long))
+        {
             return;
+        }
 
         try
         {

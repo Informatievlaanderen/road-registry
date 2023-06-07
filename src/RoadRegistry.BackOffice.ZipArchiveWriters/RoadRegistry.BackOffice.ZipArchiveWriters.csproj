@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
@@ -8,12 +7,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Platforms>AnyCPU;x64;x86</Platforms>
-    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
     <PackageProjectUrl>https://github.com/informatievlaanderen/road-registry.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/informatievlaanderen/road-registry.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <DocumentationFile>RoadRegistry.BackOffice.ZipArchiveWriters.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
+	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
+	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,11 +25,6 @@
     <None Remove="ForProduct\StaticData\Wegsegment.lyr" />
     <None Remove="ForProduct\StaticData\Wegsegment.sld" />
     <None Remove="ForProduct\StaticData\Wegsegment.WOR" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="paket.template" />
-    <Content Include="paket.template" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +42,10 @@
     <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
     <ProjectReference Include="..\RoadRegistry.Editor.Schema\RoadRegistry.Editor.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

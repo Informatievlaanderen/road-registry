@@ -1,169 +1,105 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
 using Abstractions.Exceptions;
-using Abstractions.Validation;
-using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
+using Core;
 using Exceptions;
 using Extensions;
-using Framework;
+using Hosts;
 using Infrastructure;
-using Messages;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Requests;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
 public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<UnlinkStreetNameSqsLambdaRequest>
 {
-    private readonly IRoadNetworkCommandQueue _commandQueue;
+    private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
+    private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public UnlinkStreetNameSqsLambdaRequestHandler(
-        IConfiguration configuration,
+        SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IRoadNetworkCommandQueue commandQueue)
+        IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
+        DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
+        ILogger<UnlinkStreetNameSqsLambdaRequestHandler> logger)
         : base(
-            configuration,
+            options,
             retryPolicy,
             ticketing,
             idempotentCommandHandler,
-            roadRegistryContext)
+            roadRegistryContext,
+            logger)
     {
-        _commandQueue = commandQueue;
+        _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
+        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
-    protected override async Task<ETagResponse> InnerHandle(UnlinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(UnlinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
+        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+        {
+            await _changeRoadNetworkDispatcher.DispatchAsync(request, "Straatnaam ontkoppelen", async translatedChanges =>
+            {
+                var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
+                var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.Request.WegsegmentId));
+                if (roadSegment == null)
+                {
+                    throw new RoadSegmentNotFoundException();
+                }
+
+                var recordNumber = RecordNumber.Initial;
+
+                var leftStreetNameId = request.Request.LinkerstraatnaamId.GetIdentifierFromPuri();
+                var rightStreetNameId = request.Request.RechterstraatnaamId.GetIdentifierFromPuri();
+
+                if (leftStreetNameId > 0 || rightStreetNameId > 0)
+                {
+                    if (leftStreetNameId > 0)
+                    {
+                        if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
+                        {
+                            throw new RoadRegistryValidationException(new RoadSegmentStreetNameLeftNotLinked(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId));
+                        }
+                    }
+
+                    if (rightStreetNameId > 0)
+                    {
+                        if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
+                        {
+                            throw new RoadRegistryValidationException(new RoadSegmentStreetNameRightNotLinked(request.Request.WegsegmentId, request.Request.RechterstraatnaamId));
+                        }
+                    }
+
+                    translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
+                        recordNumber,
+                        roadSegment.Id,
+                        roadSegment.Start,
+                        roadSegment.End,
+                        roadSegment.AttributeHash.OrganizationId,
+                        roadSegment.AttributeHash.GeometryDrawMethod,
+                        roadSegment.AttributeHash.Morphology,
+                        roadSegment.AttributeHash.Status,
+                        roadSegment.AttributeHash.Category,
+                        roadSegment.AttributeHash.AccessRestriction,
+                        leftStreetNameId > 0 ? CrabStreetnameId.NotApplicable : roadSegment.AttributeHash.LeftStreetNameId,
+                        rightStreetNameId > 0 ? CrabStreetnameId.NotApplicable : roadSegment.AttributeHash.RightStreetNameId
+                    ).WithGeometry(roadSegment.Geometry));
+                }
+
+                return translatedChanges;
+            }, cancellationToken);
+        }, cancellationToken);
+
         var roadSegmentId = request.Request.WegsegmentId;
-
-        var command = await ToCommand(request, cancellationToken);
-        var commandId = command.CreateCommandId();
-        await _commandQueue.Write(new Command(command).WithMessageId(commandId), cancellationToken);
-
-        try
-        {
-            await IdempotentCommandHandler.Dispatch(
-                commandId,
-                command,
-                request.Metadata,
-                cancellationToken);
-        }
-        catch (IdempotencyException)
-        {
-            // Idempotent: Do Nothing return last etag
-        }
-
         var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
-    }
-
-    protected override TicketError? InnerMapDomainException(DomainException exception, UnlinkStreetNameSqsLambdaRequest request)
-    {
-        return exception switch
-        {
-            RoadRegistryValidationException validationException => validationException.ToTicketError(),
-            _ => null
-        };
-    }
-
-    private async Task<ChangeRoadNetwork> ToCommand(UnlinkStreetNameSqsLambdaRequest lambdaRequest, CancellationToken cancellationToken)
-    {
-        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
-        var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(lambdaRequest.Request.WegsegmentId));
-        if (roadSegment == null)
-        {
-            throw new RoadSegmentNotFoundException();
-        }
-
-        var translatedChanges = TranslatedChanges.Empty
-            .WithOrganization(new OrganizationId(lambdaRequest.Provenance.Organisation.ToString()))
-            .WithOperatorName(new OperatorName(lambdaRequest.Provenance.Operator))
-            .WithReason(new Reason("Straatnaam ontkoppelen"));
-
-        var recordNumber = RecordNumber.Initial;
-
-        var leftStreetNameId = lambdaRequest.Request.LinkerstraatnaamId.GetIdentifierFromPuri();
-        var rightStreetNameId = lambdaRequest.Request.RechterstraatnaamId.GetIdentifierFromPuri();
-
-        if (leftStreetNameId > 0)
-        {
-            if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
-            {
-                throw new RoadRegistryValidationException(
-                    ValidationErrors.RoadSegment.LeftStreetNameIsNotLinked.Message(lambdaRequest.Request.WegsegmentId, lambdaRequest.Request.LinkerstraatnaamId!),
-                    ValidationErrors.RoadSegment.LeftStreetNameIsNotLinked.Code);
-            }
-
-            translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
-                recordNumber,
-                roadSegment.Id,
-                roadSegment.Start,
-                roadSegment.End,
-                roadSegment.AttributeHash.OrganizationId,
-                roadSegment.AttributeHash.GeometryDrawMethod,
-                roadSegment.AttributeHash.Morphology,
-                roadSegment.AttributeHash.Status,
-                roadSegment.AttributeHash.Category,
-                roadSegment.AttributeHash.AccessRestriction,
-                null,
-                roadSegment.AttributeHash.RightStreetNameId
-            ).WithGeometry(roadSegment.Geometry));
-        }
-        else if (rightStreetNameId > 0)
-        {
-            if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
-            {
-                throw new RoadRegistryValidationException(
-                    ValidationErrors.RoadSegment.RightStreetNameIsNotLinked.Message(lambdaRequest.Request.WegsegmentId, lambdaRequest.Request.RechterstraatnaamId!),
-                    ValidationErrors.RoadSegment.RightStreetNameIsNotLinked.Code);
-            }
-
-            translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
-                recordNumber,
-                roadSegment.Id,
-                roadSegment.Start,
-                roadSegment.End,
-                roadSegment.AttributeHash.OrganizationId,
-                roadSegment.AttributeHash.GeometryDrawMethod,
-                roadSegment.AttributeHash.Morphology,
-                roadSegment.AttributeHash.Status,
-                roadSegment.AttributeHash.Category,
-                roadSegment.AttributeHash.AccessRestriction,
-                roadSegment.AttributeHash.LeftStreetNameId,
-                null
-            ).WithGeometry(roadSegment.Geometry));
-        }
-        else
-        {
-            throw new RoadRegistryValidationException(
-                ValidationErrors.Common.IncorrectObjectId.Message(lambdaRequest.Request.LinkerstraatnaamId),
-                ValidationErrors.Common.IncorrectObjectId.Code);
-        }
-
-        var requestedChanges = translatedChanges.Select(change =>
-        {
-            var requestedChange = new RequestedChange();
-            change.TranslateTo(requestedChange);
-            return requestedChange;
-        }).ToList();
-        var messageId = Guid.NewGuid();
-
-        return new ChangeRoadNetwork(lambdaRequest.Provenance)
-        {
-            RequestId = ChangeRequestId.FromUploadId(new UploadId(messageId)),
-            Changes = requestedChanges.ToArray(),
-            Reason = translatedChanges.Reason,
-            Operator = translatedChanges.Operator,
-            OrganizationId = translatedChanges.Organization
-        };
     }
 
     protected override Task ValidateIfMatchHeaderValue(UnlinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)

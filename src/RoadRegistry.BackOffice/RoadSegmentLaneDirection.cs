@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirection>
+public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirection>, IDutchToString
 {
     public static readonly RoadSegmentLaneDirection Backward =
         new(
@@ -54,6 +54,9 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
     public static readonly IReadOnlyDictionary<int, RoadSegmentLaneDirection> ByIdentifier =
         All.ToDictionary(key => key.Translation.Identifier);
 
+    public static readonly IReadOnlyDictionary<string, RoadSegmentLaneDirection> ByName =
+        All.ToDictionary(key => key.Translation.Name);
+
     private readonly string _value;
 
     private RoadSegmentLaneDirection(string value, DutchTranslation dutchTranslation)
@@ -76,6 +79,8 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
         return Array.Find(All, candidate => candidate._value == value) != null;
     }
 
+    public static bool CanParseUsingDutchName(string value) => ParseUsingDutchName(value) is not null;
+
     public override bool Equals(object obj)
     {
         return obj is RoadSegmentLaneDirection type && Equals(type);
@@ -93,7 +98,7 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
 
     public static implicit operator string(RoadSegmentLaneDirection instance)
     {
-        return instance.ToString();
+        return instance?.ToString();
     }
 
     public static bool operator !=(RoadSegmentLaneDirection left, RoadSegmentLaneDirection right)
@@ -109,9 +114,19 @@ public sealed class RoadSegmentLaneDirection : IEquatable<RoadSegmentLaneDirecti
         return parsed;
     }
 
+    public static RoadSegmentLaneDirection ParseUsingDutchName(string value)
+    {
+        return value == null ? null : Array.Find(All, candidate => candidate.Translation.Name == value);
+    }
+
     public override string ToString()
     {
         return _value;
+    }
+
+    public string ToDutchString()
+    {
+        return Translation.Name;
     }
 
     public static bool TryParse(string value, out RoadSegmentLaneDirection parsed)

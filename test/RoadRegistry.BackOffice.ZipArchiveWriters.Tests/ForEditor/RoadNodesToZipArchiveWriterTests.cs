@@ -3,9 +3,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForEditor;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase;
-using Dbase.RoadNodes;
 using Editor.Schema;
+using Extracts.Dbase.RoadNodes;
 using Framework.Containers;
 using ZipArchiveWriters.ForEditor;
 
@@ -55,6 +54,7 @@ public class RoadNodesToZipArchiveWriterTests
             {
                 Assert.Equal(3, readArchive.Entries.Count);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "Wegknoop.dbf":
@@ -103,6 +103,7 @@ public class RoadNodesToZipArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 

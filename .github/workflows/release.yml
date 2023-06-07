@@ -1,4 +1,4 @@
-name: Release
+name: Release V1
 
 on:
   workflow_dispatch:
@@ -22,6 +22,9 @@ jobs:
           - 1433:1433
 
     steps:
+    - name: Delete huge unnecessary tools folder
+      run: rm -rf /opt/hostedtoolcache
+
     - name: Checkout Code
       uses: actions/checkout@v3
       with:
@@ -67,7 +70,9 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: ${{ secrets.VBR_DOTNET_VERSION }}
+        dotnet-version: |
+          6.0.101
+          ${{ secrets.VBR_DOTNET_VERSION }}
 
     - name: Setup Python
       uses: actions/setup-python@v4
@@ -131,6 +136,7 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
+        docker image save $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER -o ~/rr-adminhost-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER -o ~/rr-projector-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER -o ~/rr-backoffice-api-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER -o ~/rr-backoffice-ui-image.tar
@@ -146,6 +152,7 @@ jobs:
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER -o ~/rr-backoffice-messaginghost-sqs-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER -o ~/rr-import-legacy-image.tar
         docker image save $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER -o ~/rr-extract-legacy-image.tar
+        docker image save $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER -o ~/rr-streetnameconsumer-projectionhost-image.tar
       env:
         BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         SEMVER: ${{ env.RELEASE_VERSION }}
@@ -153,6 +160,15 @@ jobs:
     #
     # Upload NuGet packages
     #
+    
+    - name: Upload NuGet package BackOffice
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: nuget-backoffice
+        path: dist/nuget/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.*.nupkg
+      env:
+        SEMVER: ${{ env.RELEASE_VERSION }}
     
     - name: Upload NuGet package BackOffice.Api
       if: env.RELEASE_VERSION != 'none'
@@ -185,6 +201,13 @@ jobs:
     # Upload build artifacts
     #
     
+    - name: Upload adminhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: adminhost
+        path: ~/rr-adminhost-image.tar
+
     - name: Upload projector artifact
       if: env.RELEASE_VERSION != 'none'
       uses: actions/upload-artifact@v3
@@ -290,12 +313,25 @@ jobs:
         name: extract-legacy
         path: ~/rr-extract-legacy-image.tar
 
+    - name: Upload streetnameconsumer-projectionhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: streetnameconsumer-projectionhost
+        path: ~/rr-streetnameconsumer-projectionhost-image.tar
+
     - name: Package Lambda functions
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
         echo Zip lambda functions
+        
         pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        echo zip -r lambda.zip .
+        zip -r lambda.zip .
+        popd
+        
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
         echo zip -r lambda.zip .
         zip -r lambda.zip .
         popd
@@ -317,9 +353,15 @@ jobs:
       shell: bash
       run: |
         echo Push Lambda functions to S3 Test
+        
         pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
         echo aws s3 cp lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
         aws s3 cp lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+        popd
+        
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
+        echo aws s3 cp lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
         popd
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
@@ -340,11 +382,17 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-        #echo Push Lambda functions to S3 Staging
-        #pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-        #echo aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-        #aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-        #popd
+        echo Push Lambda functions to S3 Staging
+        
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        echo aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+        popd
+        
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
+        echo aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+        popd
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
         
@@ -364,11 +412,17 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-       #echo Push Lambda functions to S3 Production
-       #pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-       #echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-       #aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-       #popd
+       echo Push Lambda functions to S3 Production
+
+       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+       popd
+       
+       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
+       echo aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+       popd
       env:
        SEMVER: ${{ env.RELEASE_VERSION }}
 
@@ -454,6 +508,13 @@ jobs:
       shell: bash
       run: dotnet --info
 
+    - name: Download NuGet package BackOffice
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/download-artifact@v3
+      with:
+        name: nuget-backoffice
+        path: ~/
+
     - name: Download NuGet package BackOffice.Api
       if: env.RELEASE_VERSION != 'none'
       uses: actions/download-artifact@v3
@@ -478,6 +539,7 @@ jobs:
     - name: Publish packages to NuGet
       shell: bash
       run: |
+        dotnet nuget push ~/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.$SEMVER.nupkg --source nuget.org --api-key $NUGET_API_KEY
         dotnet nuget push ~/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api.$SEMVER.nupkg --source nuget.org --api-key $NUGET_API_KEY
         dotnet nuget push ~/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions.$SEMVER.nupkg --source nuget.org --api-key $NUGET_API_KEY
         dotnet nuget push ~/Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters.$SEMVER.nupkg --source nuget.org --api-key $NUGET_API_KEY
@@ -508,6 +570,12 @@ jobs:
       # Download artifacts
       #
       
+      - name: Download adminhost
+        uses: actions/download-artifact@v3
+        with:
+          name: adminhost
+          path: ~/
+      
       - name: Download projector
         uses: actions/download-artifact@v3
         with:
@@ -598,6 +666,12 @@ jobs:
           name: extract-legacy
           path: ~/
 
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
+      
       #
       # Load artifacts
       #
@@ -605,6 +679,7 @@ jobs:
       - name: Load artifacts
         shell: bash
         run: |
+          docker image load -i ~/rr-adminhost-image.tar
           docker image load -i ~/rr-projector-image.tar
           docker image load -i ~/rr-backoffice-api-image.tar
           docker image load -i ~/rr-backoffice-ui-image.tar
@@ -620,12 +695,14 @@ jobs:
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
+          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
       - name: Push artifacts to ECR Test
         if: needs.build.outputs.version != 'none'
         shell: bash
         run: |
           echo $SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
@@ -641,6 +718,7 @@ jobs:
           docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           SEMVER: ${{ needs.build.outputs.version }}
@@ -669,6 +747,12 @@ jobs:
       # Download artifacts
       #
       
+      - name: Download adminhost
+        uses: actions/download-artifact@v3
+        with:
+          name: adminhost
+          path: ~/
+      
       - name: Download projector
         uses: actions/download-artifact@v3
         with:
@@ -759,6 +843,12 @@ jobs:
           name: extract-legacy
           path: ~/
 
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
+      
       #
       # Load artifacts
       #
@@ -766,6 +856,7 @@ jobs:
       - name: Load artifacts
         shell: bash
         run: |
+          docker image load -i ~/rr-adminhost-image.tar
           docker image load -i ~/rr-projector-image.tar
           docker image load -i ~/rr-backoffice-api-image.tar
           docker image load -i ~/rr-backoffice-ui-image.tar
@@ -781,11 +872,15 @@ jobs:
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
+          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
       - name: Push artifacts to ECR Staging
         if: env.RELEASE_VERSION != 'none'
         shell: bash
         run: |
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/adminhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
 
@@ -831,6 +926,9 @@ jobs:
           docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
       
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/streetnameconsumer-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
+
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
@@ -858,6 +956,12 @@ jobs:
       #
       # Download artifacts
       #
+      
+      - name: Download adminhost
+        uses: actions/download-artifact@v3
+        with:
+          name: adminhost
+          path: ~/
       
       - name: Download projector
         uses: actions/download-artifact@v3
@@ -949,6 +1053,12 @@ jobs:
           name: extract-legacy
           path: ~/
 
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
+      
       #
       # Load artifacts
       #
@@ -956,6 +1066,7 @@ jobs:
       - name: Load artifacts
         shell: bash
         run: |
+          docker image load -i ~/rr-adminhost-image.tar
           docker image load -i ~/rr-projector-image.tar
           docker image load -i ~/rr-backoffice-api-image.tar
           docker image load -i ~/rr-backoffice-ui-image.tar
@@ -971,12 +1082,16 @@ jobs:
           docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
           docker image load -i ~/rr-import-legacy-image.tar
           docker image load -i ~/rr-extract-legacy-image.tar
+          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
 
       - name: Push artifacts to ECR Production
         if: env.RELEASE_VERSION != 'none'
         shell: bash
         run: |
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/adminhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/adminhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/adminhost:$SEMVER
+
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/projector:$SEMVER
 
@@ -1022,6 +1137,9 @@ jobs:
           docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
           docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/extract-legacy:$SEMVER
   
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/streetnameconsumer-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/streetnameconsumer-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/streetnameconsumer-projectionhost:$SEMVER
+  
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
@@ -1058,7 +1176,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost']
+        services: ['road-registry-adminhost', 'road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
     
     steps:
     - name: Deploy services
@@ -1100,18 +1218,25 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        #echo aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-featurecompare-check/lambda.zip  --copy-props none
-        #aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-featurecompare-check/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+
+        echo aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.build.outputs.version }}
         
     - name: Promote Lambda(s)
       shell: bash
       run: |
-        #echo pulling awscurl docker image
-        #docker pull ghcr.io/okigan/awscurl:latest
-        #echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        #docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        echo pulling awscurl docker image
+        docker pull ghcr.io/okigan/awscurl:latest
+
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
@@ -1169,7 +1294,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost']
+        services: ['road-registry-adminhost', 'road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
 
     steps:
     - name: CD services
@@ -1211,18 +1336,25 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        #echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-check/lambda.zip  --copy-props none
-        #aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-featurecompare-check/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+
+        echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.build.outputs.version }}
         
     - name: Promote Lambda(s)
       shell: bash
       run: |
-        #echo pulling awscurl docker image
-        #docker pull ghcr.io/okigan/awscurl:latest
-        #echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        #docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        echo pulling awscurl docker image
+        docker pull ghcr.io/okigan/awscurl:latest
+        
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
+        
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
@@ -1279,8 +1411,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
        matrix: 
-         #services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector']
-         services: ['road-registry-backoffice-commandhost', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost']
+         services: ['road-registry-adminhost', 'road-registry-backoffice-commandhost', 'road-registry-backoffice-messaginghost-sqs', 'road-registry-backoffice-eventhost', 'road-registry-backoffice-extracthost', 'road-registry-backoffice-api', 'road-registry-backoffice-ui', 'road-registry-product-projectionhost', 'road-registry-wms-projectionhost', 'road-registry-wfs-projectionhost', 'road-registry-editor-projectionhost', 'road-registry-syndication-projectionhost', 'road-registry-projector', 'road-registry-producer-snapshot-projectionhost', 'road-registry-streetnameconsumer-projectionhost']
 
     steps:
     - name: CD services
@@ -1322,18 +1453,25 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        #echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip  --copy-props none
-        #aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-featurecompare-check/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+
+        echo aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.build.outputs.version }}
         
     - name: Promote Lambda(s)
       shell: bash
       run: |
-        #echo pulling awscurl docker image
-        #docker pull ghcr.io/okigan/awscurl:latest
-        #echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        #docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "checkfeaturecomparedockercontainer", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        echo pulling awscurl docker image
+        docker pull ghcr.io/okigan/awscurl:latest
+        
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
+        
+        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/prd
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}

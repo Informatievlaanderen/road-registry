@@ -23,7 +23,7 @@ public static class OurSystem
     {
         return new Command(new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
         {
-            RequestId = requestId,
+            RequestId = requestId
         });
     }
 }

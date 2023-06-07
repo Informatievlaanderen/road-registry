@@ -28,7 +28,10 @@ public class DbaseRecordEnumerator<TDbaseRecord> : IDbaseRecordEnumerator<TDbase
 
     public bool MoveNext()
     {
-        if (_state == State.Ended) return false;
+        if (_state == State.Ended)
+        {
+            return false;
+        }
 
         if (_state == State.Initial)
         {

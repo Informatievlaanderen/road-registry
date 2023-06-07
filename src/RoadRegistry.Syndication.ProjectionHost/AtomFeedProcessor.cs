@@ -211,6 +211,7 @@ public class AtomFeedProcessor<TConfiguration, TSyndicationContent> : IHostedSer
             catch (Exception exception)
             {
                 logger.LogError(exception, "[{Context}] AtomFeedProcessor message pump is exiting due to a bug", typeof(TSyndicationContent).Name);
+                throw;
             }
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }

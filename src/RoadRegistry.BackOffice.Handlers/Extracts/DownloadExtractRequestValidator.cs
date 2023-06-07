@@ -14,9 +14,11 @@ public sealed class DownloadExtractRequestValidator : AbstractValidator<Download
     public DownloadExtractRequestValidator(WKTReader reader, ILogger<DownloadExtractRequestValidator> logger)
     {
         RuleFor(c => c.RequestId)
-            .NotEmpty().WithMessage("'RequestId' must not be empty, null or missing");
+            .NotEmpty()
+            .WithMessage("'RequestId' must not be empty, null or missing");
         RuleFor(c => c.Contour)
-            .NotEmpty().WithMessage("'Contour' must not be empty, null or missing")
+            .NotEmpty()
+            .WithMessage("'Contour' must not be empty, null or missing")
             .Must(BeMultiPolygonGeometryAsWellKnownText)
             .WithMessage("'Contour' must be a valid multipolygon or polygon represented as well-known text")
             .When(c => !string.IsNullOrEmpty(c.Contour), ApplyConditionTo.CurrentValidator);

@@ -3,8 +3,8 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.ForEditor;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase.GradeSeparatedJuntions;
 using Editor.Schema;
+using Extracts.Dbase.GradeSeparatedJuntions;
 using Framework.Containers;
 using ZipArchiveWriters.ForEditor;
 
@@ -48,6 +48,7 @@ public class GradeSeparatedJunctionArchiveWriterTests
             {
                 Assert.Single(readArchive.Entries);
                 foreach (var entry in readArchive.Entries)
+                {
                     switch (entry.Name)
                     {
                         case "RltOgkruising.dbf":
@@ -68,6 +69,7 @@ public class GradeSeparatedJunctionArchiveWriterTests
                         default:
                             throw new Exception($"File '{entry.Name}' was not expected in this archive.");
                     }
+                }
             });
     }
 }

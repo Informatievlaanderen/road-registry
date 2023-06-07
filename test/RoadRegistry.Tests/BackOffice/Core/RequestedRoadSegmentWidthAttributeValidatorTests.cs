@@ -4,7 +4,6 @@ using AutoFixture;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using Xunit;
 
 public class RequestedRoadSegmentWidthAttributeValidatorTests : ValidatorTest<RequestedRoadSegmentWidthAttribute, RequestedRoadSegmentWidthAttributeValidator>
 {
@@ -70,8 +69,8 @@ public class RequestedRoadSegmentWidthAttributeValidatorTests : ValidatorTest<Re
 
     [Theory]
     [InlineData(int.MaxValue)]
-    [InlineData(46)]
-    public void WidthMustBeLessThanOrEqualTo45(int value)
+    [InlineData(51)]
+    public void WidthMustBeLessThanOrEqualTo50(int value)
     {
         ShouldHaveValidationErrorFor(c => c.Width, value);
     }

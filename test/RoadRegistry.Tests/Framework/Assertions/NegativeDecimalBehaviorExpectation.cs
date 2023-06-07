@@ -26,10 +26,14 @@ public class NegativeDecimalBehaviorExpectation : IBehaviorExpectation
     public void Verify(IGuardClauseCommand command)
     {
         if (command == null)
+        {
             throw new ArgumentNullException(nameof(command));
+        }
 
         if (command.RequestedType != typeof(decimal))
+        {
             return;
+        }
 
         try
         {

@@ -2,8 +2,10 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using System.Text;
 using Abstractions.Extracts;
+using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
+using DutchTranslations;
 using Editor.Projections.DutchTranslations;
 using Exceptions;
 using FluentValidation;
@@ -53,7 +55,7 @@ public class DownloadExtractByFileRequestItemTranslator
                                 case PolygonShapeContent polygonShapeContent:
                                     try
                                     {
-                                        polygons.AddRange(GeometryTranslator.ToGeometryMultiPolygon(polygonShapeContent.Shape).Geometries.Cast<Polygon>());
+                                        polygons.AddRange(GeometryTranslator.ToMultiPolygon(polygonShapeContent.Shape).Geometries.Cast<Polygon>());
                                     }
                                     catch (InvalidPolygonShellOrientationException)
                                     {
@@ -85,10 +87,19 @@ public class DownloadExtractByFileRequestItemTranslator
             }
 
             if (problems.Any())
+            {
                 throw new ValidationException("Shape file content contains some errors",
                     problems.Select(problem =>
-                        new ValidationFailure(nameof(DownloadExtractByFileRequest.ShpFile),
-                            ProblemWithDownload.Translator(problem))));
+                    {
+                        var problemTranslation = problem.TranslateToDutch();
+                        return new ValidationFailure
+                        {
+                            PropertyName = nameof(DownloadExtractByFileRequest.ShpFile),
+                            ErrorMessage = problem.TranslateToDutch().Message,
+                            ErrorCode = problemTranslation.Code
+                        };
+                    }));
+            }
 
             var srid = polygons.First().SRID;
             return GeometryTranslator.TranslateToRoadNetworkExtractGeometry(new MultiPolygon(polygons.ToArray()) { SRID = srid }, buffer);

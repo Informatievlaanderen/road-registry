@@ -4,7 +4,6 @@ using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Dbase;
 using Editor.Projections;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Tests.BackOffice;
@@ -65,6 +64,7 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
         _fixture.CustomizeRoadNodeModified();
         _fixture.CustomizeRoadSegmentAdded();
         _fixture.CustomizeRoadSegmentModified();
+        _fixture.CustomizeRoadSegmentGeometryModified();
         _fixture.CustomizeRoadSegmentRemoved();
 
         _fixture.CustomizeOriginProperties();
@@ -764,6 +764,66 @@ public class RoadNetworkInfoProjectionTests : IClassFixture<ProjectionTestServic
                     GradeSeparatedJunctionCount = 0
                 }
             );
+    }
+
+    [Fact]
+    public Task When_road_segment_geometry_was_modified()
+    {
+        var unrelatedRoadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+        var unrelatedRoadSegmentAddedChangesAccepted = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(unrelatedRoadSegmentAdded);
+
+        _fixture.Freeze<RoadSegmentId>();
+
+        var roadSegmentAdded = _fixture.Create<RoadSegmentAdded>();
+        var roadSegmentAddedChangesAccepted = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(roadSegmentAdded);
+
+        var roadSegmentGeometryModified = _fixture.Create<RoadSegmentGeometryModified>();
+        var roadSegmentGeometryModifiedChangesAccepted = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(roadSegmentGeometryModified);
+
+        var expectedRecords = new RoadNetworkInfo
+        {
+            Id = 0,
+            CompletedImport = false,
+            OrganizationCount = 0,
+            RoadNodeCount = 0,
+            TotalRoadNodeShapeLength = 0,
+            RoadSegmentCount = 2,
+            RoadSegmentSurfaceAttributeCount =
+                roadSegmentGeometryModified.Surfaces.Length + unrelatedRoadSegmentAdded.Surfaces.Length,
+            RoadSegmentLaneAttributeCount =
+                roadSegmentGeometryModified.Lanes.Length + unrelatedRoadSegmentAdded.Lanes.Length,
+            RoadSegmentWidthAttributeCount =
+                roadSegmentGeometryModified.Widths.Length + unrelatedRoadSegmentAdded.Widths.Length,
+            RoadSegmentEuropeanRoadAttributeCount = 0,
+            RoadSegmentNationalRoadAttributeCount = 0,
+            RoadSegmentNumberedRoadAttributeCount = 0,
+            TotalRoadSegmentShapeLength =
+                new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(
+                        GeometryTranslator.Translate(roadSegmentAdded.Geometry)))
+                    .ContentLength.Plus(ShapeRecord.HeaderLength)
+                    .ToInt32()
+                +
+                new PolyLineMShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(
+                        GeometryTranslator.Translate(unrelatedRoadSegmentAdded.Geometry)))
+                    .ContentLength.Plus(ShapeRecord.HeaderLength)
+                    .ToInt32(),
+            GradeSeparatedJunctionCount = 0
+        };
+
+        return new RoadNetworkInfoProjection()
+            .Scenario()
+            .Given(
+                new BeganRoadNetworkImport(),
+                unrelatedRoadSegmentAddedChangesAccepted,
+                roadSegmentAddedChangesAccepted,
+                roadSegmentGeometryModifiedChangesAccepted)
+            .Expect(expectedRecords);
     }
 
     [Fact]

@@ -42,44 +42,58 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
     {
-        if (request.DownloadId is null) throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
-
-        if (Guid.TryParseExact(request.DownloadId, "N", out var parsedDownloadId))
+        if (!ContentType.TryParse(request.Archive.ContentType, out var parsedContentType) || !SupportedContentTypes.Contains(parsedContentType))
         {
-            if (!ContentType.TryParse(request.Archive.ContentType, out var parsedContentType) || !SupportedContentTypes.Contains(parsedContentType))
-                throw new UnsupportedMediaTypeException();
-
-            var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                           ?? throw new ExtractDownloadNotFoundException(DownloadId.Parse(parsedDownloadId.ToString()));
-
-            await using var readStream = request.Archive.ReadStream;
-
-            var uploadId = new UploadId(Guid.NewGuid());
-            var archiveId = new ArchiveId(uploadId.ToString());
-            var metadata = Metadata.None;
-
-            await _client.CreateBlobAsync(
-                new BlobName(archiveId.ToString()),
-                metadata,
-                ContentType.Parse("application/zip"),
-                readStream,
-                cancellationToken
-            );
-
-            var message = new Command(
-                new UploadRoadNetworkExtractChangesArchive
-                {
-                    RequestId = download.RequestId,
-                    DownloadId = download.DownloadId,
-                    UploadId = uploadId.ToGuid(),
-                    ArchiveId = archiveId.ToString()
-                });
-
-            await Dispatcher(message, cancellationToken);
-
-            return new UploadExtractResponse(uploadId);
+            throw new UnsupportedMediaTypeException();
         }
 
-        throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
+        if (request.DownloadId is null)
+        {
+            throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
+        }
+
+        if (!Guid.TryParseExact(request.DownloadId, "N", out var parsedDownloadId))
+        {
+            throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
+        }
+
+        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
+                             ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+
+        if (extractRequest.IsInformative)
+        {
+            throw new ExtractRequestMarkedInformativeException(new DownloadId(parsedDownloadId));
+        }
+
+        var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
+                       ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+
+        await using var readStream = request.Archive.ReadStream;
+
+        var uploadId = new UploadId(Guid.NewGuid());
+        var archiveId = new ArchiveId(uploadId.ToString());
+        var metadata = Metadata.None;
+
+        await _client.CreateBlobAsync(
+            new BlobName(archiveId.ToString()),
+            metadata,
+            ContentType.Parse("application/zip"),
+            readStream,
+            cancellationToken
+        );
+
+        var message = new Command(
+            new UploadRoadNetworkExtractChangesArchive
+            {
+                RequestId = download.RequestId,
+                DownloadId = download.DownloadId,
+                UploadId = uploadId.ToGuid(),
+                ArchiveId = archiveId.ToString(),
+                UseZipArchiveFeatureCompareTranslator = request.UseZipArchiveFeatureCompareTranslator
+            });
+
+        await Dispatcher(message, cancellationToken);
+
+        return new UploadExtractResponse(uploadId);
     }
 }

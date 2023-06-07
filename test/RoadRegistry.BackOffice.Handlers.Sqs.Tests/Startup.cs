@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Tests;
 
-using Amazon;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +13,6 @@ public class Startup : TestStartup
 
     protected override void ConfigureServices(HostBuilderContext hostBuilderContext, IServiceCollection services)
     {
-        services.AddSingleton(sp => new SqsOptions("test", "test", RegionEndpoint.EUWest1));
+        services.AddSingleton<SqsOptions>(sp => new FakeSqsOptions());
     }
 }

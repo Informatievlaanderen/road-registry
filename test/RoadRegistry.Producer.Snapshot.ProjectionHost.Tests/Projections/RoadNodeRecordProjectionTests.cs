@@ -1,7 +1,6 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 
 using System.Globalization;
-using System.Linq;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Messages;
@@ -11,7 +10,6 @@ using Extensions;
 using Moq;
 using ProjectionHost.Projections;
 using RoadNode;
-using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
@@ -60,6 +58,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
 
             return (object)new RoadNodeRecord(
                 roadNodeAdded.Id,
+                roadNodeAdded.Version,
                 typeTranslation.Identifier,
                 typeTranslation.Name,
                 point,
@@ -73,9 +72,9 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             .ReturnsAsync(Result<RoadNodeSnapshot>.Success(It.IsAny<RoadNodeSnapshot>()));
 
         await new RoadNodeRecordProjection(kafkaProducer.Object)
-             .Scenario()
-             .Given(message)
-             .Expect(created.UtcDateTime, expectedRecords);
+            .Scenario()
+            .Given(message)
+            .Expect(created.UtcDateTime, expectedRecords);
 
         foreach (var expectedRecord in expectedRecords.Cast<RoadNodeRecord>())
         {
@@ -111,6 +110,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
 
             return (object)new RoadNodeRecord(
                 roadNodeModified.Id,
+                roadNodeModified.Version,
                 typeTranslation.Identifier,
                 typeTranslation.Name,
                 point,
@@ -161,13 +161,14 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
             var point = GeometryTranslator.Translate(roadNodeAdded.Geometry);
 
             return (object)new RoadNodeRecord(
-                roadNodeAdded.Id,
-                typeTranslation.Identifier,
-                typeTranslation.Name,
-                point,
-                acceptedRoadNodeAdded.ToOrigin(),
-                created.AddDays(-1))
-            { IsRemoved = true };
+                    roadNodeAdded.Id,
+                    roadNodeAdded.Version,
+                    typeTranslation.Identifier,
+                    typeTranslation.Name,
+                    point,
+                    acceptedRoadNodeAdded.ToOrigin(),
+                    created.AddDays(-1))
+                { IsRemoved = true };
         });
 
         expectedRecords = Array.ConvertAll(acceptedRoadNodeRemoved.Changes, change =>
@@ -218,6 +219,7 @@ public class RoadNodeRecordProjectionTests : IClassFixture<ProjectionTestService
 
                 var expectedRecord = new RoadNodeRecord(
                     @event.Id,
+                    @event.Version,
                     typeTranslation.Identifier,
                     typeTranslation.Name,
                     point,

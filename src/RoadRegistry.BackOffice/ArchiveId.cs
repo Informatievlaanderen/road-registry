@@ -44,6 +44,11 @@ public readonly struct ArchiveId : IEquatable<ArchiveId>
         return _value;
     }
 
+    public Guid ToGuid()
+    {
+        return Guid.Parse(_value);
+    }
+
     public static bool operator ==(ArchiveId left, ArchiveId right)
     {
         return left.Equals(right);
@@ -61,6 +66,6 @@ public readonly struct ArchiveId : IEquatable<ArchiveId>
 
     public static implicit operator Guid(ArchiveId instance)
     {
-        return Guid.Parse(instance._value);
+        return instance.ToGuid();
     }
 }

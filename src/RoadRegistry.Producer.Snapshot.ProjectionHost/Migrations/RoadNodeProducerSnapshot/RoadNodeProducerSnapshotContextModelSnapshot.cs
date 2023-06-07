@@ -68,6 +68,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Migrations.RoadNodeProdu
                     b.Property<int>("TypeId")
                         .HasColumnType("int");
 
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));

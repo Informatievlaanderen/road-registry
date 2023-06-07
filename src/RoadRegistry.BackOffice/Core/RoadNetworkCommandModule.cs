@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Core;
 
 using System;
 using System.Threading.Tasks;
+using Autofac;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -12,57 +13,28 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 {
     public RoadNetworkCommandModule(
         IStreamStore store,
-        Func<EventSourcedEntityMap> entityMapFactory,
+        ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
-        IRoadNetworkSnapshotWriter snapshotWriter,
         IClock clock,
-        ILogger<RoadNetworkCommandModule> logger)
+        ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(clock);
-        ArgumentNullException.ThrowIfNull(logger);
-        
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+
+        var logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
         var enricher = EnrichEvent.WithTime(clock);
-
-        For<RebuildRoadNetworkSnapshot>()
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
-            .Handle(async (context, command, commandMetadata, ct) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshot));
-
-                await snapshotWriter.SetHeadToVersion(command.Body.StartFromVersion, ct);
-                var (network, version) = await context.RoadNetworks.GetWithVersion(ct);
-                await snapshotWriter.WriteSnapshot(network.TakeSnapshot(), version, ct);
-
-                var completedCommand = new RebuildRoadNetworkSnapshotCompleted
-                {
-                    StartFromVersion = command.Body.StartFromVersion,
-                    CurrentVersion = version
-                };
-
-                await new RoadNetworkCommandQueue(store, commandMetadata)
-                    .Write(new Command(completedCommand), ct);
-
-                logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshot));
-            });
-
-        For<RebuildRoadNetworkSnapshotCompleted>()
-            .Handle((_, _, _) =>
-            {
-                logger.LogInformation("Command handler started for {CommandName}", nameof(RebuildRoadNetworkSnapshotCompleted));
-                logger.LogInformation("Command handler finished for {Command}", nameof(RebuildRoadNetworkSnapshotCompleted));
-                return Task.CompletedTask;
-            });
         
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, message, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(ChangeRoadNetwork));
 
                 var request = ChangeRequestId.FromString(message.Body.RequestId);
+                DownloadId? downloadId = message.Body.DownloadId is not null ? new DownloadId(message.Body.DownloadId.Value) : null;
                 var @operator = new OperatorName(message.Body.Operator);
                 var reason = new Reason(message.Body.Reason);
                 var organizationId = new OrganizationId(message.Body.OrganizationId);
@@ -73,25 +45,28 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 var translator = new RequestedChangeTranslator(
                     network.ProvidesNextTransactionId(),
                     network.ProvidesNextRoadNodeId(),
+                    network.ProvidesNextRoadNodeVersion(),
                     network.ProvidesNextRoadSegmentId(),
                     network.ProvidesNextGradeSeparatedJunctionId(),
                     network.ProvidesNextEuropeanRoadAttributeId(),
                     network.ProvidesNextNationalRoadAttributeId(),
                     network.ProvidesNextNumberedRoadAttributeId(),
+                    network.ProvidesNextRoadSegmentVersion(),
+                    network.ProvidesNextRoadSegmentGeometryVersion(),
                     network.ProvidesNextRoadSegmentLaneAttributeId(),
                     network.ProvidesNextRoadSegmentWidthAttributeId(),
                     network.ProvidesNextRoadSegmentSurfaceAttributeId()
                 );
                 var requestedChanges = await translator.Translate(message.Body.Changes, context.Organizations, ct);
 
-                network.Change(request, reason, @operator, translation, requestedChanges);
+                network.Change(request, downloadId, reason, @operator, translation, requestedChanges);
 
                 logger.LogInformation("Command handler finished for {Command}", nameof(ChangeRoadNetwork));
             });
 
         For<CreateOrganization>()
             .UseValidator(new CreateOrganizationValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(CreateOrganization));
@@ -137,7 +112,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<DeleteOrganization>()
             .UseValidator(new DeleteOrganizationValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(DeleteOrganization));
@@ -174,7 +149,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         For<RenameOrganization>()
             .UseValidator(new RenameOrganizationValidator())
-            .UseRoadRegistryContext(store, entityMapFactory, snapshotReader, enricher)
+            .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, enricher)
             .Handle(async (context, command, commandMetadata, ct) =>
             {
                 logger.LogInformation("Command handler started for {CommandName}", nameof(RenameOrganization));

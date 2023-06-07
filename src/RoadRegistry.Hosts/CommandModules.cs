@@ -1,11 +1,11 @@
 namespace RoadRegistry.Hosts;
 
 using System;
+using Autofac;
 using BackOffice.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
-using BackOffice.Framework;
 using SqlStreamStore;
 
 public static class CommandModules
@@ -14,11 +14,10 @@ public static class CommandModules
     {
         return new RoadNetworkCommandModule(
             sp.GetService<IStreamStore>(),
-            sp.GetService<Func<EventSourcedEntityMap>>(),
+            sp.GetService<ILifetimeScope>(),
             sp.GetService<IRoadNetworkSnapshotReader>(),
-            sp.GetService<IRoadNetworkSnapshotWriter>(),
             sp.GetService<IClock>(),
-            sp.GetService<ILogger<RoadNetworkCommandModule>>()
+            sp.GetService<ILoggerFactory>()
         );
     }
 }
