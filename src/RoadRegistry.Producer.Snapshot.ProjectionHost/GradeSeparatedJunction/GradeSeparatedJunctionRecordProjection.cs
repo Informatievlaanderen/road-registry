@@ -113,14 +113,20 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             var gradeSeparatedJunctionRecord =
                 await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionRemoved.Id).ConfigureAwait(false);
 
-            if (gradeSeparatedJunctionRecord != null)
+            if (gradeSeparatedJunctionRecord == null)
             {
-                gradeSeparatedJunctionRecord.Origin = envelope.Message.ToOrigin();
-                gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
-                gradeSeparatedJunctionRecord.IsRemoved = true;
-
-                await Produce(gradeSeparatedJunctionRecord.Id, gradeSeparatedJunctionRecord.ToContract(), token);
+                throw new InvalidOperationException($"{nameof(GradeSeparatedJunctionRecord)} with id {gradeSeparatedJunctionRemoved.Id} is not found");
             }
+            if (gradeSeparatedJunctionRecord.IsRemoved)
+            {
+                throw new InvalidOperationException($"{nameof(GradeSeparatedJunctionRecord)} with id {gradeSeparatedJunctionRemoved.Id} is already removed");
+            }
+
+            gradeSeparatedJunctionRecord.Origin = envelope.Message.ToOrigin();
+            gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            gradeSeparatedJunctionRecord.IsRemoved = true;
+
+            await Produce(gradeSeparatedJunctionRecord.Id, gradeSeparatedJunctionRecord.ToContract(), token);
         }
 
         private async Task Produce(int gradeSeparatedJunctionId, GradeSeparatedJunctionSnapshot snapshot, CancellationToken cancellationToken)

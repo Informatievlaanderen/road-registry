@@ -180,7 +180,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id);
         if (roadSegmentRecord == null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentModified.Id} is not found");
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
         }
 
         roadSegmentRecord.Id = roadSegmentModified.Id;
@@ -230,7 +230,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id);
         if (roadSegmentRecord == null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentAttributesModified.Id} is not found");
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
         }
 
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
@@ -293,7 +293,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentGeometryModified.Id);
         if (roadSegmentRecord == null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentGeometryModified.Id} is not found");
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentGeometryModified.Id} is not found");
         }
 
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
@@ -322,6 +322,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
     private static async Task RemoveRoadSegment(EditorContext context, RoadSegmentRemoved roadSegmentRemoved)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
+        }
 
         context.RoadSegments.Remove(roadSegmentRecord);
     }

@@ -9,8 +9,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Be.Vlaanderen.Basisregisters.Shaperon;
-    using Editor.Schema.RoadSegments;
     using Extensions;
     using Projections;
     using Syndication.Schema;
@@ -221,7 +219,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
-                throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentModified.Id} is not found");
+                throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
             }
 
             roadSegmentRecord.Version = roadSegmentModified.Version;
@@ -279,7 +277,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
-                throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentAttributesModified.Id} is not found");
+                throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
             }
 
             if (roadSegmentAttributesModified.MaintenanceAuthority is not null)
@@ -345,7 +343,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
-                throw new InvalidOperationException($"RoadNodeRecord with id {segment.Id} is not found");
+                throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
             }
 
             roadSegmentRecord.Geometry = GeometryTranslator.Translate(segment.Geometry);
@@ -371,7 +369,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
-                throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentRemoved.Id} is not found");
+                throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
+            }
+            if (roadSegmentRecord.IsRemoved)
+            {
+                throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is already removed");
             }
 
             roadSegmentRecord.Origin = envelope.Message.ToOrigin();
