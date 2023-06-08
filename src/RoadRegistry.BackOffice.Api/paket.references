@@ -14,3 +14,4 @@ Microsoft.Extensions.FileProviders.Abstractions
 Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite
 
 Serilog.Sinks.Seq
+Serilog.Sinks.Slack

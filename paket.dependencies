@@ -48,6 +48,7 @@ nuget Serilog.Extensions.Logging 3.1.0
 nuget Serilog.Formatting.Compact 1.1.0
 nuget Serilog.Settings.Configuration 3.4.0
 nuget Serilog.Sinks.Seq 5.2.1
+nuget Serilog.Sinks.Slack 2.2.1
 nuget SqlStreamStore 1.2.0
 nuget SqlStreamStore.MsSql 1.2.0
 nuget Structurizr.Client 0.9.7
