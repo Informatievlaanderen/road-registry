@@ -482,6 +482,7 @@ public class ZipArchiveTranslatorTests
                         new AddRoadSegment(
                                 new RecordNumber(1),
                                 temporaryIdForSegment1,
+                                new RoadSegmentId(roadSegmentChangeDbaseRecord1.WS_OIDN.Value),
                                 new RoadNodeId(roadSegmentChangeDbaseRecord1.B_WK_OIDN.Value),
                                 new RoadNodeId(roadSegmentChangeDbaseRecord1.E_WK_OIDN.Value),
                                 new OrganizationId(roadSegmentChangeDbaseRecord1.BEHEERDER.Value),
@@ -524,6 +525,7 @@ public class ZipArchiveTranslatorTests
                         new AddRoadSegment(
                             new RecordNumber(2),
                             temporaryIdForSegment2,
+                            new RoadSegmentId(roadSegmentChangeDbaseRecord2.WS_OIDN.Value),
                             new RoadNodeId(roadSegmentChangeDbaseRecord2.B_WK_OIDN.Value),
                             new RoadNodeId(roadSegmentChangeDbaseRecord2.E_WK_OIDN.Value),
                             new OrganizationId(roadSegmentChangeDbaseRecord2.BEHEERDER.Value),

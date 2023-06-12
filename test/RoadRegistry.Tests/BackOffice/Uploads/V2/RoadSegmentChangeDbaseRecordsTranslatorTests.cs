@@ -184,6 +184,7 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
                                 current.EVENTIDN.HasValue && current.EVENTIDN.Value != 0
                                     ? new RoadSegmentId(current.EVENTIDN.Value)
                                     : new RoadSegmentId(current.WS_OIDN.Value),
+                                new RoadSegmentId(current.WS_OIDN.Value),
                                 new RoadNodeId(current.B_WK_OIDN.Value),
                                 new RoadNodeId(current.E_WK_OIDN.Value),
                                 new OrganizationId(current.BEHEERDER.Value),
