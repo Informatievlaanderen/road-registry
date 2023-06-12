@@ -111,7 +111,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             CancellationToken token)
         {
             var gradeSeparatedJunctionRecord =
-                await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionRemoved.Id).ConfigureAwait(false);
+                await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionRemoved.Id, cancellationToken: token).ConfigureAwait(false);
 
             if (gradeSeparatedJunctionRecord == null)
             {

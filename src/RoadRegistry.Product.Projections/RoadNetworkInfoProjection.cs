@@ -1,11 +1,13 @@
 namespace RoadRegistry.Product.Projections;
 
+using System.Threading;
 using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using RoadRegistry.BackOffice;
+using RTools_NTS.Util;
 using Schema;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
@@ -95,15 +97,15 @@ public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
                         break;
 
                     case RoadSegmentModified m:
-                        await OnRoadSegmentModified(context, m, info);
+                        await OnRoadSegmentModified(context, m, info, token);
                         break;
 
                     case RoadSegmentGeometryModified m:
-                        await OnRoadSegmentGeometryModified(context, m, info);
+                        await OnRoadSegmentGeometryModified(context, m, info, token);
                         break;
 
                     case RoadSegmentRemoved m:
-                        await OnRoadSegmentRemoved(context, m, info);
+                        await OnRoadSegmentRemoved(context, m, info, token);
                         break;
 
                     case RoadSegmentAddedToEuropeanRoad _:
@@ -166,9 +168,9 @@ public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
         await context.RoadNetworkInfoSegmentCache.AddAsync(roadNetworkInfoSegmentCache);
     }
 
-    private static async Task OnRoadSegmentModified(ProductContext context, RoadSegmentModified m, RoadNetworkInfo info)
+    private static async Task OnRoadSegmentModified(ProductContext context, RoadSegmentModified m, RoadNetworkInfo info, CancellationToken token)
     {
-        var oldSegmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id);
+        var oldSegmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id, cancellationToken: token).ConfigureAwait(false);
         var newSegmentCache = new RoadNetworkInfoSegmentCache
         {
             ShapeLength = new PolyLineMShapeContent(
@@ -192,9 +194,9 @@ public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
         oldSegmentCache.WidthsLength = newSegmentCache.WidthsLength;
     }
 
-    private static async Task OnRoadSegmentGeometryModified(ProductContext context, RoadSegmentGeometryModified m, RoadNetworkInfo info)
+    private static async Task OnRoadSegmentGeometryModified(ProductContext context, RoadSegmentGeometryModified m, RoadNetworkInfo info, CancellationToken token)
     {
-        var oldSegmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id);
+        var oldSegmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id, cancellationToken: token).ConfigureAwait(false);
         var newSegmentCache = new RoadNetworkInfoSegmentCache
         {
             ShapeLength = new PolyLineMShapeContent(
@@ -218,11 +220,11 @@ public class RoadNetworkInfoProjection : ConnectedProjection<ProductContext>
         oldSegmentCache.WidthsLength = newSegmentCache.WidthsLength;
     }
 
-    private static async Task OnRoadSegmentRemoved(ProductContext context, RoadSegmentRemoved m, RoadNetworkInfo info)
+    private static async Task OnRoadSegmentRemoved(ProductContext context, RoadSegmentRemoved m, RoadNetworkInfo info, CancellationToken token)
     {
         info.RoadSegmentCount -= 1;
 
-        var segmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id);
+        var segmentCache = await context.RoadNetworkInfoSegmentCache.FindAsync(m.Id, cancellationToken: token).ConfigureAwait(false);
 
         info.TotalRoadSegmentShapeLength -= segmentCache.ShapeLength;
 

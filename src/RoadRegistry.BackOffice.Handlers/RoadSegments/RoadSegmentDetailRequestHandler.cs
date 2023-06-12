@@ -36,7 +36,7 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
 
     public override async Task<RoadSegmentDetailResponse> HandleAsync(RoadSegmentDetailRequest request, CancellationToken cancellationToken)
     {
-        var roadSegment = await _editorContext.RoadSegments.FindAsync(request.WegsegmentId);
+        var roadSegment = await _editorContext.RoadSegments.FindAsync(new object[]{ request.WegsegmentId }, cancellationToken);
         if (roadSegment == null)
         {
             throw new RoadSegmentNotFoundException();

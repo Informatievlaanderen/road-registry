@@ -52,7 +52,7 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProject
                         break;
                     case RoadSegmentRemovedFromEuropeanRoad europeanRoad:
                         var roadSegmentEuropeanRoadAttributeRecord =
-                            await context.RoadSegmentEuropeanRoadAttributes.FindAsync(europeanRoad.AttributeId);
+                            await context.RoadSegmentEuropeanRoadAttributes.FindAsync(europeanRoad.AttributeId, cancellationToken: token).ConfigureAwait(false);
 
                         if (roadSegmentEuropeanRoadAttributeRecord != null)
                         {

@@ -32,7 +32,7 @@ public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsum
 
     private static async Task<StreetNameConsumerItem> FindOrThrow(StreetNameConsumerContext context, string streetNameId, CancellationToken token)
     {
-        var streetNameConsumerItem = await context.StreetNames.FindAsync(streetNameId, cancellationToken: token);
+        var streetNameConsumerItem = await context.StreetNames.FindAsync(streetNameId, cancellationToken: token).ConfigureAwait(false);
         if (streetNameConsumerItem == null)
         {
             throw new InvalidOperationException($"No street name with id {streetNameId} was found.");

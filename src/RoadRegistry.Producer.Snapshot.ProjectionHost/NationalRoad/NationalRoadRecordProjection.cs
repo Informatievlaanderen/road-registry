@@ -118,7 +118,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             CancellationToken token)
         {
             var nationalRoadRecord =
-                await context.NationalRoads.FindAsync(nationalRoadId).ConfigureAwait(false);
+                await context.NationalRoads.FindAsync(nationalRoadId, cancellationToken: token).ConfigureAwait(false);
 
             if (nationalRoadRecord == null)
             {

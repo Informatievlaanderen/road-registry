@@ -1,10 +1,12 @@
 namespace RoadRegistry.Syndication.Projections;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using MunicipalityEvents;
+using RTools_NTS.Util;
 using Schema;
 
 public class MunicipalityCacheProjection : ConnectedProjection<SyndicationContext>
@@ -147,15 +149,15 @@ public class MunicipalityCacheProjection : ConnectedProjection<SyndicationContex
 
         When<Envelope<MunicipalityWasCorrectedToRetired>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             municipalityRecord.MunicipalityStatus = MunicipalityStatus.Retired;
         });
     }
 
-    private static async Task<MunicipalityRecord> FindOrThrow(SyndicationContext context, Guid municipalityId)
+    private static async Task<MunicipalityRecord> FindOrThrow(SyndicationContext context, Guid municipalityId, CancellationToken token)
     {
-        var municipalityRecord = await context.Municipalities.FindAsync(municipalityId);
+        var municipalityRecord = await context.Municipalities.FindAsync(municipalityId, cancellationToken: token).ConfigureAwait(false);
         if (municipalityRecord == null) throw new InvalidOperationException($"No municipality with id {municipalityId} was found.");
 
         return municipalityRecord;

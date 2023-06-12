@@ -125,7 +125,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
         var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(node.Geometry));
         var pointShapeContent = new PointShapeContent(point);
 
-        var roadNode = await context.RoadNodes.FindAsync(new[] { node.Id }, token).ConfigureAwait(false);
+        var roadNode = await context.RoadNodes.FindAsync(node.Id, cancellationToken: token).ConfigureAwait(false);
         if (roadNode == null)
         {
             throw new InvalidOperationException($"RoadNodeRecord with id {node.Id} is not found");
@@ -140,7 +140,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
 
     private static async Task RemoveRoadNode(EditorContext context, RoadNodeRemoved node, CancellationToken token)
     {
-        var roadNode = await context.RoadNodes.FindAsync(new[]{ node.Id }, token).ConfigureAwait(false);
+        var roadNode = await context.RoadNodes.FindAsync(node.Id, cancellationToken: token).ConfigureAwait(false);
         if (roadNode == null)
         {
             throw new InvalidOperationException($"RoadNodeRecord with id {node.Id} is not found");
