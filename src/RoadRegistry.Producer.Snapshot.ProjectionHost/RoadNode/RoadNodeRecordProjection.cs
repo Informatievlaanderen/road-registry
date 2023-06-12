@@ -107,7 +107,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             RoadNodeRemoved roadNodeRemoved,
             CancellationToken token)
         {
-            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id).ConfigureAwait(false);
+            var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id, cancellationToken: token).ConfigureAwait(false);
             if (roadNodeRecord == null)
             {
                 throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is not found");

@@ -365,7 +365,7 @@ public class StreetNameCacheProjection : ConnectedProjection<SyndicationContext>
 
     private static async Task<StreetNameRecord> FindOrThrow(SyndicationContext context, Guid streetNameId, CancellationToken token)
     {
-        var streetNameRecord = await context.StreetNames.FindAsync(streetNameId, cancellationToken: token);
+        var streetNameRecord = await context.StreetNames.FindAsync(streetNameId, cancellationToken: token).ConfigureAwait(false);
         if (streetNameRecord == null) throw new InvalidOperationException($"No street name with id {streetNameId} was found.");
 
         return streetNameRecord;

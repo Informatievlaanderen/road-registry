@@ -216,7 +216,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.LeftSide.StreetNameId, token);
             var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.RightSide.StreetNameId, token);
 
-            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id).ConfigureAwait(false);
+            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id, cancellationToken: token).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
@@ -274,7 +274,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             RoadSegmentAttributesModified roadSegmentAttributesModified,
             CancellationToken token)
         {
-            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id).ConfigureAwait(false);
+            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id, cancellationToken: token).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
@@ -340,7 +340,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             RoadSegmentGeometryModified segment,
             CancellationToken token)
         {
-            var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
+            var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id, cancellationToken: token).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
@@ -366,7 +366,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
         private async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, RoadSegmentProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope, CancellationToken token)
         {
-            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id).ConfigureAwait(false);
+            var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
             if (roadSegmentRecord == null)
             {
                 throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
