@@ -9,8 +9,6 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Triangulate;
-using RTools_NTS.Util;
 using Schema;
 using Syndication.Schema;
 

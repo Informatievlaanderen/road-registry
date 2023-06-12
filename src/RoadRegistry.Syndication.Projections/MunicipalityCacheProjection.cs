@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using MunicipalityEvents;
-using RTools_NTS.Util;
 using Schema;
 
 public class MunicipalityCacheProjection : ConnectedProjection<SyndicationContext>
@@ -30,7 +29,7 @@ public class MunicipalityCacheProjection : ConnectedProjection<SyndicationContex
 
         When<Envelope<MunicipalityWasNamed>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             switch (envelope.Message.Language)
             {
@@ -51,7 +50,7 @@ public class MunicipalityCacheProjection : ConnectedProjection<SyndicationContex
 
         When<Envelope<MunicipalityNameWasCleared>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             switch (envelope.Message.Language)
             {
@@ -72,7 +71,7 @@ public class MunicipalityCacheProjection : ConnectedProjection<SyndicationContex
 
         When<Envelope<MunicipalityNameWasCorrected>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             switch (envelope.Message.Language)
             {
@@ -93,7 +92,7 @@ public class MunicipalityCacheProjection : ConnectedProjection<SyndicationContex
 
         When<Envelope<MunicipalityNameWasCorrectedToCleared>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             switch (envelope.Message.Language)
             {
@@ -114,35 +113,35 @@ public class MunicipalityCacheProjection : ConnectedProjection<SyndicationContex
 
         When<Envelope<MunicipalityNisCodeWasDefined>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             municipalityRecord.NisCode = envelope.Message.NisCode;
         });
 
         When<Envelope<MunicipalityNisCodeWasCorrected>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             municipalityRecord.NisCode = envelope.Message.NisCode;
         });
 
         When<Envelope<MunicipalityBecameCurrent>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             municipalityRecord.MunicipalityStatus = MunicipalityStatus.Current;
         });
 
         When<Envelope<MunicipalityWasCorrectedToCurrent>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             municipalityRecord.MunicipalityStatus = MunicipalityStatus.Current;
         });
 
         When<Envelope<MunicipalityWasRetired>>(async (context, envelope, token) =>
         {
-            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId);
+            var municipalityRecord = await FindOrThrow(context, envelope.Message.MunicipalityId, token);
 
             municipalityRecord.MunicipalityStatus = MunicipalityStatus.Retired;
         });

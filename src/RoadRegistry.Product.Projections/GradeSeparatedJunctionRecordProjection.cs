@@ -10,7 +10,6 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.IO;
-using RTools_NTS.Util;
 using Schema;
 using Schema.GradeSeparatedJunctions;
 

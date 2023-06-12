@@ -12,9 +12,6 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.Triangulate;
-using RTools_NTS.Util;
 using Schema;
 
 public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<EditorContext>
