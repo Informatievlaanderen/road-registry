@@ -1,3 +1,17 @@
+# [3.48.0](https://github.com/informatievlaanderen/road-registry/compare/v3.47.1...v3.48.0) (2023-06-12)
+
+
+### Bug Fixes
+
+* set RecordPositionThreshold to 1 for PositionStoreEventProcessor ([#995](https://github.com/informatievlaanderen/road-registry/issues/995)) ([0dd54d5](https://github.com/informatievlaanderen/road-registry/commit/0dd54d5a4e9c5fb9faf0baa2838e85a7507ea5f1))
+* WFS roadnode projection use FindAsync instead of SingleAsync ([#997](https://github.com/informatievlaanderen/road-registry/issues/997)) ([a462d37](https://github.com/informatievlaanderen/road-registry/commit/a462d37cc9f72b18db66a1168116200d73284dc7))
+* WR-732 change edit attributed endpoint request structure ([#994](https://github.com/informatievlaanderen/road-registry/issues/994)) ([52018b8](https://github.com/informatievlaanderen/road-registry/commit/52018b8d4d9f65908b9148b6684414a5a9ffd51b))
+
+
+### Features
+
+* WR-703 add new edit roadsegment endpoint for wegverharding/wegbreedte/aantalRijstroken ([#996](https://github.com/informatievlaanderen/road-registry/issues/996)) ([06ad19d](https://github.com/informatievlaanderen/road-registry/commit/06ad19d45a8c63701b9babd23fe31e3378b37543))
+
 ## [3.47.1](https://github.com/informatievlaanderen/road-registry/compare/v3.47.0...v3.47.1) (2023-06-07)
 
 
