@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.Slack;
+using Serilog.Sinks.Slack.Models;
 using SqlStreamStore;
 
 public class Program
@@ -42,11 +45,28 @@ public class Program
                             Runtime =
                             {
                                 CommandLineArgs = args
+                            },
+                            MiddlewareHooks =
+                            {
+                                ConfigureSerilog = (context, loggerConfiguration) =>
+                                {
+                                    var slackSinkConfiguation = context.Configuration.GetSection(nameof(SlackSinkOptions));
+
+                                    if (!slackSinkConfiguation.Exists()) return;
+                                    var sinkOptions = new SlackSinkOptions
+                                    {
+                                        CustomUserName = typeof(Program).Namespace,
+                                        MinimumLogEventLevel = LogEventLevel.Error
+                                    };
+                                    slackSinkConfiguation.Bind(sinkOptions);
+
+                                    if(sinkOptions.WebHookUrl is not null) loggerConfiguration.WriteTo.Slack(sinkOptions);
+                                }
                             }
                         })
                     .UseKestrel((context, builder) =>
                     {
-                        if (context.HostingEnvironment.EnvironmentName == "Development")
+                        if (context.HostingEnvironment.IsDevelopment())
                         {
                             builder.ListenLocalhost(HostingPort);
                         }
