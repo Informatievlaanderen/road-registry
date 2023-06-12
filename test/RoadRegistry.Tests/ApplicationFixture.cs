@@ -21,5 +21,5 @@ public abstract class ApplicationFixture
         ObjectProvider.CustomizeOrganizationId();
     }
 
-    protected Fixture ObjectProvider { get; }
+    public Fixture ObjectProvider { get; }
 }

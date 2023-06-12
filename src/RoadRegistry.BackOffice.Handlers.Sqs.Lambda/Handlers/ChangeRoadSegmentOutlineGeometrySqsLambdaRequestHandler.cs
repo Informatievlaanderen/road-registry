@@ -1,16 +1,21 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
 using Abstractions.Exceptions;
-using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
+using Core;
+using Exceptions;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
 using TicketingService.Abstractions;
+using ModifyRoadSegmentGeometry = BackOffice.Uploads.ModifyRoadSegmentGeometry;
+using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadSegmentOutlineGeometrySqsLambdaRequest>
 {
@@ -45,9 +50,16 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
         {
             var network = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
 
+            var problems = Problems.None;
+
             var roadSegment = network.FindRoadSegment(roadSegmentId);
             if (roadSegment == null || roadSegment.AttributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
             {
+                if (roadSegment == null)
+                {
+                    problems = problems.Add(new RoadSegmentOutlinedNotFound());
+                    throw new RoadRegistryProblemsException(problems);
+                }
                 throw new RoadSegmentOutlinedNotFoundException();
             }
 
@@ -58,8 +70,8 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var width = roadSegment.AttributeHash.Widths.Single();
 
             var geometry = GeometryTranslator.Translate(request.Request.Geometry);
-            var fromPosition = new RoadSegmentPosition(0);
-            var toPosition = new RoadSegmentPosition((decimal)geometry.Length);
+            var fromPosition = RoadSegmentPosition.Zero;
+            var toPosition = RoadSegmentPosition.FromDouble(geometry.Length);
             
             return translatedChanges.AppendChange(new ModifyRoadSegmentGeometry(
                 recordNumber,

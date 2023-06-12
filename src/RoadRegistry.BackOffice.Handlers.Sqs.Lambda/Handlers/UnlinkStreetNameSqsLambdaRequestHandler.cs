@@ -47,11 +47,14 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
         {
             await _changeRoadNetworkDispatcher.DispatchAsync(request, "Straatnaam ontkoppelen", async translatedChanges =>
             {
+                var problems = Problems.None;
+
                 var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
                 var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.Request.WegsegmentId));
                 if (roadSegment == null)
                 {
-                    throw new RoadSegmentNotFoundException();
+                    problems = problems.Add(new RoadSegmentNotFound());
+                    throw new RoadRegistryProblemsException(problems);
                 }
 
                 var recordNumber = RecordNumber.Initial;
@@ -65,7 +68,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                     {
                         if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
                         {
-                            throw new RoadRegistryValidationException(new RoadSegmentStreetNameLeftNotLinked(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId));
+                            problems = problems.Add(new RoadSegmentStreetNameLeftNotLinked(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId));
                         }
                     }
 
@@ -73,7 +76,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                     {
                         if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
                         {
-                            throw new RoadRegistryValidationException(new RoadSegmentStreetNameRightNotLinked(request.Request.WegsegmentId, request.Request.RechterstraatnaamId));
+                            problems = problems.Add(new RoadSegmentStreetNameRightNotLinked(request.Request.WegsegmentId, request.Request.RechterstraatnaamId));
                         }
                     }
 
@@ -91,6 +94,11 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                         leftStreetNameId > 0 ? CrabStreetnameId.NotApplicable : roadSegment.AttributeHash.LeftStreetNameId,
                         rightStreetNameId > 0 ? CrabStreetnameId.NotApplicable : roadSegment.AttributeHash.RightStreetNameId
                     ).WithGeometry(roadSegment.Geometry));
+                }
+
+                if (problems.Any())
+                {
+                    throw new RoadRegistryProblemsException(problems);
                 }
 
                 return translatedChanges;

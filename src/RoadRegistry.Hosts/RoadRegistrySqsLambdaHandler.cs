@@ -1,5 +1,8 @@
 namespace RoadRegistry.Hosts;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Core;
 using BackOffice.Extensions;
@@ -7,16 +10,10 @@ using Be.Vlaanderen.Basisregisters.AggregateSource;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using TicketingService.Abstractions;
 
 public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambdaHandlerBase<TSqsLambdaRequest>
@@ -70,6 +67,7 @@ public abstract class RoadRegistrySqsLambdaHandler<TSqsLambdaRequest> : SqsLambd
         return exception switch
         {
             RoadRegistryValidationException validationException => validationException.ToTicketError(),
+            RoadRegistryProblemsException validationException => validationException.ToTicketError(),
             _ => null
         };
     }

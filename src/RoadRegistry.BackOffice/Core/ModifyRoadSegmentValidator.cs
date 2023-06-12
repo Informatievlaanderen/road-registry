@@ -89,12 +89,12 @@ public class ModifyRoadSegmentValidator : ModifyRoadSegmentValidatorBase
 
             RuleFor(c => c.Status)
                 .NotEmpty()
-                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForRoadSegmentOutline())
+                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForRoadSegmentEdit())
                 .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
 
             RuleFor(c => c.Morphology)
                 .NotEmpty()
-                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentOutline())
+                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentEdit())
                 .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid)
                 .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator);
 
