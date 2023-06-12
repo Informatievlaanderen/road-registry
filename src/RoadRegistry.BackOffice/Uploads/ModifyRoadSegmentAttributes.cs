@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Messages;
 using System;
+using System.Linq;
 
 public class ModifyRoadSegmentAttributes : ITranslatedChange
 {
@@ -25,6 +26,9 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
     public OrganizationId? MaintenanceAuthority { get; init; }
     public RoadSegmentMorphology Morphology { get; init; }
     public RoadSegmentStatus Status { get; init; }
+    public RoadSegmentLaneAttribute[] Lanes { get; init; }
+    public RoadSegmentSurfaceAttribute[] Surfaces { get; init; }
+    public RoadSegmentWidthAttribute[] Widths { get; init; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -38,7 +42,35 @@ public class ModifyRoadSegmentAttributes : ITranslatedChange
             Morphology = Morphology,
             Status = Status,
             Category = Category,
-            AccessRestriction = AccessRestriction
+            AccessRestriction = AccessRestriction,
+            Lanes = Lanes?
+                .Select(item => new RequestedRoadSegmentLaneAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Count = item.Count,
+                    Direction = item.Direction,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Widths = Widths?
+                .Select(item => new RequestedRoadSegmentWidthAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Width = item.Width,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray(),
+            Surfaces = Surfaces?
+                .Select(item => new RequestedRoadSegmentSurfaceAttribute
+                {
+                    AttributeId = item.TemporaryId,
+                    Type = item.Type,
+                    FromPosition = item.From,
+                    ToPosition = item.To
+                })
+                .ToArray()
         };
     }
 }

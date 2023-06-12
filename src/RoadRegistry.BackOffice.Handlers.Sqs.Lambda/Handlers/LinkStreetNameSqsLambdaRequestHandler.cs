@@ -51,11 +51,14 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         {
             await _changeRoadNetworkDispatcher.DispatchAsync(request, "Straatnaam koppelen", async translatedChanges =>
             {
+                var problems = Problems.None;
+
                 var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
                 var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.Request.WegsegmentId));
                 if (roadSegment == null)
                 {
-                    throw new RoadSegmentNotFoundException();
+                    problems = problems.Add(new RoadSegmentNotFound());
+                    throw new RoadRegistryProblemsException(problems);
                 }
 
                 var recordNumber = RecordNumber.Initial;
@@ -69,20 +72,24 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                     {
                         if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId))
                         {
-                            throw new RoadRegistryValidationException(new RoadSegmentStreetNameLeftNotUnlinked(request.Request.WegsegmentId));
+                            problems = problems.Add(new RoadSegmentStreetNameLeftNotUnlinked(request.Request.WegsegmentId));
                         }
-
-                        await ValidateStreetName(leftStreetNameId, cancellationToken);
+                        else
+                        {
+                            problems = await ValidateStreetName(leftStreetNameId, problems, cancellationToken);
+                        }
                     }
 
                     if (rightStreetNameId > 0)
                     {
                         if (!CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId))
                         {
-                            throw new RoadRegistryValidationException(new RoadSegmentStreetNameRightNotUnlinked(request.Request.WegsegmentId));
+                            problems = problems.Add(new RoadSegmentStreetNameRightNotUnlinked(request.Request.WegsegmentId));
                         }
-
-                        await ValidateStreetName(rightStreetNameId, cancellationToken);
+                        else
+                        {
+                            problems = await ValidateStreetName(rightStreetNameId, problems, cancellationToken);
+                        }
                     }
 
                     translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
@@ -101,6 +108,11 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                     ).WithGeometry(roadSegment.Geometry));
                 }
 
+                if (problems.Any())
+                {
+                    throw new RoadRegistryProblemsException(problems);
+                }
+
                 return translatedChanges;
             }, cancellationToken);
         }, cancellationToken);
@@ -115,22 +127,24 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         return Task.CompletedTask;
     }
 
-    private async Task ValidateStreetName(int streetNameId, CancellationToken cancellationToken)
+    private async Task<Problems> ValidateStreetName(int streetNameId, Problems problems, CancellationToken cancellationToken)
     {
         var streetNameStatuses = await _streetNameCache.GetStreetNameStatusesById(new[] { streetNameId }, cancellationToken);
         if (!streetNameStatuses.TryGetValue(streetNameId, out var streetNameStatus))
         {
-            throw new RoadRegistryValidationException(new StreetNameNotFound());
+            return problems.Add(new StreetNameNotFound());
         }
         if (streetNameStatus is null)
         {
-            throw new RoadRegistryValidationException(new StreetNameNotFound());
+            return problems.Add(new StreetNameNotFound());
         }
 
         if (!string.Equals(streetNameStatus, "proposed", StringComparison.InvariantCultureIgnoreCase)
             && !string.Equals(streetNameStatus, "current", StringComparison.InvariantCultureIgnoreCase))
         {
-            throw new RoadRegistryValidationException(new RoadSegmentStreetNameNotProposedOrCurrent());
+            return problems.Add(new RoadSegmentStreetNameNotProposedOrCurrent());
         }
+
+        return problems;
     }
 }

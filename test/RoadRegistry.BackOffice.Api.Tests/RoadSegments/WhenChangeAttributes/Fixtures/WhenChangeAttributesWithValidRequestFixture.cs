@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Fi
 
 using Abstractions.Fixtures;
 using Api.RoadSegments;
+using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
 using Editor.Schema;
 using MediatR;

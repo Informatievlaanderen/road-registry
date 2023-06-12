@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Ab
 
 using System.Text;
 using Api.RoadSegments;
+using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
@@ -33,21 +34,8 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
 
         TestData.CopyCustomizationsTo(ObjectProvider);
 
-        ObjectProvider.Customize<RoadSegmentMorphology>(customization =>
-            customization.FromFactory(generator =>
-                {
-                    var valid = RoadSegmentMorphology.All.Where(x => x != RoadSegmentMorphology.Unknown).ToArray();
-                    return valid[generator.Next() % valid.Length];
-                }
-            )
-        );
-        ObjectProvider.Customize<RoadSegmentStatus>(customization =>
-            customization.FromFactory(generator =>
-            {
-                var valid = RoadSegmentStatus.All.Where(x => x != RoadSegmentStatus.Unknown).ToArray();
-                return valid[generator.Next() % valid.Length];
-            })
-        );
+        ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
+        ObjectProvider.CustomizeRoadSegmentOutlineStatus();
     }
 
     protected override async Task<IActionResult> GetResultAsync(ChangeRoadSegmentAttributesParameters parameters)

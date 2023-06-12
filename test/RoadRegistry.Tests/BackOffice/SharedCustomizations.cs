@@ -582,6 +582,38 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeRoadSegmentPositionAttributesBuilder(this IFixture fixture)
+    {
+        fixture.Customize<Func<double, RoadSegmentPositionAttribute[]>>(customization =>
+            customization.FromFactory(
+                generator =>
+                {
+                    return geometryLength =>
+                    {
+                        var recordsCount = generator.Next(1, 10);
+                        var currentPosition = RoadSegmentPosition.Zero;
+                        var maxPosition = RoadSegmentPosition.FromDouble(geometryLength);
+                        var attributeLength = maxPosition / (decimal)recordsCount;
+
+                        return Enumerable.Range(1, recordsCount)
+                            .Select(_ =>
+                            {
+                                var nextPosition = new RoadSegmentPosition(currentPosition + attributeLength);
+                                var attribute = new RoadSegmentPositionAttribute
+                                {
+                                    From = currentPosition,
+                                    To = nextPosition
+                                };
+                                currentPosition = nextPosition;
+                                return attribute;
+                            })
+                            .ToArray();
+                    };
+                }
+            )
+        );
+    }
+
     public static void CustomizeRoadSegmentLaneCount(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentLaneCount>(customization =>

@@ -1,7 +1,11 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
+
+using Abstractions.Exceptions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
+using Core;
+using Exceptions;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -42,24 +46,35 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
 
             var recordNumber = RecordNumber.Initial;
+            var problems = Problems.None;
 
             foreach (var change in request.Request.ChangeRequests)
             {
                 var roadSegmentId = new RoadSegmentId(change.Id);
                 var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+                if (roadSegment is null)
+                {
+                    problems = problems.Add(new RoadSegmentNotFound());
+                    continue;
+                }
 
-                var geometryDrawMethod = roadSegment?.AttributeHash.GeometryDrawMethod;
-
+                var geometryDrawMethod = roadSegment.AttributeHash.GeometryDrawMethod;
+                
                 translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
                 {
-                    MaintenanceAuthority = change.MaintenanceAuthority is not null ? new OrganizationId(change.MaintenanceAuthority) : null,
-                    Morphology = change.Morphology is not null ? RoadSegmentMorphology.Parse(change.Morphology) : null,
-                    Status = change.Status is not null ? RoadSegmentStatus.Parse(change.Status) : null,
-                    Category = change.Category is not null ? RoadSegmentCategory.Parse(change.Category) : null,
-                    AccessRestriction = change.AccessRestriction is not null ? RoadSegmentAccessRestriction.Parse(change.AccessRestriction) : null
+                    MaintenanceAuthority = change.MaintenanceAuthority,
+                    Morphology = change.Morphology,
+                    Status = change.Status,
+                    Category = change.Category,
+                    AccessRestriction = change.AccessRestriction
                 });
 
                 recordNumber = recordNumber.Next();
+            }
+
+            if (problems.Any())
+            {
+                throw new RoadRegistryProblemsException(problems);
             }
 
             return translatedChanges;

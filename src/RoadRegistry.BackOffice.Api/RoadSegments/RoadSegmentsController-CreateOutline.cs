@@ -108,7 +108,7 @@ public record PostRoadSegmentOutlineParameters
     /// </summary>
     [DataMember(Name = "Wegsegmentstatus", Order = 2)]
     [JsonProperty(Required = Required.Always)]
-    [EnumDataType(typeof(RoadSegmentStatus.Outlined))]
+    [EnumDataType(typeof(RoadSegmentStatus.Edit))]
     public string Wegsegmentstatus { get; set; }
 
     /// <summary>
@@ -116,7 +116,7 @@ public record PostRoadSegmentOutlineParameters
     /// </summary>
     [DataMember(Name = "MorfologischeWegklasse", Order = 3)]
     [JsonProperty(Required = Required.Always)]
-    [EnumDataType(typeof(RoadSegmentMorphology.Outlined))]
+    [EnumDataType(typeof(RoadSegmentMorphology.Edit))]
     public string MorfologischeWegklasse { get; set; }
 
     /// <summary>
@@ -139,7 +139,7 @@ public record PostRoadSegmentOutlineParameters
     /// </summary>
     [DataMember(Name = "Wegverharding", Order = 6)]
     [JsonProperty(Required = Required.Always)]
-    [EnumDataType(typeof(RoadSegmentSurfaceType.Outlined))]
+    [EnumDataType(typeof(RoadSegmentSurfaceType.Edit))]
     public string Wegverharding { get; set; }
 
     /// <summary>
@@ -195,14 +195,14 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Status.IsRequired)
-            .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value).IsValidForRoadSegmentOutline())
+            .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value).IsValidForRoadSegmentEdit())
             .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
 
         RuleFor(x => x.MorfologischeWegklasse)
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.Morphology.IsRequired)
-            .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value).IsValidForRoadSegmentOutline())
+            .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value).IsValidForRoadSegmentEdit())
             .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
 
         RuleFor(x => x.Toegangsbeperking)
@@ -223,7 +223,7 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.IsRequired)
-            .Must(x => RoadSegmentSurfaceType.CanParseUsingDutchName(x) && RoadSegmentSurfaceType.ParseUsingDutchName(x).IsValidForRoadSegmentOutline())
+            .Must(x => RoadSegmentSurfaceType.CanParseUsingDutchName(x) && RoadSegmentSurfaceType.ParseUsingDutchName(x).IsValidForRoadSegmentEdit())
             .WithProblemCode(ProblemCode.RoadSegment.SurfaceType.NotValid);
 
         RuleFor(x => x.Wegbreedte)

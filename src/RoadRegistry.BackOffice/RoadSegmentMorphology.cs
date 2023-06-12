@@ -221,9 +221,9 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>, I
         Ferry
     };
 
-    public sealed record Outlined
+    public sealed record Edit
     {
-        public static readonly RoadSegmentMorphology[] AllOutlined =
+        public static readonly RoadSegmentMorphology[] Editable =
         {
             Motorway,
             Road_with_separate_lanes_that_is_not_a_motorway,

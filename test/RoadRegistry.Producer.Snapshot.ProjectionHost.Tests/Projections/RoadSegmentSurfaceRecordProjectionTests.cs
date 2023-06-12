@@ -61,6 +61,7 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
         _fixture.CustomizeRoadSegmentSurfaceAttributes();
         _fixture.CustomizeRoadSegmentAdded();
         _fixture.CustomizeRoadSegmentModified();
+        _fixture.CustomizeRoadSegmentAttributesModified();
         _fixture.CustomizeRoadSegmentGeometryModified();
         _fixture.CustomizeRoadSegmentRemoved();
         _fixture.CustomizeRoadNetworkChangesAccepted();
@@ -79,8 +80,14 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
     {
         return Array.ConvertAll(message.Changes, change =>
             {
-                var surfaces = change.RoadSegmentModified?.Surfaces ?? change.RoadSegmentGeometryModified?.Surfaces ?? change.RoadSegmentAdded.Surfaces;
-                var segmentId = change.RoadSegmentModified?.Id ?? change.RoadSegmentGeometryModified?.Id ?? change.RoadSegmentAdded.Id;
+                var surfaces = change.RoadSegmentModified?.Surfaces
+                               ?? change.RoadSegmentAttributesModified?.Surfaces
+                               ?? change.RoadSegmentGeometryModified?.Surfaces
+                               ?? change.RoadSegmentAdded.Surfaces;
+                var segmentId = change.RoadSegmentModified?.Id
+                                ?? change.RoadSegmentAttributesModified?.Id
+                                ?? change.RoadSegmentGeometryModified?.Id
+                                ?? change.RoadSegmentAdded.Id;
 
                 return surfaces.Select(surface =>
                 {
@@ -360,6 +367,38 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
         var acceptedRoadSegmentModified = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentModified>());
+
+        var expectedRecords = ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentAdded, created, record =>
+            {
+                record.Origin = acceptedRoadSegmentModified.ToOrigin();
+                record.IsRemoved = true;
+            })
+            .Concat(ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentModified, created))
+            .ToList();
+
+        var kafkaProducer = BuildKafkaProducer();
+        await new RoadSegmentSurfaceRecordProjection(kafkaProducer.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords);
+    }
+
+    [Fact]
+    public async Task When_modifying_road_segment_attributes_with_new_surfaces_only()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var created = DateTimeOffset.UtcNow;
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentModified = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAttributesModified>());
 
         var expectedRecords = ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentAdded, created, record =>
             {

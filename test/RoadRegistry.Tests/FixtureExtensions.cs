@@ -726,7 +726,10 @@ public static class Customizations
                             Name = fixture.Create<OrganizationName>()
                         },
                         Status = fixture.Create<RoadSegmentStatus>(),
-                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>()
+                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
+                        Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>().ToArray(),
+                        Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>().ToArray(),
+                        Widths = fixture.CreateMany<RoadSegmentWidthAttributes>().ToArray()
                     }
                 )
                 .OmitAutoProperties()
@@ -935,6 +938,27 @@ public static class Customizations
         for (var i = 0; i < collection1.Length; i++)
         {
             if (!Equals(collection1[i], collection2[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static bool EqualsCollection<T1, T2>(this IEnumerable<T1> enumerable1, IEnumerable<T2> enumerable2, Func<T1, T2, bool> comparer)
+    {
+        var collection1 = enumerable1.ToArray();
+        var collection2 = enumerable2.ToArray();
+
+        if (collection1.Length != collection2.Length)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < collection1.Length; i++)
+        {
+            if (!comparer(collection1[i], collection2[i]))
             {
                 return false;
             }
