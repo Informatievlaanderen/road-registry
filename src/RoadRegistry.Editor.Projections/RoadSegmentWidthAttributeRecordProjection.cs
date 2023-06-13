@@ -168,12 +168,9 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Edi
         if (widths.Length == 0)
         {
             context.RoadSegmentWidthAttributes.RemoveRange(
-                context
-                    .RoadSegmentWidthAttributes
-                    .Local
+                context.RoadSegmentWidthAttributes.Local
                     .Where(a => a.RoadSegmentId == roadSegmentId)
-                    .Concat(await context
-                        .RoadSegmentWidthAttributes
+                    .Concat(await context.RoadSegmentWidthAttributes
                         .Where(a => a.RoadSegmentId == roadSegmentId)
                         .ToArrayAsync(token)
                     ));
@@ -181,13 +178,10 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Edi
         else
         {
             //Causes all attributes to be loaded into Local
-            await context
-                .RoadSegmentWidthAttributes
+            await context.RoadSegmentWidthAttributes
                 .Where(a => a.RoadSegmentId == roadSegmentId)
                 .ToArrayAsync(token);
-            var currentSet = context
-                .RoadSegmentWidthAttributes
-                .Local
+            var currentSet = context.RoadSegmentWidthAttributes.Local
                 .Where(a => a.RoadSegmentId == roadSegmentId)
                 .ToDictionary(a => a.Id);
             var nextSet = widths

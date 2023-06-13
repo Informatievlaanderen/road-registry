@@ -159,8 +159,8 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Prod
     {
         context.RoadSegmentLaneAttributes.RemoveRange(
             context
-                .RoadSegmentLaneAttributes
-                .Local.Where(a => a.RoadSegmentId == segment.Id)
+                .RoadSegmentLaneAttributes.Local
+                .Where(a => a.RoadSegmentId == segment.Id)
                 .Concat(await context
                     .RoadSegmentLaneAttributes
                     .Where(a => a.RoadSegmentId == segment.Id)
@@ -179,9 +179,7 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Prod
         if (lanes.Length == 0)
         {
             context.RoadSegmentLaneAttributes.RemoveRange(
-                context
-                    .RoadSegmentLaneAttributes
-                    .Local
+                context.RoadSegmentLaneAttributes.Local
                     .Where(a => a.RoadSegmentId == roadSegmentId)
                     .Concat(await context
                         .RoadSegmentLaneAttributes

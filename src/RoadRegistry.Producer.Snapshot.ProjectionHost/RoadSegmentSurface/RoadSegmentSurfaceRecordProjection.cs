@@ -262,6 +262,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 
         private static void MarkRoadSegmentSurfaceAsRemoved(RoadSegmentSurfaceRecord roadSegmentSurfaceRecord, Envelope<RoadNetworkChangesAccepted> envelope)
         {
+            if (roadSegmentSurfaceRecord.IsRemoved)
+            {
+                return;
+            }
+
             roadSegmentSurfaceRecord.Origin = envelope.Message.ToOrigin();
             roadSegmentSurfaceRecord.LastChangedTimestamp = envelope.CreatedUtc;
             roadSegmentSurfaceRecord.IsRemoved = true;

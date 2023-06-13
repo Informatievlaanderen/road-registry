@@ -141,11 +141,9 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
     private static async Task RemoveRoadNode(EditorContext context, RoadNodeRemoved node, CancellationToken token)
     {
         var roadNode = await context.RoadNodes.FindAsync(node.Id, cancellationToken: token).ConfigureAwait(false);
-        if (roadNode == null)
+        if (roadNode is not null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {node.Id} is not found");
+            context.RoadNodes.Remove(roadNode);
         }
-
-        context.RoadNodes.Remove(roadNode);
     }
 }

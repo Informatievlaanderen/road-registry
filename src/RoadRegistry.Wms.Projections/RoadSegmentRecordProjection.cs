@@ -380,12 +380,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
     private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WmsContext context, CancellationToken token)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
-        if (roadSegmentRecord == null)
+        if (roadSegmentRecord is not null)
         {
-            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
+            context.RoadSegments.Remove(roadSegmentRecord);
         }
-
-        context.RoadSegments.Remove(roadSegmentRecord);
     }
 
     private static async Task<StreetNameRecord> TryGetFromCache(

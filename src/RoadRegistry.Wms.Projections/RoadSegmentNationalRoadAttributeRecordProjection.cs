@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Microsoft.EntityFrameworkCore;
 using Schema;
 
 public class RoadSegmentNationalRoadAttributeRecordProjection : ConnectedProjection<WmsContext>
@@ -54,7 +55,7 @@ public class RoadSegmentNationalRoadAttributeRecordProjection : ConnectedProject
                         var roadSegmentNationalRoadAttributeRecord =
                             await context.RoadSegmentNationalRoadAttributes.FindAsync(nationalRoad.AttributeId, cancellationToken: token).ConfigureAwait(false);
 
-                        if (roadSegmentNationalRoadAttributeRecord != null)
+                        if (roadSegmentNationalRoadAttributeRecord is not null)
                         {
                             context.RoadSegmentNationalRoadAttributes.Remove(roadSegmentNationalRoadAttributeRecord);
                         }
@@ -62,11 +63,11 @@ public class RoadSegmentNationalRoadAttributeRecordProjection : ConnectedProject
                         break;
                     case RoadSegmentRemoved roadSegmentRemoved:
                         var roadSegmentNationalRoadAttributeRecords =
-                            context.RoadSegmentNationalRoadAttributes
-                                .Local
+                            context.RoadSegmentNationalRoadAttributes.Local
                                 .Where(x => x.WS_OIDN == roadSegmentRemoved.Id)
-                                .Concat(context.RoadSegmentNationalRoadAttributes
-                                    .Where(x => x.WS_OIDN == roadSegmentRemoved.Id));
+                                .Concat(await context.RoadSegmentNationalRoadAttributes
+                                    .Where(x => x.WS_OIDN == roadSegmentRemoved.Id)
+                                    .ToArrayAsync(token));
 
                         context.RoadSegmentNationalRoadAttributes.RemoveRange(roadSegmentNationalRoadAttributeRecords);
                         break;
