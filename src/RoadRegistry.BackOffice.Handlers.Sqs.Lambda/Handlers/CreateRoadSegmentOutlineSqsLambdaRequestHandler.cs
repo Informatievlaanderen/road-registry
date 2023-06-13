@@ -62,6 +62,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                     new AddRoadSegment(
                             recordNumber,
                             roadSegmentId,
+                            roadSegmentId,
                             r.MaintenanceAuthority,
                             RoadSegmentGeometryDrawMethod.Outlined,
                             r.Morphology,
