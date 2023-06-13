@@ -2,14 +2,12 @@ namespace RoadRegistry.Wfs.Projections;
 
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.EntityFrameworkCore;
 using Schema;
 using Syndication.Schema;
@@ -107,7 +105,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
                         break;
 
                     case RoadSegmentRemoved roadSegmentRemoved:
-                        await RemoveRoadSegment(roadSegmentRemoved, context);
+                        await RemoveRoadSegment(roadSegmentRemoved, context, token);
                         break;
                 }
         });
@@ -177,9 +175,12 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentModified.RightSide.StreetNameId, token);
 
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id).ConfigureAwait(false);
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id, cancellationToken: token).ConfigureAwait(false);
 
-        if (roadSegmentRecord == null) throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
+        }
 
         roadSegmentRecord.Id = roadSegmentModified.Id;
         roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
@@ -206,7 +207,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         RoadSegmentAttributesModified roadSegmentAttributesModified,
         CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id).ConfigureAwait(false);
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id, cancellationToken: token).ConfigureAwait(false);
         if (roadSegmentRecord == null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
@@ -258,7 +259,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         RoadSegmentGeometryModified segment,
         CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id).ConfigureAwait(false);
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(segment.Id, cancellationToken: token).ConfigureAwait(false);
         if (roadSegmentRecord == null)
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {segment.Id} is not found");
@@ -272,10 +273,14 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
 
-    private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WfsContext context)
+    private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WfsContext context, CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id).ConfigureAwait(false);
-        if (roadSegmentRecord == null) return;
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
+        }
+
         context.RoadSegments.Remove(roadSegmentRecord);
     }
 

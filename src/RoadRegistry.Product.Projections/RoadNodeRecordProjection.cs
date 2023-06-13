@@ -59,11 +59,11 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
                         break;
 
                     case RoadNodeModified node:
-                        await ModifyRoadNode(manager, encoding, context, envelope, node);
+                        await ModifyRoadNode(manager, encoding, context, envelope, node, token);
                         break;
 
                     case RoadNodeRemoved node:
-                        await RemoveRoadNode(context, node);
+                        await RemoveRoadNode(context, node, token);
                         break;
                 }
         });
@@ -105,7 +105,8 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
         Encoding encoding,
         ProductContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
-        RoadNodeModified node)
+        RoadNodeModified node,
+        CancellationToken token)
     {
         var typeTranslation = RoadNodeType.Parse(node.Type).Translation;
         var dbaseRecord = new RoadNodeDbaseRecord
@@ -122,7 +123,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
         var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(node.Geometry));
         var pointShapeContent = new PointShapeContent(point);
 
-        var roadNode = await context.RoadNodes.FindAsync(node.Id);
+        var roadNode = await context.RoadNodes.FindAsync(node.Id, cancellationToken: token).ConfigureAwait(false);
 
         roadNode.ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding);
         roadNode.ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32();
@@ -130,9 +131,9 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
         roadNode.BoundingBox = RoadNodeBoundingBox.From(pointShapeContent.Shape);
     }
 
-    private static async Task RemoveRoadNode(ProductContext context, RoadNodeRemoved node)
+    private static async Task RemoveRoadNode(ProductContext context, RoadNodeRemoved node, CancellationToken token)
     {
-        var roadNode = await context.RoadNodes.FindAsync(node.Id);
+        var roadNode = await context.RoadNodes.FindAsync(node.Id, cancellationToken: token).ConfigureAwait(false);
 
         context.RoadNodes.Remove(roadNode);
     }

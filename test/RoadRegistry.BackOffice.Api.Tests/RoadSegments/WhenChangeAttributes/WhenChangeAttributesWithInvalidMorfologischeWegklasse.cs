@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
 using Abstractions;
 using Api.RoadSegments;
-using BackOffice.Abstractions.RoadSegments;
+using Api.RoadSegments.ChangeAttributes;
 using Fixtures;
 using Xunit.Abstractions;
 
@@ -19,24 +19,9 @@ public class WhenChangeAttributesWithInvalidMorfologischeWegklasse : WhenChangeA
         {
             new()
             {
-                Attribuut = ChangeRoadSegmentAttribute.MorfologischeWegklasse.ToString(),
-                Attribuutwaarde = string.Empty,
+                MorfologischeWegklasse = string.Empty,
                 Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
             }
         }, "MorfologischeWegklasseNietCorrect", null);
-    }
-
-    [Fact]
-    public async Task MorfologischeWegklasse_MorfologischeWegklasseVerplicht()
-    {
-        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
-        {
-            new()
-            {
-                Attribuut = ChangeRoadSegmentAttribute.MorfologischeWegklasse.ToString(),
-                Attribuutwaarde = null,
-                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
-            }
-        }, "MorfologischeWegklasseVerplicht", null);
     }
 }

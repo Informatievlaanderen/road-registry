@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
 using Abstractions;
 using Api.RoadSegments;
-using BackOffice.Abstractions.RoadSegments;
+using Api.RoadSegments.ChangeAttributes;
 using Fixtures;
 using Xunit.Abstractions;
 
@@ -19,24 +19,9 @@ public class WhenChangeAttributesWithInvalidWegsegmentStatus : WhenChangeAttribu
         {
             new()
             {
-                Attribuut = ChangeRoadSegmentAttribute.WegsegmentStatus.ToString(),
-                Attribuutwaarde = string.Empty,
+                WegsegmentStatus = string.Empty,
                 Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
             }
         }, "WegsegmentStatusNietCorrect", null);
-    }
-
-    [Fact]
-    public async Task WegsegmentStatus_WegsegmentStatusVerplicht()
-    {
-        await ItShouldHaveExpectedError(new ChangeRoadSegmentAttributesParameters
-        {
-            new()
-            {
-                Attribuut = ChangeRoadSegmentAttribute.WegsegmentStatus.ToString(),
-                Attribuutwaarde = null,
-                Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
-            }
-        }, "WegsegmentStatusVerplicht", null);
     }
 }

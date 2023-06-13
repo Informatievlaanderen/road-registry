@@ -28,7 +28,7 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
             ExternalRequestId = request.RequestId,
             Contour = GeometryTranslator.TranslateToRoadNetworkExtractGeometry((IPolygonal)_reader.Read(request.Contour)),
             DownloadId = downloadId,
-            Description = request.RequestId,
+            Description = request.RequestId[..(request.RequestId.Length > ExtractDescription.MaxLength ? ExtractDescription.MaxLength : request.RequestId.Length)],
             IsInformative = request.IsInformative
         };
 

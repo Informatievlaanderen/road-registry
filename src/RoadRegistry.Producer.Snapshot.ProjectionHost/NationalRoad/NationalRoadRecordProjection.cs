@@ -118,11 +118,15 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             CancellationToken token)
         {
             var nationalRoadRecord =
-                await context.NationalRoads.FindAsync(nationalRoadId).ConfigureAwait(false);
+                await context.NationalRoads.FindAsync(nationalRoadId, cancellationToken: token).ConfigureAwait(false);
 
             if (nationalRoadRecord == null)
             {
                 throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is not found");
+            }
+            if (nationalRoadRecord.IsRemoved)
+            {
+                throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is already removed");
             }
 
             nationalRoadRecord.Origin = envelope.Message.ToOrigin();

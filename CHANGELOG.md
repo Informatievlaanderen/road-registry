@@ -1,3 +1,37 @@
+# [3.48.0](https://github.com/informatievlaanderen/road-registry/compare/v3.47.1...v3.48.0) (2023-06-12)
+
+
+### Bug Fixes
+
+* set RecordPositionThreshold to 1 for PositionStoreEventProcessor ([#995](https://github.com/informatievlaanderen/road-registry/issues/995)) ([0dd54d5](https://github.com/informatievlaanderen/road-registry/commit/0dd54d5a4e9c5fb9faf0baa2838e85a7507ea5f1))
+* WFS roadnode projection use FindAsync instead of SingleAsync ([#997](https://github.com/informatievlaanderen/road-registry/issues/997)) ([a462d37](https://github.com/informatievlaanderen/road-registry/commit/a462d37cc9f72b18db66a1168116200d73284dc7))
+* WR-732 change edit attributed endpoint request structure ([#994](https://github.com/informatievlaanderen/road-registry/issues/994)) ([52018b8](https://github.com/informatievlaanderen/road-registry/commit/52018b8d4d9f65908b9148b6684414a5a9ffd51b))
+
+
+### Features
+
+* WR-703 add new edit roadsegment endpoint for wegverharding/wegbreedte/aantalRijstroken ([#996](https://github.com/informatievlaanderen/road-registry/issues/996)) ([06ad19d](https://github.com/informatievlaanderen/road-registry/commit/06ad19d45a8c63701b9babd23fe31e3378b37543))
+
+## [3.47.1](https://github.com/informatievlaanderen/road-registry/compare/v3.47.0...v3.47.1) (2023-06-07)
+
+
+### Bug Fixes
+
+* projections behavior when removing a removed entity + change projection RecordPositionThreshold to 1 ([#993](https://github.com/informatievlaanderen/road-registry/issues/993)) ([5d893e2](https://github.com/informatievlaanderen/road-registry/commit/5d893e23ef46213d167ecc7df05b0646cd1f9db5))
+
+# [3.47.0](https://github.com/informatievlaanderen/road-registry/compare/v3.46.2...v3.47.0) (2023-06-06)
+
+
+### Bug Fixes
+
+* Maximum lenght error inside unit test fixture ([#992](https://github.com/informatievlaanderen/road-registry/issues/992)) ([d32eb29](https://github.com/informatievlaanderen/road-registry/commit/d32eb292bdaf3ba5b05ae8d9fb021594511d131a))
+* WR-224 return validation errors for uploads endpoint instead of 409 ([#990](https://github.com/informatievlaanderen/road-registry/issues/990)) ([f0e05ef](https://github.com/informatievlaanderen/road-registry/commit/f0e05efe1586fcd86d7744c64a751bfb794d2dcc))
+
+
+### Features
+
+* Added cleanup task for roadnetwork extracts and now keeps track of when extracts are downloaded ([#991](https://github.com/informatievlaanderen/road-registry/issues/991)) ([5f1ab26](https://github.com/informatievlaanderen/road-registry/commit/5f1ab267d85c1df46cd2a2ccdc8b329b663e8fc2))
+
 ## [3.46.2](https://github.com/informatievlaanderen/road-registry/compare/v3.46.1...v3.46.2) (2023-06-05)
 
 

@@ -67,12 +67,12 @@ public class ModifyRoadSegmentAttributesValidator : ModifyRoadSegmentAttributesV
         public ModifyRoadSegmentAttributesOutlinedValidator()
         {
             RuleFor(c => c.Status)
-                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForRoadSegmentOutline())
+                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForRoadSegmentEdit())
                 .When(c => c.Status != null, ApplyConditionTo.CurrentValidator)
                 .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
 
             RuleFor(c => c.Morphology)
-                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentOutline())
+                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentEdit())
                 .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
                 .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
         }

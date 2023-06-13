@@ -39,7 +39,7 @@ public class RoadNodeRecordProjection : ConnectedProjection<WfsContext>
                         break;
 
                     case RoadNodeRemoved roadNodeRemoved:
-                        await RemoveRoadNode(roadNodeRemoved, context);
+                        await RemoveRoadNode(roadNodeRemoved, context, token);
                         break;
                 }
         });
@@ -71,9 +71,11 @@ public class RoadNodeRecordProjection : ConnectedProjection<WfsContext>
         RoadNodeModified roadNodeModified,
         CancellationToken token)
     {
-        var roadNodeRecord = await context.RoadNodes.SingleAsync(i => i.Id == roadNodeModified.Id, token).ConfigureAwait(false);
-
-        if (roadNodeRecord == null) throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeModified.Id} is not found");
+        var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeModified.Id, cancellationToken: token).ConfigureAwait(false);
+        if (roadNodeRecord == null)
+        {
+            throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeModified.Id} is not found");
+        }
 
         roadNodeRecord.Id = roadNodeModified.Id;
         roadNodeRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
@@ -81,11 +83,13 @@ public class RoadNodeRecordProjection : ConnectedProjection<WfsContext>
         roadNodeRecord.Geometry = GeometryTranslator.Translate(roadNodeModified.Geometry);
     }
 
-    private static async Task RemoveRoadNode(RoadNodeRemoved roadNodeRemoved, WfsContext context)
+    private static async Task RemoveRoadNode(RoadNodeRemoved roadNodeRemoved, WfsContext context, CancellationToken token)
     {
-        var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id).ConfigureAwait(false);
-
-        if (roadNodeRecord == null) return;
+        var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id, cancellationToken: token).ConfigureAwait(false);
+        if (roadNodeRecord == null)
+        {
+            throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is not found");
+        }
 
         context.RoadNodes.Remove(roadNodeRecord);
     }

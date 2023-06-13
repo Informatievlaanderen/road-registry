@@ -86,19 +86,19 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         break;
 
                     case RoadSegmentModified roadSegmentModified:
-                        await ModifyRoadSegment(manager, encoding, context, roadSegmentModified, envelope);
+                        await ModifyRoadSegment(manager, encoding, context, roadSegmentModified, envelope, token);
                         break;
 
                     case RoadSegmentAttributesModified roadSegmentAttributesModified:
-                        await ModifyRoadSegmentAttributes(manager, encoding, context, roadSegmentAttributesModified, envelope);
+                        await ModifyRoadSegmentAttributes(manager, encoding, context, roadSegmentAttributesModified, envelope, token);
                         break;
 
                     case RoadSegmentGeometryModified roadSegmentGeometryModified:
-                        await ModifyRoadSegmentGeometry(manager, encoding, context, roadSegmentGeometryModified, envelope);
+                        await ModifyRoadSegmentGeometry(manager, encoding, context, roadSegmentGeometryModified, envelope, token);
                         break;
 
                     case RoadSegmentRemoved roadSegmentRemoved:
-                        await RemoveRoadSegment(context, roadSegmentRemoved);
+                        await RemoveRoadSegment(context, roadSegmentRemoved, token);
                         break;
                 }
         });
@@ -165,7 +165,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         Encoding encoding,
         EditorContext context,
         RoadSegmentModified roadSegmentModified,
-        Envelope<RoadNetworkChangesAccepted> envelope)
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
     {
         var geometry = GeometryTranslator.FromGeometryMultiLineString(BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry));
         var polyLineMShapeContent = new PolyLineMShapeContent(geometry);
@@ -177,10 +178,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         var accessRestrictionTranslation =
             RoadSegmentAccessRestriction.Parse(roadSegmentModified.AccessRestriction).Translation;
 
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id);
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentModified.Id, cancellationToken: token).ConfigureAwait(false);
         if (roadSegmentRecord == null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentModified.Id} is not found");
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
         }
 
         roadSegmentRecord.Id = roadSegmentModified.Id;
@@ -225,12 +226,13 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         Encoding encoding,
         EditorContext context,
         RoadSegmentAttributesModified roadSegmentAttributesModified,
-        Envelope<RoadNetworkChangesAccepted> envelope)
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id);
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentAttributesModified.Id, cancellationToken: token).ConfigureAwait(false);
         if (roadSegmentRecord == null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentAttributesModified.Id} is not found");
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
         }
 
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
@@ -288,12 +290,13 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         Encoding encoding,
         EditorContext context,
         RoadSegmentGeometryModified roadSegmentGeometryModified,
-        Envelope<RoadNetworkChangesAccepted> envelope)
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentGeometryModified.Id);
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentGeometryModified.Id, cancellationToken: token).ConfigureAwait(false);
         if (roadSegmentRecord == null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {roadSegmentGeometryModified.Id} is not found");
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentGeometryModified.Id} is not found");
         }
 
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
@@ -319,9 +322,13 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         UpdateHash(roadSegmentRecord, roadSegmentGeometryModified);
     }
 
-    private static async Task RemoveRoadSegment(EditorContext context, RoadSegmentRemoved roadSegmentRemoved)
+    private static async Task RemoveRoadSegment(EditorContext context, RoadSegmentRemoved roadSegmentRemoved, CancellationToken token)
     {
-        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id);
+        var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
+        if (roadSegmentRecord == null)
+        {
+            throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is not found");
+        }
 
         context.RoadSegments.Remove(roadSegmentRecord);
     }

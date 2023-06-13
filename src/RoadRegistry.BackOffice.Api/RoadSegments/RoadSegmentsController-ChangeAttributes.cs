@@ -1,30 +1,23 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
-using Core.ProblemCodes;
-using Editor.Schema;
-using Extensions;
+using ChangeAttributes;
 using FeatureToggles;
 using FluentValidation;
-using FluentValidation.Results;
 using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using ValidationException = FluentValidation.ValidationException;
 
 public partial class RoadSegmentsController
 {
@@ -99,295 +92,38 @@ public partial class RoadSegmentsController
             ChangeRoadSegmentAttributesRequest attributesRequest = new();
 
             foreach (var attributesChange in parameters)
+            foreach (var roadSegmentId in attributesChange.Wegsegmenten.Select(roadSegmentId => new RoadSegmentId(roadSegmentId)))
             {
-                var attributeEnum = Enum.Parse<ChangeRoadSegmentAttribute>(attributesChange.Attribuut, true);
-
-                switch (attributeEnum)
+                attributesRequest.Add(roadSegmentId, roadSegment =>
                 {
-                    case ChangeRoadSegmentAttribute.Wegbeheerder:
-                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                        {
-                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
-                                => roadSegment.MaintenanceAuthority = new OrganizationId(attributesChange.Attribuutwaarde)
-                            );
-                        }
+                    if (attributesChange.Wegbeheerder is not null)
+                    {
+                        roadSegment.MaintenanceAuthority = new OrganizationId(attributesChange.Wegbeheerder);
+                    }
 
-                        break;
-                    case ChangeRoadSegmentAttribute.WegsegmentStatus:
-                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                        {
-                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
-                                => roadSegment.Status = RoadSegmentStatus.ParseUsingDutchName(attributesChange.Attribuutwaarde)
-                            );
-                        }
+                    if (attributesChange.WegsegmentStatus is not null)
+                    {
+                        roadSegment.Status = RoadSegmentStatus.ParseUsingDutchName(attributesChange.WegsegmentStatus);
+                    }
 
-                        break;
-                    case ChangeRoadSegmentAttribute.MorfologischeWegklasse:
-                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                        {
-                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
-                                => roadSegment.Morphology = RoadSegmentMorphology.ParseUsingDutchName(attributesChange.Attribuutwaarde)
-                            );
-                        }
+                    if (attributesChange.MorfologischeWegklasse is not null)
+                    {
+                        roadSegment.Morphology = RoadSegmentMorphology.ParseUsingDutchName(attributesChange.MorfologischeWegklasse);
+                    }
 
-                        break;
-                    case ChangeRoadSegmentAttribute.Toegangsbeperking:
-                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                        {
-                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
-                                => roadSegment.AccessRestriction = RoadSegmentAccessRestriction.ParseUsingDutchName(attributesChange.Attribuutwaarde)
-                            );
-                        }
+                    if (attributesChange.Toegangsbeperking is not null)
+                    {
+                        roadSegment.AccessRestriction = RoadSegmentAccessRestriction.ParseUsingDutchName(attributesChange.Toegangsbeperking);
+                    }
 
-                        break;
-                    case ChangeRoadSegmentAttribute.Wegcategorie:
-                        foreach (var roadSegmentId in attributesChange.Wegsegmenten)
-                        {
-                            attributesRequest.Add(new RoadSegmentId(roadSegmentId), roadSegment
-                                => roadSegment.Category = RoadSegmentCategory.ParseUsingDutchName(attributesChange.Attribuutwaarde)
-                            );
-                        }
-
-                        break;
-                    default:
-                        throw new ValidationException("request", new[] { new ValidationFailure("request", "Onbehandelde waarde voor attribuut") });
-                }
+                    if (attributesChange.Wegcategorie is not null)
+                    {
+                        roadSegment.Category = RoadSegmentCategory.ParseUsingDutchName(attributesChange.Wegcategorie);
+                    }
+                });
             }
 
             return attributesRequest;
         }
-    }
-}
-
-[DataContract(Name = "WegsegmentAttribuutWijzigen", Namespace = "")]
-public class ChangeRoadSegmentAttributesParameters : List<ChangeAttributeParameters>
-{
-}
-
-public class ChangeRoadSegmentAttributesParametersValidator : AbstractValidator<ChangeRoadSegmentAttributesParameters>
-{
-    /// <summary>
-    ///     Determines if validation should occtur and provides a means to modify the context and ValidationResult prior to
-    ///     execution.
-    ///     If this method returns false, then the ValidationResult is immediately returned from Validate/ValidateAsync.
-    /// </summary>
-    /// <param name="context">The context.</param>
-    /// <param name="result">The result.</param>
-    /// <remarks>
-    ///     The output for validation errors will not be correct if you do not fill in the property name!
-    ///     You should not use the format noted inside the code below.
-    ///     It's a valid exception but does not format correctly.
-    /// </remarks>
-    /// <code>
-    /// context.AddFailure(new ValidationFailure
-    /// {
-    ///     ErrorCode = ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Code,
-    ///     ErrorMessage = ValidationErrors.RoadSegment.ChangeAttributesRequestNull.Message
-    /// });
-    /// </code>
-    /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-    protected override bool PreValidate(ValidationContext<ChangeRoadSegmentAttributesParameters> context, ValidationResult result)
-    {
-        if (context.InstanceToValidate is not null && context.InstanceToValidate.Any())
-        {
-            return true;
-        }
-
-        context.AddFailure(new ValidationFailure
-        {
-            PropertyName = "request",
-            ErrorCode = ProblemCode.RoadSegment.ChangeAttributesRequestNull
-        });
-
-        return false;
-    }
-}
-
-public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<ChangeRoadSegmentAttributesParameters>
-{
-    public ChangeRoadSegmentAttributesParameters GetExamples()
-    {
-        return new ChangeRoadSegmentAttributesParameters
-        {
-            new()
-            {
-                Attribuut = "wegbeheerder",
-                Attribuutwaarde = "AWV112",
-                Wegsegmenten = new[] { 481110, 481111 }
-            },
-            new()
-            {
-                Attribuut = "wegbeheerder",
-                Attribuutwaarde = "AWV114",
-                Wegsegmenten = new[] { 481111 }
-            },
-            new()
-            {
-                Attribuut = "wegsegmentstatus",
-                Attribuutwaarde = "buiten gebruik",
-                Wegsegmenten = new[] { 481111 }
-            },
-            new()
-            {
-                Attribuut = "morfologischeWegklasse",
-                Attribuutwaarde = "aardeweg",
-                Wegsegmenten = new[] { 481111 }
-            }
-        };
-    }
-}
-
-public class ChangeRoadSegmentAttributesParametersWrapperValidator : AbstractValidator<ChangeRoadSegmentAttributesParametersWrapper>
-{
-    public ChangeRoadSegmentAttributesParametersWrapperValidator(EditorContext editorContext)
-    {
-        ChangeAttributeParametersValidator validator = new(editorContext);
-
-        RuleForEach(x => x.Attributes).SetValidator(validator);
-    }
-}
-
-public class ChangeRoadSegmentAttributesParametersWrapper
-{
-    public List<ChangeAttributeParameters> Attributes { get; set; }
-
-    public static explicit operator ChangeRoadSegmentAttributesParametersWrapper(ChangeRoadSegmentAttributesParameters p)
-    {
-        return new ChangeRoadSegmentAttributesParametersWrapper { Attributes = p };
-    }
-
-    public static implicit operator ChangeRoadSegmentAttributesParameters(ChangeRoadSegmentAttributesParametersWrapper p)
-    {
-        return p.Attributes as ChangeRoadSegmentAttributesParameters;
-    }
-}
-
-public record ChangeAttributeParameters
-{
-    /// <summary>
-    ///     Het attribuut dat gewijzigd moet worden.
-    /// </summary>
-    [DataMember(Name = "attribuut", Order = 1)]
-    [JsonProperty("attribuut", Required = Required.Always)]
-    public string Attribuut { get; set; }
-
-    /// <summary>
-    ///     De attribuutwaarde van het te wijzigen attribuut.
-    /// </summary>
-    [DataMember(Name = "attribuutwaarde", Order = 2)]
-    [JsonProperty("attribuutwaarde", Required = Required.Always)]
-    public string Attribuutwaarde { get; set; }
-
-    /// <summary>
-    ///     Lijst van identificatoren van wegsegmenten waarvoor het attribuut moet gewijzigd worden.
-    /// </summary>
-    [DataMember(Name = "wegsegmenten", Order = 3)]
-    [JsonProperty("wegsegmenten", Required = Required.Always)]
-    public int[] Wegsegmenten { get; set; }
-}
-
-public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttributeParameters>
-{
-    private readonly EditorContext _editorContext;
-
-    public ChangeAttributeParametersValidator(EditorContext editorContext)
-    {
-        _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
-
-        RuleFor(x => x.Attribuut)
-            .Cascade(CascadeMode.Stop)
-            .NotNull()
-            .WithProblemCode(ProblemCode.Common.JsonInvalid)
-            .IsEnumName(typeof(ChangeRoadSegmentAttribute), false)
-            .WithProblemCode(ProblemCode.RoadSegment.ChangeAttributesAttributeNotValid);
-
-        RuleFor(x => x.Attribuutwaarde)
-            .Cascade(CascadeMode.Stop)
-            .NotNull()
-            .WithProblemCode(ProblemCode.Common.JsonInvalid);
-
-        RuleFor(x => x.Wegsegmenten)
-            .Cascade(CascadeMode.Stop)
-            .NotEmpty()
-            .WithProblemCode(ProblemCode.Common.JsonInvalid)
-            .Must(wegsegmenten => wegsegmenten.All(RoadSegmentId.Accepts))
-            .WithProblemCode(ProblemCode.Common.JsonInvalid)
-            .MustAsync(BeExistingNonRemovedRoadSegment)
-            .WithProblemCode(ProblemCode.RoadSegments.NotFound, wegsegmenten => string.Join(", ", FindNonExistingOrRemovedRoadSegmentIds(wegsegmenten)));
-
-        When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.Wegbeheerder), () =>
-        {
-            RuleFor(x => x.Attribuutwaarde)
-                .Cascade(CascadeMode.Stop)
-                .NotNull()
-                .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired)
-                .MustAsync(BeKnownOrganization)
-                .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid);
-        });
-
-        When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.WegsegmentStatus), () =>
-        {
-            RuleFor(x => x.Attribuutwaarde)
-                .Cascade(CascadeMode.Stop)
-                .NotNull()
-                .WithProblemCode(ProblemCode.RoadSegment.Status.IsRequired)
-                .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value) != RoadSegmentStatus.Unknown)
-                .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
-        });
-
-        When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.MorfologischeWegklasse), () =>
-        {
-            RuleFor(x => x.Attribuutwaarde)
-                .Cascade(CascadeMode.Stop)
-                .NotNull()
-                .WithProblemCode(ProblemCode.RoadSegment.Morphology.IsRequired)
-                .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value) != RoadSegmentMorphology.Unknown)
-                .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
-        });
-
-        When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.Toegangsbeperking), () =>
-        {
-            RuleFor(x => x.Attribuutwaarde)
-                .Cascade(CascadeMode.Stop)
-                .NotNull()
-                .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.IsRequired)
-                .Must(RoadSegmentAccessRestriction.CanParseUsingDutchName)
-                .WithProblemCode(ProblemCode.RoadSegment.AccessRestriction.NotValid);
-        });
-
-        When(x => IsEnum(x.Attribuut, ChangeRoadSegmentAttribute.Wegcategorie), () =>
-        {
-            RuleFor(x => x.Attribuutwaarde)
-                .Cascade(CascadeMode.Stop)
-                .NotNull()
-                .WithProblemCode(ProblemCode.RoadSegment.Category.IsRequired)
-                .Must(RoadSegmentCategory.CanParseUsingDutchName)
-                .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid);
-        });
-    }
-
-    private Task<bool> BeExistingNonRemovedRoadSegment(int[] ids, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(!FindNonExistingOrRemovedRoadSegmentIds(ids.AsEnumerable()).Any());
-    }
-
-    private Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
-    {
-        return _editorContext.Organizations.AnyAsync(x => x.Code == code, cancellationToken);
-    }
-
-    private IEnumerable<int> FindExistingAndNonRemovedRoadSegmentIds(IEnumerable<int> ids)
-    {
-        return _editorContext.RoadSegments.Select(s => s.Id).Where(w => ids.Contains(w));
-    }
-
-    private IEnumerable<int> FindNonExistingOrRemovedRoadSegmentIds(IEnumerable<int> ids)
-    {
-        return ids.Except(FindExistingAndNonRemovedRoadSegmentIds(ids));
-    }
-
-    private static bool IsEnum(string value, ChangeRoadSegmentAttribute enumMatch)
-    {
-        return Enum.TryParse(value, true, out ChangeRoadSegmentAttribute enumValue) && enumValue == enumMatch;
     }
 }
