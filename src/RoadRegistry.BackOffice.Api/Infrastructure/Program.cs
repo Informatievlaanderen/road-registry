@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,17 +51,7 @@ public class Program
                             {
                                 ConfigureSerilog = (context, loggerConfiguration) =>
                                 {
-                                    var slackSinkConfiguation = context.Configuration.GetSection(nameof(SlackSinkOptions));
-
-                                    if (!slackSinkConfiguation.Exists()) return;
-                                    var sinkOptions = new SlackSinkOptions
-                                    {
-                                        CustomUserName = typeof(Program).Namespace,
-                                        MinimumLogEventLevel = LogEventLevel.Error
-                                    };
-                                    slackSinkConfiguation.Bind(sinkOptions);
-
-                                    if(sinkOptions.WebHookUrl is not null) loggerConfiguration.WriteTo.Slack(sinkOptions);
+                                    loggerConfiguration.AddSlackSink<Program>(context.Configuration);
                                 }
                             }
                         })

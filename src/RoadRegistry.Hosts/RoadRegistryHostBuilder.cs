@@ -160,19 +160,8 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                 .Enrich.FromLogContext()
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId()
-                .Enrich.WithEnvironmentUserName();
-
-            var slackSinkConfiguation = hostContext.Configuration.GetSection(nameof(SlackSinkOptions));
-
-            if (!slackSinkConfiguation.Exists()) return;
-            var sinkOptions = new SlackSinkOptions
-            {
-                CustomUserName = typeof(T).Namespace,
-                MinimumLogEventLevel = LogEventLevel.Error
-            };
-            slackSinkConfiguation.Bind(sinkOptions);
-
-            if (sinkOptions.WebHookUrl is not null) loggerConfiguration.WriteTo.Slack(sinkOptions);
+                .Enrich.WithEnvironmentUserName()
+                .AddSlackSink<T>(hostContext.Configuration);
 
             Log.Logger = loggerConfiguration.CreateLogger();
 
