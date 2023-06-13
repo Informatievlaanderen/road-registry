@@ -126,7 +126,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             }
             if (nationalRoadRecord.IsRemoved)
             {
-                throw new InvalidOperationException($"{nameof(NationalRoadRecord)} with id {nationalRoadId} is already removed");
+                return;
             }
 
             nationalRoadRecord.Origin = envelope.Message.ToOrigin();
