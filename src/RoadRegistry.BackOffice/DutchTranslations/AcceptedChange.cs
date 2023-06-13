@@ -13,7 +13,7 @@ public static class AcceptedChange
                 RoadNodeAdded m => $"Wegknoop {m.TemporaryId} toegevoegd met id {m.Id}.",
                 RoadNodeModified m => $"Wegknoop {m.Id} gewijzigd.",
                 RoadNodeRemoved m => $"Wegknoop {m.Id} verwijderd.",
-                RoadSegmentAdded m => $"Wegsegment {m.TemporaryId} toegevoegd met id {m.Id}.",
+                RoadSegmentAdded m => $"Wegsegment {m.OriginalId ?? m.TemporaryId} toegevoegd met id {m.Id}.",
                 RoadSegmentModified m => $"Wegsegment {m.Id} gewijzigd.",
                 RoadSegmentAttributesModified m => $"Wegsegment {m.Id} attributen gewijzigd.",
                 RoadSegmentGeometryModified m => $"Wegsegment {m.Id} geometrie gewijzigd.",

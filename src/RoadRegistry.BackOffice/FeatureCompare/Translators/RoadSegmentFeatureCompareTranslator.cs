@@ -206,6 +206,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                         new AddRoadSegment(
                             record.RecordNumber,
                             new RoadSegmentId(record.GetNewOrOriginalId()),
+                            new RoadSegmentId(record.Id),
                             new RoadNodeId(record.Attributes.StartNodeId),
                             new RoadNodeId(record.Attributes.EndNodeId),
                             new OrganizationId(record.Attributes.MaintenanceAuthority),

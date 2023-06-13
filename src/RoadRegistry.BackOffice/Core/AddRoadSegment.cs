@@ -15,6 +15,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
     public AddRoadSegment(
         RoadSegmentId id,
         RoadSegmentId temporaryId,
+        RoadSegmentId? originalId,
         RoadNodeId startNodeId,
         RoadNodeId? temporaryStartNodeId,
         RoadNodeId endNodeId,
@@ -35,6 +36,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
     {
         Id = id;
         TemporaryId = temporaryId;
+        OriginalId = originalId;
         StartNodeId = startNodeId;
         TemporaryStartNodeId = temporaryStartNodeId;
         EndNodeId = endNodeId;
@@ -71,6 +73,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
     public RoadNodeId? TemporaryEndNodeId { get; }
     public RoadSegmentId TemporaryId { get; }
+    public RoadSegmentId? OriginalId { get; }
     public RoadNodeId? TemporaryStartNodeId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
@@ -83,6 +86,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
             Id = Id,
             Version = RoadSegmentVersion.Initial,
             TemporaryId = TemporaryId,
+            OriginalId = OriginalId,
             StartNodeId = StartNodeId,
             EndNodeId = EndNodeId,
             Geometry = GeometryTranslator.Translate(Geometry),
@@ -146,6 +150,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         message.AddRoadSegment = new Messages.AddRoadSegment
         {
             TemporaryId = TemporaryId,
+            OriginalId = OriginalId,
             StartNodeId = TemporaryStartNodeId ?? StartNodeId,
             EndNodeId = TemporaryEndNodeId ?? EndNodeId,
             Geometry = GeometryTranslator.Translate(Geometry),
