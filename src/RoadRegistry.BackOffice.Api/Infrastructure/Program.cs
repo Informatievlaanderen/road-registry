@@ -5,12 +5,16 @@ using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.Slack;
+using Serilog.Sinks.Slack.Models;
 using SqlStreamStore;
 
 public class Program
@@ -42,11 +46,18 @@ public class Program
                             Runtime =
                             {
                                 CommandLineArgs = args
+                            },
+                            MiddlewareHooks =
+                            {
+                                ConfigureSerilog = (context, loggerConfiguration) =>
+                                {
+                                    loggerConfiguration.AddSlackSink<Program>(context.Configuration);
+                                }
                             }
                         })
                     .UseKestrel((context, builder) =>
                     {
-                        if (context.HostingEnvironment.EnvironmentName == "Development")
+                        if (context.HostingEnvironment.IsDevelopment())
                         {
                             builder.ListenLocalhost(HostingPort);
                         }

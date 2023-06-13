@@ -12,3 +12,4 @@ Serilog.Sinks.Console
 Serilog.Enrichers.Environment
 Serilog.Enrichers.Thread
 Serilog.Sinks.Seq
+Serilog.Sinks.Slack
