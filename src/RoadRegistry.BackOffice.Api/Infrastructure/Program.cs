@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
@@ -12,9 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.Slack;
-using Serilog.Sinks.Slack.Models;
+using Serilog.Filters;
 using SqlStreamStore;
 
 public class Program
@@ -52,6 +51,15 @@ public class Program
                                 ConfigureSerilog = (context, loggerConfiguration) =>
                                 {
                                     loggerConfiguration.AddSlackSink<Program>(context.Configuration);
+                                    loggerConfiguration.Filter.ByExcluding(logEvent =>
+                                    {
+                                        if (logEvent.Exception is ApiException { StatusCode: < 500 })
+                                        {
+                                            return true;
+                                        }
+
+                                        return false;
+                                    });
                                 }
                             }
                         })
