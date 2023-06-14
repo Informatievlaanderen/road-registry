@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
@@ -53,7 +54,7 @@ public class Program
                                     loggerConfiguration.AddSlackSink<Program>(context.Configuration);
                                     loggerConfiguration.Filter.ByExcluding(logEvent =>
                                     {
-                                        if (logEvent.Exception is ApiException { StatusCode: < 500 })
+                                        if (logEvent.Exception is ApiException { StatusCode: < (int)HttpStatusCode.InternalServerError })
                                         {
                                             return true;
                                         }
