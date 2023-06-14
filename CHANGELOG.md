@@ -1,3 +1,11 @@
+## [3.49.2](https://github.com/informatievlaanderen/road-registry/compare/v3.49.1...v3.49.2) (2023-06-14)
+
+
+### Bug Fixes
+
+* do not log ApiExceptions with StatusCode < 500 ([#1005](https://github.com/informatievlaanderen/road-registry/issues/1005)) ([e2e9643](https://github.com/informatievlaanderen/road-registry/commit/e2e964301de13af006b2786144c2318dfc0fc270))
+* WR-739 manual close request endpoint ([#1004](https://github.com/informatievlaanderen/road-registry/issues/1004)) ([1e6e093](https://github.com/informatievlaanderen/road-registry/commit/1e6e093d48673554a0cefd710bced73e74848399))
+
 ## [3.49.1](https://github.com/informatievlaanderen/road-registry/compare/v3.49.0...v3.49.1) (2023-06-14)
 
 
