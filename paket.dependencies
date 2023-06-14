@@ -16,6 +16,7 @@ nuget AutoFixture.Xunit2 4.18.0
 nuget AWSSDK.Core 3.7.106.34
 nuget AWSSDK.DynamoDBv2 3.7.103.2
 nuget AWSSDK.S3 3.7.104.13
+nuget AWSSDK.SimpleNotificationService
 nuget AWSSDK.SQS 3.7.102.2
 nuget AWSSDK.Lambda 3.7.109.6
 nuget CompareNETObjects 4.79.0
@@ -47,6 +48,7 @@ nuget Serilog.Extensions.Logging 3.1.0
 nuget Serilog.Formatting.Compact 1.1.0
 nuget Serilog.Settings.Configuration 3.4.0
 nuget Serilog.Sinks.Seq 5.2.1
+nuget Serilog.Sinks.Slack 2.2.1
 nuget SqlStreamStore 1.2.0
 nuget SqlStreamStore.MsSql 1.2.0
 nuget Structurizr.Client 0.9.7

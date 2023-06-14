@@ -1,3 +1,16 @@
+# [3.49.0](https://github.com/informatievlaanderen/road-registry/compare/v3.48.0...v3.49.0) (2023-06-13)
+
+
+### Bug Fixes
+
+* WR-712 save original roadsegment ID when running FC ([#999](https://github.com/informatievlaanderen/road-registry/issues/999)) ([7d0e53d](https://github.com/informatievlaanderen/road-registry/commit/7d0e53d399dc29699dea74d5f0840c49cd92e24d))
+* WR-738 don't fail when nationalroad projection tries to delete something that's already deleted ([#1001](https://github.com/informatievlaanderen/road-registry/issues/1001)) ([48fcd1d](https://github.com/informatievlaanderen/road-registry/commit/48fcd1dfa6368730973c8d353a0764823268cc92))
+
+
+### Features
+
+* Introduce Serilog sink for Slack channels ([#1000](https://github.com/informatievlaanderen/road-registry/issues/1000)) ([01f3875](https://github.com/informatievlaanderen/road-registry/commit/01f38753b98323c8b4a7458fc6448ece2f7fede4))
+
 # [3.48.0](https://github.com/informatievlaanderen/road-registry/compare/v3.47.1...v3.48.0) (2023-06-12)
 
 

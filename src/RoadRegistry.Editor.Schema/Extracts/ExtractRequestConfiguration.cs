@@ -18,7 +18,7 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
             .ValueGeneratedNever()
             .IsRequired();
 
-        b.Property(p => p.Description).IsRequired();
+        b.Property(p => p.Description).IsRequired(false);
         b.Property(p => p.Contour)
             .HasColumnType("Geometry")
             .IsRequired();
@@ -26,8 +26,7 @@ public class ExtractRequestConfiguration : IEntityTypeConfiguration<ExtractReque
         b.Property(p => p.ExternalRequestId).IsRequired();
         b.Property(p => p.RequestedOn).IsRequired();
 
-        b.Property(p => p.IsInformative)
-            .IsRequired();
+        b.Property(p => p.IsInformative).IsRequired();
         b.Property(p => p.DownloadedOn).IsRequired(false);
     }
 }

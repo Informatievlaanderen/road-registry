@@ -18,6 +18,9 @@ using NodaTime;
 using RoadRegistry.BackOffice.Configuration;
 using Serilog;
 using Serilog.Debugging;
+using Serilog.Events;
+using Serilog.Sinks.Slack;
+using Serilog.Sinks.Slack.Models;
 using System;
 using System.IO;
 using System.Text;
@@ -157,7 +160,8 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                 .Enrich.FromLogContext()
                 .Enrich.WithMachineName()
                 .Enrich.WithThreadId()
-                .Enrich.WithEnvironmentUserName();
+                .Enrich.WithEnvironmentUserName()
+                .AddSlackSink<T>(hostContext.Configuration);
 
             Log.Logger = loggerConfiguration.CreateLogger();
 
