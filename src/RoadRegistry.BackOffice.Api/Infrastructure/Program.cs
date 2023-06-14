@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 using Serilog.Filters;
 using SqlStreamStore;
 
@@ -52,15 +53,10 @@ public class Program
                                 ConfigureSerilog = (context, loggerConfiguration) =>
                                 {
                                     loggerConfiguration.AddSlackSink<Program>(context.Configuration);
-                                    loggerConfiguration.Filter.ByExcluding(logEvent =>
-                                    {
-                                        if (logEvent.Exception is ApiException { StatusCode: < (int)HttpStatusCode.InternalServerError })
-                                        {
-                                            return true;
-                                        }
-
-                                        return false;
-                                    });
+                                    
+                                    loggerConfiguration.Filter.ByExcluding(
+                                        Matching.WithProperty<string>("SourceContext", value =>
+                                            "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware".Equals(value, StringComparison.OrdinalIgnoreCase)));
                                 }
                             }
                         })
