@@ -1,3 +1,10 @@
+## [3.49.1](https://github.com/informatievlaanderen/road-registry/compare/v3.49.0...v3.49.1) (2023-06-14)
+
+
+### Bug Fixes
+
+* consolidate projections behavior when deleting records ([#1002](https://github.com/informatievlaanderen/road-registry/issues/1002)) ([5058bfa](https://github.com/informatievlaanderen/road-registry/commit/5058bfae96dfd1a7b82181609d92dcfada6762f6))
+
 # [3.49.0](https://github.com/informatievlaanderen/road-registry/compare/v3.48.0...v3.49.0) (2023-06-13)
 
 
