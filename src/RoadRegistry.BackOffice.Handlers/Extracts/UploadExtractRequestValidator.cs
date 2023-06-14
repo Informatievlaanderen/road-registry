@@ -1,15 +1,40 @@
 namespace RoadRegistry.BackOffice.Handlers.Extracts;
 
 using Abstractions.Extracts;
+using Editor.Schema;
 using FluentValidation;
 using MediatR;
 
 public sealed class UploadExtractRequestValidator : AbstractValidator<UploadExtractRequest>, IPipelineBehavior<UploadExtractRequest, UploadExtractResponse>
 {
+    private readonly EditorContext _editorContext;
+    private readonly IExtractUploadFailedEmailClient _emailClient;
+
+    public UploadExtractRequestValidator(EditorContext editorContext, IExtractUploadFailedEmailClient emailClient)
+    {
+        _editorContext = editorContext;
+        _emailClient = emailClient;
+    }
     public async Task<UploadExtractResponse> Handle(UploadExtractRequest request, RequestHandlerDelegate<UploadExtractResponse> next, CancellationToken cancellationToken)
     {
-        await this.ValidateAndThrowAsync(request, cancellationToken);
-        var response = await next();
-        return response;
+        var validationResult = await this.ValidateAsync(request, cancellationToken);
+
+        if (validationResult.IsValid)
+        {
+            var response = await next();
+            return response;
+        }
+        else
+        {
+            var ex = new ValidationException(validationResult.Errors);
+            var extractRequest = await _editorContext.ExtractRequests.FindAsync(new[] { DownloadId.Parse(request.DownloadId).ToGuid() }, cancellationToken);
+
+            await _emailClient.SendAsync(extractRequest is null
+                ? "Oplading Wegenregister is mislukt"
+                : $"Oplading Wegenregister {extractRequest.Description} is mislukt",
+                ex,
+                cancellationToken);
+            throw ex;
+        }
     }
 }

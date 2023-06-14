@@ -10,6 +10,7 @@ Be.Vlaanderen.Basisregisters.Shaperon.Geometries
 
 Amazon.Lambda.Core
 AWSSDK.DynamoDBv2
+AWSSDK.SimpleEmailV2
 AWSSDK.SimpleNotificationService
 DotSpatial.Projections
 FeatureToggle.Common
