@@ -37,7 +37,6 @@ namespace RoadRegistry.AdminHost
             {
                 var message = new CloseRoadNetworkExtract
                 {
-                    DownloadId = new DownloadId(extractRequest.DownloadId),
                     ExternalRequestId = extractRequest.ExternalRequestId,
                     Reason = RoadNetworkExtractCloseReason.NoDownloadReceived
                 };
