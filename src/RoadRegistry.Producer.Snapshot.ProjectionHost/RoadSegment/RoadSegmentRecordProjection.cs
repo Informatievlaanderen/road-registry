@@ -373,7 +373,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             }
             if (roadSegmentRecord.IsRemoved)
             {
-                throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentRemoved.Id} is already removed");
+                return;
             }
 
             roadSegmentRecord.Origin = envelope.Message.ToOrigin();

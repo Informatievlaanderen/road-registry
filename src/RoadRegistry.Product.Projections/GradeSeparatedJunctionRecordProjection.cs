@@ -119,6 +119,9 @@ public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<Produc
     {
         var junctionRecord = await context.GradeSeparatedJunctions.FindAsync(junction.Id, cancellationToken: token).ConfigureAwait(false);
 
-        if (junctionRecord != null) context.GradeSeparatedJunctions.Remove(junctionRecord);
+        if (junctionRecord is not null)
+        {
+            context.GradeSeparatedJunctions.Remove(junctionRecord);
+        }
     }
 }

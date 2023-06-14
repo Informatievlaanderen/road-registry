@@ -114,7 +114,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode
             }
             if (roadNodeRecord.IsRemoved)
             {
-                throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is already removed");
+                return;
             }
 
             roadNodeRecord.Origin = envelope.Message.ToOrigin();

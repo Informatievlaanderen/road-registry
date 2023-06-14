@@ -157,11 +157,9 @@ public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<P
         CancellationToken token)
     {
         context.RoadSegmentSurfaceAttributes.RemoveRange(
-            context
-                .RoadSegmentSurfaceAttributes
-                .Local.Where(a => a.RoadSegmentId == segment.Id)
-                .Concat(await context
-                    .RoadSegmentSurfaceAttributes
+            context.RoadSegmentSurfaceAttributes.Local
+                .Where(a => a.RoadSegmentId == segment.Id)
+                .Concat(await context.RoadSegmentSurfaceAttributes
                     .Where(a => a.RoadSegmentId == segment.Id)
                     .ToArrayAsync(token)
                 ));
@@ -178,12 +176,9 @@ public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<P
         if (surfaces.Length == 0)
         {
             context.RoadSegmentSurfaceAttributes.RemoveRange(
-                context
-                    .RoadSegmentSurfaceAttributes
-                    .Local
+                context.RoadSegmentSurfaceAttributes.Local
                     .Where(a => a.RoadSegmentId == roadSegmentId)
-                    .Concat(await context
-                        .RoadSegmentSurfaceAttributes
+                    .Concat(await context.RoadSegmentSurfaceAttributes
                         .Where(a => a.RoadSegmentId == roadSegmentId)
                         .ToArrayAsync(token)
                     ));

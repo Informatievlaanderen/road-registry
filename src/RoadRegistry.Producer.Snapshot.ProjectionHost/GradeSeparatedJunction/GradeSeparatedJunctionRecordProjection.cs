@@ -119,7 +119,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             }
             if (gradeSeparatedJunctionRecord.IsRemoved)
             {
-                throw new InvalidOperationException($"{nameof(GradeSeparatedJunctionRecord)} with id {gradeSeparatedJunctionRemoved.Id} is already removed");
+                return;
             }
 
             gradeSeparatedJunctionRecord.Origin = envelope.Message.ToOrigin();

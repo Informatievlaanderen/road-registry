@@ -86,11 +86,9 @@ public class RoadNodeRecordProjection : ConnectedProjection<WfsContext>
     private static async Task RemoveRoadNode(RoadNodeRemoved roadNodeRemoved, WfsContext context, CancellationToken token)
     {
         var roadNodeRecord = await context.RoadNodes.FindAsync(roadNodeRemoved.Id, cancellationToken: token).ConfigureAwait(false);
-        if (roadNodeRecord == null)
+        if (roadNodeRecord is not null)
         {
-            throw new InvalidOperationException($"RoadNodeRecord with id {roadNodeRemoved.Id} is not found");
+            context.RoadNodes.Remove(roadNodeRecord);
         }
-
-        context.RoadNodes.Remove(roadNodeRecord);
     }
 }

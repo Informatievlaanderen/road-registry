@@ -49,63 +49,64 @@ public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<Editor
                 switch (change)
                 {
                     case GradeSeparatedJunctionAdded added:
-                    {
-                        var translation = GradeSeparatedJunctionType.Parse(added.Type).Translation;
-                        var junction = new GradeSeparatedJunctionRecord
                         {
-                            Id = added.Id,
-                            UpperRoadSegmentId = added.UpperRoadSegmentId,
-                            LowerRoadSegmentId = added.LowerRoadSegmentId,
-                            DbaseRecord = new GradeSeparatedJunctionDbaseRecord
+                            var translation = GradeSeparatedJunctionType.Parse(added.Type).Translation;
+                            var junction = new GradeSeparatedJunctionRecord
                             {
-                                OK_OIDN = { Value = added.Id },
-                                TYPE = { Value = translation.Identifier },
-                                LBLTYPE = { Value = translation.Name },
-                                BO_WS_OIDN = { Value = added.UpperRoadSegmentId },
-                                ON_WS_OIDN = { Value = added.LowerRoadSegmentId },
-                                BEGINTIJD =
+                                Id = added.Id,
+                                UpperRoadSegmentId = added.UpperRoadSegmentId,
+                                LowerRoadSegmentId = added.LowerRoadSegmentId,
+                                DbaseRecord = new GradeSeparatedJunctionDbaseRecord
+                                {
+                                    OK_OIDN = { Value = added.Id },
+                                    TYPE = { Value = translation.Identifier },
+                                    LBLTYPE = { Value = translation.Name },
+                                    BO_WS_OIDN = { Value = added.UpperRoadSegmentId },
+                                    ON_WS_OIDN = { Value = added.LowerRoadSegmentId },
+                                    BEGINTIJD =
                                 {
                                     Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                                 },
-                                BEGINORG = { Value = envelope.Message.OrganizationId },
-                                LBLBGNORG = { Value = envelope.Message.Organization }
-                            }.ToBytes(manager, encoding)
-                        };
+                                    BEGINORG = { Value = envelope.Message.OrganizationId },
+                                    LBLBGNORG = { Value = envelope.Message.Organization }
+                                }.ToBytes(manager, encoding)
+                            };
 
-                        await context.AddAsync(junction, token);
-                    }
+                            await context.AddAsync(junction, token);
+                        }
                         break;
                     case GradeSeparatedJunctionModified modified:
-                    {
-                        var junction =
-                            await context.GradeSeparatedJunctions.FindAsync(modified.Id, cancellationToken: token);
-
-                        var translation = GradeSeparatedJunctionType.Parse(modified.Type).Translation;
-                        junction.UpperRoadSegmentId = modified.UpperRoadSegmentId;
-                        junction.LowerRoadSegmentId = modified.LowerRoadSegmentId;
-                        junction.DbaseRecord = new GradeSeparatedJunctionDbaseRecord
                         {
-                            OK_OIDN = { Value = modified.Id },
-                            TYPE = { Value = translation.Identifier },
-                            LBLTYPE = { Value = translation.Name },
-                            BO_WS_OIDN = { Value = modified.UpperRoadSegmentId },
-                            ON_WS_OIDN = { Value = modified.LowerRoadSegmentId },
-                            BEGINTIJD =
+                            var junction =
+                                await context.GradeSeparatedJunctions.FindAsync(modified.Id, cancellationToken: token);
+
+                            var translation = GradeSeparatedJunctionType.Parse(modified.Type).Translation;
+                            junction.UpperRoadSegmentId = modified.UpperRoadSegmentId;
+                            junction.LowerRoadSegmentId = modified.LowerRoadSegmentId;
+                            junction.DbaseRecord = new GradeSeparatedJunctionDbaseRecord
+                            {
+                                OK_OIDN = { Value = modified.Id },
+                                TYPE = { Value = translation.Identifier },
+                                LBLTYPE = { Value = translation.Name },
+                                BO_WS_OIDN = { Value = modified.UpperRoadSegmentId },
+                                ON_WS_OIDN = { Value = modified.LowerRoadSegmentId },
+                                BEGINTIJD =
                             {
                                 Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When)
                             },
-                            BEGINORG = { Value = envelope.Message.OrganizationId },
-                            LBLBGNORG = { Value = envelope.Message.Organization }
-                        }.ToBytes(manager, encoding);
-                    }
+                                BEGINORG = { Value = envelope.Message.OrganizationId },
+                                LBLBGNORG = { Value = envelope.Message.Organization }
+                            }.ToBytes(manager, encoding);
+                        }
                         break;
                     case GradeSeparatedJunctionRemoved removed:
-                    {
-                        var junctionRecord =
-                            await context.GradeSeparatedJunctions.FindAsync(removed.Id, cancellationToken: token);
-
-                        context.GradeSeparatedJunctions.Remove(junctionRecord);
-                    }
+                        {
+                            var junctionRecord = await context.GradeSeparatedJunctions.FindAsync(removed.Id, cancellationToken: token);
+                            if (junctionRecord is not null)
+                            {
+                                context.GradeSeparatedJunctions.Remove(junctionRecord);
+                            }
+                        }
                         break;
                 }
         });

@@ -134,7 +134,9 @@ public class RoadNodeRecordProjection : ConnectedProjection<ProductContext>
     private static async Task RemoveRoadNode(ProductContext context, RoadNodeRemoved node, CancellationToken token)
     {
         var roadNode = await context.RoadNodes.FindAsync(node.Id, cancellationToken: token).ConfigureAwait(false);
-
-        context.RoadNodes.Remove(roadNode);
+        if (roadNode is not null)
+        {
+            context.RoadNodes.Remove(roadNode);
+        }
     }
 }

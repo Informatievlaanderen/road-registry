@@ -60,8 +60,8 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
 
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            var organization = await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token)
-                               ?? context.Organizations.Local.Single(o => o.Code == envelope.Message.Code);
+            var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
+                               ?? await context.Organizations.SingleAsync(o => o.Code == envelope.Message.Code, token);
 
             organization.DbaseRecord = new OrganizationDbaseRecord
             {
@@ -72,10 +72,12 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
 
         When<Envelope<DeleteOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            var organization = await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token)
-                               ?? context.Organizations.Local.Single(o => o.Code == envelope.Message.Code);
-
-            context.Remove(organization);
+            var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
+                               ?? await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token);
+            if (organization is not null)
+            {
+                context.Remove(organization);
+            }
         });
     }
 

@@ -8,6 +8,7 @@ using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
 using RoadSegmentEuropeanRoadAttributeRecord = BackOffice.Extracts.Dbase.RoadSegments.RoadSegmentEuropeanRoadAttributeRecord;
@@ -69,17 +70,19 @@ public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProject
                     case RoadSegmentRemovedFromEuropeanRoad europeanRoad:
                         var roadSegmentEuropeanRoadAttributeRecord =
                             await context.RoadSegmentEuropeanRoadAttributes.FindAsync(europeanRoad.AttributeId, cancellationToken: token).ConfigureAwait(false);
-
-                        context.RoadSegmentEuropeanRoadAttributes.Remove(roadSegmentEuropeanRoadAttributeRecord);
+                        if (roadSegmentEuropeanRoadAttributeRecord is not null)
+                        {
+                            context.RoadSegmentEuropeanRoadAttributes.Remove(roadSegmentEuropeanRoadAttributeRecord);
+                        }
                         break;
 
                     case RoadSegmentRemoved roadSegmentRemoved:
                         var roadSegmentEuropeanRoadAttributeRecords =
-                            context.RoadSegmentEuropeanRoadAttributes
-                                .Local
+                            context.RoadSegmentEuropeanRoadAttributes.Local
                                 .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id)
-                                .Concat(context.RoadSegmentEuropeanRoadAttributes
-                                    .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id));
+                                .Concat(await context.RoadSegmentEuropeanRoadAttributes
+                                    .Where(x => x.RoadSegmentId == roadSegmentRemoved.Id)
+                                    .ToArrayAsync(token));
 
                         context.RoadSegmentEuropeanRoadAttributes.RemoveRange(roadSegmentEuropeanRoadAttributeRecords);
                         break;
