@@ -113,5 +113,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
             shxWriter.Writer.Flush();
             await shxEntryStream.FlushAsync(cancellationToken);
         }
+
+        await archive.CreateCpgEntry("eWegknoop.cpg", _encoding, cancellationToken);
     }
 }
