@@ -10,9 +10,14 @@ using Uploads;
 [Serializable]
 public sealed class DbaseReaderNotFoundException : ApplicationException
 {
-    public DbaseReaderNotFoundException(string fileName, DbaseSchema dbaseSchema, IEnumerable<DbaseSchema> supportedDbaseSchemas)
-        : base($"No reader found for file '{fileName}' with schema:\n{dbaseSchema.Describe()}\nOnly the following schemas are supported:\n{string.Join("\n", supportedDbaseSchemas.Select(x => DbaseFileProblems.Describe(x)))}")
+    public DbaseSchema ActualSchema { get; }
+    public ICollection<DbaseSchema> ExpectedSchemas { get; }
+
+    public DbaseReaderNotFoundException(string fileName, DbaseSchema dbaseSchema, ICollection<DbaseSchema> supportedDbaseSchemas)
+        : base($"No reader found for file '{fileName}' with schema:\n{dbaseSchema.Describe()}\nOnly the following schemas are supported:\n{string.Join("\n", supportedDbaseSchemas.Select(x => x.Describe()))}")
     {
+        ActualSchema = dbaseSchema;
+        ExpectedSchemas = supportedDbaseSchemas;
     }
 
     private DbaseReaderNotFoundException(SerializationInfo info, StreamingContext context)

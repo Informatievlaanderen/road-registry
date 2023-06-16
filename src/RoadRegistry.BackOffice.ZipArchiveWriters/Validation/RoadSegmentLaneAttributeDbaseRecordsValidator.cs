@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
 using System.IO.Compression;
-using System.Threading.Channels;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts.Dbase.RoadSegments;
 using Uploads;
@@ -42,19 +41,19 @@ public class RoadSegmentLaneAttributeDbaseRecordsValidator : IZipArchiveDbaseRec
                             problems += recordContext.RequiredFieldIsNull(record.RICHTING.Field);
                         else if (!RoadSegmentLaneDirection.ByIdentifier.ContainsKey(record.RICHTING.Value)) problems += recordContext.LaneDirectionMismatch(record.RICHTING.Value);
 
-                        if (!record.VANPOS.HasValue)
+                        if (record.VANPOS.Value is null)
                             problems += recordContext.RequiredFieldIsNull(record.VANPOS.Field);
-                        else if (!RoadSegmentPosition.Accepts(record.VANPOS.Value)) problems += recordContext.FromPositionOutOfRange(record.VANPOS.Value);
+                        else if (!RoadSegmentPosition.Accepts(record.VANPOS.Value.Value)) problems += recordContext.FromPositionOutOfRange(record.VANPOS.Value.Value);
 
-                        if (!record.TOTPOS.HasValue)
+                        if (record.TOTPOS.Value is null)
                             problems += recordContext.RequiredFieldIsNull(record.TOTPOS.Field);
-                        else if (!RoadSegmentPosition.Accepts(record.TOTPOS.Value)) problems += recordContext.ToPositionOutOfRange(record.TOTPOS.Value);
+                        else if (!RoadSegmentPosition.Accepts(record.TOTPOS.Value.Value)) problems += recordContext.ToPositionOutOfRange(record.TOTPOS.Value.Value);
 
-                        if (record.VANPOS.HasValue && record.TOTPOS.HasValue &&
+                        if (record.VANPOS.Value is not null && record.TOTPOS.Value is not null &&
                             record.VANPOS.Value >= record.TOTPOS.Value)
                             problems += recordContext.FromPositionEqualToOrGreaterThanToPosition(
-                                record.VANPOS.Value,
-                                record.TOTPOS.Value);
+                                record.VANPOS.Value.Value,
+                                record.TOTPOS.Value.Value);
 
                         if (!record.WS_OIDN.HasValue)
                             problems += recordContext.RequiredFieldIsNull(record.WS_OIDN.Field);

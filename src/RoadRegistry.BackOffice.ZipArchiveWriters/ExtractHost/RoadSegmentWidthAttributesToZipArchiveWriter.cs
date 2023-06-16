@@ -24,21 +24,39 @@ public class RoadSegmentWidthAttributesToZipArchiveWriter : IZipArchiveWriter<Ed
         EditorContext context,
         CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
-        if (request == null) throw new ArgumentNullException(nameof(request));
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(context);
 
-        var attributes = await context.RoadSegmentWidthAttributes
+        var dbfRecords = (await context.RoadSegmentWidthAttributes
             .ToListWithPolygonials(request.Contour,
                 (dbSet, polygon) => dbSet.InsideContour(polygon),
                 x => x.Id,
-                cancellationToken);
+                cancellationToken))
+            .Select(attribute =>
+            {
+                var dbfRecord = new RoadSegmentWidthAttributeDbaseRecord();
+                dbfRecord.FromBytes(attribute.DbaseRecord, _manager, _encoding);
+                return dbfRecord;
+            })
+            .ToList();
 
-        var dbfEntry = archive.CreateEntry("eAttWegbreedte.dbf");
+        await WriteAsync(archive, "eAttWegbreedte.dbf", dbfRecords, cancellationToken);
+    }
+
+    public async Task WriteAsync(ZipArchive archive, string fileName,
+        ICollection<RoadSegmentWidthAttributeDbaseRecord> records,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(fileName);
+        ArgumentNullException.ThrowIfNull(records);
+        
+        var dbfEntry = archive.CreateEntry(fileName);
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
             DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(attributes.Count),
+            new DbaseRecordCount(records.Count),
             RoadSegmentWidthAttributeDbaseRecord.Schema
         );
         await using (var dbfEntryStream = dbfEntry.Open())
@@ -47,10 +65,8 @@ public class RoadSegmentWidthAttributesToZipArchiveWriter : IZipArchiveWriter<Ed
                    dbfHeader,
                    new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
-            var dbfRecord = new RoadSegmentWidthAttributeDbaseRecord();
-            foreach (var data in attributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
+            foreach (var dbfRecord in records.OrderBy(_ => _.WB_OIDN.Value))
             {
-                dbfRecord.FromBytes(data, _manager, _encoding);
                 dbfWriter.Write(dbfRecord);
             }
 
