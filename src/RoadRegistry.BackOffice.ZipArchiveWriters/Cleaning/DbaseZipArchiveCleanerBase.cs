@@ -29,7 +29,7 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
         var entry = entries.SingleOrDefault(x => x.Name.Equals(dbfFileName, StringComparison.InvariantCultureIgnoreCase));
         if (entry is null)
         {
-            return null;
+            throw new OperationCanceledException();
         }
 
         var records = new List<TDbaseRecord>();
@@ -38,9 +38,9 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
         using (var reader = new BinaryReader(stream, Encoding))
         {
             var header = ReadHeader(reader);
-            if (header is null || !header.Schema.Equals(_dbaseSchema))
+            if (!header.Schema.Equals(_dbaseSchema))
             {
-                return null;
+                throw new OperationCanceledException();
             }
 
             using (var enumerator = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader))
@@ -67,33 +67,35 @@ public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveClea
         }
         catch
         {
-            return null;
+            throw new OperationCanceledException();
         }
     }
 
     public async Task<CleanResult> CleanAsync(ZipArchive archive, CancellationToken cancellationToken)
     {
-        var features = ReadFeatures(archive.Entries, FeatureType.Change, _fileName);
-        if (features is null)
+        try
+        {
+            var features = ReadFeatures(archive.Entries, FeatureType.Change, _fileName);
+            if (!features.Any())
+            {
+                return CleanResult.NoChanges;
+            }
+
+            var dataChanged = FixDataInArchive(archive, features);
+            if (!dataChanged)
+            {
+                return CleanResult.NoChanges;
+            }
+
+            await Save(archive, features, cancellationToken);
+            return CleanResult.Changed;
+        }
+        catch (OperationCanceledException)
         {
             return CleanResult.NotApplicable;
         }
-        if (!features.Any())
-        {
-            return CleanResult.NoChanges;
-        }
-
-        var dataChanged = FixDataInArchive(archive, features);
-        if (!dataChanged)
-        {
-            return CleanResult.NoChanges;
-        }
-
-        await Save(archive, features, cancellationToken);
-        return CleanResult.Changed;
     }
-
-
+    
     private async Task Save(ZipArchive archive, IReadOnlyCollection<TDbaseRecord> dbfRecords, CancellationToken cancellationToken)
     {
         var fileName = FeatureType.Change.GetDbfFileName(_fileName);
