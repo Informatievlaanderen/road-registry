@@ -24,39 +24,21 @@ public class RoadSegmentLaneAttributesToZipArchiveWriter : IZipArchiveWriter<Edi
         EditorContext context,
         CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(archive);
-        ArgumentNullException.ThrowIfNull(request);
-        ArgumentNullException.ThrowIfNull(context);
+        if (archive == null) throw new ArgumentNullException(nameof(archive));
+        if (request == null) throw new ArgumentNullException(nameof(request));
+        if (context == null) throw new ArgumentNullException(nameof(context));
 
-        var dbfRecords = (await context.RoadSegmentLaneAttributes
+        var attributes = await context.RoadSegmentLaneAttributes
             .ToListWithPolygonials(request.Contour,
                 (dbSet, polygon) => dbSet.InsideContour(polygon),
                 x => x.Id,
-                cancellationToken))
-            .Select(attribute =>
-            {
-                var dbfRecord = new RoadSegmentLaneAttributeDbaseRecord();
-                dbfRecord.FromBytes(attribute.DbaseRecord, _manager, _encoding);
-                return dbfRecord;
-            })
-            .ToList();
-        
-        await WriteAsync(archive, "eAttRijstroken.dbf", dbfRecords, cancellationToken);
-    }
+                cancellationToken);
 
-    public async Task WriteAsync(ZipArchive archive, string fileName,
-        IReadOnlyCollection<RoadSegmentLaneAttributeDbaseRecord> records,
-        CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(archive);
-        ArgumentNullException.ThrowIfNull(fileName);
-        ArgumentNullException.ThrowIfNull(records);
-
-        var dbfEntry = archive.CreateEntry(fileName);
+        var dbfEntry = archive.CreateEntry("eAttRijstroken.dbf");
         var dbfHeader = new DbaseFileHeader(
             DateTime.Now,
             DbaseCodePage.Western_European_ANSI,
-            new DbaseRecordCount(records.Count),
+            new DbaseRecordCount(attributes.Count),
             RoadSegmentLaneAttributeDbaseRecord.Schema
         );
         await using (var dbfEntryStream = dbfEntry.Open())
@@ -65,8 +47,10 @@ public class RoadSegmentLaneAttributesToZipArchiveWriter : IZipArchiveWriter<Edi
                    dbfHeader,
                    new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
-            foreach (var dbfRecord in records.OrderBy(_ => _.RS_OIDN.Value))
+            var dbfRecord = new RoadSegmentLaneAttributeDbaseRecord();
+            foreach (var data in attributes.OrderBy(_ => _.Id).Select(_ => _.DbaseRecord))
             {
+                dbfRecord.FromBytes(data, _manager, _encoding);
                 dbfWriter.Write(dbfRecord);
             }
 
