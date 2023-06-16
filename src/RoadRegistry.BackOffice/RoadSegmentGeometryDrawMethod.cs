@@ -6,11 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public interface IDutchToString
-{
-    string ToDutchString();
-}
-
 public sealed class RoadSegmentGeometryDrawMethod : IEquatable<RoadSegmentGeometryDrawMethod>, IDutchToString
 {
     public static readonly RoadSegmentGeometryDrawMethod Measured =

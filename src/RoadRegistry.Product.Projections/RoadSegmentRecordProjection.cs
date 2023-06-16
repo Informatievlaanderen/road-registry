@@ -185,8 +185,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         var dbaseRecord = new RoadSegmentDbaseRecord();
         dbaseRecord.FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
         // dbaseRecord.WS_OIDN.Value remains unchanged upon modification (it's the key)
-        dbaseRecord.WS_UIDN.Value = $"{roadSegmentModified.Id}_{roadSegmentModified.Version}";
-        dbaseRecord.WS_GIDN.Value = $"{roadSegmentModified.Id}_{roadSegmentModified.GeometryVersion}";
+        dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.Version);
+        dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.GeometryVersion);
         dbaseRecord.B_WK_OIDN.Value = roadSegmentModified.StartNodeId;
         dbaseRecord.E_WK_OIDN.Value = roadSegmentModified.EndNodeId;
         dbaseRecord.STATUS.Value = statusTranslation.Identifier;
@@ -269,7 +269,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         }
 
         // dbaseRecord.WS_OIDN.Value remains unchanged upon modification (it's the key)
-        dbaseRecord.WS_UIDN.Value = $"{roadSegmentAttributesModified.Id}_{roadSegmentAttributesModified.Version}";
+        dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentAttributesModified.Id, roadSegmentAttributesModified.Version);
         // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
@@ -302,10 +302,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
         roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
 
-        dbaseRecord.WS_GIDN.Value = $"{segment.Id}_{segment.GeometryVersion}";
+        dbaseRecord.WS_GIDN.Value = new UIDN(segment.Id, segment.GeometryVersion);
 
         // dbaseRecord.WS_OIDN.Value remains unchanged upon modification (it's the key)
-        dbaseRecord.WS_UIDN.Value = $"{segment.Id}_{segment.Version}";
+        dbaseRecord.WS_UIDN.Value = new UIDN(segment.Id, segment.Version);
         // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;

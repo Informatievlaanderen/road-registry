@@ -193,8 +193,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         roadSegmentRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentModified.Geometry);
 
         var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
-        dbaseRecord.WS_UIDN.Value = $"{roadSegmentModified.Id}_{roadSegmentModified.Version}";
-        dbaseRecord.WS_GIDN.Value = $"{roadSegmentModified.Id}_{roadSegmentModified.GeometryVersion}";
+        dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.Version);
+        dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentModified.Id, roadSegmentModified.GeometryVersion);
         dbaseRecord.B_WK_OIDN.Value = roadSegmentModified.StartNodeId;
         dbaseRecord.E_WK_OIDN.Value = roadSegmentModified.EndNodeId;
         dbaseRecord.STATUS.Value = statusTranslation.Identifier;
@@ -275,7 +275,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
             dbaseRecord.LBLBEHEER.Value = roadSegmentAttributesModified.MaintenanceAuthority.Name;
         }
 
-        dbaseRecord.WS_UIDN.Value = $"{roadSegmentAttributesModified.Id}_{roadSegmentAttributesModified.Version}";
+        dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentAttributesModified.Id, roadSegmentAttributesModified.Version);
         // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
@@ -309,9 +309,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         roadSegmentRecord.BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape);
         roadSegmentRecord.Geometry = BackOffice.GeometryTranslator.Translate(roadSegmentGeometryModified.Geometry);
 
-        dbaseRecord.WS_GIDN.Value = $"{roadSegmentGeometryModified.Id}_{roadSegmentGeometryModified.GeometryVersion}";
+        dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.GeometryVersion);
 
-        dbaseRecord.WS_UIDN.Value = $"{roadSegmentGeometryModified.Id}_{roadSegmentGeometryModified.Version}";
+        dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.Version);
         // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
