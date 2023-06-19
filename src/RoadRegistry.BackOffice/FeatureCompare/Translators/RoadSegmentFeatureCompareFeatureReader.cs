@@ -33,15 +33,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedFeatureReader<Fea
         var shpReader = new ZipArchiveShapeFileReader();
         foreach (var (geometry, recordNumber) in shpReader.Read(shpEntry))
         {
-            var multiLineString = geometry as MultiLineString;
-            if (multiLineString is null)
-            {
-                var lineString = (LineString)geometry;
-                multiLineString = new MultiLineString(new[] { lineString }, lineString.Factory)
-                {
-                    SRID = lineString.SRID
-                };
-            }
+            var multiLineString = geometry.ToMultiLineString();
 
             var feature = features.Single(x => x.RecordNumber.Equals(recordNumber));
             feature.Attributes.Geometry = multiLineString;

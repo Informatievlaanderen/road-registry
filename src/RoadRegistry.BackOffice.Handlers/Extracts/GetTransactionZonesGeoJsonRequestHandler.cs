@@ -31,7 +31,7 @@ public class GetTransactionZonesGeoJsonRequestHandler : EndpointRequestHandler<G
         return new GetTransactionZonesGeoJsonResponse
         {
             FeatureCollection = new FeatureCollection(transactionZones
-                .Select(municipality => new Feature(((MultiPolygon)municipality.Contour).ToGeoJson(), new
+                .Select(municipality => new Feature(municipality.Contour.ToMultiPolygon().ToGeoJson(), new
                 {
                     municipality.Description,
                     municipality.DownloadId,
