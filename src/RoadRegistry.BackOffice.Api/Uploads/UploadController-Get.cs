@@ -18,7 +18,7 @@ public partial class UploadController
     /// <summary>
     ///     Download een aangevraagd extract
     /// </summary>
-    /// <param name="id">De identificator van het wegsegment.</param>
+    /// <param name="identifier">De identificator van het wegsegment.</param>
     /// <param name="cancellationToken"></param>
     /// <response code="200">Als het wegsegment gevonden is.</response>
     /// <response code="404">Als het wegsegment niet gevonden kan worden.</response>
@@ -31,11 +31,11 @@ public partial class UploadController
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(ExtractDownloadNotFoundException))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
     [SwaggerOperation(OperationId = nameof(GetUpload), Description = "")]
-    public async Task<IActionResult> GetUpload(string id, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetUpload(string identifier, CancellationToken cancellationToken)
     {
         try
         {
-            DownloadExtractRequest request = new(id);
+            DownloadExtractRequest request = new(identifier);
             var response = await _mediator.Send(request, cancellationToken);
             return new FileCallbackResult(response);
         }
