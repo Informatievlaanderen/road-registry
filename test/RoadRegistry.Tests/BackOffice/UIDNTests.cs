@@ -14,7 +14,7 @@ namespace RoadRegistry.Tests.BackOffice
             var uidn = UIDN.Parse(value);
             Assert.Equal(expectedId, uidn.Id);
             Assert.Equal(expectedVersion, uidn.Version);
-            Assert.Equal(value, uidn);
+            Assert.Equal(value.Trim(), uidn);
         }
 
         [Theory]
