@@ -13,7 +13,7 @@ public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedFeatureReader
     {
     }
 
-    private sealed class ExtractsFeatureReader : DbaseFeatureReader<RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
+    public sealed class ExtractsFeatureReader : DbaseFeatureReader<RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
             : base(encoding, RoadSegmentLaneAttributeDbaseRecord.Schema)
@@ -34,7 +34,7 @@ public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedFeatureReader
         }
     }
 
-    private sealed class UploadsV2FeatureReader : DbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
+    public sealed class UploadsV2FeatureReader : DbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
             : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema)
@@ -55,7 +55,7 @@ public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedFeatureReader
         }
     }
 
-    private sealed class UploadsV1FeatureReader : DbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
+    public sealed class UploadsV1FeatureReader : DbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord, Feature<RoadSegmentLaneFeatureCompareAttributes>>
     {
         public UploadsV1FeatureReader(Encoding encoding)
             : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema)

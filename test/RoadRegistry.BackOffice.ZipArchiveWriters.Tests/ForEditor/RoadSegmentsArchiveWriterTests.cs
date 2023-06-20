@@ -13,16 +13,18 @@ using ZipArchiveWriters.ForEditor;
 public class RoadSegmentsArchiveWriterTests
 {
     private readonly SqlServer _fixture;
+    private readonly FileEncoding _fileEncoding;
 
-    public RoadSegmentsArchiveWriterTests(SqlServer fixture)
+    public RoadSegmentsArchiveWriterTests(SqlServer fixture, FileEncoding fileEncoding)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
+        _fileEncoding = fileEncoding;
     }
 
     [Fact]
     public Task ArchiveCanNotBeNull()
     {
-        var sut = new RoadSegmentsToZipArchiveWriter(new ZipArchiveWriterOptions(), _fixture.StreetNameCache, _fixture.MemoryStreamManager, Encoding.UTF8);
+        var sut = new RoadSegmentsToZipArchiveWriter(new ZipArchiveWriterOptions(), _fixture.StreetNameCache, _fixture.MemoryStreamManager, _fileEncoding);
         return Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.WriteAsync(null, new EditorContext(), default));
     }
@@ -30,7 +32,7 @@ public class RoadSegmentsArchiveWriterTests
     [Fact]
     public Task ContextCanNotBeNull()
     {
-        var sut = new RoadSegmentsToZipArchiveWriter(new ZipArchiveWriterOptions(), _fixture.StreetNameCache, _fixture.MemoryStreamManager, Encoding.UTF8);
+        var sut = new RoadSegmentsToZipArchiveWriter(new ZipArchiveWriterOptions(), _fixture.StreetNameCache, _fixture.MemoryStreamManager, _fileEncoding);
         return Assert.ThrowsAsync<ArgumentNullException>(
             () => sut.WriteAsync(new ZipArchive(Stream.Null, ZipArchiveMode.Create, true), null, default));
     }
@@ -38,7 +40,7 @@ public class RoadSegmentsArchiveWriterTests
     [Fact]
     public async Task WithEmptyRoadNetworkWritesArchiveWithExpectedEntries()
     {
-        var sut = new RoadSegmentsToZipArchiveWriter(new ZipArchiveWriterOptions(), _fixture.StreetNameCache, _fixture.MemoryStreamManager, Encoding.UTF8);
+        var sut = new RoadSegmentsToZipArchiveWriter(new ZipArchiveWriterOptions(), _fixture.StreetNameCache, _fixture.MemoryStreamManager, _fileEncoding);
 
         var db = await _fixture.CreateDatabaseAsync();
         var context = await _fixture.CreateEditorContextAsync(db);
@@ -53,14 +55,14 @@ public class RoadSegmentsArchiveWriterTests
             .WithContext(context)
             .Assert(readArchive =>
             {
-                Assert.Equal(3, readArchive.Entries.Count);
+                Assert.Equal(4, readArchive.Entries.Count);
                 foreach (var entry in readArchive.Entries)
                 {
                     switch (entry.Name)
                     {
                         case "Wegsegment.dbf":
                             using (var entryStream = entry.Open())
-                            using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                            using (var reader = new BinaryReader(entryStream, _fileEncoding))
                             {
                                 Assert.Equal(
                                     new DbaseFileHeader(
@@ -75,7 +77,7 @@ public class RoadSegmentsArchiveWriterTests
 
                         case "Wegsegment.shp":
                             using (var entryStream = entry.Open())
-                            using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                            using (var reader = new BinaryReader(entryStream, _fileEncoding))
                             {
                                 Assert.Equal(
                                     new ShapeFileHeader(
@@ -89,7 +91,7 @@ public class RoadSegmentsArchiveWriterTests
 
                         case "Wegsegment.shx":
                             using (var entryStream = entry.Open())
-                            using (var reader = new BinaryReader(entryStream, Encoding.UTF8))
+                            using (var reader = new BinaryReader(entryStream, _fileEncoding))
                             {
                                 Assert.Equal(
                                     new ShapeFileHeader(
@@ -97,6 +99,17 @@ public class RoadSegmentsArchiveWriterTests
                                         ShapeType.PolyLineM,
                                         BoundingBox3D.Empty),
                                     ShapeFileHeader.Read(reader));
+                            }
+
+                            break;
+
+                        case "Wegsegment.cpg":
+                            using (var entryStream = entry.Open())
+                            using (var reader = new StreamReader(entryStream, _fileEncoding))
+                            {
+                                Assert.Equal(
+                                    _fileEncoding.Encoding.CodePage.ToString(),
+                                    reader.ReadToEnd());
                             }
 
                             break;

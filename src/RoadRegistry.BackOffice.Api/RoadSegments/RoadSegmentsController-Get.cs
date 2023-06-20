@@ -57,7 +57,7 @@ public partial class RoadSegmentsController
 
             var result = new GetRoadSegmentResponse
             {
-                Identificator = new WegsegmentIdentificator(responseOptions.Value.WegsegmentNaamruimte, detailResponse.RoadSegmentId.ToString(), detailResponse.BeginTime),
+                Identificator = new WegsegmentIdentificator(responseOptions.Value.WegsegmentNaamruimte, detailResponse.RoadSegmentId.ToString(), detailResponse.BeginTime, detailResponse.Version),
                 MiddellijnGeometrie = new GeoJSONMultiLineString
                 {
                     Coordinates = geoJsonGeometry.ToGeoJson().ToCoordinateArray()
@@ -122,12 +122,19 @@ public partial class RoadSegmentsController
 [DataContract(Name = "Identificator", Namespace = "")]
 public class WegsegmentIdentificator : Identificator
 {
-    public WegsegmentIdentificator(string naamruimte, string objectId, DateTimeOffset? versie)
-        : base(naamruimte, objectId, versie) { }
+    /// <summary>
+    /// Het versie nummer van het object.
+    /// </summary>
+    [DataMember(Name = "VersieNummer", Order = 5)]
+    [JsonProperty(Required = Required.DisallowNull)]
+    public int VersieNummer { get; set; }
 
-    public WegsegmentIdentificator(string naamruimte, string objectId, string versie)
-        : base(naamruimte, objectId, versie) { }
-
+    public WegsegmentIdentificator(string naamruimte, string objectId, DateTimeOffset? versie, int versieNummer)
+        : base(naamruimte, objectId, versie)
+    {
+        VersieNummer = versieNummer;
+    }
+    
     public WegsegmentIdentificator()
         : base(null, null, (string)null)
     {
@@ -320,7 +327,7 @@ public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadS
     {
         return new GetRoadSegmentResponse
         {
-            Identificator = new WegsegmentIdentificator("https://data.vlaanderen.be/id/wegsegment", "643556", new DateTime(2015, 11, 27, 13, 46, 14)),
+            Identificator = new WegsegmentIdentificator("https://data.vlaanderen.be/id/wegsegment", "643556", new DateTime(2015, 11, 27, 13, 46, 14), 2),
             MiddellijnGeometrie = new GeoJSONMultiLineString
             {
                 Coordinates = new[]
