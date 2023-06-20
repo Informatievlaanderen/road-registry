@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
 internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
@@ -117,7 +118,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
         return processedRecords;
     }
 
-    protected override List<Feature<RoadSegmentFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    protected override List<Feature<RoadSegmentFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
     {
         var featureReader = new RoadSegmentFeatureCompareFeatureReader(Encoding);
         return featureReader.Read(entries, featureType, fileName);
@@ -127,7 +128,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
     {
         var entries = context.Entries;
 
-        var (extractFeatures, changeFeatures, integrationFeatures) = ReadExtractAndLeveringAndIntegrationFeatures(entries, "WEGSEGMENT");
+        var (extractFeatures, changeFeatures, integrationFeatures) = ReadExtractAndLeveringAndIntegrationFeatures(entries, ExtractFileName.Wegsegment);
 
         context.RoadSegments.AddRange(integrationFeatures.Select(feature => new RoadSegmentRecord(feature.RecordNumber, feature.Attributes, RecordType.Identical)));
 

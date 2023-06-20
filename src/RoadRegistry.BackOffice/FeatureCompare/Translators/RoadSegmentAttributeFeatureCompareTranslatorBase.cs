@@ -5,14 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
 internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttributes> : FeatureCompareTranslatorBase<TAttributes>
     where TAttributes : RoadSegmentAttributeFeatureCompareAttributes, new()
 {
-    private readonly string _fileName;
+    private readonly ExtractFileName _fileName;
 
-    protected RoadSegmentAttributeFeatureCompareTranslatorBase(Encoding encoding, string fileName)
+    protected RoadSegmentAttributeFeatureCompareTranslatorBase(Encoding encoding, ExtractFileName fileName)
         : base(encoding)
     {
         _fileName = fileName;
@@ -74,8 +75,8 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             }
             else
             {
-                wegsegmentExtractFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
-                wegsegmentChangeFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
+                wegsegmentExtractFeatures.Sort((x, y) => x.Attributes.FromPosition.Value.CompareTo(y.Attributes.FromPosition.Value));
+                wegsegmentChangeFeatures.Sort((x, y) => x.Attributes.FromPosition.Value.CompareTo(y.Attributes.FromPosition.Value));
 
                 for (var i = 0; i <= wegsegmentChangeFeatures.Count - 1; i++)
                 {
@@ -115,8 +116,8 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             }
             else
             {
-                wegsegmentExtractFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
-                wegsegmentChangeFeatures.Sort((x, y) => x.Attributes.FromPosition.CompareTo(y.Attributes.FromPosition));
+                wegsegmentExtractFeatures.Sort((x, y) => x.Attributes.FromPosition.Value.CompareTo(y.Attributes.FromPosition.Value));
+                wegsegmentChangeFeatures.Sort((x, y) => x.Attributes.FromPosition.Value.CompareTo(y.Attributes.FromPosition.Value));
 
                 for (var i = 0; i <= wegsegmentChangeFeatures.Count - 1; i++)
                 {

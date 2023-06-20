@@ -5,14 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
 internal abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> : FeatureCompareTranslatorBase<TAttributes>
     where TAttributes : RoadNumberingFeatureCompareAttributes, new()
 {
-    private readonly string _fileName;
+    private readonly ExtractFileName _fileName;
 
-    protected RoadNumberingFeatureCompareTranslatorBase(Encoding encoding, string fileName)
+    protected RoadNumberingFeatureCompareTranslatorBase(Encoding encoding, ExtractFileName fileName)
         : base(encoding)
     {
         _fileName = fileName;
