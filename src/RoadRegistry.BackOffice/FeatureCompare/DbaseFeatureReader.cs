@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts;
 using RoadRegistry.BackOffice.Uploads;
 
 public abstract class DbaseFeatureReader<TDbaseRecord, TFeature>: IFeatureReader<TFeature>
@@ -23,7 +24,7 @@ public abstract class DbaseFeatureReader<TDbaseRecord, TFeature>: IFeatureReader
 
     protected abstract TFeature ConvertDbfRecordToFeature(RecordNumber recordNumber, TDbaseRecord dbaseRecord);
 
-    public List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    public List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
     {
         var dbfFileName = featureType.GetDbfFileName(fileName);
         var entry = entries.SingleOrDefault(x => x.Name.Equals(dbfFileName, StringComparison.InvariantCultureIgnoreCase));
@@ -37,11 +38,11 @@ public abstract class DbaseFeatureReader<TDbaseRecord, TFeature>: IFeatureReader
         using (var stream = entry.Open())
         using (var reader = new BinaryReader(stream, _encoding))
         {
-            var header = DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
+            var header = ReadHeader(reader);
 
             if (!header.Schema.Equals(_dbaseSchema))
             {
-                throw new DbaseSchemaMismatchException(fileName, _dbaseSchema, header.Schema);
+                throw new DbaseSchemaMismatchException(dbfFileName, _dbaseSchema, header.Schema);
             }
 
             using (var enumerator = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader))
@@ -58,5 +59,17 @@ public abstract class DbaseFeatureReader<TDbaseRecord, TFeature>: IFeatureReader
         }
 
         return records;
+    }
+
+    private DbaseFileHeader ReadHeader(BinaryReader reader)
+    {
+        try
+        {
+            return DbaseFileHeader.Read(reader, new DbaseFileHeaderReadBehavior(true));
+        }
+        catch (Exception exception)
+        {
+            throw new DbaseHeaderFormatException(exception);
+        }
     }
 }

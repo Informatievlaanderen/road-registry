@@ -195,6 +195,8 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 shxWriter.Writer.Flush();
                 await shxEntryStream.FlushAsync(cancellationToken);
             }
+
+            await archive.CreateCpgEntry("iWegsegment.cpg", _encoding, cancellationToken);
         }
 
         async Task WriteRoadNodes()
@@ -278,6 +280,8 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
                 shxWriter.Writer.Flush();
                 await shxEntryStream.FlushAsync(cancellationToken);
             }
+
+            await archive.CreateCpgEntry("iWegknoop.cpg", _encoding, cancellationToken);
         }
     }
 }

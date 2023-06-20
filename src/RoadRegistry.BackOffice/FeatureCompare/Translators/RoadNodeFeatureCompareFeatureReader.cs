@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts;
 using Extracts.Dbase.RoadNodes;
 using Point = NetTopologySuite.Geometries.Point;
 
@@ -19,7 +20,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedFeatureReader<Featur
     {
     }
 
-    public override List<Feature<RoadNodeFeatureCompareAttributes>> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    public override List<Feature<RoadNodeFeatureCompareAttributes>> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
     {
         var features = base.Read(entries, featureType, fileName);
 

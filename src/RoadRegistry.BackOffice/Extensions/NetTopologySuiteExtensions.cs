@@ -204,4 +204,40 @@ public static class NetTopologySuiteExtensions
             return false;
         }
     }
+
+    public static MultiPolygon ToMultiPolygon(this Geometry geometry)
+    {
+        if (geometry is MultiPolygon multiPolygon)
+        {
+            return multiPolygon;
+        }
+
+        if (geometry is Polygon polygon)
+        {
+            return new MultiPolygon(new[] { polygon }, polygon.Factory)
+            {
+                SRID = polygon.SRID
+            };
+        }
+
+        throw new InvalidCastException($"The geometry of type {geometry.GetType().Name} must be either a {nameof(Polygon)} or a {nameof(MultiPolygon)}.");
+    }
+
+    public static MultiLineString ToMultiLineString(this Geometry geometry, GeometryFactory geometryFactory = null)
+    {
+        if (geometry is MultiLineString multiLineString)
+        {
+            return multiLineString;
+        }
+
+        if (geometry is LineString lineString)
+        {
+            return new MultiLineString(new[] { lineString }, geometryFactory ?? lineString.Factory)
+            {
+                SRID = lineString.SRID
+            };
+        }
+
+        throw new InvalidCastException($"The geometry of type {geometry.GetType().Name} must be either a {nameof(LineString)} or a {nameof(MultiLineString)}.");
+    }
 }

@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Extracts;
 using Uploads;
 
 public record Feature<TAttributes>(RecordNumber RecordNumber, TAttributes Attributes) where TAttributes : class;
@@ -20,16 +21,16 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
 
     protected Encoding Encoding { get; }
     
-    protected abstract List<Feature<TAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName);
+    protected abstract List<Feature<TAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName);
 
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndChangeFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndChangeFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, ExtractFileName fileName)
     {
         var extractFeatures = ReadFeatures(entries, FeatureType.Extract, fileName);
         var changeFeatures = ReadFeatures(entries, FeatureType.Change, fileName);
         return (extractFeatures, changeFeatures);
     }
 
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndLeveringAndIntegrationFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndLeveringAndIntegrationFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, ExtractFileName fileName)
     {
         var extractFeatures = ReadFeatures(entries, FeatureType.Extract, fileName);
         var changeFeatures = ReadFeatures(entries, FeatureType.Change, fileName);
