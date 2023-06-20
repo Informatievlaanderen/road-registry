@@ -82,6 +82,7 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
         return new RoadSegmentDetailResponse(
             roadSegment.Id,
             dbfRecord.BEGINTIJD.Value,
+            UIDN.Parse(dbfRecord.WS_UIDN.Value).Version,
             roadSegment.LastEventHash
         ) {
             Geometry = GeometryTranslator.Translate((MultiLineString)roadSegment.Geometry),

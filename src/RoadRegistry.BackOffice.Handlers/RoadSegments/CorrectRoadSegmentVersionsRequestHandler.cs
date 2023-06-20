@@ -141,7 +141,7 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
 
         roadSegmentIds.AddRange(roadSegments
             .Select(x => new RoadSegmentDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
-            .Where(x => x.WS_GIDN.Value.EndsWith("_0") || x.WS_UIDN.Value.EndsWith("_0"))
+            .Where(x => UIDN.Parse(x.WS_GIDN.Value).Version == 0 || UIDN.Parse(x.WS_UIDN.Value).Version == 0)
             .Select(x => x.WS_OIDN.Value));
         _logger.LogInformation("Add DbaseRecord temp collection finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(context.RoadSegments), sw.ElapsedMilliseconds);
 

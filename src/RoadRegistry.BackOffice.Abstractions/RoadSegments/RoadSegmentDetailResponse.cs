@@ -5,6 +5,7 @@ using Messages;
 public sealed record RoadSegmentDetailResponse(
     int RoadSegmentId,
     DateTime BeginTime,
+    int Version,
     string? LastEventHash
 ) : EndpointResponse
 {
