@@ -37,19 +37,19 @@ public class RoadSegmentWidthAttributeDbaseRecordsValidator : IZipArchiveDbaseRe
                             problems += recordContext.RequiredFieldIsNull(record.BREEDTE.Field);
                         else if (!RoadSegmentWidth.Accepts(record.BREEDTE.Value)) problems += recordContext.WidthOutOfRange(record.BREEDTE.Value);
 
-                        if (!record.VANPOS.HasValue)
+                        if (record.VANPOS.Value is null)
                             problems += recordContext.RequiredFieldIsNull(record.VANPOS.Field);
-                        else if (!RoadSegmentPosition.Accepts(record.VANPOS.Value)) problems += recordContext.FromPositionOutOfRange(record.VANPOS.Value);
+                        else if (!RoadSegmentPosition.Accepts(record.VANPOS.Value.Value)) problems += recordContext.FromPositionOutOfRange(record.VANPOS.Value.Value);
 
-                        if (!record.TOTPOS.HasValue)
+                        if (record.TOTPOS.Value is null)
                             problems += recordContext.RequiredFieldIsNull(record.TOTPOS.Field);
-                        else if (!RoadSegmentPosition.Accepts(record.TOTPOS.Value)) problems += recordContext.ToPositionOutOfRange(record.TOTPOS.Value);
+                        else if (!RoadSegmentPosition.Accepts(record.TOTPOS.Value.Value)) problems += recordContext.ToPositionOutOfRange(record.TOTPOS.Value.Value);
 
-                        if (record.VANPOS.HasValue && record.TOTPOS.HasValue &&
+                        if (record.VANPOS.Value is not null && record.TOTPOS.Value is not null &&
                             record.VANPOS.Value >= record.TOTPOS.Value)
                             problems += recordContext.FromPositionEqualToOrGreaterThanToPosition(
-                                record.VANPOS.Value,
-                                record.TOTPOS.Value);
+                                record.VANPOS.Value.Value,
+                                record.TOTPOS.Value.Value);
 
                         if (!record.WS_OIDN.HasValue)
                             problems += recordContext.RequiredFieldIsNull(record.WS_OIDN.Field);

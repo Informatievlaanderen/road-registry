@@ -82,6 +82,7 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
         return new RoadSegmentDetailResponse(
             roadSegment.Id,
             dbfRecord.BEGINTIJD.Value,
+            UIDN.Parse(dbfRecord.WS_UIDN.Value).Version,
             roadSegment.LastEventHash
         ) {
             Geometry = GeometryTranslator.Translate((MultiLineString)roadSegment.Geometry),
@@ -103,20 +104,20 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             Category = RoadSegmentCategory.ByIdentifier[dbfRecord.CATEGORIE.Value],
             SurfaceTypes = surfaceTypes.Select(x => new RoadSegmentSurfaceTypeDetailResponse
             {
-                FromPosition = x.VANPOS.Value,
-                ToPosition = x.TOTPOS.Value,
+                FromPosition = x.VANPOS.Value!.Value,
+                ToPosition = x.TOTPOS.Value!.Value,
                 SurfaceType = RoadSegmentSurfaceType.ByIdentifier[x.TYPE.Value]
             }).OrderBy(x => x.FromPosition).ToList(),
             Widths = widths.Select(x => new RoadSegmentWidthDetailResponse
             {
-                FromPosition = x.VANPOS.Value,
-                ToPosition = x.TOTPOS.Value,
+                FromPosition = x.VANPOS.Value!.Value,
+                ToPosition = x.TOTPOS.Value!.Value,
                 Width = new RoadSegmentWidth(x.BREEDTE.Value)
             }).OrderBy(x => x.FromPosition).ToList(),
             LaneCounts = lanes.Select(x => new RoadSegmentLaneCountDetailResponse
             {
-                FromPosition = x.VANPOS.Value,
-                ToPosition = x.TOTPOS.Value,
+                FromPosition = x.VANPOS.Value!.Value,
+                ToPosition = x.TOTPOS.Value!.Value,
                 Count = new RoadSegmentLaneCount(x.AANTAL.Value),
                 Direction = RoadSegmentLaneDirection.ByIdentifier[x.RICHTING.Value]
             }).OrderBy(x => x.FromPosition).ToList()

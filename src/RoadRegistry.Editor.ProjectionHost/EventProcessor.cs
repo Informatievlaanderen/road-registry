@@ -5,12 +5,13 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.BackOffice;
 using Schema;
 using SqlStreamStore;
 
 public class EventProcessor : DbContextEventProcessor<EditorContext>
 {
-    private const string QueueName = "roadregistry-editor-projectionhost";
+    private const string QueueName = WellKnownStreamStoreQueueNames.RoadRegistryEditorProjectionHost;
 
     public EventProcessor(
         IStreamStore streamStore,

@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
 internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<NumberedRoadFeatureCompareAttributes>
 {
     public NumberedRoadFeatureCompareTranslator(Encoding encoding)
-        : base(encoding, "ATTGENUMWEG")
+        : base(encoding, ExtractFileName.AttGenumweg)
     {
     }
 
@@ -114,7 +115,7 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
         }
     }
 
-    protected override List<Feature<NumberedRoadFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    protected override List<Feature<NumberedRoadFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
     {
         var featureReader = new NumberedRoadFeatureCompareFeatureReader(Encoding);
         return featureReader.Read(entries, featureType, fileName);
