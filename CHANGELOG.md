@@ -1,3 +1,10 @@
+## [3.50.1](https://github.com/informatievlaanderen/road-registry/compare/v3.50.0...v3.50.1) (2023-06-20)
+
+
+### Bug Fixes
+
+* WR-262 store roadsegment EuropeanRoad/NationalRoad/NumberedRoad attributes as whole objects in snapshot ([#1014](https://github.com/informatievlaanderen/road-registry/issues/1014)) ([b53f0f3](https://github.com/informatievlaanderen/road-registry/commit/b53f0f3b54da6e0ca9cb035f5b4b7c315594ef0a))
+
 # [3.50.0](https://github.com/informatievlaanderen/road-registry/compare/v3.49.2...v3.50.0) (2023-06-20)
 
 
