@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
 internal class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<NationalRoadFeatureCompareAttributes>
 {
     public NationalRoadFeatureCompareTranslator(Encoding encoding)
-        : base(encoding, "ATTNATIONWEG")
+        : base(encoding, ExtractFileName.AttNationweg)
     {
     }
 
@@ -81,7 +82,7 @@ internal class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
         }
     }
 
-    protected override List<Feature<NationalRoadFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    protected override List<Feature<NationalRoadFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
     {
         var featureReader = new NationalRoadFeatureCompareFeatureReader(Encoding);
         return featureReader.Read(entries, featureType, fileName);

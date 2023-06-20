@@ -23,7 +23,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
     public static readonly EventMapping EventMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
     private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-    private readonly ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> _logger;
+    protected ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> Logger { get; }
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
@@ -46,7 +46,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         ArgumentNullException.ThrowIfNull(logger);
 
         _scheduler = scheduler;
-        _logger = logger;
+        Logger = logger;
 
         _messagePumpCancellation = new CancellationTokenSource();
         _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
@@ -98,21 +98,21 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting event processor ...");
+        Logger.LogInformation("Starting event processor ...");
         await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
         await _messageChannel.Writer.WriteAsync(new Subscribe(), cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Started event processor.");
+        Logger.LogInformation("Started event processor.");
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Stopping event processor ...");
+        Logger.LogInformation("Stopping event processor ...");
         _messageChannel.Writer.Complete();
         _messagePumpCancellation.Cancel();
         await _messagePump.ConfigureAwait(false);
         _messagePumpCancellation.Dispose();
         await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Stopped event processor.");
+        Logger.LogInformation("Stopped event processor.");
     }
 
     private static bool CanResumeFrom(SubscriptionDropped dropped)
@@ -207,6 +207,9 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                         .WithMessageId(process.Message.MessageId)
                         .WithStream(process.Message.StreamId, process.Message.StreamVersion);
 
+                    await BeforeDispatchEvent(@event, _messagePumpCancellation.Token).ConfigureAwait(false);
+                    _messagePumpCancellation.Token.ThrowIfCancellationRequested();
+
                     await dispatcher(@event, _messagePumpCancellation.Token).ConfigureAwait(false);
                     await positionStore
                         .WritePosition(
@@ -262,6 +265,11 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
 
                 break;
         }
+    }
+
+    protected virtual Task BeforeDispatchEvent(Event @event, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 
     private sealed class ProcessStreamMessage

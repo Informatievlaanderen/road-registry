@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
+using Extensions;
 using Extracts.Dbase.RoadNodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
@@ -104,5 +105,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<EditorContext>
             shxWriter.Writer.Flush();
             await shxEntryStream.FlushAsync(cancellationToken);
         }
+
+        await archive.CreateCpgEntry("Wegknoop.cpg", _encoding, cancellationToken);
     }
 }
