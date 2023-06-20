@@ -1,3 +1,19 @@
+# [3.50.0](https://github.com/informatievlaanderen/road-registry/compare/v3.49.2...v3.50.0) (2023-06-20)
+
+
+### Bug Fixes
+
+* ExtractRequest geometry conversion to MultiPolygon ([#1010](https://github.com/informatievlaanderen/road-registry/issues/1010)) ([3f7f9ea](https://github.com/informatievlaanderen/road-registry/commit/3f7f9ea47e68af2397dcf3ec3afb2d133496aff2))
+* WR-698 add VersieNummer to get roadsegments endpoint ([#1009](https://github.com/informatievlaanderen/road-registry/issues/1009)) ([2927fba](https://github.com/informatievlaanderen/road-registry/commit/2927fba2ee944cd24dd3dd1285a2170cc2afc487))
+* WR-742 identifier matching in route ([#1011](https://github.com/informatievlaanderen/road-registry/issues/1011)) ([65b77b1](https://github.com/informatievlaanderen/road-registry/commit/65b77b14713f96e3df5138caf5b73973f2dc9435))
+
+
+### Features
+
+* WR-701 add CPG files for each SHP file in extracts/products ([#1008](https://github.com/informatievlaanderen/road-registry/issues/1008)) ([3e93b3a](https://github.com/informatievlaanderen/road-registry/commit/3e93b3aaee26d5f91aa3c02580d7a5bf3417f9e6))
+* WR-711 clean ziparchive before processing ([#1006](https://github.com/informatievlaanderen/road-registry/issues/1006)) ([870f86b](https://github.com/informatievlaanderen/road-registry/commit/870f86b73831d917841d09fa49bd63af4b6d2962))
+* WR-740 extracthost wait for editorcontext projections to be up-to-date before processing extracts ([#1007](https://github.com/informatievlaanderen/road-registry/issues/1007)) ([6348b10](https://github.com/informatievlaanderen/road-registry/commit/6348b100d80cb7753db94e3a120cddaa943a40d9))
+
 ## [3.49.2](https://github.com/informatievlaanderen/road-registry/compare/v3.49.1...v3.49.2) (2023-06-14)
 
 
