@@ -26,7 +26,8 @@ public class RoadSegmentSurfaceAttributeDbaseRecordsValidator : IZipArchiveDbase
                     {
                         if (record.WV_OIDN.HasValue)
                         {
-                            if (record.WV_OIDN.Value == 0) problems += recordContext.IdentifierZero();
+                            if (record.WV_OIDN.Value == 0)
+                                problems += recordContext.IdentifierZero();
                         }
                         else
                         {
@@ -35,21 +36,24 @@ public class RoadSegmentSurfaceAttributeDbaseRecordsValidator : IZipArchiveDbase
 
                         if (!record.TYPE.HasValue)
                             problems += recordContext.RequiredFieldIsNull(record.TYPE.Field);
-                        else if (!RoadSegmentSurfaceType.ByIdentifier.ContainsKey(record.TYPE.Value)) problems += recordContext.SurfaceTypeMismatch(record.TYPE.Value);
+                        else if (!RoadSegmentSurfaceType.ByIdentifier.ContainsKey(record.TYPE.Value))
+                            problems += recordContext.SurfaceTypeMismatch(record.TYPE.Value);
 
-                        if (!record.VANPOS.HasValue)
+                        if (record.VANPOS.Value is null)
                             problems += recordContext.RequiredFieldIsNull(record.VANPOS.Field);
-                        else if (!RoadSegmentPosition.Accepts(record.VANPOS.Value)) problems += recordContext.FromPositionOutOfRange(record.VANPOS.Value);
+                        else if (!RoadSegmentPosition.Accepts(record.VANPOS.Value.Value))
+                            problems += recordContext.FromPositionOutOfRange(record.VANPOS.Value.Value);
 
-                        if (!record.TOTPOS.HasValue)
+                        if (record.TOTPOS.Value is null)
                             problems += recordContext.RequiredFieldIsNull(record.TOTPOS.Field);
-                        else if (!RoadSegmentPosition.Accepts(record.TOTPOS.Value)) problems += recordContext.ToPositionOutOfRange(record.TOTPOS.Value);
+                        else if (!RoadSegmentPosition.Accepts(record.TOTPOS.Value.Value))
+                            problems += recordContext.ToPositionOutOfRange(record.TOTPOS.Value.Value);
 
-                        if (record.VANPOS.HasValue && record.TOTPOS.HasValue &&
+                        if (record.VANPOS.Value is not null && record.TOTPOS.Value is not null &&
                             record.VANPOS.Value >= record.TOTPOS.Value)
                             problems += recordContext.FromPositionEqualToOrGreaterThanToPosition(
-                                record.VANPOS.Value,
-                                record.TOTPOS.Value);
+                                record.VANPOS.Value.Value,
+                                record.TOTPOS.Value.Value);
 
                         if (!record.WS_OIDN.HasValue)
                             problems += recordContext.RequiredFieldIsNull(record.WS_OIDN.Field);

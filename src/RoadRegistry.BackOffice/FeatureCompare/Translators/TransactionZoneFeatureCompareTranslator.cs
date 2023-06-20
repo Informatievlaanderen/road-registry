@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
 internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslatorBase<TransactionZoneFeatureCompareAttributes>
@@ -15,7 +16,7 @@ internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslato
     {
     }
 
-    protected override List<Feature<TransactionZoneFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    protected override List<Feature<TransactionZoneFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
     {
         var featureReader = new TransactionZoneFeatureCompareFeatureReader(Encoding);
         return featureReader.Read(entries, featureType, fileName);
@@ -25,7 +26,7 @@ internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslato
     {
         var entries = context.Entries;
 
-        var features = ReadFeatures(entries, FeatureType.Change, "TRANSACTIEZONES");
+        var features = ReadFeatures(entries, FeatureType.Change, ExtractFileName.Transactiezones);
         var feature = features.SingleOrDefault();
         if (feature is not null)
         {
