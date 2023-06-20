@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extensions;
 using Extracts.Dbase.RoadSegments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
@@ -141,5 +142,7 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
             shxWriter.Writer.Flush();
             await shxEntryStream.FlushAsync(cancellationToken);
         }
+
+        await archive.CreateCpgEntry("Wegsegment.cpg", _encoding, cancellationToken);
     }
 }

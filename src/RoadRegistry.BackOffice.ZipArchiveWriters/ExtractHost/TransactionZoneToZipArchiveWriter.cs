@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Editor.Schema;
+using Extensions;
 using Extracts;
 using Extracts.Dbase;
 
@@ -20,11 +21,9 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext
         EditorContext context,
         CancellationToken cancellationToken)
     {
-        if (archive == null) throw new ArgumentNullException(nameof(archive));
-
-        if (request == null) throw new ArgumentNullException(nameof(request));
-
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(context);
 
         var dbfEntry = archive.CreateEntry("Transactiezones.dbf");
         var dbfHeader = new DbaseFileHeader(
@@ -89,5 +88,7 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext
             shxWriter.Writer.Flush();
             await shxEntryStream.FlushAsync(cancellationToken);
         }
+
+        await archive.CreateCpgEntry("Transactiezones.cpg", _encoding, cancellationToken);
     }
 }
