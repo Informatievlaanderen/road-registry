@@ -12,6 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TestFiles\ident2.txt" />
+    <None Remove="TestFiles\ident8.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <EmbeddedResource Include="TestFiles\empty-polygon.prj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
@@ -21,6 +26,8 @@
     <EmbeddedResource Include="TestFiles\empty.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="TestFiles\ident2.txt" />
+    <EmbeddedResource Include="TestFiles\ident8.txt" />
     <EmbeddedResource Include="TestFiles\invalid.prj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>

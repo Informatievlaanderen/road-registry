@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Exceptions;
+using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
 internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
@@ -16,7 +17,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
     {
     }
 
-    protected override List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    protected override List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
     {
         var featureReader = new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding);
         return featureReader.Read(entries, featureType, fileName);
@@ -26,7 +27,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
     {
         var entries = context.Entries;
 
-        var (extractFeatures, changeFeatures) = ReadExtractAndChangeFeatures(entries, "RLTOGKRUISING");
+        var (extractFeatures, changeFeatures) = ReadExtractAndChangeFeatures(entries, ExtractFileName.RltOgkruising);
 
         var processedRecords = new List<Record>();
 
