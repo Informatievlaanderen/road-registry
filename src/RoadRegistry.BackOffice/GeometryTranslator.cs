@@ -65,19 +65,9 @@ public static class GeometryTranslator
             throw new InvalidOperationException("The GML is invalid");
         }
 
-        if (geometry is MultiLineString multiLineString)
-        {
-            return multiLineString.WithMeasureOrdinates();
-        }
-
-        if (geometry is LineString lineString)
-        {
-            return new MultiLineString(new[] { lineString }, NoSridGeometryFactory) { SRID = geometry.SRID }
-                .WithMeasureOrdinates();
-        }
-
-        throw new InvalidOperationException(
-            $"The geometry must be either a linestring or a multilinestring. The geometry was a {geometry.GetType().Name}");
+        return geometry
+            .ToMultiLineString(NoSridGeometryFactory)
+            .WithMeasureOrdinates();
     }
 
     public static MultiLineString WithMeasureOrdinates(this MultiLineString multiLineString)

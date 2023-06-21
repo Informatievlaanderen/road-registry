@@ -9,6 +9,7 @@ using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using BackOffice.Extracts;
 using BackOffice.FeatureCompare;
 using BackOffice.FeatureCompare.Translators;
 
@@ -54,7 +55,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                         requestedChanges.Add(requestedChange);
                     }
 
-                    var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, "Transactiezones");
+                    var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, ExtractFileName.Transactiezones);
                     var downloadId = DownloadId.Parse(transactionZoneFeatures.Single().Attributes.DownloadId);
 
                     var command = new Command(new ChangeRoadNetwork

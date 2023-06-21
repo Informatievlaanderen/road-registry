@@ -1,8 +1,10 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using System.Data;
-using MessagePack;
+using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
+using Editor.Schema;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using RoadRegistry.BackOffice.Messages;
 
@@ -19,13 +21,46 @@ public class RoadNetworkSnapshotInspectorTests
     {
         return Configuration.GetConnectionString($"Events-{environment}") ?? Configuration.GetConnectionString("Events");
     }
+    private string GetEditorProjectionsConnectionString(DbEnvironment environment)
+    {
+        return Configuration.GetConnectionString($"EditorProjections-{environment}") ?? Configuration.GetConnectionString("EditorProjections");
+    }
+
+    [Fact(Skip = "Reads data from EditorContext. Useful for debugging purposes")]
+    //[Fact]
+    public async Task ReadEditorContext()
+    {
+        var connectionString = GetEditorProjectionsConnectionString(DbEnvironment.DEV);
+        
+        using (var dbContext = new EditorContext(new DbContextOptionsBuilder<EditorContext>()
+                   .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                   .UseSqlServer(connectionString, options =>
+                       options.UseNetTopologySuite()
+                   ).Options))
+        {
+            //var attributes = await dbContext.RoadSegmentNumberedRoadAttributes
+            //    .Where(x => x.RoadSegmentId == 268119)
+            //    .ToArrayAsync();
+
+            //var records = attributes
+            //    .Select(x =>
+            //    {
+            //        var record = new RoadSegmentNumberedRoadAttributeDbaseRecord();
+            //        record.FromBytes(x.DbaseRecord, new RecyclableMemoryStreamManager(), Encoding.UTF8);
+            //        return record;
+            //    })
+            //    .ToArray();
+
+            //var numberedRoads = records.Select(x => x.IDENT8.Value).ToArray();
+        }
+    }
 
     [Fact(Skip = "Loads a message to your local computer. Useful for debugging purposes")]
     //[Fact]
     public async Task InspectMessage()
     {
-        const int position = 0;
-        var connectionString = GetEventsConnectionString(DbEnvironment.TST);
+        const int position = 1828076;
+        var connectionString = GetEventsConnectionString(DbEnvironment.DEV);
         var messageFilePath = $"message-{position}.json";
 
         await using (var connection = new SqlConnection(connectionString))
@@ -54,31 +89,12 @@ public class RoadNetworkSnapshotInspectorTests
     //[Fact]
     public async Task InspectSnapshot()
     {
-        const string snapshotName = "";
-        var connectionString = GetEventsConnectionString(DbEnvironment.DEV);
-        const string tempFilePath = @"snapshot.bin";
+        const string tempFilePath = @"1828050.bin";
 
-        await using (var connection = new SqlConnection(connectionString))
-        await using (var command = connection.CreateCommand())
-        {
-            await connection.OpenAsync();
+        var snapshotBytes = await File.ReadAllBytesAsync(tempFilePath);
+        var snapshot = S3CacheSerializer.Serializer.DeserializeObject<RoadNetworkSnapshot>(snapshotBytes, true).Value;
 
-            command.CommandText = $"SELECT [Content] FROM [road-registry-events].[RoadRegistrySnapshot].[Blob] WITH (NOLOCK) WHERE [name] = '{snapshotName}'";
-
-            var reader = await command.ExecuteReaderAsync(CommandBehavior.SequentialAccess);
-            await reader.ReadAsync();
-
-            await using (var tempFile = File.Create(tempFilePath))
-            await using (var snapshotStream = reader.GetStream(0))
-            {
-                await snapshotStream.CopyToAsync(tempFile);
-            }
-        }
-
-        await using (var snapshotStream = File.OpenRead(tempFilePath))
-        {
-            var snapshot = await MessagePackSerializer.DeserializeAsync<RoadNetworkSnapshot>(snapshotStream);
-        }
+        
     }
 
     [Fact(Skip = "Updates the jsondata of a message. Useful for debugging purposes")]

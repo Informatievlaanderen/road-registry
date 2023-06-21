@@ -30,6 +30,7 @@ public class RoadNetworkViewSnapshotTests
         _fixture.CustomizeEuropeanRoadNumber();
         _fixture.CustomizeNationalRoadNumber();
         _fixture.CustomizeNumberedRoadNumber();
+        _fixture.CustomizeRoadSegmentNumberedRoadDirection();
         _fixture.CustomizeGradeSeparatedJunctionId();
         _fixture.CustomizeGradeSeparatedJunctionType();
         _fixture.CustomizeTransactionId();
@@ -98,6 +99,29 @@ public class RoadNetworkViewSnapshotTests
                 };
             }).OmitAutoProperties());
 
+        _fixture.Customize<RoadNetworkSnapshotSegmentEuropeanRoadAttribute>(customizer =>
+            customizer.FromFactory(_ => new RoadNetworkSnapshotSegmentEuropeanRoadAttribute
+            {
+                AttributeId = _fixture.Create<AttributeId>(),
+                Number = _fixture.Create<EuropeanRoadNumber>()
+            }).OmitAutoProperties());
+
+        _fixture.Customize<RoadNetworkSnapshotSegmentNationalRoadAttribute>(customizer =>
+            customizer.FromFactory(_ => new RoadNetworkSnapshotSegmentNationalRoadAttribute
+            {
+                AttributeId = _fixture.Create<AttributeId>(),
+                Number = _fixture.Create<NationalRoadNumber>()
+            }).OmitAutoProperties());
+
+        _fixture.Customize<RoadNetworkSnapshotSegmentNumberedRoadAttribute>(customizer =>
+            customizer.FromFactory(_ => new RoadNetworkSnapshotSegmentNumberedRoadAttribute
+            {
+                AttributeId = _fixture.Create<AttributeId>(),
+                Direction = _fixture.Create<RoadSegmentNumberedRoadDirection>(),
+                Number = _fixture.Create<NumberedRoadNumber>(),
+                Ordinal = _fixture.Create<RoadSegmentNumberedRoadOrdinal>()
+            }).OmitAutoProperties());
+
         _fixture.Customize<RoadNetworkSnapshotSegmentAttributeHash>(customizer =>
             customizer.FromFactory(_ =>
             {
@@ -127,9 +151,9 @@ public class RoadNetworkViewSnapshotTests
                 StartNodeId = _fixture.Create<RoadNodeId>(),
                 EndNodeId = _fixture.Create<RoadNodeId>(),
                 AttributeHash = _fixture.Create<RoadNetworkSnapshotSegmentAttributeHash>(),
-                PartOfEuropeanRoads = _fixture.CreateMany<EuropeanRoadNumber>(10).Distinct().Select(number => number.ToString()).ToArray(),
-                PartOfNationalRoads = _fixture.CreateMany<NationalRoadNumber>(10).Distinct().Select(number => number.ToString()).ToArray(),
-                PartOfNumberedRoads = _fixture.CreateMany<NumberedRoadNumber>(10).Distinct().Select(number => number.ToString()).ToArray()
+                EuropeanRoadAttributes = _fixture.CreateMany<RoadNetworkSnapshotSegmentEuropeanRoadAttribute>(10).ToArray(),
+                NationalRoadAttributes = _fixture.CreateMany<RoadNetworkSnapshotSegmentNationalRoadAttribute>(10).Distinct().ToArray(),
+                NumberedRoadAttributes = _fixture.CreateMany<RoadNetworkSnapshotSegmentNumberedRoadAttribute>(10).Distinct().ToArray()
             }).OmitAutoProperties());
 
         _fixture.Customize<RoadNetworkSnapshotGradeSeparatedJunction>(customizer =>

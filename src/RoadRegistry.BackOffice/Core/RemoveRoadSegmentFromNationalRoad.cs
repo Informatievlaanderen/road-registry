@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 
@@ -65,7 +66,10 @@ public class RemoveRoadSegmentFromNationalRoad : IRequestedChange, IHaveHash
         }
         else
         {
-            if (!segment.PartOfNationalRoads.Contains(Number)) problems = problems.Add(new NationalRoadNumberNotFound(Number));
+            if (segment.NationalRoadAttributes.All(x => x.Value.Number != Number))
+            {
+                problems = problems.Add(new NationalRoadNumberNotFound(Number));
+            }
         }
 
         return problems;

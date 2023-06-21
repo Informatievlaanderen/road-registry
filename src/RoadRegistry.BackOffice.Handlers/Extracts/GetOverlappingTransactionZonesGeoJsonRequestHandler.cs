@@ -40,7 +40,7 @@ public class GetOverlappingTransactionZonesGeoJsonRequestHandler : EndpointReque
         return new GetOverlappingTransactionZonesGeoJsonResponse
         {
             FeatureCollection = new FeatureCollection(intersectionGeometries
-                .Select(geometry => new Feature(geometry is MultiPolygon multiPolygon ? multiPolygon.ToGeoJson() : ((Polygon)geometry).ToGeoJson()))
+                .Select(geometry => new Feature(geometry.ToMultiPolygon().ToGeoJson()))
                 .ToList()
             )
         };

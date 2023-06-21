@@ -31,8 +31,7 @@ public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProject
                 .PartOfNumberedRoads
                 .Select(numberedRoad =>
                 {
-                    var directionTranslation =
-                        RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
+                    var directionTranslation = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
                     return new RoadSegmentNumberedRoadAttributeRecord
                     {
                         Id = numberedRoad.AttributeId,
@@ -81,8 +80,7 @@ public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProject
         Envelope<RoadNetworkChangesAccepted> envelope,
         RoadSegmentAddedToNumberedRoad numberedRoad)
     {
-        var directionTranslation =
-            RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
+        var directionTranslation = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
         await context.RoadSegmentNumberedRoadAttributes.AddAsync(new RoadSegmentNumberedRoadAttributeRecord
         {
             Id = numberedRoad.AttributeId,
@@ -109,11 +107,11 @@ public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProject
         RoadSegmentOnNumberedRoadModified numberedRoad,
         CancellationToken token)
     {
-        var directionTranslation =
-            RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
+        var directionTranslation = RoadSegmentNumberedRoadDirection.Parse(numberedRoad.Direction).Translation;
 
-        var roadSegment =
-            await context.RoadSegmentNumberedRoadAttributes.FindAsync(numberedRoad.AttributeId, cancellationToken: token).ConfigureAwait(false);
+        var roadSegment = await context.RoadSegmentNumberedRoadAttributes
+            .FindAsync(numberedRoad.AttributeId, cancellationToken: token)
+            .ConfigureAwait(false);
 
         roadSegment.Id = numberedRoad.AttributeId;
         roadSegment.RoadSegmentId = numberedRoad.SegmentId;
@@ -135,8 +133,9 @@ public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProject
         RoadSegmentRemovedFromNumberedRoad numberedRoad,
         CancellationToken token)
     {
-        var roadSegment =
-            await context.RoadSegmentNumberedRoadAttributes.FindAsync(numberedRoad.AttributeId, cancellationToken: token).ConfigureAwait(false);
+        var roadSegment = await context.RoadSegmentNumberedRoadAttributes
+            .FindAsync(numberedRoad.AttributeId, cancellationToken: token)
+            .ConfigureAwait(false);
         if (roadSegment is not null)
         {
             context.RoadSegmentNumberedRoadAttributes.Remove(roadSegment);

@@ -12,8 +12,8 @@ public class RoadSegmentWidthAttributeDbaseRecord : DbaseRecord
         WS_OIDN = new DbaseInt32(Schema.WS_OIDN);
         WS_GIDN = new DbaseString(Schema.WS_GIDN);
         BREEDTE = new DbaseInt32(Schema.BREEDTE);
-        VANPOS = new DbaseDouble(Schema.VANPOS);
-        TOTPOS = new DbaseDouble(Schema.TOTPOS);
+        VANPOS = new DbaseNullableDouble(Schema.VANPOS);
+        TOTPOS = new DbaseNullableDouble(Schema.TOTPOS);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
         BEGINORG = new DbaseString(Schema.BEGINORG);
         LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
@@ -36,8 +36,8 @@ public class RoadSegmentWidthAttributeDbaseRecord : DbaseRecord
     public DbaseDateTime BEGINTIJD { get; set; }
     public DbaseInt32 BREEDTE { get; set; }
     public DbaseString LBLBGNORG { get; set; }
-    public DbaseDouble TOTPOS { get; set; }
-    public DbaseDouble VANPOS { get; set; }
+    public DbaseNullableDouble TOTPOS { get; set; }
+    public DbaseNullableDouble VANPOS { get; set; }
     public DbaseInt32 WB_OIDN { get; set; }
     public DbaseString WS_GIDN { get; set; }
     public DbaseInt32 WS_OIDN { get; set; }
