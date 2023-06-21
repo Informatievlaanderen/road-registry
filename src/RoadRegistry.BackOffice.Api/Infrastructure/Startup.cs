@@ -170,6 +170,7 @@ public class Startup
             .RegisterModule<BlobClientModule>()
             .RegisterModule<MediatorModule>()
             .RegisterModule<SnapshotSqsHandlersModule>()
+            .RegisterModule<EmailClientModule>()
             ;
 
         builder
@@ -307,6 +308,7 @@ public class Startup
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
                         sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
+                        sp.GetService<IExtractUploadFailedEmailClient>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     )

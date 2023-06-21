@@ -44,6 +44,7 @@ public class Program
                             sp.GetService<IRoadNetworkSnapshotReader>(),
                             sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
                             sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
+                            sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetService<IClock>(),
                             sp.GetService<ILoggerFactory>()
                         )

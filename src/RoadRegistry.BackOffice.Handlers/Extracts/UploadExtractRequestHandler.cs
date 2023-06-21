@@ -6,6 +6,7 @@ using Abstractions.Extracts;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
+using FluentValidation;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -28,15 +29,18 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     };
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
+    private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly EditorContext _context;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
+        IExtractUploadFailedEmailClient emailClient,
         EditorContext context,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
+        _emailClient = emailClient;
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
     }
 
@@ -62,6 +66,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
         if (extractRequest.IsInformative)
         {
+            await _emailClient.SendAsync(extractRequest.Description, new ValidationException("Extract gewijgerd: informatieve aanvraag"), cancellationToken);
             throw new ExtractRequestMarkedInformativeException(new DownloadId(parsedDownloadId));
         }
 

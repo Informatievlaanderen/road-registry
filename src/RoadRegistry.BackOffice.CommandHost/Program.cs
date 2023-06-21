@@ -37,6 +37,7 @@ public class Program
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
                 .AddTicketing()
+                .AddEmailClient(hostContext.Configuration)
                 .AddRoadRegistrySnapshot()
                 .AddRoadNetworkEventWriter()
                 .AddScoped(_ => new EventSourcedEntityMap())
@@ -72,6 +73,7 @@ public class Program
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     new ZipArchiveBeforeFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
                     new ZipArchiveAfterFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
+                    sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),

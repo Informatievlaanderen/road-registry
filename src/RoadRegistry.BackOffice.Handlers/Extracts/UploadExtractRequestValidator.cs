@@ -29,11 +29,7 @@ public sealed class UploadExtractRequestValidator : AbstractValidator<UploadExtr
             var ex = new ValidationException(validationResult.Errors);
             var extractRequest = await _editorContext.ExtractRequests.FindAsync(new[] { DownloadId.Parse(request.DownloadId).ToGuid() }, cancellationToken);
 
-            await _emailClient.SendAsync(extractRequest is null
-                ? "Oplading Wegenregister is mislukt"
-                : $"Oplading Wegenregister {extractRequest.Description} is mislukt",
-                ex,
-                cancellationToken);
+            await _emailClient.SendAsync(extractRequest?.Description, ex, cancellationToken);
             throw ex;
         }
     }
