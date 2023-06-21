@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
-
-using Abstractions;
-using FluentValidation;
 using Messages;
-using Xunit.Sdk;
 
 public partial class ExtractsControllerTests
 {
@@ -12,7 +8,7 @@ public partial class ExtractsControllerTests
     {
         var message = new CloseRoadNetworkExtract
         {
-            DownloadId = new DownloadId(Guid.NewGuid()),
+            ExternalRequestId = new ExternalExtractRequestId("TEST"),
             Reason = RoadNetworkExtractCloseReason.InformativeExtract
         };
     }

@@ -13,6 +13,7 @@ using Extracts;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Exceptions;
 using SqlStreamStore.Infrastructure;
 
 internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
@@ -37,8 +38,10 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
         {
             ValidationException => FormatValidationException(ex),
             CanNotUploadRoadNetworkExtractChangesArchiveForUnknownDownloadException => FormatCanNotUploadException(ex),
-            CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException => FormatValidationException(ex),
-            CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException => FormatValidationException(ex),
+            CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownloadException => FormatCanNotUploadException(ex),
+            CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnceException => FormatCanNotUploadException(ex),
+            ExtractDownloadNotFoundException => FormatValidationException(ex),
+            ExtractRequestMarkedInformativeException => FormatValidationException(ex),
             _ => new StringBuilder()
         };
 
@@ -62,6 +65,11 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
                 .AppendLine(JsonConvert.SerializeObject(ex, Formatting.Indented)).AppendLine();
         }
 
+        StringBuilder FormatTimeoutException(Exception ex)
+        {
+            return new StringBuilder()
+                .AppendLine("De oplading kon niet tijdig verwerkt worden. Je kan de status volgen via het WR-portaal.").AppendLine();
+        }
         StringBuilder FormatCanNotUploadException(Exception ex)
         {
             return new StringBuilder()

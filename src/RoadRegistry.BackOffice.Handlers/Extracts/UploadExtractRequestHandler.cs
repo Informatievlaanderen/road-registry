@@ -6,7 +6,7 @@ using Abstractions.Extracts;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
-using FluentValidation;
+using Exceptions;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
@@ -61,17 +61,27 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
         }
 
-        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                             ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
-
+        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { parsedDownloadId }, cancellationToken);
+        if (extractRequest is null)
+        {
+            var ex = new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+            await _emailClient.SendAsync(null, ex, cancellationToken);
+            throw ex;
+        }
         if (extractRequest.IsInformative)
         {
-            await _emailClient.SendAsync(extractRequest.Description, new ValidationException("Extract gewijgerd: informatieve aanvraag"), cancellationToken);
-            throw new ExtractRequestMarkedInformativeException(new DownloadId(parsedDownloadId));
+            var ex = new ExtractRequestMarkedInformativeException(new DownloadId(parsedDownloadId));
+            await _emailClient.SendAsync(extractRequest.Description, ex, cancellationToken);
+            throw ex;
         }
 
-        var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken)
-                       ?? throw new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+        var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken);
+        if (download is null)
+        {
+            var ex = new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+            await _emailClient.SendAsync(null, ex, cancellationToken);
+            throw ex;
+        }
 
         await using var readStream = request.Archive.ReadStream;
 
