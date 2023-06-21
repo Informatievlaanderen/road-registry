@@ -21,8 +21,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
     public RoadSegmentRecordProjection(RecyclableMemoryStreamManager manager,
         Encoding encoding)
     {
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
 
         When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
         {
@@ -325,9 +325,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
     private static async Task RemoveRoadSegment(EditorContext context, RoadSegmentRemoved roadSegmentRemoved, CancellationToken token)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
-        if (roadSegmentRecord is not null)
+        
+        if (roadSegmentRecord is not null && !roadSegmentRecord.IsRemoved)
         {
-            context.RoadSegments.Remove(roadSegmentRecord);
+            roadSegmentRecord.IsRemoved = true;
         }
     }
 

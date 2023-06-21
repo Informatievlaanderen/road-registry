@@ -13,7 +13,7 @@ using SqlStreamStore;
 public class EventProcessor : PositionStoreEventProcessor<SqlEventProcessorPositionStore>
 {
     private const string QueueName = "roadnetworkextract-event-queue";
-    private const string EditorContextQueueName = WellKnownStreamStoreQueueNames.RoadRegistryEditorProjectionHost;
+    private const string EditorContextQueueName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
     private readonly IStreamStore _streamStore;
     private readonly Func<EditorContext> _editorContextFactory;

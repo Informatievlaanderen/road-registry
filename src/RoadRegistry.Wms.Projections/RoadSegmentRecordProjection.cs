@@ -9,12 +9,13 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.BackOffice.FeatureToggles;
 using Schema;
 using Syndication.Schema;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
 {
-    public RoadSegmentRecordProjection(IStreetNameCache streetNameCache)
+    public RoadSegmentRecordProjection(IStreetNameCache streetNameCache, UseRoadSegmentSoftDeleteFeatureToggle useRoadSegmentSoftDeleteFeatureToggle)
     {
         When<Envelope<SynchronizeWithStreetNameCache>>(async (context, envelope, token) =>
         {
@@ -134,7 +135,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                         break;
 
                     case RoadSegmentRemoved roadSegmentRemoved:
-                        await RemoveRoadSegment(roadSegmentRemoved, context, token);
+                        await RemoveRoadSegment(roadSegmentRemoved, context, useRoadSegmentSoftDeleteFeatureToggle.FeatureEnabled, token);
                         break;
                 }
         });
@@ -377,12 +378,19 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
 
-    private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WmsContext context, CancellationToken token)
+    private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WmsContext context, bool softDelete, CancellationToken token)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
         if (roadSegmentRecord is not null)
         {
-            context.RoadSegments.Remove(roadSegmentRecord);
+            if (softDelete)
+            {
+                roadSegmentRecord.IsRemoved = true;
+            }
+            else
+            {
+                context.RoadSegments.Remove(roadSegmentRecord);
+            }
         }
     }
 

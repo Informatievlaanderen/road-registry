@@ -22,7 +22,13 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(p => p.DbaseRecord).IsRequired();
         b.Property(p => p.Geometry).HasColumnType("Geometry").IsRequired();
         b.Property(p => p.LastEventHash);
+        b.Property(p => p.IsRemoved).HasDefaultValue(false).IsRequired();
+
+        b.HasIndex(p => p.IsRemoved)
+            .IsClustered(false);
 
         b.OwnsOne(p => p.BoundingBox);
+
+        b.HasQueryFilter(p => p.IsRemoved == false);
     }
 }

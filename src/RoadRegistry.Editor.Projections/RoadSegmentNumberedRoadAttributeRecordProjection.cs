@@ -19,8 +19,8 @@ public class RoadSegmentNumberedRoadAttributeRecordProjection : ConnectedProject
     public RoadSegmentNumberedRoadAttributeRecordProjection(RecyclableMemoryStreamManager manager,
         Encoding encoding)
     {
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
 
         When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
         {

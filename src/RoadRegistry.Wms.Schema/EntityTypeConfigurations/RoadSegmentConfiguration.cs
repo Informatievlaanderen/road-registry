@@ -60,6 +60,13 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
 
         b.Property(p => p.StreetNameCachePosition).HasColumnName("straatnaamCachePositie");
 
+        b.Property(p => p.IsRemoved)
+            .HasColumnName("verwijderd")
+            .HasDefaultValue(false)
+            .IsRequired();
+        b.HasIndex(p => p.IsRemoved)
+            .IsClustered(false);
+
         b.HasIndex(p => p.StreetNameCachePosition).IsClustered(false);
     }
 }
