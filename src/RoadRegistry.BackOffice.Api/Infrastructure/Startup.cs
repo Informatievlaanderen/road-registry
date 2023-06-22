@@ -355,6 +355,7 @@ public class Startup
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
             .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
             .AddTicketing()
+            .AddEmailClient(_configuration)
             .AddRoadRegistrySnapshot()
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
