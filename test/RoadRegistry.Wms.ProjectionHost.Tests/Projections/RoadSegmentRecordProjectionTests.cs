@@ -521,9 +521,9 @@ public class RoadSegmentRecordProjectionTests
             return (object)new RoadSegmentRecord
             {
                 Id = segment.Id,
-                BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
-                BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
-                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
+                BeginOrganizationName = acceptedRoadSegmentRemoved.Organization,
+                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When),
                 BeginApplication = null,
 
                 MaintainerId = segment.MaintenanceAuthority.Code,

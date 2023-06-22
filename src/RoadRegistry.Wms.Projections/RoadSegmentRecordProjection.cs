@@ -135,7 +135,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                         break;
 
                     case RoadSegmentRemoved roadSegmentRemoved:
-                        await RemoveRoadSegment(roadSegmentRemoved, context, useRoadSegmentSoftDeleteFeatureToggle.FeatureEnabled, token);
+                        await RemoveRoadSegment(roadSegmentRemoved, context, envelope, useRoadSegmentSoftDeleteFeatureToggle.FeatureEnabled, token);
                         break;
                 }
         });
@@ -163,12 +163,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
 
-        await context.RoadSegments.AddAsync(new RoadSegmentRecord
+        await context.RoadSegments.AddAsync(UpdateBeginFields(new RoadSegmentRecord
         {
             Id = roadSegmentAdded.Id,
-            BeginOrganizationId = envelope.Message.OrganizationId,
-            BeginOrganizationName = envelope.Message.Organization,
-            BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When),
             BeginApplication = null,
 
             MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
@@ -210,7 +207,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             BeginRoadNodeId = roadSegmentAdded.StartNodeId,
             EndRoadNodeId = roadSegmentAdded.EndNodeId,
             StreetNameCachePosition = streetNameCachePosition
-        }, token);
+        }, envelope), token);
     }
 
     private static async Task ModifyRoadSegment(IStreetNameCache streetNameCache,
@@ -243,10 +240,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
         }
 
+        UpdateBeginFields(roadSegmentRecord, envelope);
+
         roadSegmentRecord.Id = roadSegmentModified.Id;
-        roadSegmentRecord.BeginOrganizationId = envelope.Message.OrganizationId;
-        roadSegmentRecord.BeginOrganizationName = envelope.Message.Organization;
-        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         roadSegmentRecord.BeginApplication = null;
 
         roadSegmentRecord.MaintainerId = roadSegmentModified.MaintenanceAuthority.Code;
@@ -301,6 +297,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentAttributesModified.Id} is not found");
         }
 
+        UpdateBeginFields(roadSegmentRecord, envelope);
+
         if (roadSegmentAttributesModified.AccessRestriction is not null)
         {
             var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAttributesModified.AccessRestriction);
@@ -339,9 +337,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             roadSegmentRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
         }
 
-        roadSegmentRecord.BeginOrganizationId = envelope.Message.OrganizationId;
-        roadSegmentRecord.BeginOrganizationName = envelope.Message.Organization;
-        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         roadSegmentRecord.RoadSegmentVersion = roadSegmentAttributesModified.Version;
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
@@ -366,9 +361,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry);
         roadSegmentRecord.GeometryVersion = segment.GeometryVersion;
 
-        roadSegmentRecord.BeginOrganizationId = envelope.Message.OrganizationId;
-        roadSegmentRecord.BeginOrganizationName = envelope.Message.Organization;
-        roadSegmentRecord.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        UpdateBeginFields(roadSegmentRecord, envelope);
         roadSegmentRecord.RoadSegmentVersion = segment.Version;
 
         var transactionId = new TransactionId(envelope.Message.TransactionId);
@@ -378,14 +371,22 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
     }
 
-    private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved, WmsContext context, bool softDelete, CancellationToken token)
+    private static async Task RemoveRoadSegment(RoadSegmentRemoved roadSegmentRemoved,
+        WmsContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        bool softDelete,
+        CancellationToken token)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
         if (roadSegmentRecord is not null)
         {
             if (softDelete)
             {
-                roadSegmentRecord.IsRemoved = true;
+                if (!roadSegmentRecord.IsRemoved)
+                {
+                    UpdateBeginFields(roadSegmentRecord, envelope);
+                    roadSegmentRecord.IsRemoved = true;
+                }
             }
             else
             {
@@ -400,5 +401,13 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         CancellationToken token)
     {
         return streetNameId.HasValue ? await streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
+    }
+
+    private static RoadSegmentRecord UpdateBeginFields(RoadSegmentRecord record, Envelope<RoadNetworkChangesAccepted> envelope)
+    {
+        record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
+        record.BeginOrganizationId = envelope.Message.OrganizationId;
+        record.BeginOrganizationName = envelope.Message.Organization;
+        return record;
     }
 }
