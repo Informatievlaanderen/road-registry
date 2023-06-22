@@ -47,6 +47,7 @@ public class Startup : TestStartup
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
                     sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
+                    sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetService<IClock>(),
                     sp.GetService<ILoggerFactory>()
                 )

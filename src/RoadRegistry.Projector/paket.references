@@ -5,6 +5,7 @@ Be.Vlaanderen.Basisregisters.EventHandling
 Be.Vlaanderen.Basisregisters.EventHandling.Autofac
 
 AspNetCore.HealthChecks.SqlServer
+AWSSDK.Core
 Dapper
 Microsoft.Data.SqlClient
 Microsoft.Extensions.DependencyInjection.Abstractions

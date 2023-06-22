@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Extensions;
 using System;
 using System.Configuration;
 using System.Linq;
+using Amazon.SimpleEmailV2;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
@@ -13,12 +14,28 @@ using Framework;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
 using SqlStreamStore;
 
 public static class ServiceCollectionExtensions
 {
+    public static IServiceCollection AddEmailClient(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton(new AmazonSimpleEmailServiceV2Client());
+
+        var emailClientOptions = configuration.GetOptions<EmailClientOptions>();
+        services.AddSingleton(emailClientOptions);
+
+        services.AddSingleton<IExtractUploadFailedEmailClient>(sp => new ExtractUploadFailedEmailClient(
+            sp.GetService<AmazonSimpleEmailServiceV2Client>(),
+            sp.GetService<EmailClientOptions>(),
+            sp.GetService<ILogger<ExtractUploadFailedEmailClient>>()));
+
+        return services;
+    }
+
     public static IServiceCollection AddFeatureToggles<TFeatureToggle>(this IServiceCollection services, IConfiguration configuration)
         where TFeatureToggle : IFeatureToggle
     {
