@@ -281,6 +281,7 @@ public class Startup
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()
             .AddScoped(_ => new EventSourcedEntityMap())
+            .AddEmailClient(_configuration)
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
@@ -307,6 +308,7 @@ public class Startup
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
                         sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
+                        sp.GetService<IExtractUploadFailedEmailClient>(),
                         sp.GetService<IClock>(),
                         sp.GetService<ILoggerFactory>()
                     )
