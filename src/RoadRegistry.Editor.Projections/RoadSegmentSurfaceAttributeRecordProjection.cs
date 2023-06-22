@@ -19,8 +19,9 @@ public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<E
     public RoadSegmentSurfaceAttributeRecordProjection(RecyclableMemoryStreamManager manager,
         Encoding encoding)
     {
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
+
         When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
         {
             if (envelope.Message.Surfaces.Length == 0)

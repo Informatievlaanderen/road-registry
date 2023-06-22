@@ -22,4 +22,5 @@ public class RoadSegmentRecord
     public int? RightSideStreetNameId { get; set; }
     public string StatusDutchName { get; set; }
     public long StreetNameCachePosition { get; set; }
+    public bool IsRemoved { get; set; }
 }

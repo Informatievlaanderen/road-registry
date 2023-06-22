@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Wfs.Schema;
@@ -12,9 +13,10 @@ using RoadRegistry.Wfs.Schema;
 namespace RoadRegistry.Wfs.Schema.Migrations
 {
     [DbContext(typeof(WfsContext))]
-    partial class WfsContextModelSnapshot : ModelSnapshot
+    [Migration("20230621120235_AddRoadSegmentIsRemoved")]
+    partial class AddRoadSegmentIsRemoved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

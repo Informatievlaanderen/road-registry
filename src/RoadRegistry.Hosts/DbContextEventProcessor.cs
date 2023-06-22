@@ -47,10 +47,10 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         Scheduler scheduler,
         ILogger<DbContextEventProcessor<TDbContext>> logger,
         int catchUpBatchSize = CatchUpBatchSize,
-        int catchUpThreshold = CatchUpThreshold) : this(queueName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
+        int catchUpThreshold = CatchUpThreshold)
+        : this(queueName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
         catchUpBatchSize, catchUpThreshold)
     {
-
     }
 
     protected DbContextEventProcessor(
@@ -88,7 +88,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
             IAllStreamSubscription subscription = null;
             try
             {
-                logger.LogInformation("EventProcessor message pump entered ...");
+                logger.LogInformation("{EventProcessor} Message pump entered ...", GetType().Name);
                 while (await _messageChannel.Reader.WaitToReadAsync(_messagePumpCancellation.Token).ConfigureAwait(false))
                 {
                     while (_messageChannel.Reader.TryRead(out var message))
@@ -96,7 +96,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                         switch (message)
                         {
                             case Resume:
-                                logger.LogInformation("Resuming ...");
+                                logger.LogInformation("{EventProcessor} Resuming ...", GetType().Name);
                                 await using (var resumeContext = dbContextFactory())
                                 {
                                     var projection = await resumeContext.ProjectionStates
@@ -126,7 +126,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                 break;
 
                             case CatchUp catchUp:
-                                logger.LogInformation("Catching up as of {Position}", catchUp.AfterPosition ?? -1L);
+                                logger.LogInformation("{EventProcessor} Catching up as of {Position}", GetType().Name, catchUp.AfterPosition ?? -1L);
                                 var observedMessageCount = 0;
                                 var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
                                 var context = dbContextFactory();
@@ -151,8 +151,8 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 
                                         if (filter(streamMessage))
                                         {
-                                            logger.LogInformation("Catching up on {MessageType} at {Position}",
-                                                streamMessage.Type, streamMessage.Position);
+                                            logger.LogInformation("{EventProcessor} Catching up on {MessageType} at {Position}",
+                                                GetType().Name, streamMessage.Type, streamMessage.Position);
                                             var envelope = envelopeFactory.Create(streamMessage);
                                             var handlers = resolver(envelope);
                                             foreach (var handler in handlers)
@@ -169,8 +169,8 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                         if (observedMessageCount % catchUpBatchSize == 0)
                                         {
                                             logger.LogInformation(
-                                                "Flushing catch up position of {0} and persisting changes ...",
-                                                catchUpPosition);
+                                                "{EventProcessor} Flushing catch up position of {CatchUpPosition} and persisting changes ...",
+                                                GetType().Name, catchUpPosition);
                                             await context
                                                 .UpdateProjectionState(
                                                     queueName,
@@ -193,8 +193,8 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                 if (observedMessageCount > 0) // case where we just read the last page and pending work in memory needs to be flushed
                                 {
                                     logger.LogInformation(
-                                        "Flushing catch up position of {Position} and persisting changes ...",
-                                        catchUpPosition);
+                                        "{EventProcessor} Flushing catch up position of {Position} and persisting changes ...",
+                                        GetType().Name, catchUpPosition);
                                     await context
                                         .UpdateProjectionState(
                                             queueName,
@@ -216,15 +216,15 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                 break;
 
                             case Subscribe subscribe:
-                                logger.LogInformation("Subscribing as of {0}", subscribe.AfterPosition ?? -1L);
+                                logger.LogInformation("{EventProcessor} Subscribing as of {Position}", GetType().Name, subscribe.AfterPosition ?? -1L);
                                 subscription?.Dispose();
                                 subscription = streamStore.SubscribeToAll(
                                     subscribe.AfterPosition, async (_, streamMessage, token) =>
                                     {
                                         if (filter(streamMessage))
                                         {
-                                            logger.LogInformation("Observing {0} at {1}", streamMessage.Type,
-                                                streamMessage.Position);
+                                            logger.LogInformation("{EventProcessor} Observing {MessageType} at {Position}",
+                                                GetType().Name, streamMessage.Type, streamMessage.Position);
                                             var command = new ProcessStreamMessage(streamMessage);
                                             await _messageChannel.Writer.WriteAsync(command, token).ConfigureAwait(false);
                                             await command.Completion.ConfigureAwait(false);
@@ -255,8 +255,8 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                             case RecordPosition record:
                                 try
                                 {
-                                    logger.LogInformation("Recording position of {MessageType} at {Position}.",
-                                        record.Message.Type, record.Message.Position);
+                                    logger.LogInformation("{EventProcessor} Recording position of {MessageType} at {Position}.",
+                                        GetType().Name, record.Message.Type, record.Message.Position);
 
                                     await using var recordContext = dbContextFactory();
                                     await recordContext
@@ -276,8 +276,8 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                             case ProcessStreamMessage process:
                                 try
                                 {
-                                    logger.LogInformation("Processing {MessageType} at {Position}",
-                                        process.Message.Type, process.Message.Position);
+                                    logger.LogInformation("{EventProcessor} Processing {MessageType} at {Position}",
+                                        GetType().Name, process.Message.Type, process.Message.Position);
 
                                     var envelope = envelopeFactory.Create(process.Message);
                                     var handlers = resolver(envelope);
@@ -317,7 +317,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                 if (dropped.Reason == SubscriptionDroppedReason.StreamStoreError)
                                 {
                                     logger.LogError(dropped.Exception,
-                                        "Subscription was dropped because of a stream store error");
+                                        "{EventProcessor} Subscription was dropped because of a stream store error", GetType().Name);
                                     await scheduler.Schedule(async token =>
                                     {
                                         if (!_messagePumpCancellation.IsCancellationRequested)
@@ -329,7 +329,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                 else if (dropped.Reason == SubscriptionDroppedReason.SubscriberError)
                                 {
                                     logger.LogError(dropped.Exception,
-                                        "Subscription was dropped because of a subscriber error");
+                                        "{EventProcessor} Subscription was dropped because of a subscriber error", GetType().Name);
 
                                     if (CanResumeFrom(dropped))
                                     {
@@ -350,15 +350,15 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
             }
             catch (TaskCanceledException)
             {
-                logger.LogInformation("EventProcessor message pump is exiting due to cancellation");
+                logger.LogInformation("{EventProcessor} Message pump is exiting due to cancellation", GetType().Name);
             }
             catch (OperationCanceledException)
             {
-                logger.LogInformation("EventProcessor message pump is exiting due to cancellation");
+                logger.LogInformation("{EventProcessor} Message pump is exiting due to cancellation", GetType().Name);
             }
             catch (Exception exception)
             {
-                logger.LogError(exception, "EventProcessor message pump is exiting due to a bug");
+                logger.LogError(exception, "{EventProcessor} Message pump is exiting due to a bug", GetType().Name);
                 throw;
             }
             finally
@@ -370,21 +370,21 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting event processor ...");
+        _logger.LogInformation("{EventProcessor} Starting ...", GetType().Name);
         await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
         await _messageChannel.Writer.WriteAsync(new Resume(), cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Started event processor.");
+        _logger.LogInformation("{EventProcessor} Started.", GetType().Name);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Stopping event processor ...");
+        _logger.LogInformation("{EventProcessor} Stopping ...", GetType().Name);
         _messageChannel.Writer.Complete();
         _messagePumpCancellation.Cancel();
         await _messagePump.ConfigureAwait(false);
         _messagePumpCancellation.Dispose();
         await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Stopped event processor.");
+        _logger.LogInformation("{EventProcessor} Stopped.", GetType().Name);
     }
 
     private static bool CanResumeFrom(SubscriptionDropped dropped)

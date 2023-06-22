@@ -1,1 +1,1 @@
-dotnet ef --startup-project ../RoadRegistry.Wms.ProjectionHost "$@"
+dotnet ef --startup-project ../RoadRegistry.Wms.ProjectionHost "$@" --context WmsContext
