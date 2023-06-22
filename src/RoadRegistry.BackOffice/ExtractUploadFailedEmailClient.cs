@@ -58,23 +58,18 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
             _logger.LogError("Received email request for destination {Destination} and subject {Subject}, but client is not configured!", string.Join(", ", emailRequest.Destination.ToAddresses), emailRequest.Content.Simple.Subject.Data);
         }
 
-        StringBuilder FormatValidationException(Exception ex)
-        {
-            return new StringBuilder()
-                .AppendLine("De oplading kon niet verwerkt worden wegens een validatiefout.").AppendLine()
-                .AppendLine(JsonConvert.SerializeObject(ex, Formatting.Indented)).AppendLine();
-        }
+        StringBuilder FormatValidationException(Exception exception) => new StringBuilder()
+            .AppendLine("De oplading kon niet verwerkt worden wegens een validatiefout.").AppendLine()
+            .AppendLine(JsonConvert.SerializeObject(ex, Formatting.Indented)).AppendLine()
+            .AppendLine(exception.Message).AppendLine();
 
-        StringBuilder FormatTimeoutException(Exception ex)
-        {
-            return new StringBuilder()
-                .AppendLine("De oplading kon niet tijdig verwerkt worden. Je kan de status volgen via het WR-portaal.").AppendLine();
-        }
-        StringBuilder FormatCanNotUploadException(Exception ex)
-        {
-            return new StringBuilder()
-                .AppendLine("De status van de oplading kan niet geverifieerd worden.").AppendLine();
-        }
+        StringBuilder FormatTimeoutException(Exception exception) => new StringBuilder()
+            .AppendLine("De oplading kon niet tijdig verwerkt worden. Je kan de status volgen via het WR-portaal.").AppendLine()
+            .AppendLine(exception.Message).AppendLine();
+
+        StringBuilder FormatCanNotUploadException(Exception exception) => new StringBuilder()
+            .AppendLine("De status van de oplading kan niet geverifieerd worden.").AppendLine()
+            .AppendLine(exception.Message).AppendLine();
     }
 
     private SendEmailRequest CreateSendEmailRequest(string extractDescription, StringBuilder sb)

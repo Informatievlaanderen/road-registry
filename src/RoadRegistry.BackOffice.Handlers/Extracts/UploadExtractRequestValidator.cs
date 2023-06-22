@@ -15,6 +15,7 @@ public sealed class UploadExtractRequestValidator : AbstractValidator<UploadExtr
         _editorContext = editorContext;
         _emailClient = emailClient;
     }
+
     public async Task<UploadExtractResponse> Handle(UploadExtractRequest request, RequestHandlerDelegate<UploadExtractResponse> next, CancellationToken cancellationToken)
     {
         var validationResult = await this.ValidateAsync(request, cancellationToken);
