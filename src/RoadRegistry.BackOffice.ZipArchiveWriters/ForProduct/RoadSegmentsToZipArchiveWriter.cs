@@ -143,6 +143,6 @@ public class RoadSegmentsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
             await shxEntryStream.FlushAsync(cancellationToken);
         }
 
-        await archive.CreateCpgEntry("Wegsegment.cpg", _encoding, cancellationToken);
+        await archive.CreateCpgEntry(string.Format(_entryFormat, "Wegsegment.cpg"), _encoding, cancellationToken);
     }
 }
