@@ -170,7 +170,6 @@ public class Startup
             .RegisterModule<BlobClientModule>()
             .RegisterModule<MediatorModule>()
             .RegisterModule<SnapshotSqsHandlersModule>()
-            .RegisterModule<EmailClientModule>()
             ;
 
         builder
