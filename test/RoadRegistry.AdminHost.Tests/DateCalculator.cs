@@ -1,22 +1,23 @@
-namespace RoadRegistry.AdminHost.Tests
+namespace RoadRegistry.AdminHost.Tests;
+
+using System.Globalization;
+using Xunit.Abstractions;
+
+public class DateCalculator
 {
-    using System.Globalization;
-    using Xunit.Abstractions;
+    private readonly ITestOutputHelper _testOutputHelper;
 
-    public class DateCalculator
+    public DateCalculator(ITestOutputHelper testOutputHelper)
     {
-        private readonly ITestOutputHelper _testOutputHelper;
+        _testOutputHelper = testOutputHelper;
+    }
 
-        public DateCalculator(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+    [Fact(Skip = "Used for local quick output calculations")]
+    public void CalculateSimpleDate()
+    {
+        var dt = new DateTime(2023, 6, 28).AddDays(21);
+        _testOutputHelper.WriteLine(dt.ToString(CultureInfo.InvariantCulture));
 
-        [Fact]
-        public void CalculateSimpleDate()
-        {
-            var dt = new DateTime(2023, 6, 28).AddDays(21);
-            _testOutputHelper.WriteLine(dt.ToString(CultureInfo.InvariantCulture));
-        }
+        Assert.True(true);
     }
 }
