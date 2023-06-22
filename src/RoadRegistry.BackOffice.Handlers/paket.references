@@ -2,6 +2,7 @@ Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector
 
 AWSSDK.Core
+AWSSDK.SimpleEmailV2
 MediatR
 MediatR.Contracts
 Microsoft.Extensions.DependencyInjection.Abstractions

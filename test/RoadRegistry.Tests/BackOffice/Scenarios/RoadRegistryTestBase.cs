@@ -51,6 +51,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         Clock = new FakeClock(NodaConstants.UnixEpoch);
         ZipArchiveBeforeFeatureCompareValidator = new FakeZipArchiveBeforeFeatureCompareValidator();
         ZipArchiveAfterFeatureCompareValidator = new FakeZipArchiveAfterFeatureCompareValidator();
+        ExtractUploadFailedEmailClient = new FakeExtractUploadFailedEmailClient();
         LoggerFactory = new LoggerFactory();
 
         WithStore(new InMemoryStreamStore(), comparisonConfig);
@@ -63,6 +64,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     public IStreamStore Store { get; private set; }
     public IZipArchiveAfterFeatureCompareValidator ZipArchiveAfterFeatureCompareValidator { get; set; }
     public IZipArchiveBeforeFeatureCompareValidator ZipArchiveBeforeFeatureCompareValidator { get; set; }
+    public IExtractUploadFailedEmailClient ExtractUploadFailedEmailClient { get; set; }
     protected IRoadRegistryContext RoadRegistryContext { get; }
     protected LoggerFactory LoggerFactory { get; }
 
@@ -134,7 +136,16 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
                 new RoadNetworkCommandModule(Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), Clock, LoggerFactory),
-                new RoadNetworkExtractCommandModule(new RoadNetworkExtractUploadsBlobClient(Client), Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), ZipArchiveBeforeFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator, Clock, LoggerFactory)
+                new RoadNetworkExtractCommandModule(
+                    new RoadNetworkExtractUploadsBlobClient(Client),
+                    Store,
+                    EntityMapFactory,
+                    new FakeRoadNetworkSnapshotReader(),
+                    ZipArchiveBeforeFeatureCompareValidator,
+                    ZipArchiveAfterFeatureCompareValidator,
+                    ExtractUploadFailedEmailClient,
+                    Clock,
+                    LoggerFactory)
             }),
             Store,
             Settings,

@@ -13,9 +13,10 @@ nuget Autofac 7.0.1
 nuget AutoFixture 4.18.0
 nuget AutoFixture.Idioms 4.18.0
 nuget AutoFixture.Xunit2 4.18.0
-nuget AWSSDK.Core 3.7.106.34
+nuget AWSSDK.Core 3.7.107.6
 nuget AWSSDK.DynamoDBv2 3.7.103.2
 nuget AWSSDK.S3 3.7.104.13
+nuget AWSSDK.SimpleEmailV2 3.7.103.13
 nuget AWSSDK.SimpleNotificationService
 nuget AWSSDK.SQS 3.7.102.2
 nuget AWSSDK.Lambda 3.7.109.6

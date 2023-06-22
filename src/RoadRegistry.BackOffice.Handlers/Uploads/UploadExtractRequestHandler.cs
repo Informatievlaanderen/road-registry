@@ -34,6 +34,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     };
 
     private readonly RoadNetworkUploadsBlobClient _client;
+    private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly EditorContext _editorContext;
     private readonly IZipArchiveBeforeFeatureCompareValidator _beforeFeatureCompareValidator;
     private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
@@ -46,6 +47,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkUploadsBlobClient client,
+        IExtractUploadFailedEmailClient emailClient,
         TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
         EditorContext editorContext,
         IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
@@ -57,7 +59,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
-        _editorContext = editorContext;
+        _emailClient = emailClient;
+        _editorContext = editorContext ?? throw new EditorContextNotFoundException(nameof(editorContext));
         _beforeFeatureCompareValidator = beforeFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(beforeFeatureCompareValidator));
         _afterFeatureCompareValidator = afterFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(afterFeatureCompareValidator));
         _uploadZipArchiveValidationFeatureToggle = uploadZipArchiveValidationFeatureToggle ?? throw new ArgumentNullException(nameof(uploadZipArchiveValidationFeatureToggle));
@@ -65,7 +68,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         _encoding = encoding;
         _useCleanZipArchiveFeatureToggle = useCleanZipArchiveFeatureToggle;
         _transactionZoneFeatureReader = transactionZoneFeatureReader ?? throw new ArgumentNullException(nameof(transactionZoneFeatureReader));
-        _editorContext = editorContext ?? throw new EditorContextNotFoundException(nameof(editorContext));
     }
 
     public override async Task<UploadExtractResponse> HandleAsync(UploadExtractRequest request, CancellationToken cancellationToken)
@@ -156,12 +158,18 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             var features = _transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, ExtractFileName.Transactiezones);
             var downloadId = DownloadId.Parse(features.Single().Attributes.DownloadId);
 
-            var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken)
-                                 ?? throw new ExtractDownloadNotFoundException(downloadId);
-
+            var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
+            if (extractRequest is null)
+            {
+                var ex = new ExtractDownloadNotFoundException(new DownloadId(downloadId));
+                await _emailClient.SendAsync(null, ex, cancellationToken);
+                throw ex;
+            }
             if (extractRequest.IsInformative)
             {
-                throw new ExtractRequestMarkedInformativeException(downloadId);
+                var ex = new ExtractRequestMarkedInformativeException(downloadId);
+                await _emailClient.SendAsync(extractRequest.Description, ex, cancellationToken);
+                throw ex;
             }
 
             await UploadAndDispatchCommand(request, readStream, archiveId, metadata, cancellationToken);

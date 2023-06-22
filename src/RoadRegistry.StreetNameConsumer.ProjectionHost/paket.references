@@ -23,6 +23,7 @@ Serilog.Sinks.File
 Serilog.Sinks.Slack
 
 Autofac.Extensions.DependencyInjection
+AWSSDK.Core
 
 Microsoft.Data.SqlClient
 Microsoft.EntityFrameworkCore.SqlServer
