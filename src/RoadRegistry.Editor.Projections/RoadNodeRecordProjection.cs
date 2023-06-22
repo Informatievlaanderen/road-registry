@@ -19,8 +19,8 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
 {
     public RoadNodeRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
     {
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
 
         When<Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
         {

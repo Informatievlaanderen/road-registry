@@ -36,7 +36,9 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
 
     public override async Task<RoadSegmentDetailResponse> HandleAsync(RoadSegmentDetailRequest request, CancellationToken cancellationToken)
     {
-        var roadSegment = await _editorContext.RoadSegments.FindAsync(new object[]{ request.WegsegmentId }, cancellationToken);
+        var roadSegment = await _editorContext.RoadSegments
+            .IgnoreQueryFilters()
+            .SingleOrDefaultAsync(x => x.Id == request.WegsegmentId, cancellationToken);
         if (roadSegment == null)
         {
             throw new RoadSegmentNotFoundException();
@@ -120,7 +122,8 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
                 ToPosition = x.TOTPOS.Value!.Value,
                 Count = new RoadSegmentLaneCount(x.AANTAL.Value),
                 Direction = RoadSegmentLaneDirection.ByIdentifier[x.RICHTING.Value]
-            }).OrderBy(x => x.FromPosition).ToList()
+            }).OrderBy(x => x.FromPosition).ToList(),
+            IsRemoved = roadSegment.IsRemoved
         };
     }
 }

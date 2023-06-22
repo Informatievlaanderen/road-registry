@@ -105,7 +105,8 @@ public partial class RoadSegmentsController
                         TotPositie = s.ToPosition,
                         Aantal = s.Count,
                         Richting = s.Direction.Translation.Name
-                    }).ToArray()
+                    }).ToArray(),
+                Verwijderd = detailResponse.IsRemoved
             };
 
             return string.IsNullOrWhiteSpace(detailResponse.LastEventHash)
@@ -319,6 +320,13 @@ public class GetRoadSegmentResponse
     [DataMember(Name = "AantalRijstroken", Order = 15)]
     [JsonProperty(Required = Required.DisallowNull)]
     public AantalRijstrokenObject[] AantalRijstroken { get; set; }
+
+    /// <summary>
+    ///     Geeft aan of het wegsegment al dan niet verwijderd werd.
+    /// </summary>
+    [DataMember(Name = "Verwijderd", Order = 16)]
+    [JsonProperty(Required = Required.DisallowNull)]
+    public bool Verwijderd { get; set; }
 }
 
 public class GetRoadSegmentResponseResponseExamples : IExamplesProvider<GetRoadSegmentResponse>

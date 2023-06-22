@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Projections;
+using RoadRegistry.BackOffice.FeatureToggles;
 using Schema;
 using Syndication.Schema;
 using System.Linq;
@@ -58,7 +59,7 @@ public class Program
                 })
                 .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
                 {
-                    new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>()),
+                    new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>(), sp.GetRequiredService<UseRoadSegmentSoftDeleteFeatureToggle>()),
                     new RoadSegmentEuropeanRoadAttributeRecordProjection(),
                     new RoadSegmentNationalRoadAttributeRecordProjection()
                 })

@@ -13,4 +13,5 @@ public class RoadSegmentRecord
     public int ShapeRecordContentLength { get; set; }
     public int StartNodeId { get; set; }
     public string LastEventHash { get; set; }
+    public bool IsRemoved { get; set; }
 }

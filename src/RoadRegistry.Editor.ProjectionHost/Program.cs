@@ -1,11 +1,17 @@
 namespace RoadRegistry.Editor.ProjectionHost;
 
+using System.Threading;
+using System.Threading.Tasks;
+using Autofac;
 using BackOffice;
+using BackOffice.Configuration;
+using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using EventProcessors;
 using Hosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,14 +20,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Newtonsoft.Json;
 using Projections;
+using RoadRegistry.Editor.ProjectionHost.Extensions;
 using Schema;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Autofac;
-using BackOffice.Configuration;
-using BackOffice.Uploads;
 
 public class Program
 {
@@ -33,11 +33,10 @@ public class Program
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
-                .AddHostedService<EventProcessor>()
                 .AddSingleton(new EnvelopeFactory(
-                    EventProcessor.EventMapping,
+                    DbContextEventProcessor<EditorContext>.EventMapping,
                     new EventDeserializer((eventData, eventType) =>
-                        JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
+                        JsonConvert.DeserializeObject(eventData, eventType, DbContextEventProcessor<EditorContext>.SerializerSettings)))
                 )
                 .AddSingleton(() =>
                     new EditorContext(
@@ -49,13 +48,10 @@ public class Program
                                     .UseNetTopologySuite()
                             ).Options)
                 )
-                .AddSingleton(sp => new ConnectedProjection<EditorContext>[]
-                {
-                    new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    new MunicipalityGeometryProjection(),
-                    new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    new RoadNetworkChangeFeedProjection(sp.GetRequiredService<IBlobClient>()),
+                .AddSingleton<IRunnerDbContextMigratorFactory>(new EditorContextMigrationFactory())
+                .AddDbContextEventProcessor<EditorContext, RoadNetworkEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
                     new RoadNetworkInfoProjection(),
+                    new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentEuropeanRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentLaneAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
@@ -63,17 +59,27 @@ public class Program
                     new RoadSegmentNumberedRoadAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
-                    new ExtractDownloadRecordProjection(),
-                    new ExtractRequestRecordProjection(),
+                    new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
+                })
+                .AddDbContextEventProcessor<EditorContext, OrganizationEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                    new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
+                })
+                .AddDbContextEventProcessor<EditorContext, MunicipalityEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                    new MunicipalityGeometryProjection()
+                })
+                .AddDbContextEventProcessor<EditorContext, ChangeFeedEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                    new RoadNetworkChangeFeedProjection(sp.GetRequiredService<IBlobClient>())
+                })
+                .AddDbContextEventProcessor<EditorContext, ExtractDownloadEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                    new ExtractDownloadRecordProjection()
+                })
+                .AddDbContextEventProcessor<EditorContext, ExtractRequestEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                    new ExtractRequestRecordProjection()
+                })
+                .AddDbContextEventProcessor<EditorContext, ExtractUploadEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
                     new ExtractUploadRecordProjection()
                 })
-                .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp
-                    .GetRequiredService<ConnectedProjection<EditorContext>[]>()
-                    .SelectMany(projection => projection.Handlers)
-                        .ToArray()))
-                .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<EditorContext>[]>(), EventProcessor.EventMapping))
-                .AddSingleton<IRunnerDbContextMigratorFactory>(new EditorContextMigrationFactory()))
+            )
             .ConfigureContainer((context, builder) =>
             {
                 builder
@@ -83,7 +89,7 @@ public class Program
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new []
+            .LogSqlServerConnectionStrings(new[]
             {
                 WellknownConnectionNames.Events,
                 WellknownConnectionNames.EditorProjections,

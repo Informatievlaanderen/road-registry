@@ -57,11 +57,11 @@ public static class EditorContextScenarioExtensions
 {
     //IMPORTANT: Each time you change the db sets on the context, you must adjust this method as well.
     //
-    private static async Task<object[]> AllRecords(this EditorContext context)
+    private static async Task<object[]> AllRecords(this EditorContext context, bool ignoreQueryFilters = false)
     {
         var records = new List<object>();
         records.AddRange(await context.RoadNodes.ToArrayAsync());
-        records.AddRange(await context.RoadSegments.ToArrayAsync());
+        records.AddRange(await context.RoadSegments.IgnoreQueryFilters(ignoreQueryFilters).ToArrayAsync());
         records.AddRange(await context.RoadSegmentLaneAttributes.ToArrayAsync());
         records.AddRange(await context.RoadSegmentWidthAttributes.ToArrayAsync());
         records.AddRange(await context.RoadSegmentSurfaceAttributes.ToArrayAsync());
@@ -109,9 +109,24 @@ public static class EditorContextScenarioExtensions
         return scenario.Expect(records.ToArray());
     }
 
-    public static async Task Expect(
+    public static Task Expect(
         this ConnectedProjectionScenario<EditorContext> scenario,
         params object[] records)
+    {
+        return Expect(scenario, false, records);
+    }
+
+    public static Task ExpectWhileIgnoringQueryFilters(
+        this ConnectedProjectionScenario<EditorContext> scenario,
+        params object[] records)
+    {
+        return Expect(scenario, true, records);
+    }
+
+    private static async Task Expect(
+        this ConnectedProjectionScenario<EditorContext> scenario,
+        bool ignoreQueryFilters,
+        object[] records)
     {
         var database = Guid.NewGuid().ToString("N");
 
@@ -130,7 +145,7 @@ public static class EditorContextScenarioExtensions
                 }
             };
             var comparer = new CompareLogic(comparisonConfig);
-            var actualRecords = await context.AllRecords();
+            var actualRecords = await context.AllRecords(ignoreQueryFilters: ignoreQueryFilters);
             var result = comparer.Compare(
                 actualRecords,
                 records
