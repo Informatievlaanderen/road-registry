@@ -1,11 +1,5 @@
 namespace RoadRegistry.BackOffice;
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Amazon.SimpleEmailV2;
 using Amazon.SimpleEmailV2.Model;
 using Configuration;
@@ -14,7 +8,11 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Exceptions;
-using SqlStreamStore.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
 {
@@ -55,7 +53,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
         }
         else
         {
-            _logger.LogError("Received email request for destination {Destination} and subject {Subject}, but client is not configured!", string.Join(", ", emailRequest.Destination.ToAddresses), emailRequest.Content.Simple.Subject.Data);
+            _logger.LogError("Received email request for destination {Destination}, but client is not configured!", _emailClientOptions.ExtractUploadFailed);
         }
 
         StringBuilder FormatValidationException(Exception exception) => new StringBuilder()
