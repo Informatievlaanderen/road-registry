@@ -1,3 +1,17 @@
+# [3.51.0](https://github.com/informatievlaanderen/road-registry/compare/v3.50.1...v3.51.0) (2023-06-22)
+
+
+### Bug Fixes
+
+* WR-602 ensure SRID is filled in in projections ([#1017](https://github.com/informatievlaanderen/road-registry/issues/1017)) ([ad98724](https://github.com/informatievlaanderen/road-registry/commit/ad98724db041c757726819edeed4e6fe4172f069))
+* WR-701 CPG file location in product zip ([#1018](https://github.com/informatievlaanderen/road-registry/issues/1018)) ([7f13442](https://github.com/informatievlaanderen/road-registry/commit/7f134425b3f9d29974467ce81105c32f245f5ce5))
+
+
+### Features
+
+* Add email client to send out error mails ([#1016](https://github.com/informatievlaanderen/road-registry/issues/1016)) ([e8837d2](https://github.com/informatievlaanderen/road-registry/commit/e8837d2f3ab7d8c27b598492ba624302481c3d1e))
+* WR-724 use soft-delete for roadsegment in projections ([#1015](https://github.com/informatievlaanderen/road-registry/issues/1015)) ([ade342e](https://github.com/informatievlaanderen/road-registry/commit/ade342e4f421198832f0d4bdaa9016652aeca84d))
+
 ## [3.50.1](https://github.com/informatievlaanderen/road-registry/compare/v3.50.0...v3.50.1) (2023-06-20)
 
 
