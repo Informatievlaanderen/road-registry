@@ -23,7 +23,7 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
             && context.InstanceToValidate.Toegangsbeperking is null
             && context.InstanceToValidate.Wegbeheerder is null
             && context.InstanceToValidate.Wegcategorie is null
-            && context.InstanceToValidate.WegsegmentStatus is null
+            && context.InstanceToValidate.Wegsegmentstatus is null
            )
         {
             context.AddFailure(new ValidationFailure
@@ -59,9 +59,9 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
                 .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid);
         });
 
-        When(x => x.WegsegmentStatus is not null, () =>
+        When(x => x.Wegsegmentstatus is not null, () =>
         {
-            RuleFor(x => x.WegsegmentStatus)
+            RuleFor(x => x.Wegsegmentstatus)
                 .Cascade(CascadeMode.Stop)
                 .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value).IsValidForRoadSegmentEdit())
                 .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);

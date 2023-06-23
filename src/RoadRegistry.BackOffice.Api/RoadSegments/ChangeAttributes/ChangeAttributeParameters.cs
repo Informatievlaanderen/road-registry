@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.ChangeAttributes;
 
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;
 
 public record ChangeAttributeParameters
@@ -25,15 +26,15 @@ public record ChangeAttributeParameters
     /// </summary>
     [DataMember(Name = "WegsegmentStatus", Order = 3)]
     [JsonProperty("wegsegmentstatus")]
-    [EnumDataType(typeof(RoadSegmentStatus.Edit))]
-    public string WegsegmentStatus { get; set; }
+    [RoadRegistryEnumDataType(typeof(RoadSegmentStatus.Edit))]
+    public string Wegsegmentstatus { get; set; }
 
     /// <summary>
     ///     Beschrijft bepaalde aspecten van de morfologische vorm die een weg kan aannemen.
     /// </summary>
     [DataMember(Name = "MorfologischeWegklasse", Order = 4)]
     [JsonProperty("morfologischeWegklasse")]
-    [EnumDataType(typeof(RoadSegmentMorphology.Edit))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentMorphology.Edit))]
     public string MorfologischeWegklasse { get; set; }
 
     /// <summary>
@@ -41,7 +42,7 @@ public record ChangeAttributeParameters
     /// </summary>
     [DataMember(Name = "Toegangsbeperking", Order = 5)]
     [JsonProperty("toegangsbeperking")]
-    [EnumDataType(typeof(RoadSegmentAccessRestriction))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentAccessRestriction))]
     public string Toegangsbeperking { get; set; }
 
     /// <summary>
@@ -49,6 +50,6 @@ public record ChangeAttributeParameters
     /// </summary>
     [DataMember(Name = "Wegcategorie", Order = 6)]
     [JsonProperty("wegcategorie")]
-    [EnumDataType(typeof(RoadSegmentCategory))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentCategory))]
     public string Wegcategorie { get; set; }
 }

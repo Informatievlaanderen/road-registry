@@ -101,9 +101,9 @@ public partial class RoadSegmentsController
                         roadSegment.MaintenanceAuthority = new OrganizationId(attributesChange.Wegbeheerder);
                     }
 
-                    if (attributesChange.WegsegmentStatus is not null)
+                    if (attributesChange.Wegsegmentstatus is not null)
                     {
-                        roadSegment.Status = RoadSegmentStatus.ParseUsingDutchName(attributesChange.WegsegmentStatus);
+                        roadSegment.Status = RoadSegmentStatus.ParseUsingDutchName(attributesChange.Wegsegmentstatus);
                     }
 
                     if (attributesChange.MorfologischeWegklasse is not null)
