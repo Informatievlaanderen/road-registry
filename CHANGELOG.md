@@ -1,3 +1,11 @@
+## [3.51.1](https://github.com/informatievlaanderen/road-registry/compare/v3.51.0...v3.51.1) (2023-06-23)
+
+
+### Bug Fixes
+
+* WR-703 ignore empty arrays as input ([#1019](https://github.com/informatievlaanderen/road-registry/issues/1019)) ([21d11b9](https://github.com/informatievlaanderen/road-registry/commit/21d11b9103ea7580c418eeb31d74903d9ac5e121))
+* WR-703 use RoadRegistryEnumDataTypeAttribute instead of EnumDataTypeAttribute to be able to use non-Enum types ([#1020](https://github.com/informatievlaanderen/road-registry/issues/1020)) ([d49b813](https://github.com/informatievlaanderen/road-registry/commit/d49b813e7f118ef9c98219b29a9061a37436bc6e))
+
 # [3.51.0](https://github.com/informatievlaanderen/road-registry/compare/v3.50.1...v3.51.0) (2023-06-22)
 
 
