@@ -18,6 +18,7 @@ using Extensions;
 using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
+using Infrastructure.Controllers.Attributes;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -108,7 +109,7 @@ public record PostRoadSegmentOutlineParameters
     /// </summary>
     [DataMember(Name = "Wegsegmentstatus", Order = 2)]
     [JsonProperty(Required = Required.Always)]
-    [EnumDataType(typeof(RoadSegmentStatus.Edit))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentStatus.Edit))]
     public string Wegsegmentstatus { get; set; }
 
     /// <summary>
@@ -116,7 +117,7 @@ public record PostRoadSegmentOutlineParameters
     /// </summary>
     [DataMember(Name = "MorfologischeWegklasse", Order = 3)]
     [JsonProperty(Required = Required.Always)]
-    [EnumDataType(typeof(RoadSegmentMorphology.Edit))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentMorphology.Edit))]
     public string MorfologischeWegklasse { get; set; }
 
     /// <summary>
@@ -124,7 +125,7 @@ public record PostRoadSegmentOutlineParameters
     /// </summary>
     [DataMember(Name = "Toegangsbeperking", Order = 4)]
     [JsonProperty(Required = Required.Always)]
-    [EnumDataType(typeof(RoadSegmentAccessRestriction))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentAccessRestriction))]
     public string Toegangsbeperking { get; set; }
 
     /// <summary>
@@ -139,7 +140,7 @@ public record PostRoadSegmentOutlineParameters
     /// </summary>
     [DataMember(Name = "Wegverharding", Order = 6)]
     [JsonProperty(Required = Required.Always)]
-    [EnumDataType(typeof(RoadSegmentSurfaceType.Edit))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceType.Edit))]
     public string Wegverharding { get; set; }
 
     /// <summary>
@@ -168,7 +169,7 @@ public class RoadSegmentLaneParameters
     /// <summary>De richting van deze rijstroken t.o.v. de richting van het wegsegment (begin- naar eindknoop).</summary>
     [DataMember(Name = "Richting", Order = 2)]
     [JsonProperty(Required = Required.Always)]
-    [EnumDataType(typeof(RoadSegmentLaneDirection))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentLaneDirection))]
     public string Richting { get; set; }
 }
 

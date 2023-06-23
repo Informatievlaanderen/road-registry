@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments.Change;
 
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
+using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;
 
 public class ChangeSurfaceAttributeParameters : ChangePositionAttributeParameters
@@ -11,6 +12,6 @@ public class ChangeSurfaceAttributeParameters : ChangePositionAttributeParameter
     /// </summary>
     [DataMember(Name = "Type", Order = 3)]
     [JsonProperty("type", Required = Required.Always)]
-    [EnumDataType(typeof(RoadSegmentSurfaceType))]
+    [RoadRegistryEnumDataType(typeof(RoadSegmentSurfaceType))]
     public string Type { get; set; }
 }

@@ -7,6 +7,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SchemaFilters
 {
     using System.ComponentModel.DataAnnotations;
     using System.Linq;
+    using Controllers.Attributes;
     using Microsoft.OpenApi.Models;
 
     public abstract class EnumSchemaFilter<T> : EnumSchemaFilter<T, T>
@@ -30,7 +31,8 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.SchemaFilters
 
         public void Apply(OpenApiSchema schema, SchemaFilterContext context)
         {
-            var enumDataTypeAttribute = context.MemberInfo?.CustomAttributes.SingleOrDefault(x => x.AttributeType == typeof(EnumDataTypeAttribute));
+            var enumDataTypeAttribute = context.MemberInfo?.CustomAttributes.SingleOrDefault(x => x.AttributeType == typeof(EnumDataTypeAttribute)
+                                                                                                  || x.AttributeType == typeof(RoadRegistryEnumDataTypeAttribute));
             if (enumDataTypeAttribute is not null)
             {
                 var enumType = (Type)enumDataTypeAttribute.ConstructorArguments.Single().Value;
