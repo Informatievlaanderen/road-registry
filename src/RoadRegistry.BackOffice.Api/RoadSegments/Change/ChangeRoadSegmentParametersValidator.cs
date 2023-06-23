@@ -15,9 +15,9 @@ public class ChangeRoadSegmentParametersValidator : AbstractValidator<ChangeRoad
 
         RuleFor(x => x)
             .Cascade(CascadeMode.Stop)
-            .Must(x => x?.AantalRijstroken is not null
-                       || x?.Wegbreedte is not null
-                       || x?.Wegverharding is not null)
+            .Must(x => x?.AantalRijstroken?.Length > 0
+                       || x?.Wegbreedte?.Length > 0
+                       || x?.Wegverharding?.Length > 0)
             .WithProblemCode(ProblemCode.Common.JsonInvalid);
 
         RuleFor(x => x.WegsegmentId)
@@ -27,33 +27,33 @@ public class ChangeRoadSegmentParametersValidator : AbstractValidator<ChangeRoad
             .Must(wegsegmentId => validatorContext.RoadSegmentExists(wegsegmentId!.Value))
             .WithProblemCode(ProblemCode.RoadSegment.NotFound);
 
-        When(x => x.Wegverharding is not null, () =>
+        When(x => x.Wegverharding?.Length > 0, () =>
         {
             RuleFor(x => x.Wegverharding)
                 .Cascade(CascadeMode.Stop)
-                .Must(PositionAttributesMustBeSorted)
+                .Must(PositionAttributesAreCorrectlySorted)
                 .WithProblemCode(ProblemCode.ToPosition.NotEqualToNextFromPosition);
 
             RuleForEach(x => x.Wegverharding)
                 .SetValidator(new ChangeSurfaceAttributeParametersValidator());
         });
 
-        When(x => x.Wegbreedte is not null, () =>
+        When(x => x.Wegbreedte?.Length > 0, () =>
         {
             RuleFor(x => x.Wegbreedte)
                 .Cascade(CascadeMode.Stop)
-                .Must(PositionAttributesMustBeSorted)
+                .Must(PositionAttributesAreCorrectlySorted)
                 .WithProblemCode(ProblemCode.ToPosition.NotEqualToNextFromPosition);
 
             RuleForEach(x => x.Wegbreedte)
                 .SetValidator(new ChangeWidthAttributeParametersValidator());
         });
 
-        When(x => x.AantalRijstroken is not null, () =>
+        When(x => x.AantalRijstroken?.Length > 0, () =>
         {
             RuleFor(x => x.AantalRijstroken)
                 .Cascade(CascadeMode.Stop)
-                .Must(PositionAttributesMustBeSorted)
+                .Must(PositionAttributesAreCorrectlySorted)
                 .WithProblemCode(ProblemCode.ToPosition.NotEqualToNextFromPosition);
 
             RuleForEach(x => x.AantalRijstroken)
@@ -61,11 +61,11 @@ public class ChangeRoadSegmentParametersValidator : AbstractValidator<ChangeRoad
         });
     }
 
-    private bool PositionAttributesMustBeSorted<T>(T[] attributes) where T : ChangePositionAttributeParameters
+    private bool PositionAttributesAreCorrectlySorted<T>(T[] attributes) where T : ChangePositionAttributeParameters
     {
         if (!attributes.Any())
         {
-            return true;
+            return false;
         }
 
         if (attributes.Length > 1)

@@ -90,7 +90,7 @@ public partial class RoadSegmentsController
                 var roadSegmentId = new RoadSegmentId(attributesChange.WegsegmentId!.Value);
                 attributesRequest.Add(roadSegmentId, roadSegment =>
                 {
-                    if (attributesChange.Wegverharding is not null)
+                    if (attributesChange.Wegverharding?.Length > 0)
                     {
                         roadSegment.Surfaces = attributesChange.Wegverharding
                             .Select(x => new ChangeRoadSegmentSurfaceAttributeRequest
@@ -102,7 +102,7 @@ public partial class RoadSegmentsController
                             .ToArray();
                     }
 
-                    if (attributesChange.Wegbreedte is not null)
+                    if (attributesChange.Wegbreedte?.Length > 0)
                     {
                         roadSegment.Widths = attributesChange.Wegbreedte
                             .Select(x => new ChangeRoadSegmentWidthAttributeRequest
@@ -114,7 +114,7 @@ public partial class RoadSegmentsController
                             .ToArray();
                     }
 
-                    if (attributesChange.AantalRijstroken is not null)
+                    if (attributesChange.AantalRijstroken?.Length > 0)
                     {
                         roadSegment.Lanes = attributesChange.AantalRijstroken
                             .Select(x => new ChangeRoadSegmentLaneAttributeRequest
