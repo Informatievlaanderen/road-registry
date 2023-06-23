@@ -23,7 +23,7 @@ public class ChangeRoadSegmentAttributesParametersExamples : IExamplesProvider<C
             new()
             {
                 Wegsegmenten = new[] { 481111 },
-                WegsegmentStatus = "buiten gebruik",
+                Wegsegmentstatus = "buiten gebruik",
                 MorfologischeWegklasse = "aardeweg",
                 Wegbeheerder = "AWV114"
             }

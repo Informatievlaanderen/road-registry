@@ -19,7 +19,7 @@ public class WhenChangeAttributesWithInvalidWegsegmentStatus : WhenChangeAttribu
         {
             new()
             {
-                WegsegmentStatus = string.Empty,
+                Wegsegmentstatus = string.Empty,
                 Wegsegmenten = new[] { Fixture.TestData.Segment1Added.Id }
             }
         }, "WegsegmentStatusNietCorrect", null);

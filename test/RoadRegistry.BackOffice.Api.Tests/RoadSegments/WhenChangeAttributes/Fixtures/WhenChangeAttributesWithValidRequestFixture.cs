@@ -35,7 +35,7 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
             },
             new()
             {
-                WegsegmentStatus = ObjectProvider.Create<RoadSegmentStatus>().ToDutchString(),
+                Wegsegmentstatus = ObjectProvider.Create<RoadSegmentStatus>().ToDutchString(),
                 Wegsegmenten = new[] { TestData.Segment1Added.Id }
             },
             new()
