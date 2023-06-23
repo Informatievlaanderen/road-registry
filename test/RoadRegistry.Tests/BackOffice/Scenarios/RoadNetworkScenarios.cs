@@ -2031,8 +2031,16 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
         var nextWidthsAttributeId = TestData.AddSegment1.Widths.Length + 1;
         var nextSurfacesAttributeId = TestData.AddSegment1.Surfaces.Length + 1;
 
-        TestData.StartNode1Added.Geometry = new RoadNodeGeometry { Point = new RoadRegistry.BackOffice.Messages.Point { X = 0, Y = 0 } };
-        TestData.EndNode1Added.Geometry = new RoadNodeGeometry { Point = new RoadRegistry.BackOffice.Messages.Point { X = 0, Y = 10 } };
+        TestData.StartNode1Added.Geometry = new RoadNodeGeometry
+        {
+            Point = new RoadRegistry.BackOffice.Messages.Point { X = 0, Y = 0 },
+            SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
+        TestData.EndNode1Added.Geometry = new RoadNodeGeometry
+        {
+            Point = new RoadRegistry.BackOffice.Messages.Point { X = 0, Y = 10 },
+            SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
         TestData.Segment1Added.Geometry = new RoadSegmentGeometry
         {
             MultiLineString = new[]
@@ -2058,7 +2066,11 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
 
         TestData.ModifyEndNode1.Type = RoadNodeType.FakeNode;
         TestData.ModifyEndNode1.Geometry = TestData.EndNode1Added.Geometry;
-        TestData.AddEndNode2.Geometry = new RoadNodeGeometry { Point = new RoadRegistry.BackOffice.Messages.Point { X = 0, Y = 20 } };
+        TestData.AddEndNode2.Geometry = new RoadNodeGeometry
+        {
+            Point = new RoadRegistry.BackOffice.Messages.Point { X = 0, Y = 20 },
+            SpatialReferenceSystemIdentifier = SpatialReferenceSystemIdentifier.BelgeLambert1972.ToInt32()
+        };
         TestData.AddSegment2.Geometry = new RoadSegmentGeometry
         {
             MultiLineString = new[]

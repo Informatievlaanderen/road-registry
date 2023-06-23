@@ -55,7 +55,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             _knownUploads.Add(new UploadId(e.UploadId));
 
             FeatureCompareCompleted = false;
-            IsInformative = false;
+            IsInformative = true;
         });
         On<RoadNetworkExtractChangesArchiveFeatureCompareCompleted>(e =>
         {
@@ -64,7 +64,7 @@ public class RoadNetworkExtract : EventSourcedEntity
         });
         On<RoadNetworkExtractClosed>(e =>
         {
-            IsInformative = false;
+            IsInformative = true;
         });
     }
 

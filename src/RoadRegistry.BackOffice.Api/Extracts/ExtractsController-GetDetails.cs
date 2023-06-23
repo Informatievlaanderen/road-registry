@@ -4,6 +4,7 @@ using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Exceptions;
 using Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;

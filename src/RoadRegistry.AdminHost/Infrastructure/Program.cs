@@ -34,6 +34,7 @@ public class Program
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
+                .AddEmailClient(hostContext.Configuration)
                 .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                     new CommandHandlerModule[]
                     {
@@ -44,6 +45,7 @@ public class Program
                             sp.GetService<IRoadNetworkSnapshotReader>(),
                             sp.GetService<IZipArchiveBeforeFeatureCompareValidator>(),
                             sp.GetService<IZipArchiveAfterFeatureCompareValidator>(),
+                            sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetService<IClock>(),
                             sp.GetService<ILoggerFactory>()
                         )

@@ -2,6 +2,7 @@ Be.Vlaanderen.Basisregisters.BlobStore
 Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple
 Be.Vlaanderen.Basisregisters.Sqs
 
+AWSSDK.Core
 MediatR.Contracts
 Microsoft.Extensions.Logging
 Microsoft.Net.Http.Headers

@@ -108,6 +108,6 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
             await shxEntryStream.FlushAsync(cancellationToken);
         }
 
-        await archive.CreateCpgEntry("Wegknoop.cpg", _encoding, cancellationToken);
+        await archive.CreateCpgEntry(string.Format(_entryFormat, "Wegknoop.cpg"), _encoding, cancellationToken);
     }
 }

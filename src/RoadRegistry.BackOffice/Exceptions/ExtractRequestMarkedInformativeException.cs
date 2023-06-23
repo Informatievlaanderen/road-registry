@@ -1,5 +1,6 @@
-namespace RoadRegistry.BackOffice.Abstractions.Exceptions;
+namespace RoadRegistry.BackOffice.Exceptions;
 
+using System;
 using System.Runtime.Serialization;
 
 [Serializable]
