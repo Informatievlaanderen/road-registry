@@ -1,3 +1,10 @@
+## [3.51.2](https://github.com/informatievlaanderen/road-registry/compare/v3.51.1...v3.51.2) (2023-06-26)
+
+
+### Bug Fixes
+
+* WR-703 add RoadSegmentPositionConverter + unit tests for SQS serialization/deserialization ([#1021](https://github.com/informatievlaanderen/road-registry/issues/1021)) ([8688b48](https://github.com/informatievlaanderen/road-registry/commit/8688b48ea36ff321e1558bf035ff8ede22796059))
+
 ## [3.51.1](https://github.com/informatievlaanderen/road-registry/compare/v3.51.0...v3.51.1) (2023-06-23)
 
 
