@@ -31,6 +31,7 @@ public static class SqsJsonSerializerSettingsProvider
         settings.Converters.Add(new RoadSegmentLaneCountConverter());
         settings.Converters.Add(new RoadSegmentLaneDirectionConverter());
         settings.Converters.Add(new RoadSegmentMorphologyConverter());
+        settings.Converters.Add(new RoadSegmentPositionConverter());
         settings.Converters.Add(new RoadSegmentStatusConverter());
         settings.Converters.Add(new RoadSegmentSurfaceTypeConverter());
         settings.Converters.Add(new RoadSegmentWidthConverter());
