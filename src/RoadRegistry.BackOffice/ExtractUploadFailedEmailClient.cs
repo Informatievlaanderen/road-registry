@@ -53,7 +53,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
         }
         else
         {
-            _logger.LogError("Received email request for destination {Destination}, but client is not configured!", _emailClientOptions.ExtractUploadFailed);
+            _logger.LogError("Received email request, but client is not configured!");
         }
 
         StringBuilder FormatValidationException(Exception exception) => new StringBuilder()
@@ -72,7 +72,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
 
     private SendEmailRequest CreateSendEmailRequest(string extractDescription, StringBuilder sb)
     {
-        return _emailClientOptions.ExtractUploadFailed is null
+        return string.IsNullOrEmpty(_emailClientOptions?.ExtractUploadFailed)
         ? null
         : new SendEmailRequest
         {
@@ -80,7 +80,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
             {
                 ToAddresses = new List<string> { _emailClientOptions.ExtractUploadFailed }
             },
-            FromEmailAddress = "noreply-wegenregister@vlaanderen.be",
+            FromEmailAddress = "digitaal.vlaanderen@digitaal.vlaanderen.be",
             Content = new EmailContent
             {
                 Simple = new Message
