@@ -1,3 +1,10 @@
+## [3.51.3](https://github.com/informatievlaanderen/road-registry/compare/v3.51.2...v3.51.3) (2023-06-30)
+
+
+### Bug Fixes
+
+* Email client should not send mails when not configured ([#1030](https://github.com/informatievlaanderen/road-registry/issues/1030)) ([29c291a](https://github.com/informatievlaanderen/road-registry/commit/29c291a2c3af7111f8fb87d03fd3ebb3bc647af5))
+
 ## [3.51.2](https://github.com/informatievlaanderen/road-registry/compare/v3.51.1...v3.51.2) (2023-06-26)
 
 
