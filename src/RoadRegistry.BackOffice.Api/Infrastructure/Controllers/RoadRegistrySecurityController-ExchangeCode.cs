@@ -44,12 +44,7 @@ public partial class RoadRegistrySecurityController
 
         if (tokenResponse.IsError)
         {
-            _logger.LogError("[Error] {Error}\nErrorDescription] {ErrorDescription}\nTokenEndpoint] {TokenEndpointAddress}", tokenResponse.Error, tokenResponse.ErrorDescription, tokenEndpointAddress);
-            throw new Exception(
-                $"[Error] {tokenResponse.Error}\n" +
-                $"[ErrorDescription] {tokenResponse.ErrorDescription}\n" +
-                $"[TokenEndpoint] {tokenEndpointAddress}",
-                tokenResponse.Exception);
+            throw new AuthorizationCodeTokenException(tokenResponse, tokenEndpointAddress);
         }
 
         var token = new JwtSecurityToken(tokenResponse.IdentityToken);
