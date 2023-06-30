@@ -84,5 +84,17 @@ export namespace RoadRegistry {
         isValid: boolean;
         isLargerThanMaximumArea: boolean;
     }
+
+    export interface SecurityInfo {
+        authority: string;
+        issuer: string;
+        authorizationEndpoint: string;
+        authorizationRedirectUri: string;
+        userInfoEndPoint: string;
+        endSessionEndPoint: string;
+        jwksUri: string;
+        clientId: string;
+        postLogoutRedirectUri: string;
+    }
 }
 export default RoadRegistry;

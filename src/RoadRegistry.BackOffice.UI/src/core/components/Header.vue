@@ -14,12 +14,15 @@
         <div class="vl-functional-header__row">
           <div class="vl-functional-header__content">
             <h1 class="vl-title">
-              <a class="vl-functional-header__title" href="#">{{ getTitle }}</a>
+              <a class="vl-functional-header__title" href="/">{{ getTitle }}</a>
             </h1>
           </div>
-          <vl-button v-if="isAuthenticated" mod-secondary v-vl-positioning:float-right v-on:click="logout"
-            >Logout
-          </vl-button>
+          <div class="vl-functional-header__content" v-vl-positioning:float-right>
+            <span class="user-fullname" v-if="userFullName">{{ userFullName }}</span>
+            <vl-button v-if="isAuthenticated" mod-secondary @click="logout">
+              Logout
+            </vl-button>
+          </div>          
         </div>
         <div class="vl-functional-header__sub">
           <div class="vl-grid">
@@ -46,7 +49,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { AuthService, isAuthenticated as HasAuth } from "@/auth";
+import { AuthService, isAuthenticated as HasAuth, user } from "@/auth";
 import * as environment from "@/environment";
 
 export default Vue.extend({
@@ -57,6 +60,9 @@ export default Vue.extend({
     },
     isAuthenticated() {
       return HasAuth.state;
+    },
+    userFullName() {
+      return `${user.state.firstName ?? ''} ${user.state.lastName ?? ''}`.trim();
     },
     getStyle() {
       const style: any = {};
@@ -81,7 +87,6 @@ export default Vue.extend({
   methods: {
     logout() {
       AuthService.logout();
-      AuthService.checkAuthentication();
     },
   },
 });
@@ -90,6 +95,10 @@ export default Vue.extend({
 <style lang="scss" scoped>
 .vl-tab {
   padding: 1rem 1rem;
+}
+
+.user-fullname{
+  margin-right: 1rem;
 }
 
 #vlaanderen-top {
