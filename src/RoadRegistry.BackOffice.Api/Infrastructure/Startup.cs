@@ -387,17 +387,6 @@ public class Startup
                 options.Filters.Add<ValidationFilterAttribute>();
                 options.OutputFormatters.Add(new XmlSerializerOutputFormatter(new SerilogLoggerFactory()));
             });
-
-        //JsonConvert.DefaultSettings = () =>
-        //{
-        //    var settings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        //    foreach (var converter in WellKnownJsonConverters.Converters)
-        //    {
-        //        settings.Converters.Add(converter);
-        //    }
-
-        //    return settings;
-        //};
     }
 
     private static string GetApiLeadingText(ApiVersionDescription description)
