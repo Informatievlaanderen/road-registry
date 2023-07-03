@@ -10,6 +10,7 @@ using Extensions;
 using FluentValidation;
 using FluentValidation.Results;
 using Framework;
+using Messages;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using NodaTime;
@@ -60,6 +61,13 @@ public class DownloadFileContentRequestHandler : EndpointRequestHandler<Download
 
             var blob = await _client.GetBlobAsync(blobName, cancellationToken);
             var filename = request.DownloadId + ".zip";
+
+            var command = new Command(new DownloadRoadNetworkExtract
+            {
+                DownloadId = new DownloadId(parsedDownloadId),
+                ExternalRequestId = record.ExternalRequestId
+            });
+            await Dispatcher(command, cancellationToken);
 
             return new DownloadFileContentResponse(
                 filename,

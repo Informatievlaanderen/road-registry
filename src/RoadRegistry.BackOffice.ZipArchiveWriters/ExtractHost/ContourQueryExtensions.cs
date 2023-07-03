@@ -23,11 +23,11 @@ FROM [RoadRegistryEditor].[RoadNode] AS [node]
 WHERE [node].[Id] IN (
     SELECT [segment1].[StartNodeId]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment1]
-    WHERE [segment1].[Geometry].STIntersects(@contour) = CAST(1 AS bit))
+    WHERE [segment1].[IsRemoved] = CAST(0 as bit) AND [segment1].[Geometry].STIntersects(@contour) = CAST(1 AS bit))
 OR [node].[Id] IN (
     SELECT [segment2].[EndNodeId]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment2]
-    WHERE [segment2].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
+    WHERE [segment2].[IsRemoved] = CAST(0 as bit) AND [segment2].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
     }
 
     public static IQueryable<GradeSeparatedJunctionRecord> InsideContour(
@@ -39,20 +39,20 @@ FROM [RoadRegistryEditor].[GradeSeparatedJunction] AS [junction]
 WHERE [junction].[UpperRoadSegmentId] IN (
     SELECT [segment1].[Id]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment1]
-    WHERE [segment1].[Geometry].STIntersects(@contour) = CAST(1 AS bit))
+    WHERE [segment1].[IsRemoved] = CAST(0 as bit) AND [segment1].[Geometry].STIntersects(@contour) = CAST(1 AS bit))
 OR [junction].[LowerRoadSegmentId] IN (
     SELECT [segment2].[Id]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment2]
-    WHERE [segment2].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
+    WHERE [segment2].[IsRemoved] = CAST(0 as bit) AND [segment2].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
     }
 
     public static IQueryable<RoadSegmentRecord> InsideContour(
         this DbSet<RoadSegmentRecord> source, IPolygonal contour)
     {
         return source.FromSqlRaw(
-            @"SELECT [segment].[Id], [segment].[StartNodeId], [segment].[EndNodeId], [segment].[ShapeRecordContent], [segment].[ShapeRecordContentLength], [segment].[DbaseRecord], [segment].[Geometry], [segment].[BoundingBox_MinimumX], [segment].[BoundingBox_MaximumX], [segment].[BoundingBox_MinimumY], [segment].[BoundingBox_MaximumY], [segment].[BoundingBox_MinimumM], [segment].[BoundingBox_MaximumM], [segment].[LastEventHash]
+            @"SELECT [segment].[Id], [segment].[StartNodeId], [segment].[EndNodeId], [segment].[ShapeRecordContent], [segment].[ShapeRecordContentLength], [segment].[DbaseRecord], [segment].[Geometry], [segment].[BoundingBox_MinimumX], [segment].[BoundingBox_MaximumX], [segment].[BoundingBox_MinimumY], [segment].[BoundingBox_MaximumY], [segment].[BoundingBox_MinimumM], [segment].[BoundingBox_MaximumM], [segment].[LastEventHash], [segment].[IsRemoved]
 FROM [RoadRegistryEditor].[RoadSegment] AS [segment]
-WHERE [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit)", contour.ToSqlParameter());
+WHERE [segment].[IsRemoved] = CAST(0 as bit) AND [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit)", contour.ToSqlParameter());
     }
 
     public static IQueryable<RoadSegmentEuropeanRoadAttributeRecord> InsideContour(
@@ -65,7 +65,7 @@ FROM [RoadRegistryEditor].[RoadSegmentEuropeanRoadAttribute] AS [attribute]
 WHERE [attribute].[RoadSegmentId] IN (
     SELECT [segment].[Id]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment]
-    WHERE [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
+    WHERE [segment].[IsRemoved] = CAST(0 as bit) AND [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
     }
 
     public static IQueryable<RoadSegmentNationalRoadAttributeRecord> InsideContour(
@@ -78,7 +78,7 @@ FROM [RoadRegistryEditor].[RoadSegmentNationalRoadAttribute] AS [attribute]
 WHERE [attribute].[RoadSegmentId] IN (
     SELECT [segment].[Id]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment]
-    WHERE [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
+    WHERE [segment].[IsRemoved] = CAST(0 as bit) AND [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
     }
 
     public static IQueryable<RoadSegmentNumberedRoadAttributeRecord> InsideContour(
@@ -91,7 +91,7 @@ FROM [RoadRegistryEditor].[RoadSegmentNumberedRoadAttribute] AS [attribute]
 WHERE [attribute].[RoadSegmentId] IN (
     SELECT [segment].[Id]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment]
-    WHERE [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
+    WHERE [segment].[IsRemoved] = CAST(0 as bit) AND [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
     }
 
     public static IQueryable<RoadSegmentLaneAttributeRecord> InsideContour(
@@ -104,7 +104,7 @@ FROM [RoadRegistryEditor].[RoadSegmentLaneAttribute] AS [attribute]
 WHERE [attribute].[RoadSegmentId] IN (
     SELECT [segment].[Id]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment]
-    WHERE [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
+    WHERE [segment].[IsRemoved] = CAST(0 as bit) AND [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
     }
 
     public static IQueryable<RoadSegmentWidthAttributeRecord> InsideContour(
@@ -117,7 +117,7 @@ FROM [RoadRegistryEditor].[RoadSegmentWidthAttribute] AS [attribute]
 WHERE [attribute].[RoadSegmentId] IN (
     SELECT [segment].[Id]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment]
-    WHERE [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
+    WHERE [segment].[IsRemoved] = CAST(0 as bit) AND [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
     }
 
     public static IQueryable<RoadSegmentSurfaceAttributeRecord> InsideContour(
@@ -130,7 +130,7 @@ FROM [RoadRegistryEditor].[RoadSegmentSurfaceAttribute] AS [attribute]
 WHERE [attribute].[RoadSegmentId] IN (
     SELECT [segment].[Id]
     FROM [RoadRegistryEditor].[RoadSegment] AS [segment]
-    WHERE [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
+    WHERE [segment].[IsRemoved] = CAST(0 as bit) AND [segment].[Geometry].STIntersects(@contour) = CAST(1 AS bit))", contour.ToSqlParameter());
     }
 
     private static SqlParameter ToSqlParameter(this IPolygonal contour)

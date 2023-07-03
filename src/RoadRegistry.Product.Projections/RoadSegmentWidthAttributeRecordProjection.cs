@@ -62,6 +62,10 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Pro
                         await ModifyRoadSegment(manager, encoding, context, segment, envelope, token);
                         break;
 
+                    case RoadSegmentAttributesModified segment:
+                        await ModifyRoadSegmentAttributes(manager, encoding, context, segment, envelope, token);
+                        break;
+
                     case RoadSegmentGeometryModified segment:
                         await ModifyRoadSegmentGeometry(manager, encoding, context, segment, envelope, token);
                         break;
@@ -112,50 +116,19 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Pro
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        if (segment.Lanes.Length == 0)
+        await UpdateWidths(manager, encoding, context, envelope, segment.Id, segment.Widths, token);
+    }
+
+    private static async Task ModifyRoadSegmentAttributes(RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        RoadSegmentAttributesModified segment,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        if (segment.Widths is not null)
         {
-            context.RoadSegmentWidthAttributes.RemoveRange(
-                context
-                    .RoadSegmentWidthAttributes
-                    .Local.Where(a => a.RoadSegmentId == segment.Id)
-                    .Concat(await context
-                        .RoadSegmentWidthAttributes
-                        .Where(a => a.RoadSegmentId == segment.Id)
-                        .ToArrayAsync(token)
-                    ));
-        }
-        else
-        {
-            await context
-                .RoadSegmentWidthAttributes
-                .Where(a => a.RoadSegmentId == segment.Id)
-                .ToArrayAsync(token);
-            var currentSet = context
-                .RoadSegmentWidthAttributes
-                .Local.Where(a => a.RoadSegmentId == segment.Id)
-                .ToDictionary(a => a.Id);
-            var nextSet = segment
-                .Widths
-                .Select(width => new RoadSegmentWidthAttributeRecord
-                {
-                    Id = width.AttributeId,
-                    RoadSegmentId = segment.Id,
-                    DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
-                    {
-                        WB_OIDN = { Value = width.AttributeId },
-                        WS_OIDN = { Value = segment.Id },
-                        WS_GIDN = { Value = $"{segment.Id}_{width.AsOfGeometryVersion}" },
-                        BREEDTE = { Value = width.Width },
-                        VANPOS = { Value = (double)width.FromPosition },
-                        TOTPOS = { Value = (double)width.ToPosition },
-                        BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
-                        BEGINORG = { Value = envelope.Message.OrganizationId },
-                        LBLBGNORG = { Value = envelope.Message.Organization }
-                    }.ToBytes(manager, encoding)
-                })
-                .ToDictionary(a => a.Id);
-            context.RoadSegmentWidthAttributes.Synchronize(currentSet, nextSet,
-                (current, next) => { current.DbaseRecord = next.DbaseRecord; });
+            await UpdateWidths(manager, encoding, context, envelope, segment.Id, segment.Widths, token);
         }
     }
 
@@ -166,15 +139,37 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Pro
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        if (segment.Lanes.Length == 0)
+        await UpdateWidths(manager, encoding, context, envelope, segment.Id, segment.Widths, token);
+    }
+
+    private static async Task RemoveRoadSegment(ProductContext context,
+        RoadSegmentRemoved segment,
+        CancellationToken token)
+    {
+        context.RoadSegmentWidthAttributes.RemoveRange(
+            context.RoadSegmentWidthAttributes.Local
+                .Where(a => a.RoadSegmentId == segment.Id)
+                .Concat(await context.RoadSegmentWidthAttributes
+                    .Where(a => a.RoadSegmentId == segment.Id)
+                    .ToArrayAsync(token)
+                ));
+    }
+
+    private static async Task UpdateWidths(RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        int roadSegmentId,
+        RoadSegmentWidthAttributes[] widths,
+        CancellationToken token)
+    {
+        if (widths.Length == 0)
         {
             context.RoadSegmentWidthAttributes.RemoveRange(
-                context
-                    .RoadSegmentWidthAttributes
-                    .Local.Where(a => a.RoadSegmentId == segment.Id)
-                    .Concat(await context
-                        .RoadSegmentWidthAttributes
-                        .Where(a => a.RoadSegmentId == segment.Id)
+                context.RoadSegmentWidthAttributes.Local
+                    .Where(a => a.RoadSegmentId == roadSegmentId)
+                    .Concat(await context.RoadSegmentWidthAttributes
+                        .Where(a => a.RoadSegmentId == roadSegmentId)
                         .ToArrayAsync(token)
                     ));
         }
@@ -182,23 +177,23 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Pro
         {
             await context
                 .RoadSegmentWidthAttributes
-                .Where(a => a.RoadSegmentId == segment.Id)
+                .Where(a => a.RoadSegmentId == roadSegmentId)
                 .ToArrayAsync(token);
             var currentSet = context
                 .RoadSegmentWidthAttributes
-                .Local.Where(a => a.RoadSegmentId == segment.Id)
+                .Local
+                .Where(a => a.RoadSegmentId == roadSegmentId)
                 .ToDictionary(a => a.Id);
-            var nextSet = segment
-                .Widths
+            var nextSet = widths
                 .Select(width => new RoadSegmentWidthAttributeRecord
                 {
                     Id = width.AttributeId,
-                    RoadSegmentId = segment.Id,
+                    RoadSegmentId = roadSegmentId,
                     DbaseRecord = new RoadSegmentWidthAttributeDbaseRecord
                     {
                         WB_OIDN = { Value = width.AttributeId },
-                        WS_OIDN = { Value = segment.Id },
-                        WS_GIDN = { Value = $"{segment.Id}_{width.AsOfGeometryVersion}" },
+                        WS_OIDN = { Value = roadSegmentId },
+                        WS_GIDN = { Value = $"{roadSegmentId}_{width.AsOfGeometryVersion}" },
                         BREEDTE = { Value = width.Width },
                         VANPOS = { Value = (double)width.FromPosition },
                         TOTPOS = { Value = (double)width.ToPosition },
@@ -211,20 +206,5 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Pro
             context.RoadSegmentWidthAttributes.Synchronize(currentSet, nextSet,
                 (current, next) => { current.DbaseRecord = next.DbaseRecord; });
         }
-    }
-
-    private static async Task RemoveRoadSegment(ProductContext context,
-        RoadSegmentRemoved segment,
-        CancellationToken token)
-    {
-        context.RoadSegmentWidthAttributes.RemoveRange(
-            context
-                .RoadSegmentWidthAttributes
-                .Local.Where(a => a.RoadSegmentId == segment.Id)
-                .Concat(await context
-                    .RoadSegmentWidthAttributes
-                    .Where(a => a.RoadSegmentId == segment.Id)
-                    .ToArrayAsync(token)
-                ));
     }
 }

@@ -1,9 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.SchemaFilters;
 
-public class OutlinedRoadSegmentStatusSchemaFilter : EnumSchemaFilter<RoadSegmentStatus.Outlined, RoadSegmentStatus>
+public class OutlinedRoadSegmentStatusSchemaFilter : EnumSchemaFilter<RoadSegmentStatus.Edit, RoadSegmentStatus>
 {
     public OutlinedRoadSegmentStatusSchemaFilter()
-        : base(RoadSegmentStatus.Outlined.AllOutlined)
+        : base(RoadSegmentStatus.Edit.Editable)
     {
     }
 }

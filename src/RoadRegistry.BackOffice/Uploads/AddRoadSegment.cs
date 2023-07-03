@@ -12,6 +12,7 @@ public class AddRoadSegment : ITranslatedChange
     public AddRoadSegment(
         RecordNumber recordNumber,
         RoadSegmentId temporaryId,
+        RoadSegmentId? originalId,
         RoadNodeId startNodeId,
         RoadNodeId endNodeId,
         OrganizationId maintenanceAuthority,
@@ -22,7 +23,7 @@ public class AddRoadSegment : ITranslatedChange
         RoadSegmentAccessRestriction accessRestriction,
         CrabStreetnameId? leftSideStreetNameId,
         CrabStreetnameId? rightSideStreetNameId)
-        : this(recordNumber, temporaryId, maintenanceAuthority, geometryDrawMethod, morphology, status, category, accessRestriction)
+        : this(recordNumber, temporaryId, originalId, maintenanceAuthority, geometryDrawMethod, morphology, status, category, accessRestriction)
     {
         StartNodeId = startNodeId;
         EndNodeId = endNodeId;
@@ -33,6 +34,7 @@ public class AddRoadSegment : ITranslatedChange
     public AddRoadSegment(
         RecordNumber recordNumber,
         RoadSegmentId temporaryId,
+        RoadSegmentId? originalId,
         OrganizationId maintenanceAuthority,
         RoadSegmentGeometryDrawMethod geometryDrawMethod,
         RoadSegmentMorphology morphology,
@@ -43,6 +45,7 @@ public class AddRoadSegment : ITranslatedChange
     {
         RecordNumber = recordNumber;
         TemporaryId = temporaryId;
+        OriginalId = originalId;
         Geometry = null;
         MaintenanceAuthority = maintenanceAuthority;
         GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
@@ -59,6 +62,7 @@ public class AddRoadSegment : ITranslatedChange
     private AddRoadSegment(
         RecordNumber recordNumber,
         RoadSegmentId temporaryId,
+        RoadSegmentId? originalId,
         RoadNodeId startNodeId,
         RoadNodeId endNodeId,
         MultiLineString geometry,
@@ -76,6 +80,7 @@ public class AddRoadSegment : ITranslatedChange
     {
         RecordNumber = recordNumber;
         TemporaryId = temporaryId;
+        OriginalId = originalId;
         StartNodeId = startNodeId;
         EndNodeId = endNodeId;
         Geometry = geometry;
@@ -107,6 +112,7 @@ public class AddRoadSegment : ITranslatedChange
     public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
     public RoadSegmentId TemporaryId { get; }
+    public RoadSegmentId? OriginalId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
 
     public void TranslateTo(RequestedChange message)
@@ -116,6 +122,7 @@ public class AddRoadSegment : ITranslatedChange
         message.AddRoadSegment = new Messages.AddRoadSegment
         {
             TemporaryId = TemporaryId,
+            OriginalId = OriginalId,
             StartNodeId = StartNodeId,
             EndNodeId = EndNodeId,
             Geometry = GeometryTranslator.Translate(Geometry),
@@ -162,7 +169,7 @@ public class AddRoadSegment : ITranslatedChange
     {
         if (geometry == null) throw new ArgumentNullException(nameof(geometry));
         return new AddRoadSegment(
-            RecordNumber, TemporaryId, StartNodeId, EndNodeId, geometry,
+            RecordNumber, TemporaryId, OriginalId, StartNodeId, EndNodeId, geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces);
     }
@@ -172,7 +179,7 @@ public class AddRoadSegment : ITranslatedChange
         var lanes = new List<RoadSegmentLaneAttribute>(Lanes) { lane };
         lanes.Sort((left, right) => left.From.CompareTo(right.From));
         return new AddRoadSegment(
-            RecordNumber, TemporaryId, StartNodeId, EndNodeId, Geometry,
+            RecordNumber, TemporaryId, OriginalId, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
             lanes, Widths, Surfaces);
@@ -183,7 +190,7 @@ public class AddRoadSegment : ITranslatedChange
         var surfaces = new List<RoadSegmentSurfaceAttribute>(Surfaces) { surface };
         surfaces.Sort((left, right) => left.From.CompareTo(right.From));
         return new AddRoadSegment(
-            RecordNumber, TemporaryId, StartNodeId, EndNodeId, Geometry,
+            RecordNumber, TemporaryId, OriginalId, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
             Lanes, Widths, surfaces);
@@ -194,7 +201,7 @@ public class AddRoadSegment : ITranslatedChange
         var widths = new List<RoadSegmentWidthAttribute>(Widths) { width };
         widths.Sort((left, right) => left.From.CompareTo(right.From));
         return new AddRoadSegment(
-            RecordNumber, TemporaryId, StartNodeId, EndNodeId, Geometry,
+            RecordNumber, TemporaryId, OriginalId, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
             Lanes, widths, Surfaces);

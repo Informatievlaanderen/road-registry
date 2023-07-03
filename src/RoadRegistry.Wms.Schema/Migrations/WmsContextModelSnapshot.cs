@@ -18,7 +18,7 @@ namespace RoadRegistry.Wms.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.10")
+                .HasAnnotation("ProductVersion", "6.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -167,6 +167,12 @@ namespace RoadRegistry.Wms.Schema.Migrations
                         .HasColumnType("int")
                         .HasColumnName("geometrieversie");
 
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("verwijderd");
+
                     b.Property<int?>("LeftSideMunicipalityId")
                         .HasColumnType("int")
                         .HasColumnName("linksGemeente");
@@ -249,7 +255,16 @@ namespace RoadRegistry.Wms.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
+
+                    b.HasIndex("IsRemoved");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
+
+                    b.HasIndex("MorphologyId")
+                        .HasDatabaseName("wegsegmentmorfologie");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("MorphologyId"), false);
 
                     b.HasIndex("StreetNameCachePosition");
 

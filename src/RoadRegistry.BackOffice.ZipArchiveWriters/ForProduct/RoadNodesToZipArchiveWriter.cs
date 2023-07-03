@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ForProduct;
 using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extensions;
 using Extracts.Dbase.RoadNodes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
@@ -106,5 +107,7 @@ public class RoadNodesToZipArchiveWriter : IZipArchiveWriter<ProductContext>
             shxWriter.Writer.Flush();
             await shxEntryStream.FlushAsync(cancellationToken);
         }
+
+        await archive.CreateCpgEntry(string.Format(_entryFormat, "Wegknoop.cpg"), _encoding, cancellationToken);
     }
 }

@@ -30,6 +30,7 @@ public class
                                 record.EVENTIDN.HasValue && record.EVENTIDN.Value != 0
                                     ? new RoadSegmentId(record.EVENTIDN.Value)
                                     : new RoadSegmentId(record.WS_OIDN.Value),
+                                new RoadSegmentId(record.WS_OIDN.Value),
                                 new RoadNodeId(record.B_WK_OIDN.Value),
                                 new RoadNodeId(record.E_WK_OIDN.Value),
                                 new OrganizationId(record.BEHEERDER.Value),

@@ -216,25 +216,25 @@ public static class Customizations
         MemoryStream widthExtractStream = null,
         MemoryStream surfaceExtractStream = null,
         MemoryStream gradeSeparatedJunctionExtractStream = null,
-        MemoryStream transactionZoneStream = null
+        MemoryStream transactionZoneStream = null,
+        MemoryStream roadSegmentShapeIntegrationStream = null,
+        MemoryStream roadSegmentDbaseIntegrationStream = null,
+        MemoryStream roadNodeShapeIntegrationStream = null,
+        MemoryStream roadNodeDbaseIntegrationStream = null,
+        MemoryStream archiveStream = null
     )
     {
-        if (transactionZoneStream is null)
-        {
-            transactionZoneStream = fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
-        }
-
         var files = new Dictionary<string, Stream>
         {
-            { "IWEGSEGMENT.DBF", fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema) },
-            { "IWEGSEGMENT.SHP", fixture.CreateEmptyRoadSegmentShapeFile() },
+            { "IWEGSEGMENT.DBF", roadSegmentDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema) },
+            { "IWEGSEGMENT.SHP", roadSegmentShapeIntegrationStream ?? fixture.CreateEmptyRoadSegmentShapeFile() },
             { "WEGSEGMENT.SHP", roadSegmentShapeChangeStream },
             { "EWEGSEGMENT.SHP", roadSegmentShapeExtractStream },
             { "WEGSEGMENT.DBF", roadSegmentDbaseChangeStream },
             { "EWEGSEGMENT.DBF", roadSegmentDbaseExtractStream },
             { "WEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
-            { "IWEGKNOOP.DBF", fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema) },
-            { "IWEGKNOOP.SHP", fixture.CreateEmptyRoadNodeShapeFile() },
+            { "IWEGKNOOP.DBF", roadNodeDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema) },
+            { "IWEGKNOOP.SHP", roadNodeShapeIntegrationStream ?? fixture.CreateEmptyRoadNodeShapeFile() },
             { "WEGKNOOP.SHP", roadNodeShapeChangeStream },
             { "EWEGKNOOP.SHP", roadNodeShapeExtractStream },
             { "WEGKNOOP.DBF", roadNodeDbaseChangeStream },
@@ -254,13 +254,14 @@ public static class Customizations
             { "EATTWEGVERHARDING.DBF", surfaceExtractStream },
             { "RLTOGKRUISING.DBF", gradeSeparatedJunctionChangeStream },
             { "ERLTOGKRUISING.DBF", gradeSeparatedJunctionExtractStream },
-            { "TRANSACTIEZONES.DBF", transactionZoneStream }
+            { "TRANSACTIEZONES.DBF", transactionZoneStream ?? fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema) }
         };
 
         var random = new Random(fixture.Create<int>());
         var writeOrder = files.Keys.OrderBy(_ => random.Next()).ToArray();
 
-        var archiveStream = new MemoryStream();
+        archiveStream ??= new MemoryStream();
+
         using (var createArchive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
         {
             foreach (var file in writeOrder)
@@ -276,7 +277,7 @@ public static class Customizations
                 }
                 else
                 {
-                    var extractFileEntry = testData.ZipArchiveWithEmptyFiles.Entries.Single(x => x.Name == file);
+                    var extractFileEntry = testData.ZipArchiveWithEmptyFiles.Entries.Single(x => string.Equals(x.Name, file, StringComparison.InvariantCultureIgnoreCase));
                     using (var extractFileEntryStream = extractFileEntry.Open())
                     using (var entryStream = createArchive.CreateEntry(file).Open())
                     {
@@ -726,7 +727,10 @@ public static class Customizations
                             Name = fixture.Create<OrganizationName>()
                         },
                         Status = fixture.Create<RoadSegmentStatus>(),
-                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>()
+                        AccessRestriction = fixture.Create<RoadSegmentAccessRestriction>(),
+                        Lanes = fixture.CreateMany<RoadSegmentLaneAttributes>().ToArray(),
+                        Surfaces = fixture.CreateMany<RoadSegmentSurfaceAttributes>().ToArray(),
+                        Widths = fixture.CreateMany<RoadSegmentWidthAttributes>().ToArray()
                     }
                 )
                 .OmitAutoProperties()
@@ -935,6 +939,27 @@ public static class Customizations
         for (var i = 0; i < collection1.Length; i++)
         {
             if (!Equals(collection1[i], collection2[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static bool EqualsCollection<T1, T2>(this IEnumerable<T1> enumerable1, IEnumerable<T2> enumerable2, Func<T1, T2, bool> comparer)
+    {
+        var collection1 = enumerable1.ToArray();
+        var collection2 = enumerable2.ToArray();
+
+        if (collection1.Length != collection2.Length)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < collection1.Length; i++)
+        {
+            if (!comparer(collection1[i], collection2[i]))
             {
                 return false;
             }

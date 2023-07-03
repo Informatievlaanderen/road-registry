@@ -19,8 +19,8 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
 {
     public RoadNodeRecordProjection(RecyclableMemoryStreamManager manager, Encoding encoding)
     {
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
 
         When<Envelope<ImportedRoadNode>>(async (context, envelope, token) =>
         {
@@ -60,11 +60,11 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
                         break;
 
                     case RoadNodeModified node:
-                        await ModifyRoadNode(manager, encoding, context, envelope, node);
+                        await ModifyRoadNode(manager, encoding, context, envelope, node, token);
                         break;
 
                     case RoadNodeRemoved node:
-                        await RemoveRoadNode(context, node);
+                        await RemoveRoadNode(context, node, token);
                         break;
                 }
         });
@@ -107,7 +107,8 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
         Encoding encoding,
         EditorContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
-        RoadNodeModified node)
+        RoadNodeModified node,
+        CancellationToken token)
     {
         var typeTranslation = RoadNodeType.Parse(node.Type).Translation;
         var dbaseRecord = new RoadNodeDbaseRecord
@@ -124,7 +125,11 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
         var point = GeometryTranslator.FromGeometryPoint(BackOffice.GeometryTranslator.Translate(node.Geometry));
         var pointShapeContent = new PointShapeContent(point);
 
-        var roadNode = await context.RoadNodes.FindAsync(node.Id);
+        var roadNode = await context.RoadNodes.FindAsync(node.Id, cancellationToken: token).ConfigureAwait(false);
+        if (roadNode == null)
+        {
+            throw new InvalidOperationException($"RoadNodeRecord with id {node.Id} is not found");
+        }
 
         roadNode.ShapeRecordContent = pointShapeContent.ToBytes(manager, encoding);
         roadNode.ShapeRecordContentLength = pointShapeContent.ContentLength.ToInt32();
@@ -133,10 +138,12 @@ public class RoadNodeRecordProjection : ConnectedProjection<EditorContext>
         roadNode.Geometry = BackOffice.GeometryTranslator.Translate(node.Geometry);
     }
 
-    private static async Task RemoveRoadNode(EditorContext context, RoadNodeRemoved node)
+    private static async Task RemoveRoadNode(EditorContext context, RoadNodeRemoved node, CancellationToken token)
     {
-        var roadNode = await context.RoadNodes.FindAsync(node.Id);
-
-        context.RoadNodes.Remove(roadNode);
+        var roadNode = await context.RoadNodes.FindAsync(node.Id, cancellationToken: token).ConfigureAwait(false);
+        if (roadNode is not null)
+        {
+            context.RoadNodes.Remove(roadNode);
+        }
     }
 }

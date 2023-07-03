@@ -1,16 +1,21 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
 using System;
+using System.Net;
 using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
+using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
+using Serilog.Filters;
 using SqlStreamStore;
 
 public class Program
@@ -42,11 +47,22 @@ public class Program
                             Runtime =
                             {
                                 CommandLineArgs = args
+                            },
+                            MiddlewareHooks =
+                            {
+                                ConfigureSerilog = (context, loggerConfiguration) =>
+                                {
+                                    loggerConfiguration.AddSlackSink<Program>(context.Configuration);
+                                    
+                                    loggerConfiguration.Filter.ByExcluding(
+                                        Matching.WithProperty<string>("SourceContext", value =>
+                                            "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware".Equals(value, StringComparison.OrdinalIgnoreCase)));
+                                }
                             }
                         })
                     .UseKestrel((context, builder) =>
                     {
-                        if (context.HostingEnvironment.EnvironmentName == "Development")
+                        if (context.HostingEnvironment.IsDevelopment())
                         {
                             builder.ListenLocalhost(HostingPort);
                         }

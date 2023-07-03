@@ -60,11 +60,11 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode CountGreaterThanOne = new("RoadSegmentLanesCountGreaterThanOne");
             public static readonly ProblemCode HasCountOfZero = new("RoadSegmentLanesHasCountOfZero");
         }
-
+        
         public static class LaneDirection
         {
-            public static readonly ProblemCode NotValid = new("RoadSegmentLaneDirectionNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentLaneDirectionIsRequired");
+            public static readonly ProblemCode NotValid = new("RoadSegmentLaneDirectionNotValid");
         }
 
         public static class MaintenanceAuthority
@@ -118,7 +118,7 @@ public sealed partial record ProblemCode
 
         public static class SurfaceType
         {
-            public static readonly ProblemCode NotValid = new("RoadSegmentSurfaceTypNotValid");
+            public static readonly ProblemCode NotValid = new("RoadSegmentSurfaceTypeNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentSurfaceTypeIsRequired");
         }
 
@@ -168,6 +168,43 @@ public sealed partial record ProblemCode
             public static readonly ProblemCode DoesNotMatchNodeGeometry = new("RoadSegmentEndPointDoesNotMatchNodeGeometry");
             public static readonly ProblemCode MeasureValueNotEqualToLength = new("RoadSegmentEndPointMeasureValueNotEqualToLength");
         }
+    }
+
+    public static class Type
+    {
+        public static readonly ProblemCode NotValid = new("TypeNotValid");
+        public static readonly ProblemCode IsRequired = new("TypeIsRequired");
+    }
+
+    public static class Count
+    {
+        public static readonly ProblemCode IsRequired = new("CountIsRequired");
+        public static readonly ProblemCode NotValid = new("CountNotValid");
+    }
+
+    public static class Direction
+    {
+        public static readonly ProblemCode IsRequired = new("DirectionIsRequired");
+        public static readonly ProblemCode NotValid = new("DirectionNotValid");
+    }
+
+    public static class FromPosition
+    {
+        public static readonly ProblemCode IsRequired = new("FromPositionIsRequired");
+        public static readonly ProblemCode NotValid = new("FromPositionNotValid");
+    }
+
+    public static class ToPosition
+    {
+        public static readonly ProblemCode IsRequired = new("ToPositionIsRequired");
+        public static readonly ProblemCode NotValid = new("ToPositionNotValid");
+        public static readonly ProblemCode NotEqualToNextFromPosition = new("ToPositionNotEqualToNextFromPosition");
+    }
+
+    public static class Width
+    {
+        public static readonly ProblemCode IsRequired = new("WidthIsRequired");
+        public static readonly ProblemCode NotValid = new("WidthNotValid");
     }
 
     public static class RoadSegments

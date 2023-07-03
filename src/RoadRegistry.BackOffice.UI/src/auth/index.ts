@@ -1,26 +1,34 @@
-import Root from "./views/Root.vue";
-import Home from "./views/Home.vue";
 import Login from "./views/Login.vue";
 import Logout from "./views/Logout.vue";
-import { isAuthenticated } from "../services/auth-service";
+import AuthCallback from "./views/AuthCallback.vue";
 
 export const AuthRoutes = [
-    {
-        path: "/login",
-        component: Login,
-        name: "login",
-        meta: {
-            requiresAuth: false
-        }
+  {
+    path: "/login",
+    component: Login,
+    name: "login",
+    meta: {
+      requiresAuth: false,
     },
-    {
-        path: "/logout",
-        component: Logout,
-        name: "logout",
-        meta: {
-            requiresAuth: false
-        }
-    }
-]
+    props: (route: any) => ({ error: route.query.error }),
+  },
+  {
+    path: "/logout",
+    component: Logout,
+    name: "logout",
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/oic",
+    component: AuthCallback,
+    name: "openidconnect",
+    meta: {
+      requiresAuth: false,
+    },
+    props: (route: any) => ({ code: route.query.code }),
+  },
+];
 
-export { AuthService, isAuthenticated } from '../services/auth-service'
+export { AuthService, isAuthenticated, user } from "../services/auth-service";

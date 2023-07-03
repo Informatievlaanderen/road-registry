@@ -14,8 +14,8 @@ public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
         AANTAL = new DbaseInt32(Schema.AANTAL);
         RICHTING = new DbaseInt32(Schema.RICHTING);
         LBLRICHT = new DbaseString(Schema.LBLRICHT);
-        VANPOS = new DbaseDouble(Schema.VANPOS);
-        TOTPOS = new DbaseDouble(Schema.TOTPOS);
+        VANPOS = new DbaseNullableDouble(Schema.VANPOS);
+        TOTPOS = new DbaseNullableDouble(Schema.TOTPOS);
         BEGINTIJD = new DbaseDateTime(Schema.BEGINTIJD);
         BEGINORG = new DbaseString(Schema.BEGINORG);
         LBLBGNORG = new DbaseString(Schema.LBLBGNORG);
@@ -43,8 +43,8 @@ public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
     public DbaseString LBLRICHT { get; set; }
     public DbaseInt32 RICHTING { get; set; }
     public DbaseInt32 RS_OIDN { get; set; }
-    public DbaseDouble TOTPOS { get; set; }
-    public DbaseDouble VANPOS { get; set; }
+    public DbaseNullableDouble TOTPOS { get; set; }
+    public DbaseNullableDouble VANPOS { get; set; }
     public DbaseString WS_GIDN { get; set; }
     public DbaseInt32 WS_OIDN { get; set; }
 }

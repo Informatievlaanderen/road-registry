@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts;
 using Uploads;
 
 public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
@@ -22,7 +23,7 @@ public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
         _versionedReaders = readers;
     }
     
-    public virtual List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    public virtual List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
     {
         ArgumentNullException.ThrowIfNull(entries);
         ArgumentNullException.ThrowIfNull(fileName);
@@ -43,6 +44,6 @@ public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
             }
         }
 
-        throw new DbaseReaderNotFoundException(fileName, actualSchema, expectedSchemas);
+        throw new DbaseReaderNotFoundException(featureType.GetDbfFileName(fileName), actualSchema, expectedSchemas);
     }
 }

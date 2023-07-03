@@ -253,9 +253,9 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
     {
         ticketing.Verify(x =>
             x.Error(It.IsAny<Guid>(),
-                new TicketError(
+                new TicketError(new[] {new TicketError(
                     message,
-                    code),
+                    code)}),
                 CancellationToken.None));
     }
 }

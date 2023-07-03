@@ -1,5 +1,6 @@
 Be.Vlaanderen.Basisregisters.EventHandling
 
+AWSSDK.Core
 AWSSDK.Lambda
 Amazon.Lambda.Core
 Amazon.Lambda.Serialization.Json

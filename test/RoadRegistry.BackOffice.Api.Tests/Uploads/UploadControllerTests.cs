@@ -9,12 +9,15 @@ using Infrastructure;
 using MediatR;
 using NetTopologySuite.Geometries;
 using SqlStreamStore;
+using Xunit.Abstractions;
 
 public partial class UploadControllerTests : ControllerTests<UploadController>, IAsyncLifetime
 {
+    private readonly ITestOutputHelper _testOutputHelper;
     private readonly EditorContext _editorContext;
 
     public UploadControllerTests(
+        ITestOutputHelper testOutputHelper,
         IMediator mediator,
         IStreamStore streamStore,
         EditorContext editorContext,
@@ -23,6 +26,7 @@ public partial class UploadControllerTests : ControllerTests<UploadController>, 
         RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
         : base(mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
     {
+        _testOutputHelper = testOutputHelper;
         _editorContext = editorContext;
     }
 

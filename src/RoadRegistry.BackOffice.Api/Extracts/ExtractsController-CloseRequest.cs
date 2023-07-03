@@ -1,6 +1,8 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
-using Abstractions;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
 using FluentValidation;
@@ -8,9 +10,6 @@ using FluentValidation.Results;
 using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 public partial class ExtractsController
 {
@@ -21,12 +20,14 @@ public partial class ExtractsController
     public async Task<IActionResult> Close(
         [FromRoute] string downloadId,
         [FromBody] CloseRequestBody requestBody,
-        [FromServices] ExtractUploadsOptions options,
         CancellationToken cancellationToken)
     {
         try
         {
-            if (!DownloadId.CanParse(downloadId)) throw new DownloadExtractNotFoundException();
+            if (!DownloadId.CanParse(downloadId))
+            {
+                throw new DownloadExtractNotFoundException();
+            }
 
             if (Enum.TryParse<RoadNetworkExtractCloseReason>(requestBody.Reason, true, out var reason))
             {
@@ -43,7 +44,7 @@ public partial class ExtractsController
                 });
             }
         }
-        catch (UploadExtractNotFoundException exception)
+        catch (UploadExtractNotFoundException)
         {
             return NotFound();
         }

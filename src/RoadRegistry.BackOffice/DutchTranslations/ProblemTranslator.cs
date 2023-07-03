@@ -17,7 +17,13 @@ public static class ProblemTranslator
         {ProblemCode.Common.IsRequired, problem => new(problem.Severity, "IsRequired", "De waarde is verplicht.")},
         {ProblemCode.Common.JsonInvalid, problem => new(problem.Severity, "JsonInvalid", "Ongeldig JSON formaat.")},
         {ProblemCode.Common.NotFound, problem => new(problem.Severity, "NotFound", "De waarde ontbreekt.")},
+        {ProblemCode.Count.IsRequired, problem => new(problem.Severity, "AantalVerplicht", "Aantal is verplicht.")},
+        {ProblemCode.Count.NotValid, problem => new(problem.Severity, "AantalNietCorrect", $"Aantal is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
+        {ProblemCode.Direction.IsRequired, problem => new(problem.Severity, "RichtingVerplicht", "Richting is verplicht.")},
+        {ProblemCode.Direction.NotValid, problem => new(problem.Severity, "RichtingNietCorrect", $"Richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.EuropeanRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze europese weg met nummer {problem.Parameters[0].Value}.") },
+        {ProblemCode.FromPosition.IsRequired, problem => new(problem.Severity, "VanPositieVerplicht", "VanPositie is verplicht.")},
+        {ProblemCode.FromPosition.NotValid, problem => new(problem.Severity, "VanPositieNietCorrect", $"VanPositie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.GradeSeparatedJunction.NotFound, problem => new(problem.Severity, problem.Reason, "De ongelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.") },
         {ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze nationale weg met nummer {problem.Parameters[0].Value}.") },
         {ProblemCode.NumberedRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze genummerde weg met nummer {problem.Parameters[0].Value}.") },
@@ -107,11 +113,18 @@ public static class ProblemTranslator
         {ProblemCode.ShapeFile.InvalidHeader, problem => new(problem.Severity, problem.Reason, $"Kan header van de shape file niet lezen: '{problem.Parameters[0].Value}'")},
         {ProblemCode.ShapeFile.InvalidPolygonShellOrientation, problem => new(problem.Severity, problem.Reason, "De orientatie van de polygoon moet in wijzerzin zijn.")},
         {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.")},
+        {ProblemCode.ToPosition.IsRequired, problem => new(problem.Severity, "TotPositieVerplicht", "TotPositie is verplicht.")},
+        {ProblemCode.ToPosition.NotEqualToNextFromPosition, problem => new(problem.Severity, "TotPositieNietGelijkAanVolgendeVanPositie", $"De totPositie verschilt van de volgende vanPositie.")},
+        {ProblemCode.ToPosition.NotValid, problem => new(problem.Severity, "TotPositieNietCorrect", $"TotPositie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
+        {ProblemCode.Type.IsRequired, problem => new(problem.Severity, "TypeVerplicht", "Type is verplicht.")},
+        {ProblemCode.Type.NotValid, problem => new(problem.Severity, "TypeNietCorrect", $"Type is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce, problem => new(problem.Severity, "CanNotUploadRoadNetworkExtractChangesArchiveForSameDownloadMoreThanOnce", "Kan geen meerdere uploads uitvoeren voor hetzelfde extractaanvraag.")},
         {ProblemCode.Upload.CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload, problem => new(problem.Severity, "CanNotUploadRoadNetworkExtractChangesArchiveForSupersededDownload", "Upload is enkel toegelaten voor de laatste download van het extractaanvraag.")},
         {ProblemCode.Upload.UploadNotAllowedForInformativeExtract, problem => new(problem.Severity, "ExtractRequestMarkedInformative", "Upload is niet toegelaten voor een informatieve extractaanvraag.")},
+        {ProblemCode.Width.IsRequired, problem => new(problem.Severity, "BreedteVerplicht", "Breedte is verplicht.")},
+        {ProblemCode.Width.NotValid, problem => new(problem.Severity, "BreedteNietCorrect", $"Breedte is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
     };
-
+    
     public static readonly Converter<Problem, ProblemTranslation> Dutch = problem =>
     {
         var problemCode = ProblemCode.FromReason(problem.Reason);

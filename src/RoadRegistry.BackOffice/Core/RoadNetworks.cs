@@ -91,7 +91,7 @@ public class RoadNetworks : IRoadNetworks
 
         var readStreamFromVersion = version == StreamVersion.Start ? version : version + 1;
         _logger.LogInformation("Read stream forward started with {Stream}, version {SnapshotVersion} and page size {StreamPageSize}", Stream, readStreamFromVersion, StreamPageSize);
-        var page = await _store.ReadStreamForwards(Stream, readStreamFromVersion, StreamPageSize, cancellationToken);
+        var page = await _store.ReadStreamForwards(Stream, readStreamFromVersion, StreamPageSize, prefetchJsonData: false, cancellationToken);
         _logger.LogInformation("Read stream forward finished with {Stream}, version {SnapshotVersion} and page size {StreamPageSize} in {StopwatchElapsedMilliseconds}ms", Stream, readStreamFromVersion, StreamPageSize, sw.ElapsedMilliseconds);
 
         if (page.Status == PageReadStatus.StreamNotFound)

@@ -4,19 +4,19 @@ using System.Linq;
 
 public static class RoadSegmentValidationExtensions
 {
-    public static bool IsValidForRoadSegmentOutline(this RoadSegmentMorphology morphology)
+    public static bool IsValidForRoadSegmentEdit(this RoadSegmentMorphology morphology)
     {
-        return RoadSegmentMorphology.Outlined.AllOutlined.Contains(morphology);
+        return RoadSegmentMorphology.Edit.Editable.Contains(morphology);
     }
 
-    public static bool IsValidForRoadSegmentOutline(this RoadSegmentStatus status)
+    public static bool IsValidForRoadSegmentEdit(this RoadSegmentStatus status)
     {
-        return RoadSegmentStatus.Outlined.AllOutlined.Contains(status);
+        return RoadSegmentStatus.Edit.Editable.Contains(status);
     }
 
-    public static bool IsValidForRoadSegmentOutline(this RoadSegmentSurfaceType surfaceType)
+    public static bool IsValidForRoadSegmentEdit(this RoadSegmentSurfaceType surfaceType)
     {
-        return RoadSegmentSurfaceType.Outlined.AllOutlined.Contains(surfaceType);
+        return RoadSegmentSurfaceType.Edit.Editable.Contains(surfaceType);
     }
 
     public static bool IsValidStartRoadNodeIdForRoadSegmentOutline(this int nodeId)

@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using System;
+using System.Linq;
 using Messages;
 
 public class ModifyRoadSegmentOnNumberedRoad : IRequestedChange
@@ -60,7 +61,10 @@ public class ModifyRoadSegmentOnNumberedRoad : IRequestedChange
         var problems = Problems.None;
 
         var segment = context.AfterView.View.Segments[SegmentId];
-        if (!segment.PartOfNumberedRoads.Contains(Number)) problems = problems.Add(new NumberedRoadNumberNotFound(Number));
+        if (segment.NumberedRoadAttributes.All(x => x.Value.Number != Number))
+        {
+            problems = problems.Add(new NumberedRoadNumberNotFound(Number));
+        }
 
         return problems;
     }

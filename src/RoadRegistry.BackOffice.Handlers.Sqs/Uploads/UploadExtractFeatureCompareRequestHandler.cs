@@ -9,10 +9,14 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Exceptions;
+using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 using SqlStreamStore.Streams;
+using ZipArchiveWriters;
+using ZipArchiveWriters.Cleaning;
 
 /// <summary>Upload controller, post upload</summary>
 public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<UploadExtractFeatureCompareRequest, UploadExtractFeatureCompareResponse>
@@ -28,6 +32,8 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
     private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
     private readonly IRoadNetworkEventWriter _roadNetworkEventWriter;
+    private readonly FileEncoding _encoding;
+    private readonly UseCleanZipArchiveFeatureToggle _useCleanZipArchiveFeatureToggle;
 
     public UploadExtractFeatureCompareRequestHandler(
         FeatureCompareMessagingOptions messagingOptions,
@@ -36,12 +42,16 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         ISqsQueuePublisher sqsQueuePublisher,
         IZipArchiveBeforeFeatureCompareValidator validator,
         IRoadNetworkEventWriter roadNetworkEventWriter,
+        FileEncoding encoding,
+        UseCleanZipArchiveFeatureToggle useCleanZipArchiveFeatureToggle,
         ILogger<UploadExtractFeatureCompareRequestHandler> logger) : base(dispatcher, logger)
     {
         _messagingOptions = messagingOptions;
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _validator = validator ?? throw new ValidatorNotFoundException(nameof(validator));
         _roadNetworkEventWriter = roadNetworkEventWriter;
+        _encoding = encoding;
+        _useCleanZipArchiveFeatureToggle = useCleanZipArchiveFeatureToggle;
         _sqsQueuePublisher = sqsQueuePublisher ?? throw new SqsQueuePublisherNotFoundException(nameof(sqsQueuePublisher));
     }
 
@@ -52,7 +62,9 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
             throw new UnsupportedMediaTypeException();
         }
 
-        await using var readStream = request.Archive.ReadStream;
+        await using var readStream = _useCleanZipArchiveFeatureToggle.FeatureEnabled
+            ? await CleanArchive(request.Archive.ReadStream, cancellationToken)
+            : request.Archive.ReadStream;
         ArchiveId archiveId = new(Guid.NewGuid().ToString("N"));
 
         var metadata = Metadata.None.Add(
@@ -94,7 +106,28 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
 
         return new UploadExtractFeatureCompareResponse(archiveId);
     }
-    
+
+    private async Task<Stream> CleanArchive(Stream readStream, CancellationToken cancellationToken)
+    {
+        var writeStream = new MemoryStream();
+        await readStream.CopyToAsync(writeStream, cancellationToken);
+        writeStream.Position = 0;
+
+        using (var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true))
+        {
+            var cleaner = new BeforeFeatureCompareZipArchiveCleaner(_encoding);
+            var cleanResult = await cleaner.CleanAsync(archive, cancellationToken);
+            if (cleanResult != CleanResult.Changed)
+            {
+                readStream.Position = 0;
+                return readStream;
+            }
+        }
+
+        writeStream.Position = 0;
+        return writeStream;
+    }
+
     private async Task WriteRoadNetworkChangesArchiveUploadedToStore(RoadNetworkChangesArchive archive, CancellationToken cancellationToken)
     {
         await _roadNetworkEventWriter.WriteAsync(new StreamName(archive.Id), Guid.NewGuid(), ExpectedVersion.NoStream, new object[]

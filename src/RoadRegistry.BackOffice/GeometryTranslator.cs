@@ -65,19 +65,9 @@ public static class GeometryTranslator
             throw new InvalidOperationException("The GML is invalid");
         }
 
-        if (geometry is MultiLineString multiLineString)
-        {
-            return multiLineString.WithMeasureOrdinates();
-        }
-
-        if (geometry is LineString lineString)
-        {
-            return new MultiLineString(new[] { lineString }, NoSridGeometryFactory) { SRID = geometry.SRID }
-                .WithMeasureOrdinates();
-        }
-
-        throw new InvalidOperationException(
-            $"The geometry must be either a linestring or a multilinestring. The geometry was a {geometry.GetType().Name}");
+        return geometry
+            .ToMultiLineString(NoSridGeometryFactory)
+            .WithMeasureOrdinates();
     }
 
     public static MultiLineString WithMeasureOrdinates(this MultiLineString multiLineString)
@@ -107,16 +97,12 @@ public static class GeometryTranslator
                 }
 
                 return new LineString(new CoordinateArraySequence(coordinates), multiLineString.Factory)
-                {
-                    SRID = multiLineString.SRID
-                };
+                    .WithSrid(multiLineString.SRID);
             })
             .ToArray();
 
         return new MultiLineString(lineStrings, multiLineString.Factory)
-        {
-            SRID = multiLineString.SRID
-        };
+            .WithSrid(multiLineString.SRID);
     }
 
     private static Geometry ParseGml(string gml)
@@ -159,12 +145,10 @@ public static class GeometryTranslator
     
     public static Point Translate(RoadNodeGeometry geometry)
     {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+        ArgumentNullException.ThrowIfNull(geometry);
 
         return new Point(geometry.Point.X, geometry.Point.Y)
-        {
-            SRID = geometry.SpatialReferenceSystemIdentifier
-        };
+            .WithSrid(geometry.SpatialReferenceSystemIdentifier);
     }
 
     public static RoadNodeGeometry Translate(Point geometry)
@@ -201,13 +185,12 @@ public static class GeometryTranslator
                 new LineString(
                     new CoordinateArraySequence(toPoints.ToArray()),
                     GeometryConfiguration.GeometryFactory)
-                {
-                    SRID = geometry.SpatialReferenceSystemIdentifier
-                }
+                    .WithSrid(geometry.SpatialReferenceSystemIdentifier)
             );
         }
 
         return new MultiLineString(toLineStrings.ToArray(), GeometryConfiguration.GeometryFactory)
+            .WithSrid(geometry.SpatialReferenceSystemIdentifier)
             .WithMeasureOrdinates();
     }
 
@@ -414,5 +397,15 @@ public static class GeometryTranslator
                 throw new InvalidOperationException(
                     $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");
         }
+    }
+
+    public static T WithSrid<T>(this T geometry, int srid)
+        where T: Geometry
+    {
+        geometry.SRID = srid > 0
+            ? srid
+            : GeometryConfiguration.GeometryFactory.SRID;
+
+        return geometry;
     }
 }

@@ -1,5 +1,4 @@
 namespace RoadRegistry.BackOffice.Messages;
-
 public class ModifyRoadSegmentAttributes
 {
     public int Id { get; set; }
@@ -10,4 +9,7 @@ public class ModifyRoadSegmentAttributes
     public string MaintenanceAuthority { get; set; }
     public string Morphology { get; set; }
     public string Status { get; set; }
+    public RequestedRoadSegmentLaneAttribute[] Lanes { get; set; }
+    public RequestedRoadSegmentWidthAttribute[] Widths { get; set; }
+    public RequestedRoadSegmentSurfaceAttribute[] Surfaces { get; set; }
 }

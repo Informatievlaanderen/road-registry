@@ -166,8 +166,9 @@ internal class RequestedChangeTranslator
     private async Task<AddRoadSegment> Translate(Messages.AddRoadSegment command, IRequestedChangeIdentityTranslator translator, IOrganizations organizations, CancellationToken ct)
     {
         var permanent = _nextRoadSegmentId();
-        var temporary = new RoadSegmentId(command.TemporaryId);
-
+        var temporaryId = new RoadSegmentId(command.TemporaryId);
+        var originalId = RoadSegmentId.FromValue(command.OriginalId);
+        
         var startNodeId = new RoadNodeId(command.StartNodeId);
         RoadNodeId? temporaryStartNodeId;
         if (translator.TryTranslateToPermanent(startNodeId, out var permanentStartNodeId))
@@ -243,7 +244,8 @@ internal class RequestedChangeTranslator
         return new AddRoadSegment
         (
             permanent,
-            temporary,
+            temporaryId,
+            originalId,
             startNodeId,
             temporaryStartNodeId,
             endNodeId,
@@ -391,6 +393,49 @@ internal class RequestedChangeTranslator
         var accessRestriction = command.AccessRestriction is not null
             ? RoadSegmentAccessRestriction.Parse(command.AccessRestriction)
             : null;
+        var nextLaneAttributeId = _nextRoadSegmentLaneAttributeId(permanent);
+        var laneAttributes = command.Lanes is not null
+            ? Array.ConvertAll(
+                command.Lanes,
+                item => new RoadSegmentLaneAttribute(
+                    nextLaneAttributeId(),
+                    new AttributeId(item.AttributeId),
+                    new RoadSegmentLaneCount(item.Count),
+                    RoadSegmentLaneDirection.Parse(item.Direction),
+                    new RoadSegmentPosition(item.FromPosition),
+                    new RoadSegmentPosition(item.ToPosition),
+                    new GeometryVersion(0)
+                )
+            )
+            : null;
+        var nextWidthAttributeId = _nextRoadSegmentWidthAttributeId(permanent);
+        var widthAttributes = command.Widths is not null
+            ? Array.ConvertAll(
+                command.Widths,
+                item => new RoadSegmentWidthAttribute(
+                    nextWidthAttributeId(),
+                    new AttributeId(item.AttributeId),
+                    new RoadSegmentWidth(item.Width),
+                    new RoadSegmentPosition(item.FromPosition),
+                    new RoadSegmentPosition(item.ToPosition),
+                    new GeometryVersion(0)
+                )
+            )
+            : null;
+        var nextSurfaceAttributeId = _nextRoadSegmentSurfaceAttributeId(permanent);
+        var surfaceAttributes = command.Surfaces is not null
+            ? Array.ConvertAll(
+                command.Surfaces,
+                item => new RoadSegmentSurfaceAttribute(
+                    nextSurfaceAttributeId(),
+                    new AttributeId(item.AttributeId),
+                    RoadSegmentSurfaceType.Parse(item.Type),
+                    new RoadSegmentPosition(item.FromPosition),
+                    new RoadSegmentPosition(item.ToPosition),
+                    new GeometryVersion(0)
+                )
+            )
+            : null;
 
         return new ModifyRoadSegmentAttributes
         (
@@ -402,7 +447,10 @@ internal class RequestedChangeTranslator
             morphology,
             status,
             category,
-            accessRestriction
+            accessRestriction,
+            laneAttributes,
+            surfaceAttributes,
+            widthAttributes
         );
     }
     private ModifyRoadSegmentGeometry Translate(Messages.ModifyRoadSegmentGeometry command)

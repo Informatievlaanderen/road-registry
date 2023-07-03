@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Api.Changes;
 using System.Globalization;
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
-using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using NodaTime;
@@ -13,7 +12,6 @@ using NodaTime.Text;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("changefeed")]
 [ApiExplorerSettings(GroupName = "Activiteiten")]
-[ApiKeyAuth(WellKnownAuthRoles.Road)]
 public partial class ChangeFeedController : ApiController
 {
     private readonly LocalDatePattern _localMonthPattern;

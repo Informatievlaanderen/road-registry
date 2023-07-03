@@ -52,10 +52,10 @@ public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<Produc
                         await AddJunction(manager, encoding, context, envelope, junctionAdded, token);
                         break;
                     case GradeSeparatedJunctionModified junctionModified:
-                        await ModifyJunction(manager, encoding, context, envelope, junctionModified);
+                        await ModifyJunction(manager, encoding, context, envelope, junctionModified, token);
                         break;
                     case GradeSeparatedJunctionRemoved junctionRemoved:
-                        await RemoveJunction(context, junctionRemoved);
+                        await RemoveJunction(context, junctionRemoved, token);
                         break;
                 }
         });
@@ -95,9 +95,10 @@ public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<Produc
         Encoding encoding,
         ProductContext context,
         Envelope<RoadNetworkChangesAccepted> envelope,
-        GradeSeparatedJunctionModified junction)
+        GradeSeparatedJunctionModified junction,
+        CancellationToken token)
     {
-        var junctionRecord = await context.GradeSeparatedJunctions.FindAsync(junction.Id);
+        var junctionRecord = await context.GradeSeparatedJunctions.FindAsync(junction.Id, cancellationToken: token).ConfigureAwait(false);
 
         var translation = GradeSeparatedJunctionType.Parse(junction.Type).Translation;
         if (junctionRecord != null)
@@ -114,10 +115,13 @@ public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<Produc
             }.ToBytes(manager, encoding);
     }
 
-    private static async Task RemoveJunction(ProductContext context, GradeSeparatedJunctionRemoved junction)
+    private static async Task RemoveJunction(ProductContext context, GradeSeparatedJunctionRemoved junction, CancellationToken token)
     {
-        var junctionRecord = await context.GradeSeparatedJunctions.FindAsync(junction.Id);
+        var junctionRecord = await context.GradeSeparatedJunctions.FindAsync(junction.Id, cancellationToken: token).ConfigureAwait(false);
 
-        if (junctionRecord != null) context.GradeSeparatedJunctions.Remove(junctionRecord);
+        if (junctionRecord is not null)
+        {
+            context.GradeSeparatedJunctions.Remove(junctionRecord);
+        }
     }
 }

@@ -55,7 +55,7 @@ public class RoadNetworkExtract : EventSourcedEntity
             _knownUploads.Add(new UploadId(e.UploadId));
 
             FeatureCompareCompleted = false;
-            IsInformative = false;
+            IsInformative = true;
         });
         On<RoadNetworkExtractChangesArchiveFeatureCompareCompleted>(e =>
         {
@@ -64,7 +64,7 @@ public class RoadNetworkExtract : EventSourcedEntity
         });
         On<RoadNetworkExtractClosed>(e =>
         {
-            IsInformative = false;
+            IsInformative = true;
         });
     }
 
@@ -92,6 +92,18 @@ public class RoadNetworkExtract : EventSourcedEntity
     {
         Apply(new RoadNetworkExtractDownloadTimeoutOccurred
         {
+            Description = Description,
+            RequestId = Id.ToString(),
+            ExternalRequestId = _externalExtractRequestId,
+            IsInformative = IsInformative
+        });
+    }
+
+    public void Download(DownloadId downloadId)
+    {
+        Apply(new RoadNetworkExtractDownloaded
+        {
+            DownloadId = downloadId,
             Description = Description,
             RequestId = Id.ToString(),
             ExternalRequestId = _externalExtractRequestId,

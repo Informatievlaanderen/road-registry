@@ -19,8 +19,8 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Edit
     public RoadSegmentLaneAttributeRecordProjection(RecyclableMemoryStreamManager manager,
         Encoding encoding)
     {
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
 
         When<Envelope<ImportedRoadSegment>>((context, envelope, token) =>
         {
@@ -67,6 +67,10 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Edit
 
                     case RoadSegmentModified segment:
                         await ModifyRoadSegment(manager, encoding, context, segment, envelope, token);
+                        break;
+
+                    case RoadSegmentAttributesModified segment:
+                        await ModifyRoadSegmentAttributes(manager, encoding, context, segment, envelope, token);
                         break;
 
                     case RoadSegmentGeometryModified segment:
@@ -125,57 +129,19 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Edit
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        if (segment.Lanes.Length == 0)
+        await UpdateLanes(manager, encoding, context, envelope, segment.Id, segment.Lanes, token);
+    }
+
+    private static async Task ModifyRoadSegmentAttributes(RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        RoadSegmentAttributesModified segment,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        CancellationToken token)
+    {
+        if (segment.Lanes is not null)
         {
-            context.RoadSegmentLaneAttributes.RemoveRange(
-                context
-                    .RoadSegmentLaneAttributes
-                    .Local.Where(a => a.RoadSegmentId == segment.Id)
-                    .Concat(await context
-                        .RoadSegmentLaneAttributes
-                        .Where(a => a.RoadSegmentId == segment.Id)
-                        .ToArrayAsync(token)
-                    ));
-        }
-        else
-        {
-            //Causes all attributes to be loaded into Local
-            await context
-                .RoadSegmentLaneAttributes
-                .Where(a => a.RoadSegmentId == segment.Id)
-                .ToArrayAsync(token);
-            var currentSet = context
-                .RoadSegmentLaneAttributes
-                .Local.Where(a => a.RoadSegmentId == segment.Id)
-                .ToDictionary(a => a.Id);
-            var nextSet = segment
-                .Lanes
-                .Select(lane =>
-                {
-                    var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
-                    return new RoadSegmentLaneAttributeRecord
-                    {
-                        Id = lane.AttributeId,
-                        RoadSegmentId = segment.Id,
-                        DbaseRecord = new RoadSegmentLaneAttributeDbaseRecord
-                        {
-                            RS_OIDN = { Value = lane.AttributeId },
-                            WS_OIDN = { Value = segment.Id },
-                            WS_GIDN = { Value = $"{segment.Id}_{lane.AsOfGeometryVersion}" },
-                            AANTAL = { Value = lane.Count },
-                            RICHTING = { Value = laneDirectionTranslation.Identifier },
-                            LBLRICHT = { Value = laneDirectionTranslation.Name },
-                            VANPOS = { Value = (double)lane.FromPosition },
-                            TOTPOS = { Value = (double)lane.ToPosition },
-                            BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
-                            BEGINORG = { Value = envelope.Message.OrganizationId },
-                            LBLBGNORG = { Value = envelope.Message.Organization }
-                        }.ToBytes(manager, encoding)
-                    };
-                })
-                .ToDictionary(a => a.Id);
-            context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet,
-                (current, next) => { current.DbaseRecord = next.DbaseRecord; });
+            await UpdateLanes(manager, encoding, context, envelope, segment.Id, segment.Lanes, token);
         }
     }
 
@@ -186,15 +152,37 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Edit
         Envelope<RoadNetworkChangesAccepted> envelope,
         CancellationToken token)
     {
-        if (segment.Lanes.Length == 0)
+        await UpdateLanes(manager, encoding, context, envelope, segment.Id, segment.Lanes, token);
+    }
+
+    private static async Task RemoveRoadSegment(EditorContext context, RoadSegmentRemoved segment, CancellationToken token)
+    {
+        context.RoadSegmentLaneAttributes.RemoveRange(
+            context
+                .RoadSegmentLaneAttributes.Local
+                .Where(a => a.RoadSegmentId == segment.Id)
+                .Concat(await context
+                    .RoadSegmentLaneAttributes
+                    .Where(a => a.RoadSegmentId == segment.Id)
+                    .ToArrayAsync(token)
+                ));
+    }
+
+    private static async Task UpdateLanes(RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        Envelope<RoadNetworkChangesAccepted> envelope,
+        int roadSegmentId,
+        RoadSegmentLaneAttributes[] lanes,
+        CancellationToken token)
+    {
+        if (lanes.Length == 0)
         {
             context.RoadSegmentLaneAttributes.RemoveRange(
-                context
-                    .RoadSegmentLaneAttributes
-                    .Local.Where(a => a.RoadSegmentId == segment.Id)
-                    .Concat(await context
-                        .RoadSegmentLaneAttributes
-                        .Where(a => a.RoadSegmentId == segment.Id)
+            context.RoadSegmentLaneAttributes.Local
+                    .Where(a => a.RoadSegmentId == roadSegmentId)
+                    .Concat(await context.RoadSegmentLaneAttributes
+                        .Where(a => a.RoadSegmentId == roadSegmentId)
                         .ToArrayAsync(token)
                     ));
         }
@@ -203,26 +191,25 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Edit
             //Causes all attributes to be loaded into Local
             await context
                 .RoadSegmentLaneAttributes
-                .Where(a => a.RoadSegmentId == segment.Id)
+                .Where(a => a.RoadSegmentId == roadSegmentId)
                 .ToArrayAsync(token);
             var currentSet = context
                 .RoadSegmentLaneAttributes
-                .Local.Where(a => a.RoadSegmentId == segment.Id)
+                .Local.Where(a => a.RoadSegmentId == roadSegmentId)
                 .ToDictionary(a => a.Id);
-            var nextSet = segment
-                .Lanes
+            var nextSet = lanes
                 .Select(lane =>
                 {
                     var laneDirectionTranslation = RoadSegmentLaneDirection.Parse(lane.Direction).Translation;
                     return new RoadSegmentLaneAttributeRecord
                     {
                         Id = lane.AttributeId,
-                        RoadSegmentId = segment.Id,
+                        RoadSegmentId = roadSegmentId,
                         DbaseRecord = new RoadSegmentLaneAttributeDbaseRecord
                         {
                             RS_OIDN = { Value = lane.AttributeId },
-                            WS_OIDN = { Value = segment.Id },
-                            WS_GIDN = { Value = $"{segment.Id}_{lane.AsOfGeometryVersion}" },
+                            WS_OIDN = { Value = roadSegmentId },
+                            WS_GIDN = { Value = $"{roadSegmentId}_{lane.AsOfGeometryVersion}" },
                             AANTAL = { Value = lane.Count },
                             RICHTING = { Value = laneDirectionTranslation.Identifier },
                             LBLRICHT = { Value = laneDirectionTranslation.Name },
@@ -238,18 +225,5 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Edit
             context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet,
                 (current, next) => { current.DbaseRecord = next.DbaseRecord; });
         }
-    }
-
-    private static async Task RemoveRoadSegment(EditorContext context, RoadSegmentRemoved segment, CancellationToken token)
-    {
-        context.RoadSegmentLaneAttributes.RemoveRange(
-            context
-                .RoadSegmentLaneAttributes
-                .Local.Where(a => a.RoadSegmentId == segment.Id)
-                .Concat(await context
-                    .RoadSegmentLaneAttributes
-                    .Where(a => a.RoadSegmentId == segment.Id)
-                    .ToArrayAsync(token)
-                ));
     }
 }

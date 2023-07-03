@@ -2,7 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes;
 
 using Abstractions;
 using Api.RoadSegments;
-using BackOffice.Abstractions.RoadSegments;
+using Api.RoadSegments.ChangeAttributes;
 using Fixtures;
 using Xunit.Abstractions;
 
@@ -22,8 +22,7 @@ public class WhenChangeAttributesWithInvalidWegsegmenten : WhenChangeAttributesW
         {
             new()
             {
-                Attribuut = ChangeRoadSegmentAttribute.Wegbeheerder.ToString(),
-                Attribuutwaarde = Fixture.TestData.ChangedByOrganization,
+                Wegbeheerder = Fixture.TestData.ChangedByOrganization,
                 Wegsegmenten = wegsegmenten
             }
         }, "JsonInvalid", null);
@@ -36,8 +35,7 @@ public class WhenChangeAttributesWithInvalidWegsegmenten : WhenChangeAttributesW
         {
             new()
             {
-                Attribuut = ChangeRoadSegmentAttribute.Wegbeheerder.ToString(),
-                Attribuutwaarde = Fixture.TestData.ChangedByOrganization,
+                Wegbeheerder = Fixture.TestData.ChangedByOrganization,
                 Wegsegmenten = new[] { int.MaxValue }
             }
         }, "NotFound", null);

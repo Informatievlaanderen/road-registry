@@ -310,7 +310,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         }
 
         if (previousLane != null
-            && Math.Abs(previousLane.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
+            && !previousLane.To.ToDouble().EqualsWithTolerance(line.Length, context.Tolerances.DynamicRoadSegmentAttributePositionTolerance))
             problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(
                 previousLane.TemporaryId,
                 previousLane.To,
@@ -349,7 +349,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         }
 
         if (previousWidth != null
-            && Math.Abs(previousWidth.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
+            && !previousWidth.To.ToDouble().EqualsWithTolerance(line.Length, context.Tolerances.DynamicRoadSegmentAttributePositionTolerance))
             problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(
                 previousWidth.TemporaryId,
                 previousWidth.To,
@@ -388,7 +388,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         }
 
         if (previousSurface != null
-            && Math.Abs(previousSurface.To.ToDouble() - line.Length) > context.Tolerances.DynamicRoadSegmentAttributePositionTolerance)
+            && !previousSurface.To.ToDouble().EqualsWithTolerance(line.Length, context.Tolerances.DynamicRoadSegmentAttributePositionTolerance))
             problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
                 previousSurface.TemporaryId, previousSurface.To, line.Length));
 

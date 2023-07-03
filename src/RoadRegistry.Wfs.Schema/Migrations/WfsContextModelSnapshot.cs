@@ -18,7 +18,7 @@ namespace RoadRegistry.Wfs.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.3")
+                .HasAnnotation("ProductVersion", "6.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -102,6 +102,12 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                         .HasColumnType("Geometry")
                         .HasColumnName("middellijnGeometrie");
 
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("verwijderd");
+
                     b.Property<string>("LeftSideStreetName")
                         .HasColumnType("varchar(128)")
                         .HasColumnName("linkerstraatnaam");
@@ -144,6 +150,10 @@ namespace RoadRegistry.Wfs.Schema.Migrations
                     b.HasKey("Id");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
+
+                    b.HasIndex("IsRemoved");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
 
                     b.ToTable("Wegsegment", "RoadRegistryWfs");
                 });

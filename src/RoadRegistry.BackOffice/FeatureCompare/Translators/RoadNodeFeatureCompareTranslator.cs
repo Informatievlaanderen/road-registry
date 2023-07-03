@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RoadRegistry.BackOffice.Extracts;
 using Uploads;
 
 internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadNodeFeatureCompareAttributes>
@@ -58,7 +59,7 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
         return processedRecords;
     }
 
-    protected override List<Feature<RoadNodeFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, string fileName)
+    protected override List<Feature<RoadNodeFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
     {
         var featureReader = new RoadNodeFeatureCompareFeatureReader(Encoding);
         return featureReader.Read(entries, featureType, fileName);
@@ -68,7 +69,7 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
     {
         var entries = context.Entries;
 
-        var (extractFeatures, changeFeatures) = ReadExtractAndChangeFeatures(entries, "WEGKNOOP");
+        var (extractFeatures, changeFeatures) = ReadExtractAndChangeFeatures(entries, ExtractFileName.Wegknoop);
 
         var batchCount = 2;
 

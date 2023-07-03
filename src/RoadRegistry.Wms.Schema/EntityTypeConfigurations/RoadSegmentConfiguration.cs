@@ -12,7 +12,7 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
     {
         b.ToTable(TableName, WellknownSchemas.WmsSchema)
             .HasKey(p => p.Id)
-            .IsClustered(false);
+            .IsClustered();
 
         b.Property(p => p.Id)
             .ValueGeneratedNever()
@@ -59,6 +59,17 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(p => p.RightSideMunicipalityNisCode).HasColumnName("rechtsGemeenteNisCode");
 
         b.Property(p => p.StreetNameCachePosition).HasColumnName("straatnaamCachePositie");
+
+        b.Property(p => p.IsRemoved)
+            .HasColumnName("verwijderd")
+            .HasDefaultValue(false)
+            .IsRequired();
+        b.HasIndex(p => p.IsRemoved)
+            .IsClustered(false);
+
+        b.HasIndex(p => p.MorphologyId)
+            .IsClustered(false)
+            .HasDatabaseName("wegsegmentmorfologie");
 
         b.HasIndex(p => p.StreetNameCachePosition).IsClustered(false);
     }

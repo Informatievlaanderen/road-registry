@@ -5,6 +5,7 @@ using Messages;
 public sealed record RoadSegmentDetailResponse(
     int RoadSegmentId,
     DateTime BeginTime,
+    int Version,
     string? LastEventHash
 ) : EndpointResponse
 {
@@ -24,6 +25,7 @@ public sealed record RoadSegmentDetailResponse(
     public IReadOnlyCollection<RoadSegmentSurfaceTypeDetailResponse> SurfaceTypes { get; set; }
     public IReadOnlyCollection<RoadSegmentWidthDetailResponse> Widths { get; set; }
     public IReadOnlyCollection<RoadSegmentLaneCountDetailResponse> LaneCounts { get; set; }
+    public bool IsRemoved { get; set; }
 }
 
 public class RoadSegmentLaneCountDetailResponse

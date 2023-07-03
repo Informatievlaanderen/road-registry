@@ -11,8 +11,6 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.Editor.Schema;
 using SqlStreamStore;
 using System;
-using FluentValidation;
-using FluentValidation.Results;
 
 public static class ServiceCollectionExtensions
 {

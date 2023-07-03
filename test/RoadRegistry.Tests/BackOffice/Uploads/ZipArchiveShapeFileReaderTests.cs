@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.FeatureCompare;
@@ -11,8 +12,8 @@ using RoadRegistry.BackOffice.FeatureCompare;
 public class ZipArchiveShapeFileReaderTests
 {
     [Theory]
-    [InlineData("eWegknoop.zip", "eWegknoop")]
-    public async Task RoadNodeShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, string entryFileName)
+    [InlineData("eWegknoop.zip", ExtractFileName.Wegknoop)]
+    public async Task RoadNodeShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, ExtractFileName entryFileName)
     {
         var sut = new ZipArchiveShapeFileReader();
 
@@ -26,9 +27,9 @@ public class ZipArchiveShapeFileReaderTests
 
         using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
         {
-            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, $"{entryFileName}.shp", StringComparison.InvariantCultureIgnoreCase));
+            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name,  FeatureType.Extract.GetShpFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
 
-            var dbfRecords = new SimpleDbfReader<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema).Read(beforeFcArchive.Entries, entryFileName);
+            var dbfRecords = new SimpleExtractDbfReader<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema).Read(beforeFcArchive.Entries, entryFileName);
             Assert.True(dbfRecords.Any());
 
             var records = sut.Read(shpEntry).ToArray();
@@ -37,8 +38,8 @@ public class ZipArchiveShapeFileReaderTests
     }
 
     [Theory]
-    [InlineData("eWegsegment.zip", "eWegsegment")]
-    public async Task RoadSegmentShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, string entryFileName)
+    [InlineData("eWegsegment.zip", ExtractFileName.Wegsegment)]
+    public async Task RoadSegmentShapeFileShouldHaveSameAmountOfRecordsAsDbaseFile(string resourceName, ExtractFileName entryFileName)
     {
         var sut = new ZipArchiveShapeFileReader();
 
@@ -52,9 +53,9 @@ public class ZipArchiveShapeFileReaderTests
 
         using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
         {
-            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, $"{entryFileName}.shp", StringComparison.InvariantCultureIgnoreCase));
+            var shpEntry = beforeFcArchive.Entries.Single(x => string.Equals(x.Name, FeatureType.Extract.GetShpFileName(entryFileName), StringComparison.InvariantCultureIgnoreCase));
 
-            var dbfRecords = new SimpleDbfReader<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema).Read(beforeFcArchive.Entries, entryFileName);
+            var dbfRecords = new SimpleExtractDbfReader<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema).Read(beforeFcArchive.Entries, entryFileName);
             Assert.True(dbfRecords.Any());
 
             var records = sut.Read(shpEntry).ToArray();
@@ -62,10 +63,10 @@ public class ZipArchiveShapeFileReaderTests
         }
     }
 
-    private class SimpleDbfReader<TDbaseRecord> : DbaseFeatureReader<TDbaseRecord, object>
+    private class SimpleExtractDbfReader<TDbaseRecord> : DbaseFeatureReader<TDbaseRecord, object>
         where TDbaseRecord : DbaseRecord, new()
     {
-        public SimpleDbfReader(DbaseSchema dbaseSchema)
+        public SimpleExtractDbfReader(DbaseSchema dbaseSchema)
             : base(Encoding.UTF8, dbaseSchema)
         {
         }
@@ -75,9 +76,9 @@ public class ZipArchiveShapeFileReaderTests
             return dbaseRecord;
         }
 
-        public List<object> Read(IReadOnlyCollection<ZipArchiveEntry> entries, string fileName)
+        public List<object> Read(IReadOnlyCollection<ZipArchiveEntry> entries, ExtractFileName fileName)
         {
-            return Read(entries, FeatureType.Change, fileName);
+            return Read(entries, FeatureType.Extract, fileName);
         }
     }
 }

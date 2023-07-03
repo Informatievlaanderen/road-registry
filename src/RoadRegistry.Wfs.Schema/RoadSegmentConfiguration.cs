@@ -73,5 +73,12 @@ public class RoadSegmentConfiguration : IEntityTypeConfiguration<RoadSegmentReco
         b.Property(p => p.MaintainerName)
             .HasColumnName("labelWegbeheerder")
             .HasColumnType("varchar(64)");
+
+        b.Property(p => p.IsRemoved)
+            .HasColumnName("verwijderd")
+            .HasDefaultValue(false)
+            .IsRequired();
+        b.HasIndex(p => p.IsRemoved)
+            .IsClustered(false);
     }
 }

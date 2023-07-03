@@ -22,6 +22,7 @@ public class RoadSegmentAdded: IHaveHash
     public string Status { get; set; }
     public RoadSegmentSurfaceAttributes[] Surfaces { get; set; }
     public int TemporaryId { get; set; }
+    public int? OriginalId { get; set; }
     public int Version { get; set; }
     public RoadSegmentWidthAttributes[] Widths { get; set; }
 

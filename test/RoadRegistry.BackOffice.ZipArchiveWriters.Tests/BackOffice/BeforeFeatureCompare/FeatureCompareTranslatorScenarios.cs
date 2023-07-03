@@ -147,6 +147,7 @@ public class FeatureCompareTranslatorScenarios
                 new AddRoadSegment(
                         new RecordNumber(1),
                         roadSegmentTemporaryId1,
+                        new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
                         new RoadNodeId(roadSegmentDbaseRecord1.B_WK_OIDN.Value),
                         new RoadNodeId(roadSegmentDbaseRecord1.E_WK_OIDN.Value),
                         new OrganizationId(roadSegmentDbaseRecord1.BEHEERDER.Value),
@@ -189,6 +190,7 @@ public class FeatureCompareTranslatorScenarios
                 new AddRoadSegment(
                     new RecordNumber(2),
                     roadSegmentTemporaryId2,
+                    new RoadSegmentId(roadSegmentDbaseRecord2.WS_OIDN.Value),
                     new RoadNodeId(roadSegmentDbaseRecord2.B_WK_OIDN.Value),
                     new RoadNodeId(roadSegmentDbaseRecord2.E_WK_OIDN.Value),
                     new OrganizationId(roadSegmentDbaseRecord2.BEHEERDER.Value),
@@ -1453,6 +1455,7 @@ public class FeatureCompareTranslatorScenarios
             .AppendChange(new AddRoadSegment(
                     new RecordNumber(1),
                     new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value + 1),
+                    new RoadSegmentId(roadSegmentDbaseRecord1.WS_OIDN.Value),
                     new RoadNodeId(roadSegmentDbaseRecord1.B_WK_OIDN.Value),
                     new RoadNodeId(roadSegmentDbaseRecord1.E_WK_OIDN.Value),
                     new OrganizationId(roadSegmentDbaseRecord1.BEHEER.Value),

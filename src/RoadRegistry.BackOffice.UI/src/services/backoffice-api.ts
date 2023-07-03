@@ -1,4 +1,4 @@
-import apiClient from "./api-client";
+import apiClient, {AxiosHttpApiClient} from "./api-client";
 import RoadRegistry from "@/types/road-registry";
 import RoadRegistryExceptions from "@/types/road-registry-exceptions";
 import axios from "axios";
@@ -138,5 +138,29 @@ export const BackOfficeApi = {
       return response.data;
     },
   },
+  Security: {
+    getInfo: async (): Promise<RoadRegistry.SecurityInfo> => {
+      const path = `${apiEndpoint}/v1/security/info`;
+      const response = await apiClient.get<RoadRegistry.SecurityInfo>(path);
+      return response.data;
+    },
+    getExchangeCode: async (code: string, verifier: string, redirectUri: string): Promise<string> => {
+      const path = `${apiEndpoint}/v1/security/exchange?code=${code}&verifier=${verifier}&redirectUri=${redirectUri}`;
+      const response = await apiClient.get(path);
+      return response.data;
+    },
+    userIsAuthenticated: async (): Promise<boolean> => {
+      const apiClient = new AxiosHttpApiClient({
+        noRedirectOnUnauthorized: true,
+      });
+      const path = `${apiEndpoint}/v1/security/user`;
+      try {
+        await apiClient.get<void>(path);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    },
+  }
 };
 export default BackOfficeApi;

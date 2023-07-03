@@ -14,4 +14,5 @@ Serilog.Extensions.Hosting
 Serilog.Settings.Configuration
 Serilog.Sinks.Console
 Serilog.Sinks.Seq
+Serilog.Sinks.Slack
 SqlStreamStore.MsSql

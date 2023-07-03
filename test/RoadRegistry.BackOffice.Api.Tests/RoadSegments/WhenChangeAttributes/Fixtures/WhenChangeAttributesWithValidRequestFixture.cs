@@ -2,8 +2,8 @@ namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Fi
 
 using Abstractions.Fixtures;
 using Api.RoadSegments;
+using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
-using BackOffice.Abstractions.RoadSegments;
 using Editor.Schema;
 using MediatR;
 
@@ -20,32 +20,27 @@ public class WhenChangeAttributesWithValidRequestFixture : WhenChangeAttributesF
         {
             new()
             {
-                Attribuut = ChangeRoadSegmentAttribute.Wegbeheerder.ToString(),
-                Attribuutwaarde = TestData.ChangedByOrganization,
+                Wegbeheerder = TestData.ChangedByOrganization,
                 Wegsegmenten = new[] { TestData.Segment1Added.Id }
             },
             new()
             {
-                Attribuut = ChangeRoadSegmentAttribute.MorfologischeWegklasse.ToString(),
-                Attribuutwaarde = ObjectProvider.Create<RoadSegmentMorphology>().Translation.Name,
+                MorfologischeWegklasse = ObjectProvider.Create<RoadSegmentMorphology>().ToDutchString(),
                 Wegsegmenten = new[] { TestData.Segment1Added.Id }
             },
             new()
             {
-                Attribuut = ChangeRoadSegmentAttribute.Wegcategorie.ToString(),
-                Attribuutwaarde = ObjectProvider.Create<RoadSegmentCategory>().Translation.Name,
+                Wegcategorie = ObjectProvider.Create<RoadSegmentCategory>().ToDutchString(),
                 Wegsegmenten = new[] { TestData.Segment1Added.Id }
             },
             new()
             {
-                Attribuut = ChangeRoadSegmentAttribute.WegsegmentStatus.ToString(),
-                Attribuutwaarde = ObjectProvider.Create<RoadSegmentStatus>().Translation.Name,
+                Wegsegmentstatus = ObjectProvider.Create<RoadSegmentStatus>().ToDutchString(),
                 Wegsegmenten = new[] { TestData.Segment1Added.Id }
             },
             new()
             {
-                Attribuut = ChangeRoadSegmentAttribute.Toegangsbeperking.ToString(),
-                Attribuutwaarde = ObjectProvider.Create<RoadSegmentAccessRestriction>().Translation.Name,
+                Toegangsbeperking = ObjectProvider.Create<RoadSegmentAccessRestriction>().ToDutchString(),
                 Wegsegmenten = new[] { TestData.Segment1Added.Id }
             }
         };

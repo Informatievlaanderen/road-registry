@@ -111,16 +111,22 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             CancellationToken token)
         {
             var gradeSeparatedJunctionRecord =
-                await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionRemoved.Id).ConfigureAwait(false);
+                await context.GradeSeparatedJunctions.FindAsync(gradeSeparatedJunctionRemoved.Id, cancellationToken: token).ConfigureAwait(false);
 
-            if (gradeSeparatedJunctionRecord != null)
+            if (gradeSeparatedJunctionRecord == null)
             {
-                gradeSeparatedJunctionRecord.Origin = envelope.Message.ToOrigin();
-                gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
-                gradeSeparatedJunctionRecord.IsRemoved = true;
-
-                await Produce(gradeSeparatedJunctionRecord.Id, gradeSeparatedJunctionRecord.ToContract(), token);
+                throw new InvalidOperationException($"{nameof(GradeSeparatedJunctionRecord)} with id {gradeSeparatedJunctionRemoved.Id} is not found");
             }
+            if (gradeSeparatedJunctionRecord.IsRemoved)
+            {
+                return;
+            }
+
+            gradeSeparatedJunctionRecord.Origin = envelope.Message.ToOrigin();
+            gradeSeparatedJunctionRecord.LastChangedTimestamp = envelope.CreatedUtc;
+            gradeSeparatedJunctionRecord.IsRemoved = true;
+
+            await Produce(gradeSeparatedJunctionRecord.Id, gradeSeparatedJunctionRecord.ToContract(), token);
         }
 
         private async Task Produce(int gradeSeparatedJunctionId, GradeSeparatedJunctionSnapshot snapshot, CancellationToken cancellationToken)

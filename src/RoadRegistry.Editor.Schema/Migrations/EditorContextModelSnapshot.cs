@@ -292,6 +292,9 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.Property<long>("AvailableOn")
                         .HasColumnType("bigint");
 
+                    b.Property<DateTimeOffset?>("DownloadedOn")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("ExternalRequestId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -323,8 +326,10 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .HasColumnType("Geometry");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("DownloadedOn")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("ExternalRequestId")
                         .IsRequired()
@@ -595,6 +600,11 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("Geometry");
 
+                    b.Property<bool>("IsRemoved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("LastEventHash")
                         .HasColumnType("nvarchar(max)");
 
@@ -611,6 +621,10 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.HasKey("Id");
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
+
+                    b.HasIndex("IsRemoved");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
 
                     b.ToTable("RoadSegment", "RoadRegistryEditor");
                 });

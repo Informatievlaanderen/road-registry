@@ -17,6 +17,7 @@ using Syndication.Schema;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.FeatureToggles;
 using Microsoft.Extensions.Logging;
 
 public class Program
@@ -60,7 +61,7 @@ public class Program
                 {
                     // new GradeSeparatedJunctionRecordProjection(),
                     new RoadNodeRecordProjection(),
-                    new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>())
+                    new RoadSegmentRecordProjection(sp.GetRequiredService<IStreetNameCache>(), sp.GetRequiredService<UseRoadSegmentSoftDeleteFeatureToggle>())
                 })
                 .AddSingleton(sp => Resolve.WhenEqualToHandlerMessageType(sp
                     .GetRequiredService<ConnectedProjection<WfsContext>[]>()
