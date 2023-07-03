@@ -10,8 +10,9 @@ declare global {
   }
 
   class FeatureToggles {
-    useFeatureCompare: boolean;
+    useAcmIdm: boolean;
     useDirectApiCalls: boolean;
+    useFeatureCompare: boolean;
     useTransactionZonesTab: boolean;
   }
 

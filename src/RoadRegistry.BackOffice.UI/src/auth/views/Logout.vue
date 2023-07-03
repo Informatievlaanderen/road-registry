@@ -26,10 +26,13 @@ export default Vue.extend({
     redirect: String,
   },
   methods: {
-    logout() {
+    async logout() {
       this.isLogoutInProgress = true;
-      AuthService.logout();
-      this.isLogoutInProgress = false;
+      try {
+        await AuthService.logout();
+      } finally {
+        this.isLogoutInProgress = false;
+      }
     },
   },
 });

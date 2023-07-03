@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 public partial class InformationController
 {
@@ -17,6 +18,7 @@ public partial class InformationController
     /// <returns>IActionResult.</returns>
     [HttpGet(Name = nameof(GetInformation))]
     [SwaggerOperation(OperationId = nameof(GetInformation), Description = "")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetInformation([FromServices] EditorContext context)
     {
         var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);

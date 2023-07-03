@@ -9,6 +9,7 @@ using Abstractions;
 using Abstractions.Configuration;
 using Amazon;
 using Amazon.DynamoDBv2;
+using Authorization;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Extracts;
@@ -32,8 +33,6 @@ using Handlers.Extensions;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -51,13 +50,11 @@ using Microsoft.IO;
 using Microsoft.OpenApi.Models;
 using NetTopologySuite;
 using NetTopologySuite.IO;
-using NisCodeService.Abstractions;
-using NisCodeService.Proxy.HttpProxy;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
 using RoadRegistry.BackOffice.Api.Infrastructure.Options;
-using SchemaFilters;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
@@ -71,10 +68,12 @@ public class Startup
 {
     private const string DatabaseTag = "db";
     private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public Startup(IConfiguration configuration)
+    public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
     {
         _configuration = configuration;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public void Configure(
@@ -160,7 +159,9 @@ public class Startup
                         });
                     }
                 }
-            });
+            })
+            ;
+        
     }
 
     public void ConfigureContainer(ContainerBuilder builder)
@@ -200,7 +201,7 @@ public class Startup
                         .GetChildren()
                         .Select(c => c.Value)
                         .ToArray(),
-                    Headers = new[] { ApiKeyAuthAttribute.ApiKeyHeaderName },
+                    Headers = new[] { ApiKeyAuthenticationHandler.ApiKeyHeaderName },
                     ExposedHeaders = new[] { "Retry-After" }
                 },
                 Server =
@@ -252,7 +253,12 @@ public class Startup
                         // Do not remove this handler!
                         // It must be declared to avoid FluentValidation registering all validators within current assembly.
                     },
-                    Authorization = options => { options.AddAcmIdmAuthorization(); }
+                    Authorization = options =>
+                    {
+                        options
+                            .AddAcmIdmAuthorization()
+                            .AddAcmIdmPolicyVoInfo();
+                    }
                 }
             })
             .AddAcmIdmAuthorizationHandlers()
@@ -265,6 +271,7 @@ public class Startup
             .RegisterOptions<ExtractDownloadsOptions>()
             .RegisterOptions<ExtractUploadsOptions>()
             .RegisterOptions<FeatureCompareMessagingOptions>()
+            .RegisterOptions<OpenIdConnectOptions>()
             .AddStreamStore()
             .AddSingleton<IClock>(SystemClock.Instance)
             .AddSingleton(new WKTReader(
@@ -361,7 +368,18 @@ public class Startup
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .Configure<ResponseOptions>(_configuration)
-            .AddAcmIdmAuth(oAuth2IntrospectionOptions!);
+            .AddAcmIdmAuth(oAuth2IntrospectionOptions!)
+            .AddApiKeyAuth()
+            ;
+
+        if (_webHostEnvironment.IsDevelopment())
+        {
+            services.AddSingleton<IApiTokenReader>(new ConfigurationApiTokenReader(_configuration, "RoadRegistry Development ApiKey Client"));
+        }
+        else
+        {
+            services.AddSingleton<IApiTokenReader, DynamoDbApiTokenReader>();
+        }
 
         services
             .AddMvc(options =>
@@ -369,61 +387,10 @@ public class Startup
                 options.Filters.Add<ValidationFilterAttribute>();
                 options.OutputFormatters.Add(new XmlSerializerOutputFormatter(new SerilogLoggerFactory()));
             });
-
-        //JsonConvert.DefaultSettings = () =>
-        //{
-        //    var settings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-        //    foreach (var converter in WellKnownJsonConverters.Converters)
-        //    {
-        //        settings.Converters.Add(converter);
-        //    }
-
-        //    return settings;
-        //};
     }
 
     private static string GetApiLeadingText(ApiVersionDescription description)
     {
         return $"Momenteel leest u de documentatie voor versie {description.ApiVersion} van de Basisregisters Vlaanderen Road Registry API{string.Format(description.IsDeprecated ? ", **deze API versie is niet meer ondersteund * *." : ".")}";
-    }
-}
-
-public static class ServiceCollectionExtensions
-{
-    public static AuthenticationBuilder AddAcmIdmAuth(
-        this IServiceCollection services,
-        OAuth2IntrospectionOptions oAuth2IntrospectionOptions)
-    {
-        return services
-            .AddHttpProxyNisCodeService()
-            .AddAuthentication(options =>
-            {
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddOAuth2Introspection(JwtBearerDefaults.AuthenticationScheme, options =>
-            {
-                options.ClientId = oAuth2IntrospectionOptions.ClientId;
-                options.ClientSecret = oAuth2IntrospectionOptions.ClientSecret;
-                options.Authority = oAuth2IntrospectionOptions.Authority;
-                options.IntrospectionEndpoint = oAuth2IntrospectionOptions.IntrospectionEndpoint;
-            });
-    }
-
-    public static IServiceCollection AddHttpProxyNisCodeService(this IServiceCollection services)
-    {
-        services
-            .AddHttpClient<INisCodeService, HttpProxyNisCodeService>((sp, c) =>
-            {
-                var nisCodeServiceUrl = sp.GetRequiredService<IConfiguration>().GetValue<string>("NisCodeServiceUrl");
-                if (string.IsNullOrWhiteSpace(nisCodeServiceUrl))
-                {
-                    throw new ConfigurationErrorsException("Configuration should have a value for \"NisCodeServiceUrl\".");
-                }
-
-                c.BaseAddress = new Uri(nisCodeServiceUrl.TrimEnd('/'));
-            });
-        return services;
     }
 }
