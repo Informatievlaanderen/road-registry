@@ -1,3 +1,10 @@
+## [3.52.1](https://github.com/informatievlaanderen/road-registry/compare/v3.52.0...v3.52.1) (2023-07-03)
+
+
+### Bug Fixes
+
+* WR-755 disable StreamStore prefetch jsondata ([#1032](https://github.com/informatievlaanderen/road-registry/issues/1032)) ([2a9afb7](https://github.com/informatievlaanderen/road-registry/commit/2a9afb7516ee052af55bc58194e57a3493935d09))
+
 # [3.52.0](https://github.com/informatievlaanderen/road-registry/compare/v3.51.3...v3.52.0) (2023-07-03)
 
 
