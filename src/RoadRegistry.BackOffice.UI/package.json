@@ -71,6 +71,7 @@
     "@govflanders/vl-ui-multiselect": "^18.1.0",
     "@govflanders/vl-ui-news-slider": "^18.1.0",
     "@govflanders/vl-ui-news-teaser": "^18.1.0",
+    "@govflanders/vl-ui-ol-map": "^18.1.0",
     "@govflanders/vl-ui-pager": "^18.1.0",
     "@govflanders/vl-ui-pattern": "^18.1.0",
     "@govflanders/vl-ui-person": "^18.1.0",

@@ -7,7 +7,7 @@
       <vl-column>
         <vl-checkbox v-model="showRoadRegistryLayer">Toon het Wegenregister</vl-checkbox>
 
-        <vl-ol-map id="map" ref="map" mod-boxed map-zoomable map-expandable>
+        <vl-ol-map ref="map" mod-boxed map-zoomable map-expandable>
           <vl-map-tile-layer>
             <vl-map-tile-wms-source url="https://geo.api.vlaanderen.be/GRB-basiskaart/wms" />
           </vl-map-tile-layer>
@@ -50,21 +50,7 @@ export default Vue.extend({
   data() {
     return {
       showRoadRegistryLayer: false,
-      roadRegistryLayer: new TileLayer({
-        source: new TileWMS({
-          url: "https://geo.api.vlaanderen.be/Wegenregister/wms",
-          params: {
-            VERSION: "1.3.0",
-            SERVICE: "WMS",
-            REQUEST: "GetMap",
-            FORMAT: "image/png",
-            TRANSPARENT: "true",
-            LAYERS: "AUTOSWEG",
-            CRS: "EPSG:3857",
-          },
-          serverType: "geoserver",
-        }),
-      }),
+      roadRegistryLayer: null as TileLayer | null,
     };
   },
   computed: {
@@ -80,10 +66,28 @@ export default Vue.extend({
   },
   watch: {
     showRoadRegistryLayer() {
+      const olMap = this.olMap;
+
       if (this.showRoadRegistryLayer) {
-        this.olMap.addLayer(this.roadRegistryLayer);
+        this.roadRegistryLayer = new TileLayer({
+          source: new TileWMS({
+            url: "https://geo.api.vlaanderen.be/Wegenregister/wms",
+            params: {
+              VERSION: "1.3.0",
+              SERVICE: "WMS",
+              REQUEST: "GetMap",
+              FORMAT: "image/png",
+              TRANSPARENT: "true",
+              LAYERS: "AUTOSWEG",
+              CRS: "EPSG:3857",
+            },
+            serverType: "geoserver",
+          }),
+        });
+        olMap.addLayer(this.roadRegistryLayer);
       } else {
-        this.olMap.removeLayer(this.roadRegistryLayer);
+        olMap.removeLayer(this.roadRegistryLayer);
+        this.roadRegistryLayer = null;
       }
     },
   },
@@ -92,122 +96,26 @@ export default Vue.extend({
       //console.log("onSelectTransactionZone", arguments);
     },
   },
-  mounted() {},
+  mounted() {
+    // debugger;
+    // this.olMap.addLayer(new TileLayer({
+    //   source: new TileWMS({
+    //     url: 'https://geo.api.vlaanderen.be/GRB-basiskaart/wms',
+    //     params: {
+    //       VERSION: '1.3.0',
+    //       SERVICE: 'WMS',
+    //       REQUEST: 'GetMap',
+    //       FORMAT: 'image/png',
+    //       TRANSPARENT: 'true',
+    //       LAYERS: 'GRB_BSK',
+    //       CRS: 'EPSG:3857'
+    //     },
+    //     serverType: 'geoserver'
+    //   })
+    // }));
+  },
 });
 </script>
 
 <style lang="scss">
-.vl-ol-map--boxed {
-  border: 1px #cbd2da solid;
-}
-
-.vl-ol-map {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 450px;
-  overflow: hidden;
-  display: flex;
-  font-size: 1.6rem;
-}
-
-.vl-ol-map__body {
-  display: flex;
-  flex: 1;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-.vl-ol-map__content {
-  position: relative;
-  width: 100%;
-  flex: 1;
-}
-
-.vl-ol-map__map {
-  width: 100%;
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  position: absolute;
-  background-color: #f7f9fc;
-}
-
-.vl-ol-map__view-tools {
-  right: 2.5rem;
-  bottom: 2.5rem;
-}
-
-.vl-ol-map__view-tools,
-.vl-ol-map__action-tools,
-.vl-ol-map__search {
-  position: absolute;
-  z-index: 10;
-}
-
-.vl-ol-map-tools-bar--vertical {
-  display: flex;
-  flex-direction: column;
-}
-
-.vl-ol-map-tools-bar--vertical .vl-ol-map-tools-action-group:not(:last-child) {
-  margin-right: 0;
-  margin-bottom: 1.5rem;
-}
-
-.vl-ol-map-tools-action {
-  border-radius: 0;
-  appearance: none;
-  -webkit-appearance: none;
-  border: 0;
-  background-color: transparent;
-  padding: 0;
-  display: block;
-  width: 3.5rem;
-  height: 3.5rem;
-  background-color: #fff;
-  border: 0;
-  border-radius: 2px;
-  font-size: 16px;
-  line-height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 0px 0.3rem 0.3rem 0px;
-  color: #05c;
-  background-color: #fff;
-  border: none;
-  box-shadow: none;
-}
-
-.vl-ol-map-tools-action-group--vertical {
-  flex-direction: column;
-}
-
-.vl-ol-map-tools-action-group {
-  display: flex;
-  background: #fff;
-  border-radius: 2px;
-  box-shadow: 0px 2px 12px rgba(106, 118, 134, 0.35);
-}
-
-.vl-ol-map-tools-action-group .vl-ol-map-tools-action {
-  border-radius: 0;
-}
-
-.vl-ol-map-tools-action__text {
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
-  clip: rect(1px, 1px, 1px, 1px);
-}
 </style>
