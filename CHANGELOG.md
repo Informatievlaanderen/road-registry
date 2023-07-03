@@ -1,3 +1,10 @@
+# [3.52.0](https://github.com/informatievlaanderen/road-registry/compare/v3.51.3...v3.52.0) (2023-07-03)
+
+
+### Features
+
+* WR-689 portaal ACM/IDM login ([#1031](https://github.com/informatievlaanderen/road-registry/issues/1031)) ([ef7ec71](https://github.com/informatievlaanderen/road-registry/commit/ef7ec7161bbe35215c09a46142b067673881d77d))
+
 ## [3.51.3](https://github.com/informatievlaanderen/road-registry/compare/v3.51.2...v3.51.3) (2023-06-30)
 
 
