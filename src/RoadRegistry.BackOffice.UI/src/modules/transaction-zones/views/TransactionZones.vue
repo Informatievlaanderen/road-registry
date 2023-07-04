@@ -12,10 +12,6 @@
             <vl-map-tile-wms-source url="https://geo.api.vlaanderen.be/GRB-basiskaart/wms" />
           </vl-map-tile-layer>
 
-          <!-- <vl-map-tile-layer>
-            <vl-map-tile-wms-source url="https://geo.api.vlaanderen.be/Wegenregister/wms" />
-          </vl-map-tile-layer> -->
-
           <vl-map-vector-layer>
             <vl-map-vector-source :url="transactionZonesGeoJsonUrl" />
             <vl-map-icon-style color="rgba(183, 171, 31, 1)" color-stroke="rgba(183, 171, 31, 1)" />
@@ -37,6 +33,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { trimEnd } from "lodash";
+import Map from "ol/map";
 import TileLayer from "ol/layer/tile";
 import TileWMS from "ol/source/tilewms";
 import { WR_ENV, API_ENDPOINT, API_OLDENDPOINT } from "@/environment";
@@ -54,8 +51,8 @@ export default Vue.extend({
     };
   },
   computed: {
-    olMap() {
-      return (this.$refs.map as any).olMap;
+    olMap(): Map {
+      return (this.$refs.map as any).olMap as Map;
     },
     transactionZonesGeoJsonUrl() {
       return `${geoJsonBaseUrl}/transactionzones.geojson`;
@@ -86,7 +83,11 @@ export default Vue.extend({
         });
         olMap.addLayer(this.roadRegistryLayer);
       } else {
-        olMap.removeLayer(this.roadRegistryLayer);
+        let layer = this.roadRegistryLayer;
+        debugger;
+        let layers = olMap.getLayers();
+        //olMap.getLayers().getArray().find(x => x.uid)
+        //olMap.removeLayer(this.roadRegistryLayer);
         this.roadRegistryLayer = null;
       }
     },
