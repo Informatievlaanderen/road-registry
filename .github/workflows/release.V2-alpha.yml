@@ -80,6 +80,7 @@ jobs:
       build-target: Containerize_BackOfficeUi
       image-file: rr-backoffice-ui-image.tar
       image-name: backoffice-ui
+      test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.BackOffice.UI
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -328,7 +329,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       pack-file: Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Abstractions
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.BackOffice.Abstractions
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
