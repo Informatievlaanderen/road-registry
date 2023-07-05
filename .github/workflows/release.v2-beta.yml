@@ -49,6 +49,7 @@ jobs:
           GIT_COMMITTER_EMAIL: ${{ secrets.VBR_GIT_EMAIL }}
           GIT_EMAIL: ${{ secrets.VBR_GIT_EMAIL }}
           NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+          SA_PASSWORD: E@syP@ssw0rd
           CI: true
 
       - name: Set Release Version
