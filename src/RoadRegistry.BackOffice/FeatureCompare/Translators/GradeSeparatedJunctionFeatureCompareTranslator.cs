@@ -47,13 +47,15 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var boWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == changeFeature.Attributes.UpperRoadSegmentId);
+            var boWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == changeFeature.Attributes.UpperRoadSegmentId)
+                ?? context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.CompareIdn == changeFeature.Attributes.UpperRoadSegmentId.ToString());
             if (boWegsegmentFeature is null)
             {
                 throw new RoadSegmentNotFoundInZipArchiveException(changeFeature.Attributes.UpperRoadSegmentId);
             }
 
-            var onWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == changeFeature.Attributes.LowerRoadSegmentId);
+            var onWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == changeFeature.Attributes.LowerRoadSegmentId)
+                ?? context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.CompareIdn == changeFeature.Attributes.LowerRoadSegmentId.ToString());
             if (onWegsegmentFeature is null)
             {
                 throw new RoadSegmentNotFoundInZipArchiveException(changeFeature.Attributes.LowerRoadSegmentId);

@@ -124,6 +124,27 @@ public class WhenChangeAttributesWithInvalidWegverharding : WhenChangeWithInvali
     }
 
     [Fact]
+    public async Task TotPositie_TotPositieKleinerOfGelijkAanVanPositie()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                Wegverharding = new ChangeSurfaceAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 945,
+                        TotPositie = 45,
+                        Type = Fixture.ObjectProvider.Create<RoadSegmentSurfaceType>().ToDutchString()
+                    }
+                }
+            }
+        }, "TotPositieKleinerOfGelijkAanVanPositie");
+    }
+
+    [Fact]
     public async Task Type_TypeVerplicht()
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters

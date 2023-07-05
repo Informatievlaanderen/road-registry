@@ -130,7 +130,10 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
         var (extractFeatures, changeFeatures, integrationFeatures) = ReadExtractAndLeveringAndIntegrationFeatures(entries, ExtractFileName.Wegsegment);
 
-        context.RoadSegments.AddRange(integrationFeatures.Select(feature => new RoadSegmentRecord(feature.RecordNumber, feature.Attributes, RecordType.Identical)));
+        context.RoadSegments.AddRange(integrationFeatures.Select(feature => new RoadSegmentRecord(feature.RecordNumber, feature.Attributes, RecordType.Identical)
+        {
+            FeatureType = FeatureType.Integration
+        }));
 
         var batchCount = 2;
 
@@ -141,7 +144,12 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     .Select(changeFeaturesBatch => { return Task.Run(() => ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, cancellationToken), cancellationToken); }));
             context.RoadSegments.AddRange(processedLeveringRecords.SelectMany(x => x));
 
-            var rootNumber = Convert.ToInt32(changeFeatures.Max(x => x.Attributes.Id)) + 1;
+            var maxId = integrationFeatures.Select(x => x.Attributes.Id)
+                .Concat(extractFeatures.Select(x => x.Attributes.Id))
+                .Concat(changeFeatures.Select(x => x.Attributes.Id))
+                .Max();
+
+            var rootNumber = maxId + 1;
             foreach (var record in context.RoadSegments.Where(x => x.RecordType.Equals(RecordType.Added)))
             {
                 record.TempId = rootNumber++;
@@ -160,7 +168,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
             }
         }
 
-        foreach (var record in context.RoadSegments)
+        foreach (var record in context.RoadSegments.Where(x => x.FeatureType != FeatureType.Integration))
         {
             cancellationToken.ThrowIfCancellationRequested();
 

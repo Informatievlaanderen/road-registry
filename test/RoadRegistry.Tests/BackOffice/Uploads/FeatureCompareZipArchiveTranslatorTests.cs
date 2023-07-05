@@ -4,9 +4,14 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
+using Xunit.Sdk;
 
 public class FeatureCompareZipArchiveTranslatorTests
 {
@@ -27,60 +32,215 @@ public class FeatureCompareZipArchiveTranslatorTests
         Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
     }
 
-    [Theory(Skip = "For local testing only due to big archive files")]
-    //[Theory]
-    //[InlineData("Oudenburg")]
-    //[InlineData("Dendermonde")]
-    //[InlineData("Aarschot")]
-    //[InlineData("Tervuren")]
-    //[InlineData("Antwerpen")]
-    [InlineData("Gent")]
-    public async Task TranslateWithRecordsReturnsExpectedResult(string zipFileName)
+    //[Fact(Skip = "For local testing only due to big archive files")]
+    [Fact]
+    public async Task TranslateWithRecordsReturnsExpectedResult()
     {
-        using (var beforeFcArchiveStream = new MemoryStream())
-        using (var afterFcArchiveStream = new MemoryStream())
+        const string featureCompareArchivesPath = @"\temp\fc-archives";
+        const string featureCompareRunnerPath = @"C:\DV\Repos\road-registry-featurecompare\src\RoadRegistry.FeatureCompare.Runner\bin\Debug\RoadRegistry.FeatureCompare.Runner.exe";
+
+        var featureCompareArchivesPathCompleted = Path.Combine(featureCompareArchivesPath, "_completed");
+        var featureCompareArchivesPathError = Path.Combine(featureCompareArchivesPath, "_error");
+
+        Directory.CreateDirectory(featureCompareArchivesPathCompleted);
+        Directory.CreateDirectory(featureCompareArchivesPathError);
+
+        var archivesToProcess = Directory
+            .GetFiles(featureCompareArchivesPath, "*", SearchOption.TopDirectoryOnly)
+            .Select(path => new FileInfo(path))
+            .Select(fi =>
+            {
+                var downloadId = fi.Name.Replace(".zip", "");
+                if (Guid.TryParseExact(downloadId, "N", out _))
+                {
+                    var beforeFcFileName = $"{downloadId}.zip";
+                    var afterFcFileName = $"{downloadId}.zip-after.zip";
+                    var afterFcFile = Path.Combine(fi.Directory!.FullName, afterFcFileName);
+
+                    var archiveToProcess = new
+                    {
+                        DownloadId = downloadId,
+                        BeforeFcPath = fi.FullName,
+                        AfterFcPath = afterFcFile,
+                        BeforeFcCompletedPath = Path.Combine(featureCompareArchivesPathCompleted, beforeFcFileName),
+                        AfterFcCompletedPath = Path.Combine(featureCompareArchivesPathCompleted, afterFcFileName),
+                        BeforeFcErrorPath = Path.Combine(featureCompareArchivesPathError, beforeFcFileName),
+                        AfterFcErrorPath = Path.Combine(featureCompareArchivesPathError, afterFcFileName),
+                        TxtErrorPath = Path.Combine(featureCompareArchivesPathError, $"{beforeFcFileName}-error.txt")
+                    };
+                    if (File.Exists(archiveToProcess.BeforeFcCompletedPath) || File.Exists(archiveToProcess.BeforeFcErrorPath))
+                    {
+                        File.Delete(archiveToProcess.BeforeFcPath);
+                        return null;
+                    }
+
+                    return archiveToProcess;
+                }
+
+                return null;
+
+            })
+            .Where(x => x is not null
+                        && !File.Exists(x.BeforeFcCompletedPath)
+                        && !File.Exists(x.TxtErrorPath))
+            .ToArray();
+
+        foreach (var archiveToProcess in archivesToProcess)
         {
-            await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.BackOffice.Uploads.FeatureCompareZipArchiveTranslatorData.{zipFileName}-before.zip"))
+            if (!File.Exists(archiveToProcess.AfterFcPath))
             {
-                await embeddedStream!.CopyToAsync(beforeFcArchiveStream);
-            }
+                var tempPath = Path.Combine(Path.GetTempPath(), archiveToProcess.DownloadId);
+                var tempPathBeforeFc = Path.Combine(tempPath, "before");
+                var tempPathAfterFc = Path.Combine(tempPath, "after");
 
-            beforeFcArchiveStream.Position = 0;
+                Directory.CreateDirectory(tempPathBeforeFc);
+                Directory.CreateDirectory(tempPathAfterFc);
 
-            await using (var embeddedStream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"RoadRegistry.Tests.BackOffice.Uploads.FeatureCompareZipArchiveTranslatorData.{zipFileName}-after.zip"))
-            {
-                await embeddedStream!.CopyToAsync(afterFcArchiveStream);
-            }
+                using (var beforeFcArchive = new ZipArchive(File.OpenRead(archiveToProcess.BeforeFcPath)))
+                {
+                    beforeFcArchive.ExtractToDirectory(tempPathBeforeFc);
+                }
 
-            afterFcArchiveStream.Position = 0;
+                try
+                {
+                    await Process.Start(featureCompareRunnerPath, new[]
+                    {
+                        tempPathBeforeFc, tempPathAfterFc
+                    }).WaitForExitAsync();
 
-            using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
-            using (var afterFcArchive = new ZipArchive(afterFcArchiveStream))
-            {
-                //var validator = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
-                //var validationResult = validator.Validate(beforeFcArchive, ZipArchiveMetadata.Empty);
-                //var fileErrors = validationResult.OfType<FileError>().ToArray();
-                //if (fileErrors.Any())
-                //{
-                //    foreach (var problem in fileErrors)
-                //    {
-                //        _outputHelper.WriteLine($"{problem.File}: {problem.Reason}, Parameters: {string.Join(", ", problem.Parameters.Select(p => $"{p.Name}={p.Value}"))}");
-                //    }
-                //    throw new ZipArchiveValidationException(validationResult);
-                //}
+                    using (var ms = new MemoryStream())
+                    {
+                        using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, true, Encoding.UTF8))
+                        {
+                            var afterFcFiles = Directory.GetFiles(tempPathAfterFc);
+                            foreach (var file in afterFcFiles)
+                            {
+                                var entry = archive.CreateEntry(new FileInfo(file).Name);
+                                using (var entryStream = entry.Open())
+                                {
+                                    await entryStream.WriteAsync(await File.ReadAllBytesAsync(file));
+                                }
+                            }
+                        }
 
-                var sw = Stopwatch.StartNew();
-                _outputHelper.WriteLine($"{zipFileName} started translate Before-FC");
-                var changes = await _sut.Translate(beforeFcArchive, CancellationToken.None);
-                _outputHelper.WriteLine($"{zipFileName} finished translate Before-FC at {sw.Elapsed}");
-
-                sw = Stopwatch.StartNew();
-                _outputHelper.WriteLine($"{zipFileName} started translate After-FC");
-                var expected = _zipArchiveTranslator.Translate(afterFcArchive);
-                _outputHelper.WriteLine($"{zipFileName} finished translate After-FC at {sw.Elapsed}");
-
-                Assert.Equal(expected, changes, new TranslatedChangeEqualityComparer(true));
+                        await File.WriteAllBytesAsync(archiveToProcess.AfterFcPath, ms.ToArray());
+                    }
+                }
+                finally
+                {
+                    Directory.Delete(tempPath, true);
+                }
             }
         }
+
+        foreach (var archiveToProcess in archivesToProcess)
+        {
+            bool completed;
+
+            var actualChangesJsonPath = $"{archiveToProcess.BeforeFcPath}-events-actual.json";
+            var expectedChangesJsonPath = $"{archiveToProcess.BeforeFcPath}-events-expected.json";
+
+            try
+            {
+                using (var beforeFcArchiveStream = File.OpenRead(archiveToProcess.BeforeFcPath))
+                using (var afterFcArchiveStream = File.OpenRead(archiveToProcess.AfterFcPath))
+                {
+                    using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
+                    using (var afterFcArchive = new ZipArchive(afterFcArchiveStream))
+                    {
+                        //var validator = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
+                        //var validationResult = validator.Validate(beforeFcArchive, ZipArchiveMetadata.Empty);
+                        //var fileErrors = validationResult.OfType<FileError>().ToArray();
+                        //if (fileErrors.Any())
+                        //{
+                        //    foreach (var problem in fileErrors)
+                        //    {
+                        //        _outputHelper.WriteLine($"{problem.File}: {problem.Reason}, Parameters: {string.Join(", ", problem.Parameters.Select(p => $"{p.Name}={p.Value}"))}");
+                        //    }
+                        //    throw new ZipArchiveValidationException(validationResult);
+                        //}
+
+                        var sw = Stopwatch.StartNew();
+                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} started translate After-FC");
+                        var expected = _zipArchiveTranslator.Translate(afterFcArchive);
+                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} finished translate After-FC at {sw.Elapsed}");
+                        await WriteToFile(expectedChangesJsonPath, expected);
+
+                        sw = Stopwatch.StartNew();
+                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} started translate Before-FC");
+                        var changes = await _sut.Translate(beforeFcArchive, CancellationToken.None);
+                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} finished translate Before-FC at {sw.Elapsed}");
+                        await WriteToFile(actualChangesJsonPath, changes);
+
+                        Assert.Equal(expected, changes, new TranslatedChangeEqualityComparer(true));
+
+                        completed = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                completed = false;
+
+                if (File.Exists(expectedChangesJsonPath))
+                {
+                    File.Move(expectedChangesJsonPath, $"{archiveToProcess.BeforeFcErrorPath}-events-expected.json");
+                }
+                if (File.Exists(actualChangesJsonPath))
+                {
+                    File.Move(actualChangesJsonPath, $"{archiveToProcess.BeforeFcErrorPath}-events-actual.json");
+                }
+
+                File.Move(archiveToProcess.BeforeFcPath, archiveToProcess.BeforeFcErrorPath);
+                File.Move(archiveToProcess.AfterFcPath, archiveToProcess.AfterFcErrorPath);
+
+                await File.WriteAllTextAsync(archiveToProcess.TxtErrorPath, ex.ToString());
+            }
+
+            if (completed)
+            {
+                if (File.Exists(expectedChangesJsonPath))
+                {
+                    File.Delete(expectedChangesJsonPath);
+                }
+                if (File.Exists(actualChangesJsonPath))
+                {
+                    File.Delete(actualChangesJsonPath);
+                }
+
+                File.Move(archiveToProcess.BeforeFcPath, archiveToProcess.BeforeFcCompletedPath);
+                File.Move(archiveToProcess.AfterFcPath, archiveToProcess.AfterFcCompletedPath);
+            }
+        }
+    }
+
+    private static async Task WriteToFile(string path, TranslatedChanges translatedChanges)
+    {
+        var requestedChanges = translatedChanges.Select(change =>
+        {
+            var requestedChange = new RequestedChange();
+            change.TranslateTo(requestedChange);
+
+            if (requestedChange.AddRoadNode?.Geometry.SpatialReferenceSystemIdentifier == 0)
+            {
+                requestedChange.AddRoadNode.Geometry.SpatialReferenceSystemIdentifier = 31370;
+            }
+            if (requestedChange.ModifyRoadNode?.Geometry.SpatialReferenceSystemIdentifier == 0)
+            {
+                requestedChange.ModifyRoadNode.Geometry.SpatialReferenceSystemIdentifier = 31370;
+            }
+            if (requestedChange.AddRoadSegment?.Geometry.SpatialReferenceSystemIdentifier == 0)
+            {
+                requestedChange.AddRoadSegment.Geometry.SpatialReferenceSystemIdentifier = 31370;
+            }
+            if (requestedChange.ModifyRoadSegment?.Geometry.SpatialReferenceSystemIdentifier == 0)
+            {
+                requestedChange.ModifyRoadSegment.Geometry.SpatialReferenceSystemIdentifier = 31370;
+            }
+
+            return requestedChange;
+        }).ToList();
+
+        await File.WriteAllTextAsync(path, JsonConvert.SerializeObject(requestedChanges, Formatting.Indented, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()));
     }
 }

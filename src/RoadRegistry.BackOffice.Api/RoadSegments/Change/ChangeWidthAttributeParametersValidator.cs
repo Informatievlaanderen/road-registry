@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Change;
 
+using System;
+using Core;
 using Core.ProblemCodes;
 using Extensions;
 using FluentValidation;
@@ -22,6 +24,16 @@ public class ChangeWidthAttributeParametersValidator : AbstractValidator<ChangeW
             .WithProblemCode(ProblemCode.ToPosition.IsRequired)
             .Must(x => RoadSegmentPosition.Accepts(x!.Value))
             .WithProblemCode(ProblemCode.ToPosition.NotValid)
+            .Must((item, x) =>
+                item.VanPositie is not null
+                && RoadSegmentPosition.Accepts(item.VanPositie.Value)
+                && item.TotPositie is not null
+                && RoadSegmentPosition.Accepts(item.TotPositie.Value)
+                && new RoadSegmentPosition(item.VanPositie.Value).ToDecimal()
+                    .IsReasonablyLessThan(new RoadSegmentPosition(item.TotPositie.Value), (decimal)DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance
+                )
+            )
+            .WithProblemCode(ProblemCode.ToPosition.LessThanOrEqualFromPosition)
             ;
 
         RuleFor(x => x.Breedte)
