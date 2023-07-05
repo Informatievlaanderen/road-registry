@@ -43,8 +43,7 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             {
                 foreach (var feature in addedFeatures)
                 {
-                    feature.Attributes.RoadSegmentId = wegsegment.GetNewOrOriginalId();
-                    processedRecords.Add(new Record(feature, RecordType.Added));
+                    processedRecords.Add(new Record(feature, RecordType.Added, wegsegment.GetNewOrOriginalId()));
                 }
             }
         }

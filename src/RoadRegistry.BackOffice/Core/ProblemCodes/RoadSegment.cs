@@ -199,6 +199,7 @@ public sealed partial record ProblemCode
         public static readonly ProblemCode IsRequired = new("ToPositionIsRequired");
         public static readonly ProblemCode NotValid = new("ToPositionNotValid");
         public static readonly ProblemCode NotEqualToNextFromPosition = new("ToPositionNotEqualToNextFromPosition");
+        public static readonly ProblemCode LessThanOrEqualFromPosition = new("ToPositionLessThanOrEqualFromPosition");
     }
 
     public static class Width

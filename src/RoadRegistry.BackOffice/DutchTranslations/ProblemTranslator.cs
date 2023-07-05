@@ -115,6 +115,7 @@ public static class ProblemTranslator
         {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.")},
         {ProblemCode.ToPosition.IsRequired, problem => new(problem.Severity, "TotPositieVerplicht", "TotPositie is verplicht.")},
         {ProblemCode.ToPosition.NotEqualToNextFromPosition, problem => new(problem.Severity, "TotPositieNietGelijkAanVolgendeVanPositie", $"De totPositie verschilt van de volgende vanPositie.")},
+        {ProblemCode.ToPosition.LessThanOrEqualFromPosition, problem => new(problem.Severity, "TotPositieKleinerOfGelijkAanVanPositie", $"De totPositie moet groter zijn dan de vanPositie.")},
         {ProblemCode.ToPosition.NotValid, problem => new(problem.Severity, "TotPositieNietCorrect", $"TotPositie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.Type.IsRequired, problem => new(problem.Severity, "TypeVerplicht", "Type is verplicht.")},
         {ProblemCode.Type.NotValid, problem => new(problem.Severity, "TypeNietCorrect", $"Type is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},

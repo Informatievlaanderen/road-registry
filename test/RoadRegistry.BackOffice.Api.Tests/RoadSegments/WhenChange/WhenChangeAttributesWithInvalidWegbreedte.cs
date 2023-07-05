@@ -124,6 +124,27 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
     }
 
     [Fact]
+    public async Task TotPositie_TotPositieKleinerOfGelijkAanVanPositie()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                Wegbreedte = new ChangeWidthAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 945,
+                        TotPositie = 45,
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                    }
+                }
+            }
+        }, "TotPositieKleinerOfGelijkAanVanPositie");
+    }
+
+    [Fact]
     public async Task Breedte_BreedteVerplicht()
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters

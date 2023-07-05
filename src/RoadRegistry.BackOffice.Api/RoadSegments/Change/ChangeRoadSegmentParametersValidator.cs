@@ -78,13 +78,13 @@ public class ChangeRoadSegmentParametersValidator : AbstractValidator<ChangeRoad
                     return false;
                 }
 
-                var vanPos = attributes[i + 1].VanPositie;
-                if (vanPos == null)
+                var nextVanPos = attributes[i + 1].VanPositie;
+                if (nextVanPos == null)
                 {
                     return false;
                 }
 
-                if (!totPos.Value.EqualsWithTolerance(vanPos.Value, (decimal)DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+                if (!totPos.Value.IsReasonablyEqualTo(nextVanPos.Value, (decimal)DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
                 {
                     return false;
                 }
