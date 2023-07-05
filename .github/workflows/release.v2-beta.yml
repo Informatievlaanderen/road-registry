@@ -53,7 +53,6 @@ jobs:
       - name: Set Release Version
         id: set-version
         run: |
-            echo $(cat semver)
             [ ! -f semver ] && echo none > semver
             echo $(cat semver)
             echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
