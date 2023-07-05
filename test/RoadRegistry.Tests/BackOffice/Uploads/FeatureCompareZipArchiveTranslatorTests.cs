@@ -32,12 +32,12 @@ public class FeatureCompareZipArchiveTranslatorTests
         Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
     }
 
-    //[Fact(Skip = "For local testing only due to big archive files")]
-    [Fact]
+    [Fact(Skip = "For local testing only due to big archive files")]
+    //[Fact]
     public async Task TranslateWithRecordsReturnsExpectedResult()
     {
         const string featureCompareArchivesPath = @"\temp\fc-archives";
-        const string featureCompareRunnerPath = @"C:\DV\Repos\road-registry-featurecompare\src\RoadRegistry.FeatureCompare.Runner\bin\Debug\RoadRegistry.FeatureCompare.Runner.exe";
+        const string featureCompareRunnerPath = @"\DV\Repos\road-registry-featurecompare\src\RoadRegistry.FeatureCompare.Runner\bin\Debug\RoadRegistry.FeatureCompare.Runner.exe";
 
         var featureCompareArchivesPathCompleted = Path.Combine(featureCompareArchivesPath, "_completed");
         var featureCompareArchivesPathError = Path.Combine(featureCompareArchivesPath, "_error");
