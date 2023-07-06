@@ -255,5 +255,8 @@ Target.create "Push" ignore
   ==> "Push"
 // Possibly add more projects to push here
 
+// Set assembly versions
+Target.create "SetAssemblyVersions" (fun _ -> setVersions "SolutionInfo.cs")
+
 // By default we build & test
 Target.runOrDefault "Test"
