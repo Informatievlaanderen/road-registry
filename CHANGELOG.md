@@ -1,3 +1,10 @@
+## [3.52.3](https://github.com/informatievlaanderen/road-registry/compare/v3.52.2...v3.52.3) (2023-07-06)
+
+
+### Bug Fixes
+
+* Add support for classic and new pipeline ([#1046](https://github.com/informatievlaanderen/road-registry/issues/1046)) ([0688bfc](https://github.com/informatievlaanderen/road-registry/commit/0688bfc16dfdd3fc16d4deeba60fc28b86192018))
+
 ## [3.52.2](https://github.com/informatievlaanderen/road-registry/compare/v3.52.1...v3.52.2) (2023-07-06)
 
 
