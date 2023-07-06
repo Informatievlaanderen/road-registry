@@ -1,3 +1,20 @@
+## [3.52.2](https://github.com/informatievlaanderen/road-registry/compare/v3.52.1...v3.52.2) (2023-07-06)
+
+
+### Bug Fixes
+
+* Add environment variables and fix project name ([#1039](https://github.com/informatievlaanderen/road-registry/issues/1039)) ([5d8bab5](https://github.com/informatievlaanderen/road-registry/commit/5d8bab5b6f9218d35fd004bf4fb281186479f154))
+* Add multiple release pipeline with dry-run ([#1036](https://github.com/informatievlaanderen/road-registry/issues/1036)) ([6363138](https://github.com/informatievlaanderen/road-registry/commit/63631380a454658bcd88b586dccd245caa226341))
+* Added mandatory test-project arguments ([#1041](https://github.com/informatievlaanderen/road-registry/issues/1041)) ([b34949c](https://github.com/informatievlaanderen/road-registry/commit/b34949c91cdac7c3133169923d0a9a9e7d318c07))
+* Added NPM token and placed CI marker ([#1037](https://github.com/informatievlaanderen/road-registry/issues/1037)) ([631ab25](https://github.com/informatievlaanderen/road-registry/commit/631ab25e545e2b40f4e0e0bf66d7a05f6551430c))
+* lower CatchUpBatchSize to 500 ([#1044](https://github.com/informatievlaanderen/road-registry/issues/1044)) ([56711f1](https://github.com/informatievlaanderen/road-registry/commit/56711f1a758b57ed4ae0e82cd6ca783e87dea66b))
+* Reformed package.json for semantic release dry-runs ([#1038](https://github.com/informatievlaanderen/road-registry/issues/1038)) ([8233da5](https://github.com/informatievlaanderen/road-registry/commit/8233da57ce952691278151eb3fe2270249def663))
+* Required environment variables on top level ([#1043](https://github.com/informatievlaanderen/road-registry/issues/1043)) ([bbcf73a](https://github.com/informatievlaanderen/road-registry/commit/bbcf73a7a9b496951f2ace01a5fd68cdd7723d72))
+* Startup failure after last merge ([#1040](https://github.com/informatievlaanderen/road-registry/issues/1040)) ([b879830](https://github.com/informatievlaanderen/road-registry/commit/b8798306004e50908f7f59bbb88a69c8ba697697))
+* Version bump ([#1035](https://github.com/informatievlaanderen/road-registry/issues/1035)) ([0d3d79b](https://github.com/informatievlaanderen/road-registry/commit/0d3d79bac34c999cd6b0dd6133f4f80c5c116f69))
+* WR-757 ignore errors during CleanArchive, let validation handle it ([#1045](https://github.com/informatievlaanderen/road-registry/issues/1045)) ([e7016a5](https://github.com/informatievlaanderen/road-registry/commit/e7016a55103753fc1650ce6b3b188900f09061c9))
+* WR-763 WR-695 FeatureCompare translation tweaks + add validation for TotPos>VanPos ([#1042](https://github.com/informatievlaanderen/road-registry/issues/1042)) ([e971a09](https://github.com/informatievlaanderen/road-registry/commit/e971a09345e53509ac011efa3d69bb36ce5fba6a))
+
 ## [3.52.1](https://github.com/informatievlaanderen/road-registry/compare/v3.52.0...v3.52.1) (2023-07-03)
 
 
