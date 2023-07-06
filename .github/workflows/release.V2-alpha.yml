@@ -62,9 +62,8 @@ jobs:
       shell: bash
 
   build-backoffice-api:
-    name: Build BackOffice Api
-    #uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
-    uses: ./.github/workflows/build-image.yml
+    name: Build BackOffice Api    
+    uses: ./.github/workflows/build-image-sql.yml
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -74,8 +73,7 @@ jobs:
       image-name: backoffice-api
       test-project: RoadRegistry.BackOffice.Api.Tests
       build-project: RoadRegistry.BackOffice.Api
-      semver: ${{ needs.set-release-version.outputs.version }}
-      run-docker-db: true
+      semver: ${{ needs.set-release-version.outputs.version }}      
     secrets: inherit
 
   build-backoffice-ui:
@@ -95,7 +93,7 @@ jobs:
 
   build-backoffice-eventhost:
     name: Build BackOffice Event Host
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: ./.github/workflows/build-image-sql.yml
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -125,7 +123,7 @@ jobs:
 
   build-backoffice-commandhost:
       name: Build BackOffice Command Host
-      uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+      uses: ./.github/workflows/build-image-sql.yml
       needs: [ set-release-version ]
       if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
       with:
