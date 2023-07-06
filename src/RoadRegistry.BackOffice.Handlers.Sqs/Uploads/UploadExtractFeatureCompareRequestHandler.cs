@@ -116,7 +116,17 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         using (var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true))
         {
             var cleaner = new BeforeFeatureCompareZipArchiveCleaner(_encoding);
-            var cleanResult = await cleaner.CleanAsync(archive, cancellationToken);
+            CleanResult cleanResult;
+            try
+            {
+                cleanResult = await cleaner.CleanAsync(archive, cancellationToken);
+            }
+            catch
+            {
+                // ignore exceptions, let the validation handle it
+                cleanResult = CleanResult.NotApplicable;
+            }
+
             if (cleanResult != CleanResult.Changed)
             {
                 readStream.Position = 0;
