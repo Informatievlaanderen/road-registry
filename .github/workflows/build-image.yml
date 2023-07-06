@@ -24,10 +24,23 @@ on:
       semver:
         required: true
         type: string
+      run-docker-db:
+        required: false
+        type: boolean
 
 jobs:
   build-image:
     runs-on: ubuntu-latest
+
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: E@syP@ssw0rd
+          MSSQL_TCP_PORT: 1433
+        ports:
+          - 1433:1433
 
     steps:
       - name: Check version
@@ -38,7 +51,7 @@ jobs:
 
       - name: Checkout Code
         uses: actions/checkout@v3
-
+        
       - name: Cache Paket
         uses: actions/cache@v3
         env:
