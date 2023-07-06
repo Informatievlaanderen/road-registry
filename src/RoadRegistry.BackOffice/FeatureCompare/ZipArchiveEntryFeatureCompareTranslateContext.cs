@@ -33,9 +33,10 @@ public class RoadSegmentRecord
     public RoadSegmentFeatureCompareAttributes Attributes { get; }
     public RecordType RecordType { get; }
 
-    public bool GeometryChanged { get; set; }
-    public string CompareIdn { get; set; }
+    public bool GeometryChanged { get; init; }
+    public string CompareIdn { get; init; }
     public int? TempId { get; set; }
+    public FeatureType? FeatureType { get; init; }
 
     public int GetNewOrOriginalId()
     {

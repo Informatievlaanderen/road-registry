@@ -130,6 +130,28 @@ public class WhenChangeAttributesWithInvalidAantalRijstroken : WhenChangeWithInv
     }
 
     [Fact]
+    public async Task TotPositie_TotPositieKleinerOfGelijkAanVanPositie()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                AantalRijstroken = new ChangeLaneAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 945,
+                        TotPositie = 45,
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
+                    }
+                }
+            }
+        }, "TotPositieKleinerOfGelijkAanVanPositie");
+    }
+
+    [Fact]
     public async Task Aantal_AantalVerplicht()
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters

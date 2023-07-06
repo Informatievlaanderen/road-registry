@@ -87,7 +87,7 @@ public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
                     if (modifyChange.Lanes is not null)
                     {
                         var last = modifyChange.Lanes.Last();
-                        if (!last.To.ToDouble().EqualsWithTolerance(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+                        if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
                         {
                             problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length));
                         }
@@ -96,7 +96,7 @@ public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
                     if (modifyChange.Surfaces is not null)
                     {
                         var last = modifyChange.Surfaces.Last();
-                        if (!last.To.ToDouble().EqualsWithTolerance(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+                        if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
                         {
                             problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length));
                         }
@@ -105,7 +105,7 @@ public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
                     if (modifyChange.Widths is not null)
                     {
                         var last = modifyChange.Widths.Last();
-                        if (!last.To.ToDouble().EqualsWithTolerance(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+                        if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
                         {
                             problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length));
                         }
