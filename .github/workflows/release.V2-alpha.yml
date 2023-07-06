@@ -62,7 +62,8 @@ jobs:
 
   build-backoffice-api:
     name: Build BackOffice Api
-    uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    #uses: Informatievlaanderen/build-pipeline/.github/workflows/build-image.yml@main
+    uses: ./.github/workflows/build-image.yml
     needs: [ set-release-version ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
@@ -73,6 +74,7 @@ jobs:
       test-project: RoadRegistry.BackOffice.Api.Tests
       build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}
+      run-docker-db: true
     secrets: inherit
 
   build-backoffice-ui:
