@@ -24,9 +24,6 @@ on:
       semver:
         required: true
         type: string
-      run-docker-db:
-        required: false
-        type: boolean
 
 jobs:
   build-image:
