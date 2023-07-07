@@ -13,19 +13,7 @@
 	  <PublishReadyToRun>false</PublishReadyToRun>
 	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
 	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <DocumentationFile>bin\Debug\net6.0\RoadRegistry.BackOffice.Abstractions.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DocumentationFile>bin\Debug\net6.0\RoadRegistry.BackOffice.Abstractions.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP;NET6_0</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DocumentationFile>bin\Release\net6.0\RoadRegistry.BackOffice.Abstractions.xml</DocumentationFile>
+    <DocumentationFile>RoadRegistry.BackOffice.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
