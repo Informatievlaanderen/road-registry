@@ -322,7 +322,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       pack-file: Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice
-      test-project: RoadRegistry.Tests
+      test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.BackOffice
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -346,7 +346,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       pack-file: Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.Api
-      test-project: RoadRegistry.BackOffice.Api.Tests
+      test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -358,7 +358,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       pack-file: Be.Vlaanderen.Basisregisters.RoadRegistry.BackOffice.ZipArchiveWriters
-      test-project: RoadRegistry.BackOffice.ZipArchiveWriters.Tests
+      test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.BackOffice.ZipArchiveWriters
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
@@ -370,7 +370,7 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       pack-file: Be.Vlaanderen.Basisregisters.RoadRegistry.Projector
-      test-project: RoadRegistry.Projector.Tests
+      test-project: RoadRegistry.Empty.Tests
       build-project: RoadRegistry.Projector
       semver: ${{ needs.set-release-version.outputs.version }}
     secrets: inherit
