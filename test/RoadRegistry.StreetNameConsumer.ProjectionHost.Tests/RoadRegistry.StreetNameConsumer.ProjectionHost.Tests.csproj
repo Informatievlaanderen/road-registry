@@ -12,8 +12,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src\RoadRegistry.StreetNameConsumer.Projections\RoadRegistry.StreetNameConsumer.Projections.csproj" />
-		<ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests\RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests.csproj" />
+		<ProjectReference Include="..\..\src\RoadRegistry.StreetNameConsumer.ProjectionHost\RoadRegistry.StreetNameConsumer.ProjectionHost.csproj" />
 		<ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
 	</ItemGroup>
 
