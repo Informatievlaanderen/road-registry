@@ -1,3 +1,10 @@
+## [3.52.5](https://github.com/informatievlaanderen/road-registry/compare/v3.52.4...v3.52.5) (2023-07-07)
+
+
+### Bug Fixes
+
+* Add set-output otherwise this will be blank ([#1053](https://github.com/informatievlaanderen/road-registry/issues/1053)) ([12e5ed2](https://github.com/informatievlaanderen/road-registry/commit/12e5ed20802f7babbef7bff1c0d36cc928cd37fa))
+
 ## [3.52.4](https://github.com/informatievlaanderen/road-registry/compare/v3.52.3...v3.52.4) (2023-07-07)
 
 
