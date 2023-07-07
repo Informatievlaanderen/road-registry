@@ -36,6 +36,7 @@
 			<DependentUpon>appsettings.json</DependentUpon>
 		</Content>
 		<Content Include="init.sh" CopyToOutputDirectory="Always" />
+		<Content Include="paket.template" CopyToOutputDirectory="Always" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -49,7 +50,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="paket.template" CopyToOutputDirectory="Never" />
 		<None Update="RoadRegistry.BackOffice.Api.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

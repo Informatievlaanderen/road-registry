@@ -48,5 +48,9 @@
 	  <Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="paket.template" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
