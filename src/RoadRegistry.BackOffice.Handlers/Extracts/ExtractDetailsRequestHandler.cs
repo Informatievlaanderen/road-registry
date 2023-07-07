@@ -29,7 +29,7 @@ public class ExtractDetailsRequestHandler : EndpointRequestHandler<ExtractDetail
         {
             DownloadId = new DownloadId(record.DownloadId),
             Description = record.Description,
-            Contour = (MultiPolygon)record.Contour,
+            Contour = record.Contour.ToMultiPolygon(),
             ExtractRequestId = ExtractRequestId.FromExternalRequestId(record.ExternalRequestId),
             RequestedOn = record.RequestedOn,
             IsInformative = record.IsInformative
