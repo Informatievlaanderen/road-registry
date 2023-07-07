@@ -544,6 +544,7 @@ jobs:
       run: |
         [ ! -f semver ] && echo none > semver
         echo $(cat semver)
+        echo ::set-output name=version::$(cat semver)
         echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
       shell: bash
 
