@@ -23,7 +23,7 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
 
     public override async Task<DownloadExtractByContourResponse> HandleRequestAsync(DownloadExtractByContourRequest request, DownloadId downloadId, string randomExternalRequestId, CancellationToken cancellationToken)
     {
-        var geometry = (MultiPolygon)_reader.Read(request.Contour);
+        var geometry = _reader.Read(request.Contour).ToMultiPolygon();
 
 
         var message = new RequestRoadNetworkExtract
