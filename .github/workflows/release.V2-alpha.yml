@@ -765,7 +765,7 @@ jobs:
     steps:
     - name: Deploy services
       env:
-        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
+        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/road-registry-${{matrix.services}}
         STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/road-registry-${{matrix.services}}
       uses: informatievlaanderen/awscurl-polling-action/polling-action@main
       with:
@@ -964,7 +964,7 @@ jobs:
     steps:
     - name: CD services
       env:
-        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
+        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/road-registry-${{matrix.services}}
         STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/road-registry-${{matrix.services}}
       uses: informatievlaanderen/awscurl-polling-action/polling-action@main
       with:
