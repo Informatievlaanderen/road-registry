@@ -766,7 +766,7 @@ jobs:
     - name: Deploy services
       env:
         BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
-        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
+        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/road-registry-${{matrix.services}}
       uses: informatievlaanderen/awscurl-polling-action/polling-action@main
       with:
           environment: test
@@ -839,7 +839,7 @@ jobs:
     - name: Notify deployment started
       uses: slackapi/slack-github-action@v1.23.0
       with:
-        channel-id: '#team-dinosaur-dev'
+        channel-id: '#team-wegenregister-dev'
         slack-message: Deployment of road-registry to test has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
@@ -860,7 +860,7 @@ jobs:
     - name: Notify deployment finished
       uses: slackapi/slack-github-action@v1.23.0
       with:
-        channel-id: '#team-dinosaur-dev'
+        channel-id: '#team-wegenregister-dev'
         slack-message: Deployment of road-registry to test has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
@@ -965,7 +965,7 @@ jobs:
     - name: CD services
       env:
         BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
-        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
+        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/road-registry-${{matrix.services}}
       uses: informatievlaanderen/awscurl-polling-action/polling-action@main
       with:
           environment: stg
@@ -1037,7 +1037,7 @@ jobs:
     - name: Notify deployment finished
       uses: slackapi/slack-github-action@v1.23.0
       with:
-        channel-id: '#team-dinosaur-dev'
+        channel-id: '#team-wegenregister-dev'
         slack-message: Deployment of road-registry to staging has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
@@ -1059,7 +1059,7 @@ jobs:
     - name: Notify deployment started
       uses: slackapi/slack-github-action@v1.23.0
       with:
-        channel-id: '#team-dinosaur-dev'
+        channel-id: '#team-wegenregister-dev'
         slack-message: Deployment of road-registry to staging has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
