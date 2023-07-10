@@ -1,3 +1,22 @@
+## [3.52.5](https://github.com/informatievlaanderen/road-registry/compare/v3.52.4...v3.52.5) (2023-07-07)
+
+
+### Bug Fixes
+
+* Add set-output otherwise this will be blank ([#1053](https://github.com/informatievlaanderen/road-registry/issues/1053)) ([12e5ed2](https://github.com/informatievlaanderen/road-registry/commit/12e5ed20802f7babbef7bff1c0d36cc928cd37fa))
+
+## [3.52.4](https://github.com/informatievlaanderen/road-registry/compare/v3.52.3...v3.52.4) (2023-07-07)
+
+
+### Bug Fixes
+
+* Added secret usage and NPM token environment variable ([#1047](https://github.com/informatievlaanderen/road-registry/issues/1047)) ([95de726](https://github.com/informatievlaanderen/road-registry/commit/95de726103bf4c1ab4301f0fcc5088db9cfdae3d))
+* Paket templates should be inside output folders ([#1049](https://github.com/informatievlaanderen/road-registry/issues/1049)) ([8e49c08](https://github.com/informatievlaanderen/road-registry/commit/8e49c0898647a1cb1acc9d06ad1df77db6db7933))
+* Remove composed container environment variable ([#1048](https://github.com/informatievlaanderen/road-registry/issues/1048)) ([fa6182b](https://github.com/informatievlaanderen/road-registry/commit/fa6182bfc36b3d05aff4401f8ebed0e8e9318992))
+* Removed xml notation and fixed paket.template ([#1051](https://github.com/informatievlaanderen/road-registry/issues/1051)) ([5fe25e9](https://github.com/informatievlaanderen/road-registry/commit/5fe25e989e429bf1fb613e5d6cfd742be24a0845))
+* Required specific dotnet version for semantic release ([#1052](https://github.com/informatievlaanderen/road-registry/issues/1052)) ([282cd1e](https://github.com/informatievlaanderen/road-registry/commit/282cd1e42ca4281ec9ee85b096f802bccb6ce814))
+* when reading extract contour it won't matter if it's polygon/multipolygon ([#1050](https://github.com/informatievlaanderen/road-registry/issues/1050)) ([173513b](https://github.com/informatievlaanderen/road-registry/commit/173513b060843ce63257d23d2dc76f26ed5a6c71))
+
 ## [3.52.3](https://github.com/informatievlaanderen/road-registry/compare/v3.52.2...v3.52.3) (2023-07-06)
 
 
