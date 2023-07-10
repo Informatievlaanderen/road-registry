@@ -1,3 +1,10 @@
+## [3.52.7](https://github.com/informatievlaanderen/road-registry/compare/v3.52.6...v3.52.7) (2023-07-10)
+
+
+### Bug Fixes
+
+* Incorrect build URL ([#1055](https://github.com/informatievlaanderen/road-registry/issues/1055)) ([1cc3f35](https://github.com/informatievlaanderen/road-registry/commit/1cc3f35d6acfd985ba944f7105c198789e305359))
+
 ## [3.52.6](https://github.com/informatievlaanderen/road-registry/compare/v3.52.5...v3.52.6) (2023-07-10)
 
 
