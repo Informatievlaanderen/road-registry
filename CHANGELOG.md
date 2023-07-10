@@ -1,3 +1,10 @@
+## [3.52.6](https://github.com/informatievlaanderen/road-registry/compare/v3.52.5...v3.52.6) (2023-07-10)
+
+
+### Bug Fixes
+
+* Incorrrect slack channel and status URL ([#1054](https://github.com/informatievlaanderen/road-registry/issues/1054)) ([7c833b1](https://github.com/informatievlaanderen/road-registry/commit/7c833b12a34b504f8339d3b2791edf56d1c59b69))
+
 ## [3.52.5](https://github.com/informatievlaanderen/road-registry/compare/v3.52.4...v3.52.5) (2023-07-07)
 
 
