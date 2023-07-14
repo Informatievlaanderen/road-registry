@@ -69,8 +69,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_BackOfficeApi
-      image-file: rr-backoffice-api-image.tar
-      image-name: backoffice-api
+      image-file: rr-road-registry-backoffice-api-image.tar
+      image-name: road-registry-backoffice-api
       test-project: RoadRegistry.BackOffice.Api.Tests
       build-project: RoadRegistry.BackOffice.Api
       semver: ${{ needs.set-release-version.outputs.version }}      
@@ -84,8 +84,8 @@ jobs:
   #   with:
   #     registry: road-registry
   #     build-target: Containerize_BackOfficeUi
-  #     image-file: rr-backoffice-ui-image.tar
-  #     image-name: backoffice-ui
+  #     image-file: rr-road-registry-backoffice-ui-image.tar
+  #     image-name: road-registry-backoffice-ui
   #     build-project: RoadRegistry.BackOffice.UI
   #     semver: ${{ needs.set-release-version.outputs.version }}
   #   secrets: inherit
@@ -98,8 +98,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_BackOfficeEventHost
-      image-file: rr-backoffice-eventhost-image.tar
-      image-name: backoffice-eventhost
+      image-file: rr-road-registry-backoffice-eventhost-image.tar
+      image-name: road-registry-backoffice-eventhost
       test-project: RoadRegistry.BackOffice.EventHost.Tests
       build-project: RoadRegistry.BackOffice.EventHost
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -113,8 +113,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_BackOfficeExtractHost
-      image-file: rr-backoffice-extracthost-image.tar
-      image-name: backoffice-extracthost
+      image-file: rr-road-registry-backoffice-extracthost-image.tar
+      image-name: road-registry-backoffice-extracthost
       test-project: RoadRegistry.BackOffice.ExtractHost.Tests
       build-project: RoadRegistry.BackOffice.ExtractHost
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -128,8 +128,8 @@ jobs:
       with:
         registry: road-registry
         build-target: Containerize_BackOfficeCommandHost
-        image-file: rr-backoffice-commandhost-image.tar
-        image-name: backoffice-commandhost
+        image-file: rr-road-registry-backoffice-commandhost-image.tar
+        image-name: road-registry-backoffice-commandhost
         test-project: RoadRegistry.BackOffice.CommandHost.Tests
         build-project: RoadRegistry.BackOffice.CommandHost
         semver: ${{ needs.set-release-version.outputs.version }}
@@ -143,8 +143,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_BackOfficeMessagingHostSqs
-      image-file: rr-backoffice-messaginghost-sqs-image.tar
-      image-name: backoffice-messaginghost-sqs
+      image-file: rr-road-registry-backoffice-messaginghost-sqs-image.tar
+      image-name: road-registry-backoffice-messaginghost-sqs
       test-project: RoadRegistry.BackOffice.MessagingHost.Sqs.Tests
       build-project: RoadRegistry.BackOffice.MessagingHost.Sqs
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -158,8 +158,8 @@ jobs:
       with:
         registry: road-registry
         build-target: Containerize_AdminHost
-        image-file: rr-adminhost-image.tar
-        image-name: adminhost
+        image-file: rr-road-registry-adminhost-image.tar
+        image-name: road-registry-adminhost
         test-project: RoadRegistry.AdminHost.Tests
         build-project: RoadRegistry.AdminHost
         semver: ${{ needs.set-release-version.outputs.version }}
@@ -173,8 +173,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_Projector
-      image-file: rr-projector-image.tar
-      image-name: projector
+      image-file: rr-road-registry-projector-image.tar
+      image-name: road-registry-projector
       test-project: RoadRegistry.Projector.Tests
       build-project: RoadRegistry.Projector
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -188,8 +188,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_EditorProjectionHost
-      image-file: rr-editor-projectionhost-image.tar
-      image-name: editor-projectionhost
+      image-file: rr-road-registry-editor-projectionhost-image.tar
+      image-name: road-registry-editor-projectionhost
       test-project: RoadRegistry.Editor.ProjectionHost.Tests
       build-project: RoadRegistry.Editor.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -203,8 +203,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_ProductProjectionHost
-      image-file: rr-product-projectionhost-image.tar
-      image-name: product-projectionhost
+      image-file: rr-road-registry-product-projectionhost-image.tar
+      image-name: road-registry-product-projectionhost
       test-project: RoadRegistry.Product.ProjectionHost.Tests
       build-project: RoadRegistry.Product.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -218,8 +218,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_ProducerSnapshotProjectionHost
-      image-file: rr-producer-snapshot-projectionhost-image.tar
-      image-name: producer-snapshot-projectionhost
+      image-file: rr-road-registry-producer-snapshot-projectionhost-image.tar
+      image-name: road-registry-producer-snapshot-projectionhost
       test-project: RoadRegistry.Producer.Snapshot.ProjectionHost.Tests
       build-project: RoadRegistry.Producer.Snapshot.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -233,8 +233,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_StreetNameConsumerProjectionHost
-      image-file: rr-streetnameconsumer-projectionhost-image.tar
-      image-name: streetnameconsumer-projectionhost
+      image-file: rr-road-registry-streetnameconsumer-projectionhost-image.tar
+      image-name: road-registry-streetnameconsumer-projectionhost
       test-project: RoadRegistry.StreetNameConsumer.ProjectionHost.Tests
       build-project: RoadRegistry.StreetNameConsumer.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -248,8 +248,8 @@ jobs:
       with:
         registry: road-registry
         build-target: Containerize_SyndicationProjectionHost
-        image-file: rr-syndication-projectionhost-image.tar
-        image-name: syndication-projectionhost
+        image-file: rr-road-registry-syndication-projectionhost-image.tar
+        image-name: road-registry-syndication-projectionhost
         test-project: RoadRegistry.Syndication.ProjectionHost.Tests
         build-project: RoadRegistry.Syndication.ProjectionHost
         semver: ${{ needs.set-release-version.outputs.version }}
@@ -263,8 +263,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_WmsProjectionHost
-      image-file: rr-wms-projectionhost-image.tar
-      image-name: wms-projectionhost
+      image-file: rr-road-registry-wms-projectionhost-image.tar
+      image-name: road-registry-wms-projectionhost
       test-project: RoadRegistry.Wms.ProjectionHost.Tests
       build-project: RoadRegistry.Wms.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -278,8 +278,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_WfsProjectionHost
-      image-file: rr-wfs-projectionhost-image.tar
-      image-name: wfs-projectionhost
+      image-file: rr-road-registry-wfs-projectionhost-image.tar
+      image-name: road-registry-wfs-projectionhost
       test-project: RoadRegistry.Wfs.ProjectionHost.Tests
       build-project: RoadRegistry.Wfs.ProjectionHost
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -293,8 +293,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_ImportLegacy
-      image-file: rr-import-legacy-image.tar
-      image-name: import-legacy
+      image-file: rr-road-registry-import-legacy-image.tar
+      image-name: road-registry-import-legacy
       test-project: RoadRegistry.Legacy.Import.Tests
       build-project: RoadRegistry.Legacy.Import
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -308,8 +308,8 @@ jobs:
     with:
       registry: road-registry
       build-target: Containerize_ExtractLegacy
-      image-file: rr-extract-legacy-image.tar
-      image-name: extract-legacy
+      image-file: rr-road-registry-extract-legacy-image.tar
+      image-name: road-registry-extract-legacy
       test-project: RoadRegistry.Legacy.Extract.Tests
       build-project: RoadRegistry.Legacy.Extract
       semver: ${{ needs.set-release-version.outputs.version }}
@@ -679,23 +679,23 @@ jobs:
     strategy:
       matrix:
         image: [
-          'backoffice-api', 
-          # 'backoffice-ui', 
-          'backoffice-eventhost', 
-          'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'backoffice-messaginghost-sqs', 
-          'adminhost', 
-          'projector', 
-          'editor-projectionhost', 
-          'product-projectionhost', 
-          'producer-snapshot-projectionhost', 
-          'streetnameconsumer-projectionhost', 
-          'syndication-projectionhost', 
-          'wms-projectionhost', 
-          'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'road-registry-backoffice-api', 
+          # 'road-registry-backoffice-ui', 
+          'road-registry-backoffice-eventhost', 
+          'road-registry-backoffice-extracthost', 
+          'road-registry-backoffice-commandhost', 
+          'road-registry-backoffice-messaginghost-sqs', 
+          'road-registry-adminhost', 
+          'road-registry-projector', 
+          'road-registry-editor-projectionhost', 
+          'road-registry-product-projectionhost', 
+          'road-registry-producer-snapshot-projectionhost', 
+          'road-registry-streetnameconsumer-projectionhost', 
+          'road-registry-syndication-projectionhost', 
+          'road-registry-wms-projectionhost', 
+          'road-registry-wfs-projectionhost', 
+          'road-registry-import-legacy', 
+          'road-registry-extract-legacy'
         ]
     steps:
       - name: Configure AWS credentials (Test)
@@ -744,29 +744,29 @@ jobs:
     strategy:
       matrix:
         services: [
-          'backoffice-api', 
-          # 'backoffice-ui', 
-          'backoffice-eventhost', 
-          'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'backoffice-messaginghost-sqs', 
-          'adminhost', 
-          'projector', 
-          'editor-projectionhost', 
-          'product-projectionhost', 
-          'producer-snapshot-projectionhost', 
-          'streetnameconsumer-projectionhost', 
-          'syndication-projectionhost', 
-          'wms-projectionhost', 
-          'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'road-registry-backoffice-api', 
+          # 'road-registry-backoffice-ui', 
+          'road-registry-backoffice-eventhost', 
+          'road-registry-backoffice-extracthost', 
+          'road-registry-backoffice-commandhost', 
+          'road-registry-backoffice-messaginghost-sqs', 
+          'road-registry-adminhost', 
+          'road-registry-projector', 
+          'road-registry-editor-projectionhost', 
+          'road-registry-product-projectionhost', 
+          'road-registry-producer-snapshot-projectionhost', 
+          'road-registry-streetnameconsumer-projectionhost', 
+          'road-registry-syndication-projectionhost', 
+          'road-registry-wms-projectionhost', 
+          'road-registry-wfs-projectionhost', 
+          'road-registry-import-legacy', 
+          'road-registry-extract-legacy'
         ]
     steps:
     - name: Deploy services
       env:
-        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/road-registry-${{matrix.services}}
-        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/road-registry-${{matrix.services}}
+        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
+        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
       uses: informatievlaanderen/awscurl-polling-action/polling-action@main
       with:
           environment: test
@@ -875,23 +875,23 @@ jobs:
     strategy:
       matrix:
         image: [
-          'backoffice-api', 
-          # 'backoffice-ui', 
-          'backoffice-eventhost', 
-          'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'backoffice-messaginghost-sqs', 
-          'adminhost', 
-          'projector', 
-          'editor-projectionhost', 
-          'product-projectionhost', 
-          'producer-snapshot-projectionhost', 
-          'streetnameconsumer-projectionhost', 
-          'syndication-projectionhost', 
-          'wms-projectionhost', 
-          'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'road-registry-backoffice-api', 
+          # 'road-registry-backoffice-ui', 
+          'road-registry-backoffice-eventhost', 
+          'road-registry-backoffice-extracthost', 
+          'road-registry-backoffice-commandhost', 
+          'road-registry-backoffice-messaginghost-sqs', 
+          'road-registry-adminhost', 
+          'road-registry-projector', 
+          'road-registry-editor-projectionhost', 
+          'road-registry-product-projectionhost', 
+          'road-registry-producer-snapshot-projectionhost', 
+          'road-registry-streetnameconsumer-projectionhost', 
+          'road-registry-syndication-projectionhost', 
+          'road-registry-wms-projectionhost', 
+          'road-registry-wfs-projectionhost', 
+          'road-registry-import-legacy', 
+          'road-registry-extract-legacy'
         ]
     steps:
       - name: Configure AWS credentials (Staging)
@@ -942,30 +942,30 @@ jobs:
     strategy:
       matrix:
         services: [
-          'backoffice-api', 
-          # 'backoffice-ui', 
-          'backoffice-eventhost', 
-          'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'backoffice-messaginghost-sqs', 
-          'adminhost', 
-          'projector', 
-          'editor-projectionhost', 
-          'product-projectionhost', 
-          'producer-snapshot-projectionhost', 
-          'streetnameconsumer-projectionhost', 
-          'syndication-projectionhost', 
-          'wms-projectionhost', 
-          'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'road-registry-backoffice-api', 
+          # 'road-registry-backoffice-ui', 
+          'road-registry-backoffice-eventhost', 
+          'road-registry-backoffice-extracthost', 
+          'road-registry-backoffice-commandhost', 
+          'road-registry-backoffice-messaginghost-sqs', 
+          'road-registry-adminhost', 
+          'road-registry-projector', 
+          'road-registry-editor-projectionhost', 
+          'road-registry-product-projectionhost', 
+          'road-registry-producer-snapshot-projectionhost', 
+          'road-registry-streetnameconsumer-projectionhost', 
+          'road-registry-syndication-projectionhost', 
+          'road-registry-wms-projectionhost', 
+          'road-registry-wfs-projectionhost', 
+          'road-registry-import-legacy', 
+          'road-registry-extract-legacy'
         ]
 
     steps:
     - name: CD services
       env:
-        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/road-registry-${{matrix.services}}
-        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/road-registry-${{matrix.services}}
+        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
+        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
       uses: informatievlaanderen/awscurl-polling-action/polling-action@main
       with:
           environment: stg
