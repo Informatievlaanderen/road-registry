@@ -1,3 +1,10 @@
+## [3.52.10](https://github.com/informatievlaanderen/road-registry/compare/v3.52.9...v3.52.10) (2023-07-17)
+
+
+### Bug Fixes
+
+* Allow release v1 to run ([#1062](https://github.com/informatievlaanderen/road-registry/issues/1062)) ([89ac701](https://github.com/informatievlaanderen/road-registry/commit/89ac701934ec6739afe32e0b5088bea9901dba4a))
+
 ## [3.52.9](https://github.com/informatievlaanderen/road-registry/compare/v3.52.8...v3.52.9) (2023-07-17)
 
 
