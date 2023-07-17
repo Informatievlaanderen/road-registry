@@ -1,3 +1,10 @@
+## [3.52.8](https://github.com/informatievlaanderen/road-registry/compare/v3.52.7...v3.52.8) (2023-07-17)
+
+
+### Bug Fixes
+
+* Renamed images to conform with build and deploy ([#1058](https://github.com/informatievlaanderen/road-registry/issues/1058)) ([2326ea6](https://github.com/informatievlaanderen/road-registry/commit/2326ea6a495cf47144a915842b0247939754be08))
+
 ## [3.52.7](https://github.com/informatievlaanderen/road-registry/compare/v3.52.6...v3.52.7) (2023-07-10)
 
 
