@@ -63,20 +63,26 @@ export const AuthService = {
   },
   async completeAcmIdmLogin(code: string): Promise<void> {
     const verifier = sessionStorage.getItem(WR_AUTH_OIDC_VERIFIER) as string;
+    console.log('verifier', verifier);
     const redirectUri = OidcClient.instance.settings.redirect_uri;
+    console.log('redirectUri', redirectUri);
     const token = await PublicApi.Security.getExchangeCode(code, verifier, redirectUri);
+    console.log('token', token);
     sessionStorage.setItem(WR_AUTH_OIDC_TOKEN, token);
 
     try {
+      console.log('Loading user from token', token);
       await this.loadUserFromToken(token);
       
       const isAuthenticated = await this.checkAuthentication();
       if (!isAuthenticated) {
-        throw new Error("Er is een fout gebeurd bij het inloggen.");
+        console.error('Login failed, isAuthenticated == false')
+        //throw new Error("Er is een fout gebeurd bij het inloggen.");
       }
       
       const url = sessionStorage.getItem(WR_AUTH_REDIRECT_URL) as string;
-      router.push(url || "/");
+      console.log("Login success, redirect to", url || "/");
+      //router.push(url || "/");
     } catch (err) {
       this.reset();
       throw err;
@@ -104,6 +110,7 @@ export const AuthService = {
   async loadUserFromToken(token: string): Promise<void> {
     try {
       const userToken = UserTokenResult.fromJwt(token);
+      console.log('userToken', userToken);
       if (userToken.isExpired) {
         throw new Error("Token session expired");
       }
