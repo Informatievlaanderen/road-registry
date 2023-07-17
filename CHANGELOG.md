@@ -1,3 +1,10 @@
+## [3.52.9](https://github.com/informatievlaanderen/road-registry/compare/v3.52.8...v3.52.9) (2023-07-17)
+
+
+### Bug Fixes
+
+* commandhost correctly process change of roadsegment from measured to outlined ([#1061](https://github.com/informatievlaanderen/road-registry/issues/1061)) ([7211d3a](https://github.com/informatievlaanderen/road-registry/commit/7211d3ae33e5cd7977414ee021dc6edd2a6439e4))
+
 ## [3.52.8](https://github.com/informatievlaanderen/road-registry/compare/v3.52.7...v3.52.8) (2023-07-17)
 
 
