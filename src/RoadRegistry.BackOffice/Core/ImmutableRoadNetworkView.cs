@@ -928,8 +928,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(version)
                     .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                     .WithGeometryVersion(geometryVersion)
-                    .WithAttributeHash(attributeHash)
-                    .WithStartAndEnd(start, end)
+                    .WithStartAndEndAndAttributeHash(start, end, attributeHash)
                     .WithLastEventHash(@event.GetHash())
                 ),
             _gradeSeparatedJunctions,
@@ -1559,8 +1558,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(command.Version)
                     .WithGeometry(command.Geometry)
                     .WithGeometryVersion(command.GeometryVersion)
-                    .WithAttributeHash(attributeHash)
-                    .WithStartAndEnd(command.StartNodeId, command.EndNodeId)
+                    .WithStartAndEndAndAttributeHash(command.StartNodeId, command.EndNodeId, attributeHash)
                     .WithLastEventHash(command.GetHash())
                 ),
             _gradeSeparatedJunctions,
@@ -2790,8 +2788,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(version)
                     .WithGeometry(GeometryTranslator.Translate(@event.Geometry))
                     .WithGeometryVersion(geometryVersion)
-                    .WithAttributeHash(attributeHash)
-                    .WithStartAndEnd(start, end)
+                    .WithStartAndEndAndAttributeHash(start, end, attributeHash)
                     .WithLastEventHash(@event.GetHash())
                 );
             _maximumLaneAttributeId =
@@ -3162,8 +3159,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .WithVersion(command.Version)
                     .WithGeometry(command.Geometry)
                     .WithGeometryVersion(command.GeometryVersion)
-                    .WithAttributeHash(attributeHash)
-                    .WithStartAndEnd(command.StartNodeId, command.EndNodeId)
+                    .WithStartAndEndAndAttributeHash(command.StartNodeId, command.EndNodeId, attributeHash)
                     .WithLastEventHash(command.GetHash())
                 );
             _maximumSegmentId = RoadSegmentId.Max(command.Id, _maximumSegmentId);
