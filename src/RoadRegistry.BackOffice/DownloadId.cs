@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
-using Amazon.DynamoDBv2.Model.Internal.MarshallTransformations;
 
 public readonly struct DownloadId : IEquatable<DownloadId>
 {

@@ -263,8 +263,8 @@ public static class NetTopologySuiteExtensions
     public static bool RoadSegmentOverlapsWith(this MultiLineString g0, MultiLineString g1)
     {
         var openGisGeometryType = OgcGeometryType.LineString;
-        var criticalOverlapPercentage = 70.0;
-        var bufferSize = 1.0;
+        var criticalOverlapPercentage = 0.7;
+        var bufferSize = DefaultTolerances.IntersectionBuffer;
 
         return OverlapsWith(g0, g1, criticalOverlapPercentage, openGisGeometryType, bufferSize);
     }
@@ -301,7 +301,7 @@ public static class NetTopologySuiteExtensions
             }
             var g1Buf = g1.Buffer(clusterTolerance);
             overlap = g0.Intersection(g1Buf);
-            var overlapValue = Math.Round(overlap.Length * 100 / g1.Length);
+            var overlapValue = Math.Round(overlap.Length / g1.Length);
             if (overlapValue >= threshold)
             {
                 return CheckOverlapViceVersa(g0, g1, OgcGeometryType.LineString, threshold, clusterTolerance);
@@ -314,7 +314,7 @@ public static class NetTopologySuiteExtensions
         {
             overlap = g0.Intersection(g1);
 
-            var overlapValue = Math.Round(overlap.Area * 100 / g1.Area);
+            var overlapValue = Math.Round(overlap.Area / g1.Area);
             if (overlapValue >= threshold)
             {
                 return true;
@@ -357,7 +357,7 @@ public static class NetTopologySuiteExtensions
         {
             var g0Buf = g0.Buffer(compareTolerance);
             var overlap = g1.Intersection(g0Buf);
-            var overlapValue = Math.Round(overlap.Length * 100 / g0.Length);
+            var overlapValue = Math.Round(overlap.Length / g0.Length);
             if (overlapValue >= threshold)
             {
                 return true;
@@ -369,7 +369,7 @@ public static class NetTopologySuiteExtensions
         {
             //omgekeerde moet ook gecheckt worden (voorkomen vergelijking met verkeerd omvattend feature, overlap = 100%)
             var overlap = g1.Intersection(g0);
-            var overlapValue = Math.Round(overlap.Area * 100 / g0.Area);
+            var overlapValue = Math.Round(overlap.Area / g0.Area);
             if (overlapValue >= threshold)
             {
                 return true;

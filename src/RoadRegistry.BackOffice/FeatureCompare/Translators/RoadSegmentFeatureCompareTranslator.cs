@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using Extracts;
 using NetTopologySuite.Geometries;
 using Uploads;
+using AddRoadSegment = Uploads.AddRoadSegment;
+using ModifyRoadSegment = Uploads.ModifyRoadSegment;
+using RemoveRoadSegment = Uploads.RemoveRoadSegment;
 
 internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
@@ -19,20 +22,17 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
     {
     }
 
-    private (List<RoadSegmentRecord>, ZipArchiveProblems) ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, CancellationToken cancellationToken)
+    private (List<RoadSegmentRecord>, ZipArchiveProblems) ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var problems = ZipArchiveProblems.None;
-
-        var clusterTolerance = 0.10; // cfr WVB in GRB = 0,15
-        var bufferSize = 1.0;
-
+        
         var processedRecords = new List<RoadSegmentRecord>();
 
         foreach (var changeFeature in changeFeatures)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(bufferSize);
+            var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(context.Tolerances.IntersectionBuffer);
             var intersectingGeometries = extractFeatures
                 .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry.Envelope) && x.Attributes.Geometry.Intersects(bufferedGeometry))
                 .ToList();
@@ -57,7 +57,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     );
                     if (nonCriticalAttributesUnchanged.Any())
                     {
-                        var identicalFeatures = nonCriticalAttributesUnchanged.FindAll(extractFeature => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, clusterTolerance));
+                        var identicalFeatures = nonCriticalAttributesUnchanged.FindAll(extractFeature => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, context.Tolerances.ClusterTolerance));
                         if (identicalFeatures.Any())
                         {
                             var compareIdn = changeFeature.Attributes.Id.ToString();
@@ -88,7 +88,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     else
                     {
                         //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
-                        var identicalGeometries = overlappingGeometries.FindAll(f => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, clusterTolerance));
+                        var identicalGeometries = overlappingGeometries.FindAll(f => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances.ClusterTolerance));
 
                         var compareIdn = changeFeature.Attributes.Id.ToString();
 
@@ -146,7 +146,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
         {
             var processedLeveringRecords = await Task.WhenAll(
                 changeFeatures.SplitIntoBatches(batchCount)
-                    .Select(changeFeaturesBatch => { return Task.Run(() => ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, cancellationToken), cancellationToken); }));
+                    .Select(changeFeaturesBatch => { return Task.Run(() => ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken), cancellationToken); }));
             
             foreach (var processedProblems in processedLeveringRecords.Select(x => x.Item2))
             {
