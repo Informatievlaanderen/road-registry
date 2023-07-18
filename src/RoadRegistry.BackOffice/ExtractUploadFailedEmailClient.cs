@@ -80,7 +80,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
             {
                 ToAddresses = new List<string> { _emailClientOptions.ExtractUploadFailed }
             },
-            FromEmailAddress = "digitaal.vlaanderen@digitaal.vlaanderen.be",
+            FromEmailAddress = _emailClientOptions.FromEmailAddress,
             Content = new EmailContent
             {
                 Simple = new Message
