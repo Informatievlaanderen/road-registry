@@ -1,3 +1,10 @@
+## [3.52.11](https://github.com/informatievlaanderen/road-registry/compare/v3.52.10...v3.52.11) (2023-07-18)
+
+
+### Bug Fixes
+
+* Attempted release pipeline ([#1064](https://github.com/informatievlaanderen/road-registry/issues/1064)) ([a1c9e34](https://github.com/informatievlaanderen/road-registry/commit/a1c9e3448ae3bb098a19d4e5593136cdbbc09a8d))
+
 ## [3.52.10](https://github.com/informatievlaanderen/road-registry/compare/v3.52.9...v3.52.10) (2023-07-17)
 
 
