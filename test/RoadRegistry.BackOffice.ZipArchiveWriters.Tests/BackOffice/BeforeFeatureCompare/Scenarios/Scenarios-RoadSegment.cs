@@ -111,8 +111,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context =>
             {
-                var maxRoadSegmentId = Math.Max(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value, context.Change.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value);
-                var roadSegment1Id = new RoadSegmentId(maxRoadSegmentId + 1);
+                var maxRoadSegmentId = context.GetMaxRoadSegmentId();
+                var roadSegment1Id = maxRoadSegmentId.Next();
 
                 return TranslatedChanges.Empty
                     .AppendChange(new AddRoadSegment(
