@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Uploads;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Core;
 
 public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<FileProblem>
@@ -57,6 +58,19 @@ public abstract class FileProblem : IEquatable<FileProblem>, IEqualityComparer<F
         return Parameters.Aggregate(
             File.GetHashCode() ^ Reason.GetHashCode(),
             (current, parameter) => current ^ parameter.GetHashCode());
+    }
+
+    public string Describe()
+    {
+        var sb = new StringBuilder();
+        sb.Append($"{File}: {Reason}");
+
+        if (Parameters.Any())
+        {
+            sb.Append($" -> {string.Join(", ", Parameters.Select(parameter => $"{parameter.Name}={parameter.Value}"))}");
+        }
+
+        return sb.ToString();
     }
 
     public abstract Messages.FileProblem Translate();

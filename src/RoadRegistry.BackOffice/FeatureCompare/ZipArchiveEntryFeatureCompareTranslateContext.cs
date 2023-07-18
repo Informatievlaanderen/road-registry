@@ -6,15 +6,16 @@ using RoadRegistry.BackOffice.Uploads;
 using System.Collections.Generic;
 using System.IO.Compression;
 
-public class ZipArchiveEntryFeatureCompareTranslateContext
+public class ZipArchiveEntryFeatureCompareTranslateContext: ZipArchiveFeatureReaderContext
 {
-    public IReadOnlyCollection<ZipArchiveEntry> Entries { get; }
+    public ZipArchive Archive { get; }
     public List<RoadSegmentRecord> RoadSegments { get; }
 
-    public ZipArchiveEntryFeatureCompareTranslateContext(IReadOnlyCollection<ZipArchiveEntry> entries, List<RoadSegmentRecord> roadSegments)
+    public ZipArchiveEntryFeatureCompareTranslateContext(ZipArchive archive, ZipArchiveMetadata metadata)
+        : base(metadata)
     {
-        Entries = entries;
-        RoadSegments = roadSegments;
+        Archive = archive;
+        RoadSegments = new List<RoadSegmentRecord>();
     }
 }
 
@@ -27,7 +28,7 @@ public class RoadSegmentRecord
         RecordType = recordType;
     }
 
-    public int Id => Attributes.Id;
+    public RoadSegmentId Id => Attributes.Id;
 
     public RecordNumber RecordNumber { get; }
     public RoadSegmentFeatureCompareAttributes Attributes { get; }
@@ -35,10 +36,10 @@ public class RoadSegmentRecord
 
     public bool GeometryChanged { get; init; }
     public string CompareIdn { get; init; }
-    public int? TempId { get; set; }
+    public RoadSegmentId? TempId { get; set; }
     public FeatureType? FeatureType { get; init; }
 
-    public int GetNewOrOriginalId()
+    public RoadSegmentId GetNewOrOriginalId()
     {
         return TempId ?? Id;
     }

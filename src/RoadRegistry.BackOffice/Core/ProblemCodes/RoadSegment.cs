@@ -191,6 +191,7 @@ public sealed partial record ProblemCode
     public static class FromPosition
     {
         public static readonly ProblemCode IsRequired = new("FromPositionIsRequired");
+        public static readonly ProblemCode NotEqualToZero = new("FromPositionNotEqualToZero");
         public static readonly ProblemCode NotValid = new("FromPositionNotValid");
     }
 

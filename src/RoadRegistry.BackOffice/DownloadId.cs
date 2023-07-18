@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice;
 
 using System;
+using Amazon.DynamoDBv2.Model.Internal.MarshallTransformations;
 
 public readonly struct DownloadId : IEquatable<DownloadId>
 {
@@ -20,12 +21,23 @@ public readonly struct DownloadId : IEquatable<DownloadId>
 
     public static bool CanParse(string value)
     {
-        return Guid.TryParseExact(value, "N", out var guid) && Accepts(guid);
+        return TryParse(value, out _);
     }
 
     public static DownloadId Parse(string value)
     {
         return new DownloadId(Guid.ParseExact(value, "N"));
+    }
+    public static bool TryParse(string value, out DownloadId downloadId)
+    {
+        if (Guid.TryParseExact(value, "N", out var guid) && Accepts(guid))
+        {
+            downloadId = new DownloadId(guid);
+            return true;
+        }
+
+        downloadId = default;
+        return false;
     }
 
     public bool Equals(DownloadId other)

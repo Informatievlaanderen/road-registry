@@ -21,7 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <Content Include="paket.template" CopyToOutputDirectory="Always" />
+    <Content Include="paket.template" CopyToOutputDirectory="Always" />
+    <Folder Include="FeatureCompare\Validation\" />
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

@@ -106,9 +106,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
             var problems = upload.ValidateArchiveUsing(archive, _validator);
-
-            var fileProblems = problems.OfType<FileError>();
-            if (fileProblems.Any())
+            if (problems.HasError())
             {
                 throw new ZipArchiveValidationException(problems);
             }

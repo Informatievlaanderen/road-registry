@@ -7,6 +7,7 @@ using FeatureCompare;
 using FeatureCompare.Translators;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice;
+using Uploads;
 
 public class FeatureReaderUnknownDbaseSchemaTests
 {
@@ -21,14 +22,28 @@ public class FeatureReaderUnknownDbaseSchemaTests
     private ZipArchive CreateZipArchive(ExtractFileName fileName)
     {
         var dbfStream = _testData.Fixture.CreateEmptyDbfFile<TestDbaseRecord>(TestDbaseRecord.Schema);
+        var shpStream = _testData.Fixture.CreateEmptyRoadNodeShapeFile();
+        var prjStream = _testData.Fixture.CreateProjectionFormatFileWithOneRecord();
 
         var archiveStream = new MemoryStream();
         using (var createArchive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
         {
             dbfStream.Position = 0;
-            using (var entryStream = createArchive.CreateEntry(FeatureType.Change.GetDbfFileName(fileName)).Open())
+            using (var entryStream = createArchive.CreateEntry(FeatureType.Change.GetDbaseFileName(fileName)).Open())
             {
                 dbfStream.CopyTo(entryStream);
+            }
+
+            shpStream.Position = 0;
+            using (var entryStream = createArchive.CreateEntry(FeatureType.Change.GetShapeFileName(fileName)).Open())
+            {
+                shpStream.CopyTo(entryStream);
+            }
+
+            prjStream.Position = 0;
+            using (var entryStream = createArchive.CreateEntry(FeatureType.Change.GetProjectionFileName(fileName)).Open())
+            {
+                prjStream.CopyTo(entryStream);
             }
         }
 
@@ -45,7 +60,8 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Transactiezones);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Transactiezones));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Transactiezones, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
     }
 
@@ -57,7 +73,8 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Transactiezones);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Transactiezones));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Transactiezones, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
     }
 
@@ -69,7 +86,8 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Transactiezones);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Transactiezones));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Transactiezones, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
     }
 
@@ -81,7 +99,8 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Transactiezones);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Transactiezones));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Transactiezones, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
     }
 
@@ -93,7 +112,8 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Transactiezones);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Transactiezones));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Transactiezones, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
     }
 
@@ -105,7 +125,8 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Transactiezones);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Transactiezones));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Transactiezones, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
     }
 
@@ -117,7 +138,8 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Transactiezones);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Transactiezones));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Transactiezones, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
     }
 
@@ -129,7 +151,8 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Transactiezones);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Transactiezones));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Transactiezones, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
     }
 
@@ -141,7 +164,8 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Transactiezones);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Transactiezones));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Transactiezones, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
     }
 
@@ -153,8 +177,15 @@ public class FeatureReaderUnknownDbaseSchemaTests
         var zipArchive = CreateZipArchive(ExtractFileName.Wegsegment);
         using (zipArchive)
         {
-            Assert.Throws<DbaseReaderNotFoundException>(() => reader.Read(zipArchive.Entries, FeatureType.Change, ExtractFileName.Wegsegment));
+            var problems = reader.Read(zipArchive, FeatureType.Change, ExtractFileName.Wegsegment, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty)).Item2;
+            Assert.True(AllDbfFilesHaveDbaseSchemaMismatch(problems));
         }
+    }
+
+    private static bool AllDbfFilesHaveDbaseSchemaMismatch(ZipArchiveProblems problems)
+    {
+        return problems.ToList().TrueForAll(x => !x.File.EndsWith(".DBF", StringComparison.InvariantCultureIgnoreCase)
+                                                 || x.Reason == nameof(DbaseFileProblems.HasDbaseSchemaMismatch));
     }
 
     private class TestDbaseSchema : DbaseSchema

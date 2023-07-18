@@ -4,12 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
 using Uploads;
 
 public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
-    where TFeature: class
+    where TFeature : class
 {
     private readonly IFeatureReader<TFeature>[] _versionedReaders;
 
@@ -22,28 +21,43 @@ public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
 
         _versionedReaders = readers;
     }
-    
-    public virtual List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+
+    public virtual (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
-        ArgumentNullException.ThrowIfNull(entries);
+        ArgumentNullException.ThrowIfNull(archive);
+        ArgumentNullException.ThrowIfNull(featureType);
         ArgumentNullException.ThrowIfNull(fileName);
-
-        DbaseSchema actualSchema = null;
-        var expectedSchemas = new List<DbaseSchema>();
-
+        ArgumentNullException.ThrowIfNull(context);
+        
+        var readerProblems = new List<ZipArchiveProblems>();
+        
         foreach (var reader in _versionedReaders)
         {
-            try
+            var (features, featuresProblems) = reader.Read(archive, featureType, fileName, context);
+
+            var requiredFileMissing = featuresProblems.Any(x => x.Reason == nameof(ZipArchiveProblems.RequiredFileMissing));
+            if (requiredFileMissing)
             {
-                return reader.Read(entries, featureType, fileName);
+                return (features, featuresProblems);
             }
-            catch (DbaseSchemaMismatchException ex)
+
+            var hasDbaseHeaderFormatError = featuresProblems.Any(x => x.Reason == nameof(DbaseFileProblems.HasDbaseHeaderFormatError));
+            if (hasDbaseHeaderFormatError)
             {
-                actualSchema = ex.ActualSchema;
-                expectedSchemas.Add(ex.ExpectedSchema);
+                return (features, featuresProblems);
             }
+
+            var hasDbaseSchemaMismatch = featuresProblems.Any(x => x.Reason == nameof(DbaseFileProblems.HasDbaseSchemaMismatch));
+            if (!hasDbaseSchemaMismatch)
+            {
+                return (features, featuresProblems);
+            }
+            
+            readerProblems.Add(featuresProblems);
         }
 
-        throw new DbaseReaderNotFoundException(featureType.GetDbfFileName(fileName), actualSchema, expectedSchemas);
+        var problems = readerProblems.Aggregate(ZipArchiveProblems.None, (x1, x2) => x1 + x2);
+
+        return (new List<TFeature>(), problems);
     }
 }

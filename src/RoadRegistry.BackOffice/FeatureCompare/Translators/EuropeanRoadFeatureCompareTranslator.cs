@@ -85,10 +85,10 @@ internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
         }
     }
 
-    protected override List<Feature<EuropeanRoadFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    protected override (List<Feature<EuropeanRoadFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var featureReader = new EuropeanRoadFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(entries, featureType, fileName);
+        return featureReader.Read(archive, featureType, fileName, context);
     }
 
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)

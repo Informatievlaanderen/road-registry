@@ -2,34 +2,27 @@ namespace RoadRegistry.BackOffice.FeatureCompare;
 
 using System.Collections.Generic;
 using System.IO.Compression;
+using Core;
 using Extracts;
+using Translators;
+using Uploads;
 
 public interface IFeatureReader<TFeature>
 {
-    List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName);
+    (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context);
 }
 
-public static class FeatureTypeExtensions
+public class ZipArchiveFeatureReaderContext
 {
-    public static string GetDbfFileName(this FeatureType featureType, ExtractFileName fileName)
-    {
-        return $"{GetFileNamePrefix(featureType)}{fileName}.dbf";
-    }
-    public static string GetShpFileName(this FeatureType featureType, ExtractFileName fileName)
-    {
-        return $"{GetFileNamePrefix(featureType)}{fileName}.shp";
-    }
+    public ZipArchiveMetadata ZipArchiveMetadata { get; }
+    public VerificationContextTolerances Tolerances { get; }
 
-    private static string GetFileNamePrefix(FeatureType featureType)
-    {
-        switch (featureType)
-        {
-            case FeatureType.Extract:
-                return "e";
-            case FeatureType.Integration:
-                return "i";
-        }
+    public IDictionary<RoadSegmentId, Feature<RoadSegmentFeatureCompareAttributes>> KnownRoadSegments;
 
-        return string.Empty;
+    public ZipArchiveFeatureReaderContext(ZipArchiveMetadata metadata)
+    {
+        ZipArchiveMetadata = metadata;
+        Tolerances = VerificationContextTolerances.Default;
+        KnownRoadSegments = new Dictionary<RoadSegmentId, Feature<RoadSegmentFeatureCompareAttributes>>();
     }
 }

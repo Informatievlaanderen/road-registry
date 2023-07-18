@@ -32,7 +32,7 @@ public class FeatureCompareZipArchiveTranslatorTests
         Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
     }
 
-    [Fact(Skip = "For local testing only due to big archive files")]
+    [Fact(Skip = "For local feature compare testing only due to big archive files")]
     //[Fact]
     public async Task TranslateWithRecordsReturnsExpectedResult()
     {
@@ -142,41 +142,31 @@ public class FeatureCompareZipArchiveTranslatorTests
 
             try
             {
-                using (var beforeFcArchiveStream = File.OpenRead(archiveToProcess.BeforeFcPath))
-                using (var afterFcArchiveStream = File.OpenRead(archiveToProcess.AfterFcPath))
+                TranslatedChanges expected, changes;
+
+                using (var archiveStream = File.OpenRead(archiveToProcess.AfterFcPath))
+                using (var archive = new ZipArchive(archiveStream))
                 {
-                    using (var beforeFcArchive = new ZipArchive(beforeFcArchiveStream))
-                    using (var afterFcArchive = new ZipArchive(afterFcArchiveStream))
-                    {
-                        //var validator = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
-                        //var validationResult = validator.Validate(beforeFcArchive, ZipArchiveMetadata.Empty);
-                        //var fileErrors = validationResult.OfType<FileError>().ToArray();
-                        //if (fileErrors.Any())
-                        //{
-                        //    foreach (var problem in fileErrors)
-                        //    {
-                        //        _outputHelper.WriteLine($"{problem.File}: {problem.Reason}, Parameters: {string.Join(", ", problem.Parameters.Select(p => $"{p.Name}={p.Value}"))}");
-                        //    }
-                        //    throw new ZipArchiveValidationException(validationResult);
-                        //}
-
-                        var sw = Stopwatch.StartNew();
-                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} started translate After-FC");
-                        var expected = _zipArchiveTranslator.Translate(afterFcArchive);
-                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} finished translate After-FC at {sw.Elapsed}");
-                        await WriteToFile(expectedChangesJsonPath, expected);
-
-                        sw = Stopwatch.StartNew();
-                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} started translate Before-FC");
-                        var changes = await _sut.Translate(beforeFcArchive, CancellationToken.None);
-                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} finished translate Before-FC at {sw.Elapsed}");
-                        await WriteToFile(actualChangesJsonPath, changes);
-
-                        Assert.Equal(expected, changes, new TranslatedChangeEqualityComparer(true));
-
-                        completed = true;
-                    }
+                    var sw = Stopwatch.StartNew();
+                    _outputHelper.WriteLine($"{archiveToProcess.DownloadId} started translate After-FC");
+                    expected = _zipArchiveTranslator.Translate(archive);
+                    _outputHelper.WriteLine($"{archiveToProcess.DownloadId} finished translate After-FC at {sw.Elapsed}");
+                    await WriteToFile(expectedChangesJsonPath, expected);
                 }
+
+                using (var archiveStream = File.OpenRead(archiveToProcess.BeforeFcPath))
+                using (var archive = new ZipArchive(archiveStream))
+                {
+                    var sw = Stopwatch.StartNew();
+                    _outputHelper.WriteLine($"{archiveToProcess.DownloadId} started translate Before-FC");
+                    changes = await _sut.Translate(archive, CancellationToken.None);
+                    _outputHelper.WriteLine($"{archiveToProcess.DownloadId} finished translate Before-FC at {sw.Elapsed}");
+                    await WriteToFile(actualChangesJsonPath, changes);
+                }
+
+                Assert.Equal(expected, changes, new TranslatedChangeEqualityComparer(true));
+
+                completed = true;
             }
             catch (Exception ex)
             {

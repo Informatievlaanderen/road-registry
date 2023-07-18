@@ -23,6 +23,7 @@ public static class ProblemTranslator
         {ProblemCode.Direction.NotValid, problem => new(problem.Severity, "RichtingNietCorrect", $"Richting is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.EuropeanRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze europese weg met nummer {problem.Parameters[0].Value}.") },
         {ProblemCode.FromPosition.IsRequired, problem => new(problem.Severity, "VanPositieVerplicht", "VanPositie is verplicht.")},
+        {ProblemCode.FromPosition.NotEqualToZero, problem => new(problem.Severity, "VanPositieNulOntbreekt", "De VanPositie van het eerste element is niet gelijk aan 0.")},
         {ProblemCode.FromPosition.NotValid, problem => new(problem.Severity, "VanPositieNietCorrect", $"VanPositie is foutief. '{problem.Parameters[0].Value}' is geen geldige waarde.")},
         {ProblemCode.GradeSeparatedJunction.NotFound, problem => new(problem.Severity, problem.Reason, "De ongelijkgrondse kruising is niet langer onderdeel van het wegen netwerk.") },
         {ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze nationale weg met nummer {problem.Parameters[0].Value}.") },
