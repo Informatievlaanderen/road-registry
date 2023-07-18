@@ -1,12 +1,10 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatureCompare.Scenarios;
 
-using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Exceptions;
 using FeatureCompare;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Core.ProblemCodes;
-using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
 using Xunit.Abstractions;
@@ -86,6 +84,16 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     public async Task ModifiedGeometryToLessThan70PercentOverlap()
     {
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithExtract((builder, context) =>
+            {
+                var lineString = new LineString(new Coordinate[]
+                {
+                    new CoordinateM(100000, 100000, 0),
+                    new CoordinateM(100100, 100000, 0)
+                });
+                builder.TestData.RoadSegment1ShapeRecord = lineString.ToShapeContent();
+                builder.DataSet.RoadSegmentShapeRecords[0] = builder.TestData.RoadSegment1ShapeRecord;
+            })
             .WithChange((builder, context) =>
             {
                 var lineString = GeometryTranslator.ToMultiLineString(builder.TestData.RoadSegment1ShapeRecord.Shape).GetSingleLineString();
@@ -95,8 +103,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                     new CoordinateM(lineString.Coordinates[1].X + 9000, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 9000)
                 });
                 builder.TestData.RoadSegment1ShapeRecord = lineString.ToShapeContent();
-                
-                builder.DataSet.RoadSegmentShapeRecords = new[] { builder.TestData.RoadSegment1ShapeRecord, builder.TestData.RoadSegment2ShapeRecord }.ToList();
+                builder.DataSet.RoadSegmentShapeRecords[0] = builder.TestData.RoadSegment1ShapeRecord;
 
                 builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
                 builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
