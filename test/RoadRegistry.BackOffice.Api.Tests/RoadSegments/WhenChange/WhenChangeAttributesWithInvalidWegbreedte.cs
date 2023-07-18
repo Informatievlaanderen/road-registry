@@ -34,6 +34,27 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
     }
 
     [Fact]
+    public async Task VanPositie_VanPositieNulOntbreekt()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                Wegbreedte = new ChangeWidthAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 1,
+                        TotPositie = 10,
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                    }
+                }
+            }
+        }, "VanPositieNulOntbreekt");
+    }
+
+    [Fact]
     public async Task VanPositie_VanPositieNietCorrect()
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
@@ -45,8 +66,14 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                 {
                     new()
                     {
-                        VanPositie = -1,
+                        VanPositie = 0,
                         TotPositie = 10,
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                    },
+                    new()
+                    {
+                        VanPositie = -1,
+                        TotPositie = 20,
                         Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
                     }
                 }

@@ -155,14 +155,14 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             IZipArchiveValidator validator = request.UseZipArchiveFeatureCompareTranslator ? _beforeFeatureCompareValidator : _afterFeatureCompareValidator;
             var problems = entity.ValidateArchiveUsing(archive, validator);
 
-            var fileProblems = problems.OfType<FileError>().ToArray();
-            if (fileProblems.Any())
+            if (problems.HasError())
             {
                 throw new ZipArchiveValidationException(problems);
             }
 
-            var features = _transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, ExtractFileName.Transactiezones);
-            var downloadId = DownloadId.Parse(features.Single().Attributes.DownloadId);
+            var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
+            var features = _transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
+            var downloadId = features.Single().Attributes.DownloadId;
 
             var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
             if (extractRequest is null)

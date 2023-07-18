@@ -55,8 +55,9 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                         requestedChanges.Add(requestedChange);
                     }
 
-                    var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, ExtractFileName.Transactiezones);
-                    var downloadId = DownloadId.Parse(transactionZoneFeatures.Single().Attributes.DownloadId);
+                    var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
+                    var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
+                    var downloadId = transactionZoneFeatures.Single().Attributes.DownloadId;
 
                     var command = new Command(new ChangeRoadNetwork
                         {

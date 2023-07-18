@@ -2,6 +2,6 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 public class RoadSegmentLaneFeatureCompareAttributes : RoadSegmentAttributeFeatureCompareAttributes
 {
-    public int Count { get; init; }
-    public int Direction { get; init; }
+    public RoadSegmentLaneCount Count { get; init; }
+    public RoadSegmentLaneDirection Direction { get; init; }
 }

@@ -6,17 +6,25 @@ using System.IO.Compression;
 using System.Linq;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
-using NetTopologySuite.IO;
+using Extracts;
+using FeatureCompare;
 
 public static class ZipArchiveEntryProblems
 {
     // builder
-
+    public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ExtractFileName file, FeatureType featureType, RecordNumber number)
+    {
+        return new FileProblemBuilder(featureType.GetDbaseFileName(file)).AtDbaseRecord(number);
+    }
     public static IDbaseFileRecordProblemBuilder AtDbaseRecord(this ZipArchiveEntry entry, RecordNumber number)
     {
         return new FileProblemBuilder(entry.Name).AtDbaseRecord(number);
     }
 
+    public static IShapeFileRecordProblemBuilder AtShapeRecord(this ExtractFileName file, FeatureType featureType, RecordNumber number)
+    {
+        return new FileProblemBuilder(featureType.GetShapeFileName(file)).AtShapeRecord(number);
+    }
     public static IShapeFileRecordProblemBuilder AtShapeRecord(this ZipArchiveEntry entry, RecordNumber number)
     {
         return new FileProblemBuilder(entry.Name).AtShapeRecord(number);
@@ -48,9 +56,9 @@ public static class ZipArchiveEntryProblems
 
     // shape
 
-    public static FileError HasNoShapeRecords(this ZipArchiveEntry entry)
+    public static FileProblem HasNoShapeRecords(this ZipArchiveEntry entry, bool treatAsWarning)
     {
-        return new FileProblemBuilder(entry.Name).HasNoShapeRecords();
+        return new FileProblemBuilder(entry.Name).HasNoShapeRecords(treatAsWarning);
     }
 
     public static FileError HasShapeRecordFormatError(this ZipArchiveEntry entry, Exception exception)

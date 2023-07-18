@@ -29,4 +29,13 @@ public static class DbaseRecordExtensions
             return output.ToArray();
         }
     }
+
+    public static T Clone<T>(this T record, RecyclableMemoryStreamManager manager, Encoding encoding)
+        where T : DbaseRecord, new()
+    {
+        var bytes = ToBytes(record, manager, encoding);
+        var clone = new T();
+        clone.FromBytes(bytes, manager, encoding);
+        return clone;
+    }
 }

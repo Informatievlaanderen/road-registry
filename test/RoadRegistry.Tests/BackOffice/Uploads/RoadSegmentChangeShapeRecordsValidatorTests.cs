@@ -156,7 +156,7 @@ public class RoadSegmentChangeShapeRecordsValidatorTests : IDisposable
         var (result, context) = new ZipArchiveShapeEntryValidator(_sut).Validate(_entry, _context);
 
         Assert.Equal(
-            ZipArchiveProblems.Single(_entry.HasNoShapeRecords()),
+            ZipArchiveProblems.Single(_entry.HasNoShapeRecords(false)),
             result);
         Assert.Same(_context, context);
     }
