@@ -13,6 +13,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Uploads;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 public abstract class FeatureCompareTranslatorScenariosBase
 {
@@ -160,11 +161,18 @@ public abstract class FeatureCompareTranslatorScenariosBase
         {
             var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger);
 
+            TranslatedChanges result = null;
             try
             {
-                var result = await sut.Translate(archive, CancellationToken.None);
+                result = await sut.Translate(archive, CancellationToken.None);
 
                 Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
+            }
+            catch (EqualException)
+            {
+                TestOutputHelper.WriteLine($"Expected:\n{expected.Describe()}");
+                TestOutputHelper.WriteLine($"Actual:\n{result?.Describe()}");
+                throw;
             }
             catch (ZipArchiveValidationException ex)
             {

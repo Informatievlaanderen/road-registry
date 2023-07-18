@@ -206,11 +206,8 @@ public class FeatureCompareZipArchiveTranslatorTests
 
     private static async Task WriteToFile(string path, TranslatedChanges translatedChanges)
     {
-        var requestedChanges = translatedChanges.Select(change =>
+        var content = translatedChanges.Describe(requestedChange =>
         {
-            var requestedChange = new RequestedChange();
-            change.TranslateTo(requestedChange);
-
             if (requestedChange.AddRoadNode?.Geometry.SpatialReferenceSystemIdentifier == 0)
             {
                 requestedChange.AddRoadNode.Geometry.SpatialReferenceSystemIdentifier = 31370;
@@ -227,10 +224,8 @@ public class FeatureCompareZipArchiveTranslatorTests
             {
                 requestedChange.ModifyRoadSegment.Geometry.SpatialReferenceSystemIdentifier = 31370;
             }
+        });
 
-            return requestedChange;
-        }).ToList();
-
-        await File.WriteAllTextAsync(path, JsonConvert.SerializeObject(requestedChanges, Formatting.Indented, EventsJsonSerializerSettingsProvider.CreateSerializerSettings()));
+        await File.WriteAllTextAsync(path, content);
     }
 }

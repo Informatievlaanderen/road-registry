@@ -9,6 +9,7 @@ namespace RoadRegistry.Tests.BackOffice
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Editor.Projections;
     using Microsoft.IO;
+    using NetTopologySuite.Geometries;
     using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
     using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
@@ -18,9 +19,11 @@ namespace RoadRegistry.Tests.BackOffice
     {
         public Fixture Fixture { get; }
 
+        private ExtractsZipArchiveIntegrationDataSetBuilder _integration;
         private ExtractsZipArchiveExtractDataSetBuilder _extract;
         private ExtractsZipArchiveChangeDataSetBuilder _change;
 
+        private ZipArchiveIntegrationDataSetStreams _integrationStreams;
         private ZipArchiveDataSetStreams _extractStreams;
         private ZipArchiveDataSetStreams _changeStreams;
 
@@ -33,8 +36,22 @@ namespace RoadRegistry.Tests.BackOffice
             customize?.Invoke(Fixture);
         }
 
-        public ExtractsZipArchiveBuilder WithExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveExtractDataSetBuilder.ExtractsZipArchiveExtractDataSetBuilderContext> configure)
+        public ExtractsZipArchiveBuilder WithIntegration(Action<ExtractsZipArchiveIntegrationDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
+            _integration ??= new ExtractsZipArchiveIntegrationDataSetBuilder(Fixture);
+            _integration.ConfigureIntegration(configure);
+            _integrationStreams = _integration.Build();
+
+            return this;
+        }
+
+        public ExtractsZipArchiveBuilder WithExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
+        {
+            if (_integrationStreams is null)
+            {
+                WithIntegration((_, _) => { });
+            }
+
             _extract ??= new ExtractsZipArchiveExtractDataSetBuilder(Fixture);
             _extract.ConfigureExtract(configure);
             _extractStreams = _extract.Build();
@@ -42,7 +59,7 @@ namespace RoadRegistry.Tests.BackOffice
             return this;
         }
 
-        public ExtractsZipArchiveBuilder WithChange(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilder.ExtractsZipArchiveChangeDataSetBuilderContext> configure)
+        public ExtractsZipArchiveBuilder WithChange(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
         {
             if (_extractStreams is null)
             {
@@ -59,14 +76,27 @@ namespace RoadRegistry.Tests.BackOffice
         public class ZipArchiveBuildContext
         {
             public ZipArchive ZipArchive { get; init; }
+            public ZipArchiveIntegrationBuildContextSet Integration { get; init; }
             public ZipArchiveBuildContextSet Extract { get; init; }
             public ZipArchiveBuildContextSet Change { get; init; }
+
+            public RoadSegmentId GetMaxRoadSegmentId()
+            {
+                return new RoadSegmentId(Integration.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value)
+                    .Concat(Extract.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value))
+                    .Concat(Change.DataSet.RoadSegmentDbaseRecords.Select(x => x.WS_OIDN.Value))
+                    .Max());
+            }
         }
 
         public class ZipArchiveBuildContextSet
         {
             public ZipArchiveDataSet DataSet { get; init; }
             public ZipArchiveDataSetTestData TestData { get; init; }
+        }
+        public class ZipArchiveIntegrationBuildContextSet
+        {
+            public ZipArchiveIntegrationDataSet DataSet { get; init; }
         }
 
         public (ZipArchive, T) BuildWithResult<T>(Func<ZipArchiveBuildContext, T> build)
@@ -76,6 +106,10 @@ namespace RoadRegistry.Tests.BackOffice
             return (zipArchive, build(new ZipArchiveBuildContext
             {
                 ZipArchive = zipArchive,
+                Integration = new ZipArchiveIntegrationBuildContextSet
+                {
+                    DataSet = _integration.DataSet
+                },
                 Extract = new ZipArchiveBuildContextSet
                 {
                     TestData = _extract.TestData,
@@ -91,21 +125,19 @@ namespace RoadRegistry.Tests.BackOffice
 
         public ZipArchive Build()
         {
-            if (_extractStreams is null)
-            {
-                WithExtract((_, _) => { });
-            }
             if (_changeStreams is null)
             {
                 WithChange((_, _) => { });
             }
-
+            
             return Fixture.CreateUploadZipArchive(_testData,
                 roadSegmentProjectionFormatStream: Fixture.CreateProjectionFormatFileWithOneRecord(),
                 roadNodeProjectionFormatStream: Fixture.CreateProjectionFormatFileWithOneRecord(),
 
-                roadSegmentDbaseIntegrationStream: Fixture.CreateDbfFileWithOneRecord<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema, _ => { }),
-                roadSegmentShapeIntegrationStream: Fixture.CreateRoadSegmentShapeFileWithOneRecord(),
+                roadNodeDbaseIntegrationStream: _integrationStreams.RoadNodeDbaseRecords,
+                roadNodeShapeIntegrationStream: _integrationStreams.RoadNodeShapeRecords,
+                roadSegmentDbaseIntegrationStream: _integrationStreams.RoadSegmentDbaseRecords,
+                roadSegmentShapeIntegrationStream: _integrationStreams.RoadSegmentShapeRecords,
                 
                 roadNodeDbaseExtractStream: _extractStreams!.RoadNodeDbaseRecords,
                 roadNodeShapeExtractStream: _extractStreams.RoadNodeShapeRecords,
@@ -263,72 +295,34 @@ namespace RoadRegistry.Tests.BackOffice
         }
     }
 
-    public class ExtractsZipArchiveChangeDataSetBuilder : ExtractsZipArchiveExtractDataSetBuilder
+    public class ExtractsZipArchiveIntegrationDataSetBuilder
     {
-        private readonly ExtractsZipArchiveExtractDataSetBuilder _extractBuilder;
+        public ZipArchiveIntegrationDataSet DataSet { get; private set; }
 
-        public ExtractsZipArchiveChangeDataSetBuilder(Fixture fixture, ExtractsZipArchiveExtractDataSetBuilder extractBuilder)
-            : base(fixture)
+        private readonly Fixture _fixture;
+
+        public ExtractsZipArchiveIntegrationDataSetBuilder(Fixture fixture)
         {
-            _extractBuilder = extractBuilder;
-
-            var manager = new RecyclableMemoryStreamManager();
-            var encoding = Encoding.UTF8;
-
-            var testData = extractBuilder.TestData;
-            TestData.RoadNode1DbaseRecord = testData.RoadNode1DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode1ShapeRecord = testData.RoadNode1ShapeRecord.Clone(manager, encoding);
-
-            TestData.RoadNode2DbaseRecord = testData.RoadNode2DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode2ShapeRecord = testData.RoadNode2ShapeRecord.Clone(manager, encoding);
-
-            TestData.RoadNode3DbaseRecord = testData.RoadNode3DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode3ShapeRecord = testData.RoadNode3ShapeRecord.Clone(manager, encoding);
-
-            TestData.RoadNode4DbaseRecord = testData.RoadNode4DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode4ShapeRecord = testData.RoadNode4ShapeRecord.Clone(manager, encoding);
-
-            TestData.RoadSegment1DbaseRecord = testData.RoadSegment1DbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment1ShapeRecord = testData.RoadSegment1ShapeRecord.Clone(manager, encoding);
-
-            TestData.RoadSegment2DbaseRecord = testData.RoadSegment2DbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment2ShapeRecord = testData.RoadSegment2ShapeRecord.Clone(manager, encoding);
-
-            TestData.RoadSegment1EuropeanRoadDbaseRecord = testData.RoadSegment1EuropeanRoadDbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment1NationalRoadDbaseRecord = testData.RoadSegment1NationalRoadDbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment1NumberedRoadDbaseRecord = testData.RoadSegment1NumberedRoadDbaseRecord.Clone(manager, encoding);
-
-            TestData.RoadSegment1LaneDbaseRecord = testData.RoadSegment1LaneDbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment2LaneDbaseRecord = testData.RoadSegment2LaneDbaseRecord.Clone(manager, encoding);
-
-            TestData.RoadSegment1SurfaceDbaseRecord = testData.RoadSegment1SurfaceDbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment2SurfaceDbaseRecord = testData.RoadSegment2SurfaceDbaseRecord.Clone(manager, encoding);
-
-            TestData.RoadSegment1WidthDbaseRecord = testData.RoadSegment1WidthDbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment2WidthDbaseRecord = testData.RoadSegment2WidthDbaseRecord.Clone(manager, encoding);
-
-            TestData.GradeSeparatedJunctionDbaseRecord = testData.GradeSeparatedJunctionDbaseRecord.Clone(manager, encoding);
+            _fixture = fixture;
         }
-
-        public ExtractsZipArchiveExtractDataSetBuilder ConfigureChange(Action<ExtractsZipArchiveChangeDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
+        
+        public ExtractsZipArchiveIntegrationDataSetBuilder ConfigureIntegration(Action<ExtractsZipArchiveIntegrationDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
-            ConfigureExtract((_, context) =>
+            DataSet ??= new ZipArchiveIntegrationDataSet
             {
-                configure(this, new ExtractsZipArchiveChangeDataSetBuilderContext(context, _extractBuilder));
-            });
+                RoadNodeDbaseRecords = new[] { _fixture.Create<RoadNodeDbaseRecord>() }.ToList(),
+                RoadNodeShapeRecords = new[] { _fixture.Create<PointShapeContent>() }.ToList(),
+                RoadSegmentDbaseRecords = new[] { _fixture.Create<RoadSegmentDbaseRecord>() }.ToList(),
+                RoadSegmentShapeRecords = new[] { _fixture.Create<PolyLineMShapeContent>() }.ToList()
+            };
             
+            configure(this, new ExtractsZipArchiveDataSetBuilderContext(_fixture));
             return this;
         }
 
-        public class ExtractsZipArchiveChangeDataSetBuilderContext : ExtractsZipArchiveExtractDataSetBuilderContext
+        public ZipArchiveIntegrationDataSetStreams Build()
         {
-            public ExtractsZipArchiveExtractDataSetBuilder Extract { get; }
-
-            public ExtractsZipArchiveChangeDataSetBuilderContext(ExtractsZipArchiveExtractDataSetBuilderContext context, ExtractsZipArchiveExtractDataSetBuilder extractsBuilder)
-                : base(context.Fixture)
-            {
-                Extract = extractsBuilder;
-            }
+            return new ZipArchiveIntegrationDataSetStreams(_fixture, DataSet);
         }
     }
 
@@ -358,12 +352,18 @@ namespace RoadRegistry.Tests.BackOffice
             TestData.RoadSegment1DbaseRecord = CreateRoadSegmentDbaseRecord();
             TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = TestData.RoadNode1DbaseRecord.WK_OIDN.Value;
             TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = TestData.RoadNode2DbaseRecord.WK_OIDN.Value;
-            TestData.RoadSegment1ShapeRecord = CreateRoadSegmentShapeRecord();
+            var roadSegment1LineString = CreateRoadSegmentGeometry();
+            TestData.RoadSegment1ShapeRecord = roadSegment1LineString.ToShapeContent();
             
             TestData.RoadSegment2DbaseRecord = CreateRoadSegmentDbaseRecord();
             TestData.RoadSegment2DbaseRecord.B_WK_OIDN.Value = TestData.RoadNode3DbaseRecord.WK_OIDN.Value;
             TestData.RoadSegment2DbaseRecord.E_WK_OIDN.Value = TestData.RoadNode4DbaseRecord.WK_OIDN.Value;
-            TestData.RoadSegment2ShapeRecord = CreateRoadSegmentShapeRecord();
+            var roadSegment2LineString = new LineString(new Coordinate[]
+            {
+                new CoordinateM(roadSegment1LineString.Coordinates[0].X + 1000, roadSegment1LineString.Coordinates[0].Y + 1000, roadSegment1LineString.Coordinates[0].M),
+                new CoordinateM(roadSegment1LineString.Coordinates[1].X + 1000, roadSegment1LineString.Coordinates[1].Y + 1000, roadSegment1LineString.Coordinates[1].M)
+            }) { SRID = roadSegment1LineString.SRID };
+            TestData.RoadSegment2ShapeRecord = roadSegment2LineString.ToShapeContent();
         
             TestData.RoadSegment1EuropeanRoadDbaseRecord = CreateRoadSegmentEuropeanRoadDbaseRecord();
             TestData.RoadSegment1EuropeanRoadDbaseRecord.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
@@ -421,9 +421,9 @@ namespace RoadRegistry.Tests.BackOffice
         {
             return _fixture.Create<RoadSegmentDbaseRecord>();
         }
-        public PolyLineMShapeContent CreateRoadSegmentShapeRecord()
+        public LineString CreateRoadSegmentGeometry()
         {
-            return _fixture.Create<PolyLineMShapeContent>();
+            return _fixture.Create<LineString>();
         }
         public RoadSegmentEuropeanRoadAttributeDbaseRecord CreateRoadSegmentEuropeanRoadDbaseRecord()
         {
@@ -454,7 +454,7 @@ namespace RoadRegistry.Tests.BackOffice
             return _fixture.Create<GradeSeparatedJunctionDbaseRecord>();
         }
 
-        public ExtractsZipArchiveExtractDataSetBuilder ConfigureExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveExtractDataSetBuilderContext> configure)
+        public ExtractsZipArchiveExtractDataSetBuilder ConfigureExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
             DataSet ??= new ZipArchiveDataSet
             {
@@ -471,7 +471,7 @@ namespace RoadRegistry.Tests.BackOffice
                 GradeSeparatedJunctionDbaseRecords = new[] { TestData.GradeSeparatedJunctionDbaseRecord }.ToList()
             };
 
-            configure(this, new ExtractsZipArchiveExtractDataSetBuilderContext(_fixture));
+            configure(this, new ExtractsZipArchiveDataSetBuilderContext(_fixture));
             return this;
         }
 
@@ -479,15 +479,83 @@ namespace RoadRegistry.Tests.BackOffice
         {
             return new ZipArchiveDataSetStreams(_fixture, DataSet);
         }
+    }
 
-        public class ExtractsZipArchiveExtractDataSetBuilderContext
+    public class ExtractsZipArchiveChangeDataSetBuilder : ExtractsZipArchiveExtractDataSetBuilder
+    {
+        private readonly ExtractsZipArchiveExtractDataSetBuilder _extractBuilder;
+
+        public ExtractsZipArchiveChangeDataSetBuilder(Fixture fixture, ExtractsZipArchiveExtractDataSetBuilder extractBuilder)
+            : base(fixture)
         {
-            public Fixture Fixture { get; }
+            _extractBuilder = extractBuilder;
 
-            public ExtractsZipArchiveExtractDataSetBuilderContext(Fixture fixture)
+            var manager = new RecyclableMemoryStreamManager();
+            var encoding = Encoding.UTF8;
+
+            var testData = extractBuilder.TestData;
+            TestData.RoadNode1DbaseRecord = testData.RoadNode1DbaseRecord.Clone(manager, encoding);
+            TestData.RoadNode1ShapeRecord = testData.RoadNode1ShapeRecord.Clone(manager, encoding);
+
+            TestData.RoadNode2DbaseRecord = testData.RoadNode2DbaseRecord.Clone(manager, encoding);
+            TestData.RoadNode2ShapeRecord = testData.RoadNode2ShapeRecord.Clone(manager, encoding);
+
+            TestData.RoadNode3DbaseRecord = testData.RoadNode3DbaseRecord.Clone(manager, encoding);
+            TestData.RoadNode3ShapeRecord = testData.RoadNode3ShapeRecord.Clone(manager, encoding);
+
+            TestData.RoadNode4DbaseRecord = testData.RoadNode4DbaseRecord.Clone(manager, encoding);
+            TestData.RoadNode4ShapeRecord = testData.RoadNode4ShapeRecord.Clone(manager, encoding);
+
+            TestData.RoadSegment1DbaseRecord = testData.RoadSegment1DbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment1ShapeRecord = testData.RoadSegment1ShapeRecord.Clone(manager, encoding);
+
+            TestData.RoadSegment2DbaseRecord = testData.RoadSegment2DbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment2ShapeRecord = testData.RoadSegment2ShapeRecord.Clone(manager, encoding);
+
+            TestData.RoadSegment1EuropeanRoadDbaseRecord = testData.RoadSegment1EuropeanRoadDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment1NationalRoadDbaseRecord = testData.RoadSegment1NationalRoadDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment1NumberedRoadDbaseRecord = testData.RoadSegment1NumberedRoadDbaseRecord.Clone(manager, encoding);
+
+            TestData.RoadSegment1LaneDbaseRecord = testData.RoadSegment1LaneDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment2LaneDbaseRecord = testData.RoadSegment2LaneDbaseRecord.Clone(manager, encoding);
+
+            TestData.RoadSegment1SurfaceDbaseRecord = testData.RoadSegment1SurfaceDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment2SurfaceDbaseRecord = testData.RoadSegment2SurfaceDbaseRecord.Clone(manager, encoding);
+
+            TestData.RoadSegment1WidthDbaseRecord = testData.RoadSegment1WidthDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment2WidthDbaseRecord = testData.RoadSegment2WidthDbaseRecord.Clone(manager, encoding);
+
+            TestData.GradeSeparatedJunctionDbaseRecord = testData.GradeSeparatedJunctionDbaseRecord.Clone(manager, encoding);
+        }
+
+        public ExtractsZipArchiveExtractDataSetBuilder ConfigureChange(Action<ExtractsZipArchiveChangeDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
+        {
+            ConfigureExtract((_, context) =>
             {
-                Fixture = fixture;
-            }
+                configure(this, new ExtractsZipArchiveChangeDataSetBuilderContext(context, _extractBuilder));
+            });
+
+            return this;
+        }
+    }
+
+    public class ExtractsZipArchiveDataSetBuilderContext
+    {
+        public Fixture Fixture { get; }
+
+        public ExtractsZipArchiveDataSetBuilderContext(Fixture fixture)
+        {
+            Fixture = fixture;
+        }
+    }
+    public class ExtractsZipArchiveChangeDataSetBuilderContext : ExtractsZipArchiveDataSetBuilderContext
+    {
+        public ExtractsZipArchiveExtractDataSetBuilder Extract { get; }
+
+        public ExtractsZipArchiveChangeDataSetBuilderContext(ExtractsZipArchiveDataSetBuilderContext context, ExtractsZipArchiveExtractDataSetBuilder extractsBuilder)
+            : base(context.Fixture)
+        {
+            Extract = extractsBuilder;
         }
     }
 
@@ -520,12 +588,16 @@ namespace RoadRegistry.Tests.BackOffice
         public GradeSeparatedJunctionDbaseRecord GradeSeparatedJunctionDbaseRecord { get; set; }
     }
 
-    public class ZipArchiveDataSet
+    public class ZipArchiveIntegrationDataSet
     {
         public List<RoadNodeDbaseRecord> RoadNodeDbaseRecords { get; set; }
         public List<PointShapeContent> RoadNodeShapeRecords { get; set; }
         public List<RoadSegmentDbaseRecord> RoadSegmentDbaseRecords { get; set; }
         public List<PolyLineMShapeContent> RoadSegmentShapeRecords { get; set; }
+    }
+
+    public class ZipArchiveDataSet: ZipArchiveIntegrationDataSet
+    {
         public List<RoadSegmentEuropeanRoadAttributeDbaseRecord> EuropeanRoadDbaseRecords { get; set; }
         public List<RoadSegmentNationalRoadAttributeDbaseRecord> NationalRoadDbaseRecords { get; set; }
         public List<RoadSegmentNumberedRoadAttributeDbaseRecord> NumberedRoadDbaseRecords { get; set; }
@@ -535,14 +607,27 @@ namespace RoadRegistry.Tests.BackOffice
         public List<GradeSeparatedJunctionDbaseRecord> GradeSeparatedJunctionDbaseRecords { get; set; }
     }
 
-    public class ZipArchiveDataSetStreams
+    public class ZipArchiveIntegrationDataSetStreams
     {
-        public ZipArchiveDataSetStreams(Fixture fixture, ZipArchiveDataSet set)
+        public ZipArchiveIntegrationDataSetStreams(Fixture fixture, ZipArchiveIntegrationDataSet set)
         {
             RoadNodeDbaseRecords = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, set.RoadNodeDbaseRecords ?? new List<RoadNodeDbaseRecord>());
             RoadNodeShapeRecords = fixture.CreateRoadNodeShapeFile(set.RoadNodeShapeRecords ?? new List<PointShapeContent>());
             RoadSegmentDbaseRecords = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, set.RoadSegmentDbaseRecords ?? new List<RoadSegmentDbaseRecord>());
             RoadSegmentShapeRecords = fixture.CreateRoadSegmentShapeFile(set.RoadSegmentShapeRecords ?? new List<PolyLineMShapeContent>());
+        }
+
+        public MemoryStream RoadNodeDbaseRecords { get; }
+        public MemoryStream RoadNodeShapeRecords { get; }
+        public MemoryStream RoadSegmentDbaseRecords { get; }
+        public MemoryStream RoadSegmentShapeRecords { get; }
+    }
+
+    public class ZipArchiveDataSetStreams: ZipArchiveIntegrationDataSetStreams
+    {
+        public ZipArchiveDataSetStreams(Fixture fixture, ZipArchiveDataSet set)
+            : base(fixture, set)
+        {
             EuropeanRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, set.EuropeanRoadDbaseRecords ?? new List<RoadSegmentEuropeanRoadAttributeDbaseRecord>());
             NationalRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentNationalRoadAttributeDbaseRecord.Schema, set.NationalRoadDbaseRecords ?? new List<RoadSegmentNationalRoadAttributeDbaseRecord>());
             NumberedRoadDbaseRecords = fixture.CreateDbfFile(RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, set.NumberedRoadDbaseRecords ?? new List<RoadSegmentNumberedRoadAttributeDbaseRecord>());
@@ -552,10 +637,6 @@ namespace RoadRegistry.Tests.BackOffice
             GradeSeparatedJunctionDbaseRecords = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, set.GradeSeparatedJunctionDbaseRecords ?? new List<GradeSeparatedJunctionDbaseRecord>());
         }
 
-        public MemoryStream RoadNodeDbaseRecords { get; }
-        public MemoryStream RoadNodeShapeRecords { get; }
-        public MemoryStream RoadSegmentDbaseRecords { get; }
-        public MemoryStream RoadSegmentShapeRecords { get; }
         public MemoryStream EuropeanRoadDbaseRecords { get; }
         public MemoryStream NationalRoadDbaseRecords { get; }
         public MemoryStream NumberedRoadDbaseRecords { get; }
