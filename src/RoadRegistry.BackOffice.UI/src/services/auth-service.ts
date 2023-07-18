@@ -67,17 +67,20 @@ export const AuthService = {
     const redirectUri = OidcClient.instance.settings.redirect_uri;
     console.log('redirectUri', redirectUri);
     const token = await PublicApi.Security.getExchangeCode(code, verifier, redirectUri);
-    console.log('token', token);
+    console.log('Set sessionstorage', WR_AUTH_OIDC_TOKEN, token);
     sessionStorage.setItem(WR_AUTH_OIDC_TOKEN, token);
 
     try {
       console.log('Loading user from token', token);
       await this.loadUserFromToken(token);
+
+      console.log('Reading token from sessionstorage', this.getToken());
       
       const isAuthenticated = await this.checkAuthentication();
       if (!isAuthenticated) {
         console.error('Login failed, isAuthenticated == false')
         //throw new Error("Er is een fout gebeurd bij het inloggen.");
+        return;
       }
       
       const url = sessionStorage.getItem(WR_AUTH_REDIRECT_URL) as string;
