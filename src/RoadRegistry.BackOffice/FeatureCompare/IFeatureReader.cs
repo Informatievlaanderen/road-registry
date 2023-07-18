@@ -16,8 +16,7 @@ public class ZipArchiveFeatureReaderContext
 {
     public ZipArchiveMetadata ZipArchiveMetadata { get; }
     public VerificationContextTolerances Tolerances { get; }
-
-    public IDictionary<RoadSegmentId, Feature<RoadSegmentFeatureCompareAttributes>> KnownRoadSegments;
+    public IDictionary<RoadSegmentId, Feature<RoadSegmentFeatureCompareAttributes>> KnownRoadSegments { get; }
 
     public ZipArchiveFeatureReaderContext(ZipArchiveMetadata metadata)
     {

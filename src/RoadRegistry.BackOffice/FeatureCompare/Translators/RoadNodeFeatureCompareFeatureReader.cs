@@ -31,13 +31,13 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedFeatureReader<Featur
         var (features, problems) = base.Read(archive, featureType, fileName, context);
 
         problems += archive.ValidateProjectionFile(featureType, fileName, _encoding);
-        problems += ReadShapeFile(features, archive, featureType, fileName, context);
+        problems += ReadShapeFile(features, archive, featureType, fileName);
         problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
 
         return (features, problems);
     }
 
-    private ZipArchiveProblems ReadShapeFile(List<Feature<RoadNodeFeatureCompareAttributes>> features, ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    private ZipArchiveProblems ReadShapeFile(List<Feature<RoadNodeFeatureCompareAttributes>> features, ZipArchive archive, FeatureType featureType, ExtractFileName fileName)
     {
         var problems = ZipArchiveProblems.None;
 

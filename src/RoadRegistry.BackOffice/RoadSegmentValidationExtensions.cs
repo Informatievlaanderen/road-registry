@@ -6,16 +6,16 @@ public static class RoadSegmentValidationExtensions
 {
     public static bool IsValid(this RoadSegmentMorphology morphology, bool outlined)
     {
-        return outlined ? IsValidForRoadSegmentEdit(morphology) : true;
+        return !outlined || IsValidForRoadSegmentEdit(morphology);
     }
+    public static bool IsValid(this RoadSegmentStatus status, bool outlined)
+    {
+        return !outlined || IsValidForRoadSegmentEdit(status);
+    }
+
     public static bool IsValidForRoadSegmentEdit(this RoadSegmentMorphology morphology)
     {
         return RoadSegmentMorphology.Edit.Editable.Contains(morphology);
-    }
-
-    public static bool IsValid(this RoadSegmentStatus status, bool outlined)
-    {
-        return outlined ? IsValidForRoadSegmentEdit(status) : true;
     }
     public static bool IsValidForRoadSegmentEdit(this RoadSegmentStatus status)
     {
