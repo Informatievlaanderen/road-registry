@@ -5,6 +5,7 @@ using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Threading;
 using Authentication;
+using Authorization;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 
 internal class ApiKeyAuthenticator : IApiKeyAuthenticator
@@ -50,7 +51,8 @@ internal class ApiKeyAuthenticator : IApiKeyAuthenticator
                 new(AcmIdmClaimTypes.Scope, Scopes.DvWrAttribuutWaardenBeheer),
                 new(AcmIdmClaimTypes.Scope, Scopes.DvWrGeschetsteWegBeheer),
                 new(AcmIdmClaimTypes.Scope, Scopes.DvWrIngemetenWegBeheer),
-                new(AcmIdmClaimTypes.Scope, Scopes.DvWrUitzonderingenBeheer)
+                new(AcmIdmClaimTypes.Scope, Scopes.DvWrUitzonderingenBeheer),
+                new(AcmIdmClaimTypes.Scope, AcmIdmConstants.Scopes.DvWegenregister)
             }, ApiKeyDefaults.AuthenticationScheme);
     }
 }

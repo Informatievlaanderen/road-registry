@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("information")]
 [ApiExplorerSettings(GroupName = "Info")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AcmIdmConstants.PolicyNames.Authenticated)]
 public partial class InformationController : ApiController
 {
     private readonly IMediator _mediator;
