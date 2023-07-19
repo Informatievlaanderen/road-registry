@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
 using System;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -9,6 +8,7 @@ using Abstractions;
 using Abstractions.Configuration;
 using Amazon;
 using Amazon.DynamoDBv2;
+using Authentication;
 using Authorization;
 using Autofac;
 using BackOffice.Extensions;
@@ -26,6 +26,7 @@ using Configuration;
 using Controllers.Attributes;
 using Core;
 using Editor.Schema;
+using Extensions;
 using FeatureCompare.Translators;
 using FluentValidation;
 using Framework;
@@ -51,10 +52,8 @@ using Microsoft.OpenApi.Models;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
+using Options;
 using Product.Schema;
-using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
-using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
@@ -257,7 +256,9 @@ public class Startup
                     {
                         options
                             .AddAcmIdmAuthorization()
-                            .AddAcmIdmPolicyVoInfo();
+                            .AddAcmIdmPolicyAuthenticated()
+                            .AddAcmIdmPolicyDvWegenregister()
+                            ;
                     }
                 }
             })

@@ -6,14 +6,26 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Authorization
 {
     public static class AuthorizationExtensions
     {
-        public static AuthorizationOptions AddAcmIdmPolicyVoInfo(this AuthorizationOptions authorizationOptions)
+        public static AuthorizationOptions AddAcmIdmPolicyAuthenticated(this AuthorizationOptions authorizationOptions)
         {
-            return authorizationOptions.AddPolicy(AcmIdmConstants.PolicyNames.VoInfo, Scopes.VoInfo);
+            return authorizationOptions.AddPolicy(AcmIdmConstants.PolicyNames.Authenticated, new[]
+            {
+                Scopes.VoInfo,
+                Scopes.DvWrAttribuutWaardenBeheer,
+                Scopes.DvWrGeschetsteWegBeheer,
+                Scopes.DvWrIngemetenWegBeheer,
+                Scopes.DvWrUitzonderingenBeheer,
+                AcmIdmConstants.Scopes.DvWegenregister
+            });
+        }
+        public static AuthorizationOptions AddAcmIdmPolicyDvWegenregister(this AuthorizationOptions authorizationOptions)
+        {
+            return authorizationOptions.AddPolicy(AcmIdmConstants.PolicyNames.Wegenregister, new[]{ AcmIdmConstants.Scopes.DvWegenregister });
         }
 
-        private static AuthorizationOptions AddPolicy(this AuthorizationOptions options, string policyName, string scope)
+        private static AuthorizationOptions AddPolicy(this AuthorizationOptions options, string policyName, string[] scopes)
         {
-            options.AddPolicy(policyName, policyBuilder => policyBuilder.AddRequirements(new AcmIdmAuthorizationRequirement(new[] { scope })));
+            options.AddPolicy(policyName, policyBuilder => policyBuilder.AddRequirements(new AcmIdmAuthorizationRequirement(scopes)));
 
             return options;
         }
