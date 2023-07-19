@@ -17,7 +17,7 @@ public partial class RoadRegistrySecurityController
     [ApiKey]
     [HttpGet(UserRoute, Name = nameof(GetUser))]
     [SwaggerOperation(OperationId = nameof(GetUser), Description = "")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AcmIdmConstants.PolicyNames.Authenticated)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
     public IActionResult GetUser()
     {
         return Ok(new UserData(HttpContext.User));

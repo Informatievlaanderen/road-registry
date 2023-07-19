@@ -158,7 +158,6 @@ export const BackOfficeApi = {
         await apiClient.get<void>(path);
         return true;
       } catch (err) {
-        console.error('UserIsAuthenticated failed', err);
         return false;
       }
     },

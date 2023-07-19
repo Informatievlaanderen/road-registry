@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using Authentication;
-using Authorization;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 
 internal class ApiKeyAuthenticator : IApiKeyAuthenticator
@@ -41,18 +41,16 @@ internal class ApiKeyAuthenticator : IApiKeyAuthenticator
             return new ClaimsIdentity();
         }
 
+        var scopes = RoadRegistryRoles.GetScopes(RoadRegistryRoles.Admin);
+
         return new ClaimsIdentity(new Claim[]
             {
                 new("sub", apiKey),
                 new("active", true.ToString()),
                 new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName),
-                new(AcmIdmClaimTypes.Scope, "digitaalvlaanderen_grar_toegang"),
-                new(AcmIdmClaimTypes.Scope, Scopes.VoInfo),
-                new(AcmIdmClaimTypes.Scope, Scopes.DvWrAttribuutWaardenBeheer),
-                new(AcmIdmClaimTypes.Scope, Scopes.DvWrGeschetsteWegBeheer),
-                new(AcmIdmClaimTypes.Scope, Scopes.DvWrIngemetenWegBeheer),
-                new(AcmIdmClaimTypes.Scope, Scopes.DvWrUitzonderingenBeheer),
-                new(AcmIdmClaimTypes.Scope, AcmIdmConstants.Scopes.DvWegenregister)
-            }, ApiKeyDefaults.AuthenticationScheme);
+                new(AcmIdmClaimTypes.Scope, "digitaalvlaanderen_grar_toegang")
+            }.Concat(
+                scopes.Select(scope => new Claim(AcmIdmClaimTypes.Scope, scope))
+            ), ApiKeyDefaults.AuthenticationScheme);
     }
 }

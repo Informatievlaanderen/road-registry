@@ -256,8 +256,7 @@ public class Startup
                     {
                         options
                             .AddAcmIdmAuthorization()
-                            .AddAcmIdmPolicyAuthenticated()
-                            .AddAcmIdmPolicyDvWegenregister()
+                            .AddAcmIdmPolicyVoInfo()
                             ;
                     }
                 }
