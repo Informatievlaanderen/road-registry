@@ -1,3 +1,10 @@
+## [3.53.1](https://github.com/informatievlaanderen/road-registry/compare/v3.53.0...v3.53.1) (2023-07-19)
+
+
+### Bug Fixes
+
+* WR-689 use any DV scope to check if authenticated ([#1071](https://github.com/informatievlaanderen/road-registry/issues/1071)) ([83bb2a4](https://github.com/informatievlaanderen/road-registry/commit/83bb2a41eff1112fe0755459acba987cea2567cb))
+
 # [3.53.0](https://github.com/informatievlaanderen/road-registry/compare/v3.52.11...v3.53.0) (2023-07-18)
 
 
