@@ -1,3 +1,10 @@
+## [3.53.2](https://github.com/informatievlaanderen/road-registry/compare/v3.53.1...v3.53.2) (2023-07-19)
+
+
+### Bug Fixes
+
+* WR-689 read dv_wegenregister claim to determine scopes ([#1072](https://github.com/informatievlaanderen/road-registry/issues/1072)) ([7a4a356](https://github.com/informatievlaanderen/road-registry/commit/7a4a356e77632ecc5ac3843c445e4b86920d19d5))
+
 ## [3.53.1](https://github.com/informatievlaanderen/road-registry/compare/v3.53.0...v3.53.1) (2023-07-19)
 
 
