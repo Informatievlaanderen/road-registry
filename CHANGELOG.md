@@ -1,3 +1,17 @@
+# [3.53.0](https://github.com/informatievlaanderen/road-registry/compare/v3.52.11...v3.53.0) (2023-07-18)
+
+
+### Bug Fixes
+
+* Add configuration instead of fixed value email sender ([#1066](https://github.com/informatievlaanderen/road-registry/issues/1066)) ([3e00f40](https://github.com/informatievlaanderen/road-registry/commit/3e00f4014a16eb940211e07a6d23eeaf8133f18b))
+* add integration data to ExtractsZipArchiveBuilder to ensure test always succeeds ([#1067](https://github.com/informatievlaanderen/road-registry/issues/1067)) ([a9c5ae2](https://github.com/informatievlaanderen/road-registry/commit/a9c5ae264c44b3a209e5f94c3304bffc1dcaaaa2))
+* WR-689 add logging ([#1068](https://github.com/informatievlaanderen/road-registry/issues/1068)) ([8bce479](https://github.com/informatievlaanderen/road-registry/commit/8bce479cae7b7636b8aff8b4ab80ff2cc4830d30))
+
+
+### Features
+
+* WR-759 add validations + use FC feature reader for before-FC validation ([#1065](https://github.com/informatievlaanderen/road-registry/issues/1065)) ([8482382](https://github.com/informatievlaanderen/road-registry/commit/848238225b34a42a9f875988164a202938cabbbb))
+
 ## [3.52.11](https://github.com/informatievlaanderen/road-registry/compare/v3.52.10...v3.52.11) (2023-07-18)
 
 
