@@ -112,7 +112,7 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
             .ToArray();
     }
 
-    private void KafkaVerify(Mock<IKafkaProducer> kafkaProducer, IEnumerable<object> expectedRecords)
+    private void KafkaVerify(Mock<IKafkaProducer> kafkaProducer, IEnumerable<object> expectedRecords, Times? times = null)
     {
         foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentSurfaceRecord>())
         {
@@ -121,7 +121,7 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
                     expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
                     It.Is(expectedRecord.ToContract(), new RoadSegmentSurfaceSnapshotEqualityComparer()),
                     It.IsAny<CancellationToken>()),
-                Times.Once);
+                times ?? Times.Once());
         }
     }
 
@@ -496,6 +496,32 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
             .Expect(created.UtcDateTime, expectedRecords);
 
         KafkaVerify(kafkaProducer, expectedRecords);
+    }
+
+    [Fact]
+    public async Task When_adding_surfaces_which_were_previously_removed()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var created = DateTimeOffset.UtcNow;
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+        
+        var acceptedRoadSegmentRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemoved>());
+        
+        var expectedRecords = ConvertToRoadSegmentSurfaceRecords(acceptedRoadSegmentAdded, created);
+
+        var kafkaProducer = BuildKafkaProducer();
+        await new RoadSegmentSurfaceRecordProjection(kafkaProducer.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved, acceptedRoadSegmentAdded)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords, Times.Exactly(2));
     }
 
     //[Fact]

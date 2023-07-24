@@ -115,6 +115,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 
             foreach (var surface in surfaces)
             {
+                var removedRecord = context.RoadSegmentSurfaces.Local.SingleOrDefault(x => x.Id == surface.Id && x.IsRemoved)
+                    ?? await context.RoadSegmentSurfaces.SingleOrDefaultAsync(x => x.Id == surface.Id && x.IsRemoved, token);
+                if (removedRecord is not null)
+                {
+                    context.RoadSegmentSurfaces.Remove(removedRecord);
+                }
+
                 var roadSegmentSurfaceRecord = await context.RoadSegmentSurfaces.AddAsync(surface, token);
 
                 await Produce(roadSegmentSurfaceRecord.Entity.Id, roadSegmentSurfaceRecord.Entity.ToContract(), token);

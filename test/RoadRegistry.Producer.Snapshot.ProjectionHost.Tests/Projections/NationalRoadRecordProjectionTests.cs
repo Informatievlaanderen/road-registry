@@ -63,6 +63,46 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
         _fixture.CustomizeRoadSegmentRemovedFromNationalRoad();
     }
 
+    private static Mock<IKafkaProducer> BuildKafkaProducer()
+    {
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<NationalRoadSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<NationalRoadSnapshot>.Success(It.IsAny<NationalRoadSnapshot>()));
+        return kafkaProducer;
+    }
+
+    private static ICollection<object> ConvertToNationalRoadRecords(RoadNetworkChangesAccepted message, DateTimeOffset created, Action<NationalRoadRecord> modifier = null)
+    {
+        return Array.ConvertAll(message.Changes, change =>
+        {
+            var nationalRoadAdded = change.RoadSegmentAddedToNationalRoad;
+
+            var record = new NationalRoadRecord(
+                nationalRoadAdded.AttributeId,
+                nationalRoadAdded.SegmentId,
+                nationalRoadAdded.Number,
+                message.ToOrigin(),
+                created);
+
+            modifier?.Invoke(record);
+            return (object)record;
+        });
+    }
+
+    private void KafkaVerify(Mock<IKafkaProducer> kafkaProducer, IEnumerable<object> expectedRecords, Times? times = null)
+    {
+        foreach (var expectedRecord in expectedRecords.Cast<NationalRoadRecord>())
+        {
+            kafkaProducer.Verify(
+                x => x.Produce(
+                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
+                    It.Is(expectedRecord.ToContract(), new NationalRoadSnapshotEqualityComparer()),
+                    It.IsAny<CancellationToken>()),
+                times ?? Times.Once());
+        }
+    }
+
     [Fact]
     public async Task When_adding_road_segments_to_national_roads()
     {
@@ -72,37 +112,15 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
 
         var created = DateTimeOffset.UtcNow;
 
-        var expectedRecords = Array.ConvertAll(message.Changes, change =>
-        {
-            var nationalRoadAdded = change.RoadSegmentAddedToNationalRoad;
+        var expectedRecords = ConvertToNationalRoadRecords(message, created);
 
-            return (object)new NationalRoadRecord(
-                nationalRoadAdded.AttributeId,
-                nationalRoadAdded.SegmentId,
-                nationalRoadAdded.Number,
-                message.ToOrigin(),
-                created);
-        });
-
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<NationalRoadSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<NationalRoadSnapshot>.Success(It.IsAny<NationalRoadSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new NationalRoadRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(message)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<NationalRoadRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new NationalRoadSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -123,25 +141,13 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
                 created))
             .ToList();
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<NationalRoadSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<NationalRoadSnapshot>.Success(It.IsAny<NationalRoadSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new NationalRoadRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(importedRoadSegment)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords)
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new NationalRoadSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -165,17 +171,9 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
 
         var created = DateTimeOffset.UtcNow;
 
-        var expectedRecords = Array.ConvertAll(acceptedNationalRoadAdded.Changes, change =>
+        var expectedRecords = ConvertToNationalRoadRecords(acceptedNationalRoadAdded, created.AddDays(-1), record =>
         {
-            var nationalRoadAdded = change.RoadSegmentAddedToNationalRoad;
-
-            return (object)new NationalRoadRecord(
-                    nationalRoadAdded.AttributeId,
-                    nationalRoadAdded.SegmentId,
-                    nationalRoadAdded.Number,
-                    acceptedNationalRoadAdded.ToOrigin(),
-                    created.AddDays(-1))
-                { IsRemoved = true };
+            record.IsRemoved = true;
         });
 
         expectedRecords = Array.ConvertAll(acceptedRoadSegmentRemoved.Changes, change =>
@@ -190,25 +188,13 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
             return (object)record;
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<NationalRoadSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<NationalRoadSnapshot>.Success(It.IsAny<NationalRoadSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new NationalRoadRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(acceptedNationalRoadAdded, acceptedRoadSegmentRemoved)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<NationalRoadRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new NationalRoadSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -231,17 +217,9 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
 
         var created = DateTimeOffset.UtcNow;
 
-        var expectedRecords = Array.ConvertAll(acceptedNationalRoadAdded.Changes, change =>
+        var expectedRecords = ConvertToNationalRoadRecords(acceptedNationalRoadAdded, created.AddDays(-1), record =>
         {
-            var nationalRoadAdded = change.RoadSegmentAddedToNationalRoad;
-
-            return (object)new NationalRoadRecord(
-                    nationalRoadAdded.AttributeId,
-                    nationalRoadAdded.SegmentId,
-                    nationalRoadAdded.Number,
-                    acceptedNationalRoadAdded.ToOrigin(),
-                    created.AddDays(-1))
-                { IsRemoved = true };
+            record.IsRemoved = true;
         });
 
         expectedRecords = Array.ConvertAll(acceptedNationalRoadRemoved.Changes, change =>
@@ -256,24 +234,44 @@ public class NationalRoadRecordProjectionTests : IClassFixture<ProjectionTestSer
             return (object)record;
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<NationalRoadSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<NationalRoadSnapshot>.Success(It.IsAny<NationalRoadSnapshot>()));
-
+        var kafkaProducer = BuildKafkaProducer();
         await new NationalRoadRecordProjection(kafkaProducer.Object)
             .Scenario()
             .Given(acceptedNationalRoadAdded, acceptedNationalRoadRemoved)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<NationalRoadRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new NationalRoadSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
+    }
+
+    [Fact]
+    public async Task When_adding_national_roads_which_were_previously_removed()
+    {
+        var created = DateTimeOffset.UtcNow;
+
+        var acceptedNationalRoadAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAddedToNationalRoad>());
+
+        var acceptedRoadSegmentRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(
+                acceptedNationalRoadAdded.Changes
+                    .Select(change => change.RoadSegmentAddedToNationalRoad.SegmentId)
+                    .Distinct()
+                    .Select(roadSegmentId =>
+                        new RoadSegmentRemoved
+                        {
+                            Id = roadSegmentId
+                        }));
+
+        var expectedRecords = ConvertToNationalRoadRecords(acceptedNationalRoadAdded, created);
+
+        var kafkaProducer = BuildKafkaProducer();
+        await new NationalRoadRecordProjection(kafkaProducer.Object)
+            .Scenario()
+            .Given(acceptedNationalRoadAdded, acceptedRoadSegmentRemoved, acceptedNationalRoadAdded)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords, Times.Exactly(2));
     }
 }
