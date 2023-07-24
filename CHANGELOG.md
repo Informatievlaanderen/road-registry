@@ -1,3 +1,10 @@
+## [3.53.3](https://github.com/informatievlaanderen/road-registry/compare/v3.53.2...v3.53.3) (2023-07-24)
+
+
+### Bug Fixes
+
+* WR-775 re-adding previously removed entities in kafka ([#1073](https://github.com/informatievlaanderen/road-registry/issues/1073)) ([3244ea9](https://github.com/informatievlaanderen/road-registry/commit/3244ea9cf1e8db42c7d8f54cb29c5f261ad370db))
+
 ## [3.53.2](https://github.com/informatievlaanderen/road-registry/compare/v3.53.1...v3.53.2) (2023-07-19)
 
 
