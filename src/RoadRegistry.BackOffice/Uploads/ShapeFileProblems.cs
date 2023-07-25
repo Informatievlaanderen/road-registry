@@ -7,8 +7,10 @@ using NetTopologySuite.IO;
 
 public static class ShapeFileProblems
 {
-    public static FileError HasNoShapeRecords(this IFileProblemBuilder builder)
+    public static FileProblem HasNoShapeRecords(this IFileProblemBuilder builder, bool treatAsWarning)
     {
+        if (treatAsWarning)
+            return builder.Warning(nameof(HasNoShapeRecords)).Build();
         return builder.Error(nameof(HasNoShapeRecords)).Build();
     }
 
@@ -21,6 +23,12 @@ public static class ShapeFileProblems
             .Error(nameof(HasShapeRecordFormatError))
             .WithParameters(
                 new ProblemParameter("Exception", exception.ToString()))
+            .Build();
+    }
+    public static FileError DbaseRecordMissing(this IShapeFileRecordProblemBuilder builder)
+    {
+        return builder
+            .Error(nameof(DbaseRecordMissing))
             .Build();
     }
 

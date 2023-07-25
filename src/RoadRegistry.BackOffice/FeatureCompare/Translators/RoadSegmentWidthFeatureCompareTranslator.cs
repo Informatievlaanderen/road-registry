@@ -3,7 +3,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
-using RoadRegistry.BackOffice.Extracts;
+using Extracts;
 using Uploads;
 
 internal class RoadSegmentWidthFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentWidthFeatureCompareAttributes>
@@ -20,22 +20,22 @@ internal class RoadSegmentWidthFeatureCompareTranslator : RoadSegmentAttributeFe
                && feature1.Attributes.Width == feature2.Attributes.Width;
     }
 
-    protected override List<Feature<RoadSegmentWidthFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    protected override (List<Feature<RoadSegmentWidthFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var featureReader = new RoadSegmentWidthFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(entries, featureType, fileName);
+        return featureReader.Read(archive, featureType, fileName, context);
     }
 
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)
         {
-            var segmentId = new RoadSegmentId(record.Feature.Attributes.RoadSegmentId!.Value);
+            var segmentId = record.Feature.Attributes.RoadSegmentId;
             var width = new RoadSegmentWidthAttribute(
-                new AttributeId(record.Feature.Attributes.Id!.Value),
-                new RoadSegmentWidth(record.Feature.Attributes.Width),
-                RoadSegmentPosition.FromDouble(record.Feature.Attributes.FromPosition!.Value),
-                RoadSegmentPosition.FromDouble(record.Feature.Attributes.ToPosition!.Value)
+                record.Feature.Attributes.Id,
+                record.Feature.Attributes.Width,
+                record.Feature.Attributes.FromPosition,
+                record.Feature.Attributes.ToPosition
             );
             if (changes.TryFindRoadSegmentProvisionalChange(segmentId, out var provisionalChange))
             {

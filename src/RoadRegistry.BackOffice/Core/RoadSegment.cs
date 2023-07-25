@@ -36,9 +36,9 @@ public class RoadSegment
     {
         ArgumentNullException.ThrowIfNull(geometry);
         
-        if (attributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined.ToString() && start == end)
+        if (attributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined && start == end)
         {
-            throw new ArgumentException($"The start and end can not be the same road node ({start}).", nameof(start));
+            throw new ArgumentException($"The start and end can not be the same road node ({start}) for road segment with ID {id}.", nameof(start));
         }
 
         Id = id;
@@ -139,9 +139,9 @@ public class RoadSegment
         return new RoadSegment(Id, Version, Geometry, GeometryVersion, Start, End, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, lastEventHash);
     }
 
-    public RoadSegment WithStartAndEnd(RoadNodeId start, RoadNodeId end)
+    public RoadSegment WithStartAndEndAndAttributeHash(RoadNodeId start, RoadNodeId end, AttributeHash attributeHash)
     {
-        return new RoadSegment(Id, Version, Geometry, GeometryVersion, start, end, AttributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, LastEventHash);
+        return new RoadSegment(Id, Version, Geometry, GeometryVersion, start, end, attributeHash, EuropeanRoadAttributes, NationalRoadAttributes, NumberedRoadAttributes, LastEventHash);
     }
     
     public RoadSegment WithVersion(RoadSegmentVersion version)

@@ -26,14 +26,21 @@ public class WhenChangeWithValidRequestFixture : WhenChangeFixture
                     {
                         VanPositie = 0,
                         TotPositie = 10,
-                        Aantal = ObjectProvider.Create<RoadSegmentLaneCount>(),
-                        Richting = ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
+                        Aantal = "niet gekend",
+                        Richting = "niet gekend"
                     },
                     new()
                     {
                         VanPositie = 10.0001M,
                         TotPositie = 20,
-                        Aantal = ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Aantal = "niet van toepassing",
+                        Richting = "niet van toepassing"
+                    },
+                    new()
+                    {
+                        VanPositie = 20.0001M,
+                        TotPositie = 30,
+                        Aantal = ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
                         Richting = ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
                     }
                 },
@@ -43,13 +50,19 @@ public class WhenChangeWithValidRequestFixture : WhenChangeFixture
                     {
                         VanPositie = 0,
                         TotPositie = 10,
-                        Breedte = ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = "niet gekend",
                     },
                     new()
                     {
                         VanPositie = 10.0001M,
                         TotPositie = 20,
-                        Breedte = ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = "niet van toepassing"
+                    },
+                    new()
+                    {
+                        VanPositie = 20.0001M,
+                        TotPositie = 30,
+                        Breedte = ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 },
                 Wegverharding = new ChangeSurfaceAttributeParameters[]
@@ -58,12 +71,18 @@ public class WhenChangeWithValidRequestFixture : WhenChangeFixture
                     {
                         VanPositie = 0,
                         TotPositie = 10,
-                        Type = ObjectProvider.Create<RoadSegmentSurfaceType>().ToDutchString()
+                        Type = "niet gekend",
                     },
                     new()
                     {
                         VanPositie = 10.0001M,
                         TotPositie = 20,
+                        Type = "niet van toepassing"
+                    },
+                    new()
+                    {
+                        VanPositie = 20.0001M,
+                        TotPositie = 30,
                         Type = ObjectProvider.Create<RoadSegmentSurfaceType>().ToDutchString()
                     }
                 }

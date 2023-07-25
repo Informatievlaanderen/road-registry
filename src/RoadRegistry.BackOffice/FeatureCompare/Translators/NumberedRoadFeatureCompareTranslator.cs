@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using RoadRegistry.BackOffice.Extracts;
+using Extracts;
 using Uploads;
 
 internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<NumberedRoadFeatureCompareAttributes>
@@ -115,10 +115,10 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
         }
     }
 
-    protected override List<Feature<NumberedRoadFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    protected override (List<Feature<NumberedRoadFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var featureReader = new NumberedRoadFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(entries, featureType, fileName);
+        return featureReader.Read(archive, featureType, fileName, context);
     }
 
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
@@ -131,11 +131,11 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
                     changes = changes.AppendChange(
                         new AddRoadSegmentToNumberedRoad(
                             record.Feature.RecordNumber,
-                            new AttributeId(record.Feature.Attributes.Id),
-                            new RoadSegmentId(record.Feature.Attributes.RoadSegmentId),
-                            NumberedRoadNumber.Parse(record.Feature.Attributes.Number),
-                            RoadSegmentNumberedRoadDirection.ByIdentifier[record.Feature.Attributes.Direction],
-                            new RoadSegmentNumberedRoadOrdinal(record.Feature.Attributes.Ordinal)
+                            record.Feature.Attributes.Id,
+                            record.Feature.Attributes.RoadSegmentId,
+                            record.Feature.Attributes.Number,
+                            record.Feature.Attributes.Direction,
+                            record.Feature.Attributes.Ordinal
                         )
                     );
                     break;
@@ -143,9 +143,9 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
                     changes = changes.AppendChange(
                         new RemoveRoadSegmentFromNumberedRoad(
                             record.Feature.RecordNumber,
-                            new AttributeId(record.Feature.Attributes.Id),
-                            new RoadSegmentId(record.Feature.Attributes.RoadSegmentId),
-                            NumberedRoadNumber.Parse(record.Feature.Attributes.Number)
+                            record.Feature.Attributes.Id,
+                            record.Feature.Attributes.RoadSegmentId,
+                            record.Feature.Attributes.Number
                         )
                     );
                     break;

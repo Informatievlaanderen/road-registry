@@ -24,7 +24,7 @@ public abstract class WhenDeleteOutlineFixture : SqsLambdaHandlerFixture<DeleteR
         : base(configuration, customRetryPolicy, clock, options)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
-        ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentSurfaceType();
         ObjectProvider.CustomizeRoadSegmentOutlineWidth();
         ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();

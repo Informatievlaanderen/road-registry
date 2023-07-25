@@ -26,11 +26,32 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = null,
                         TotPositie = 10,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
         }, "VanPositieVerplicht");
+    }
+
+    [Fact]
+    public async Task VanPositie_VanPositieNulOntbreekt()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                Wegbreedte = new ChangeWidthAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 1,
+                        TotPositie = 10,
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
+                    }
+                }
+            }
+        }, "VanPositieNulOntbreekt");
     }
 
     [Fact]
@@ -45,9 +66,15 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                 {
                     new()
                     {
-                        VanPositie = -1,
+                        VanPositie = 0,
                         TotPositie = 10,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
+                    },
+                    new()
+                    {
+                        VanPositie = -1,
+                        TotPositie = 20,
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -68,7 +95,7 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 0,
                         TotPositie = null,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -89,7 +116,7 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 0,
                         TotPositie = -1,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -110,17 +137,38 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 0,
                         TotPositie = 1,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     },
                     new()
                     {
                         VanPositie = 1.00100001M,
                         TotPositie = 3,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
         }, "TotPositieNietGelijkAanVolgendeVanPositie");
+    }
+
+    [Fact]
+    public async Task TotPositie_TotPositieKleinerOfGelijkAanVanPositie()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                Wegbreedte = new ChangeWidthAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 945,
+                        TotPositie = 45,
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
+                    }
+                }
+            }
+        }, "TotPositieKleinerOfGelijkAanVanPositie");
     }
 
     [Fact]
@@ -160,7 +208,7 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 0,
                         TotPositie = 10,
-                        Breedte = breedte
+                        Breedte = breedte.ToString()
                     }
                 }
             }

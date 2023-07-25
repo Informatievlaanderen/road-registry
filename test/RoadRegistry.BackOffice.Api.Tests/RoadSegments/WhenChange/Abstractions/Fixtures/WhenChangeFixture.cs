@@ -33,10 +33,10 @@ public abstract class WhenChangeFixture : ControllerActionFixture<ChangeRoadSegm
 
         TestData.CopyCustomizationsTo(ObjectProvider);
 
-        ObjectProvider.CustomizeRoadSegmentLaneCount();
+        ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
         ObjectProvider.CustomizeRoadSegmentLaneDirection();
         ObjectProvider.CustomizeRoadSegmentSurfaceType();
-        ObjectProvider.CustomizeRoadSegmentWidth();
+        ObjectProvider.CustomizeRoadSegmentOutlineWidth();
     }
 
     protected override async Task<IActionResult> GetResultAsync(ChangeRoadSegmentsParameters parameters)
@@ -52,7 +52,6 @@ public abstract class WhenChangeFixture : ControllerActionFixture<ChangeRoadSegm
         return await controller.Change(
             parameters,
             new ChangeRoadSegmentsParametersValidator(_editorContext),
-            //new ChangeRoadSegmentsParametersWrapperValidator(_editorContext),
             CancellationToken.None
         );
     }

@@ -4,23 +4,19 @@ using System.IO.Compression;
 using Abstractions;
 using Abstractions.Exceptions;
 using Abstractions.Uploads;
-using BackOffice.Extensions;
 using BackOffice.Extracts;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.FeatureCompare;
 using BackOffice.FeatureCompare.Translators;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Editor.Schema;
 using Exceptions;
+using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
-using FeatureToggles;
-using Microsoft.IO;
 using ZipArchiveWriters;
 using ZipArchiveWriters.Cleaning;
-using ZipArchiveWriters.ExtractHost;
 
 /// <summary>Upload controller, post upload</summary>
 /// <exception cref="BlobClientNotFoundException"></exception>
@@ -106,7 +102,17 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         using (var archive = new ZipArchive(writeStream, ZipArchiveMode.Update, true))
         {
             var cleaner = new BeforeFeatureCompareZipArchiveCleaner(_encoding);
-            var cleanResult = await cleaner.CleanAsync(archive, cancellationToken);
+            CleanResult cleanResult;
+            try
+            {
+                cleanResult = await cleaner.CleanAsync(archive, cancellationToken);
+            }
+            catch
+            {
+                // ignore exceptions, let the validation handle it
+                cleanResult = CleanResult.NotApplicable;
+            }
+
             if (cleanResult != CleanResult.Changed)
             {
                 readStream.Position = 0;
@@ -149,14 +155,14 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             IZipArchiveValidator validator = request.UseZipArchiveFeatureCompareTranslator ? _beforeFeatureCompareValidator : _afterFeatureCompareValidator;
             var problems = entity.ValidateArchiveUsing(archive, validator);
 
-            var fileProblems = problems.OfType<FileError>().ToArray();
-            if (fileProblems.Any())
+            if (problems.HasError())
             {
                 throw new ZipArchiveValidationException(problems);
             }
 
-            var features = _transactionZoneFeatureReader.Read(archive.Entries, FeatureType.Change, ExtractFileName.Transactiezones);
-            var downloadId = DownloadId.Parse(features.Single().Attributes.DownloadId);
+            var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
+            var features = _transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
+            var downloadId = features.Single().Attributes.DownloadId;
 
             var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
             if (extractRequest is null)

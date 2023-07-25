@@ -58,6 +58,7 @@ public partial class DownloadControllerTests : ControllerTests<DownloadControlle
             Lists.AllLaneDirectionDbaseRecords,
             new[]
             {
+                RecordFrom(RoadSegmentLaneDirection.NotApplicable),
                 RecordFrom(RoadSegmentLaneDirection.Unknown),
                 RecordFrom(RoadSegmentLaneDirection.Forward),
                 RecordFrom(RoadSegmentLaneDirection.Backward),

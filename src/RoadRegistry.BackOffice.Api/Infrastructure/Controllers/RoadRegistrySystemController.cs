@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
+using Attributes;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using MediatR;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SqlStreamStore;
 
+[ApiKey]
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("system")]

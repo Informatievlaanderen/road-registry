@@ -25,7 +25,7 @@ public class RoadSegmentLaneAttributeDbaseRecord : DbaseRecord
             TOTPOS
         };
     }
-    
+
     public DbaseInt32 AANTAL { get; set; }
     public DbaseInt32 RICHTING { get; set; }
     public DbaseInt32 RS_OIDN { get; set; }

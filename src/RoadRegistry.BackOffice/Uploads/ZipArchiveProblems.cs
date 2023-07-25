@@ -95,6 +95,11 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         );
     }
 
+    public bool HasError()
+    {
+        return _problems.OfType<FileError>().Any();
+    }
+
     public static ZipArchiveProblems Single(FileProblem problem)
     {
         if (problem == null) throw new ArgumentNullException(nameof(problem));

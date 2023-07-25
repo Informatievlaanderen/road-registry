@@ -31,6 +31,8 @@ public class ChangeRoadSegmentParametersValidator : AbstractValidator<ChangeRoad
         {
             RuleFor(x => x.Wegverharding)
                 .Cascade(CascadeMode.Stop)
+                .Must(FirstFromPositionIsZeroOrNull)
+                .WithProblemCode(ProblemCode.FromPosition.NotEqualToZero)
                 .Must(PositionAttributesAreCorrectlySorted)
                 .WithProblemCode(ProblemCode.ToPosition.NotEqualToNextFromPosition);
 
@@ -42,6 +44,8 @@ public class ChangeRoadSegmentParametersValidator : AbstractValidator<ChangeRoad
         {
             RuleFor(x => x.Wegbreedte)
                 .Cascade(CascadeMode.Stop)
+                .Must(FirstFromPositionIsZeroOrNull)
+                .WithProblemCode(ProblemCode.FromPosition.NotEqualToZero)
                 .Must(PositionAttributesAreCorrectlySorted)
                 .WithProblemCode(ProblemCode.ToPosition.NotEqualToNextFromPosition);
 
@@ -53,12 +57,31 @@ public class ChangeRoadSegmentParametersValidator : AbstractValidator<ChangeRoad
         {
             RuleFor(x => x.AantalRijstroken)
                 .Cascade(CascadeMode.Stop)
+                .Must(FirstFromPositionIsZeroOrNull)
+                .WithProblemCode(ProblemCode.FromPosition.NotEqualToZero)
                 .Must(PositionAttributesAreCorrectlySorted)
                 .WithProblemCode(ProblemCode.ToPosition.NotEqualToNextFromPosition);
 
             RuleForEach(x => x.AantalRijstroken)
                 .SetValidator(new ChangeLaneAttributeParametersValidator());
         });
+    }
+
+    private bool FirstFromPositionIsZeroOrNull<T>(T[] attributes) where T : ChangePositionAttributeParameters
+    {
+        if (!attributes.Any())
+        {
+            return false;
+        }
+
+        var vanPos = attributes.First().VanPositie;
+        if (vanPos is null
+            || vanPos.Value.IsReasonablyEqualTo(0, (decimal)DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+        {
+            return true;
+        }
+        
+        return false;
     }
 
     private bool PositionAttributesAreCorrectlySorted<T>(T[] attributes) where T : ChangePositionAttributeParameters
@@ -78,13 +101,13 @@ public class ChangeRoadSegmentParametersValidator : AbstractValidator<ChangeRoad
                     return false;
                 }
 
-                var vanPos = attributes[i + 1].VanPositie;
-                if (vanPos == null)
+                var nextVanPos = attributes[i + 1].VanPositie;
+                if (nextVanPos == null)
                 {
                     return false;
                 }
 
-                if (!totPos.Value.EqualsWithTolerance(vanPos.Value, (decimal)DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+                if (!totPos.Value.IsReasonablyEqualTo(nextVanPos.Value, (decimal)DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
                 {
                     return false;
                 }

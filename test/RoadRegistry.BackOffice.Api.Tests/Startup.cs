@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Tests;
 
-using System.Text;
 using Autofac;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
@@ -19,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using Product.Schema;
 using SqlStreamStore;
+using System.Reflection;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
@@ -88,5 +88,14 @@ public class Startup : TestStartup
                 .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
             .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
             ;
+    }
+
+    protected override IEnumerable<Assembly> DetermineAvailableAssemblyCollection()
+    {
+        var executorAssemblyLocation = Assembly.GetExecutingAssembly().Location;
+        var executorDirectoryInfo = new DirectoryInfo(executorAssemblyLocation).Parent;
+        var assemblyFileInfoCollection = executorDirectoryInfo.EnumerateFiles("RoadRegistry.*.dll");
+        var assemblyCollection = assemblyFileInfoCollection.Select(fi => Assembly.LoadFrom(fi.FullName));
+        return assemblyCollection.ToList();
     }
 }

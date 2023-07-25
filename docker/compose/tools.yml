@@ -117,6 +117,15 @@ services:
     ports:
       - 9100:9000
 
+  # identity-server:
+  #    #image: ghcr.io/informatievlaanderen/identity-server-fake:latest
+  #    build: ../../src/Be.Vlaanderen.Basisregisters.IdentityServer
+  #    container_name: identity-server
+  #    volumes:
+  #      - ../../.identityserver:/home/identityserver
+  #    ports:
+  #      - 5050:80
+
 volumes:
   seq-data:
     name: seq-data

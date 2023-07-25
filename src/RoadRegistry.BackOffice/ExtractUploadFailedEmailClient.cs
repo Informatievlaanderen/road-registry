@@ -45,15 +45,21 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
 
         var emailRequest = CreateSendEmailRequest(extractDescription, sb);
 
-        if (emailRequest is not null)
+        try
         {
             _logger.LogInformation("Received email request for destination {Destination} and subject {Subject}", string.Join(", ", emailRequest.Destination.ToAddresses), emailRequest.Content.Simple.Subject.Data);
             await _emailClient.SendEmailAsync(emailRequest, cancellationToken);
             _logger.LogInformation("Sent email request for destination {Destination} and subject {Subject} with body {Body}", string.Join(", ", emailRequest.Destination.ToAddresses), emailRequest.Content.Simple.Subject.Data, emailRequest.Content.Simple.Body.Text.Data);
+
         }
-        else
+        catch (Exception) when (emailRequest is null)
         {
-            _logger.LogError("Received email request for destination {Destination}, but client is not configured!", _emailClientOptions.ExtractUploadFailed);
+            _logger.LogError("Received email request, but client is not configured!");
+        }
+        catch (Exception myEx)
+        {
+            _logger.LogError(myEx, $"An error occurred with {nameof(ExtractUploadFailedEmailClient)}");
+            _logger.LogError(myEx, myEx.Message);
         }
 
         StringBuilder FormatValidationException(Exception exception) => new StringBuilder()
@@ -72,7 +78,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
 
     private SendEmailRequest CreateSendEmailRequest(string extractDescription, StringBuilder sb)
     {
-        return _emailClientOptions.ExtractUploadFailed is null
+        return string.IsNullOrEmpty(_emailClientOptions?.ExtractUploadFailed)
         ? null
         : new SendEmailRequest
         {
@@ -80,7 +86,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
             {
                 ToAddresses = new List<string> { _emailClientOptions.ExtractUploadFailed }
             },
-            FromEmailAddress = "noreply-wegenregister@vlaanderen.be",
+            FromEmailAddress = _emailClientOptions.FromEmailAddress,
             Content = new EmailContent
             {
                 Simple = new Message

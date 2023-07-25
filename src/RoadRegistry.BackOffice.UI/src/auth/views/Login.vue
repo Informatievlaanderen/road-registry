@@ -20,17 +20,18 @@
         <vl-action-group>
           <vl-button v-if="isLoginInProgress" mod-loader mod-disabled>Aanmelden</vl-button>
           <vl-button v-else v-on:click="login">Aanmelden</vl-button>
+          <vl-button v-if="useAcmIdm" @click="loginAcmIdm">Aanmelden met ACM/IDM</vl-button>
         </vl-action-group>
       </div>
       <div class="vl-form-col--12-12">
+        <vl-alert v-if="startupError" icon="warning" title="Technische storing" mod-error role="alertdialog">
+          <p>We ondervinden technische problemen, gelieve later opnieuw te proberen.</p>
+        </vl-alert>
         <vl-alert v-if="loginFailed" icon="warning" title="Inloggen mislukt" mod-error role="alertdialog">
           <p>De ingevoerde API sleutel is ongeldig of heeft geen toegang.</p>
         </vl-alert>
-      </div>
-      <div class="vl-form-col--12-12">
-        <vl-alert icon="warning" title="Opgelet!" mod-warning role="alertdialog">
-          <p>Het wegenregister biedt geen ondersteuning meer voor gebruikersnaam en wachtwoord.</p>
-          <p>Gelieve uzelf te identificeren met behulp van uw persoonlijke API sleutel.</p>
+        <vl-alert v-if="acmIdmLoginFailed" icon="warning" title="Inloggen mislukt" mod-error role="alertdialog">
+          <p>Aanmelden met ACM/IDM is mislukt of u heeft geen toegang.</p>
         </vl-alert>
       </div>
     </div>
@@ -38,23 +39,33 @@
 </template>
 
 <script lang="ts">
-import router from "@/router";
 import Vue from "vue";
 import { AuthService } from "@/services/auth-service";
+import { featureToggles } from "@/environment";
 
 export default Vue.extend({
+  props: {
+    error: String,
+  },
   data() {
     return {
       apiKey: "",
       isLoginInProgress: false,
       loginFailed: false,
+      acmIdmLoginFailed: false,
+      startupError: false,
     };
+  },
+  computed: {
+    useAcmIdm() {
+      return featureToggles.useAcmIdm;
+    },
   },
   methods: {
     async login() {
       this.isLoginInProgress = true;
       try {
-        let isLoggedIn = await AuthService.login(this.$data.apiKey, this.$route.query.redirect.toString());
+        let isLoggedIn = await AuthService.login(this.apiKey, this.$route.query.redirect?.toString());
         if (!isLoggedIn) {
           this.loginFailed = true;
         }
@@ -62,6 +73,23 @@ export default Vue.extend({
         this.isLoginInProgress = false;
       }
     },
+    async loginAcmIdm() {
+      try {
+        await AuthService.loginAcmIdm(this.$route.query.redirect?.toString());
+      } catch (err) {
+        this.acmIdmLoginFailed = true;
+      }
+    },
+  },
+  mounted() {
+    switch (this.error) {
+      case "startup_error":
+        this.startupError = true;
+        break;
+      case "acmidm_login_failed":
+        this.acmIdmLoginFailed = true;
+        break;
+    }
   },
 });
 </script>

@@ -34,6 +34,27 @@ public class WhenChangeAttributesWithInvalidWegverharding : WhenChangeWithInvali
     }
 
     [Fact]
+    public async Task VanPositie_VanPositieNulOntbreekt()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                Wegverharding = new ChangeSurfaceAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 1,
+                        TotPositie = 10,
+                        Type = Fixture.ObjectProvider.Create<RoadSegmentSurfaceType>().ToDutchString()
+                    }
+                }
+            }
+        }, "VanPositieNulOntbreekt");
+    }
+
+    [Fact]
     public async Task VanPositie_VanPositieNietCorrect()
     {
         await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
@@ -45,8 +66,14 @@ public class WhenChangeAttributesWithInvalidWegverharding : WhenChangeWithInvali
                 {
                     new()
                     {
-                        VanPositie = -1,
+                        VanPositie = 0,
                         TotPositie = 10,
+                        Type = Fixture.ObjectProvider.Create<RoadSegmentSurfaceType>().ToDutchString()
+                    },
+                    new()
+                    {
+                        VanPositie = -1,
+                        TotPositie = 20,
                         Type = Fixture.ObjectProvider.Create<RoadSegmentSurfaceType>().ToDutchString()
                     }
                 }
@@ -121,6 +148,27 @@ public class WhenChangeAttributesWithInvalidWegverharding : WhenChangeWithInvali
                 }
             }
         }, "TotPositieNietGelijkAanVolgendeVanPositie");
+    }
+
+    [Fact]
+    public async Task TotPositie_TotPositieKleinerOfGelijkAanVanPositie()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                Wegverharding = new ChangeSurfaceAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 945,
+                        TotPositie = 45,
+                        Type = Fixture.ObjectProvider.Create<RoadSegmentSurfaceType>().ToDutchString()
+                    }
+                }
+            }
+        }, "TotPositieKleinerOfGelijkAanVanPositie");
     }
 
     [Fact]

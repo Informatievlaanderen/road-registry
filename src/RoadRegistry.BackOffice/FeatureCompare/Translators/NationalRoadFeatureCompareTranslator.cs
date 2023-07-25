@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using RoadRegistry.BackOffice.Extracts;
+using Extracts;
 using Uploads;
 
 internal class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<NationalRoadFeatureCompareAttributes>
@@ -82,10 +82,10 @@ internal class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
         }
     }
 
-    protected override List<Feature<NationalRoadFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    protected override (List<Feature<NationalRoadFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var featureReader = new NationalRoadFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(entries, featureType, fileName);
+        return featureReader.Read(archive, featureType, fileName, context);
     }
 
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
@@ -98,9 +98,9 @@ internal class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
                     changes = changes.AppendChange(
                         new AddRoadSegmentToNationalRoad(
                             record.Feature.RecordNumber,
-                            new AttributeId(record.Feature.Attributes.Id),
-                            new RoadSegmentId(record.Feature.Attributes.RoadSegmentId),
-                            NationalRoadNumber.Parse(record.Feature.Attributes.Number)
+                            record.Feature.Attributes.Id,
+                            record.Feature.Attributes.RoadSegmentId,
+                            record.Feature.Attributes.Number
                         )
                     );
                     break;
@@ -108,9 +108,9 @@ internal class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
                     changes = changes.AppendChange(
                         new RemoveRoadSegmentFromNationalRoad(
                             record.Feature.RecordNumber,
-                            new AttributeId(record.Feature.Attributes.Id),
-                            new RoadSegmentId(record.Feature.Attributes.RoadSegmentId),
-                            NationalRoadNumber.Parse(record.Feature.Attributes.Number)
+                            record.Feature.Attributes.Id,
+                            record.Feature.Attributes.RoadSegmentId,
+                            record.Feature.Attributes.Number
                         )
                     );
                     break;

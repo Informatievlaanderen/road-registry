@@ -223,7 +223,7 @@ public class ZipArchiveShapeEntryValidatorTests
                 var (result, context) = sut.Validate(entry, _context);
 
                 Assert.Equal(
-                    ZipArchiveProblems.Single(entry.HasNoShapeRecords()),
+                    ZipArchiveProblems.Single(entry.HasNoShapeRecords(false)),
                     result,
                     new FileProblemComparer());
                 Assert.Same(_context, context);

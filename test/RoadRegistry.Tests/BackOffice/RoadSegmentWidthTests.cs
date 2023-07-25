@@ -18,12 +18,14 @@ public class RoadSegmentWidthTests
 
     [Theory]
     [InlineData(int.MinValue, false)]
+    [InlineData(-10, false)]
     [InlineData(-9, true)]
     [InlineData(-8, true)]
+    [InlineData(-7, false)]
     [InlineData(-1, false)]
     [InlineData(0, true)]
     [InlineData(1, true)]
-    [InlineData(45, true)]
+    [InlineData(50, true)]
     [InlineData(51, false)]
     [InlineData(int.MaxValue, false)]
     public void AcceptsReturnsExpectedResult(int value, bool expected)
@@ -46,7 +48,7 @@ public class RoadSegmentWidthTests
     public void VerifyBehavior()
     {
         _fixture.Customizations.Add(
-            new FiniteSequenceGenerator<int>(Enumerable.Range(0, RoadSegmentWidth.Maximum.ToInt32()).ToArray()));
+            new FiniteSequenceGenerator<int>(Enumerable.Range(RoadSegmentWidth.Minimum, RoadSegmentWidth.Maximum).ToArray()));
         new CompositeIdiomaticAssertion(
             new ImplicitConversionOperatorAssertion<int>(_fixture),
             new ExplicitConversionMethodAssertion<int>(_fixture),
@@ -65,7 +67,7 @@ public class RoadSegmentWidthTests
         ).Verify(typeof(RoadSegmentWidth));
 
         new GuardClauseAssertion(_fixture,
-                new Int32RangeBehaviorExpectation(0, RoadSegmentWidth.Maximum.ToInt32(), -8, -9))
+                new Int32RangeBehaviorExpectation(RoadSegmentWidth.Minimum, RoadSegmentWidth.Maximum, RoadSegmentWidth.Unknown, RoadSegmentWidth.NotApplicable))
             .Verify(Constructors.Select(() => new RoadSegmentWidth(0)));
     }
 }

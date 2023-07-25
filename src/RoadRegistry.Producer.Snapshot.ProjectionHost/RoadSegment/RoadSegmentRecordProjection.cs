@@ -2,6 +2,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
@@ -10,6 +11,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
+    using Microsoft.EntityFrameworkCore;
     using Projections;
     using Syndication.Schema;
 
@@ -123,6 +125,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             RoadSegmentAdded roadSegmentAdded,
             CancellationToken token)
         {
+            var removedRecord = context.RoadSegments.Local.SingleOrDefault(x => x.Id == roadSegmentAdded.Id && x.IsRemoved)
+                ?? await context.RoadSegments.SingleOrDefaultAsync(x => x.Id == roadSegmentAdded.Id && x.IsRemoved, token);
+            if (removedRecord is not null)
+            {
+                context.RoadSegments.Remove(removedRecord);
+            }
+
             var transactionId = new TransactionId(envelope.Message.TransactionId);
 
             var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);

@@ -255,11 +255,16 @@ namespace RoadRegistry.Wms.Schema.Migrations
 
                     b.HasKey("Id");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
                     b.HasIndex("IsRemoved");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("IsRemoved"), false);
+
+                    b.HasIndex("MorphologyId")
+                        .HasDatabaseName("wegsegmentmorfologie");
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("MorphologyId"), false);
 
                     b.HasIndex("StreetNameCachePosition");
 

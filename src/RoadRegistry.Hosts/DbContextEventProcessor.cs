@@ -22,7 +22,7 @@ using SqlStreamStore.Subscriptions;
 public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     where TDbContext : RunnerDbContext<TDbContext>
 {
-    private const int CatchUpBatchSize = 5000;
+    private const int CatchUpBatchSize = 500;
     private const int CatchUpThreshold = 1000;
     private const int RecordPositionThreshold = 1;
 

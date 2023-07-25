@@ -2,6 +2,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
 {
     using System;
     using System.Globalization;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
@@ -10,6 +11,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
+    using Microsoft.EntityFrameworkCore;
     using Projections;
 
     public class GradeSeparatedJunctionRecordProjection : ConnectedProjection<GradeSeparatedJunctionProducerSnapshotContext>
@@ -65,6 +67,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction
             GradeSeparatedJunctionAdded gradeSeparatedJunctionAdded,
             CancellationToken token)
         {
+            var removedRecord = context.GradeSeparatedJunctions.Local.SingleOrDefault(x => x.Id == gradeSeparatedJunctionAdded.Id && x.IsRemoved)
+                ?? await context.GradeSeparatedJunctions.SingleOrDefaultAsync(x => x.Id == gradeSeparatedJunctionAdded.Id && x.IsRemoved, token);
+            if (removedRecord is not null)
+            {
+                context.GradeSeparatedJunctions.Remove(removedRecord);
+            }
+
             var typeTranslation = GradeSeparatedJunctionType.Parse(gradeSeparatedJunctionAdded.Type).Translation;
 
             var gradeSeparatedJunctionRecord = await context.GradeSeparatedJunctions.AddAsync(

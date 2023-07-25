@@ -27,48 +27,71 @@ export const apiStats = Vue.observable({
   pendingRequests: 0,
 });
 
-class AxiosHttpApiClient implements IApiClient {
-  private axios: AxiosInstance;
+export class AxiosHttpApiClientOptions {
+  public noRedirectOnUnauthorized: boolean = false;
+}
 
-  constructor() {
-    this.axios = axios.create();
+const createAxiosInstance = (options?: AxiosHttpApiClientOptions) => {
+  let http = axios.create();
 
-    this.axios.interceptors.request.use((config: any) => {
-      config.withCredentials = !featureToggles.useDirectApiCalls;
-      config.headers["x-api-key"] = AuthService.getApiKey();
-      return config;
-    });
-
-    this.axios.interceptors.request.use(
-      (config) => {
-        apiStats.pendingRequests++;
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
+  http.interceptors.request.use((config: any) => {
+    config.withCredentials = !featureToggles.useDirectApiCalls;
+    const apiKey = AuthService.getApiKey();
+    if (apiKey) {
+      config.headers["x-api-key"] = apiKey;
+    } else {
+      const token = AuthService.getToken();
+      if (token) {
+        config.headers["Authorization"] = `Bearer ${token}`;
+      } else {
+        console.warn('No ApiKey or Token found');
       }
-    );
+    }
+    return config;
+  });
 
-    this.axios.interceptors.response.use(
-      (response) => {
-        apiStats.pendingRequests--;
-        return response;
-      },
-      (error) => {
-        if (error.response.status == 403 || error.response.status == 401) {
+  http.interceptors.request.use(
+    (config) => {
+      apiStats.pendingRequests++;
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
+    }
+  );
+
+  http.interceptors.response.use(
+    (response) => {
+      apiStats.pendingRequests--;
+      return response;
+    },
+    (error) => {
+      if (options?.noRedirectOnUnauthorized !== true) {
+        if (error.response?.status == 403 || error.response?.status == 401) {
           let redirect =
             router.currentRoute?.name === "login" ? router.currentRoute.query.redirect : router.currentRoute.fullPath;
           router.push({
             name: "login",
             query: { redirect },
           });
-        }else{
+        } else {
           console.info(error);
         }
-        apiStats.pendingRequests--;
-        return Promise.reject(error);
       }
-    );
+
+      apiStats.pendingRequests--;
+      return Promise.reject(error);
+    }
+  );
+
+  return http;
+};
+
+export class AxiosHttpApiClient implements IApiClient {
+  private axios: AxiosInstance;
+
+  constructor(options?: AxiosHttpApiClientOptions) {
+    this.axios = createAxiosInstance(options);
   }
 
   public async get<T = any>(url: string, query?: any, headers?: any, config?: any): Promise<IApiResponse<T>> {

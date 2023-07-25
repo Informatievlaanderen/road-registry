@@ -13,8 +13,8 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
-        ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();
         ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
+        ObjectProvider.CustomizeRoadSegmentOutlineWidth();
     }
 
     protected override PostRoadSegmentOutlineParameters CreateRequest()
@@ -22,16 +22,16 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
         return new PostRoadSegmentOutlineParameters
         {
             MiddellijnGeometrie = GeometryTranslatorTestCases.ValidGmlMultiLineString,
-            Wegsegmentstatus = ObjectProvider.Create<RoadSegmentStatus>().Translation.Name,
-            MorfologischeWegklasse = ObjectProvider.Create<RoadSegmentMorphology>().Translation.Name,
-            Toegangsbeperking = ObjectProvider.Create<RoadSegmentAccessRestriction>().Translation.Name,
+            Wegsegmentstatus = ObjectProvider.Create<RoadSegmentStatus>().ToDutchString(),
+            MorfologischeWegklasse = ObjectProvider.Create<RoadSegmentMorphology>().ToDutchString(),
+            Toegangsbeperking = ObjectProvider.Create<RoadSegmentAccessRestriction>().ToDutchString(),
             Wegbeheerder = "TEST",
-            Wegverharding = ObjectProvider.Create<RoadSegmentSurfaceType>().Translation.Name,
-            Wegbreedte = 5,
+            Wegverharding = ObjectProvider.Create<RoadSegmentSurfaceType>().ToDutchString(),
+            Wegbreedte = ObjectProvider.Create<RoadSegmentWidth>().ToDutchString(),
             AantalRijstroken = new RoadSegmentLaneParameters
             {
-                Aantal = ObjectProvider.Create<RoadSegmentLaneCount>().ToInt32(),
-                Richting = ObjectProvider.Create<RoadSegmentLaneDirection>().Translation.Name
+                Aantal = ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
+                Richting = ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
             }
         };
     }

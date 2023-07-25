@@ -27,7 +27,7 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
         : base(configuration, customRetryPolicy, clock, options)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
-        ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentSurfaceType();
         ObjectProvider.CustomizeRoadSegmentOutlineWidth();
         ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();

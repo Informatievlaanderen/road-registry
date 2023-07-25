@@ -1070,7 +1070,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-            var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
+            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
 
             result.Count.Should().Be(0);
         }
@@ -1081,7 +1081,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     {
         var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-        Assert.Throws<ArgumentNullException>(() => sut.Validate(null, ZipArchiveMetadata.Empty));
+        Assert.Throws<ArgumentNullException>(() => sut.Validate(null, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty)));
     }
 
     [Fact]
@@ -1112,7 +1112,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-            var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
+            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
 
             var expected = ZipArchiveProblems.Many(
                 archive.Entries.Select
@@ -1122,7 +1122,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
                     switch (extension)
                     {
                         case ".SHP":
-                            return entry.HasNoShapeRecords();
+                            return entry.HasNoShapeRecords(filesWithWarning.Contains(entry.Name));
                         case ".DBF":
                             return entry.HasNoDbaseRecords(filesWithWarning.Contains(entry.Name));
                         case ".PRJ":
@@ -1152,7 +1152,7 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
 
-            var result = sut.Validate(archive, ZipArchiveMetadata.Empty);
+            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
 
             Assert.Equal(expected, result);
         }

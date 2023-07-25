@@ -26,12 +26,34 @@ public class WhenChangeAttributesWithInvalidAantalRijstroken : WhenChangeWithInv
                     {
                         VanPositie = null,
                         TotPositie = 10,
-                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
                         Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
                     }
                 }
             }
         }, "VanPositieVerplicht");
+    }
+
+    [Fact]
+    public async Task VanPositie_VanPositieNulOntbreekt()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                AantalRijstroken = new ChangeLaneAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 1,
+                        TotPositie = 10,
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
+                        Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
+                    }
+                }
+            }
+        }, "VanPositieNulOntbreekt");
     }
 
     [Fact]
@@ -46,9 +68,16 @@ public class WhenChangeAttributesWithInvalidAantalRijstroken : WhenChangeWithInv
                 {
                     new()
                     {
-                        VanPositie = -1,
+                        VanPositie = 0,
                         TotPositie = 10,
-                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
+                        Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
+                    },
+                    new()
+                    {
+                        VanPositie = -1,
+                        TotPositie = 20,
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
                         Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
                     }
                 }
@@ -70,7 +99,7 @@ public class WhenChangeAttributesWithInvalidAantalRijstroken : WhenChangeWithInv
                     {
                         VanPositie = 0,
                         TotPositie = null,
-                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
                         Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
                     }
                 }
@@ -92,7 +121,7 @@ public class WhenChangeAttributesWithInvalidAantalRijstroken : WhenChangeWithInv
                     {
                         VanPositie = 0,
                         TotPositie = -1,
-                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
                         Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
                     }
                 }
@@ -114,19 +143,41 @@ public class WhenChangeAttributesWithInvalidAantalRijstroken : WhenChangeWithInv
                     {
                         VanPositie = 0,
                         TotPositie = 1,
-                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
                         Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
                     },
                     new()
                     {
                         VanPositie = 1.00100001M,
                         TotPositie = 3,
-                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
                         Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
                     }
                 }
             }
         }, "TotPositieNietGelijkAanVolgendeVanPositie");
+    }
+
+    [Fact]
+    public async Task TotPositie_TotPositieKleinerOfGelijkAanVanPositie()
+    {
+        await ItShouldHaveExpectedError(new ChangeRoadSegmentsParameters
+        {
+            new()
+            {
+                WegsegmentId = Fixture.TestData.Segment1Added.Id,
+                AantalRijstroken = new ChangeLaneAttributeParameters[]
+                {
+                    new()
+                    {
+                        VanPositie = 945,
+                        TotPositie = 45,
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
+                        Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
+                    }
+                }
+            }
+        }, "TotPositieKleinerOfGelijkAanVanPositie");
     }
 
     [Fact]
@@ -167,7 +218,7 @@ public class WhenChangeAttributesWithInvalidAantalRijstroken : WhenChangeWithInv
                     {
                         VanPositie = 0,
                         TotPositie = 10,
-                        Aantal = aantal,
+                        Aantal = aantal.ToString(),
                         Richting = Fixture.ObjectProvider.Create<RoadSegmentLaneDirection>().ToDutchString()
                     }
                 }
@@ -189,7 +240,7 @@ public class WhenChangeAttributesWithInvalidAantalRijstroken : WhenChangeWithInv
                     {
                         VanPositie = 0,
                         TotPositie = 10,
-                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
                         Richting = null
                     }
                 }
@@ -213,7 +264,7 @@ public class WhenChangeAttributesWithInvalidAantalRijstroken : WhenChangeWithInv
                     {
                         VanPositie = 0,
                         TotPositie = 10,
-                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>(),
+                        Aantal = Fixture.ObjectProvider.Create<RoadSegmentLaneCount>().ToDutchString(),
                         Richting = richting
                     }
                 }

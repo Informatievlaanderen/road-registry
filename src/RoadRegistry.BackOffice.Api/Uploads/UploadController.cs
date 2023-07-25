@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Uploads;
 
 using Abstractions.Exceptions;
 using BackOffice.Extracts;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Core.ProblemCodes;
 using Exceptions;
@@ -11,17 +12,20 @@ using Hosts.Infrastructure.Options;
 using Infrastructure.Controllers;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
 using Version = Infrastructure.Version;
 
+[ApiKey]
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("upload")]
 [ApiExplorerSettings(GroupName = "Upload")]
-[ApiKeyAuth(WellKnownAuthRoles.Road)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.IngemetenWeg.Beheerder)]
 public partial class UploadController : BackofficeApiController
 {
     private readonly IMediator _mediator;

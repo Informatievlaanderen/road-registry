@@ -8,57 +8,107 @@ using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
-using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.BackOffice.Extensions;
+using Uploads;
 
-public abstract class DbaseFeatureReader<TDbaseRecord, TFeature>: IFeatureReader<TFeature>
-    where TDbaseRecord: DbaseRecord, new()
+public interface IDbaseFeatureReader<TFeature> : IFeatureReader<TFeature>
+{
+}
+
+public abstract class DbaseFeatureReader<TDbaseRecord, TFeature> : IDbaseFeatureReader<TFeature>
+    where TDbaseRecord : DbaseRecord, new()
 {
     private readonly Encoding _encoding;
     private readonly DbaseSchema _dbaseSchema;
+    private readonly Func<FeatureType, bool> _treatHasNoDbaseRecordsAsWarning;
 
-    protected DbaseFeatureReader(Encoding encoding, DbaseSchema dbaseSchema)
+    protected DbaseFeatureReader(Encoding encoding, DbaseSchema dbaseSchema, Func<FeatureType, bool> treatHasNoDbaseRecordsAsWarning = null)
     {
         _encoding = encoding;
         _dbaseSchema = dbaseSchema;
+        _treatHasNoDbaseRecordsAsWarning = treatHasNoDbaseRecordsAsWarning ?? (_ => false);
     }
 
-    protected abstract TFeature ConvertDbfRecordToFeature(RecordNumber recordNumber, TDbaseRecord dbaseRecord);
+    protected abstract (TFeature, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, TDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context);
 
-    public List<TFeature> Read(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    public (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
-        var dbfFileName = featureType.GetDbfFileName(fileName);
-        var entry = entries.SingleOrDefault(x => x.Name.Equals(dbfFileName, StringComparison.InvariantCultureIgnoreCase));
+        var problems = ZipArchiveProblems.None;
+
+        var dbfFileName = featureType.GetDbaseFileName(fileName);
+        var entry = archive.FindEntry(dbfFileName);
         if (entry is null)
         {
-            throw new FileNotFoundException($"File '{dbfFileName}' was not found in zip archive", dbfFileName);
+            problems += problems.RequiredFileMissing(dbfFileName);
+
+            return (new List<TFeature>(), problems);
         }
-
-        var records = new List<TFeature>();
-
+        
         using (var stream = entry.Open())
         using (var reader = new BinaryReader(stream, _encoding))
         {
-            var header = ReadHeader(reader);
-
-            if (!header.Schema.Equals(_dbaseSchema))
+            try
             {
-                throw new DbaseSchemaMismatchException(dbfFileName, _dbaseSchema, header.Schema);
-            }
+                var header = ReadHeader(reader);
 
-            using (var enumerator = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader))
-            {
-                while (enumerator.MoveNext())
+                if (!header.Schema.Equals(_dbaseSchema))
                 {
-                    var record = enumerator.Current;
-                    if (record != null)
-                    {
-                        records.Add(ConvertDbfRecordToFeature(enumerator.CurrentRecordNumber, record));
-                    }
+                    throw new DbaseSchemaMismatchException(dbfFileName, _dbaseSchema, header.Schema);
                 }
+
+                using (var records = header.CreateDbaseRecordEnumerator<TDbaseRecord>(reader))
+                {
+                    return ReadFeatures(featureType, fileName, entry, records, context);
+                }
+            }
+            catch (DbaseHeaderFormatException ex)
+            {
+                problems += entry.HasDbaseHeaderFormatError(ex.InnerException);
+            }
+            catch (DbaseSchemaMismatchException ex)
+            {
+                problems += entry.HasDbaseSchemaMismatch(ex.ExpectedSchema, ex.ActualSchema);
             }
         }
 
-        return records;
+        return (new List<TFeature>(), problems);
+    }
+
+    protected virtual (List<TFeature>, ZipArchiveProblems) ReadFeatures(FeatureType featureType, ExtractFileName fileName, ZipArchiveEntry entry, IDbaseRecordEnumerator<TDbaseRecord> records, ZipArchiveFeatureReaderContext context)
+    {
+        var problems = ZipArchiveProblems.None;
+        var features = new List<TFeature>();
+
+        try
+        {
+            var moved = records.MoveNext();
+            if (moved)
+            {
+                while (moved)
+                {
+                    var record = records.Current;
+                    if (record != null)
+                    {
+                        var (feature, recordProblems) = ConvertToFeature(featureType, fileName, records.CurrentRecordNumber, record, context);
+
+                        problems += recordProblems;
+                        features.Add(feature);
+                    }
+
+                    moved = records.MoveNext();
+                }
+            }
+            else
+            {
+                problems += entry.HasNoDbaseRecords(_treatHasNoDbaseRecordsAsWarning(featureType));
+            }
+        }
+        catch (Exception exception)
+        {
+            problems += entry.AtDbaseRecord(records.CurrentRecordNumber).HasDbaseRecordFormatError(exception);
+        }
+
+        return (features, problems);
     }
 
     private DbaseFileHeader ReadHeader(BinaryReader reader)
