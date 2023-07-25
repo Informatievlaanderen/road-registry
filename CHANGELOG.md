@@ -1,3 +1,16 @@
+# [3.54.0](https://github.com/informatievlaanderen/road-registry/compare/v3.53.4...v3.54.0) (2023-07-25)
+
+
+### Bug Fixes
+
+* Singular exception message for email client ([#1081](https://github.com/informatievlaanderen/road-registry/issues/1081)) ([f8d580c](https://github.com/informatievlaanderen/road-registry/commit/f8d580c219fd38dafe91b94496fd42d97edfb5e2))
+* WR-775 hard delete previously removed surfaces from another roadsegment when adding to a new roadsegment ([#1082](https://github.com/informatievlaanderen/road-registry/issues/1082)) ([90a8151](https://github.com/informatievlaanderen/road-registry/commit/90a8151bbaea1fdd7f688b04c40a15dba52715cf))
+
+
+### Features
+
+* WR-703 change url of latest change roadsegments endpoint ([#1083](https://github.com/informatievlaanderen/road-registry/issues/1083)) ([184edca](https://github.com/informatievlaanderen/road-registry/commit/184edcabe0ff76a8399597a9cb631a85c87f4d6e))
+
 ## [3.53.4](https://github.com/informatievlaanderen/road-registry/compare/v3.53.3...v3.53.4) (2023-07-25)
 
 
