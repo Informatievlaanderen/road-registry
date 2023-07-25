@@ -58,8 +58,7 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
         }
         catch (Exception myEx)
         {
-            _logger.LogError(myEx, $"An error occurred with {nameof(ExtractUploadFailedEmailClient)}");
-            _logger.LogError(myEx, myEx.Message);
+            _logger.LogError(myEx, "An error occurred with {ClientName}: {ExceptionMessage}", nameof(ExtractUploadFailedEmailClient), myEx.Message);
         }
 
         StringBuilder FormatValidationException(Exception exception) => new StringBuilder()
