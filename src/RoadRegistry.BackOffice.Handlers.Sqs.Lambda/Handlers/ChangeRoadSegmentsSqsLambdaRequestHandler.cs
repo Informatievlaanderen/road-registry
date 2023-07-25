@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Requests;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using TicketingService.Abstractions;
+using static RoadRegistry.BackOffice.Core.ProblemCodes.ProblemCode.RoadSegment;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
 public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadSegmentsSqsLambdaRequest>
@@ -115,6 +116,17 @@ public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
             problems += new RoadSegmentLaneAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length);
         }
 
+        if (roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        {
+            foreach (var lane in lanes)
+            {
+                if (!lane.Count.IsValidForEdit())
+                {
+                    problems += new RoadSegmentLaneCountNotValid(lane.Count);
+                }
+            }
+        }
+
         return problems;
     }
 
@@ -149,6 +161,17 @@ public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
         if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
         {
             problems += new RoadSegmentWidthAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length);
+        }
+
+        if (roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        {
+            foreach (var width in widths)
+            {
+                if (!width.Width.IsValidForEdit())
+                {
+                    problems += new RoadSegmentWidthNotValid(width.Width);
+                }
+            }
         }
 
         return problems;
