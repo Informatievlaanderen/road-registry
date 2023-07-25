@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Requests;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using TicketingService.Abstractions;
-using static RoadRegistry.BackOffice.Core.ProblemCodes.ProblemCode.RoadSegment;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
 public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler<ChangeRoadSegmentsSqsLambdaRequest>

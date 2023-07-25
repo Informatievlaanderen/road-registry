@@ -223,7 +223,7 @@ public sealed class RoadSegmentMorphology : IEquatable<RoadSegmentMorphology>, I
 
     public sealed record Edit
     {
-        public static readonly RoadSegmentMorphology[] Editable = All.Where(x => x != Unknown).ToArray();
+        public static readonly ICollection<RoadSegmentMorphology> Editable = All.Where(x => x != Unknown).ToArray();
     }
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentMorphology> ByIdentifier =

@@ -17,7 +17,7 @@ public readonly struct RoadSegmentLaneCount : IEquatable<RoadSegmentLaneCount>, 
     public static readonly RoadSegmentLaneCount NotApplicable = new(NotApplicableValue);
     private readonly int _value;
 
-    public static readonly RoadSegmentLaneCount[] All =
+    private static readonly RoadSegmentLaneCount[] All =
         Array.Empty<RoadSegmentLaneCount>()
             .Concat(new[] { NotApplicable, Unknown })
             .Concat(Enumerable.Range(MinimumValue, MaximumValue - MinimumValue + 1).Select(value => new RoadSegmentLaneCount(value)))

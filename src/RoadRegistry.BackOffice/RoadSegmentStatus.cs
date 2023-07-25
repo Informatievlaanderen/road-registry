@@ -73,7 +73,7 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
 
     public sealed record Edit
     {
-        public static readonly RoadSegmentStatus[] Editable = All.Where(x => x != Unknown).ToArray();
+        public static readonly ICollection<RoadSegmentStatus> Editable = All.Where(x => x != Unknown).ToArray();
     }
 
     public static readonly IReadOnlyDictionary<int, RoadSegmentStatus> ByIdentifier =

@@ -17,7 +17,7 @@ public readonly struct RoadSegmentWidth : IEquatable<RoadSegmentWidth>, IDutchTo
     public static readonly RoadSegmentWidth Maximum = new(MaximumValue);
     private readonly int _value;
 
-    public static readonly RoadSegmentWidth[] All =
+    private static readonly RoadSegmentWidth[] All =
             Array.Empty<RoadSegmentWidth>()
                 .Concat(new[] { NotApplicable, Unknown })
                 .Concat(Enumerable.Range(MinimumValue, MaximumValue - MinimumValue + 1).Select(value => new RoadSegmentWidth(value)))
