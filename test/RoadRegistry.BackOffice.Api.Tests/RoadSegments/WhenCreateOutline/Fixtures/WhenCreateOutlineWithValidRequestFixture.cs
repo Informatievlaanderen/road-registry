@@ -13,6 +13,8 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
+        ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
+        ObjectProvider.CustomizeRoadSegmentOutlineWidth();
     }
 
     protected override PostRoadSegmentOutlineParameters CreateRequest()

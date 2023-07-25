@@ -28,8 +28,8 @@ public class WhenCreateOutlineWithValidRequestFixture : WhenCreateOutlineFixture
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
         ObjectProvider.CustomizeRoadSegmentSurfaceType();
-        ObjectProvider.CustomizeRoadSegmentWidth();
-        ObjectProvider.CustomizeRoadSegmentLaneCount();
+        ObjectProvider.CustomizeRoadSegmentOutlineWidth();
+        ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
 
         ObjectProvider.Customize<LineString>(customization =>

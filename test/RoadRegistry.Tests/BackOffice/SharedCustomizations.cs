@@ -617,6 +617,17 @@ public static class SharedCustomizations
     public static void CustomizeRoadSegmentLaneCount(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentLaneCount>(customization =>
+            customization.FromFactory<int>(
+                value => value == RoadSegmentLaneCount.Unknown || value == RoadSegmentLaneCount.NotApplicable
+                    ? new RoadSegmentLaneCount(value)
+                    : new RoadSegmentLaneCount(Math.Abs(value) % RoadSegmentLaneCount.Maximum.ToInt32())
+            )
+        );
+    }
+
+    public static void CustomizeRoadSegmentOutlineLaneCount(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentLaneCount>(customization =>
             customization.FromFactory(generator =>
             {
                 var value = generator.Next(-1, RoadSegmentLaneCount.Maximum + 1);
@@ -760,6 +771,17 @@ public static class SharedCustomizations
     }
 
     public static void CustomizeRoadSegmentWidth(this IFixture fixture)
+    {
+        fixture.Customize<RoadSegmentWidth>(customization =>
+            customization.FromFactory<int>(
+                value => value == RoadSegmentWidth.Unknown || value == RoadSegmentWidth.NotApplicable
+                    ? new RoadSegmentWidth(value)
+                    : new RoadSegmentWidth(Math.Abs(value) % RoadSegmentWidth.Maximum.ToInt32())
+            )
+        );
+    }
+
+    public static void CustomizeRoadSegmentOutlineWidth(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentWidth>(customization =>
             customization.FromFactory(generator =>
