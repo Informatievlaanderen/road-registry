@@ -1,3 +1,11 @@
+## [3.53.4](https://github.com/informatievlaanderen/road-registry/compare/v3.53.3...v3.53.4) (2023-07-25)
+
+
+### Bug Fixes
+
+* Don't crash when emailer fails ([#1080](https://github.com/informatievlaanderen/road-registry/issues/1080)) ([e8627f9](https://github.com/informatievlaanderen/road-registry/commit/e8627f9b6f7b329ac25afe611037a6600ec58e70))
+* WR-770 remove special rules for roadsegment attributes outlined ([#1079](https://github.com/informatievlaanderen/road-registry/issues/1079)) ([c2c3cd3](https://github.com/informatievlaanderen/road-registry/commit/c2c3cd31d3b3df32c476db665e4eb138210b8a36))
+
 ## [3.53.3](https://github.com/informatievlaanderen/road-registry/compare/v3.53.2...v3.53.3) (2023-07-24)
 
 
