@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments.Change;
 
-using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Infrastructure.Controllers.Attributes;
 using Newtonsoft.Json;
@@ -8,11 +7,11 @@ using Newtonsoft.Json;
 public class ChangeLaneAttributeParameters : ChangePositionAttributeParameters
 {
     /// <summary>
-    ///     Aantal rijstroken van het wegsegment.
+    ///     Aantal rijstroken van het wegsegment (geheel getal tussen 1 en 10 of "niet gekend" of "niet van toepassing").
     /// </summary>
     [DataMember(Name = "Aantal", Order = 3)]
     [JsonProperty("aantal", Required = Required.Always)]
-    public int? Aantal { get; set; }
+    public string Aantal { get; set; }
 
     /// <summary>
     ///     Richting t.o.v. de richting van het wegsegment (begin- naar

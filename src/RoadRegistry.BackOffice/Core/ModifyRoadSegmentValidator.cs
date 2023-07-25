@@ -89,18 +89,18 @@ public class ModifyRoadSegmentValidator : ModifyRoadSegmentValidatorBase
 
             RuleFor(c => c.Status)
                 .NotEmpty()
-                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForRoadSegmentEdit())
+                .Must(value => RoadSegmentStatus.CanParse(value) && RoadSegmentStatus.Parse(value).IsValidForEdit())
                 .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
 
             RuleFor(c => c.Morphology)
                 .NotEmpty()
-                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForRoadSegmentEdit())
+                .Must(value => RoadSegmentMorphology.CanParse(value) && RoadSegmentMorphology.Parse(value).IsValidForEdit())
                 .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid)
                 .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator);
 
-            RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentOutlineLaneAttributeValidator());
-            RuleForEach(c => c.Widths).NotNull().SetValidator(new RequestedRoadSegmentOutlineWidthAttributeValidator());
-            RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RequestedRoadSegmentOutlineSurfaceAttributeValidator());
+            RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentOutlinedLaneAttributeValidator());
+            RuleForEach(c => c.Widths).NotNull().SetValidator(new RequestedRoadSegmentOutlinedWidthAttributeValidator());
+            RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RequestedRoadSegmentOutlinedSurfaceAttributeValidator());
         }
     }
 }

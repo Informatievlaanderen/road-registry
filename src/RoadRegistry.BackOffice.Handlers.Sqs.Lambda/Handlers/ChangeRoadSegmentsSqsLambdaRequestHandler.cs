@@ -1,20 +1,15 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
-using Abstractions.Exceptions;
-using BackOffice.Extensions;
-using Be.Vlaanderen.Basisregisters.BasicApiProblem;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
-using FluentValidation;
-using FluentValidation.Results;
+using Exceptions;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
-using RoadRegistry.BackOffice.Exceptions;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
@@ -61,7 +56,7 @@ public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
                     var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
                     if (roadSegment is null)
                     {
-                        problems = problems.Add(new RoadSegmentNotFound());
+                        problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
                         continue;
                     }
 
@@ -83,34 +78,11 @@ public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
                             .Select(width => new BackOffice.Uploads.RoadSegmentWidthAttribute(widthAttributeId(), width.Width, width.FromPosition, width.ToPosition))
                             .ToArray()
                     };
+
+                    problems += GetProblemsForLanes(roadSegment, modifyChange.Lanes);
+                    problems += GetProblemsForSurfaces(roadSegment, modifyChange.Surfaces);
+                    problems += GetProblemsForWidths(roadSegment, modifyChange.Widths);
                     
-                    if (modifyChange.Lanes is not null)
-                    {
-                        var last = modifyChange.Lanes.Last();
-                        if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
-                        {
-                            problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length));
-                        }
-                    }
-
-                    if (modifyChange.Surfaces is not null)
-                    {
-                        var last = modifyChange.Surfaces.Last();
-                        if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
-                        {
-                            problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length));
-                        }
-                    }
-
-                    if (modifyChange.Widths is not null)
-                    {
-                        var last = modifyChange.Widths.Last();
-                        if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
-                        {
-                            problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length));
-                        }
-                    }
-
                     translatedChanges = translatedChanges.AppendChange(modifyChange);
 
                     recordNumber = recordNumber.Next();
@@ -126,5 +98,59 @@ public sealed class ChangeRoadSegmentsSqsLambdaRequestHandler : SqsLambdaHandler
         }, cancellationToken);
 
         return new ChangeRoadSegmentsResponse();
+    }
+
+    private Problems GetProblemsForLanes(RoadSegment roadSegment, BackOffice.Uploads.RoadSegmentLaneAttribute[]? lanes)
+    {
+        var problems = Problems.None;
+
+        if (lanes is null)
+        {
+            return problems;
+        }
+
+        var last = lanes.Last();
+        if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+        {
+            problems += new RoadSegmentLaneAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length);
+        }
+
+        return problems;
+    }
+
+    private Problems GetProblemsForSurfaces(RoadSegment roadSegment, BackOffice.Uploads.RoadSegmentSurfaceAttribute[]? surfaces)
+    {
+        var problems = Problems.None;
+
+        if (surfaces is null)
+        {
+            return problems;
+        }
+
+        var last = surfaces.Last();
+        if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+        {
+            problems += new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length);
+        }
+
+        return problems;
+    }
+
+    private Problems GetProblemsForWidths(RoadSegment roadSegment, BackOffice.Uploads.RoadSegmentWidthAttribute[]? widths)
+    {
+        var problems = Problems.None;
+
+        if (widths is null)
+        {
+            return problems;
+        }
+
+        var last = widths.Last();
+        if (!last.To.ToDouble().IsReasonablyEqualTo(roadSegment.Geometry.Length, DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+        {
+            problems += new RoadSegmentWidthAttributeToPositionNotEqualToLength(last.TemporaryId, last.To, roadSegment.Geometry.Length);
+        }
+
+        return problems;
     }
 }

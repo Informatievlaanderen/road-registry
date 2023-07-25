@@ -6,7 +6,6 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 using NetTopologySuite.Geometries;
-using LineString = NetTopologySuite.Geometries.LineString;
 
 public class AddRoadSegment : IRequestedChange, IHaveHash
 {
@@ -262,7 +261,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         ArgumentNullException.ThrowIfNull(context);
         
         var line = Geometry.GetSingleLineString();
-
+        
         var problems = line.GetProblemsForRoadSegmentGeometry(context.Tolerances);
         problems += line.GetProblemsForRoadSegmentLanes(Lanes, context.Tolerances);
         problems += line.GetProblemsForRoadSegmentWidths(Widths, context.Tolerances);

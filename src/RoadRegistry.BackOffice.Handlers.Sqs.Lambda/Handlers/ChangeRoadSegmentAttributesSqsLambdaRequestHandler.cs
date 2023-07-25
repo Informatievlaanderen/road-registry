@@ -54,7 +54,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
                 if (roadSegment is null)
                 {
-                    problems = problems.Add(new RoadSegmentNotFound());
+                    problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
                     continue;
                 }
 

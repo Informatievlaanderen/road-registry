@@ -6,7 +6,6 @@ using System.Linq;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Messages;
 using NetTopologySuite.Geometries;
-using LineString = NetTopologySuite.Geometries.LineString;
 
 public class ModifyRoadSegment : IRequestedChange, IHaveHash
 {

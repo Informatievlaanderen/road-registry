@@ -13,7 +13,7 @@ public class WhenCreateOutlineWithInvalidLaneCountFixture : WhenCreateOutlineWit
     protected override PostRoadSegmentOutlineParameters CreateRequest()
     {
         var request = base.CreateRequest();
-        request.AantalRijstroken.Aantal = 0;
+        request.AantalRijstroken.Aantal = "0";
         return request;
     }
 }
