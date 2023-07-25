@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Swashbuckle.AspNetCore.Filters;
 
-[DataContract(Name = "WegsegmentenWijzigen", Namespace = "")]
+[DataContract(Name = "WegsegmentenDynamischeAttributenWijzigen", Namespace = "")]
 public class ChangeRoadSegmentsDynamicAttributesParameters : List<ChangeRoadSegmentDynamicAttributesParameters>
 {
 }

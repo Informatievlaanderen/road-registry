@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
+[DataContract(Name = "WegsegmentWegverhardingWijzigen", Namespace = "")]
 public class ChangeSurfaceAttributeParameters : ChangePositionAttributeParameters
 {
     /// <summary>
