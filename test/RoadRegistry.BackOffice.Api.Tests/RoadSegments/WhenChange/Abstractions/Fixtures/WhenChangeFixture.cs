@@ -52,7 +52,6 @@ public abstract class WhenChangeFixture : ControllerActionFixture<ChangeRoadSegm
         return await controller.Change(
             parameters,
             new ChangeRoadSegmentsParametersValidator(_editorContext),
-            //new ChangeRoadSegmentsParametersWrapperValidator(_editorContext),
             CancellationToken.None
         );
     }

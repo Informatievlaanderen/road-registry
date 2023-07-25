@@ -26,7 +26,7 @@ public class WhenChangeWithInvalidWegsegmentId : WhenChangeWithInvalidRequest<Wh
                 {
                     VanPositie = 0,
                     TotPositie = 10,
-                    Breedte = 1
+                    Breedte = "1"
                 }}
             }
         }, "JsonInvalid", null);
@@ -44,7 +44,7 @@ public class WhenChangeWithInvalidWegsegmentId : WhenChangeWithInvalidRequest<Wh
                 {
                     VanPositie = 0,
                     TotPositie = 10,
-                    Breedte = 1
+                    Breedte = "1"
                 }}
             }
         }, "NotFound", null);

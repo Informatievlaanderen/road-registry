@@ -284,7 +284,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, StreetNamePuri(99999), null));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "NotFound", "Dit wegsegment bestaat niet.");
+        VerifyThatTicketHasError(ticketing, "NotFound", $"Het wegsegment met id {roadSegmentId} bestaat niet.");
     }
 
     [Fact]

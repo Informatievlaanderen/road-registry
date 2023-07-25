@@ -64,7 +64,7 @@ public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedFeatureReader
                     .ToList();
 
                 var roadSegmentLine = roadSegmentFeature.Attributes.Geometry.GetSingleLineString();
-
+                
                 var laneProblems = roadSegmentLine.GetProblemsForRoadSegmentLanes(lanes, context.Tolerances);
 
                 var recordContext = fileName.AtDbaseRecord(featureType, roadSegmentGroup.First().RecordNumber);

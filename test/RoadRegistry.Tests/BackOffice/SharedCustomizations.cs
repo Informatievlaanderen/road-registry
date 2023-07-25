@@ -617,11 +617,13 @@ public static class SharedCustomizations
     public static void CustomizeRoadSegmentLaneCount(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentLaneCount>(customization =>
-            customization.FromFactory<int>(
-                value => value == RoadSegmentLaneCount.Unknown || value == RoadSegmentLaneCount.NotApplicable
-                    ? new RoadSegmentLaneCount(value)
-                    : new RoadSegmentLaneCount(Math.Abs(value) % RoadSegmentLaneCount.Maximum.ToInt32())
-            )
+            customization.FromFactory(generator =>
+            {
+                var value = generator.Next(-1, RoadSegmentLaneCount.Maximum + 1);
+                return value == -1 ? RoadSegmentLaneCount.NotApplicable
+                    : value == 0 ? RoadSegmentLaneCount.Unknown
+                    : new RoadSegmentLaneCount(value);
+            })
         );
     }
 
@@ -667,20 +669,13 @@ public static class SharedCustomizations
             customization.FromFactory(_ => RoadSegmentGeometryDrawMethod.Outlined)
         );
     }
-
-    public static void CustomizeRoadSegmentOutlineLaneCount(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentLaneCount>(customization =>
-            customization.FromFactory(generator => new RoadSegmentLaneCount(generator.Next(1, RoadSegmentLaneCount.Maximum.ToInt32())))
-        );
-    }
-
+    
     public static void CustomizeRoadSegmentOutlineMorphology(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentMorphology>(customization =>
             customization.FromFactory(generator =>
                 {
-                    var valid = RoadSegmentMorphology.All.Where(x => x != RoadSegmentMorphology.Unknown).ToArray();
+                    var valid = RoadSegmentMorphology.Edit.Editable;
                     return valid[generator.Next() % valid.Length];
                 }
             )
@@ -692,36 +687,13 @@ public static class SharedCustomizations
         fixture.Customize<RoadSegmentStatus>(customization =>
             customization.FromFactory(generator =>
                 {
-                    var valid = RoadSegmentStatus.All
-                        .Where(x => x.Translation.Identifier != RoadSegmentStatus.Unknown.Translation.Identifier)
-                        .ToArray();
+                    var valid = RoadSegmentStatus.Edit.Editable;
                     return valid[generator.Next() % valid.Length];
                 }
             )
         );
     }
-
-    public static void CustomizeRoadSegmentOutlineSurfaceType(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentSurfaceType>(customization =>
-            customization.FromFactory(generator =>
-                {
-                    var valid = RoadSegmentSurfaceType.All.Where(x => x != RoadSegmentSurfaceType.Unknown && x != RoadSegmentSurfaceType.NotApplicable).ToArray();
-                    return valid[generator.Next() % valid.Length];
-                }
-            )
-        );
-    }
-
-    public static void CustomizeRoadSegmentOutlineWidth(this IFixture fixture)
-    {
-        fixture.Customize<RoadSegmentWidth>(customization =>
-            customization.FromFactory(
-                generator => new RoadSegmentWidth(generator.Next(1, RoadSegmentWidth.Maximum.ToInt32()))
-            )
-        );
-    }
-
+    
     public static void CustomizeRoadSegmentPosition(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentPosition>(customization =>
@@ -790,11 +762,13 @@ public static class SharedCustomizations
     public static void CustomizeRoadSegmentWidth(this IFixture fixture)
     {
         fixture.Customize<RoadSegmentWidth>(customization =>
-            customization.FromFactory<int>(
-                value => value == RoadSegmentWidth.Unknown || value == RoadSegmentWidth.NotApplicable
-                    ? new RoadSegmentWidth(value)
-                    : new RoadSegmentWidth(Math.Abs(value) % RoadSegmentWidth.Maximum.ToInt32())
-            )
+            customization.FromFactory(generator =>
+            {
+                var value = generator.Next(-1, RoadSegmentWidth.Maximum + 1);
+                return value == -1 ? RoadSegmentWidth.NotApplicable
+                    : value == 0 ? RoadSegmentWidth.Unknown
+                    : new RoadSegmentWidth(value);
+            })
         );
     }
 

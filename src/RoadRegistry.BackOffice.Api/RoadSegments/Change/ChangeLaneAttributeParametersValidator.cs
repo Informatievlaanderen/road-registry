@@ -40,7 +40,7 @@ public class ChangeLaneAttributeParametersValidator : AbstractValidator<ChangeLa
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.Count.IsRequired)
-            .Must(x => RoadSegmentLaneCount.Accepts(x!.Value))
+            .Must(x => RoadSegmentLaneCount.CanParseUsingDutchName(x) && RoadSegmentLaneCount.ParseUsingDutchName(x).IsValidForEdit())
             .WithProblemCode(ProblemCode.Count.NotValid)
             ;
 

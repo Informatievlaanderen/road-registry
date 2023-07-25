@@ -20,11 +20,11 @@ public class AddRoadSegmentOutlineValidatorTests : ValidatorTest<AddRoadSegment,
         Fixture.CustomizeRoadSegmentLaneDirection();
         Fixture.CustomizeRoadSegmentNumberedRoadDirection();
         Fixture.CustomizeRoadSegmentNumberedRoadOrdinal();
-        Fixture.CustomizeRoadSegmentOutlineLaneCount();
+        Fixture.CustomizeRoadSegmentLaneCount();
         Fixture.CustomizeRoadSegmentOutlineMorphology();
         Fixture.CustomizeRoadSegmentOutlineStatus();
-        Fixture.CustomizeRoadSegmentOutlineSurfaceType();
-        Fixture.CustomizeRoadSegmentOutlineWidth();
+        Fixture.CustomizeRoadSegmentSurfaceType();
+        Fixture.CustomizeRoadSegmentWidth();
         Fixture.CustomizeEuropeanRoadNumber();
         Fixture.CustomizeNationalRoadNumber();
         Fixture.CustomizeNumberedRoadNumber();

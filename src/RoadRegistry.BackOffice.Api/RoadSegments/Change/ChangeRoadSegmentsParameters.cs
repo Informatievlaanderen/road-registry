@@ -33,7 +33,7 @@ public class ChangeRoadSegmentsParametersExamples : IExamplesProvider<ChangeRoad
                     {
                         VanPositie = 0,
                         TotPositie = 151.45M,
-                        Aantal = 2,
+                        Aantal = "2",
                         Richting = RoadSegmentLaneDirection.Forward.ToDutchString()
                     }
                 }
@@ -47,13 +47,13 @@ public class ChangeRoadSegmentsParametersExamples : IExamplesProvider<ChangeRoad
                     {
                         VanPositie = 0,
                         TotPositie = 30.60M,
-                        Breedte = 3
+                        Breedte = "3"
                     },
                     new ()
                     {
                         VanPositie = 30.60M,
                         TotPositie = 302.13M,
-                        Breedte = 5
+                        Breedte = "5"
                     }
                 }
             }

@@ -1,7 +1,9 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using Extensions;
 using FluentValidation;
 using Messages;
+using ProblemCodes;
 
 public class RequestedRoadSegmentWidthAttributeValidator : AbstractValidator<RequestedRoadSegmentWidthAttribute>
 {
@@ -11,16 +13,17 @@ public class RequestedRoadSegmentWidthAttributeValidator : AbstractValidator<Req
         RuleFor(c => c.FromPosition).GreaterThanOrEqualTo(0.0m);
         RuleFor(c => c.ToPosition).GreaterThan(_ => _.FromPosition);
         RuleFor(c => c.Width)
-            .InclusiveBetween(0, RoadSegmentWidth.Maximum.ToInt32())
-            .When(_ => _.Width != RoadSegmentWidth.Unknown && _.Width != RoadSegmentWidth.NotApplicable, ApplyConditionTo.CurrentValidator);
+            .Must(RoadSegmentWidth.Accepts)
+            .WithProblemCode(ProblemCode.RoadSegment.Width.NotValid);
     }
 }
 
-public class RequestedRoadSegmentOutlineWidthAttributeValidator : RequestedRoadSegmentWidthAttributeValidator
+public class RequestedRoadSegmentOutlinedWidthAttributeValidator : RequestedRoadSegmentWidthAttributeValidator
 {
-    public RequestedRoadSegmentOutlineWidthAttributeValidator()
+    public RequestedRoadSegmentOutlinedWidthAttributeValidator()
     {
         RuleFor(c => c.Width)
-            .GreaterThan(0);
+            .Must(value => RoadSegmentWidth.Accepts(value) && new RoadSegmentWidth(value).IsValidForEdit())
+            .WithProblemCode(ProblemCode.RoadSegment.Width.NotValid);
     }
 }

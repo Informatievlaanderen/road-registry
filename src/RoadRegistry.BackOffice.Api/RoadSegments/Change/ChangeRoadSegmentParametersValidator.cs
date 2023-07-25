@@ -34,8 +34,7 @@ public class ChangeRoadSegmentParametersValidator : AbstractValidator<ChangeRoad
                 .Must(FirstFromPositionIsZeroOrNull)
                 .WithProblemCode(ProblemCode.FromPosition.NotEqualToZero)
                 .Must(PositionAttributesAreCorrectlySorted)
-                .WithProblemCode(ProblemCode.ToPosition.NotEqualToNextFromPosition)
-                ;
+                .WithProblemCode(ProblemCode.ToPosition.NotEqualToNextFromPosition);
 
             RuleForEach(x => x.Wegverharding)
                 .SetValidator(new ChangeSurfaceAttributeParametersValidator());
