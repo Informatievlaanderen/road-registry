@@ -109,7 +109,7 @@ public partial class RoadSegmentsController
                             {
                                 FromPosition = new RoadSegmentPosition(x.VanPositie!.Value),
                                 ToPosition = new RoadSegmentPosition(x.TotPositie!.Value),
-                                Width = new RoadSegmentWidth(x.Breedte!.Value)
+                                Width = RoadSegmentWidth.ParseUsingDutchName(x.Breedte)
                             })
                             .ToArray();
                     }
@@ -121,7 +121,7 @@ public partial class RoadSegmentsController
                             {
                                 FromPosition = new RoadSegmentPosition(x.VanPositie!.Value),
                                 ToPosition = new RoadSegmentPosition(x.TotPositie!.Value),
-                                Count = new RoadSegmentLaneCount(x.Aantal!.Value),
+                                Count = RoadSegmentLaneCount.ParseUsingDutchName(x.Aantal),
                                 Direction = RoadSegmentLaneDirection.ParseUsingDutchName(x.Richting)
                             })
                             .ToArray();

@@ -26,7 +26,7 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = null,
                         TotPositie = 10,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -47,7 +47,7 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 1,
                         TotPositie = 10,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -68,13 +68,13 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 0,
                         TotPositie = 10,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     },
                     new()
                     {
                         VanPositie = -1,
                         TotPositie = 20,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -95,7 +95,7 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 0,
                         TotPositie = null,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -116,7 +116,7 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 0,
                         TotPositie = -1,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -137,13 +137,13 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 0,
                         TotPositie = 1,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     },
                     new()
                     {
                         VanPositie = 1.00100001M,
                         TotPositie = 3,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -164,7 +164,7 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 945,
                         TotPositie = 45,
-                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>()
+                        Breedte = Fixture.ObjectProvider.Create<RoadSegmentWidth>().ToDutchString()
                     }
                 }
             }
@@ -208,7 +208,7 @@ public class WhenChangeAttributesWithInvalidWegbreedte : WhenChangeWithInvalidRe
                     {
                         VanPositie = 0,
                         TotPositie = 10,
-                        Breedte = breedte
+                        Breedte = breedte.ToString()
                     }
                 }
             }

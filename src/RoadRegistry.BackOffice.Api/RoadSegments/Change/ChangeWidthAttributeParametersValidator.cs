@@ -40,7 +40,7 @@ public class ChangeWidthAttributeParametersValidator : AbstractValidator<ChangeW
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.Width.IsRequired)
-            .Must(x => RoadSegmentWidth.Accepts(x!.Value))
+            .Must(x => RoadSegmentWidth.CanParseUsingDutchName(x) && RoadSegmentWidth.ParseUsingDutchName(x).IsValidForEdit())
             .WithProblemCode(ProblemCode.Width.NotValid)
             ;
     }

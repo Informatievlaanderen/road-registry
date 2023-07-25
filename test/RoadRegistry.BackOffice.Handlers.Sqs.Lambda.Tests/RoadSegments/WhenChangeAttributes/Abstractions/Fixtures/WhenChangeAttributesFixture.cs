@@ -24,9 +24,9 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
         : base(configuration, customRetryPolicy, clock, options)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
-        ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();
-        ObjectProvider.CustomizeRoadSegmentOutlineWidth();
-        ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
+        ObjectProvider.CustomizeRoadSegmentSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentWidth();
+        ObjectProvider.CustomizeRoadSegmentLaneCount();
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
 
         Organisation = ObjectProvider.Create<Organisation>();

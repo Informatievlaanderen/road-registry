@@ -18,8 +18,10 @@ public class RoadSegmentLaneCountTests
 
     [Theory]
     [InlineData(int.MinValue, false)]
+    [InlineData(-10, false)]
     [InlineData(-9, true)]
     [InlineData(-8, true)]
+    [InlineData(-7, false)]
     [InlineData(-1, false)]
     [InlineData(0, true)]
     [InlineData(1, true)]
@@ -36,7 +38,7 @@ public class RoadSegmentLaneCountTests
     [Fact]
     public void ToStringReturnsExpectedResult()
     {
-        var value = _fixture.Create<int>() % RoadSegmentLaneCount.Maximum.ToInt32();
+        var value = _fixture.Create<int>() % RoadSegmentLaneCount.Maximum;
         var sut = new RoadSegmentLaneCount(value);
 
         Assert.Equal(value.ToString(), sut.ToString());
@@ -46,7 +48,7 @@ public class RoadSegmentLaneCountTests
     public void VerifyBehavior()
     {
         _fixture.Customizations.Add(
-            new FiniteSequenceGenerator<int>(Enumerable.Range(0, RoadSegmentLaneCount.Maximum.ToInt32()).ToArray()));
+            new FiniteSequenceGenerator<int>(Enumerable.Range(RoadSegmentLaneCount.Minimum, RoadSegmentLaneCount.Maximum).ToArray()));
         new CompositeIdiomaticAssertion(
             new ImplicitConversionOperatorAssertion<int>(_fixture),
             new ExplicitConversionMethodAssertion<int>(_fixture),
@@ -64,7 +66,7 @@ public class RoadSegmentLaneCountTests
             new GetHashCodeSuccessiveAssertion(_fixture)
         ).Verify(typeof(RoadSegmentLaneCount));
 
-        new GuardClauseAssertion(_fixture, new Int32RangeBehaviorExpectation(0, RoadSegmentLaneCount.Maximum.ToInt32()))
+        new GuardClauseAssertion(_fixture, new Int32RangeBehaviorExpectation(RoadSegmentLaneCount.Minimum, RoadSegmentLaneCount.Maximum, RoadSegmentLaneCount.Unknown, RoadSegmentLaneCount.NotApplicable))
             .Verify(Constructors.Select(() => new RoadSegmentLaneCount(0)));
     }
 }

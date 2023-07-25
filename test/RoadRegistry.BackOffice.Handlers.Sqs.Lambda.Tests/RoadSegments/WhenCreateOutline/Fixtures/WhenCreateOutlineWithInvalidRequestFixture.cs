@@ -22,8 +22,7 @@ public class WhenCreateOutlineWithInvalidRequestFixture : WhenCreateOutlineWithV
     protected override CreateRoadSegmentOutlineRequest Request => base.Request with
     {
         Morphology = RoadSegmentMorphology.Unknown,
-        Status = RoadSegmentStatus.Unknown,
-        SurfaceType = RoadSegmentSurfaceType.Unknown
+        Status = RoadSegmentStatus.Unknown
     };
 
     protected override bool VerifyThatTicketHasError(string code, string message)
@@ -36,12 +35,9 @@ public class WhenCreateOutlineWithInvalidRequestFixture : WhenCreateOutlineWithV
         var ticketError = new TicketError(new[]
         {
             new TicketError("Wegsegment status is foutief. 'Unknown' is geen geldige waarde.", "WegsegmentStatusNietCorrect"),
-            new TicketError("Morfologische wegklasse is foutief. 'Unknown' is geen geldige waarde.", "MorfologischeWegklasseNietCorrect"),
-            new TicketError("The 'Type' is not a valid RoadSegmentSurfaceType.", "PredicateValidator")
+            new TicketError("Morfologische wegklasse is foutief. 'Unknown' is geen geldige waarde.", "MorfologischeWegklasseNietCorrect")
         });
-
-        var invocationArguments = TicketingMock.Invocations.Last().Arguments[1];
-
+        
         TicketingMock.Verify(x =>
             x.Error(It.IsAny<Guid>(),
                 ticketError,
