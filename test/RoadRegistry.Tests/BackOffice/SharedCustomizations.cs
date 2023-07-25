@@ -686,7 +686,7 @@ public static class SharedCustomizations
         fixture.Customize<RoadSegmentMorphology>(customization =>
             customization.FromFactory(generator =>
                 {
-                    var valid = RoadSegmentMorphology.Edit.Editable;
+                    var valid = RoadSegmentMorphology.Edit.Editable.ToArray();
                     return valid[generator.Next() % valid.Length];
                 }
             )
@@ -698,7 +698,7 @@ public static class SharedCustomizations
         fixture.Customize<RoadSegmentStatus>(customization =>
             customization.FromFactory(generator =>
                 {
-                    var valid = RoadSegmentStatus.Edit.Editable;
+                    var valid = RoadSegmentStatus.Edit.Editable.ToArray();
                     return valid[generator.Next() % valid.Length];
                 }
             )
