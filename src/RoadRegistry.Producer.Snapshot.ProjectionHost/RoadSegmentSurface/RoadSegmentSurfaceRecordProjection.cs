@@ -115,10 +115,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                 })
                 .ToArray();
 
-            await HardDeleteRemovedRecordsAsync(context, surfaces.Select(x => x.Id).ToArray(), token);
-
             foreach (var surface in surfaces)
             {
+                await HardDeleteRemovedRecordAsync(context, surface.Id, token);
+
                 var roadSegmentSurfaceRecord = await context.RoadSegmentSurfaces.AddAsync(surface, token);
 
                 await Produce(roadSegmentSurfaceRecord.Entity.Id, roadSegmentSurfaceRecord.Entity.ToContract(), token);
@@ -238,7 +238,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                         );
                     })
                     .ToDictionary(a => a.Id);
-                
+
                 var roadSegmentSurfaceRecords = await context.RoadSegmentSurfaces.Synchronize(currentSet, nextSet,
                     (current, next) =>
                     {
@@ -258,9 +258,9 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                     },
                     add: async current =>
                     {
-                        await HardDeleteRemovedRecordsAsync(context, new[] { current.Id }, token);
+                        await HardDeleteRemovedRecordAsync(context, current.Id, token);
                     });
-                
+
                 foreach (var roadSegmentSurfaceRecord in roadSegmentSurfaceRecords)
                 {
                     await Produce(roadSegmentSurfaceRecord.Id, roadSegmentSurfaceRecord.ToContract(), token);
@@ -280,16 +280,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
             roadSegmentSurfaceRecord.IsRemoved = true;
         }
 
-        private static async Task HardDeleteRemovedRecordsAsync(RoadSegmentSurfaceProducerSnapshotContext context, ICollection<int> ids, CancellationToken cancellationToken)
+        private static async Task HardDeleteRemovedRecordAsync(RoadSegmentSurfaceProducerSnapshotContext context, int id, CancellationToken cancellationToken)
         {
-            if (!ids.Any())
-            {
-                return;
-            }
-
-            var removedRecords = Array.Empty<RoadSegmentSurfaceRecord>()
-                .Concat(context.RoadSegmentSurfaces.Local.Where(x => x.IsRemoved && ids.Contains(x.Id)))
-                .Concat(await context.RoadSegmentSurfaces.Where(x => x.IsRemoved && ids.Contains(x.Id)).ToListAsync(cancellationToken));
+            //Causes all attributes to be loaded into Local (for unit test purposes only)
+            await context.RoadSegmentSurfaces.Where(x => x.IsRemoved && x.Id == id).SingleOrDefaultAsync(cancellationToken);
+            var removedRecords = context.RoadSegmentSurfaces.Local
+                .Where(x => x.IsRemoved && x.Id == id)
+                .ToArray();
 
             context.RoadSegmentSurfaces.RemoveRange(removedRecords);
         }

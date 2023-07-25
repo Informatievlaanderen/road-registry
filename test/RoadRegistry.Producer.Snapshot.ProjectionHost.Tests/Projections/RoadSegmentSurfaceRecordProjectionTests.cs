@@ -506,11 +506,13 @@ public class RoadSegmentSurfaceRecordProjectionTests : IClassFixture<ProjectionT
         _fixture.Freeze<RoadSegmentId>();
 
         var created = DateTimeOffset.UtcNow;
+        var surfaces = _fixture.CreateMany<RoadSegmentSurfaceAttributes>(2).ToArray();
 
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
-        
+        acceptedRoadSegmentAdded.Changes.Single().RoadSegmentAdded.Surfaces = surfaces;
+
         var acceptedRoadSegmentRemoved = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentRemoved>());
