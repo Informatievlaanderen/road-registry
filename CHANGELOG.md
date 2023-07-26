@@ -1,3 +1,10 @@
+## [3.54.1](https://github.com/informatievlaanderen/road-registry/compare/v3.54.0...v3.54.1) (2023-07-26)
+
+
+### Bug Fixes
+
+* WR-703 change dynamic attributes examples class ([#1084](https://github.com/informatievlaanderen/road-registry/issues/1084)) ([87589a3](https://github.com/informatievlaanderen/road-registry/commit/87589a35bdbd466d2c3118c4d980f465a6d6e9b7))
+
 # [3.54.0](https://github.com/informatievlaanderen/road-registry/compare/v3.53.4...v3.54.0) (2023-07-25)
 
 
