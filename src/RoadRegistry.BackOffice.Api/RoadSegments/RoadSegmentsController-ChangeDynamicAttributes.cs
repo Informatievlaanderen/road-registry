@@ -42,8 +42,11 @@ public partial class RoadSegmentsController
     [SwaggerResponseExample(StatusCodes.Status400BadRequest, typeof(BadRequestResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status404NotFound, typeof(RoadSegmentNotFoundResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
-    [SwaggerRequestExample(typeof(ChangeRoadSegmentsDynamicAttributesParameters), typeof(ChangeRoadSegmentsParametersExamples))]
-    [SwaggerOperation(OperationId = nameof(ChangeDynamicAttributes), Description = "Dynamische attributen wijzigen van een wegsegment: wegverharding, wegbreedte en aantal rijstroken.")]
+    [SwaggerRequestExample(typeof(ChangeRoadSegmentsDynamicAttributesParameters), typeof(ChangeRoadSegmentsDynamicAttributesParametersExamples))]
+    [SwaggerOperation(
+        OperationId = nameof(ChangeDynamicAttributes),
+        Description = "Dynamische attributen wijzigen van een wegsegment: wegverharding, wegbreedte en aantal rijstroken."
+    )]
     public async Task<IActionResult> ChangeDynamicAttributes(
         [FromBody] ChangeRoadSegmentsDynamicAttributesParameters parameters,
         [FromServices] ChangeRoadSegmentsDynamicAttributesParametersValidator validator,
