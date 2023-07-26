@@ -9,7 +9,7 @@ public class ChangeRoadSegmentsDynamicAttributesParameters : List<ChangeRoadSegm
 {
 }
 
-public class ChangeRoadSegmentsParametersExamples : IExamplesProvider<ChangeRoadSegmentsDynamicAttributesParameters>
+public class ChangeRoadSegmentsDynamicAttributesParametersExamples : IExamplesProvider<ChangeRoadSegmentsDynamicAttributesParameters>
 {
     public ChangeRoadSegmentsDynamicAttributesParameters GetExamples()
     {
