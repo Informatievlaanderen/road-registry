@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
 
 using System;
 using System.Configuration;
+using Configuration;
 using Controllers.Attributes;
 using IdentityModel.AspNetCore.OAuth2Introspection;
 using Microsoft.AspNetCore.Authentication;
@@ -15,7 +16,8 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddAcmIdmAuth(
         this IServiceCollection services,
-        OAuth2IntrospectionOptions oAuth2IntrospectionOptions)
+        OAuth2IntrospectionOptions oAuth2IntrospectionOptions,
+        OpenIdConnectOptions openIdConnectOptions)
     {
         services
             .AddHttpProxyNisCodeService()
@@ -25,6 +27,13 @@ public static class ServiceCollectionExtensions
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
+            .AddJwtBearer(
+                JwtBearerDefaults.AuthenticationScheme,
+                options =>
+                {
+                    options.TokenValidationParameters =
+                        new RoadRegistryTokenValidationParameters(openIdConnectOptions);
+                })
             .AddOAuth2Introspection(JwtBearerDefaults.AuthenticationScheme, options =>
             {
                 options.ClientId = oAuth2IntrospectionOptions.ClientId;
