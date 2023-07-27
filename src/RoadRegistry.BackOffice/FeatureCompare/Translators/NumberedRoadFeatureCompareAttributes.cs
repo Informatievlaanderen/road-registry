@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-public class NumberedRoadFeatureCompareAttributes : RoadNumberingFeatureCompareAttributes
+public record NumberedRoadFeatureCompareAttributes : RoadNumberingFeatureCompareAttributes
 {
     public AttributeId Id { get; init; }
     public NumberedRoadNumber Number { get; init; }

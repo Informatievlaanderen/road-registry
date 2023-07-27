@@ -48,10 +48,8 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
 
             var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
 
-            var boWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == changeFeature.Attributes.UpperRoadSegmentId)
-                ?? context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.CompareIdn == changeFeature.Attributes.UpperRoadSegmentId.ToString());
-            var onWegsegmentFeature = context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.Id == changeFeature.Attributes.LowerRoadSegmentId)
-                ?? context.RoadSegments.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.CompareIdn == changeFeature.Attributes.LowerRoadSegmentId.ToString());
+            var boWegsegmentFeature = context.RoadSegmentRecords.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.GetOriginalId() == changeFeature.Attributes.UpperRoadSegmentId);
+            var onWegsegmentFeature = context.RoadSegmentRecords.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.GetOriginalId() == changeFeature.Attributes.LowerRoadSegmentId);
             
             if (boWegsegmentFeature is null || onWegsegmentFeature is null)
             {
@@ -70,8 +68,8 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
             {
                 Attributes = changeFeature.Attributes with
                 {
-                    UpperRoadSegmentId = boWegsegmentFeature.GetNewOrOriginalId(),
-                    LowerRoadSegmentId = onWegsegmentFeature.GetNewOrOriginalId()
+                    UpperRoadSegmentId = boWegsegmentFeature.GetActualId(),
+                    LowerRoadSegmentId = onWegsegmentFeature.GetActualId()
                 }
             };
 

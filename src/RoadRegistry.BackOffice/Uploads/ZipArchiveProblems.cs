@@ -47,6 +47,13 @@ public sealed class ZipArchiveProblems : IReadOnlyCollection<FileProblem>, IEqua
         return new ZipArchiveProblems(_problems.AddRange(problems));
     }
 
+    public ZipArchiveProblems Remove(Func<FileProblem, bool> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+
+        return new ZipArchiveProblems(_problems.Where(problem => !predicate(problem)).ToImmutableList());
+    }
+
     public override bool Equals(object obj)
     {
         return obj is ZipArchiveProblems other && Equals(other);

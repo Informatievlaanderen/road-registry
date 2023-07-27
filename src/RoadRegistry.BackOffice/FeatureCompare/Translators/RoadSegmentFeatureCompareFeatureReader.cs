@@ -36,6 +36,8 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedFeatureReader<Fea
 
         if (featureType == FeatureType.Change)
         {
+            problems += archive.ValidateMissingRoadNodes(features, fileName, context);
+
             AddToContext(features, featureType, context);
         }
 
@@ -154,7 +156,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedFeatureReader<Fea
         
         foreach (var feature in features)
         {
-            if (context.KnownRoadSegments.TryGetValue(feature.Attributes.Id, out var existingRoadSegment))
+            if (context.KnownRoadSegments.ContainsKey(feature.Attributes.Id))
             {
                 continue;
             }

@@ -503,6 +503,20 @@ public static class DbaseFileProblems
             .WithParameter(new ProblemParameter("Actual", value.ToString()))
             .Build();
     }
+    public static FileError RoadSegmentStartNodeMissing(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadSegmentStartNodeMissing))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
+    public static FileError RoadSegmentEndNodeMissing(this IDbaseFileRecordProblemBuilder builder, int value)
+    {
+        return builder
+            .Error(nameof(RoadSegmentEndNodeMissing))
+            .WithParameter(new ProblemParameter("Actual", value.ToString()))
+            .Build();
+    }
     public static FileError RoadSegmentGeometryMissing(this IDbaseFileRecordProblemBuilder builder, int value)
     {
         return builder

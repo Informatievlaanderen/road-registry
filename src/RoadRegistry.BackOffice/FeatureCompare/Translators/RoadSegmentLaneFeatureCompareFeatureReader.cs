@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
+using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
@@ -28,6 +29,8 @@ public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedFeatureReader
 
         if (featureType == FeatureType.Change)
         {
+            problems = problems.TryToFillMissingFromAndToPositions(features, fileName, context);
+
             problems += ValidateLanesPerRoadSegment(features, fileName, context);
             problems += archive.ValidateRoadSegmentsWithoutAttributes(features, fileName, ZipArchiveEntryProblems.RoadSegmentsWithoutLaneAttributes, context);
             problems += archive.ValidateMissingRoadSegments(features, fileName, context);
