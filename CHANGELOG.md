@@ -1,3 +1,11 @@
+## [3.54.4](https://github.com/informatievlaanderen/road-registry/compare/v3.54.3...v3.54.4) (2023-07-27)
+
+
+### Bug Fixes
+
+* WR-689 add auth for jwttoken ([#1088](https://github.com/informatievlaanderen/road-registry/issues/1088)) ([e11fdab](https://github.com/informatievlaanderen/road-registry/commit/e11fdabaa9c851e5899cceae0a9d0ab4addea7d0))
+* WR-774 FC validate roadnode ids; correctly use new id when existing is replaced ([#1087](https://github.com/informatievlaanderen/road-registry/issues/1087)) ([c9c2d61](https://github.com/informatievlaanderen/road-registry/commit/c9c2d617c5bf4cdc94168eda743b7f3cec506d12))
+
 ## [3.54.3](https://github.com/informatievlaanderen/road-registry/compare/v3.54.2...v3.54.3) (2023-07-26)
 
 
