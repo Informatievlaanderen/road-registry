@@ -68,8 +68,8 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
             {
                 Attributes = changeFeature.Attributes with
                 {
-                    UpperRoadSegmentId = boWegsegmentFeature.Id,
-                    LowerRoadSegmentId = onWegsegmentFeature.Id
+                    UpperRoadSegmentId = boWegsegmentFeature.GetActualId(),
+                    LowerRoadSegmentId = onWegsegmentFeature.GetActualId()
                 }
             };
 

@@ -75,8 +75,13 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
             var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId() && x.Attributes.Number == changeFeature.Attributes.Number);
             if (!leveringExtractFeatures.Any())
             {
-                changeFeature.Attributes.RoadSegmentId = wegsegment.GetActualId();
-                processedRecords.Add(new Record(changeFeature, RecordType.Added));
+                processedRecords.Add(new Record(changeFeature with
+                {
+                    Attributes = changeFeature.Attributes with
+                    {
+                        RoadSegmentId = wegsegment.GetActualId()
+                    }
+                }, RecordType.Added));
             }
             else
             {
@@ -90,9 +95,14 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
                             changeFeature.Attributes.Direction != extractFeature.Attributes.Direction)
                         {
                             processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-
-                            changeFeature.Attributes.RoadSegmentId = wegsegment.GetActualId();
-                            processedRecords.Add(new Record(changeFeature, RecordType.Added));
+                            
+                            processedRecords.Add(new Record(changeFeature with
+                            {
+                                Attributes = changeFeature.Attributes with
+                                {
+                                    RoadSegmentId = wegsegment.GetActualId()
+                                }
+                            }, RecordType.Added));
                         }
                         else
                         {

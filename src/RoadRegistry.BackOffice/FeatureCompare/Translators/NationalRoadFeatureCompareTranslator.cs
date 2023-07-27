@@ -63,8 +63,13 @@ internal class NationalRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
                                                                        && x.Attributes.Number == changeFeature.Attributes.Number);
             if (!leveringExtractFeatures.Any())
             {
-                changeFeature.Attributes.RoadSegmentId = wegsegment.GetActualId();
-                processedRecords.Add(new Record(changeFeature, RecordType.Added));
+                processedRecords.Add(new Record(changeFeature with
+                {
+                    Attributes = changeFeature.Attributes with
+                    {
+                        RoadSegmentId = wegsegment.GetActualId()
+                    }
+                }, RecordType.Added));
             }
             else
             {

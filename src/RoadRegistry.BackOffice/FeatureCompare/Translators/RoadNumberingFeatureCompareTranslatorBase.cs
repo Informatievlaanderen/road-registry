@@ -40,8 +40,13 @@ internal abstract class RoadNumberingFeatureCompareTranslatorBase<TAttributes> :
             var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
             foreach (var feature in wegsegmentChangeFeatures)
             {
-                feature.Attributes.RoadSegmentId = wegsegment.GetActualId();
-                processedRecords.Add(new Record(feature, RecordType.Added));
+                processedRecords.Add(new Record(feature with
+                {
+                    Attributes = feature.Attributes with
+                    {
+                        RoadSegmentId = wegsegment.GetActualId()
+                    }
+                }, RecordType.Added));
             }
         }
 
