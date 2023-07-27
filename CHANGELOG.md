@@ -1,3 +1,17 @@
+## [3.54.3](https://github.com/informatievlaanderen/road-registry/compare/v3.54.2...v3.54.3) (2023-07-26)
+
+
+### Bug Fixes
+
+* add df -h logging to pipeline ([#1086](https://github.com/informatievlaanderen/road-registry/issues/1086)) ([500867c](https://github.com/informatievlaanderen/road-registry/commit/500867ca0a3e15b5071dedcb919433c1973082ad))
+
+## [3.54.2](https://github.com/informatievlaanderen/road-registry/compare/v3.54.1...v3.54.2) (2023-07-26)
+
+
+### Bug Fixes
+
+* version bump ([#1085](https://github.com/informatievlaanderen/road-registry/issues/1085)) ([a988dfc](https://github.com/informatievlaanderen/road-registry/commit/a988dfcfbf5d64fd5f099da960faa123158a37e1))
+
 ## [3.54.1](https://github.com/informatievlaanderen/road-registry/compare/v3.54.0...v3.54.1) (2023-07-26)
 
 
