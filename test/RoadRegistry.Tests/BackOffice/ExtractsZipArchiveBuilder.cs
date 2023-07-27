@@ -99,9 +99,9 @@ namespace RoadRegistry.Tests.BackOffice
             public ZipArchiveIntegrationDataSet DataSet { get; init; }
         }
 
-        public (ZipArchive, T) BuildWithResult<T>(Func<ZipArchiveBuildContext, T> build)
+        public (ZipArchive, T) BuildWithResult<T>(Func<ZipArchiveBuildContext, T> build, MemoryStream archiveStream = null)
         {
-            var zipArchive = Build();
+            var zipArchive = Build(archiveStream);
 
             return (zipArchive, build(new ZipArchiveBuildContext
             {
@@ -123,7 +123,7 @@ namespace RoadRegistry.Tests.BackOffice
             }));
         }
 
-        public ZipArchive Build()
+        public ZipArchive Build(MemoryStream archiveStream = null)
         {
             if (_changeStreams is null)
             {
@@ -161,7 +161,9 @@ namespace RoadRegistry.Tests.BackOffice
                 laneChangeStream: _changeStreams.LaneDbaseRecords,
                 surfaceChangeStream: _changeStreams.SurfaceDbaseRecords,
                 widthChangeStream: _changeStreams.WidthDbaseRecords,
-                gradeSeparatedJunctionChangeStream: _changeStreams.GradeSeparatedJunctionDbaseRecords
+                gradeSeparatedJunctionChangeStream: _changeStreams.GradeSeparatedJunctionDbaseRecords,
+
+                archiveStream: archiveStream
             );
         }
 

@@ -34,6 +34,11 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedFeatureReader<Featur
         problems += ReadShapeFile(features, archive, featureType, fileName);
         problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
 
+        if (featureType == FeatureType.Change)
+        {
+            AddToContext(features, featureType, context);
+        }
+
         return (features, problems);
     }
 
@@ -111,6 +116,24 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedFeatureReader<Featur
         }
 
         return problems;
+    }
+
+    private void AddToContext(List<Feature<RoadNodeFeatureCompareAttributes>> features, FeatureType featureType, ZipArchiveFeatureReaderContext context)
+    {
+        if (featureType != FeatureType.Change)
+        {
+            throw new NotSupportedException($"Only {FeatureType.Change} features can be added to the context");
+        }
+
+        foreach (var feature in features)
+        {
+            if (context.KnownRoadNodes.ContainsKey(feature.Attributes.Id))
+            {
+                continue;
+            }
+
+            context.KnownRoadNodes.Add(feature.Attributes.Id, feature);
+        }
     }
 
     private sealed class ExtractsFeatureReader : DbaseFeatureReader<RoadNodeDbaseRecord, Feature<RoadNodeFeatureCompareAttributes>>

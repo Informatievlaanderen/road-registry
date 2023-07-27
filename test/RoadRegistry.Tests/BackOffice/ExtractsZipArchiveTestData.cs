@@ -48,7 +48,7 @@ public class ExtractsZipArchiveTestData : IDisposable
 
         EmptyZipArchive = CreateEmptyZipArchive();
         ZipArchiveWithEmptyFiles = CreateZipArchiveWithEmptyFiles();
-        ZipArchive = CreateZipArchiveWithOneRecord();
+        ZipArchive = CreateZipArchiveWithEachFileAtLeastOneRecord();
     }
 
     public ZipArchive EmptyZipArchive { get; }
@@ -478,12 +478,24 @@ public class ExtractsZipArchiveTestData : IDisposable
         );
     }
 
-    private ZipArchive CreateZipArchiveWithOneRecord()
+    private ZipArchive CreateZipArchiveWithEachFileAtLeastOneRecord()
     {
+        var roadNodeProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadNodeShapeChangeStream = Fixture.CreateRoadNodeShapeFile(new[]
+        {
+            Fixture.Create<PointShapeContent>(),
+            Fixture.Create<PointShapeContent>()
+        });
+        var roadNodeDbase1 = Fixture.Create<RoadNodeDbaseRecord>();
+        var roadNodeDbase2 = Fixture.Create<RoadNodeDbaseRecord>();
+        var roadNodeDbaseChangeStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[]{ roadNodeDbase1, roadNodeDbase2 });
+
         var roadSegmentPolyLineMShapeContent = Fixture.Create<PolyLineMShapeContent>();
         var roadSegmentShapeChangeStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
         var roadSegmentProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
         var roadSegmentChangeDbaseRecord = Fixture.Create<RoadSegmentDbaseRecord>();
+        roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbase1.WK_OIDN.Value;
+        roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbase2.WK_OIDN.Value;
         var roadSegmentDbaseChangeStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
 
         var europeanRoadChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
@@ -516,11 +528,6 @@ public class ExtractsZipArchiveTestData : IDisposable
                 record.VANPOS.Value = roadSegmentPolyLineMShapeContent.Shape.MeasureRange.Min;
                 record.TOTPOS.Value = roadSegmentPolyLineMShapeContent.Shape.MeasureRange.Max;
             });
-
-        var roadNodeShapeChangeStream = Fixture.CreateRoadNodeShapeFileWithOneRecord();
-        var roadNodeProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
-        var roadNodeDbaseChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadNodeDbaseRecord>(
-            RoadNodeDbaseRecord.Schema);
 
         var gradeSeparatedJunctionDbaseRecord = Fixture.Create<GradeSeparatedJunctionDbaseRecord>();
         gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;

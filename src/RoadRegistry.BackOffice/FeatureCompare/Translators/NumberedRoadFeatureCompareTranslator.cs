@@ -14,10 +14,10 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
     {
     }
 
-    protected override void HandleIdenticalRoadSegment(RoadSegmentRecord wegsegment, List<Feature<NumberedRoadFeatureCompareAttributes>> changeFeatures, List<Feature<NumberedRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
+    protected override void HandleIdenticalRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, List<Feature<NumberedRoadFeatureCompareAttributes>> changeFeatures, List<Feature<NumberedRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
     {
-        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
-        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
+        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
+        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
 
         foreach (var changeFeature in wegsegmentChangeFeatures)
         {
@@ -65,17 +65,18 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
         }
     }
 
-    protected override void HandleModifiedRoadSegment(RoadSegmentRecord wegsegment, List<Feature<NumberedRoadFeatureCompareAttributes>> changeFeatures, List<Feature<NumberedRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
+    protected override void HandleModifiedRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, List<Feature<NumberedRoadFeatureCompareAttributes>> changeFeatures, List<Feature<NumberedRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
     {
-        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
-        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
+        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
+        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
 
         foreach (var changeFeature in wegsegmentChangeFeatures)
         {
-            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id && x.Attributes.Number == changeFeature.Attributes.Number);
+            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId() && x.Attributes.Number == changeFeature.Attributes.Number);
             if (!leveringExtractFeatures.Any())
             {
-                processedRecords.Add(new Record(changeFeature, RecordType.Added, wegsegment.Id));
+                changeFeature.Attributes.RoadSegmentId = wegsegment.GetActualId();
+                processedRecords.Add(new Record(changeFeature, RecordType.Added));
             }
             else
             {
@@ -89,7 +90,9 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
                             changeFeature.Attributes.Direction != extractFeature.Attributes.Direction)
                         {
                             processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-                            processedRecords.Add(new Record(changeFeature, RecordType.Added, wegsegment.Id));
+
+                            changeFeature.Attributes.RoadSegmentId = wegsegment.GetActualId();
+                            processedRecords.Add(new Record(changeFeature, RecordType.Added));
                         }
                         else
                         {
@@ -106,7 +109,7 @@ internal class NumberedRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
 
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
-            var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn
+            var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId()
                                                                         && x.Attributes.Number == extractFeature.Attributes.Number);
             if (!extractChangeFeatures.Any())
             {
