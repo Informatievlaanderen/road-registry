@@ -11,6 +11,7 @@ namespace RoadRegistry.Tests.BackOffice
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
     using RoadRegistry.BackOffice;
+    using RoadRegistry.BackOffice.Extracts.Dbase;
     using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
     using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
     using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
@@ -99,9 +100,9 @@ namespace RoadRegistry.Tests.BackOffice
             public ZipArchiveIntegrationDataSet DataSet { get; init; }
         }
 
-        public (ZipArchive, T) BuildWithResult<T>(Func<ZipArchiveBuildContext, T> build)
+        public (ZipArchive, T) BuildWithResult<T>(Func<ZipArchiveBuildContext, T> build, MemoryStream archiveStream = null)
         {
-            var zipArchive = Build();
+            var zipArchive = Build(archiveStream);
 
             return (zipArchive, build(new ZipArchiveBuildContext
             {
@@ -123,7 +124,7 @@ namespace RoadRegistry.Tests.BackOffice
             }));
         }
 
-        public ZipArchive Build()
+        public ZipArchive Build(MemoryStream archiveStream = null)
         {
             if (_changeStreams is null)
             {
@@ -161,7 +162,10 @@ namespace RoadRegistry.Tests.BackOffice
                 laneChangeStream: _changeStreams.LaneDbaseRecords,
                 surfaceChangeStream: _changeStreams.SurfaceDbaseRecords,
                 widthChangeStream: _changeStreams.WidthDbaseRecords,
-                gradeSeparatedJunctionChangeStream: _changeStreams.GradeSeparatedJunctionDbaseRecords
+                gradeSeparatedJunctionChangeStream: _changeStreams.GradeSeparatedJunctionDbaseRecords,
+
+                transactionZoneStream: _changeStreams.TransactionZoneDbaseRecords,
+                archiveStream: archiveStream
             );
         }
 
@@ -407,6 +411,8 @@ namespace RoadRegistry.Tests.BackOffice
             TestData.GradeSeparatedJunctionDbaseRecord = CreateGradeSeparatedJunctionDbaseRecord();
             TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
             TestData.GradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = TestData.RoadSegment2DbaseRecord.WS_OIDN.Value;
+
+            TestData.TransactionZoneDbaseRecord = CreateTransactionZoneDbaseRecord();
         }
 
         public RoadNodeDbaseRecord CreateRoadNodeDbaseRecord()
@@ -453,6 +459,10 @@ namespace RoadRegistry.Tests.BackOffice
         {
             return _fixture.Create<GradeSeparatedJunctionDbaseRecord>();
         }
+        public TransactionZoneDbaseRecord CreateTransactionZoneDbaseRecord()
+        {
+            return _fixture.Create<TransactionZoneDbaseRecord>();
+        }
 
         public ExtractsZipArchiveExtractDataSetBuilder ConfigureExtract(Action<ExtractsZipArchiveExtractDataSetBuilder, ExtractsZipArchiveDataSetBuilderContext> configure)
         {
@@ -468,7 +478,8 @@ namespace RoadRegistry.Tests.BackOffice
                 LaneDbaseRecords = new[] { TestData.RoadSegment1LaneDbaseRecord, TestData.RoadSegment2LaneDbaseRecord }.ToList(),
                 SurfaceDbaseRecords = new[] { TestData.RoadSegment1SurfaceDbaseRecord, TestData.RoadSegment2SurfaceDbaseRecord }.ToList(),
                 WidthDbaseRecords = new[] { TestData.RoadSegment1WidthDbaseRecord, TestData.RoadSegment2WidthDbaseRecord }.ToList(),
-                GradeSeparatedJunctionDbaseRecords = new[] { TestData.GradeSeparatedJunctionDbaseRecord }.ToList()
+                GradeSeparatedJunctionDbaseRecords = new[] { TestData.GradeSeparatedJunctionDbaseRecord }.ToList(),
+                TransactionZoneDbaseRecords = new[] { TestData.TransactionZoneDbaseRecord }.ToList()
             };
 
             configure(this, new ExtractsZipArchiveDataSetBuilderContext(_fixture));
@@ -526,6 +537,7 @@ namespace RoadRegistry.Tests.BackOffice
             TestData.RoadSegment2WidthDbaseRecord = testData.RoadSegment2WidthDbaseRecord.Clone(manager, encoding);
 
             TestData.GradeSeparatedJunctionDbaseRecord = testData.GradeSeparatedJunctionDbaseRecord.Clone(manager, encoding);
+            TestData.TransactionZoneDbaseRecord = testData.TransactionZoneDbaseRecord.Clone(manager, encoding);
         }
 
         public ExtractsZipArchiveExtractDataSetBuilder ConfigureChange(Action<ExtractsZipArchiveChangeDataSetBuilder, ExtractsZipArchiveChangeDataSetBuilderContext> configure)
@@ -586,6 +598,7 @@ namespace RoadRegistry.Tests.BackOffice
         public RoadSegmentWidthAttributeDbaseRecord RoadSegment2WidthDbaseRecord { get; set; }
 
         public GradeSeparatedJunctionDbaseRecord GradeSeparatedJunctionDbaseRecord { get; set; }
+        public TransactionZoneDbaseRecord TransactionZoneDbaseRecord { get; set; }
     }
 
     public class ZipArchiveIntegrationDataSet
@@ -605,6 +618,7 @@ namespace RoadRegistry.Tests.BackOffice
         public List<RoadSegmentSurfaceAttributeDbaseRecord> SurfaceDbaseRecords { get; set; }
         public List<RoadSegmentWidthAttributeDbaseRecord> WidthDbaseRecords { get; set; }
         public List<GradeSeparatedJunctionDbaseRecord> GradeSeparatedJunctionDbaseRecords { get; set; }
+        public List<TransactionZoneDbaseRecord> TransactionZoneDbaseRecords { get; set; }
     }
 
     public class ZipArchiveIntegrationDataSetStreams
@@ -635,6 +649,7 @@ namespace RoadRegistry.Tests.BackOffice
             SurfaceDbaseRecords = fixture.CreateDbfFile(RoadSegmentSurfaceAttributeDbaseRecord.Schema, set.SurfaceDbaseRecords ?? new List<RoadSegmentSurfaceAttributeDbaseRecord>());
             WidthDbaseRecords = fixture.CreateDbfFile(RoadSegmentWidthAttributeDbaseRecord.Schema, set.WidthDbaseRecords ?? new List<RoadSegmentWidthAttributeDbaseRecord>());
             GradeSeparatedJunctionDbaseRecords = fixture.CreateDbfFile(GradeSeparatedJunctionDbaseRecord.Schema, set.GradeSeparatedJunctionDbaseRecords ?? new List<GradeSeparatedJunctionDbaseRecord>());
+            TransactionZoneDbaseRecords = fixture.CreateDbfFile(TransactionZoneDbaseRecord.Schema, set.TransactionZoneDbaseRecords ?? new List<TransactionZoneDbaseRecord>());
         }
 
         public MemoryStream EuropeanRoadDbaseRecords { get; }
@@ -644,5 +659,6 @@ namespace RoadRegistry.Tests.BackOffice
         public MemoryStream SurfaceDbaseRecords { get; }
         public MemoryStream WidthDbaseRecords { get; }
         public MemoryStream GradeSeparatedJunctionDbaseRecords { get; }
+        public MemoryStream TransactionZoneDbaseRecords { get; }
     }
 }
