@@ -41,8 +41,13 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
             {
                 foreach (var feature in addedFeatures)
                 {
-                    feature.Attributes.RoadSegmentId = wegsegment.GetActualId();
-                    processedRecords.Add(new Record(feature, RecordType.Added));
+                    processedRecords.Add(new Record(feature with
+                    {
+                        Attributes = feature.Attributes with
+                        {
+                            RoadSegmentId = wegsegment.GetActualId()
+                        }
+                    }, RecordType.Added));
                 }
             }
         }
@@ -110,11 +115,13 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
                     .ToArray();
                 processedRecords.AddRange(removeExtractFeatures.Select(feature => new Record(feature, RecordType.Removed)));
                 
-                processedRecords.AddRange(wegsegmentChangeFeatures.Select(feature =>
+                processedRecords.AddRange(wegsegmentChangeFeatures.Select(feature => new Record(feature with
                 {
-                    feature.Attributes.RoadSegmentId = wegsegment.GetActualId();
-                    return new Record(feature, RecordType.Added);
-                }));
+                    Attributes = feature.Attributes with
+                    {
+                        RoadSegmentId = wegsegment.GetActualId()
+                    }
+                }, RecordType.Added)));
             }
             else
             {
@@ -133,9 +140,14 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
                     else
                     {
                         processedRecords.Add(new Record(extractFeature, RecordType.Removed));
-
-                        changeFeature.Attributes.RoadSegmentId = wegsegment.GetActualId();
-                        processedRecords.Add(new Record(changeFeature, RecordType.Added));
+                        
+                        processedRecords.Add(new Record(changeFeature with
+                        {
+                            Attributes = changeFeature.Attributes with
+                            {
+                                RoadSegmentId = wegsegment.GetActualId()
+                            }
+                        }, RecordType.Added));
                     }
                 }
             }
