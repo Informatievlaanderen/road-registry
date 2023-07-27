@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Abstractions;
 using Abstractions.Configuration;
 using Amazon;
@@ -15,6 +16,7 @@ using BackOffice.Extensions;
 using BackOffice.Extracts;
 using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
+using Be.Vlaanderen.Basisregisters.AcmIdm.AuthorizationHandlers;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -34,6 +36,7 @@ using Handlers.Extensions;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -160,7 +163,7 @@ public class Startup
                 }
             })
             ;
-        
+
     }
 
     public void ConfigureContainer(ContainerBuilder builder)
@@ -181,14 +184,10 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        var oAuth2IntrospectionOptions = _configuration
-            .GetSection(nameof(OAuth2IntrospectionOptions))
-            .Get<OAuth2IntrospectionOptions>();
+        var oAuth2IntrospectionOptions = _configuration.GetOptions<OAuth2IntrospectionOptions>(nameof(OAuth2IntrospectionOptions));
+        var openIdConnectOptions = _configuration.GetOptions<OpenIdConnectOptions>();
 
-        var baseUrl = _configuration.GetValue<string>("BaseUrl");
-        var baseUrlForExceptions = baseUrl.EndsWith("/")
-            ? baseUrl.Substring(0, baseUrl.Length - 1)
-            : baseUrl;
+        var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
 
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
@@ -205,7 +204,7 @@ public class Startup
                 },
                 Server =
                 {
-                    BaseUrl = baseUrlForExceptions
+                    BaseUrl = baseUrl
                 },
                 Swagger =
                 {
@@ -262,6 +261,7 @@ public class Startup
                 }
             })
             .AddAcmIdmAuthorizationHandlers()
+            .AddSingleton<IAuthorizationHandler, AcmIdmAuthorizationHandlerTestPurposesOnly>()
             .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
@@ -368,7 +368,7 @@ public class Startup
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .Configure<ResponseOptions>(_configuration)
-            .AddAcmIdmAuth(oAuth2IntrospectionOptions!)
+            .AddAcmIdmAuth(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             ;
 
@@ -392,5 +392,26 @@ public class Startup
     private static string GetApiLeadingText(ApiVersionDescription description)
     {
         return $"Momenteel leest u de documentatie voor versie {description.ApiVersion} van de Basisregisters Vlaanderen Road Registry API{string.Format(description.IsDeprecated ? ", **deze API versie is niet meer ondersteund * *." : ".")}";
+    }
+}
+
+public class AcmIdmAuthorizationHandlerTestPurposesOnly : AcmIdmAuthorizationHandler
+{
+    private readonly ILogger<AcmIdmAuthorizationHandlerTestPurposesOnly> _logger;
+
+    public AcmIdmAuthorizationHandlerTestPurposesOnly(ILogger<AcmIdmAuthorizationHandlerTestPurposesOnly> logger)
+    {
+        _logger = logger;
+    }
+
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AcmIdmAuthorizationRequirement requirement)
+    {
+        var userHasScope = requirement.AllowedValues.Any(scope => context.User.HasClaim(x => x.Type == AcmIdmClaimTypes.Scope && x.Value == scope));
+        if (!userHasScope)
+        {
+            _logger.LogInformation("User does not have the required scope claim '{Scope}', user claims: {UserClaims}", requirement.AllowedValues, string.Join(", ", context.User.Claims.Select(claim => $"{claim.Type}={claim.Value}")));
+        }
+
+        return base.HandleRequirementAsync(context, requirement);
     }
 }

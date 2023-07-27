@@ -5,7 +5,7 @@ using System.Security.Claims;
 
 public sealed record RoadRegistryClaim(string Role)
 {
-    private const string ClaimType = "dv_wegenregister";
+    public const string ClaimType = "dv_wegenregister";
     private const string ClaimValuePrefix = "DVWegenregister-";
 
     public static RoadRegistryClaim ReadFrom(Claim claim)
