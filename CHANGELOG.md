@@ -1,3 +1,11 @@
+## [3.54.5](https://github.com/informatievlaanderen/road-registry/compare/v3.54.4...v3.54.5) (2023-07-28)
+
+
+### Bug Fixes
+
+* pipeline delete unnecessary folders ([#1089](https://github.com/informatievlaanderen/road-registry/issues/1089)) ([ac0a32b](https://github.com/informatievlaanderen/road-registry/commit/ac0a32b811de31c0d0e215959fd082d84d81702b))
+* pipeline typo ([#1090](https://github.com/informatievlaanderen/road-registry/issues/1090)) ([6c333af](https://github.com/informatievlaanderen/road-registry/commit/6c333af4be0fdaee3484b7b29eb509f8f7570a43))
+
 ## [3.54.4](https://github.com/informatievlaanderen/road-registry/compare/v3.54.3...v3.54.4) (2023-07-27)
 
 
