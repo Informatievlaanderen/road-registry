@@ -1,3 +1,10 @@
+## [3.54.7](https://github.com/informatievlaanderen/road-registry/compare/v3.54.6...v3.54.7) (2023-07-28)
+
+
+### Bug Fixes
+
+* remove DOCKER_TMPDIR ([#1092](https://github.com/informatievlaanderen/road-registry/issues/1092)) ([9362eb8](https://github.com/informatievlaanderen/road-registry/commit/9362eb89c185d63873ae357954930b9e62dbef18))
+
 ## [3.54.6](https://github.com/informatievlaanderen/road-registry/compare/v3.54.5...v3.54.6) (2023-07-28)
 
 
