@@ -35,7 +35,6 @@ jobs:
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
-    steps:
     - name: df -h 
       shell: bash
       run: |
