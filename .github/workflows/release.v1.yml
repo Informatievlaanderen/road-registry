@@ -167,8 +167,6 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-        mkdir $DOCKER_TMPDIR
-        
         declare -a apps=(
           "adminhost:RoadRegistry.AdminHost"
           "backoffice-api:RoadRegistry.BackOffice.Api"
@@ -193,7 +191,7 @@ jobs:
         do
           data=(${app//:/ })
 
-          docker image save $BUILD_DOCKER_REGISTRY/road-registry/${data[0]}:$SEMVER -o ~/rr-${data[0]}-image.tar -e "DOCKER_TMPDIR=$DOCKER_TMPDIR"
+          docker image save $BUILD_DOCKER_REGISTRY/road-registry/${data[0]}:$SEMVER -o ~/rr-${data[0]}-image.tar
           
           rm -rf src/${data[1]}
           rm -rf dist/${data[1]}
@@ -201,7 +199,6 @@ jobs:
       env:
         BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         SEMVER: ${{ env.RELEASE_VERSION }}
-        DOCKER_TMPDIR: /dev/root/tmp
 
     - name: Log file system info
       shell: bash
