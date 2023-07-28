@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Extracts;
 
+using System;
+using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using BackOffice.Extracts;
 using Be.Vlaanderen.Basisregisters.Api;
@@ -9,14 +11,12 @@ using Core.ProblemCodes;
 using Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
+using Infrastructure.Authentication;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
 using Version = Infrastructure.Version;
 
 [ApiKey]
@@ -24,7 +24,7 @@ using Version = Infrastructure.Version;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("extracts")]
 [ApiExplorerSettings(GroupName = "Extract")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes)]
 public partial class ExtractsController : ApiController
 {
     private readonly IMediator _mediator;

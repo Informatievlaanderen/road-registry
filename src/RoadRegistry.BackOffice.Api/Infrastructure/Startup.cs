@@ -261,7 +261,6 @@ public class Startup
                 }
             })
             .AddAcmIdmAuthorizationHandlers()
-            .AddSingleton<IAuthorizationHandler, AcmIdmAuthorizationHandlerTestPurposesOnly>()
             .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
@@ -392,26 +391,5 @@ public class Startup
     private static string GetApiLeadingText(ApiVersionDescription description)
     {
         return $"Momenteel leest u de documentatie voor versie {description.ApiVersion} van de Basisregisters Vlaanderen Road Registry API{string.Format(description.IsDeprecated ? ", **deze API versie is niet meer ondersteund * *." : ".")}";
-    }
-}
-
-public class AcmIdmAuthorizationHandlerTestPurposesOnly : AcmIdmAuthorizationHandler
-{
-    private readonly ILogger<AcmIdmAuthorizationHandlerTestPurposesOnly> _logger;
-
-    public AcmIdmAuthorizationHandlerTestPurposesOnly(ILogger<AcmIdmAuthorizationHandlerTestPurposesOnly> logger)
-    {
-        _logger = logger;
-    }
-
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AcmIdmAuthorizationRequirement requirement)
-    {
-        var userHasScope = requirement.AllowedValues.Any(scope => context.User.HasClaim(x => x.Type == AcmIdmClaimTypes.Scope && x.Value == scope));
-        if (!userHasScope)
-        {
-            _logger.LogInformation("User does not have the required scope claim '{Scope}', user claims: {UserClaims}", requirement.AllowedValues, string.Join(", ", context.User.Claims.Select(claim => $"{claim.Type}={claim.Value}")));
-        }
-
-        return base.HandleRequirementAsync(context, requirement);
     }
 }

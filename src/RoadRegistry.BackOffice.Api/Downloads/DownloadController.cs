@@ -2,9 +2,9 @@ namespace RoadRegistry.BackOffice.Api.Downloads;
 
 using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
+using Infrastructure.Authentication;
 using Infrastructure.Controllers.Attributes;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("download")]
 [ApiExplorerSettings(GroupName = "Download")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes)]
 public partial class DownloadController : ApiController
 {
     private readonly IMediator _mediator;
