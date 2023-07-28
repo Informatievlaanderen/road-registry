@@ -47,10 +47,9 @@ internal class ApiKeyAuthenticator : IApiKeyAuthenticator
             {
                 new("sub", apiKey),
                 new("active", true.ToString()),
-                new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName),
-                new(AcmIdmClaimTypes.Scope, "digitaalvlaanderen_grar_toegang")
+                new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName)
             }.Concat(
                 scopes.Select(scope => new Claim(AcmIdmClaimTypes.Scope, scope))
-            ), ApiKeyDefaults.AuthenticationScheme);
+            ), AuthenticationSchemes.ApiKey);
     }
 }

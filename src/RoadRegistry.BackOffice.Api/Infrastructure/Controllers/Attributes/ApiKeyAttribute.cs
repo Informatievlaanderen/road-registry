@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers.Attributes;
 
 using System;
-using Authentication;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Microsoft.AspNetCore.Authorization;
 
@@ -10,7 +9,7 @@ internal class ApiKeyAttribute : AuthorizeAttribute
 {
     public ApiKeyAttribute()
     {
-        AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme;
+        AuthenticationSchemes = Authentication.AuthenticationSchemes.ApiKey;
         Policy = PolicyNames.WegenUitzonderingen.Beheerder;
     }
 }
