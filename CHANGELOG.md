@@ -1,3 +1,10 @@
+## [3.54.6](https://github.com/informatievlaanderen/road-registry/compare/v3.54.5...v3.54.6) (2023-07-28)
+
+
+### Bug Fixes
+
+* WR-689 use separate auth scheme for JwtBearer ([#1091](https://github.com/informatievlaanderen/road-registry/issues/1091)) ([a092a8c](https://github.com/informatievlaanderen/road-registry/commit/a092a8c2a0aed9648cc7623e8562cec91c6d3a24))
+
 ## [3.54.5](https://github.com/informatievlaanderen/road-registry/compare/v3.54.4...v3.54.5) (2023-07-28)
 
 
