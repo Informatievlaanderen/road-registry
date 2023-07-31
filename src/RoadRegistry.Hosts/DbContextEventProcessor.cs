@@ -391,7 +391,9 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     }
 
     public event EventHandler CatchUpCompleted;
-    protected abstract Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation);
+
+
+    protected abstract Task UpdateEventProcessorMetricsAsync(TDbContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation);
 
     private sealed class CatchUp
     {

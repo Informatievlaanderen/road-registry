@@ -35,7 +35,7 @@ public class RoadNodeEventProcessor : DbContextEventProcessor<RoadNodeProducerSn
     {
     }
 
-    protected override Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation)
+    protected override Task UpdateEventProcessorMetricsAsync(RoadNodeProducerSnapshotContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation)
     {
         return Task.CompletedTask;
     }

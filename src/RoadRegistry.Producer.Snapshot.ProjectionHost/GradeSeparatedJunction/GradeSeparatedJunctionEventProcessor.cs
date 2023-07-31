@@ -35,7 +35,7 @@ public class GradeSeparatedJunctionEventProcessor : DbContextEventProcessor<Grad
     {
     }
 
-    protected override Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation)
+    protected override Task UpdateEventProcessorMetricsAsync(GradeSeparatedJunctionProducerSnapshotContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation)
     {
         return Task.CompletedTask;
     }

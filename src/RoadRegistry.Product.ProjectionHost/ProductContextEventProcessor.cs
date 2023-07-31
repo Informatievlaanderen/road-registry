@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.Editor.Schema;
 using Schema;
 using SqlStreamStore;
 
@@ -26,7 +27,7 @@ public class ProductContextEventProcessor : DbContextEventProcessor<ProductConte
     {
     }
 
-    protected override Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation)
+    protected override Task UpdateEventProcessorMetricsAsync(ProductContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation)
     {
         return Task.CompletedTask;
     }

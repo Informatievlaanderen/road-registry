@@ -126,5 +126,5 @@ public class WmsContextEventProcessor : DbContextEventProcessor<WmsContext>
         await syncWithCacheContext.DisposeAsync().ConfigureAwait(false);
     }
 
-    protected override Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation) => Task.CompletedTask;
+    protected override Task UpdateEventProcessorMetricsAsync(WmsContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation) => Task.CompletedTask;
 }

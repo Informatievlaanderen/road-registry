@@ -13,20 +13,20 @@ using Schema;
 using SqlStreamStore;
 using IStreetNameCache = Projections.IStreetNameCache;
 
-public class EventProcessorService : DbContextEventProcessor<WfsContext>
+public class WfsContextEventProcessor : DbContextEventProcessor<WfsContext>
 {
     private const string QueueName = "roadregistry-wfs-projectionhost";
     private const int CatchUpBatchSize = 5000;
     private const int SynchronizeWithCacheBatchSize = 5000;
 
-    public EventProcessorService(
+    public WfsContextEventProcessor(
         IStreamStore streamStore,
         AcceptStreamMessage<WfsContext> filter,
         EnvelopeFactory envelopeFactory,
         ConnectedProjectionHandlerResolver<WfsContext> resolver,
         IDbContextFactory<WfsContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<EventProcessorService> logger,
+        ILogger<WfsContextEventProcessor> logger,
         IStreetNameCache streetNameCache)
         : base(
             QueueName,
@@ -57,7 +57,7 @@ public class EventProcessorService : DbContextEventProcessor<WfsContext>
         IDbContextFactory<WfsContext> dbContextFactory,
         ConnectedProjectionHandlerResolver<WfsContext> resolver,
         IStreetNameCache streetNameCache,
-        ILogger<EventProcessorService> logger,
+        ILogger<WfsContextEventProcessor> logger,
         CancellationToken token = default(CancellationToken))
     {
         logger.LogInformation("Syncing with street name cache ...");
@@ -125,5 +125,5 @@ public class EventProcessorService : DbContextEventProcessor<WfsContext>
         await syncWithCacheContext.DisposeAsync().ConfigureAwait(false);
     }
 
-    protected override Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation) => Task.CompletedTask;
+    protected override Task UpdateEventProcessorMetricsAsync(WfsContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation) => Task.CompletedTask;
 }

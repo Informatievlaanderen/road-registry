@@ -35,7 +35,7 @@ public class RoadSegmentSurfaceEventProcessor : DbContextEventProcessor<RoadSegm
     {
     }
 
-    protected override Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation)
+    protected override Task UpdateEventProcessorMetricsAsync(RoadSegmentSurfaceProducerSnapshotContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation)
     {
         return Task.CompletedTask;
     }

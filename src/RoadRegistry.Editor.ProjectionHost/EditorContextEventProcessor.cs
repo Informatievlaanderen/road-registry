@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,8 +22,13 @@ public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext
     {
     }
 
-    protected override Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation)
+    protected override Task UpdateEventProcessorMetricsAsync(EditorContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation)
     {
-        throw new NotImplementedException();
+        var eventProcessorMetrics = context.EventProcessorMetrics
+            .Where(m => m.EventProcessorId == GetType().Name)
+            .OrderBy(m => m.FromPosition)
+            .ToList();
+
+        return Task.CompletedTask;
     }
 }
