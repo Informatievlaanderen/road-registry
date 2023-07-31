@@ -1,3 +1,10 @@
+## [3.54.8](https://github.com/informatievlaanderen/road-registry/compare/v3.54.7...v3.54.8) (2023-07-31)
+
+
+### Bug Fixes
+
+* WR-689 add test handler for JwtBearer ([#1093](https://github.com/informatievlaanderen/road-registry/issues/1093)) ([e8105fb](https://github.com/informatievlaanderen/road-registry/commit/e8105fb698312f72893afb8c455220d5fd483707))
+
 ## [3.54.7](https://github.com/informatievlaanderen/road-registry/compare/v3.54.6...v3.54.7) (2023-07-28)
 
 
