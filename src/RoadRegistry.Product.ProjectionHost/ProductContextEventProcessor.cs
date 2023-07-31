@@ -1,6 +1,8 @@
 namespace RoadRegistry.Product.ProjectionHost;
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
@@ -8,19 +10,24 @@ using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
 
-public class EventProcessor : DbContextEventProcessor<ProductContext>
+public class ProductContextEventProcessor : DbContextEventProcessor<ProductContext>
 {
     private const string QueueName = "roadregistry-product-projectionhost";
 
-    public EventProcessor(
+    public ProductContextEventProcessor(
         IStreamStore streamStore,
         AcceptStreamMessageFilter filter,
         EnvelopeFactory envelopeFactory,
         ConnectedProjectionHandlerResolver<ProductContext> resolver,
         Func<ProductContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<EventProcessor> logger)
+        ILogger<ProductContextEventProcessor> logger)
         : base(QueueName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger)
     {
+    }
+
+    protected override Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation)
+    {
+        return Task.CompletedTask;
     }
 }

@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using EventProcessors;
+using Extensions;
 using Hosts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +21,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Newtonsoft.Json;
 using Projections;
-using RoadRegistry.Editor.ProjectionHost.Extensions;
 using Schema;
 
 public class Program
@@ -36,7 +36,7 @@ public class Program
                 .AddSingleton(new EnvelopeFactory(
                     DbContextEventProcessor<EditorContext>.EventMapping,
                     new EventDeserializer((eventData, eventType) =>
-                        JsonConvert.DeserializeObject(eventData, eventType, DbContextEventProcessor<EditorContext>.SerializerSettings)))
+                        JsonConvert.DeserializeObject(eventData, eventType, EditorContextEventProcessor.SerializerSettings)))
                 )
                 .AddSingleton(() =>
                     new EditorContext(
@@ -49,7 +49,8 @@ public class Program
                             ).Options)
                 )
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new EditorContextMigrationFactory())
-                .AddDbContextEventProcessor<EditorContext, RoadNetworkEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                .AddEditorContextEventProcessor<RoadNetworkEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
+                {
                     new RoadNetworkInfoProjection(),
                     new GradeSeparatedJunctionRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadNodeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
@@ -61,22 +62,28 @@ public class Program
                     new RoadSegmentSurfaceAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>()),
                     new RoadSegmentWidthAttributeRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
                 })
-                .AddDbContextEventProcessor<EditorContext, OrganizationEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                .AddEditorContextEventProcessor<OrganizationEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
+                {
                     new OrganizationRecordProjection(sp.GetRequiredService<RecyclableMemoryStreamManager>(), sp.GetRequiredService<FileEncoding>())
                 })
-                .AddDbContextEventProcessor<EditorContext, MunicipalityEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                .AddEditorContextEventProcessor<MunicipalityEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
+                {
                     new MunicipalityGeometryProjection()
                 })
-                .AddDbContextEventProcessor<EditorContext, ChangeFeedEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                .AddEditorContextEventProcessor<ChangeFeedEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
+                {
                     new RoadNetworkChangeFeedProjection(sp.GetRequiredService<IBlobClient>())
                 })
-                .AddDbContextEventProcessor<EditorContext, ExtractDownloadEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                .AddEditorContextEventProcessor<ExtractDownloadEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
+                {
                     new ExtractDownloadRecordProjection()
                 })
-                .AddDbContextEventProcessor<EditorContext, ExtractRequestEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                .AddEditorContextEventProcessor<ExtractRequestEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
+                {
                     new ExtractRequestRecordProjection()
                 })
-                .AddDbContextEventProcessor<EditorContext, ExtractUploadEventProcessor>(sp => new ConnectedProjection<EditorContext>[] {
+                .AddEditorContextEventProcessor<ExtractUploadEventProcessor>(sp => new ConnectedProjection<EditorContext>[]
+                {
                     new ExtractUploadRecordProjection()
                 })
             )

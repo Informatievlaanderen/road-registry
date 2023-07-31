@@ -1,5 +1,8 @@
 namespace RoadRegistry.Product.ProjectionHost;
 
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -14,9 +17,6 @@ using Microsoft.IO;
 using Newtonsoft.Json;
 using Projections;
 using Schema;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class Program
 {
@@ -28,11 +28,11 @@ public class Program
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
-                .AddHostedService<EventProcessor>()
+                .AddHostedService<ProductContextEventProcessor>()
                 .AddSingleton(new EnvelopeFactory(
-                    EventProcessor.EventMapping,
+                    ProductContextEventProcessor.EventMapping,
                     new EventDeserializer((eventData, eventType) =>
-                        JsonConvert.DeserializeObject(eventData, eventType, EventProcessor.SerializerSettings)))
+                        JsonConvert.DeserializeObject(eventData, eventType, ProductContextEventProcessor.SerializerSettings)))
                 )
                 .AddSingleton(
                     () =>
@@ -62,12 +62,12 @@ public class Program
                     .SelectMany(projection => projection.Handlers)
                     .ToArray())
                 )
-                .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<ProductContext>[]>(), EventProcessor.EventMapping))
+                .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<ProductContext>[]>(), ProductContextEventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new ProductContextMigrationFactory()))
             .Build();
 
         await roadRegistryHost
-            .LogSqlServerConnectionStrings(new []
+            .LogSqlServerConnectionStrings(new[]
             {
                 WellknownConnectionNames.Events,
                 WellknownConnectionNames.ProductProjections,

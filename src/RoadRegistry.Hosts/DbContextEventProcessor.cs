@@ -25,17 +25,14 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     private const int CatchUpBatchSize = 500;
     private const int CatchUpThreshold = 1000;
     private const int RecordPositionThreshold = 1;
-
-    public static readonly EventMapping EventMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+    public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
     public static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-
     private readonly ILogger<DbContextEventProcessor<TDbContext>> _logger;
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
     private readonly Scheduler _scheduler;
-    public event EventHandler CatchUpCompleted;
 
     protected DbContextEventProcessor(
         string queueName,
@@ -49,7 +46,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         int catchUpBatchSize = CatchUpBatchSize,
         int catchUpThreshold = CatchUpThreshold)
         : this(queueName, streamStore, acceptStreamMessage.CreateFilter(), envelopeFactory, resolver, dbContextFactory.CreateDbContext, scheduler, logger,
-        catchUpBatchSize, catchUpThreshold)
+            catchUpBatchSize, catchUpThreshold)
     {
     }
 
@@ -392,6 +389,9 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         const int timeout = -2;
         return dropped.Exception is SqlException { Number: timeout } or IOException { InnerException: SqlException { Number: timeout } };
     }
+
+    public event EventHandler CatchUpCompleted;
+    protected abstract Task UpdateEventProcessorMetricsAsync(CancellationToken cancellation);
 
     private sealed class CatchUp
     {

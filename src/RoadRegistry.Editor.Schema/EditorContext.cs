@@ -1,9 +1,12 @@
 namespace RoadRegistry.Editor.Schema;
 
 using BackOffice;
+using BackOffice.Extracts.Dbase.Organizations;
+using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Extracts;
 using GradeSeparatedJunctions;
+using Metrics;
 using Microsoft.EntityFrameworkCore;
 using RoadNetworkChanges;
 using RoadNodes;
@@ -11,8 +14,6 @@ using RoadSegments;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice.Extracts.Dbase.Organizations;
-using BackOffice.Extracts.Dbase.RoadSegments;
 
 public class EditorContext : RunnerDbContext<EditorContext>
 {
@@ -27,6 +28,12 @@ public class EditorContext : RunnerDbContext<EditorContext>
         : base(options)
     {
     }
+
+    #region Metrics
+
+    public DbSet<EventProcessorMetricsRecord> EventProcessorMetrics { get; set; }
+
+    #endregion
 
     public DbSet<ExtractRequestRecord> ExtractRequests { get; set; }
     public DbSet<ExtractDownloadRecord> ExtractDownloads { get; set; }
@@ -50,7 +57,8 @@ public class EditorContext : RunnerDbContext<EditorContext>
     public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
     public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
 
-    public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken token)
+    public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken
+        token)
     {
         return _localRoadNetworkInfo ??=
             RoadNetworkInfo.Local.SingleOrDefault() ??
