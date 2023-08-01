@@ -1,3 +1,10 @@
+## [3.54.9](https://github.com/informatievlaanderen/road-registry/compare/v3.54.8...v3.54.9) (2023-08-01)
+
+
+### Bug Fixes
+
+* WR-689 remove test handler ([#1094](https://github.com/informatievlaanderen/road-registry/issues/1094)) ([c46a9d6](https://github.com/informatievlaanderen/road-registry/commit/c46a9d6fe33d00675852ee9a2d5c28607e8a3e30))
+
 ## [3.54.8](https://github.com/informatievlaanderen/road-registry/compare/v3.54.7...v3.54.8) (2023-07-31)
 
 
