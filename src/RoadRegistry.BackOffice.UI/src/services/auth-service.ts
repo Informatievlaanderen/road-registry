@@ -51,11 +51,7 @@ export const AuthService = {
   async loginAcmIdm(url: string): Promise<void> {
     await OidcClient.initialize();
 
-    var request = await OidcClient.instance.createSigninRequest({
-      state: {
-        bar: 15,
-      },
-    });
+    var request = await OidcClient.instance.createSigninRequest({});
 
     sessionStorage.setItem(WR_AUTH_OIDC_VERIFIER, request.state.code_verifier as string);
     sessionStorage.setItem(WR_AUTH_REDIRECT_URL, url);
@@ -83,19 +79,8 @@ export const AuthService = {
     }
   },
   async logout(): Promise<void> {
-    if (sessionStorage.getItem(WR_AUTH_APIKEY)) {
-      this.reset();
-      router.push({ name: "login" });
-    } else if (sessionStorage.getItem(WR_AUTH_OIDC_VERIFIER)) {
-      this.reset();
-      let request = await OidcClient.instance.createSignoutRequest({
-        state: {
-          bar: 15,
-        },
-      });
-
-      window.location.href = request.url;
-    }
+    this.reset();
+    router.push("/");
   },
   async checkAuthentication(): Promise<boolean> {
     isAuthenticated.state = await PublicApi.Security.userIsAuthenticated();
