@@ -88,11 +88,7 @@ export const AuthService = {
       router.push({ name: "login" });
     } else if (sessionStorage.getItem(WR_AUTH_OIDC_VERIFIER)) {
       this.reset();
-      let request = await OidcClient.instance.createSignoutRequest({
-        state: {
-          bar: 15,
-        },
-      });
+      let request = await OidcClient.instance.createSignoutRequest();
 
       window.location.href = request.url;
     }
