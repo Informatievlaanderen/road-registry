@@ -1,3 +1,10 @@
+## [3.54.10](https://github.com/informatievlaanderen/road-registry/compare/v3.54.9...v3.54.10) (2023-08-01)
+
+
+### Bug Fixes
+
+* logout with ACM/IDM ([#1095](https://github.com/informatievlaanderen/road-registry/issues/1095)) ([f498cc0](https://github.com/informatievlaanderen/road-registry/commit/f498cc054114dece1953d16e440e3e9798beef93))
+
 ## [3.54.9](https://github.com/informatievlaanderen/road-registry/compare/v3.54.8...v3.54.9) (2023-08-01)
 
 
