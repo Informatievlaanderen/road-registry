@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -16,14 +17,16 @@ namespace RoadRegistry.Editor.Schema.Migrations
                 schema: "RoadRegistryEditorMetrics",
                 columns: table => new
                 {
-                    EventProcessorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    EventProcessorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DbContext = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "EditorContext"),
                     FromPosition = table.Column<long>(type: "bigint", nullable: false),
                     ToPosition = table.Column<long>(type: "bigint", nullable: false),
                     ElapsedMilliseconds = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EventProcessors", x => x.EventProcessorId)
+                    table.PrimaryKey("PK_EventProcessors", x => x.Id)
                         .Annotation("SqlServer:Clustered", false);
                 });
         }

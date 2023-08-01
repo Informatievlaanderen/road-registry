@@ -202,6 +202,38 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     b.ToTable("RoadSegmentWidthAttribute", "RoadRegistryEditor");
                 });
 
+            modelBuilder.Entity("RoadRegistry.BackOffice.Metrics.EventProcessorMetricsRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DbContext")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("EditorContext");
+
+                    b.Property<long>("ElapsedMilliseconds")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("EventProcessorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FromPosition")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ToPosition")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
+
+                    b.ToTable("EventProcessors", "RoadRegistryEditorMetrics");
+                });
+
             modelBuilder.Entity("RoadRegistry.BackOffice.RoadNetworkInfo", b =>
                 {
                     b.Property<int>("Id")
@@ -411,27 +443,6 @@ namespace RoadRegistry.Editor.Schema.Migrations
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
                     b.ToTable("GradeSeparatedJunction", "RoadRegistryEditor");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Editor.Schema.Metrics.EventProcessorMetricsRecord", b =>
-                {
-                    b.Property<string>("EventProcessorId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long>("ElapsedMilliseconds")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("FromPosition")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("ToPosition")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("EventProcessorId");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("EventProcessorId"), false);
-
-                    b.ToTable("EventProcessors", "RoadRegistryEditorMetrics");
                 });
 
             modelBuilder.Entity("RoadRegistry.Editor.Schema.MunicipalityGeometry", b =>

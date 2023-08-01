@@ -1,10 +1,5 @@
 namespace RoadRegistry.Hosts;
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -18,6 +13,12 @@ using Newtonsoft.Json;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using SqlStreamStore.Subscriptions;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 
 public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     where TDbContext : RunnerDbContext<TDbContext>
@@ -82,6 +83,8 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         });
         _messagePump = Task.Factory.StartNew(async () =>
         {
+            var sw = new Stopwatch();
+
             IAllStreamSubscription subscription = null;
             try
             {
@@ -124,6 +127,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 
                             case CatchUp catchUp:
                                 logger.LogInformation("{EventProcessor} Catching up as of {Position}", GetType().Name, catchUp.AfterPosition ?? -1L);
+                                sw.Restart();
                                 var observedMessageCount = 0;
                                 var catchUpPosition = catchUp.AfterPosition ?? Position.Start;
                                 var context = dbContextFactory();
@@ -174,6 +178,10 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                                     catchUpPosition,
                                                     _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
+                                            await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
+                                            await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition());
+                                            sw.Restart();
+
                                             context.ChangeTracker.DetectChanges();
                                             await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                             await context.DisposeAsync().ConfigureAwait(false);
@@ -198,6 +206,10 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                             catchUpPosition,
                                             _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
+                                    await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
+                                    await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition());
+                                    sw.Restart();
+
                                     context.ChangeTracker.DetectChanges();
                                     await context.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                 }
@@ -293,6 +305,9 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                             queueName,
                                             process.Message.Position,
                                             _messagePumpCancellation.Token).ConfigureAwait(false);
+                                        await UpdateEventProcessorMetricsAsync(processContext, process.Message.Position, process.Message.Position, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
+                                        sw.Restart();
+
                                         processContext.ChangeTracker.DetectChanges();
                                         await processContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                     }
@@ -392,8 +407,9 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 
     public event EventHandler CatchUpCompleted;
 
+    protected abstract Task OutputEstimatedTimeRemainingAsync(TDbContext context, ILogger logger, long currentPosition, long lastPosition);
 
-    protected abstract Task UpdateEventProcessorMetricsAsync(TDbContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation);
+    protected abstract Task UpdateEventProcessorMetricsAsync(TDbContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellationToken);
 
     private sealed class CatchUp
     {

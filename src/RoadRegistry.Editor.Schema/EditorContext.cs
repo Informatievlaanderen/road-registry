@@ -3,10 +3,10 @@ namespace RoadRegistry.Editor.Schema;
 using BackOffice;
 using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.RoadSegments;
+using BackOffice.Metrics;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Extracts;
 using GradeSeparatedJunctions;
-using Metrics;
 using Microsoft.EntityFrameworkCore;
 using RoadNetworkChanges;
 using RoadNodes;
@@ -30,9 +30,7 @@ public class EditorContext : RunnerDbContext<EditorContext>
     }
 
     #region Metrics
-
     public DbSet<EventProcessorMetricsRecord> EventProcessorMetrics { get; set; }
-
     #endregion
 
     public DbSet<ExtractRequestRecord> ExtractRequests { get; set; }

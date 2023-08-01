@@ -1,6 +1,9 @@
 namespace RoadRegistry.Product.Schema;
 
 using BackOffice;
+using BackOffice.Extracts.Dbase.Organizations;
+using BackOffice.Extracts.Dbase.RoadSegments;
+using BackOffice.Metrics;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using GradeSeparatedJunctions;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +12,6 @@ using RoadSegments;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice.Extracts.Dbase.Organizations;
-using BackOffice.Extracts.Dbase.RoadSegments;
 
 public class ProductContext : RunnerDbContext<ProductContext>
 {
@@ -25,6 +26,10 @@ public class ProductContext : RunnerDbContext<ProductContext>
         : base(options)
     {
     }
+
+    #region Metrics
+    public DbSet<EventProcessorMetricsRecord> EventProcessorMetrics { get; set; }
+    #endregion
 
     public DbSet<GradeSeparatedJunctionRecord> GradeSeparatedJunctions { get; set; }
     public DbSet<OrganizationRecord> Organizations { get; set; }
