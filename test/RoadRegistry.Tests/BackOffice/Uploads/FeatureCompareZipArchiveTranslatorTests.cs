@@ -32,7 +32,7 @@ public class FeatureCompareZipArchiveTranslatorTests
         Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
     }
 
-    [Fact(Skip = "For local feature compare testing only due to big archive files")]
+    [Fact(Skip = "Debugging, for local feature compare testing only due to big archive files")]
     //[Fact]
     public async Task TranslateWithRecordsReturnsExpectedResult()
     {

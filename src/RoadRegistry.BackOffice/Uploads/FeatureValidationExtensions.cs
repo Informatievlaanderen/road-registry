@@ -75,6 +75,35 @@ namespace RoadRegistry.BackOffice.Uploads
             return problems;
         }
 
+        public static ZipArchiveProblems ValidateMissingRoadNodes(this ZipArchive archive, List<Feature<RoadSegmentFeatureCompareAttributes>> features, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+        {
+            var problems = ZipArchiveProblems.None;
+
+            if (!features.Any())
+            {
+                return problems;
+            }
+
+            var featureType = FeatureType.Change;
+
+            foreach (var feature in features)
+            {
+                if (feature.Attributes.StartNodeId > 0 && !context.KnownRoadNodes.ContainsKey(feature.Attributes.StartNodeId))
+                {
+                    var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                    problems += recordContext.RoadSegmentStartNodeMissing(feature.Attributes.StartNodeId);
+                }
+
+                if (feature.Attributes.EndNodeId > 0 && !context.KnownRoadNodes.ContainsKey(feature.Attributes.EndNodeId))
+                {
+                    var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                    problems += recordContext.RoadSegmentEndNodeMissing(feature.Attributes.EndNodeId);
+                }
+            }
+
+            return problems;
+        }
+
         public static ZipArchiveProblems ValidateRoadSegmentsWithoutAttributes<T>(this ZipArchive archive, List<Feature<T>> features, ExtractFileName fileName, Func<ZipArchiveEntry, RoadSegmentId[], FileProblem> problemBuilder, ZipArchiveFeatureReaderContext context)
             where T: RoadSegmentAttributeFeatureCompareAttributes
         {
@@ -96,6 +125,74 @@ namespace RoadRegistry.BackOffice.Uploads
             {
                 var dbfEntry = archive.FindEntry(featureType.GetDbaseFileName(fileName));
                 problems += problemBuilder(dbfEntry, segmentsWithoutAttributes);
+            }
+
+            return problems;
+        }
+
+        public static ZipArchiveProblems TryToFillMissingFromAndToPositions<T>(this ZipArchiveProblems problems, List<Feature<T>> features, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+            where T : RoadSegmentAttributeFeatureCompareAttributes
+        {
+            var featureType = FeatureType.Change;
+            var problemFile = featureType.GetDbaseFileName(fileName);
+
+            var roadSegmentGroups = features
+                .Where(x => x.Attributes.RoadSegmentId > 0)
+                .GroupBy(x => x.Attributes.RoadSegmentId)
+                .ToArray();
+
+            foreach (var roadSegmentGroup in roadSegmentGroups)
+            {
+                var roadSegmentId = roadSegmentGroup.Key;
+
+                var nullFromPosition = roadSegmentGroup
+                    .Where(x => x.Attributes.FromPosition == RoadSegmentPosition.Zero)
+                    .ToArray();
+                if (nullFromPosition.Length == 1)
+                {
+                    var feature = nullFromPosition.Single();
+                    if (feature.Attributes.FromPosition == RoadSegmentPosition.Zero)
+                    {
+                        problems = problems
+                            .Remove(problem =>
+                                string.Equals(problem.File, problemFile, StringComparison.InvariantCultureIgnoreCase)
+                                && problem.Reason == nameof(DbaseFileProblems.RequiredFieldIsNull)
+                                && problem.Parameters.Count == 2
+                                && problem.Parameters.Any(x => x.Name == "RecordNumber" && x.Value == feature.RecordNumber.ToString())
+                                && problem.Parameters.Any(x => x.Name == "Field" && x.Value == "VANPOS")
+                            );
+                    }
+                }
+
+                var nullToPosition = roadSegmentGroup
+                    .Where(x => x.Attributes.ToPosition == RoadSegmentPosition.Zero)
+                    .ToArray();
+                if (nullToPosition.Length == 1)
+                {
+                    var feature = nullToPosition.Single();
+                    if (feature.Attributes.ToPosition == RoadSegmentPosition.Zero)
+                    {
+                        if (context.KnownRoadSegments.TryGetValue(roadSegmentId, out var roadSegmentFeature))
+                        {
+                            features[features.IndexOf(feature)] = feature with
+                            {
+                                Attributes = feature.Attributes with
+                                {
+                                    ToPosition = RoadSegmentPosition.FromDouble(roadSegmentFeature.Attributes.Geometry.Length)
+                                }
+                            };
+                            
+                            problems = problems
+                                .Remove(problem =>
+                                    string.Equals(problem.File, problemFile, StringComparison.InvariantCultureIgnoreCase)
+                                        && problem.Reason == nameof(DbaseFileProblems.RequiredFieldIsNull)
+                                        && problem.Parameters.Count == 2
+                                        && problem.Parameters.Any(x => x.Name == "RecordNumber" && x.Value == feature.RecordNumber.ToString())
+                                        && problem.Parameters.Any(x => x.Name == "Field" && x.Value == "TOTPOS")
+                                );
+                        }
+                    }
+                }
             }
 
             return problems;

@@ -64,7 +64,7 @@ internal class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthent
         if (identity is not null && identity.IsAuthenticated)
         {
             return AuthenticateResult.Success(
-                new AuthenticationTicket(new ClaimsPrincipal(identity), ApiKeyDefaults.AuthenticationScheme)
+                new AuthenticationTicket(new ClaimsPrincipal(identity), AuthenticationSchemes.ApiKey)
             );
         }
 

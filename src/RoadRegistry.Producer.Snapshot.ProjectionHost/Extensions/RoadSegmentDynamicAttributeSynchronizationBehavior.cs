@@ -3,15 +3,17 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 public static class RoadSegmentDynamicAttributeSynchronizationBehavior
 {
-    public static ICollection<T> Synchronize<T>(this DbSet<T> source,
+    public static async Task<ICollection<T>> Synchronize<T>(this DbSet<T> source,
         Dictionary<int, T> currentSet,
         Dictionary<int, T> nextSet,
         Action<T, T> modifier,
-        Action<T> remove) where T : class
+        Action<T> remove,
+        Func<T, Task> add) where T : class
     {
         var allItems = new List<T>();
 
@@ -32,6 +34,7 @@ public static class RoadSegmentDynamicAttributeSynchronizationBehavior
             }
             else if (gotNext)
             {
+                await add(next);
                 source.Add(next);
                 allItems.Add(next);
             }

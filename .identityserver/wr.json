@@ -9,7 +9,7 @@
     {
       "name": "vo",
       "displayName": "Vlaamse Overheid",
-      "userClaims": ["vo_id","scope","urn:be:vlaanderen:acm:voornaam","urn:be:vlaanderen:acm:familienaam"]
+      "userClaims": ["vo_id","scope","urn:be:vlaanderen:acm:voornaam","urn:be:vlaanderen:acm:familienaam","dv_wegenregister"]
     }
   ],
   "apiScopes": [
@@ -81,6 +81,10 @@
           "value": "Persona"
         },
         {
+          "type": "dv_wegenregister",
+          "value": "DVWegenregister-admin:OVO002949"
+        },
+        {
           "type": "scope",
           "value": "vo_info"
         },
@@ -99,10 +103,6 @@
         {
           "type": "scope",
           "value": "dv_wr_uitzonderingen"
-        },
-        {
-          "type": "scope",
-          "value": "dv_wegenregister"
         }
       ]
     }

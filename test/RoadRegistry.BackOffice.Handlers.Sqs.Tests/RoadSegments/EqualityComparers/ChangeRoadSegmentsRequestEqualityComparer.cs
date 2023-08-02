@@ -2,9 +2,9 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Tests.RoadSegments.EqualityCompar
 
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 
-public class ChangeRoadSegmentsRequestEqualityComparer : IEqualityComparer<ChangeRoadSegmentsRequest>
+public class ChangeRoadSegmentsRequestEqualityComparer : IEqualityComparer<ChangeRoadSegmentsDynamicAttributesRequest>
 {
-    public bool Equals(ChangeRoadSegmentsRequest x, ChangeRoadSegmentsRequest y)
+    public bool Equals(ChangeRoadSegmentsDynamicAttributesRequest x, ChangeRoadSegmentsDynamicAttributesRequest y)
     {
         if (ReferenceEquals(x, y))
         {
@@ -19,7 +19,7 @@ public class ChangeRoadSegmentsRequestEqualityComparer : IEqualityComparer<Chang
         return x.ChangeRequests.SequenceEqual(y.ChangeRequests, new ChangeRoadSegmentRequestEqualityComparer());
     }
 
-    public int GetHashCode(ChangeRoadSegmentsRequest obj)
+    public int GetHashCode(ChangeRoadSegmentsDynamicAttributesRequest obj)
     {
         throw new NotSupportedException();
     }

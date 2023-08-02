@@ -22,14 +22,34 @@ jobs:
           - 1433:1433
 
     steps:
-    - name: Delete huge unnecessary tools folder
-      run: rm -rf /opt/hostedtoolcache
+    - name: Log file system info
+      shell: bash
+      run: |
+        sudo df -h
+        
+    - name: Delete unnecessary folders
+      run: |
+        sudo rm -rf /opt/hostedtoolcache
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /opt/ghc
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
+    - name: Log file system info
+      shell: bash
+      run: |
+        sudo df -h
+        
     - name: Checkout Code
       uses: actions/checkout@v3
       with:
           persist-credentials: false
 
+    - name: Log file system info
+      shell: bash
+      run: |
+        sudo df -h
+        
     - name: Cache NPM
       uses: actions/cache@v3
       env:
@@ -103,6 +123,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests markdown argparse
 
+    - name: Log file system info
+      shell: bash
+      run: |
+        sudo df -h
+ 
     - name: Run Semantic Release
       shell: bash
       run: npx semantic-release
@@ -132,32 +157,54 @@ jobs:
      #
      # Save artifacts
      #
-      
+
+    - name: Log file system info
+      shell: bash
+      run: |
+        sudo df -h
+ 
     - name: Save artifacts
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER -o ~/rr-adminhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER -o ~/rr-projector-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER -o ~/rr-backoffice-api-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER -o ~/rr-backoffice-ui-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER -o ~/rr-editor-projectionhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER -o ~/rr-product-projectionhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER -o ~/rr-producer-snapshot-projectionhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER -o ~/rr-syndication-projectionhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER -o ~/rr-wms-projectionhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER -o ~/rr-wfs-projectionhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER -o ~/rr-backoffice-eventhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER -o ~/rr-backoffice-extracthost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER -o ~/rr-backoffice-commandhost-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER -o ~/rr-backoffice-messaginghost-sqs-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER -o ~/rr-import-legacy-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER -o ~/rr-extract-legacy-image.tar
-        docker image save $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER -o ~/rr-streetnameconsumer-projectionhost-image.tar
+        declare -a apps=(
+          "adminhost:RoadRegistry.AdminHost"
+          "backoffice-api:RoadRegistry.BackOffice.Api"
+          "backoffice-commandhost:RoadRegistry.BackOffice.CommandHost"
+          "backoffice-eventhost:RoadRegistry.BackOffice.EventHost"
+          "backoffice-extracthost:RoadRegistry.BackOffice.ExtractHost"
+          "backoffice-messaginghost-sqs:RoadRegistry.BackOffice.MessagingHost.Sqs"
+          "backoffice-ui:RoadRegistry.BackOffice.UI"
+          "editor-projectionhost:RoadRegistry.Editor.ProjectionHost"
+          "extract-legacy:RoadRegistry.Legacy.Extract"
+          "import-legacy:RoadRegistry.Legacy.Import"
+          "producer-snapshot-projectionhost:RoadRegistry.Producer.Snapshot.ProjectionHost"
+          "product-projectionhost:RoadRegistry.Product.ProjectionHost"
+          "projector:RoadRegistry.Projector"
+          "syndication-projectionhost:RoadRegistry.Syndication.ProjectionHost"
+          "streetnameconsumer-projectionhost:RoadRegistry.StreetNameConsumer.ProjectionHost"
+          "wfs-projectionhost:RoadRegistry.Wfs.ProjectionHost"
+          "wms-projectionhost:RoadRegistry.Wms.ProjectionHost"
+        )
+
+        for app in "${apps[@]}"
+        do
+          data=(${app//:/ })
+
+          docker image save $BUILD_DOCKER_REGISTRY/road-registry/${data[0]}:$SEMVER -o ~/rr-${data[0]}-image.tar
+          
+          rm -rf src/${data[1]}
+          rm -rf dist/${data[1]}
+        done
       env:
         BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
         SEMVER: ${{ env.RELEASE_VERSION }}
 
+    - name: Log file system info
+      shell: bash
+      run: |
+        sudo df -h
+ 
     #
     # Upload NuGet packages
     #

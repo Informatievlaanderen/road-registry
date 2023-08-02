@@ -22,11 +22,11 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
     {
     }
 
-    private (List<RoadSegmentRecord>, ZipArchiveProblems) ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems) ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var problems = ZipArchiveProblems.None;
         
-        var processedRecords = new List<RoadSegmentRecord>();
+        var processedRecords = new List<RoadSegmentFeatureCompareRecord>();
 
         foreach (var changeFeature in changeFeatures)
         {
@@ -34,7 +34,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
             var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(context.Tolerances.IntersectionBuffer);
             var intersectingGeometries = extractFeatures
-                .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry.Envelope) && x.Attributes.Geometry.Intersects(bufferedGeometry))
+                .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
                 .ToList();
 
             if (intersectingGeometries.Any())
@@ -60,27 +60,21 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                         var identicalFeatures = nonCriticalAttributesUnchanged.FindAll(extractFeature => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, context.Tolerances.ClusterTolerance));
                         if (identicalFeatures.Any())
                         {
-                            var compareIdn = changeFeature.Attributes.Id.ToString();
-
-                            processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes with
-                            {
-                                Id = identicalFeatures.First().Attributes.Id
-                            }, RecordType.Identical)
-                            {
-                                CompareIdn = compareIdn
-                            });
+                            processedRecords.Add(new RoadSegmentFeatureCompareRecord(
+                                changeFeature.RecordNumber,
+                                changeFeature.Attributes,
+                                identicalFeatures.First().Attributes.Id,
+                                RecordType.Identical));
                         }
                         else
                         {
-                            var compareIdn = changeFeature.Attributes.Id.ToString();
-
                             //update because geometries differ (slightly)
-                            processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes with
+                            processedRecords.Add(new RoadSegmentFeatureCompareRecord(
+                                changeFeature.RecordNumber,
+                                changeFeature.Attributes,
+                                nonCriticalAttributesUnchanged.First().Attributes.Id,
+                                RecordType.Modified)
                             {
-                                Id = nonCriticalAttributesUnchanged.First().Attributes.Id
-                            }, RecordType.Modified)
-                            {
-                                CompareIdn = compareIdn,
                                 GeometryChanged = true
                             });
                         }
@@ -89,36 +83,33 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     {
                         //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
                         var identicalGeometries = overlappingGeometries.FindAll(f => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances.ClusterTolerance));
-
-                        var compareIdn = changeFeature.Attributes.Id.ToString();
-
-                        processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes with
+                        
+                        processedRecords.Add(new RoadSegmentFeatureCompareRecord(
+                            changeFeature.RecordNumber,
+                            changeFeature.Attributes,
+                            overlappingGeometries.First().Attributes.Id,
+                            RecordType.Modified)
                         {
-                            Id = overlappingGeometries.First().Attributes.Id
-                        }, RecordType.Modified)
-                        {
-                            CompareIdn = compareIdn,
                             GeometryChanged = !identicalGeometries.Any()
                         });
                     }
                 }
                 else
                 {
-                    var compareIdn = new StringBuilder();
-                    foreach (var f in intersectingGeometries)
-                    {
-                        compareIdn.Append(f.Attributes.Id + ";");
-                    }
-
-                    processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes, RecordType.Added)
-                    {
-                        CompareIdn = compareIdn.ToString()
-                    });
+                    processedRecords.Add(new RoadSegmentFeatureCompareRecord(
+                        changeFeature.RecordNumber,
+                        changeFeature.Attributes,
+                        changeFeature.Attributes.Id,
+                        RecordType.Added));
                 }
             }
             else
             {
-                processedRecords.Add(new RoadSegmentRecord(changeFeature.RecordNumber, changeFeature.Attributes, RecordType.Added));
+                processedRecords.Add(new RoadSegmentFeatureCompareRecord(
+                    changeFeature.RecordNumber,
+                    changeFeature.Attributes,
+                    changeFeature.Attributes.Id,
+                    RecordType.Added));
             }
         }
 
@@ -135,7 +126,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
     {
         var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndLeveringAndIntegrationFeatures(context.Archive, FileName, context);
 
-        context.RoadSegments.AddRange(integrationFeatures.Select(feature => new RoadSegmentRecord(feature.RecordNumber, feature.Attributes, RecordType.Identical)
+        context.RoadSegmentRecords.AddRange(integrationFeatures.Select(feature => new RoadSegmentFeatureCompareRecord(feature.RecordNumber, feature.Attributes, feature.Attributes.Id, RecordType.Identical)
         {
             FeatureType = FeatureType.Integration
         }));
@@ -146,7 +137,9 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
         {
             var processedLeveringRecords = await Task.WhenAll(
                 changeFeatures.SplitIntoBatches(batchCount)
-                    .Select(changeFeaturesBatch => { return Task.Run(() => ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken), cancellationToken); }));
+                    .Select(changeFeaturesBatch => Task.Run(() =>
+                        ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken), cancellationToken)
+                    ));
             
             foreach (var processedProblems in processedLeveringRecords.Select(x => x.Item2))
             {
@@ -163,13 +156,13 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                          .SelectMany(x => x.Item1)
                          .Where(x => x.RecordType.Equals(RecordType.Added)))
             {
-                record.TempId = nextId;
+                record.Id = nextId;
                 nextId = nextId.Next();
             }
 
             foreach (var record in processedLeveringRecords.SelectMany(x => x.Item1))
             {
-                var existingRecord = context.RoadSegments.SingleOrDefault(x => x.GetNewOrOriginalId() == record.Id);
+                var existingRecord = context.RoadSegmentRecords.SingleOrDefault(x => x.Id == record.Id);
                 if (existingRecord is not null)
                 {
                     var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
@@ -177,24 +170,16 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     problems += recordContext.RoadSegmentIsAlreadyProcessed(record.Id, existingRecord.Id);
                     continue;
                 }
+                
+                MigrateRoadNodeIds(record, context);
 
-                context.RoadSegments.Add(record);
+                context.RoadSegmentRecords.Add(record);
             }
         }
 
-        foreach (var extractFeature in extractFeatures)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
+        AddRemovedRecordsToContext(extractFeatures, context, cancellationToken);
 
-            var hasProcessedRoadSegment = context.RoadSegments.Any(x => x.Id == extractFeature.Attributes.Id
-                                                                        && !x.RecordType.Equals(RecordType.Added));
-            if (!hasProcessedRoadSegment)
-            {
-                context.RoadSegments.Add(new RoadSegmentRecord(extractFeature.RecordNumber, extractFeature.Attributes, RecordType.Removed));
-            }
-        }
-
-        foreach (var record in context.RoadSegments.Where(x => x.FeatureType != FeatureType.Integration))
+        foreach (var record in context.RoadSegmentRecords.Where(x => x.FeatureType != FeatureType.Integration))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -204,7 +189,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     changes = changes.AppendProvisionalChange(
                         new ModifyRoadSegment(
                             record.RecordNumber,
-                            record.Attributes.Id,
+                            record.Id,
                             record.Attributes.StartNodeId,
                             record.Attributes.EndNodeId,
                             record.Attributes.MaintenanceAuthority,
@@ -222,7 +207,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     changes = changes.AppendChange(
                         new ModifyRoadSegment(
                             record.RecordNumber,
-                            record.Attributes.Id,
+                            record.Id,
                             record.Attributes.StartNodeId,
                             record.Attributes.EndNodeId,
                             record.Attributes.MaintenanceAuthority,
@@ -240,8 +225,8 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     changes = changes.AppendChange(
                         new AddRoadSegment(
                             record.RecordNumber,
-                            record.GetNewOrOriginalId(),
                             record.Id,
+                            record.Attributes.Id,
                             record.Attributes.StartNodeId,
                             record.Attributes.EndNodeId,
                             record.Attributes.MaintenanceAuthority,
@@ -259,7 +244,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     changes = changes.AppendChange(
                         new RemoveRoadSegment(
                             record.RecordNumber,
-                            record.Attributes.Id
+                            record.Id
                         )
                     );
                     break;
@@ -267,5 +252,49 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
         }
 
         return (changes, problems);
+    }
+
+    private void MigrateRoadNodeIds(RoadSegmentFeatureCompareRecord record, ZipArchiveEntryFeatureCompareTranslateContext context)
+    {
+        var startNode = context.RoadNodeRecords.SingleOrDefault(x => x.Id == record.Attributes.StartNodeId);
+        if (startNode is null)
+        {
+            startNode = context.RoadNodeRecords.SingleOrDefault(x => x.Attributes.Id == record.Attributes.StartNodeId);
+            if (startNode is not null)
+            {
+                record.Attributes = record.Attributes with
+                {
+                    StartNodeId = startNode.Id
+                };
+            }
+        }
+
+        var endNode = context.RoadNodeRecords.SingleOrDefault(x => x.Id == record.Attributes.EndNodeId);
+        if (endNode is null)
+        {
+            endNode = context.RoadNodeRecords.SingleOrDefault(x => x.Attributes.Id == record.Attributes.EndNodeId);
+            if (endNode is not null)
+            {
+                record.Attributes = record.Attributes with
+                {
+                    EndNodeId = endNode.Id
+                };
+            }
+        }
+    }
+
+    private void AddRemovedRecordsToContext(List<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    {
+        foreach (var extractFeature in extractFeatures)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var hasProcessedRoadSegment = context.RoadSegmentRecords.Any(x => x.Id == extractFeature.Attributes.Id
+                                                                              && !x.RecordType.Equals(RecordType.Added));
+            if (!hasProcessedRoadSegment)
+            {
+                context.RoadSegmentRecords.Add(new RoadSegmentFeatureCompareRecord(extractFeature.RecordNumber, extractFeature.Attributes, extractFeature.Attributes.Id, RecordType.Removed));
+            }
+        }
     }
 }

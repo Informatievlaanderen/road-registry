@@ -160,7 +160,7 @@ public class Startup
                 }
             })
             ;
-        
+
     }
 
     public void ConfigureContainer(ContainerBuilder builder)
@@ -181,14 +181,10 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        var oAuth2IntrospectionOptions = _configuration
-            .GetSection(nameof(OAuth2IntrospectionOptions))
-            .Get<OAuth2IntrospectionOptions>();
+        var oAuth2IntrospectionOptions = _configuration.GetOptions<OAuth2IntrospectionOptions>(nameof(OAuth2IntrospectionOptions));
+        var openIdConnectOptions = _configuration.GetOptions<OpenIdConnectOptions>();
 
-        var baseUrl = _configuration.GetValue<string>("BaseUrl");
-        var baseUrlForExceptions = baseUrl.EndsWith("/")
-            ? baseUrl.Substring(0, baseUrl.Length - 1)
-            : baseUrl;
+        var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
 
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
@@ -205,7 +201,7 @@ public class Startup
                 },
                 Server =
                 {
-                    BaseUrl = baseUrlForExceptions
+                    BaseUrl = baseUrl
                 },
                 Swagger =
                 {
@@ -368,7 +364,7 @@ public class Startup
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .Configure<ResponseOptions>(_configuration)
-            .AddAcmIdmAuth(oAuth2IntrospectionOptions!)
+            .AddAcmIdmAuth(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             ;
 

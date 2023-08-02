@@ -148,3 +148,4 @@ and
 To test whether building the syndication projection works you can type
 
 `docker-compose up --build syndication-projection-host`
+

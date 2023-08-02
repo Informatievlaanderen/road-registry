@@ -1,3 +1,95 @@
+## [3.54.11](https://github.com/informatievlaanderen/road-registry/compare/v3.54.10...v3.54.11) (2023-08-02)
+
+
+### Bug Fixes
+
+* WR-689 redirect url on logout ([#1096](https://github.com/informatievlaanderen/road-registry/issues/1096)) ([7e8466d](https://github.com/informatievlaanderen/road-registry/commit/7e8466d0c4cd7a612964abf3eb0d6fdb3c160848))
+
+## [3.54.10](https://github.com/informatievlaanderen/road-registry/compare/v3.54.9...v3.54.10) (2023-08-01)
+
+
+### Bug Fixes
+
+* logout with ACM/IDM ([#1095](https://github.com/informatievlaanderen/road-registry/issues/1095)) ([f498cc0](https://github.com/informatievlaanderen/road-registry/commit/f498cc054114dece1953d16e440e3e9798beef93))
+
+## [3.54.9](https://github.com/informatievlaanderen/road-registry/compare/v3.54.8...v3.54.9) (2023-08-01)
+
+
+### Bug Fixes
+
+* WR-689 remove test handler ([#1094](https://github.com/informatievlaanderen/road-registry/issues/1094)) ([c46a9d6](https://github.com/informatievlaanderen/road-registry/commit/c46a9d6fe33d00675852ee9a2d5c28607e8a3e30))
+
+## [3.54.8](https://github.com/informatievlaanderen/road-registry/compare/v3.54.7...v3.54.8) (2023-07-31)
+
+
+### Bug Fixes
+
+* WR-689 add test handler for JwtBearer ([#1093](https://github.com/informatievlaanderen/road-registry/issues/1093)) ([e8105fb](https://github.com/informatievlaanderen/road-registry/commit/e8105fb698312f72893afb8c455220d5fd483707))
+
+## [3.54.7](https://github.com/informatievlaanderen/road-registry/compare/v3.54.6...v3.54.7) (2023-07-28)
+
+
+### Bug Fixes
+
+* remove DOCKER_TMPDIR ([#1092](https://github.com/informatievlaanderen/road-registry/issues/1092)) ([9362eb8](https://github.com/informatievlaanderen/road-registry/commit/9362eb89c185d63873ae357954930b9e62dbef18))
+
+## [3.54.6](https://github.com/informatievlaanderen/road-registry/compare/v3.54.5...v3.54.6) (2023-07-28)
+
+
+### Bug Fixes
+
+* WR-689 use separate auth scheme for JwtBearer ([#1091](https://github.com/informatievlaanderen/road-registry/issues/1091)) ([a092a8c](https://github.com/informatievlaanderen/road-registry/commit/a092a8c2a0aed9648cc7623e8562cec91c6d3a24))
+
+## [3.54.5](https://github.com/informatievlaanderen/road-registry/compare/v3.54.4...v3.54.5) (2023-07-28)
+
+
+### Bug Fixes
+
+* pipeline delete unnecessary folders ([#1089](https://github.com/informatievlaanderen/road-registry/issues/1089)) ([ac0a32b](https://github.com/informatievlaanderen/road-registry/commit/ac0a32b811de31c0d0e215959fd082d84d81702b))
+* pipeline typo ([#1090](https://github.com/informatievlaanderen/road-registry/issues/1090)) ([6c333af](https://github.com/informatievlaanderen/road-registry/commit/6c333af4be0fdaee3484b7b29eb509f8f7570a43))
+
+## [3.54.4](https://github.com/informatievlaanderen/road-registry/compare/v3.54.3...v3.54.4) (2023-07-27)
+
+
+### Bug Fixes
+
+* WR-689 add auth for jwttoken ([#1088](https://github.com/informatievlaanderen/road-registry/issues/1088)) ([e11fdab](https://github.com/informatievlaanderen/road-registry/commit/e11fdabaa9c851e5899cceae0a9d0ab4addea7d0))
+* WR-774 FC validate roadnode ids; correctly use new id when existing is replaced ([#1087](https://github.com/informatievlaanderen/road-registry/issues/1087)) ([c9c2d61](https://github.com/informatievlaanderen/road-registry/commit/c9c2d617c5bf4cdc94168eda743b7f3cec506d12))
+
+## [3.54.3](https://github.com/informatievlaanderen/road-registry/compare/v3.54.2...v3.54.3) (2023-07-26)
+
+
+### Bug Fixes
+
+* add df -h logging to pipeline ([#1086](https://github.com/informatievlaanderen/road-registry/issues/1086)) ([500867c](https://github.com/informatievlaanderen/road-registry/commit/500867ca0a3e15b5071dedcb919433c1973082ad))
+
+## [3.54.2](https://github.com/informatievlaanderen/road-registry/compare/v3.54.1...v3.54.2) (2023-07-26)
+
+
+### Bug Fixes
+
+* version bump ([#1085](https://github.com/informatievlaanderen/road-registry/issues/1085)) ([a988dfc](https://github.com/informatievlaanderen/road-registry/commit/a988dfcfbf5d64fd5f099da960faa123158a37e1))
+
+## [3.54.1](https://github.com/informatievlaanderen/road-registry/compare/v3.54.0...v3.54.1) (2023-07-26)
+
+
+### Bug Fixes
+
+* WR-703 change dynamic attributes examples class ([#1084](https://github.com/informatievlaanderen/road-registry/issues/1084)) ([87589a3](https://github.com/informatievlaanderen/road-registry/commit/87589a35bdbd466d2c3118c4d980f465a6d6e9b7))
+
+# [3.54.0](https://github.com/informatievlaanderen/road-registry/compare/v3.53.4...v3.54.0) (2023-07-25)
+
+
+### Bug Fixes
+
+* Singular exception message for email client ([#1081](https://github.com/informatievlaanderen/road-registry/issues/1081)) ([f8d580c](https://github.com/informatievlaanderen/road-registry/commit/f8d580c219fd38dafe91b94496fd42d97edfb5e2))
+* WR-775 hard delete previously removed surfaces from another roadsegment when adding to a new roadsegment ([#1082](https://github.com/informatievlaanderen/road-registry/issues/1082)) ([90a8151](https://github.com/informatievlaanderen/road-registry/commit/90a8151bbaea1fdd7f688b04c40a15dba52715cf))
+
+
+### Features
+
+* WR-703 change url of latest change roadsegments endpoint ([#1083](https://github.com/informatievlaanderen/road-registry/issues/1083)) ([184edca](https://github.com/informatievlaanderen/road-registry/commit/184edcabe0ff76a8399597a9cb631a85c87f4d6e))
+
 ## [3.53.4](https://github.com/informatievlaanderen/road-registry/compare/v3.53.3...v3.53.4) (2023-07-25)
 
 

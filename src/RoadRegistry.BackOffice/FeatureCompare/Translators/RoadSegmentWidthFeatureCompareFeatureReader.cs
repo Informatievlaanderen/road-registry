@@ -28,6 +28,8 @@ public class RoadSegmentWidthFeatureCompareFeatureReader : VersionedFeatureReade
 
         if (featureType == FeatureType.Change)
         {
+            problems = problems.TryToFillMissingFromAndToPositions(features, fileName, context);
+
             problems += ValidateWidthsPerRoadSegment(features, featureType, fileName, context);
             problems += archive.ValidateRoadSegmentsWithoutAttributes(features, fileName, ZipArchiveEntryProblems.RoadSegmentsWithoutWidthAttributes, context);
             problems += archive.ValidateMissingRoadSegments(features, fileName, context);

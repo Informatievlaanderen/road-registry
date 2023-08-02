@@ -279,8 +279,14 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var zipArchive = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                var lineString = GeometryTranslator.ToMultiLineString(builder.TestData.RoadSegment1ShapeRecord.Shape).GetSingleLineString();
+                var roadNodeDbaseRecord1 = builder.CreateRoadNodeDbaseRecord();
+                var roadNodeDbaseRecord2 = builder.CreateRoadNodeDbaseRecord();
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord());
+                builder.DataSet.RoadNodeShapeRecords.Add(builder.CreateRoadNodeShapeRecord());
+                builder.DataSet.RoadNodeDbaseRecords.Add(roadNodeDbaseRecord1);
+                builder.DataSet.RoadNodeDbaseRecords.Add(roadNodeDbaseRecord2);
 
+                var lineString = GeometryTranslator.ToMultiLineString(builder.TestData.RoadSegment1ShapeRecord.Shape).GetSingleLineString();
                 lineString = new LineString(new[]
                 {
                     lineString.Coordinates[0],
@@ -290,6 +296,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 builder.DataSet.RoadSegmentShapeRecords.Add(roadSegmentShapeRecord);
                 
                 var roadSegmentDbaseRecord = builder.CreateRoadSegmentDbaseRecord();
+                roadSegmentDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseRecord1.WK_OIDN.Value;
+                roadSegmentDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseRecord2.WK_OIDN.Value;
                 builder.DataSet.RoadSegmentDbaseRecords.Add(roadSegmentDbaseRecord);
                 
                 var laneDbaseRecord = builder.CreateRoadSegmentLaneDbaseRecord();

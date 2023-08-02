@@ -27,10 +27,18 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
         {
             var fixture = CreateFixture();
 
+            var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
+            var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { fixture.Create<PointShapeContent>(), fixture.Create<PointShapeContent>() });
+            var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
+            var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
+            var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2 });
+
+            var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
             var roadSegmentPolyLineMShapeContent = fixture.Create<PolyLineMShapeContent>();
             var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
-            var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
             var roadSegmentChangeDbaseRecord = fixture.Create<RoadSegmentDbaseRecord>();
+            roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseRecord1.WK_OIDN.Value;
+            roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseRecord2.WK_OIDN.Value;
             var roadSegmentDbaseChangeStream = fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
 
             var europeanRoadChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
@@ -63,11 +71,6 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                     record.VANPOS.Value = 0;
                     record.TOTPOS.Value = roadSegmentPolyLineMShapeContent.Shape.Points.Last().X;
                 });
-
-            var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFileWithOneRecord();
-            var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-            var roadNodeDbaseChangeStream = fixture.CreateDbfFileWithOneRecord<RoadNodeDbaseRecord>(
-                RoadNodeDbaseRecord.Schema);
 
             var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
             gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
@@ -166,6 +169,14 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                                     break;
                                 case "WEGKNOOP.DBF":
                                     CreateEntryOrRequiredFileMissingError(requiredFile, roadNodeDbaseChangeStream);
+                                    if (fileToBeMissing == requiredFile)
+                                    {
+                                        {
+                                            var recordContext = ExtractFileName.Wegsegment.AtDbaseRecord(FeatureType.Change, RecordNumber.Initial);
+                                            errors += recordContext.RoadSegmentStartNodeMissing(roadSegmentChangeDbaseRecord.B_WK_OIDN.Value);
+                                            errors += recordContext.RoadSegmentEndNodeMissing(roadSegmentChangeDbaseRecord.E_WK_OIDN.Value);
+                                        }
+                                    }
                                     break;
                                 case "ATTEUROPWEG.DBF":
                                     CreateEntryOrRequiredFileMissingError(requiredFile, europeanRoadChangeStream);
