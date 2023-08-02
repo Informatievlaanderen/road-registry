@@ -124,6 +124,4 @@ public class WfsContextEventProcessor : DbContextEventProcessor<WfsContext>
         logger.LogInformation("No more updates in street name cache.");
         await syncWithCacheContext.DisposeAsync().ConfigureAwait(false);
     }
-
-    protected override Task UpdateEventProcessorMetricsAsync(WfsContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation) => Task.CompletedTask;
 }

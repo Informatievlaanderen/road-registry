@@ -407,9 +407,15 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 
     public event EventHandler CatchUpCompleted;
 
-    protected abstract Task OutputEstimatedTimeRemainingAsync(TDbContext context, ILogger logger, long currentPosition, long lastPosition);
+    protected virtual Task OutputEstimatedTimeRemainingAsync(TDbContext context, ILogger logger, long currentPosition, long lastPosition)
+    {
+        return Task.CompletedTask;
+    }
 
-    protected abstract Task UpdateEventProcessorMetricsAsync(TDbContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellationToken);
+    protected virtual Task UpdateEventProcessorMetricsAsync(TDbContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
 
     private sealed class CatchUp
     {

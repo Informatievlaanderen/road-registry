@@ -34,9 +34,4 @@ public class NationalRoadEventProcessor : DbContextEventProcessor<NationalRoadPr
             1)
     {
     }
-
-    protected override Task UpdateEventProcessorMetricsAsync(NationalRoadProducerSnapshotContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation)
-    {
-        return Task.CompletedTask;
-    }
 }

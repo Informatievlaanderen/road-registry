@@ -26,9 +26,4 @@ public class ProductContextEventProcessor : DbContextEventProcessor<ProductConte
         : base(QueueName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger)
     {
     }
-
-    protected override Task UpdateEventProcessorMetricsAsync(ProductContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellation)
-    {
-        return Task.CompletedTask;
-    }
 }
