@@ -42,19 +42,22 @@ public class DownloadFileContentRequestHandler : EndpointRequestHandler<Download
 
     private async Task<int> CalculateRetryAfterAsync(DownloadFileContentRequest request, CancellationToken cancellationToken)
     {
-        var projectionStateItem = await _context.ProjectionStates.SingleAsync(s => s.Name.Equals("roadregistry-editor-extractdownload-projectionhost"), cancellationToken);
+        var projectionStateItem = await _context.ProjectionStates.SingleOrDefaultAsync(s => s.Name.Equals("roadregistry-editor-extractdownload-projectionhost"), cancellationToken);
 
-        var currentPosition = projectionStateItem.Position;
-        var lastPosition = await _streamStore.ReadHeadPosition(cancellationToken);
-
-        if (currentPosition < lastPosition)
+        if (projectionStateItem is not null)
         {
-            var eventProcessorMetrics = await _context.EventProcessorMetrics.GetMetricsAsync("ExtractUploadEventProcessor", cancellationToken);
-            if (eventProcessorMetrics is not null)
+            var currentPosition = projectionStateItem.Position;
+            var lastPosition = await _streamStore.ReadHeadPosition(cancellationToken);
+
+            if (currentPosition < lastPosition)
             {
-                var averageTimePerEvent = eventProcessorMetrics.ElapsedMilliseconds / eventProcessorMetrics.ToPosition;
-                var estimatedTimeRemaining = averageTimePerEvent * (lastPosition - currentPosition);
-                return Convert.ToInt32(estimatedTimeRemaining) + (3 * 60 * 1000); // Added 3 minute buffer
+                var eventProcessorMetrics = await _context.EventProcessorMetrics.GetMetricsAsync("ExtractUploadEventProcessor", cancellationToken);
+                if (eventProcessorMetrics is not null)
+                {
+                    var averageTimePerEvent = eventProcessorMetrics.ElapsedMilliseconds / eventProcessorMetrics.ToPosition;
+                    var estimatedTimeRemaining = averageTimePerEvent * (lastPosition - currentPosition);
+                    return Convert.ToInt32(estimatedTimeRemaining) + (3 * 60 * 1000); // Added 3 minute buffer
+                }
             }
         }
 
