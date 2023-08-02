@@ -13,6 +13,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Schema;
+using Schema.Extensions;
 using SqlStreamStore;
 
 public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext>
@@ -25,27 +26,9 @@ public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext
     {
     }
 
-    protected override async Task OutputEstimatedTimeRemainingAsync(EditorContext context, ILogger logger, long currentPosition, long lastPosition)
+    protected override async Task OutputEstimatedTimeRemainingAsync(EditorContext context, ILogger logger, long currentPosition, long lastPosition, CancellationToken cancellationToken)
     {
-        var eventProcessorMetrics = await context.EventProcessorMetrics
-            .FromSqlRaw(@"
-                SELECT 
-		                @DummyId AS Id, 
-		                EventProcessorId, 
-		                DbContext, 
-		                MIN(FromPosition) AS FromPosition, 
-		                MAX(ToPosition) AS ToPosition, 
-		                SUM(ElapsedMilliseconds) AS ElapsedMilliseconds
-                FROM	RoadRegistryEditorMetrics.EventProcessors
-                WHERE	1=1
-		                AND EventProcessorId = @EventProcessorId
-		                AND DbContext = @DbContextName
-                GROUP BY EventProcessorId, DbContext
-                ",
-                new SqlParameter("@DummyId", SqlDbType.UniqueIdentifier) { Value = Guid.Empty },
-                new SqlParameter("@EventProcessorId", SqlDbType.NVarChar) { Value = GetType().Name },
-                new SqlParameter("@DbContextName", SqlDbType.NVarChar) { Value = nameof(EditorContext) }
-            ).SingleOrDefaultAsync();
+        var eventProcessorMetrics = await context.EventProcessorMetrics.GetMetricsAsync(GetType().Name, cancellationToken);
 
         if (eventProcessorMetrics is not null)
         {
@@ -58,16 +41,13 @@ public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext
 
     protected override async Task UpdateEventProcessorMetricsAsync(EditorContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellationToken)
     {
-        var latestEventProcessorMetrics = await context.EventProcessorMetrics
-            .Where(m => m.EventProcessorId == GetType().Name && m.DbContext == nameof(EditorContext))
-            .OrderBy(m => m.ToPosition)
-            .LastOrDefaultAsync(cancellationToken);
-
-        if (latestEventProcessorMetrics is null)
+        var eventProcessorMetrics = await context.EventProcessorMetrics.GetMetricsAsync(GetType().Name, cancellationToken);
+        
+        if (eventProcessorMetrics is null)
         {
             await AddEventProcessorMetricsAsync(cancellationToken);
         }
-        else if (latestEventProcessorMetrics.ToPosition < toPosition)
+        else if (eventProcessorMetrics.ToPosition < toPosition)
         {
             await AddEventProcessorMetricsAsync(cancellationToken);
         }

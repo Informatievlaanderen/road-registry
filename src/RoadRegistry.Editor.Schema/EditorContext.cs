@@ -55,12 +55,11 @@ public class EditorContext : RunnerDbContext<EditorContext>
     public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
     public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
 
-    public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken
-        token)
+    public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken cancellationToken)
     {
         return _localRoadNetworkInfo ??=
             RoadNetworkInfo.Local.SingleOrDefault() ??
-            await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == BackOffice.RoadNetworkInfo.Identifier, token);
+            await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == BackOffice.RoadNetworkInfo.Identifier, cancellationToken);
     }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)

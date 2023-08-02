@@ -179,7 +179,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                                     _messagePumpCancellation.Token)
                                                 .ConfigureAwait(false);
                                             await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
-                                            await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition());
+                                            await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token);
                                             sw.Restart();
 
                                             context.ChangeTracker.DetectChanges();
@@ -207,7 +207,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                             _messagePumpCancellation.Token)
                                         .ConfigureAwait(false);
                                     await UpdateEventProcessorMetricsAsync(context, page.FromPosition, catchUpPosition, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
-                                    await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition());
+                                    await OutputEstimatedTimeRemainingAsync(context, logger, page.FromPosition - 1, await streamStore.ReadHeadPosition(), _messagePumpCancellation.Token);
                                     sw.Restart();
 
                                     context.ChangeTracker.DetectChanges();
@@ -407,7 +407,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
 
     public event EventHandler CatchUpCompleted;
 
-    protected virtual Task OutputEstimatedTimeRemainingAsync(TDbContext context, ILogger logger, long currentPosition, long lastPosition)
+    protected virtual Task OutputEstimatedTimeRemainingAsync(TDbContext context, ILogger logger, long currentPosition, long lastPosition, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
     }
