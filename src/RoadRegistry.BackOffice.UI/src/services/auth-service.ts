@@ -80,7 +80,7 @@ export const AuthService = {
   },
   async logout(): Promise<void> {
     this.reset();
-    router.push("/");
+    router.push({ name: "login" });
   },
   async checkAuthentication(): Promise<boolean> {
     isAuthenticated.state = await PublicApi.Security.userIsAuthenticated();
