@@ -1,13 +1,10 @@
 namespace RoadRegistry.Product.ProjectionHost;
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.Editor.Schema;
 using Schema;
 using SqlStreamStore;
 

@@ -1,20 +1,19 @@
 namespace RoadRegistry.Editor.ProjectionHost;
 
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-using Hosts;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Polly;
-using RoadRegistry.BackOffice.Metrics;
-using Schema;
-using SqlStreamStore;
 using System;
 using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Metrics;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Hosts;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Schema;
+using SqlStreamStore;
 
 public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext>
 {
@@ -51,7 +50,7 @@ public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext
         if (eventProcessorMetrics is not null)
         {
             var averageTimePerEvent = eventProcessorMetrics.ElapsedMilliseconds / eventProcessorMetrics.ToPosition;
-            var estimatedTimeRemaining = averageTimePerEvent * (lastPosition  - currentPosition);
+            var estimatedTimeRemaining = averageTimePerEvent * (lastPosition - currentPosition);
 
             logger.LogInformation("{EventProcessor} Estimated time remaining between {CurrentPosition} and {LastPosition} is about {EstimatedTimeRemaining} milliseconds.", GetType().Name, currentPosition, lastPosition, estimatedTimeRemaining);
         }
@@ -75,7 +74,7 @@ public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext
 
         async Task AddEventProcessorMetricsAsync(CancellationToken ct)
         {
-            await context.EventProcessorMetrics.AddAsync(new EventProcessorMetricsRecord()
+            await context.EventProcessorMetrics.AddAsync(new EventProcessorMetricsRecord
             {
                 Id = Guid.NewGuid(),
                 EventProcessorId = GetType().Name,

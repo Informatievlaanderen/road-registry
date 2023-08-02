@@ -1,7 +1,5 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
 
-using System.Threading;
-using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;

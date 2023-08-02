@@ -1,5 +1,11 @@
 namespace RoadRegistry.Hosts;
 
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -13,12 +19,6 @@ using Newtonsoft.Json;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using SqlStreamStore.Subscriptions;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 
 public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     where TDbContext : RunnerDbContext<TDbContext>

@@ -1,9 +1,9 @@
 namespace RoadRegistry.Editor.Schema.Metrics;
 
+using BackOffice;
+using BackOffice.Metrics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Metrics;
 
 public class EventProcessorMetricsConfiguration : IEntityTypeConfiguration<EventProcessorMetricsRecord>
 {
