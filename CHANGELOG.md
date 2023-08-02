@@ -1,3 +1,10 @@
+## [3.54.11](https://github.com/informatievlaanderen/road-registry/compare/v3.54.10...v3.54.11) (2023-08-02)
+
+
+### Bug Fixes
+
+* WR-689 redirect url on logout ([#1096](https://github.com/informatievlaanderen/road-registry/issues/1096)) ([7e8466d](https://github.com/informatievlaanderen/road-registry/commit/7e8466d0c4cd7a612964abf3eb0d6fdb3c160848))
+
 ## [3.54.10](https://github.com/informatievlaanderen/road-registry/compare/v3.54.9...v3.54.10) (2023-08-01)
 
 
