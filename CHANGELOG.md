@@ -1,3 +1,10 @@
+## [3.54.13](https://github.com/informatievlaanderen/road-registry/compare/v3.54.12...v3.54.13) (2023-08-03)
+
+
+### Bug Fixes
+
+* test s3 lambda bucket names ([#1102](https://github.com/informatievlaanderen/road-registry/issues/1102)) ([27d5ec8](https://github.com/informatievlaanderen/road-registry/commit/27d5ec83b48239469a6f32b1ea880eeba16b783a))
+
 ## [3.54.12](https://github.com/informatievlaanderen/road-registry/compare/v3.54.11...v3.54.12) (2023-08-03)
 
 
