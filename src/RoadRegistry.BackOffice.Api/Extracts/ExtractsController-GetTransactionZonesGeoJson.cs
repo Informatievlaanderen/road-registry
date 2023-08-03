@@ -19,8 +19,8 @@ public partial class ExtractsController
     ///     of cancellation.
     /// </param>
     /// <returns>JsonResult.</returns>
-    [AllowAnonymous]
     [HttpGet(GetTransactionZonesGeoJsonRoute, Name = nameof(GetTransactionZonesGeoJson))]
+    [AllowAnonymous]
     [SwaggerOperation(OperationId = nameof(GetTransactionZonesGeoJson))]
     public async Task<JsonResult> GetTransactionZonesGeoJson(CancellationToken cancellationToken)
     {

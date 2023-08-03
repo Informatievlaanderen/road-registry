@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Abstractions.Exceptions;
 using BackOffice.Extracts;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BasicApiProblem;
@@ -19,12 +20,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Version = Infrastructure.Version;
 
-[ApiKey]
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("extracts")]
 [ApiExplorerSettings(GroupName = "Extract")]
-[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes)]
+[ApiKey]
+[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.IngemetenWeg.Beheerder)]
 public partial class ExtractsController : ApiController
 {
     private readonly IMediator _mediator;
