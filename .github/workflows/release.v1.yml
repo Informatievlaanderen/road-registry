@@ -1251,7 +1251,6 @@ jobs:
       shell: bash
       run: |
         aws s3 cp s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$VERSION/lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/lambda.zip --copy-props none
-
         aws s3 cp s3://196194905350-vbr-test-lam-rr-sqssnapshot/$VERSION/lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.build.outputs.version }}
