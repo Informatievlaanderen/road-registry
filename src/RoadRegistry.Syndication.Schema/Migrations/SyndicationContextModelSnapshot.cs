@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.Syndication.Schema;
 
-#nullable disable
-
 namespace RoadRegistry.Syndication.Schema.Migrations
 {
     [DbContext(typeof(SyndicationContext))]
@@ -17,10 +15,9 @@ namespace RoadRegistry.Syndication.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.16")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+                .UseIdentityColumns()
+                .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                .HasAnnotation("ProductVersion", "5.0.1");
 
             modelBuilder.Entity("Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates.ProjectionStateItem", b =>
                 {
@@ -39,9 +36,8 @@ namespace RoadRegistry.Syndication.Schema.Migrations
                     b.Property<long>("Position")
                         .HasColumnType("bigint");
 
-                    b.HasKey("Name");
-
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
+                    b.HasKey("Name")
+                        .IsClustered();
 
                     b.ToTable("ProjectionStates", "RoadRegistrySyndicationMeta");
                 });
@@ -71,9 +67,8 @@ namespace RoadRegistry.Syndication.Schema.Migrations
 
                     b.HasKey("MunicipalityId");
 
-                    b.HasIndex("MunicipalityId");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("MunicipalityId"), false);
+                    b.HasIndex("MunicipalityId")
+                        .IsClustered(false);
 
                     b.ToTable("Municipality", "RoadRegistrySyndication");
                 });
@@ -159,9 +154,8 @@ namespace RoadRegistry.Syndication.Schema.Migrations
 
                     b.HasIndex("Position");
 
-                    b.HasIndex("StreetNameId");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreetNameId"), false);
+                    b.HasIndex("StreetNameId")
+                        .IsClustered(false);
 
                     b.ToTable("StreetName", "RoadRegistrySyndication");
                 });
