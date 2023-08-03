@@ -407,7 +407,7 @@ jobs:
         popd
         
         pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
-        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip --sse-kms-key-id arn:aws:kms:eu-west-1:196194905350:key/b4bef7ae-4c5f-4382-9133-b3a655a69203
+        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip --sse aws:kms --sse-kms-key-id arn:aws:kms:eu-west-1:196194905350:key/b4bef7ae-4c5f-4382-9133-b3a655a69203
         popd
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
