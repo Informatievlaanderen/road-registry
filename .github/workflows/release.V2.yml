@@ -802,10 +802,10 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        echo aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        echo aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-test-basisregisters-lam-rr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-rr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-test-basisregisters-lam-rr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-rr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-test-basisregisters-lam-rr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-rr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-test-basisregisters-lam-rr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-test-basisregisters-lam-rr-sqssnapshothandlerfunction/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.release.outputs.version }}
 
@@ -1001,10 +1001,10 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-rr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-rr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-stg-basisregisters-lam-rr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-rr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+        echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-rr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-rr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-stg-basisregisters-lam-rr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-rr-sqssnapshothandlerfunction/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.release.outputs.version }}
 
