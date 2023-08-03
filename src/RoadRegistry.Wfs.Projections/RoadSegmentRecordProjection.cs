@@ -5,13 +5,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Abstractions;
+using BackOffice.FeatureToggles;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
-using RoadRegistry.BackOffice.FeatureToggles;
 using Schema;
-using Syndication.Schema;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
 {
@@ -33,7 +33,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
                 .Where(i => i.HasValue)
                 .Select(i => i.Value);
 
-            var streetNamesById = await streetNameCache.GetStreetNamesByIdAsync(outdatedStreetNameIds, token);
+            var streetNamesById = await streetNameCache.GetStreetNamesById(outdatedStreetNameIds, token);
 
             foreach (var roadSegment in outdatedRoadSegments)
             {
@@ -73,10 +73,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
                 StatusDutchName = status.Translation.Name,
                 AccessRestriction = accessRestriction.Translation.Name,
                 LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
-                LeftSideStreetName = leftSideStreetNameRecord?.DutchNameWithHomonymAddition ??
+                LeftSideStreetName = leftSideStreetNameRecord?.Name ??
                                      envelope.Message.LeftSide.StreetName,
                 RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
-                RightSideStreetName = rightSideStreetNameRecord?.DutchNameWithHomonymAddition ??
+                RightSideStreetName = rightSideStreetNameRecord?.Name ??
                                       envelope.Message.RightSide.StreetName,
                 BeginRoadNodeId = envelope.Message.StartNodeId,
                 EndRoadNodeId = envelope.Message.EndNodeId,
@@ -144,9 +144,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
             StatusDutchName = status.Translation.Name,
             AccessRestriction = accessRestriction.Translation.Name,
             LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
-            LeftSideStreetName = leftSideStreetNameRecord?.DutchName,
+            LeftSideStreetName = leftSideStreetNameRecord?.Name,
             RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
-            RightSideStreetName = rightSideStreetNameRecord?.DutchName,
+            RightSideStreetName = rightSideStreetNameRecord?.Name,
             BeginRoadNodeId = roadSegmentAdded.StartNodeId,
             EndRoadNodeId = roadSegmentAdded.EndNodeId,
             StreetNameCachePosition = streetNameCachePosition
@@ -192,9 +192,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         roadSegmentRecord.StatusDutchName = status.Translation.Name;
         roadSegmentRecord.AccessRestriction = accessRestriction.Translation.Name;
         roadSegmentRecord.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
-        roadSegmentRecord.LeftSideStreetName = leftSideStreetNameRecord?.DutchName;
+        roadSegmentRecord.LeftSideStreetName = leftSideStreetNameRecord?.Name;
         roadSegmentRecord.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
-        roadSegmentRecord.RightSideStreetName = rightSideStreetNameRecord?.DutchName;
+        roadSegmentRecord.RightSideStreetName = rightSideStreetNameRecord?.Name;
         roadSegmentRecord.BeginRoadNodeId = roadSegmentModified.StartNodeId;
         roadSegmentRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
@@ -297,7 +297,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         }
     }
 
-    private static async Task<StreetNameRecord> TryGetFromCache(
+    private static async Task<StreetNameCacheItem> TryGetFromCache(
         IStreetNameCache streetNameCache,
         int? streetNameId,
         CancellationToken token)

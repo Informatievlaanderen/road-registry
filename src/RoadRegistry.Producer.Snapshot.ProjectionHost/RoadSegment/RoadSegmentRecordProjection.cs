@@ -6,6 +6,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using System.Threading;
     using System.Threading.Tasks;
     using BackOffice;
+    using BackOffice.Abstractions;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -13,7 +14,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using Extensions;
     using Microsoft.EntityFrameworkCore;
     using Projections;
-    using Syndication.Schema;
 
     public class RoadSegmentRecordProjection : ConnectedProjection<RoadSegmentProducerSnapshotContext>
     {
@@ -69,13 +69,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                         LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode ??
                                                       envelope.Message.LeftSide.MunicipalityNISCode,
                         LeftSideStreetNameId = envelope.Message.LeftSide.StreetNameId,
-                        LeftSideStreetName = leftSideStreetNameRecord?.DutchNameWithHomonymAddition ??
+                        LeftSideStreetName = leftSideStreetNameRecord?.Name ??
                                              envelope.Message.LeftSide.StreetName,
                         RightSideMunicipalityId = null,
                         RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode ??
                                                        envelope.Message.RightSide.MunicipalityNISCode,
                         RightSideStreetNameId = envelope.Message.RightSide.StreetNameId,
-                        RightSideStreetName = rightSideStreetNameRecord?.DutchNameWithHomonymAddition ??
+                        RightSideStreetName = rightSideStreetNameRecord?.Name ??
                                               envelope.Message.RightSide.StreetName,
 
                         RoadSegmentVersion = envelope.Message.Version,
@@ -180,12 +180,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                 LeftSideMunicipalityId = null,
                 LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode,
                 LeftSideStreetNameId = roadSegmentAdded.LeftSide.StreetNameId,
-                LeftSideStreetName = leftSideStreetNameRecord?.DutchName,
+                LeftSideStreetName = leftSideStreetNameRecord?.Name,
 
                 RightSideMunicipalityId = null,
                 RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode,
                 RightSideStreetNameId = roadSegmentAdded.RightSide.StreetNameId,
-                RightSideStreetName = rightSideStreetNameRecord?.DutchName,
+                RightSideStreetName = rightSideStreetNameRecord?.Name,
 
                 RoadSegmentVersion = roadSegmentAdded.Version,
 
@@ -258,12 +258,12 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             roadSegmentRecord.LeftSideMunicipalityId = null;
             roadSegmentRecord.LeftSideMunicipalityNisCode = leftSideStreetNameRecord?.NisCode;
             roadSegmentRecord.LeftSideStreetNameId = roadSegmentModified.LeftSide.StreetNameId;
-            roadSegmentRecord.LeftSideStreetName = leftSideStreetNameRecord?.DutchName;
+            roadSegmentRecord.LeftSideStreetName = leftSideStreetNameRecord?.Name;
 
             roadSegmentRecord.RightSideMunicipalityId = null;
             roadSegmentRecord.RightSideMunicipalityNisCode = rightSideStreetNameRecord?.NisCode;
             roadSegmentRecord.RightSideStreetNameId = roadSegmentModified.RightSide.StreetNameId;
-            roadSegmentRecord.RightSideStreetName = rightSideStreetNameRecord?.DutchName;
+            roadSegmentRecord.RightSideStreetName = rightSideStreetNameRecord?.Name;
 
             roadSegmentRecord.RoadSegmentVersion = roadSegmentModified.Version;
 
@@ -405,7 +405,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             }
         }
 
-        private static async Task<StreetNameRecord> TryGetFromCache(
+        private static async Task<StreetNameCacheItem> TryGetFromCache(
             IStreetNameCache streetNameCache,
             int? streetNameId,
             CancellationToken token)

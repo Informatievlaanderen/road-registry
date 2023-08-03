@@ -3,17 +3,19 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RoadRegistry.Syndication.Schema;
+using RoadRegistry.StreetNameConsumer.Schema;
 
 #nullable disable
 
-namespace RoadRegistry.Syndication.Schema.Migrations
+namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
 {
-    [DbContext(typeof(SyndicationContext))]
-    partial class SyndicationContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(StreetNameConsumerContext))]
+    [Migration("20230731111756_AddIsRemoved")]
+    partial class AddIsRemoved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,45 +45,13 @@ namespace RoadRegistry.Syndication.Schema.Migrations
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Name"));
 
-                    b.ToTable("ProjectionStates", "RoadRegistrySyndicationMeta");
+                    b.ToTable("ProjectionStates", "RoadRegistryStreetNameConsumer");
                 });
 
-            modelBuilder.Entity("RoadRegistry.Syndication.Schema.MunicipalityRecord", b =>
+            modelBuilder.Entity("RoadRegistry.StreetNameConsumer.Schema.StreetNameConsumerItem", b =>
                 {
-                    b.Property<Guid>("MunicipalityId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("DutchName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EnglishName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FrenchName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("GermanName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MunicipalityStatus")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NisCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MunicipalityId");
-
-                    b.HasIndex("MunicipalityId");
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("MunicipalityId"), false);
-
-                    b.ToTable("Municipality", "RoadRegistrySyndication");
-                });
-
-            modelBuilder.Entity("RoadRegistry.Syndication.Schema.StreetNameRecord", b =>
-                {
-                    b.Property<Guid>("StreetNameId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("StreetNameId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("DutchHomonymAddition")
                         .HasColumnType("nvarchar(max)");
@@ -130,8 +100,12 @@ namespace RoadRegistry.Syndication.Schema.Migrations
                     b.Property<string>("HomonymAddition")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("MunicipalityId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<bool>("IsRemoved")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MunicipalityId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -142,28 +116,25 @@ namespace RoadRegistry.Syndication.Schema.Migrations
                         .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");
 
                     b.Property<string>("NisCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("PersistentLocalId")
                         .HasColumnType("int");
 
-                    b.Property<long>("Position")
-                        .HasColumnType("bigint");
-
-                    b.Property<int?>("StreetNameStatus")
-                        .HasColumnType("int");
+                    b.Property<string>("StreetNameStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("StreetNameId");
 
                     b.HasIndex("PersistentLocalId");
 
-                    b.HasIndex("Position");
-
                     b.HasIndex("StreetNameId");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreetNameId"), false);
 
-                    b.ToTable("StreetName", "RoadRegistrySyndication");
+                    b.ToTable("StreetName", "RoadRegistryStreetNameConsumer");
                 });
 #pragma warning restore 612, 618
         }

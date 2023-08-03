@@ -3,6 +3,7 @@ namespace RoadRegistry.Wfs.ProjectionHost;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.Abstractions;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Projections;
 using Schema;
 using SqlStreamStore;
-using IStreetNameCache = Projections.IStreetNameCache;
 
 public class EventProcessorService : DbContextEventProcessor<WfsContext>
 {

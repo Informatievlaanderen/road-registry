@@ -32,6 +32,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="appsettings - Copy.development.json" />
+	  <None Remove="appsettings.rik-laptop.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
 	</ItemGroup>
 

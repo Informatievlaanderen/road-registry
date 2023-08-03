@@ -21,8 +21,11 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using FeatureCompare;
+using Hosts.Infrastructure.Extensions;
+using Syndication.Projections;
 using Uploads;
 using ZipArchiveWriters.ExtractHost;
+using IStreetNameCache = Abstractions.IStreetNameCache;
 
 public class Program
 {
@@ -47,19 +50,7 @@ public class Program
                                 sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ExtractHost)
                             ),
                             WellknownSchemas.ExtractHostSchema))
-                    .AddSingleton<IStreetNameCache, StreetNameCache>()
-                    .AddSingleton<Func<SyndicationContext>>(sp =>
-                        () =>
-                            new SyndicationContext(
-                                new DbContextOptionsBuilder<SyndicationContext>()
-                                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                                    .UseSqlServer(
-                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
-                                        options => options
-                                            .EnableRetryOnFailure()
-                                    ).Options)
-                    )
+                    .AddStreetNameCache()
                     .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
                         new RoadNetworkExtractToZipArchiveWriter(
                             sp.GetService<ZipArchiveWriterOptions>(),

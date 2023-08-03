@@ -1,11 +1,17 @@
 namespace RoadRegistry.Wms.ProjectionHost;
 
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Abstractions;
+using BackOffice.FeatureToggles;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Hosts.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,12 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Projections;
-using RoadRegistry.BackOffice.FeatureToggles;
 using Schema;
-using Syndication.Schema;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 public class Program
 {
@@ -31,7 +32,7 @@ public class Program
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
                 .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
-                .AddSingleton<IStreetNameCache, StreetNameCache>()
+                .AddStreetNameCache()
                 .AddScoped<IMetadataUpdater, MetadataUpdater>()
                 .AddSingleton(new EnvelopeFactory(
                     EventProcessorService.EventMapping,
@@ -46,15 +47,6 @@ public class Program
                             o => o
                                 .EnableRetryOnFailure()
                                 .UseNetTopologySuite()
-                        );
-                })
-                .AddDbContextFactory<SyndicationContext>((sp, options) =>
-                {
-                    var connectionString = sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections);
-                    options
-                        .UseSqlServer(connectionString,
-                            o => o
-                                .EnableRetryOnFailure()
                         );
                 })
                 .AddSingleton(sp => new ConnectedProjection<WmsContext>[]
