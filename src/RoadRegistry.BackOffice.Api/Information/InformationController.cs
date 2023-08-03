@@ -9,11 +9,11 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[ApiKey]
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("information")]
 [ApiExplorerSettings(GroupName = "Info")]
+[ApiKey]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
 public partial class InformationController : ApiController
 {

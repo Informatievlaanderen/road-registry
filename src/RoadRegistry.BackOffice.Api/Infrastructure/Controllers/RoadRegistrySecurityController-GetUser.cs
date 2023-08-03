@@ -14,9 +14,9 @@ public partial class RoadRegistrySecurityController
 {
     private const string UserRoute = "user";
 
-    [ApiKey]
     [HttpGet(UserRoute, Name = nameof(GetUser))]
     [SwaggerOperation(OperationId = nameof(GetUser), Description = "")]
+    [ApiKey]
     [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
     public IActionResult GetUser()
     {
