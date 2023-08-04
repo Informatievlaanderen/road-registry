@@ -1,8 +1,9 @@
 namespace RoadRegistry.StreetNameConsumer.Schema;
 
-public enum StreetNameStatus
+public static class StreetNameStatus
 {
-    Proposed = 0,
-    Current = 1,
-    Retired = 2
+    public const string Proposed = "voorgesteld";
+    public const string Current = "inGebruik";
+    public const string Retired = "gehistoreerd";
+    public const string Denied = "afgekeurd";
 }

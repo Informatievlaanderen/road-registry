@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.StreetNameConsumer.Schema;
 
@@ -11,9 +12,10 @@ using RoadRegistry.StreetNameConsumer.Schema;
 namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
 {
     [DbContext(typeof(StreetNameConsumerContext))]
-    partial class StreetNameConsumerContextModelSnapshot : ModelSnapshot
+    [Migration("20230731111756_AddIsRemoved")]
+    partial class AddIsRemoved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,20 +97,34 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasComputedColumnSql("COALESCE(GermanName + COALESCE('_' + GermanHomonymAddition,''), GermanHomonymAddition) PERSISTED");
 
+                    b.Property<string>("HomonymAddition")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsRemoved")
                         .HasColumnType("bit");
 
-                    b.Property<string>("NisCode")
+                    b.Property<string>("MunicipalityId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("Offset")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PersistentLocalId")
+                    b.Property<string>("NameWithHomonymAddition")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("nvarchar(max)")
+                        .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");
+
+                    b.Property<string>("NisCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PersistentLocalId")
                         .HasColumnType("int");
 
                     b.Property<string>("StreetNameStatus")
-                        .HasColumnType("nvarchar(450)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("StreetNameId");
 
@@ -117,8 +133,6 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                     b.HasIndex("StreetNameId");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreetNameId"), false);
-
-                    b.HasIndex("StreetNameStatus");
 
                     b.ToTable("StreetName", "RoadRegistryStreetNameConsumer");
                 });

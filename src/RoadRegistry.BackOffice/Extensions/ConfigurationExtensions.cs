@@ -23,13 +23,18 @@ public static class ConfigurationExtensions
         var options = new TOptions();
         if (configurationSectionKey != null)
         {
-            configuration.GetSection(configurationSectionKey).Bind(options);
+            configuration.GetSection(configurationSectionKey).Bind(options, ConfigureBinder);
         }
         else
         {
-            configuration.Bind(options);
+            configuration.Bind(options, ConfigureBinder);
         }
 
         return options;
+    }
+
+    private static void ConfigureBinder(BinderOptions binderOptions)
+    {
+        binderOptions.BindNonPublicProperties = true;
     }
 }

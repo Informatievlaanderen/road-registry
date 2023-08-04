@@ -21,6 +21,14 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
     private readonly IStreetNameCache _streetNameCache;
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
 
+    private static readonly string[] ProposedOrCurrentStreetNameStatuses = new[]
+    {
+        Syndication.Schema.StreetNameStatus.Current.ToString(),
+        Syndication.Schema.StreetNameStatus.Proposed.ToString(),
+        StreetNameConsumer.Schema.StreetNameStatus.Current,
+        StreetNameConsumer.Schema.StreetNameStatus.Proposed
+    };
+
     public LinkStreetNameSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
         ICustomRetryPolicy retryPolicy,
@@ -130,17 +138,13 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
     private async Task<Problems> ValidateStreetName(int streetNameId, Problems problems, CancellationToken cancellationToken)
     {
         var streetNameStatuses = await _streetNameCache.GetStreetNameStatusesById(new[] { streetNameId }, cancellationToken);
-        if (!streetNameStatuses.TryGetValue(streetNameId, out var streetNameStatus))
+        if (!streetNameStatuses.TryGetValue(streetNameId, out var streetNameStatus)
+            || streetNameStatus is null)
         {
             return problems.Add(new StreetNameNotFound());
         }
-        if (streetNameStatus is null)
-        {
-            return problems.Add(new StreetNameNotFound());
-        }
-
-        if (!string.Equals(streetNameStatus, "proposed", StringComparison.InvariantCultureIgnoreCase)
-            && !string.Equals(streetNameStatus, "current", StringComparison.InvariantCultureIgnoreCase))
+        
+        if (ProposedOrCurrentStreetNameStatuses.All(status => !string.Equals(streetNameStatus, status, StringComparison.InvariantCultureIgnoreCase)))
         {
             return problems.Add(new RoadSegmentStreetNameNotProposedOrCurrent());
         }

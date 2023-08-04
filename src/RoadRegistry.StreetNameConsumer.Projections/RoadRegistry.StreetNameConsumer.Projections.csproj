@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
     <ProjectReference Include="..\RoadRegistry.StreetNameConsumer.Schema\RoadRegistry.StreetNameConsumer.Schema.csproj" />
   </ItemGroup>
 

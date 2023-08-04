@@ -12,7 +12,7 @@ public class ConsumerModule : Module
 {
     protected override void Load(ContainerBuilder builder)
     {
-        builder.RegisterDbContext<StreetNameConsumerContext>(WellknownConnectionNames.StreetNameConsumer,
+        builder.RegisterDbContext<StreetNameConsumerContext>(WellknownConnectionNames.StreetNameConsumerProjections,
             sqlServerOptions => sqlServerOptions
                 .EnableRetryOnFailure()
                 .MigrationsHistoryTable(MigrationTables.StreetNameConsumer, WellknownSchemas.StreetNameConsumerSchema)

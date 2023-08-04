@@ -24,6 +24,24 @@ public class FakeStreetNameCache : IStreetNameCache
         );
     }
 
+    public Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken)
+    {
+        if (_cache.TryGetValue(streetNameId, out var streetName))
+        {
+            return Task.FromResult(new StreetNameCacheItem
+            {
+                Name = streetName.Name
+            });
+        }
+
+        return null;
+    }
+
+    public Task<long> GetMaxPositionAsync(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
     public FakeStreetNameCache AddStreetName(int id, string name, string status)
     {
         _cache.Add(id, new StreetNameItem(name, status));

@@ -4,9 +4,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka;
+using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-using Microsoft.Extensions.DependencyInjection;
+using Infrastructure;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Projections;
@@ -14,23 +16,20 @@ using Schema;
 
 public class StreetNameConsumer : BackgroundService
 {
-    private readonly ConsumerOptions _consumerOptions;
-    private readonly ILogger<StreetNameConsumer> _logger;
+    private readonly ILifetimeScope _container;
     private readonly KafkaOptions _options;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly ILoggerFactory _loggerFactory;
+    private readonly ILogger<StreetNameConsumer> _logger;
 
     public StreetNameConsumer(
         ILifetimeScope container,
-        ILoggerFactory loggerFactory,
         KafkaOptions options,
-        ConsumerOptions consumerOptions,
-        ILogger<StreetNameConsumer> logger,
-        IServiceProvider serviceProvider)
+        ILoggerFactory loggerFactory)
     {
+        _container = container;
         _options = options;
-        _consumerOptions = consumerOptions;
-        _logger = logger;
-        _serviceProvider = serviceProvider;
+        _loggerFactory = loggerFactory;
+        _logger = loggerFactory.CreateLogger<StreetNameConsumer>();
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -39,28 +38,41 @@ public class StreetNameConsumer : BackgroundService
         {
             var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
 
-            var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameConsumer)}.{_consumerOptions.Topic}{_consumerOptions.ConsumerGroupSuffix}";
+            var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameConsumer)}.{_options.Consumers.StreetName.Topic}{_options.Consumers.StreetName.GroupSuffix}";
             try
             {
-                await KafkaConsumer.Consume(
-                    new KafkaConsumerOptions(
-                        _options.BootstrapServers,
-                        _options.SaslUserName,
-                        _options.SaslPassword,
-                        consumerGroupId,
-                        _consumerOptions.Topic,
-                        async message =>
-                        {
-                            using var scope = _serviceProvider.CreateScope();
-                            await using var context = scope.ServiceProvider.GetRequiredService<StreetNameConsumerContext>();
-                            await projector.ProjectAsync(context, message, stoppingToken);
+                var jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-                            await context.SaveChangesAsync(stoppingToken);
-                        },
-                        300,
-                        null,
-                        _options.JsonSerializerSettings),
-                    stoppingToken);
+                var consumerOptions = new ConsumerOptions(
+                        new BootstrapServers(_options.BootstrapServers),
+                        new Topic(_options.Consumers.StreetName.Topic),
+                        new ConsumerGroupId(consumerGroupId),
+                        jsonSerializerSettings,
+                        new SnapshotMessageSerializer<StreetNameSnapshotOsloRecord>(jsonSerializerSettings)
+                    );
+                if (!string.IsNullOrEmpty(_options.SaslUserName))
+                {
+                    consumerOptions.ConfigureSaslAuthentication(new SaslAuthentication(_options.SaslUserName, _options.SaslPassword));
+                }
+
+                await new Consumer(consumerOptions, _loggerFactory)
+                    .ConsumeContinuously(async message =>
+                    {
+                        var snapshotMessage = (SnapshotMessage)message;
+                        var record = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
+                        
+                        await using var scope = _container.BeginLifetimeScope();
+                        await using var context = scope.Resolve<StreetNameConsumerContext>();
+
+                        await projector.ProjectAsync(context, new StreetNameSnapshotOsloWasProduced
+                        {
+                            StreetNameId = snapshotMessage.Key,
+                            Offset = snapshotMessage.Offset,
+                            Record = record
+                        }, stoppingToken);
+
+                        await context.SaveChangesAsync(stoppingToken);
+                    }, stoppingToken);
             }
             catch (Exception ex)
             {

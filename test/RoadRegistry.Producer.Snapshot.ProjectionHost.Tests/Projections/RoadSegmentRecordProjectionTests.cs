@@ -3,6 +3,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 using System.Globalization;
 using AutoFixture;
 using BackOffice;
+using BackOffice.Abstractions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
@@ -66,7 +67,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         var streetNameCache = new Mock<IStreetNameCache>();
         streetNameCache
             .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync((StreetNameRecord)null);
+            .ReturnsAsync((StreetNameCacheItem)null);
         return streetNameCache;
     }
 

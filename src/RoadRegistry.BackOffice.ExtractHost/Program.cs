@@ -1,14 +1,18 @@
 namespace RoadRegistry.BackOffice.ExtractHost;
 
+using System;
+using System.Threading.Tasks;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Editor.Schema;
 using Extensions;
 using Extracts;
+using FeatureCompare;
 using Framework;
 using Handlers.Extracts;
 using Hosts;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,11 +20,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using SqlStreamStore;
-using Syndication.Schema;
-using System;
-using System.Text;
-using System.Threading.Tasks;
-using FeatureCompare;
 using Uploads;
 using ZipArchiveWriters.ExtractHost;
 
@@ -47,19 +46,7 @@ public class Program
                                 sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.ExtractHost)
                             ),
                             WellknownSchemas.ExtractHostSchema))
-                    .AddSingleton<IStreetNameCache, StreetNameCache>()
-                    .AddSingleton<Func<SyndicationContext>>(sp =>
-                        () =>
-                            new SyndicationContext(
-                                new DbContextOptionsBuilder<SyndicationContext>()
-                                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                                    .UseSqlServer(
-                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
-                                        options => options
-                                            .EnableRetryOnFailure()
-                                    ).Options)
-                    )
+                    .AddStreetNameCache()
                     .AddSingleton<IZipArchiveWriter<EditorContext>>(sp =>
                         new RoadNetworkExtractToZipArchiveWriter(
                             sp.GetService<ZipArchiveWriterOptions>(),

@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
-    <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\RoadRegistry.StreetNameConsumer.Schema\RoadRegistry.StreetNameConsumer.Schema.csproj" />
   </ItemGroup>
 

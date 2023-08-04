@@ -322,20 +322,7 @@ public class Startup
             .AddScoped(sp => new TraceDbConnection<SyndicationContext>(
                 new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections)),
                 sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
-            .AddSingleton<IStreetNameCache, StreetNameCache>()
-            .AddSingleton<Func<SyndicationContext>>(sp =>
-                () =>
-                    new SyndicationContext(
-                        new DbContextOptionsBuilder<SyndicationContext>()
-                            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                            .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                            .UseSqlServer(
-                                _configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
-                                options => options
-                                    .EnableRetryOnFailure()
-                            )
-                            .Options)
-            )
+            .AddStreetNameCache()
             .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())

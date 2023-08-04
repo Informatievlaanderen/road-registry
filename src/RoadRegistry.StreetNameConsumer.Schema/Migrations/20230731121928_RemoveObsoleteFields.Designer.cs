@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RoadRegistry.StreetNameConsumer.Schema;
 
@@ -11,9 +12,10 @@ using RoadRegistry.StreetNameConsumer.Schema;
 namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
 {
     [DbContext(typeof(StreetNameConsumerContext))]
-    partial class StreetNameConsumerContextModelSnapshot : ModelSnapshot
+    [Migration("20230731121928_RemoveObsoleteFields")]
+    partial class RemoveObsoleteFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,9 +102,6 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
 
                     b.Property<string>("NisCode")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("Offset")
-                        .HasColumnType("bigint");
 
                     b.Property<int>("PersistentLocalId")
                         .HasColumnType("int");

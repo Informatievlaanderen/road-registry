@@ -10,7 +10,6 @@ using Core;
 using Editor.Schema;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
-using Infrastructure.Modules;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,7 +36,6 @@ public class Startup : TestStartup
             .RegisterModule<ContextModule>()
             .RegisterModule<BackOffice.Handlers.MediatorModule>()
             .RegisterModule<MediatorModule>()
-            .RegisterModule<SyndicationModule>()
             ;
 
         builder.Register<SqsLambdaHandlerOptions>(c => new FakeSqsLambdaHandlerOptions());
@@ -70,6 +68,7 @@ public class Startup : TestStartup
             .AddDbContext<ProductContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")));
+                .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
+            .AddStreetNameCache();
     }
 }
