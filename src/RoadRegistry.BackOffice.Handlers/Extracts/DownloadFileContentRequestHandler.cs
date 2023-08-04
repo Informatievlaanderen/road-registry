@@ -51,7 +51,7 @@ public class DownloadFileContentRequestHandler : EndpointRequestHandler<Download
 
             if (currentPosition < lastPosition)
             {
-                var eventProcessorMetrics = await _context.EventProcessorMetrics.GetMetricsAsync("ExtractUploadEventProcessor", cancellationToken);
+                var eventProcessorMetrics = await _context.EventProcessorMetrics.GetMetricsAsync("ExtractDownloadEventProcessor", cancellationToken);
                 if (eventProcessorMetrics is not null)
                 {
                     var averageTimePerEvent = eventProcessorMetrics.ElapsedMilliseconds / eventProcessorMetrics.ToPosition;
