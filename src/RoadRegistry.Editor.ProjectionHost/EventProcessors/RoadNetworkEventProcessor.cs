@@ -5,17 +5,16 @@ using BackOffice;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.Editor.ProjectionHost;
 using Schema;
 using SqlStreamStore;
 
-public class RoadNetworkEventProcessor : DbContextEventProcessor<EditorContext>
+public class RoadNetworkEventProcessor : EditorContextEventProcessor
 {
     private const string QueueName = WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost;
 
     public RoadNetworkEventProcessor(
         IStreamStore streamStore,
-        DbContextEventProcessorProjections<RoadNetworkEventProcessor, EditorContext> projections,
+        EditorContextEventProcessorProjections<RoadNetworkEventProcessor> projections,
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,

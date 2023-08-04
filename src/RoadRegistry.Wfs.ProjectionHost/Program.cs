@@ -34,9 +34,9 @@ public class Program
                 .AddSingleton<IStreetNameCache, StreetNameCache>()
                 .AddScoped<IMetadataUpdater, MetadataUpdater>()
                 .AddSingleton(new EnvelopeFactory(
-                    EventProcessorService.EventMapping,
+                    WfsContextEventProcessor.EventMapping,
                     new EventDeserializer((eventData, eventType) =>
-                        JsonConvert.DeserializeObject(eventData, eventType, EventProcessorService.SerializerSettings)))
+                        JsonConvert.DeserializeObject(eventData, eventType, WfsContextEventProcessor.SerializerSettings)))
                 )
                 .AddDbContextFactory<WfsContext>((sp, options) =>
                 {
@@ -71,9 +71,9 @@ public class Program
                 .AddSingleton(sp =>
                     new AcceptStreamMessage<WfsContext>(
                         sp.GetRequiredService<ConnectedProjection<WfsContext>[]>()
-                        , EventProcessorService.EventMapping))
+                        , WfsContextEventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory())
-                .AddHostedService<EventProcessorService>())
+                .AddHostedService<WfsContextEventProcessor>())
             .Build();
 
         await roadRegistryHost

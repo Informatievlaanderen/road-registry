@@ -4,15 +4,14 @@ using System;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.Editor.ProjectionHost;
 using Schema;
 using SqlStreamStore;
 
-public class ExtractUploadEventProcessor : DbContextEventProcessor<EditorContext>
+public class ExtractUploadEventProcessor : EditorContextEventProcessor
 {
     public ExtractUploadEventProcessor(
         IStreamStore streamStore,
-        DbContextEventProcessorProjections<ExtractUploadEventProcessor, EditorContext> projections,
+        EditorContextEventProcessorProjections<ExtractUploadEventProcessor> projections,
         EnvelopeFactory envelopeFactory,
         Func<EditorContext> dbContextFactory,
         Scheduler scheduler,

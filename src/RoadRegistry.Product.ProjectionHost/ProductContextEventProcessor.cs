@@ -8,18 +8,18 @@ using Microsoft.Extensions.Logging;
 using Schema;
 using SqlStreamStore;
 
-public class EventProcessor : DbContextEventProcessor<ProductContext>
+public class ProductContextEventProcessor : DbContextEventProcessor<ProductContext>
 {
     private const string QueueName = "roadregistry-product-projectionhost";
 
-    public EventProcessor(
+    public ProductContextEventProcessor(
         IStreamStore streamStore,
         AcceptStreamMessageFilter filter,
         EnvelopeFactory envelopeFactory,
         ConnectedProjectionHandlerResolver<ProductContext> resolver,
         Func<ProductContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<EventProcessor> logger)
+        ILogger<ProductContextEventProcessor> logger)
         : base(QueueName, streamStore, filter, envelopeFactory, resolver, dbContextFactory, scheduler, logger)
     {
     }
