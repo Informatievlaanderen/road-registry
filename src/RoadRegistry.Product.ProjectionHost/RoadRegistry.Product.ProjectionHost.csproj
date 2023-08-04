@@ -12,9 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
-    <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
     <ProjectReference Include="..\RoadRegistry.Product.Projections\RoadRegistry.Product.Projections.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Product.Schema\RoadRegistry.Product.Schema.csproj" />
+    <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

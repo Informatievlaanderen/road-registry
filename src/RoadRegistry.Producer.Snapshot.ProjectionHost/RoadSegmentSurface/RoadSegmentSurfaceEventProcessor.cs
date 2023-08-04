@@ -1,36 +1,35 @@
-namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
+namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
+
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
+using Hosts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using SqlStreamStore;
+
+public class RoadSegmentSurfaceEventProcessor : DbContextEventProcessor<RoadSegmentSurfaceProducerSnapshotContext>
 {
-    using System;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
-    using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
-    using Hosts;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.Logging;
-    using SqlStreamStore;
+    private const string QueueName = "roadregistry-producer-roadsegmentsurface-snapshot-projectionhost";
 
-    public class RoadSegmentSurfaceEventProcessor : DbContextEventProcessor<RoadSegmentSurfaceProducerSnapshotContext>
+    public RoadSegmentSurfaceEventProcessor(
+        IStreamStore streamStore,
+        AcceptStreamMessage<RoadSegmentSurfaceProducerSnapshotContext> acceptStreamMessage,
+        EnvelopeFactory envelopeFactory,
+        ConnectedProjectionHandlerResolver<RoadSegmentSurfaceProducerSnapshotContext> resolver,
+        IDbContextFactory<RoadSegmentSurfaceProducerSnapshotContext> dbContextFactory,
+        Scheduler scheduler,
+        ILogger<DbContextEventProcessor<RoadSegmentSurfaceProducerSnapshotContext>> logger)
+        : base(
+            QueueName,
+            streamStore,
+            acceptStreamMessage,
+            envelopeFactory,
+            resolver,
+            dbContextFactory,
+            scheduler,
+            logger,
+            1,
+            1)
     {
-        private const string QueueName = "roadregistry-producer-roadsegmentsurface-snapshot-projectionhost";
-
-        public RoadSegmentSurfaceEventProcessor(
-            IStreamStore streamStore,
-            AcceptStreamMessage<RoadSegmentSurfaceProducerSnapshotContext> acceptStreamMessage,
-            EnvelopeFactory envelopeFactory,
-            ConnectedProjectionHandlerResolver<RoadSegmentSurfaceProducerSnapshotContext> resolver,
-            IDbContextFactory<RoadSegmentSurfaceProducerSnapshotContext> dbContextFactory,
-            Scheduler scheduler,
-            ILogger<DbContextEventProcessor<RoadSegmentSurfaceProducerSnapshotContext>> logger)
-            : base(
-                QueueName,
-                streamStore,
-                acceptStreamMessage,
-                envelopeFactory,
-                resolver,
-                dbContextFactory,
-                scheduler,
-                logger,
-                catchUpBatchSize: 1,
-                catchUpThreshold: 1)
-        { }
     }
 }

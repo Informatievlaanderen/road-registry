@@ -17,8 +17,8 @@ public partial class InformationController
     /// <param name="context">The context.</param>
     /// <returns>IActionResult.</returns>
     [HttpGet(Name = nameof(GetInformation))]
-    [SwaggerOperation(OperationId = nameof(GetInformation), Description = "")]
     [AllowAnonymous]
+    [SwaggerOperation(OperationId = nameof(GetInformation), Description = "")]
     public async Task<IActionResult> GetInformation([FromServices] EditorContext context)
     {
         var info = await context.RoadNetworkInfo.SingleOrDefaultAsync(HttpContext.RequestAborted);

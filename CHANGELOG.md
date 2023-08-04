@@ -1,3 +1,24 @@
+## [3.54.14](https://github.com/informatievlaanderen/road-registry/compare/v3.54.13...v3.54.14) (2023-08-03)
+
+
+### Bug Fixes
+
+* release pipeline missing --sse parameter ([#1103](https://github.com/informatievlaanderen/road-registry/issues/1103)) ([7771dfd](https://github.com/informatievlaanderen/road-registry/commit/7771dfd7c8bc3398b64ae2634805ff1d29dce628))
+
+## [3.54.13](https://github.com/informatievlaanderen/road-registry/compare/v3.54.12...v3.54.13) (2023-08-03)
+
+
+### Bug Fixes
+
+* test s3 lambda bucket names ([#1102](https://github.com/informatievlaanderen/road-registry/issues/1102)) ([27d5ec8](https://github.com/informatievlaanderen/road-registry/commit/27d5ec83b48239469a6f32b1ea880eeba16b783a))
+
+## [3.54.12](https://github.com/informatievlaanderen/road-registry/compare/v3.54.11...v3.54.12) (2023-08-03)
+
+
+### Bug Fixes
+
+* WR-756 endpoint auth scopes ([#1099](https://github.com/informatievlaanderen/road-registry/issues/1099)) ([b14a2d3](https://github.com/informatievlaanderen/road-registry/commit/b14a2d399d986781b4dabc94e7627470ea1eae9b))
+
 ## [3.54.11](https://github.com/informatievlaanderen/road-registry/compare/v3.54.10...v3.54.11) (2023-08-02)
 
 

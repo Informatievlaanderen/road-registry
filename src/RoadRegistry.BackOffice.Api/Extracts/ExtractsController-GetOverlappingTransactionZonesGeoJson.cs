@@ -19,8 +19,8 @@ public partial class ExtractsController
     ///     of cancellation.
     /// </param>
     /// <returns>JsonResult.</returns>
-    [AllowAnonymous]
     [HttpGet(GetOverlappingTransactionZonesGeoJsonRoute, Name = nameof(GetOverlappingTransactionZonesGeoJson))]
+    [AllowAnonymous]
     [SwaggerOperation(OperationId = nameof(GetOverlappingTransactionZonesGeoJson))]
     public async Task<JsonResult> GetOverlappingTransactionZonesGeoJson(CancellationToken cancellationToken)
     {

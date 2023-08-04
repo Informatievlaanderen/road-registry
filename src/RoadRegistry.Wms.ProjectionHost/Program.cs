@@ -35,9 +35,9 @@ public class Program
                 .AddStreetNameCache()
                 .AddScoped<IMetadataUpdater, MetadataUpdater>()
                 .AddSingleton(new EnvelopeFactory(
-                    EventProcessorService.EventMapping,
+                    WmsContextEventProcessor.EventMapping,
                     new EventDeserializer((eventData, eventType) =>
-                        JsonConvert.DeserializeObject(eventData, eventType, EventProcessorService.SerializerSettings)))
+                        JsonConvert.DeserializeObject(eventData, eventType, WmsContextEventProcessor.SerializerSettings)))
                 )
                 .AddDbContextFactory<WmsContext>((sp, options) =>
                 {
@@ -63,9 +63,9 @@ public class Program
                 .AddSingleton(sp =>
                     new AcceptStreamMessage<WmsContext>(
                         sp.GetRequiredService<ConnectedProjection<WmsContext>[]>()
-                        , EventProcessorService.EventMapping))
+                        , WmsContextEventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WmsContextMigrationFactory())
-                .AddHostedService<EventProcessorService>())
+                .AddHostedService<WmsContextEventProcessor>())
             .Build();
 
         await roadRegistryHost

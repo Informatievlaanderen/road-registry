@@ -13,20 +13,20 @@ using Projections;
 using Schema;
 using SqlStreamStore;
 
-public class EventProcessorService : DbContextEventProcessor<WmsContext>
+public class WmsContextEventProcessor : DbContextEventProcessor<WmsContext>
 {
     private const string QueueName = "roadregistry-wms-projectionhost";
     private const int CatchUpBatchSize = 5000;
     private const int SynchronizeWithCacheBatchSize = 5000;
 
-    public EventProcessorService(
+    public WmsContextEventProcessor(
         IStreamStore streamStore,
         AcceptStreamMessage<WmsContext> filter,
         EnvelopeFactory envelopeFactory,
         ConnectedProjectionHandlerResolver<WmsContext> resolver,
         IDbContextFactory<WmsContext> dbContextFactory,
         Scheduler scheduler,
-        ILogger<EventProcessorService> logger,
+        ILogger<WmsContextEventProcessor> logger,
         IStreetNameCache streetNameCache)
         : base(
             QueueName,
@@ -57,7 +57,7 @@ public class EventProcessorService : DbContextEventProcessor<WmsContext>
         IDbContextFactory<WmsContext> dbContextFactory,
         ConnectedProjectionHandlerResolver<WmsContext> resolver,
         IStreetNameCache streetNameCache,
-        ILogger<EventProcessorService> logger,
+        ILogger<WmsContextEventProcessor> logger,
         CancellationToken token = default(CancellationToken))
     {
         logger.LogInformation("Syncing with street name cache ...");
