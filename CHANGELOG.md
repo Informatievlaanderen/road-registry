@@ -1,3 +1,11 @@
+# [3.55.0](https://github.com/informatievlaanderen/road-registry/compare/v3.54.14...v3.55.0) (2023-08-04)
+
+
+### Features
+
+* WR-632 consume streetname snapshot kafka topic ([#1098](https://github.com/informatievlaanderen/road-registry/issues/1098)) ([05fa885](https://github.com/informatievlaanderen/road-registry/commit/05fa8858757ec97589aa9082a5010eec93a24b13))
+* WR-754 Add meaningful retry after estimation time ([#1097](https://github.com/informatievlaanderen/road-registry/issues/1097)) ([9ce8197](https://github.com/informatievlaanderen/road-registry/commit/9ce819788af850ffa50b2b77d01f20b198f4bcb2))
+
 ## [3.54.14](https://github.com/informatievlaanderen/road-registry/compare/v3.54.13...v3.54.14) (2023-08-03)
 
 
