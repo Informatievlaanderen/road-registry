@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SqlStreamStore;
 
-[ApiKey]
 [ApiVersion(Version.Current)]
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("system")]
 [ApiExplorerSettings(GroupName = "Infrastructuur")]
+[ApiKey]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
 public partial class RoadRegistrySystemController : BackofficeApiController
 {
