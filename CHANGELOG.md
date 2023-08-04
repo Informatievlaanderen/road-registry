@@ -1,3 +1,10 @@
+## [3.54.14](https://github.com/informatievlaanderen/road-registry/compare/v3.54.13...v3.54.14) (2023-08-03)
+
+
+### Bug Fixes
+
+* release pipeline missing --sse parameter ([#1103](https://github.com/informatievlaanderen/road-registry/issues/1103)) ([7771dfd](https://github.com/informatievlaanderen/road-registry/commit/7771dfd7c8bc3398b64ae2634805ff1d29dce628))
+
 ## [3.54.13](https://github.com/informatievlaanderen/road-registry/compare/v3.54.12...v3.54.13) (2023-08-03)
 
 
