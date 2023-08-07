@@ -1,5 +1,8 @@
 namespace RoadRegistry.Product.ProjectionHost;
 
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -14,10 +17,6 @@ using Microsoft.IO;
 using Newtonsoft.Json;
 using Projections;
 using Schema;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 
 public class Program
 {

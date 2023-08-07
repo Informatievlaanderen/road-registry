@@ -5,7 +5,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 public class OrganizationDbaseRecord : DbaseRecord
 {
     public static readonly OrganizationDbaseSchema Schema = new();
-    public const string DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2;
+    public const string DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V1;
 
     public OrganizationDbaseRecord()
     {
