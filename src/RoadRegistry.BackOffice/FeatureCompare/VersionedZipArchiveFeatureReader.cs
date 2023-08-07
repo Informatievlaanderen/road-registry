@@ -7,12 +7,12 @@ using System.Linq;
 using Extracts;
 using Uploads;
 
-public class VersionedFeatureReader<TFeature> : IFeatureReader<TFeature>
+public class VersionedZipArchiveFeatureReader<TFeature> : IZipArchiveFeatureReader<TFeature>
     where TFeature : class
 {
-    private readonly IFeatureReader<TFeature>[] _versionedReaders;
+    private readonly IZipArchiveFeatureReader<TFeature>[] _versionedReaders;
 
-    public VersionedFeatureReader(params IFeatureReader<TFeature>[] readers)
+    public VersionedZipArchiveFeatureReader(params IZipArchiveFeatureReader<TFeature>[] readers)
     {
         if (!readers.ThrowIfNull().Any())
         {

@@ -18,6 +18,6 @@ public class RoadNetworkChangeConfiguration : IEntityTypeConfiguration<RoadNetwo
         b.Property(p => p.Title).IsRequired();
         b.Property(p => p.Type).IsRequired();
         b.Property(p => p.Content).IsRequired(false);
-        b.Property(p => p.When).IsRequired();
+        b.Property(p => p.When).IsRequired(false);
     }
 }

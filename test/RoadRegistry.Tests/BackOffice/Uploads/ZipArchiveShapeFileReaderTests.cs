@@ -64,7 +64,7 @@ public class ZipArchiveShapeFileReaderTests
         }
     }
 
-    private class SimpleExtractDbfReader<TDbaseRecord> : DbaseFeatureReader<TDbaseRecord, object>
+    private class SimpleExtractDbfReader<TDbaseRecord> : ZipArchiveDbaseFeatureReader<TDbaseRecord, object>
         where TDbaseRecord : DbaseRecord, new()
     {
         public SimpleExtractDbfReader(DbaseSchema dbaseSchema)

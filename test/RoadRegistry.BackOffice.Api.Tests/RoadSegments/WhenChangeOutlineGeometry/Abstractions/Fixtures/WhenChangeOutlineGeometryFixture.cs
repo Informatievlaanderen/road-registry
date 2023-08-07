@@ -55,6 +55,7 @@ public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture
         {
             Code = TestData.ChangedByOrganization,
             SortableCode = TestData.ChangedByOrganization,
+            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V1,
             DbaseRecord = Array.Empty<byte>()
         }, CancellationToken.None);
 

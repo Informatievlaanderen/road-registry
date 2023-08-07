@@ -63,7 +63,8 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
         {
             Code = TestData.ChangedByOrganization,
             SortableCode = TestData.ChangedByOrganization,
-            DbaseRecord = Array.Empty<byte>()
+            DbaseRecord = Array.Empty<byte>(),
+            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V1
         }, CancellationToken.None);
 
         var message = ObjectProvider

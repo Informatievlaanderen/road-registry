@@ -11,9 +11,9 @@ public abstract class FeatureReaderZipArchiveValidator<TAttributes> : IZipArchiv
 {
     private readonly ExtractFileName _extractFileName;
     private readonly FeatureType[] _featureTypes;
-    private readonly IFeatureReader<Feature<TAttributes>> _featureReader;
+    private readonly IZipArchiveFeatureReader<Feature<TAttributes>> _featureReader;
 
-    protected FeatureReaderZipArchiveValidator(ExtractFileName extractFileName, FeatureType[] featureTypes, IFeatureReader<Feature<TAttributes>> featureReader)
+    protected FeatureReaderZipArchiveValidator(ExtractFileName extractFileName, FeatureType[] featureTypes, IZipArchiveFeatureReader<Feature<TAttributes>> featureReader)
     {
         _extractFileName = extractFileName;
         _featureTypes = featureTypes;

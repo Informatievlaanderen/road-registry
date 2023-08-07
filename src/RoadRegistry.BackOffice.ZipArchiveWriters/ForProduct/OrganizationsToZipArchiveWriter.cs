@@ -4,22 +4,24 @@ using System.IO.Compression;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
-using Extracts.Dbase.Organizations;
+using Dbase;
+using ExtractHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;
+using RoadRegistry.BackOffice.Extracts.Dbase.Organizations.V2;
 
-public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
+public class OrganizationsToZipArchiveWriter : ZipArchiveWriters.IZipArchiveWriter<ProductContext>
 {
     private readonly Encoding _encoding;
     private readonly string _entryFormat;
-    private readonly RecyclableMemoryStreamManager _manager;
+    private readonly IVersionedDbaseRecordReader<Organization> _recordReader;
 
     public OrganizationsToZipArchiveWriter(string entryFormat, RecyclableMemoryStreamManager manager, Encoding encoding)
     {
-        _entryFormat = entryFormat ?? throw new ArgumentNullException(nameof(entryFormat));
-        _manager = manager ?? throw new ArgumentNullException(nameof(manager));
-        _encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+        _entryFormat = entryFormat.ThrowIfNull();
+        _encoding = encoding.ThrowIfNull();
+        _recordReader = new OrganizationDbaseRecordConverter(manager.ThrowIfNull(), encoding);
     }
 
     public async Task WriteAsync(ZipArchive archive, ProductContext context, CancellationToken cancellationToken)
@@ -41,6 +43,7 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
                    new BinaryWriter(dbfEntryStream, _encoding, true)))
         {
             var dbfRecord = new OrganizationDbaseRecord();
+
             foreach (var predefined in Organization.PredefinedTranslations.All)
             {
                 dbfRecord.ORG.Value = predefined.Identifier;
@@ -48,9 +51,14 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<ProductContext>
                 dbfWriter.Write(dbfRecord);
             }
 
-            foreach (var data in context.Organizations.OrderBy(_ => _.SortableCode).Select(_ => _.DbaseRecord))
+            foreach (var record in context.Organizations.OrderBy(_ => _.SortableCode))
             {
-                dbfRecord.FromBytes(data, _manager, _encoding);
+                var organization = _recordReader.Read(record.DbaseRecord, record.DbaseSchemaVersion);
+
+                dbfRecord.ORG.Value = organization.Translation.Identifier;
+                dbfRecord.LBLORG.Value = organization.Translation.Name;
+                dbfRecord.OVOCODE.Value = organization.OvoCode;
+
                 dbfWriter.Write(dbfRecord);
             }
 

@@ -1,0 +1,19 @@
+namespace RoadRegistry.BackOffice.Core;
+
+using FluentValidation;
+using Messages;
+
+public class ChangeOrganizationValidator : AbstractValidator<ChangeOrganization>
+{
+    public ChangeOrganizationValidator()
+    {
+        RuleFor(x => x.Code)
+            .NotEmpty();
+
+        When(x => x.OvoCode is not null, () =>
+        {
+            RuleFor(x => x.OvoCode)
+                .Must(OrganizationOvoCode.AcceptsValue);
+        });
+    }
+}

@@ -64,6 +64,7 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
         {
             Code = TestData.ChangedByOrganization,
             SortableCode = TestData.ChangedByOrganization,
+            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V1,
             DbaseRecord = Array.Empty<byte>()
         }, CancellationToken.None);
 

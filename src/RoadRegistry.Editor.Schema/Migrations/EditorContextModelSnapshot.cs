@@ -63,6 +63,12 @@ namespace RoadRegistry.Editor.Schema.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<string>("DbaseSchemaVersion")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("V1");
+
                     b.Property<string>("SortableCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

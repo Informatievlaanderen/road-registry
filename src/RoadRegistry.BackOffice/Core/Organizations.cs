@@ -33,7 +33,7 @@ public class Organizations : IOrganizations
         if (_map.TryGet(stream, out var entry))
         {
             var cachedOrganization = (Organization)entry.Entity;
-            return cachedOrganization.IsDeleted ? null : cachedOrganization;
+            return cachedOrganization.IsRemoved ? null : cachedOrganization;
         }
 
         var organization = Organization.Factory();
@@ -64,6 +64,6 @@ public class Organizations : IOrganizations
 
         _map.Attach(new EventSourcedEntityMapEntry(entity, stream, page.LastStreamVersion));
 
-        return organization.IsDeleted ? null : organization;
+        return organization.IsRemoved ? null : organization;
     }
 }

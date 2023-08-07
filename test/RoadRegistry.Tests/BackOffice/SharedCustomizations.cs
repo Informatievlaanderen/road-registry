@@ -322,6 +322,14 @@ public static class SharedCustomizations
         );
     }
 
+    public static void CustomizeOrganizationOvoCode(this IFixture fixture)
+    {
+        fixture.Customize<OrganizationOvoCode>(composer =>
+            composer.FromFactory(generator =>
+                new OrganizationOvoCode(generator.Next(1, OrganizationOvoCode.MaxDigitsValue))
+        ));
+    }
+
     public static void CustomizeOriginProperties(this IFixture fixture)
     {
         fixture.Customize<ImportedOriginProperties>(customization =>

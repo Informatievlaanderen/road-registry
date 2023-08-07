@@ -72,10 +72,6 @@ public class EditorContext : RunnerDbContext<EditorContext>
     {
         base.OnModelCreating(modelBuilder);
         OnModelQueryTypes(modelBuilder);
-
-        modelBuilder.Entity<RoadNetworkChange>()
-            .Property(x => x.When)
-            .IsRequired(false);
     }
 
     //HACK: Raw sql is not supported when running against in memory - this allows overriding and adjusting behavior

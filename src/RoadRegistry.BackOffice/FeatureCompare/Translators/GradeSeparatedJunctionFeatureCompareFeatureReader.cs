@@ -10,7 +10,7 @@ using Extracts;
 using Extracts.Dbase.GradeSeparatedJuntions;
 using Uploads;
 
-public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedFeatureReader<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
+public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
 {
     private static readonly Func<FeatureType, bool> TreatHasNoRecordsAsWarning = _ => true;
 
@@ -30,7 +30,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedFeatur
         return (features, problems);
     }
 
-    private sealed class ExtractsFeatureReader : DbaseFeatureReader<GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
+    private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
             : base(encoding, GradeSeparatedJunctionDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
@@ -49,7 +49,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedFeatur
         }
     }
 
-    private sealed class UploadsV2FeatureReader : DbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
+    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
             : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
@@ -68,7 +68,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedFeatur
         }
     }
 
-    private sealed class UploadsV1FeatureReader : DbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
+    private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
         public UploadsV1FeatureReader(Encoding encoding)
             : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.GradeSeparatedJunctionDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
