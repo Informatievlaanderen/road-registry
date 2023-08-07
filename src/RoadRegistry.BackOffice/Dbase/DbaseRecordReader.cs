@@ -6,7 +6,7 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
 
-public interface IDbaseRecordReader<TFeature>
+public interface IDbaseRecordReader<out TFeature>
 {
     string DbaseSchemaVersion { get; }
     TFeature Read(byte[] dbaseRecordBytes);

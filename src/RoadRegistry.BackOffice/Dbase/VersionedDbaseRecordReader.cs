@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Uploads;
 
-public interface IVersionedDbaseRecordReader<TFeature>
+public interface IVersionedDbaseRecordReader<out TFeature>
 {
     TFeature Read(byte[] dbaseRecordBytes, string dbaseSchemaVersion);
 }
