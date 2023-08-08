@@ -2,10 +2,9 @@ namespace RoadRegistry.BackOffice.Uploads
 {
     using System;
     using System.Runtime.Serialization;
-    using Be.Vlaanderen.Basisregisters.AggregateSource;
 
     [Serializable]
-    public class DbaseHeaderFormatException : DomainException
+    public class DbaseHeaderFormatException : DbaseReaderException
     {
         public DbaseHeaderFormatException(Exception innerException)
             : base("Error reading dbase header format", innerException)

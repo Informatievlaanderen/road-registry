@@ -9,14 +9,14 @@ using Extracts;
 using Extracts.Dbase;
 using Uploads;
 
-public class TransactionZoneFeatureCompareFeatureReader : VersionedFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
+public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
 {
     public TransactionZoneFeatureCompareFeatureReader(Encoding encoding)
         : base(new ExtractsFeatureReader(encoding))
     {
     }
     
-    private sealed class ExtractsFeatureReader : DbaseFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
+    private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
             : base(encoding, TransactionZoneDbaseRecord.Schema)

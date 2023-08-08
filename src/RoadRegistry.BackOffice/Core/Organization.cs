@@ -11,13 +11,27 @@ public class Organization : EventSourcedEntity
     private Organization()
     {
         On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
+        On<CreateOrganizationAccepted>(e =>
+        {
+            Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name));
+            OvoCode = OrganizationOvoCode.FromValue(e.OvoCode);
+        });
         On<RenameOrganizationAccepted>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
-        On<CreateOrganizationAccepted>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
-        On<DeleteOrganizationAccepted>(e => Translation = null);
+        On<ChangeOrganizationAccepted>(e =>
+        {
+            Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name));
+            OvoCode = OrganizationOvoCode.FromValue(e.OvoCode);
+        });
+        On<DeleteOrganizationAccepted>(e =>
+        {
+            IsRemoved = true;
+        });
     }
 
     public DutchTranslation Translation { get; private set; }
-    public bool IsDeleted => Translation == null;
+    public OrganizationOvoCode? OvoCode { get; private set; }
+
+    public bool IsRemoved { get; private set; }
 
     public class DutchTranslation
     {
@@ -38,18 +52,39 @@ public class Organization : EventSourcedEntity
         public static readonly DutchTranslation[] All = { Other, Unknown };
     }
 
-    public void Rename(string name)
+    public Organization Create(OrganizationId identifier, OrganizationName name, OrganizationOvoCode? ovoCode)
     {
-        Apply(new RenameOrganizationAccepted()
+        Apply(new CreateOrganizationAccepted
+        {
+            Code = identifier,
+            Name = name,
+            OvoCode = ovoCode
+        });
+        return this;
+    }
+
+    public void Rename(OrganizationName name)
+    {
+        Apply(new RenameOrganizationAccepted
         {
             Code = Translation.Identifier,
             Name = name
         });
     }
+
+    public void Change(OrganizationName? name, OrganizationOvoCode? ovoCode)
+    {
+        Apply(new ChangeOrganizationAccepted
+        {
+            Code = Translation.Identifier,
+            Name = name ?? Translation.Name,
+            OvoCode = ovoCode ?? OvoCode
+        });
+    }
     
     public void Delete()
     {
-        Apply(new DeleteOrganizationAccepted()
+        Apply(new DeleteOrganizationAccepted
         {
             Code = Translation.Identifier
         });

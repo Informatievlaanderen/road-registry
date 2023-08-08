@@ -62,6 +62,7 @@ public abstract class WhenChangeDynamicAttributesFixture : ControllerActionFixtu
         {
             Code = TestData.ChangedByOrganization,
             SortableCode = TestData.ChangedByOrganization,
+            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
             DbaseRecord = Array.Empty<byte>()
         }, CancellationToken.None);
 

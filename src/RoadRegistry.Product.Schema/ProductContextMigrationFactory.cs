@@ -17,7 +17,7 @@ public class ProductContextMigrationFactory : RunnerDbContextMigrationFactory<Pr
             Schema = WellknownSchemas.ProductSchema,
             Table = MigrationTables.Product
         };
-
+    
     protected override ProductContext CreateContext(DbContextOptions<ProductContext> migrationContextOptions)
     {
         return new ProductContext(migrationContextOptions);

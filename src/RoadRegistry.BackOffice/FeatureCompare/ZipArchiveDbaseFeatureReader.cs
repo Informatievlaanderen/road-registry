@@ -4,25 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extensions;
 using Extracts;
-using RoadRegistry.BackOffice.Extensions;
 using Uploads;
 
-public interface IDbaseFeatureReader<TFeature> : IFeatureReader<TFeature>
-{
-}
-
-public abstract class DbaseFeatureReader<TDbaseRecord, TFeature> : IDbaseFeatureReader<TFeature>
+public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZipArchiveDbaseFeatureReader<TFeature>
     where TDbaseRecord : DbaseRecord, new()
 {
     private readonly Encoding _encoding;
     private readonly DbaseSchema _dbaseSchema;
     private readonly Func<FeatureType, bool> _treatHasNoDbaseRecordsAsWarning;
 
-    protected DbaseFeatureReader(Encoding encoding, DbaseSchema dbaseSchema, Func<FeatureType, bool> treatHasNoDbaseRecordsAsWarning = null)
+    protected ZipArchiveDbaseFeatureReader(Encoding encoding, DbaseSchema dbaseSchema, Func<FeatureType, bool> treatHasNoDbaseRecordsAsWarning = null)
     {
         _encoding = encoding;
         _dbaseSchema = dbaseSchema;

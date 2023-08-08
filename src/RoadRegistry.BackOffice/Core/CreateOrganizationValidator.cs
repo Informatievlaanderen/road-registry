@@ -9,7 +9,14 @@ public class CreateOrganizationValidator : AbstractValidator<CreateOrganization>
     {
         RuleFor(x => x.Code)
             .NotEmpty();
+
         RuleFor(x => x.Name)
             .NotEmpty();
+
+        When(x => x.OvoCode is not null, () =>
+        {
+            RuleFor(x => x.OvoCode)
+                .Must(OrganizationOvoCode.AcceptsValue);
+        });
     }
 }

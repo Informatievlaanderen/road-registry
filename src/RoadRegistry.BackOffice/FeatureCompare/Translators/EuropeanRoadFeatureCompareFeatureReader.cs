@@ -10,7 +10,7 @@ using Extracts;
 using Extracts.Dbase.RoadSegments;
 using Uploads;
 
-public class EuropeanRoadFeatureCompareFeatureReader : VersionedFeatureReader<Feature<EuropeanRoadFeatureCompareAttributes>>
+public class EuropeanRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<EuropeanRoadFeatureCompareAttributes>>
 {
     private static readonly Func<FeatureType, bool> TreatHasNoRecordsAsWarning =_ => true;
 
@@ -30,7 +30,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedFeatureReader<Fe
         return (features, problems);
     }
 
-    private sealed class ExtractsFeatureReader : DbaseFeatureReader<RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
+    private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
             : base(encoding, RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
@@ -48,7 +48,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedFeatureReader<Fe
         }
     }
 
-    private sealed class UploadsV2FeatureReader : DbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
+    private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
             : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
@@ -66,7 +66,7 @@ public class EuropeanRoadFeatureCompareFeatureReader : VersionedFeatureReader<Fe
         }
     }
 
-    private sealed class UploadsV1FeatureReader : DbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
+    private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord, Feature<EuropeanRoadFeatureCompareAttributes>>
     {
         public UploadsV1FeatureReader(Encoding encoding)
             : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema, TreatHasNoRecordsAsWarning)

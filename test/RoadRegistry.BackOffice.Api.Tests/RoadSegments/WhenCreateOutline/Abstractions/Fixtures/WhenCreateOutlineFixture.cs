@@ -28,6 +28,7 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
             Id = 0,
             Code = "TEST",
             SortableCode = "TEST",
+            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
             DbaseRecord = Array.Empty<byte>()
         }, CancellationToken.None);
 

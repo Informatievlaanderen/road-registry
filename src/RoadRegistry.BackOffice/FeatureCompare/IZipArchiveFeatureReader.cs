@@ -7,7 +7,7 @@ using Extracts;
 using Translators;
 using Uploads;
 
-public interface IFeatureReader<TFeature>
+public interface IZipArchiveFeatureReader<TFeature>
 {
     (List<TFeature>, ZipArchiveProblems) Read(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context);
 }

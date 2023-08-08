@@ -39,7 +39,8 @@ public partial class RoadRegistrySystemController
         var command = new CreateOrganization
         {
             Code = parameters?.Code,
-            Name = parameters?.Name
+            Name = parameters?.Name,
+            OvoCode = parameters?.OvoCode
         };
         await validator.ValidateAndThrowAsync(command, cancellationToken);
 
@@ -50,4 +51,4 @@ public partial class RoadRegistrySystemController
     }
 }
 
-public sealed record OrganizationCreateParameters(string Code, string Name);
+public sealed record OrganizationCreateParameters(string Code, string Name, string OvoCode);
