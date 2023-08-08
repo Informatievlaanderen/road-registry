@@ -10,7 +10,7 @@ public partial class ChangeFeedControllerTests : ControllerMinimalTests<ChangeFe
 {
     private readonly SqlServer _fixture;
 
-    public ChangeFeedControllerTests(SqlServer fixture, IMediator mediator) : base(mediator)
+    public ChangeFeedControllerTests(SqlServer fixture, ChangeFeedController controller, IMediator mediator) : base(controller, mediator)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
     }

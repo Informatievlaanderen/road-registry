@@ -18,13 +18,14 @@ public partial class UploadControllerTests : ControllerTests<UploadController>, 
 
     public UploadControllerTests(
         ITestOutputHelper testOutputHelper,
+        UploadController controller,
         IMediator mediator,
         IStreamStore streamStore,
         EditorContext editorContext,
         RoadNetworkUploadsBlobClient uploadClient,
         RoadNetworkExtractUploadsBlobClient extractUploadClient,
         RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
-        : base(mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
+        : base(controller, mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
     {
         _testOutputHelper = testOutputHelper;
         _editorContext = editorContext;

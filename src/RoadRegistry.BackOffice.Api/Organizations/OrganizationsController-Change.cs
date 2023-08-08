@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
+namespace RoadRegistry.BackOffice.Api.Organizations;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,9 +8,9 @@ using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class RoadRegistrySystemController
+public partial class OrganizationsController
 {
-    private const string ChangeOrganizationRoute = "organization/{id}";
+    private const string ChangeRoute = "{id}";
 
     /// <summary>
     ///     Changes the organization.
@@ -23,9 +23,9 @@ public partial class RoadRegistrySystemController
     ///     of cancellation.
     /// </param>
     /// <returns>IActionResult.</returns>
-    [HttpPatch(ChangeOrganizationRoute, Name = nameof(ChangeOrganization))]
-    [SwaggerOperation(OperationId = nameof(ChangeOrganization), Description = "")]
-    public async Task<IActionResult> ChangeOrganization([FromBody] OrganizationChangeParameters parameters,
+    [HttpPatch(ChangeRoute, Name = nameof(Change))]
+    [SwaggerOperation(OperationId = nameof(Change), Description = "")]
+    public async Task<IActionResult> Change([FromBody] OrganizationChangeParameters parameters,
         [FromRoute] string id,
         [FromServices] IValidator<ChangeOrganization> validator,
         CancellationToken cancellationToken)

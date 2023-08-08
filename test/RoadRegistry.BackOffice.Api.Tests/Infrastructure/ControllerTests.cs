@@ -9,8 +9,8 @@ using SqlStreamStore;
 public abstract class ControllerTests<TController> : ControllerMinimalTests<TController>
     where TController : ControllerBase
 {
-    protected ControllerTests(IMediator mediator, IStreamStore streamStore, RoadNetworkUploadsBlobClient uploadClient, RoadNetworkExtractUploadsBlobClient extractUploadClient, RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
-        : base(mediator)
+    protected ControllerTests(TController controller, IMediator mediator, IStreamStore streamStore, RoadNetworkUploadsBlobClient uploadClient, RoadNetworkExtractUploadsBlobClient extractUploadClient, RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
+        : base(controller, mediator)
     {
         StreamStore = streamStore;
         UploadBlobClient = uploadClient;

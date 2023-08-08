@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
+namespace RoadRegistry.BackOffice.Api.Organizations;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,15 +9,14 @@ using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class RoadRegistrySystemController
+public partial class OrganizationsController
 {
-    private const string RenameOrganizationRoute = "organization/{id}/rename";
+    private const string CreateRoute = "";
 
     /// <summary>
-    ///     Renames the organization.
+    ///     Creates the organization.
     /// </summary>
     /// <param name="parameters">The parameters.</param>
-    /// <param name="id">The identifier.</param>
     /// <param name="featureToggle">The feature toggle.</param>
     /// <param name="validator">The validator.</param>
     /// <param name="cancellationToken">
@@ -25,12 +24,11 @@ public partial class RoadRegistrySystemController
     ///     of cancellation.
     /// </param>
     /// <returns>IActionResult.</returns>
-    [HttpPatch(RenameOrganizationRoute, Name = nameof(RenameOrganization))]
-    [SwaggerOperation(OperationId = nameof(RenameOrganization), Description = "")]
-    public async Task<IActionResult> RenameOrganization([FromBody] OrganizationRenameParameters parameters,
-        [FromRoute] string id,
-        [FromServices] UseOrganizationRenameFeatureToggle featureToggle,
-        [FromServices] IValidator<RenameOrganization> validator,
+    [HttpPost(CreateRoute, Name = nameof(Create))]
+    [SwaggerOperation(OperationId = nameof(Create), Description = "")]
+    public async Task<IActionResult> Create([FromBody] OrganizationCreateParameters parameters,
+        [FromServices] UseOrganizationCreateFeatureToggle featureToggle,
+        [FromServices] IValidator<CreateOrganization> validator,
         CancellationToken cancellationToken)
     {
         if (!featureToggle.FeatureEnabled)
@@ -38,10 +36,11 @@ public partial class RoadRegistrySystemController
             return NotFound();
         }
 
-        var command = new RenameOrganization
+        var command = new CreateOrganization
         {
-            Code = id,
-            Name = parameters?.Name
+            Code = parameters?.Code,
+            Name = parameters?.Name,
+            OvoCode = parameters?.OvoCode
         };
         await validator.ValidateAndThrowAsync(command, cancellationToken);
 
@@ -52,4 +51,4 @@ public partial class RoadRegistrySystemController
     }
 }
 
-public sealed record OrganizationRenameParameters(string Name);
+public sealed record OrganizationCreateParameters(string Code, string Name, string OvoCode);

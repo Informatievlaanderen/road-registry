@@ -40,7 +40,7 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
 
     protected override async Task<IActionResult> GetResultAsync(ChangeRoadSegmentAttributesParameters parameters)
     {
-        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
+        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
         {
             ControllerContext = new ControllerContext
             {

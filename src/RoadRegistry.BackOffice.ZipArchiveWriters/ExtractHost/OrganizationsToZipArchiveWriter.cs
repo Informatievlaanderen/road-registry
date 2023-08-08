@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
 using System.IO.Compression;
 using System.Text;
+using Abstractions.Organizations;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Dbase;
@@ -14,12 +15,12 @@ using Microsoft.IO;
 public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
     private readonly Encoding _encoding;
-    private readonly IVersionedDbaseRecordReader<Organization> _recordReader;
+    private readonly IVersionedDbaseRecordReader<OrganizationDetail> _recordReader;
 
     public OrganizationsToZipArchiveWriter(RecyclableMemoryStreamManager manager, Encoding encoding)
     {
         _encoding = encoding.ThrowIfNull();
-        _recordReader = new OrganizationDbaseRecordConverter(manager.ThrowIfNull(), encoding);
+        _recordReader = new OrganizationDbaseRecordReader(manager.ThrowIfNull(), encoding);
     }
 
     public async Task WriteAsync(ZipArchive archive, RoadNetworkExtractAssemblyRequest request,
@@ -56,8 +57,8 @@ public class OrganizationsToZipArchiveWriter : IZipArchiveWriter<EditorContext>
             {
                 var organization = _recordReader.Read(record.DbaseRecord, record.DbaseSchemaVersion);
 
-                dbfRecord.ORG.Value = organization.Translation.Identifier;
-                dbfRecord.LBLORG.Value = organization.Translation.Name;
+                dbfRecord.ORG.Value = organization.Code;
+                dbfRecord.LBLORG.Value = organization.Name;
                 dbfRecord.OVOCODE.Value = organization.OvoCode;
 
                 dbfWriter.Write(dbfRecord);

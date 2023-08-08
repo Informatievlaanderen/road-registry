@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
+namespace RoadRegistry.BackOffice.Api.Organizations;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,13 +9,14 @@ using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class RoadRegistrySystemController
+public partial class OrganizationsController
 {
-    private const string DeleteOrganizationRoute = "organization/{id}";
+    private const string RenameRoute = "{id}/rename";
 
     /// <summary>
-    ///     Deletes the organization.
+    ///     Renames the organization.
     /// </summary>
+    /// <param name="parameters">The parameters.</param>
     /// <param name="id">The identifier.</param>
     /// <param name="featureToggle">The feature toggle.</param>
     /// <param name="validator">The validator.</param>
@@ -24,11 +25,12 @@ public partial class RoadRegistrySystemController
     ///     of cancellation.
     /// </param>
     /// <returns>IActionResult.</returns>
-    [HttpDelete(DeleteOrganizationRoute, Name = nameof(DeleteOrganization))]
-    [SwaggerOperation(OperationId = nameof(DeleteOrganization), Description = "")]
-    public async Task<IActionResult> DeleteOrganization([FromRoute] string id,
-        [FromServices] UseOrganizationDeleteFeatureToggle featureToggle,
-        [FromServices] IValidator<DeleteOrganization> validator,
+    [HttpPatch(RenameRoute, Name = nameof(Rename))]
+    [SwaggerOperation(OperationId = nameof(Rename), Description = "")]
+    public async Task<IActionResult> Rename([FromBody] OrganizationRenameParameters parameters,
+        [FromRoute] string id,
+        [FromServices] UseOrganizationRenameFeatureToggle featureToggle,
+        [FromServices] IValidator<RenameOrganization> validator,
         CancellationToken cancellationToken)
     {
         if (!featureToggle.FeatureEnabled)
@@ -36,9 +38,10 @@ public partial class RoadRegistrySystemController
             return NotFound();
         }
 
-        var command = new DeleteOrganization
+        var command = new RenameOrganization
         {
-            Code = id
+            Code = id,
+            Name = parameters?.Name
         };
         await validator.ValidateAndThrowAsync(command, cancellationToken);
 
@@ -48,3 +51,5 @@ public partial class RoadRegistrySystemController
         return Accepted();
     }
 }
+
+public sealed record OrganizationRenameParameters(string Name);
