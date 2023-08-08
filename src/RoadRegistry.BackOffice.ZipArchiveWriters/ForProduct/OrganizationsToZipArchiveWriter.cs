@@ -9,19 +9,20 @@ using ExtractHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Product.Schema;
+using RoadRegistry.BackOffice.Abstractions.Organizations;
 using RoadRegistry.BackOffice.Extracts.Dbase.Organizations.V2;
 
 public class OrganizationsToZipArchiveWriter : ZipArchiveWriters.IZipArchiveWriter<ProductContext>
 {
     private readonly Encoding _encoding;
     private readonly string _entryFormat;
-    private readonly IVersionedDbaseRecordReader<Organization> _recordReader;
+    private readonly IVersionedDbaseRecordReader<OrganizationDetail> _recordReader;
 
     public OrganizationsToZipArchiveWriter(string entryFormat, RecyclableMemoryStreamManager manager, Encoding encoding)
     {
         _entryFormat = entryFormat.ThrowIfNull();
         _encoding = encoding.ThrowIfNull();
-        _recordReader = new OrganizationDbaseRecordConverter(manager.ThrowIfNull(), encoding);
+        _recordReader = new OrganizationDbaseRecordReader(manager.ThrowIfNull(), encoding);
     }
 
     public async Task WriteAsync(ZipArchive archive, ProductContext context, CancellationToken cancellationToken)
@@ -55,8 +56,8 @@ public class OrganizationsToZipArchiveWriter : ZipArchiveWriters.IZipArchiveWrit
             {
                 var organization = _recordReader.Read(record.DbaseRecord, record.DbaseSchemaVersion);
 
-                dbfRecord.ORG.Value = organization.Translation.Identifier;
-                dbfRecord.LBLORG.Value = organization.Translation.Name;
+                dbfRecord.ORG.Value = organization.Code;
+                dbfRecord.LBLORG.Value = organization.Name;
                 dbfRecord.OVOCODE.Value = organization.OvoCode;
 
                 dbfWriter.Write(dbfRecord);

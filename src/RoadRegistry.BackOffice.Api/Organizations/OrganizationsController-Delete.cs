@@ -1,4 +1,4 @@
-namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
+namespace RoadRegistry.BackOffice.Api.Organizations;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,14 +9,14 @@ using Messages;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-public partial class RoadRegistrySystemController
+public partial class OrganizationsController
 {
-    private const string CreateOrganizationRoute = "organization";
+    private const string DeleteRoute = "{id}";
 
     /// <summary>
-    ///     Creates the organization.
+    ///     Deletes the organization.
     /// </summary>
-    /// <param name="parameters">The parameters.</param>
+    /// <param name="id">The identifier.</param>
     /// <param name="featureToggle">The feature toggle.</param>
     /// <param name="validator">The validator.</param>
     /// <param name="cancellationToken">
@@ -24,11 +24,11 @@ public partial class RoadRegistrySystemController
     ///     of cancellation.
     /// </param>
     /// <returns>IActionResult.</returns>
-    [HttpPost(CreateOrganizationRoute, Name = nameof(CreateOrganization))]
-    [SwaggerOperation(OperationId = nameof(CreateOrganization), Description = "")]
-    public async Task<IActionResult> CreateOrganization([FromBody] OrganizationCreateParameters parameters,
-        [FromServices] UseOrganizationCreateFeatureToggle featureToggle,
-        [FromServices] IValidator<CreateOrganization> validator,
+    [HttpDelete(DeleteRoute, Name = nameof(Delete))]
+    [SwaggerOperation(OperationId = nameof(Delete), Description = "")]
+    public async Task<IActionResult> Delete([FromRoute] string id,
+        [FromServices] UseOrganizationDeleteFeatureToggle featureToggle,
+        [FromServices] IValidator<DeleteOrganization> validator,
         CancellationToken cancellationToken)
     {
         if (!featureToggle.FeatureEnabled)
@@ -36,11 +36,9 @@ public partial class RoadRegistrySystemController
             return NotFound();
         }
 
-        var command = new CreateOrganization
+        var command = new DeleteOrganization
         {
-            Code = parameters?.Code,
-            Name = parameters?.Name,
-            OvoCode = parameters?.OvoCode
+            Code = id
         };
         await validator.ValidateAndThrowAsync(command, cancellationToken);
 
@@ -50,5 +48,3 @@ public partial class RoadRegistrySystemController
         return Accepted();
     }
 }
-
-public sealed record OrganizationCreateParameters(string Code, string Name, string OvoCode);

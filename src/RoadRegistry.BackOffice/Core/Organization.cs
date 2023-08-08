@@ -51,18 +51,7 @@ public class Organization : EventSourcedEntity
         public static readonly DutchTranslation Unknown = new(OrganizationId.Unknown, new OrganizationName("niet gekend"));
         public static readonly DutchTranslation[] All = { Other, Unknown };
     }
-
-    public Organization Create(OrganizationId identifier, OrganizationName name, OrganizationOvoCode? ovoCode)
-    {
-        Apply(new CreateOrganizationAccepted
-        {
-            Code = identifier,
-            Name = name,
-            OvoCode = ovoCode
-        });
-        return this;
-    }
-
+    
     public void Rename(OrganizationName name)
     {
         Apply(new RenameOrganizationAccepted
