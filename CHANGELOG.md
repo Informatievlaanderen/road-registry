@@ -1,3 +1,11 @@
+# [3.56.0](https://github.com/informatievlaanderen/road-registry/compare/v3.55.0...v3.56.0) (2023-08-08)
+
+
+### Features
+
+* WR-753 add endpoint to retrieve organizations ([#1105](https://github.com/informatievlaanderen/road-registry/issues/1105)) ([32fac39](https://github.com/informatievlaanderen/road-registry/commit/32fac39f2bc62693e8f08ec78da7ab89c6c2006c))
+* WR-762 add OVO-code to organization ([#1104](https://github.com/informatievlaanderen/road-registry/issues/1104)) ([c242e73](https://github.com/informatievlaanderen/road-registry/commit/c242e736d47c600f00fceffec69d5b64c67203c8))
+
 # [3.55.0](https://github.com/informatievlaanderen/road-registry/compare/v3.54.14...v3.55.0) (2023-08-04)
 
 
