@@ -17,8 +17,15 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.Api.Organizations;
+using RoadRegistry.Hosts.Infrastructure.Options;
 using SqlStreamStore;
 using System.Reflection;
+using Api.Changes;
+using Api.Downloads;
+using Api.Extracts;
+using Api.Information;
+using Api.Uploads;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
@@ -86,7 +93,14 @@ public class Startup : TestStartup
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
-            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
+            .AddSingleton(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
+            .AddSingleton<TicketingOptions>(new FakeTicketingOptions())
+            .AddScoped<ChangeFeedController>()
+            .AddScoped<DownloadController>()
+            .AddScoped<ExtractsController>()
+            .AddScoped<InformationController>()
+            .AddScoped<OrganizationsController>()
+            .AddScoped<UploadController>()
             ;
     }
 

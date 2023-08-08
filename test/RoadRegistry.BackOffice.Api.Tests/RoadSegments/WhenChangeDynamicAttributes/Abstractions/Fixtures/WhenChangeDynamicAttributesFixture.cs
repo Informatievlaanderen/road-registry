@@ -41,7 +41,7 @@ public abstract class WhenChangeDynamicAttributesFixture : ControllerActionFixtu
 
     protected override async Task<IActionResult> GetResultAsync(ChangeRoadSegmentsDynamicAttributesParameters parameters)
     {
-        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
+        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
         {
             ControllerContext = new ControllerContext
             {

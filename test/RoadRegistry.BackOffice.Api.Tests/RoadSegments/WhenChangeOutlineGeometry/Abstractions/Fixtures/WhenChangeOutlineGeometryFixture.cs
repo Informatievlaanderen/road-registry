@@ -36,7 +36,7 @@ public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture
 
     protected override async Task<IActionResult> GetResultAsync(PostChangeOutlineGeometryParameters request)
     {
-        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
+        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
         {
             ControllerContext = new ControllerContext
             {

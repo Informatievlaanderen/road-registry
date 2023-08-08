@@ -34,7 +34,7 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
 
         await _editorContext.SaveChangesAsync(CancellationToken.None);
 
-        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
+        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
         {
             ControllerContext = new ControllerContext
             {
