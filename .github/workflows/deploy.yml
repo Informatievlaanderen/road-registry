@@ -44,7 +44,7 @@ jobs:
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
         REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
 
-  deploy:
+  deploy_services:
     if: github.repository_owner == 'Informatievlaanderen'
     needs: [deploy_start_slack]
     name: Deploy services
@@ -85,7 +85,7 @@ jobs:
         region: eu-west-1
         interval: 2
 
-    - name: output CD services
+    - name: Output CD services
       shell: bash
       run: |
         echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
@@ -94,7 +94,7 @@ jobs:
 
   deploy_lambda:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [deploy]
+    needs: [deploy_services]
     name: Deploy lambda(s)
     runs-on: ubuntu-latest
 
@@ -105,15 +105,6 @@ jobs:
         aws-access-key-id: ${{ secrets[format('VBR_AWS_ACCESS_KEY_ID_{0}', env.ENVIRONMENT_UPPER)] }}
         aws-secret-access-key: ${{ secrets[format('VBR_AWS_SECRET_ACCESS_KEY_{0}', env.ENVIRONMENT_UPPER)] }}
         aws-region: ${{ secrets[format('VBR_AWS_REGION_{0}', env.ENVIRONMENT_UPPER)] }}
-        
-    - name: Prepare Lambda(s)
-      shell: bash
-      run: |
-        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
-      env:
-        ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment }}
-        VERSION: ${{ github.event.inputs.version }}
         
     - name: Promote Lambda(s)
       shell: bash
