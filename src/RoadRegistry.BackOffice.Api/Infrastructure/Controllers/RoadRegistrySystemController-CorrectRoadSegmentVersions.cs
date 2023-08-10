@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadSegments;
@@ -25,15 +23,10 @@ public partial class RoadRegistrySystemController
     [SwaggerOperation(OperationId = nameof(CorrectRoadSegmentVersions), Description = "")]
     public async Task<IActionResult> CorrectRoadSegmentVersions(CancellationToken cancellationToken)
     {
-        await Mediator.Send(new CorrectRoadSegmentVersionsSqsRequest
+        await Mediator.Send(Enrich(new CorrectRoadSegmentVersionsSqsRequest
         {
-            ProvenanceData = new RoadRegistryProvenanceData(),
-            Metadata = new Dictionary<string, object>
-            {
-                { "CorrelationId", Guid.NewGuid() }
-            },
             Request = new CorrectRoadSegmentVersionsRequest()
-        }, cancellationToken);
+        }), cancellationToken);
         return Accepted();
     }
 }
