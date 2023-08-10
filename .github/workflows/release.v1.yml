@@ -10,27 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.set-version.outputs.version }}
-    strategy:
-      matrix:
-        image: [
-          'adminhost',
-          'backoffice-api',
-          'backoffice-commandhost',
-          'backoffice-eventhost',
-          'backoffice-extracthost',
-          'backoffice-messaginghost-sqs',
-          'backoffice-ui',
-          'editor-projectionhost',
-          'extract-legacy',
-          'import-legacy',
-          'producer-snapshot-projectionhost',
-          'product-projectionhost',
-          'projector',
-          'streetnameconsumer-projectionhost',
-          'syndication-projectionhost',
-          'wfs-projectionhost',
-          'wms-projectionhost'
-        ]
+
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2019-latest
@@ -268,13 +248,126 @@ jobs:
     #
     # Upload build artifacts
     #
-    - name: Upload artifact
+    
+    - name: Upload adminhost artifact
       if: env.RELEASE_VERSION != 'none'
       uses: actions/upload-artifact@v3
       with:
-        name: ${{ matrix.image }}-${{ needs.build.outputs.version }}
-        path: ~/rr-${{ matrix.image }}-image.tar
-    
+        name: adminhost
+        path: ~/rr-adminhost-image.tar
+
+    - name: Upload projector artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: projector
+        path: ~/rr-projector-image.tar
+
+    - name: Upload backoffice-api artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: backoffice-api
+        path: ~/rr-backoffice-api-image.tar
+
+    - name: Upload backoffice-ui artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: backoffice-ui
+        path: ~/rr-backoffice-ui-image.tar
+
+    - name: Upload editor-projectionhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: editor-projectionhost
+        path: ~/rr-editor-projectionhost-image.tar
+
+    - name: Upload product-projectionhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: product-projectionhost
+        path: ~/rr-product-projectionhost-image.tar
+
+    - name: Upload producer-snapshot-projectionhost
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: producer-snapshot-projectionhost
+        path: ~/rr-producer-snapshot-projectionhost-image.tar
+   
+    - name: Upload syndication-projectionhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: syndication-projectionhost
+        path: ~/rr-syndication-projectionhost-image.tar
+
+    - name: Upload wms-projectionhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: wms-projectionhost
+        path: ~/rr-wms-projectionhost-image.tar
+
+    - name: Upload wfs-projectionhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: wfs-projectionhost
+        path: ~/rr-wfs-projectionhost-image.tar
+
+    - name: Upload backoffice-eventhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: backoffice-eventhost
+        path: ~/rr-backoffice-eventhost-image.tar
+
+    - name: Upload backoffice-extracthost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: backoffice-extracthost
+        path: ~/rr-backoffice-extracthost-image.tar
+
+    - name: Upload backoffice-commandhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: backoffice-commandhost
+        path: ~/rr-backoffice-commandhost-image.tar
+
+    - name: Upload backoffice-messaginghost-sqs artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: backoffice-messaginghost-sqs
+        path: ~/rr-backoffice-messaginghost-sqs-image.tar
+
+    - name: Upload import-legacy artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: import-legacy
+        path: ~/rr-import-legacy-image.tar
+
+    - name: Upload extract-legacy artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: extract-legacy
+        path: ~/rr-extract-legacy-image.tar
+
+    - name: Upload streetnameconsumer-projectionhost artifact
+      if: env.RELEASE_VERSION != 'none'
+      uses: actions/upload-artifact@v3
+      with:
+        name: streetnameconsumer-projectionhost
+        path: ~/rr-streetnameconsumer-projectionhost-image.tar
+
     - name: Package Lambda functions
       if: env.RELEASE_VERSION != 'none'
       shell: bash
@@ -518,27 +611,6 @@ jobs:
     needs: build
     name: Push images to Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [
-          'adminhost',
-          'backoffice-api',
-          'backoffice-commandhost',
-          'backoffice-eventhost',
-          'backoffice-extracthost',
-          'backoffice-messaginghost-sqs',
-          'backoffice-ui',
-          'editor-projectionhost',
-          'extract-legacy',
-          'import-legacy',
-          'producer-snapshot-projectionhost',
-          'product-projectionhost',
-          'projector',
-          'streetnameconsumer-projectionhost',
-          'syndication-projectionhost',
-          'wfs-projectionhost',
-          'wms-projectionhost'
-        ]
     steps:
       - name: Configure AWS credentials (Test)
         if: needs.build.outputs.version != 'none'
@@ -552,30 +624,161 @@ jobs:
         if: needs.build.outputs.version != 'none'
         uses: aws-actions/amazon-ecr-login@v1.5.3
 
-      - name: Download artifact
+      #
+      # Download artifacts
+      #
+      
+      - name: Download adminhost
         uses: actions/download-artifact@v3
-        continue-on-error: false
         with:
-          name: ${{ matrix.image }}-${{ needs.build.outputs.version }}
+          name: adminhost
+          path: ~/
+      
+      - name: Download projector
+        uses: actions/download-artifact@v3
+        with:
+          name: projector
+          path: ~/
+      
+      - name: Download backoffice-api
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-api
+          path: ~/
+      
+      - name: Download backoffice-ui
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-ui
+          path: ~/
+      
+      - name: Download editor-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: editor-projectionhost
+          path: ~/
+      
+      - name: Download product-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: product-projectionhost
+          path: ~/
+      
+      - name: Download producer-snapshot-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: producer-snapshot-projectionhost
+          path: ~/
+      
+      - name: Download syndication-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: syndication-projectionhost
+          path: ~/
+      
+      - name: Download wms-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wms-projectionhost
+          path: ~/
+      
+      - name: Download wfs-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wfs-projectionhost
+          path: ~/
+      
+      - name: Download backoffice-eventhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-eventhost
+          path: ~/
+      
+      - name: Download backoffice-extracthost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-extracthost
+          path: ~/
+      
+      - name: Download backoffice-commandhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-commandhost
+          path: ~/
+      
+      - name: Download backoffice-messaginghost-sqs
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-messaginghost-sqs
+          path: ~/
+      
+      - name: Download import-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: import-legacy
           path: ~/
 
-      - name: Load artifact
+      - name: Download extract-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: extract-legacy
+          path: ~/
+
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
+      
+      #
+      # Load artifacts
+      #
+      
+      - name: Load artifacts
         shell: bash
         run: |
-          echo rr-$IMAGE-image.tar
-          docker image load -i ~/rr-$IMAGE-image.tar
-        env:
-          IMAGE: ${{ matrix.image }}
+          docker image load -i ~/rr-adminhost-image.tar
+          docker image load -i ~/rr-projector-image.tar
+          docker image load -i ~/rr-backoffice-api-image.tar
+          docker image load -i ~/rr-backoffice-ui-image.tar
+          docker image load -i ~/rr-editor-projectionhost-image.tar
+          docker image load -i ~/rr-product-projectionhost-image.tar
+          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
+          docker image load -i ~/rr-syndication-projectionhost-image.tar
+          docker image load -i ~/rr-wms-projectionhost-image.tar
+          docker image load -i ~/rr-wfs-projectionhost-image.tar
+          docker image load -i ~/rr-backoffice-eventhost-image.tar
+          docker image load -i ~/rr-backoffice-extracthost-image.tar
+          docker image load -i ~/rr-backoffice-commandhost-image.tar
+          docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
+          docker image load -i ~/rr-import-legacy-image.tar
+          docker image load -i ~/rr-extract-legacy-image.tar
+          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
       - name: Push artifacts to ECR Test
         if: needs.build.outputs.version != 'none'
         shell: bash
         run: |
-          echo $IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
+          echo $SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
-          IMAGE: ${{ matrix.image }}
           SEMVER: ${{ needs.build.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
 
@@ -584,27 +787,6 @@ jobs:
     needs: build
     name: Push images to Staging
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [
-          'adminhost',
-          'backoffice-api',
-          'backoffice-commandhost',
-          'backoffice-eventhost',
-          'backoffice-extracthost',
-          'backoffice-messaginghost-sqs',
-          'backoffice-ui',
-          'editor-projectionhost',
-          'extract-legacy',
-          'import-legacy',
-          'producer-snapshot-projectionhost',
-          'product-projectionhost',
-          'projector',
-          'streetnameconsumer-projectionhost',
-          'syndication-projectionhost',
-          'wfs-projectionhost',
-          'wms-projectionhost'
-        ]
     steps:
       - name: Configure AWS credentials (Staging)
         if: needs.build.outputs.version != 'none'
@@ -618,100 +800,195 @@ jobs:
         if: needs.build.outputs.version != 'none'
         uses: aws-actions/amazon-ecr-login@v1.5.3
 
-      - name: Download artifact
+      #
+      # Download artifacts
+      #
+      
+      - name: Download adminhost
         uses: actions/download-artifact@v3
-        continue-on-error: false
         with:
-          name: ${{ matrix.image }}-${{ needs.build.outputs.version }}
+          name: adminhost
+          path: ~/
+      
+      - name: Download projector
+        uses: actions/download-artifact@v3
+        with:
+          name: projector
+          path: ~/
+      
+      - name: Download backoffice-api
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-api
+          path: ~/
+      
+      - name: Download backoffice-ui
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-ui
+          path: ~/
+      
+      - name: Download editor-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: editor-projectionhost
+          path: ~/
+      
+      - name: Download product-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: product-projectionhost
+          path: ~/
+      
+      - name: Download producer-snapshot-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: producer-snapshot-projectionhost
+          path: ~/
+      
+      - name: Download syndication-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: syndication-projectionhost
+          path: ~/
+      
+      - name: Download wms-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wms-projectionhost
+          path: ~/
+      
+      - name: Download wfs-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wfs-projectionhost
+          path: ~/
+      
+      - name: Download backoffice-eventhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-eventhost
+          path: ~/
+      
+      - name: Download backoffice-extracthost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-extracthost
+          path: ~/
+      
+      - name: Download backoffice-commandhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-commandhost
+          path: ~/
+      
+      - name: Download backoffice-messaginghost-sqs
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-messaginghost-sqs
+          path: ~/
+      
+      - name: Download import-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: import-legacy
           path: ~/
 
-      - name: Load artifact
+      - name: Download extract-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: extract-legacy
+          path: ~/
+
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
+      
+      #
+      # Load artifacts
+      #
+
+      - name: Load artifacts
         shell: bash
         run: |
-          echo rr-$IMAGE-image.tar
-          docker image load -i ~/rr-$IMAGE-image.tar
-        env:
-          IMAGE: ${{ matrix.image }}
+          docker image load -i ~/rr-adminhost-image.tar
+          docker image load -i ~/rr-projector-image.tar
+          docker image load -i ~/rr-backoffice-api-image.tar
+          docker image load -i ~/rr-backoffice-ui-image.tar
+          docker image load -i ~/rr-editor-projectionhost-image.tar
+          docker image load -i ~/rr-product-projectionhost-image.tar
+          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
+          docker image load -i ~/rr-syndication-projectionhost-image.tar
+          docker image load -i ~/rr-wms-projectionhost-image.tar
+          docker image load -i ~/rr-wfs-projectionhost-image.tar
+          docker image load -i ~/rr-backoffice-eventhost-image.tar
+          docker image load -i ~/rr-backoffice-extracthost-image.tar
+          docker image load -i ~/rr-backoffice-commandhost-image.tar
+          docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
+          docker image load -i ~/rr-import-legacy-image.tar
+          docker image load -i ~/rr-extract-legacy-image.tar
+          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
       - name: Push artifacts to ECR Staging
         if: env.RELEASE_VERSION != 'none'
         shell: bash
         run: |
-          echo $IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/adminhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wfs-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+      
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/streetnameconsumer-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
+
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY }}
-          IMAGE: ${{ matrix.image }}
-          SEMVER: ${{ needs.build.outputs.version }}
-          WORKSPACE: ${{ github.workspace }}
-
-  push_images_to_newproduction:
-    if: needs.build.outputs.version != 'none'
-    needs: build
-    name: Push images to New Production
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [
-          'adminhost',
-          'backoffice-api',
-          'backoffice-commandhost',
-          'backoffice-eventhost',
-          'backoffice-extracthost',
-          'backoffice-messaginghost-sqs',
-          'backoffice-ui',
-          'editor-projectionhost',
-          'extract-legacy',
-          'import-legacy',
-          'producer-snapshot-projectionhost',
-          'product-projectionhost',
-          'projector',
-          'streetnameconsumer-projectionhost',
-          'syndication-projectionhost',
-          'wfs-projectionhost',
-          'wms-projectionhost'
-        ]
-    steps:
-      - name: Configure AWS credentials (New Production)
-        if: needs.build.outputs.version != 'none'
-        uses: aws-actions/configure-aws-credentials@v1.7.0
-        with:
-          aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
-          aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
-          aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-      - name: Login to Amazon ECR (New Production)
-        if: needs.build.outputs.version != 'none'
-        uses: aws-actions/amazon-ecr-login@v1.5.1
-
-      - name: Download artifact
-        uses: actions/download-artifact@v3
-        continue-on-error: false
-        with:
-          name: ${{ matrix.image }}-${{ needs.build.outputs.version }}
-          path: ~/
-
-      - name: Load artifact
-        shell: bash
-        run: |
-          echo rr-$IMAGE-image.tar
-          docker image load -i ~/rr-$IMAGE-image.tar
-        env:
-          IMAGE: ${{ matrix.image }}
-
-      - name: Push artifacts to ECR New Production
-        if: env.RELEASE_VERSION != 'none'
-        shell: bash
-        run: |
-          echo $IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-        env:
-          BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
-          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_NEWPRD }}
-          IMAGE: ${{ matrix.image }}
           SEMVER: ${{ needs.build.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
 
@@ -720,27 +997,6 @@ jobs:
     needs: build
     name: Push images to Production
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        image: [
-          'adminhost',
-          'backoffice-api',
-          'backoffice-commandhost',
-          'backoffice-eventhost',
-          'backoffice-extracthost',
-          'backoffice-messaginghost-sqs',
-          'backoffice-ui',
-          'editor-projectionhost',
-          'extract-legacy',
-          'import-legacy',
-          'producer-snapshot-projectionhost',
-          'product-projectionhost',
-          'projector',
-          'streetnameconsumer-projectionhost',
-          'syndication-projectionhost',
-          'wfs-projectionhost',
-          'wms-projectionhost'
-        ]
     steps:
       - name: Configure AWS credentials (Production)
         if: needs.build.outputs.version != 'none'
@@ -754,31 +1010,403 @@ jobs:
         if: needs.build.outputs.version != 'none'
         uses: aws-actions/amazon-ecr-login@v1.5.1
 
-      - name: Download artifact
+      #
+      # Download artifacts
+      #
+      
+      - name: Download adminhost
         uses: actions/download-artifact@v3
-        continue-on-error: false
         with:
-          name: ${{ matrix.image }}-${{ needs.build.outputs.version }}
+          name: adminhost
+          path: ~/
+      
+      - name: Download projector
+        uses: actions/download-artifact@v3
+        with:
+          name: projector
+          path: ~/
+      
+      - name: Download backoffice-api
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-api
+          path: ~/
+      
+      - name: Download backoffice-ui
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-ui
+          path: ~/
+      
+      - name: Download editor-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: editor-projectionhost
+          path: ~/
+      
+      - name: Download product-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: product-projectionhost
+          path: ~/
+      
+      - name: Download producer-snapshot-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: producer-snapshot-projectionhost
+          path: ~/
+      
+      - name: Download syndication-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: syndication-projectionhost
+          path: ~/
+      
+      - name: Download wms-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wms-projectionhost
+          path: ~/
+      
+      - name: Download wfs-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wfs-projectionhost
+          path: ~/
+      
+      - name: Download backoffice-eventhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-eventhost
+          path: ~/
+      
+      - name: Download backoffice-extracthost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-extracthost
+          path: ~/
+      
+      - name: Download backoffice-commandhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-commandhost
+          path: ~/
+      
+      - name: Download backoffice-messaginghost-sqs
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-messaginghost-sqs
+          path: ~/
+      
+      - name: Download import-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: import-legacy
           path: ~/
 
-      - name: Load artifact
+      - name: Download extract-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: extract-legacy
+          path: ~/
+
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
+      
+      #
+      # Load artifacts
+      #
+
+      - name: Load artifacts
         shell: bash
         run: |
-          echo rr-$IMAGE-image.tar
-          docker image load -i ~/rr-$IMAGE-image.tar
-        env:
-          IMAGE: ${{ matrix.image }}
+          docker image load -i ~/rr-adminhost-image.tar
+          docker image load -i ~/rr-projector-image.tar
+          docker image load -i ~/rr-backoffice-api-image.tar
+          docker image load -i ~/rr-backoffice-ui-image.tar
+          docker image load -i ~/rr-editor-projectionhost-image.tar
+          docker image load -i ~/rr-product-projectionhost-image.tar
+          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
+          docker image load -i ~/rr-syndication-projectionhost-image.tar
+          docker image load -i ~/rr-wms-projectionhost-image.tar
+          docker image load -i ~/rr-wfs-projectionhost-image.tar
+          docker image load -i ~/rr-backoffice-eventhost-image.tar
+          docker image load -i ~/rr-backoffice-extracthost-image.tar
+          docker image load -i ~/rr-backoffice-commandhost-image.tar
+          docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
+          docker image load -i ~/rr-import-legacy-image.tar
+          docker image load -i ~/rr-extract-legacy-image.tar
+          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
 
       - name: Push artifacts to ECR Production
+        if: env.RELEASE_VERSION != 'none'
         shell: bash
         run: |
-          echo $IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/adminhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wfs-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/streetnameconsumer-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
-          IMAGE: ${{ matrix.image }}
+          SEMVER: ${{ needs.build.outputs.version }}
+          WORKSPACE: ${{ github.workspace }}
+
+  push_images_to_newproduction:
+    if: needs.build.outputs.version != 'none'
+    needs: build
+    name: Push images to New Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials (New Production)
+        if: needs.build.outputs.version != 'none'
+        uses: aws-actions/configure-aws-credentials@v1.7.0
+        with:
+          aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
+          aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
+          aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+      - name: Login to Amazon ECR (New Production)
+        if: needs.build.outputs.version != 'none'
+        uses: aws-actions/amazon-ecr-login@v1.5.1
+
+      #
+      # Download artifacts
+      #
+      
+      - name: Download adminhost
+        uses: actions/download-artifact@v3
+        with:
+          name: adminhost
+          path: ~/
+      
+      - name: Download projector
+        uses: actions/download-artifact@v3
+        with:
+          name: projector
+          path: ~/
+      
+      - name: Download backoffice-api
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-api
+          path: ~/
+      
+      - name: Download backoffice-ui
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-ui
+          path: ~/
+      
+      - name: Download editor-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: editor-projectionhost
+          path: ~/
+      
+      - name: Download product-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: product-projectionhost
+          path: ~/
+      
+      - name: Download producer-snapshot-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: producer-snapshot-projectionhost
+          path: ~/
+      
+      - name: Download syndication-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: syndication-projectionhost
+          path: ~/
+      
+      - name: Download wms-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wms-projectionhost
+          path: ~/
+      
+      - name: Download wfs-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: wfs-projectionhost
+          path: ~/
+      
+      - name: Download backoffice-eventhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-eventhost
+          path: ~/
+      
+      - name: Download backoffice-extracthost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-extracthost
+          path: ~/
+      
+      - name: Download backoffice-commandhost
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-commandhost
+          path: ~/
+      
+      - name: Download backoffice-messaginghost-sqs
+        uses: actions/download-artifact@v3
+        with:
+          name: backoffice-messaginghost-sqs
+          path: ~/
+      
+      - name: Download import-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: import-legacy
+          path: ~/
+
+      - name: Download extract-legacy
+        uses: actions/download-artifact@v3
+        with:
+          name: extract-legacy
+          path: ~/
+
+      - name: Download streetnameconsumer-projectionhost
+        uses: actions/download-artifact@v3
+        with:
+          name: streetnameconsumer-projectionhost
+          path: ~/
+      
+      #
+      # Load artifacts
+      #
+
+      - name: Load artifacts
+        shell: bash
+        run: |
+          docker image load -i ~/rr-adminhost-image.tar
+          docker image load -i ~/rr-projector-image.tar
+          docker image load -i ~/rr-backoffice-api-image.tar
+          docker image load -i ~/rr-backoffice-ui-image.tar
+          docker image load -i ~/rr-editor-projectionhost-image.tar
+          docker image load -i ~/rr-product-projectionhost-image.tar
+          docker image load -i ~/rr-producer-snapshot-projectionhost-image.tar
+          docker image load -i ~/rr-syndication-projectionhost-image.tar
+          docker image load -i ~/rr-wms-projectionhost-image.tar
+          docker image load -i ~/rr-wfs-projectionhost-image.tar
+          docker image load -i ~/rr-backoffice-eventhost-image.tar
+          docker image load -i ~/rr-backoffice-extracthost-image.tar
+          docker image load -i ~/rr-backoffice-commandhost-image.tar
+          docker image load -i ~/rr-backoffice-messaginghost-sqs-image.tar
+          docker image load -i ~/rr-import-legacy-image.tar
+          docker image load -i ~/rr-extract-legacy-image.tar
+          docker image load -i ~/rr-streetnameconsumer-projectionhost-image.tar
+
+      - name: Push artifacts to ECR New Production
+        if: env.RELEASE_VERSION != 'none'
+        shell: bash
+        run: |
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/adminhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/adminhost:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/projector:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/projector:$SEMVER
+
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-ui:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-ui:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-api:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-api:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/editor-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/editor-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/product-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/product-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/producer-snapshot-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/producer-snapshot-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/syndication-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/syndication-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wms-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/wms-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/wfs-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/wfs-projectionhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-eventhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-eventhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-extracthost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-extracthost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-commandhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-commandhost:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/backoffice-messaginghost-sqs:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/backoffice-messaginghost-sqs:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/import-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/import-legacy:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/extract-legacy:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/extract-legacy:$SEMVER
+  
+          docker tag  $BUILD_DOCKER_REGISTRY_TST/road-registry/streetnameconsumer-projectionhost:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/streetnameconsumer-projectionhost:$SEMVER
+        env:
+          BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
+          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_NEWPRD }}
           SEMVER: ${{ needs.build.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
 
