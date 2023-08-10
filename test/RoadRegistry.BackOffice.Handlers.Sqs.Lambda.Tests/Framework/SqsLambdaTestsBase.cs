@@ -8,9 +8,11 @@ using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Editor.Projections;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;
+using RoadRegistry.BackOffice.Extracts.Dbase.Organizations;
 using RoadRegistry.Tests.Framework;
 using Xunit.Abstractions;
 
@@ -19,6 +21,19 @@ public class SqsLambdaTestsBase : BackOfficeLambdaTest
     protected SqsLambdaTestsBase(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
         : base(testOutputHelper, loggerFactory)
     {
+        EditorContext.Organizations.Add(
+            new OrganizationRecord
+            {
+                Code = "AGIV",
+                SortableCode = "AGIV",
+                DbaseSchemaVersion = BackOffice.Extracts.Dbase.Organizations.V1.OrganizationDbaseRecord.DbaseSchemaVersion,
+                DbaseRecord = new BackOffice.Extracts.Dbase.Organizations.V1.OrganizationDbaseRecord
+                {
+                    ORG = { Value = "AGIV" },
+                    LBLORG = { Value = "Agentschap voor Geografische Informatie Vlaanderen" }
+                }.ToBytes(RecyclableMemoryStreamManager, FileEncoding)
+            });
+        EditorContext.SaveChanges();
     }
 
     protected async Task WhenProcessing_SqsRequest_Then_SqsLambdaRequest_IsSent<TSqsRequest, TSqsLambdaRequest, TBackOfficeRequest>()

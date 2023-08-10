@@ -11,8 +11,10 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
+using Editor.Schema;
 using Hosts;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 using Moq;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
@@ -35,6 +37,9 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
     protected readonly IdempotencyContext IdempotencyContext;
     protected readonly ILoggerFactory LoggerFactory;
     protected readonly SqsLambdaHandlerOptions Options;
+    protected readonly EditorContext EditorContext;
+    protected readonly RecyclableMemoryStreamManager RecyclableMemoryStreamManager;
+    protected readonly FileEncoding FileEncoding;
 
     protected BackOfficeLambdaTest(ITestOutputHelper testOutputHelper, ILoggerFactory loggerFactory)
         : base(testOutputHelper)
@@ -42,7 +47,12 @@ public abstract class BackOfficeLambdaTest : RoadNetworkTestBase
         IdempotencyContext = new FakeIdempotencyContextFactory().CreateDbContext(Array.Empty<string>());
         LoggerFactory = loggerFactory;
         Options = new FakeSqsLambdaHandlerOptions();
+        RecyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
+        FileEncoding = FileEncoding.UTF8;
+
+        EditorContext = new FakeEditorContextFactory().CreateDbContext(Array.Empty<string>());
     }
+
 
     protected async Task AddRoadSegment(RoadSegmentId roadSegmentId)
     {
