@@ -1,10 +1,10 @@
-namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
+namespace RoadRegistry.BackOffice.Abstractions.Organizations;
 
-using System.Text;
-using Abstractions.Organizations;
-using BackOffice.Extensions;
-using Dbase;
+using BackOffice.Extracts.Dbase.Organizations.V2;
 using Microsoft.IO;
+using RoadRegistry.BackOffice.Dbase;
+using RoadRegistry.BackOffice.Extensions;
+using System.Text;
 
 public class OrganizationDbaseRecordReader : VersionedDbaseRecordReader<OrganizationDetail>
 {
@@ -16,14 +16,14 @@ public class OrganizationDbaseRecordReader : VersionedDbaseRecordReader<Organiza
     {
     }
 
-    private sealed class V2Converter : DbaseRecordReader<Extracts.Dbase.Organizations.V2.OrganizationDbaseRecord, OrganizationDetail>
+    private sealed class V2Converter : DbaseRecordReader<OrganizationDbaseRecord, OrganizationDetail>
     {
         public V2Converter(RecyclableMemoryStreamManager manager, Encoding encoding)
             : base(manager, encoding, WellKnownDbaseSchemaVersions.V2)
         {
         }
 
-        protected override OrganizationDetail Convert(Extracts.Dbase.Organizations.V2.OrganizationDbaseRecord dbaseRecord)
+        protected override OrganizationDetail Convert(BackOffice.Extracts.Dbase.Organizations.V2.OrganizationDbaseRecord dbaseRecord)
         {
             return new OrganizationDetail
             {
@@ -34,14 +34,14 @@ public class OrganizationDbaseRecordReader : VersionedDbaseRecordReader<Organiza
         }
     }
 
-    private sealed class V1Converter : DbaseRecordReader<Extracts.Dbase.Organizations.V1.OrganizationDbaseRecord, OrganizationDetail>
+    private sealed class V1Converter : DbaseRecordReader<BackOffice.Extracts.Dbase.Organizations.V1.OrganizationDbaseRecord, OrganizationDetail>
     {
         public V1Converter(RecyclableMemoryStreamManager manager, Encoding encoding)
             : base(manager, encoding, WellKnownDbaseSchemaVersions.V1)
         {
         }
 
-        protected override OrganizationDetail Convert(Extracts.Dbase.Organizations.V1.OrganizationDbaseRecord dbaseRecord)
+        protected override OrganizationDetail Convert(BackOffice.Extracts.Dbase.Organizations.V1.OrganizationDbaseRecord dbaseRecord)
         {
             return new OrganizationDetail
             {
