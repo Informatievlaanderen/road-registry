@@ -11,7 +11,7 @@ on:
         - tst
         - stg
         - prd
-        - acc
+        - newprd
         required: true
       version:
         description: Version
@@ -21,7 +21,7 @@ jobs:
   deploy_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
     name: Deploy started
-    environment: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment }}
+    environment: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'newprd' && 'acc' || github.event.inputs.environment }}
     runs-on: ubuntu-latest
 
     steps:
@@ -76,7 +76,7 @@ jobs:
         STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
       uses: informatievlaanderen/awscurl-polling-action/polling-action@main
       with:
-        environment: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment }}
+        environment: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'newprd' && 'acc' || github.event.inputs.environment }}
         version: ${{ github.event.inputs.version }}
         status-url: $STATUS_URL
         deploy-url: $BUILD_URL
@@ -116,7 +116,7 @@ jobs:
       env:
         ACCESS_KEY_ID: ${{ secrets[format('VBR_AWS_ACCESS_KEY_ID_{0}', env.ENVIRONMENT_UPPER)] }}
         SECRET_ACCESS_KEY_ID: ${{ secrets[format('VBR_AWS_SECRET_ACCESS_KEY_{0}', env.ENVIRONMENT_UPPER)] }}
-        ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment }}
+        ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'newprd' && 'acc' || github.event.inputs.environment }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
 
