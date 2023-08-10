@@ -1,3 +1,16 @@
+## [3.56.1](https://github.com/informatievlaanderen/road-registry/compare/v3.56.0...v3.56.1) (2023-08-10)
+
+
+### Bug Fixes
+
+* add manual deploy pipeline ([#1106](https://github.com/informatievlaanderen/road-registry/issues/1106)) ([784cdd8](https://github.com/informatievlaanderen/road-registry/commit/784cdd840d5e3d8e769c8a0967ce81b868d29fe9))
+* add newprd to release ([#1110](https://github.com/informatievlaanderen/road-registry/issues/1110)) ([5fa3f5b](https://github.com/informatievlaanderen/road-registry/commit/5fa3f5b308d4b1e16cd13e4c954c681635114158))
+* manual deploy pipeline rename `acc` to `newprd` ([#1109](https://github.com/informatievlaanderen/road-registry/issues/1109)) ([a387581](https://github.com/informatievlaanderen/road-registry/commit/a387581964533cf406587a7934ad88c8b108adf0))
+* manual deployment pipeline ([#1107](https://github.com/informatievlaanderen/road-registry/issues/1107)) ([93774b6](https://github.com/informatievlaanderen/road-registry/commit/93774b6957592c5b003b413fa790af0fdd2785e4))
+* manual pipeline lambda deploy ([#1108](https://github.com/informatievlaanderen/road-registry/issues/1108)) ([b786de9](https://github.com/informatievlaanderen/road-registry/commit/b786de9343a15442850ceb82eaf822ec5fae93b4))
+* remove services matrix for build ([#1112](https://github.com/informatievlaanderen/road-registry/issues/1112)) ([2abd84d](https://github.com/informatievlaanderen/road-registry/commit/2abd84d7ef8fb6469a4fca7699ecac9e193245f5))
+* revert use matrix for nuget packages ([#1111](https://github.com/informatievlaanderen/road-registry/issues/1111)) ([10e5962](https://github.com/informatievlaanderen/road-registry/commit/10e5962a0b9505756310c219008a282d316dcb51))
+
 # [3.56.0](https://github.com/informatievlaanderen/road-registry/compare/v3.55.0...v3.56.0) (2023-08-08)
 
 
