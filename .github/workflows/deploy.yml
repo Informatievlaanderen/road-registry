@@ -104,7 +104,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets[format('VBR_AWS_ACCESS_KEY_ID_{0}', env.ENVIRONMENT_UPPER)] }}
         aws-secret-access-key: ${{ secrets[format('VBR_AWS_SECRET_ACCESS_KEY_{0}', env.ENVIRONMENT_UPPER)] }}
-        aws-region: ${{ secrets[format('VBR_AWS_REGION_{0}', env.ENVIRONMENT_UPPER)] }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
         
     - name: Promote Lambda(s)
       shell: bash
@@ -117,7 +117,7 @@ jobs:
         ACCESS_KEY_ID: ${{ secrets[format('VBR_AWS_ACCESS_KEY_ID_{0}', env.ENVIRONMENT_UPPER)] }}
         SECRET_ACCESS_KEY_ID: ${{ secrets[format('VBR_AWS_SECRET_ACCESS_KEY_{0}', env.ENVIRONMENT_UPPER)] }}
         ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment }}
-        REGION: ${{ secrets[format('VBR_AWS_REGION_{0}', env.ENVIRONMENT_UPPER)] }}
+        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
 
   deploy_finish_slack:
