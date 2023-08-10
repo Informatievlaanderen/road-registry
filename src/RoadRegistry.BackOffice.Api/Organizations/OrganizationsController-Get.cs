@@ -29,7 +29,6 @@ public partial class OrganizationsController
     [HttpGet(GetRoute, Name = nameof(Get))]
     [AllowAnonymous]
     [ProducesResponseType(typeof(GetOrganizationsResponse), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     [SwaggerResponseExample(StatusCodes.Status200OK, typeof(GetOrganizationsResponseResponseExamples))]
     [SwaggerResponseExample(StatusCodes.Status500InternalServerError, typeof(InternalServerErrorResponseExamples))]
