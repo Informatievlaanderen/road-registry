@@ -26,6 +26,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Remove="appsettings.laptop.json" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
 			<_Parameter1>$(AssemblyName).Tests</_Parameter1>
 		</AssemblyAttribute>
@@ -34,6 +38,12 @@
   <ItemGroup>
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
     <ProjectReference Include="..\RoadRegistry.Snapshot.Handlers.Sqs\RoadRegistry.Snapshot.Handlers.Sqs.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.laptop.json">
+      <DependentUpon>appsettings.json</DependentUpon>
+    </Content>
   </ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

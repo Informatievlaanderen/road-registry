@@ -1,20 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RoadRegistry.Hosts.Infrastructure.Extensions
 {
     using Microsoft.Extensions.Configuration;
     using Serilog;
     using Serilog.Events;
-    using Serilog.Sinks.Slack.Models;
     using Serilog.Sinks.Slack;
+    using Serilog.Sinks.Slack.Models;
 
     public static class LoggerConfigurationExtensions
     {
-        public static LoggerConfiguration AddSlackSink<T>(this LoggerConfiguration loggerConfiguration, IConfiguration configuration)
+        public static LoggerConfiguration AddSlackSink(this LoggerConfiguration loggerConfiguration, Type type, IConfiguration configuration)
         {
             var slackSinkConfiguation = configuration.GetSection(nameof(SlackSinkOptions));
 
@@ -22,7 +18,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Extensions
             {
                 var sinkOptions = new SlackSinkOptions
                 {
-                    CustomUserName = typeof(T).Namespace,
+                    CustomUserName = type.Namespace,
                     MinimumLogEventLevel = LogEventLevel.Error
                 };
                 slackSinkConfiguation.Bind(sinkOptions);
@@ -31,5 +27,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Extensions
 
             return loggerConfiguration;
         }
+
+        public static LoggerConfiguration AddSlackSink<T>(this LoggerConfiguration loggerConfiguration, IConfiguration configuration) => AddSlackSink(loggerConfiguration, typeof(T), configuration);
     }
 }

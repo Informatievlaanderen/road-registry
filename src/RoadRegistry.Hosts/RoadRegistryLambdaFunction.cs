@@ -26,6 +26,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
+using Serilog.Sinks.Slack;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
@@ -109,7 +111,22 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddEditorContext()
             .AddStreamStore()
-            .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })
+            .AddLogging(builder =>
+            {
+                var loggerConfiguration = new LoggerConfiguration()
+                    .ReadFrom.Configuration(context.Configuration)
+                    .Enrich.FromLogContext()
+                    .Enrich.WithMachineName()
+                    .Enrich.WithThreadId()
+                    .Enrich.WithEnvironmentUserName()
+                    .AddSlackSink(GetType(), context.Configuration);
+
+                Log.Logger = loggerConfiguration.CreateLogger();
+                builder.AddRoadRegistryLambdaLogger();
+
+                builder.AddSerilog(Log.Logger);
+
+            })
             .AddSqsLambdaHandlerOptions()
             .AddRoadRegistrySnapshot()
             .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
