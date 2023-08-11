@@ -54,15 +54,15 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequest
             .WithOperatorName(OperatorName.Unknown)
             .WithReason(new Reason("Corrigeer wegsegmenten organisatie namen"));
 
-        var roadSegmentIdsWithGeometryVersionZero = await GetInvalidRoadSegmentIds(cancellationToken);
-        if (!roadSegmentIdsWithGeometryVersionZero.Any())
+        var invalidRoadSegmentIds = await GetInvalidRoadSegmentIds(cancellationToken);
+        if (!invalidRoadSegmentIds.Any())
         {
             return new CorrectRoadSegmentOrganizationNamesResponse(0);
         }
 
         var network = await _roadRegistryContext.RoadNetworks.Get(cancellationToken);
 
-        var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x)));
+        var roadSegments = network.FindRoadSegments(invalidRoadSegmentIds.Select(x => new RoadSegmentId(x)));
 
         var recordNumber = RecordNumber.Initial;
 

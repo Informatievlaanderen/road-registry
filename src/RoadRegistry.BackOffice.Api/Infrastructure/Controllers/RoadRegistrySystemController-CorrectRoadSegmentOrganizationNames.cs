@@ -2,9 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
 using System.Threading;
 using System.Threading.Tasks;
-using Abstractions.Extracts;
 using Abstractions.RoadSegments;
-using Handlers.Sqs.Extracts;
 using Handlers.Sqs.RoadSegments;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
@@ -14,7 +12,7 @@ public partial class RoadRegistrySystemController
     private const string CorrectRoadSegmentOrganizationNamesRoute = "correct/roadsegmentorganizationnames";
 
     /// <summary>
-    ///     Corrects the empty organization names.
+    ///     Corrects the road segments with empty organization names.
     /// </summary>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
