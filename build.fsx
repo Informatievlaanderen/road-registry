@@ -13,6 +13,7 @@ open Fake.DotNet
 open Fake.IO.FileSystemOperators
 open Fake.IO
 open Fake.JavaScript
+open System.IO
 open ``Build-generic``
 
 let product = "Basisregisters Vlaanderen"
