@@ -1,3 +1,10 @@
+## [3.56.2](https://github.com/informatievlaanderen/road-registry/compare/v3.56.1...v3.56.2) (2023-08-10)
+
+
+### Bug Fixes
+
+* newprd lambda s3 bucket names ([#1114](https://github.com/informatievlaanderen/road-registry/issues/1114)) ([e4e35fa](https://github.com/informatievlaanderen/road-registry/commit/e4e35fa1918d073900a758a882887c64e758781b))
+
 ## [3.56.1](https://github.com/informatievlaanderen/road-registry/compare/v3.56.0...v3.56.1) (2023-08-10)
 
 

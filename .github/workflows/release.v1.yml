@@ -397,11 +397,11 @@ jobs:
       shell: bash
       run: |
         pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$SEMVER/lambda.zip --sse aws:kms --sse-kms-key-id arn:aws:kms:eu-west-1:196194905350:key/b4bef7ae-4c5f-4382-9133-b3a655a69203
+        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$SEMVER/lambda.zip --sse aws:kms
         popd
         
         pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
-        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip --sse aws:kms --sse-kms-key-id arn:aws:kms:eu-west-1:196194905350:key/b4bef7ae-4c5f-4382-9133-b3a655a69203
+        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip --sse aws:kms
         popd
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
@@ -475,11 +475,11 @@ jobs:
       shell: bash
       run: |
        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+       aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
        popd
        
        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
-       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+       aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqssnapshot/$SEMVER/lambda.zip
        popd
       env:
        SEMVER: ${{ env.RELEASE_VERSION }}
@@ -1877,8 +1877,8 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$VERSION/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/lambda.zip --copy-props none
+        aws s3 cp s3://077849980894-vbr-prd-lam-rr-sqssnapshot/$VERSION/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqssnapshot/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.build.outputs.version }}
         
