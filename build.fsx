@@ -113,8 +113,11 @@ Target.create "Publish_Solution" (fun _ ->
     //copy files
     let dist = (buildDir @@ projectName @@ "linux")
     let source = "src" @@ projectName
-    Shell.copyFile dist (source @@ "Dockerfile")
-    Shell.copyFile dist (source @@ "init.sh")
+
+    ["Dockerfile" "init.sh"] |> List.iter (fun fileName ->
+      if File.Exists(source @@ fileName) then
+        Shell.copyFile dist (source @@ fileName)
+    )
   )
 
   let dist = (buildDir @@ "RoadRegistry.BackOffice.UI" @@ "linux")
