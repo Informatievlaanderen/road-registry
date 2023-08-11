@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadNetworks;
@@ -39,15 +37,10 @@ public partial class RoadRegistrySystemController
 
         if (snapshotFeatureToggle.FeatureEnabled)
         {
-            await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
+            await Mediator.Send(Enrich(new RebuildRoadNetworkSnapshotSqsRequest
             {
-                ProvenanceData = new RoadRegistryProvenanceData(),
-                Metadata = new Dictionary<string, object>
-                {
-                    { "CorrelationId", Guid.NewGuid() }
-                },
                 Request = new RebuildRoadNetworkSnapshotRequest()
-            }, cancellationToken);
+            }), cancellationToken);
             return Accepted();
         }
 
