@@ -107,14 +107,22 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.Syndication.ProjectionHost"
     "RoadRegistry.Wfs.ProjectionHost"
     "RoadRegistry.Wms.ProjectionHost"
-  ] |> List.iter publishSource
+  ] |> List.iter (fun projectName ->
+    publishSource projectName
+
+    //copy files
+    let dist = (buildDir @@ projectName @@ "linux")
+    let source = "src" @@ projectName
+    Shell.copyFile dist (source @@ "Dockerfile")
+    Shell.copyFile dist (source @@ "init.sh")
+  )
 
   let dist = (buildDir @@ "RoadRegistry.BackOffice.UI" @@ "linux")
   let source = "src" @@ "RoadRegistry.BackOffice.UI"
 
   Shell.copyDir (dist @@ "dist") (source @@ "dist") (fun _ -> true)
-  Shell.copyFile dist (source @@ "Dockerfile")
   Shell.copyFile dist (source @@ "default.conf.template")
+  Shell.copyFile dist (source @@ "Dockerfile")
   Shell.copyFile dist (source @@ "init.sh")
 )
 
