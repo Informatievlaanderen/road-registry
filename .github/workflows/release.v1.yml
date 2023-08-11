@@ -45,6 +45,12 @@ jobs:
       with:
           persist-credentials: false
 
+    # needed for Sonar, default is 11 and is decprecated
+    - name: Set up JDK 17
+      uses: actions/setup-java@v1
+      with:
+        java-version: 17
+
     - name: Log file system info
       shell: bash
       run: |
@@ -474,13 +480,13 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-        #pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-        #aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
-        #popd
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
+        popd
        
-        #pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
-        #aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqssnapshot/$SEMVER/lambda.zip
-        #popd
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
+        aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqssnapshot/$SEMVER/lambda.zip
+        popd
       env:
        SEMVER: ${{ env.RELEASE_VERSION }}
 

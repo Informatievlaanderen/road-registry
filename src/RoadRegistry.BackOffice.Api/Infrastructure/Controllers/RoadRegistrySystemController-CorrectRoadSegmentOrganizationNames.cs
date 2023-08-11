@@ -9,23 +9,23 @@ using Swashbuckle.AspNetCore.Annotations;
 
 public partial class RoadRegistrySystemController
 {
-    private const string CorrectRoadSegmentVersionsRoute = "correct/roadsegmentversions";
+    private const string CorrectRoadSegmentOrganizationNamesRoute = "correct/roadsegmentorganizationnames";
 
     /// <summary>
-    ///     Corrects the road segment versions.
+    ///     Corrects the road segments with empty organization names.
     /// </summary>
     /// <param name="cancellationToken">
     ///     The cancellation token that can be used by other objects or threads to receive notice
     ///     of cancellation.
     /// </param>
     /// <returns>IActionResult.</returns>
-    [HttpPost(CorrectRoadSegmentVersionsRoute, Name = nameof(CorrectRoadSegmentVersions))]
-    [SwaggerOperation(OperationId = nameof(CorrectRoadSegmentVersions), Description = "")]
-    public async Task<IActionResult> CorrectRoadSegmentVersions(CancellationToken cancellationToken)
+    [HttpPost(CorrectRoadSegmentOrganizationNamesRoute, Name = nameof(CorrectRoadSegmentOrganizationNames))]
+    [SwaggerOperation(OperationId = nameof(CorrectRoadSegmentOrganizationNames), Description = "")]
+    public async Task<IActionResult> CorrectRoadSegmentOrganizationNames(CancellationToken cancellationToken)
     {
-        await Mediator.Send(Enrich(new CorrectRoadSegmentVersionsSqsRequest
+        await Mediator.Send(Enrich(new CorrectRoadSegmentOrganizationNamesSqsRequest
         {
-            Request = new CorrectRoadSegmentVersionsRequest()
+            Request = new CorrectRoadSegmentOrganizationNamesRequest()
         }), cancellationToken);
         return Accepted();
     }
