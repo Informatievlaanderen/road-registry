@@ -1,3 +1,10 @@
+## [3.56.3](https://github.com/informatievlaanderen/road-registry/compare/v3.56.2...v3.56.3) (2023-08-11)
+
+
+### Bug Fixes
+
+* pipeline disable step 'Push Lambda functions to S3 New Production' ([#1115](https://github.com/informatievlaanderen/road-registry/issues/1115)) ([24a1015](https://github.com/informatievlaanderen/road-registry/commit/24a10157e2c3f4ca413c831a16bdb2d88edd8709))
+
 ## [3.56.2](https://github.com/informatievlaanderen/road-registry/compare/v3.56.1...v3.56.2) (2023-08-10)
 
 
