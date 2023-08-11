@@ -1,3 +1,14 @@
+## [3.56.4](https://github.com/informatievlaanderen/road-registry/compare/v3.56.3...v3.56.4) (2023-08-11)
+
+
+### Bug Fixes
+
+* build script add open system.io ([#1119](https://github.com/informatievlaanderen/road-registry/issues/1119)) ([fc964dd](https://github.com/informatievlaanderen/road-registry/commit/fc964dd89d2674bb73ac872b293cd265f371ee91))
+* build script define array syntax ([#1120](https://github.com/informatievlaanderen/road-registry/issues/1120)) ([e06c778](https://github.com/informatievlaanderen/road-registry/commit/e06c7789dae520bcab30d994117516e5cce99fe6))
+* ensure init.sh in docker image is the correct one ([#1117](https://github.com/informatievlaanderen/road-registry/issues/1117)) ([788dabe](https://github.com/informatievlaanderen/road-registry/commit/788dabec7c6cd7247767ae3e27d5858b9a00e67b))
+* only copy init.sh if it exists ([#1118](https://github.com/informatievlaanderen/road-registry/issues/1118)) ([d67264f](https://github.com/informatievlaanderen/road-registry/commit/d67264f73eb1ebb08115d225e887beb872f756f6))
+* WR-622+785 roadsegment organization name cannot be empty + update java version for build ([#1116](https://github.com/informatievlaanderen/road-registry/issues/1116)) ([8d114df](https://github.com/informatievlaanderen/road-registry/commit/8d114df07735a0abbdaef2b85c6ecce75bad1577))
+
 ## [3.56.3](https://github.com/informatievlaanderen/road-registry/compare/v3.56.2...v3.56.3) (2023-08-11)
 
 
