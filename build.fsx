@@ -115,7 +115,10 @@ Target.create "Publish_Solution" (fun _ ->
     let dist = (buildDir @@ projectName @@ "linux")
     let source = "src" @@ projectName
 
-    ["Dockerfile" "init.sh"] |> List.iter (fun fileName ->
+    [
+      "Dockerfile"
+      "init.sh"
+    ] |> List.iter (fun fileName ->
       if File.Exists(source @@ fileName) then
         Shell.copyFile dist (source @@ fileName)
     )
