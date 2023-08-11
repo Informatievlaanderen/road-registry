@@ -474,13 +474,13 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-       aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
-       popd
+        #pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        #aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
+        #popd
        
-       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
-       aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqssnapshot/$SEMVER/lambda.zip
-       popd
+        #pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
+        #aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqssnapshot/$SEMVER/lambda.zip
+        #popd
       env:
        SEMVER: ${{ env.RELEASE_VERSION }}
 
