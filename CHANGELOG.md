@@ -1,3 +1,10 @@
+## [3.56.5](https://github.com/informatievlaanderen/road-registry/compare/v3.56.4...v3.56.5) (2023-08-18)
+
+
+### Bug Fixes
+
+* Pre-init release V2 pipeline ([#1127](https://github.com/informatievlaanderen/road-registry/issues/1127)) ([5b593f4](https://github.com/informatievlaanderen/road-registry/commit/5b593f44927accb222efadba6619c0679ac4764b))
+
 ## [3.56.4](https://github.com/informatievlaanderen/road-registry/compare/v3.56.3...v3.56.4) (2023-08-11)
 
 
