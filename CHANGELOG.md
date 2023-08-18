@@ -1,3 +1,10 @@
+## [3.56.7](https://github.com/informatievlaanderen/road-registry/compare/v3.56.6...v3.56.7) (2023-08-18)
+
+
+### Bug Fixes
+
+* push to staging and deploy ([8287985](https://github.com/informatievlaanderen/road-registry/commit/828798580826e5a76d5c5a535bc6da32fb16e73e))
+
 ## [3.56.6](https://github.com/informatievlaanderen/road-registry/compare/v3.56.5...v3.56.6) (2023-08-18)
 
 
