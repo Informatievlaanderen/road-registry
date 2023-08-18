@@ -148,55 +148,80 @@ Target.create "Pack_Solution" (fun _ ->
     |> List.iter pack
 )
 
-Target.create "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
+type ContainerObject = { Project: string; Container: string }
+
+Target.create "Containerize" (fun _ ->
+  [|{ Project = "RoadRegistry.AdminHost"; Container = "backoffice-adminhost" }
+    { Project = "RoadRegistry.BackOffice.Api"; Container = "backoffice-api" }
+    { Project = "RoadRegistry.BackOffice.EventHost"; Container = "backoffice-eventhost" }
+    { Project = "RoadRegistry.BackOffice.ExtractHost"; Container = "backoffice-extracthost" }
+    { Project = "RoadRegistry.BackOffice.CommandHost"; Container = "backoffice-commandhost" }
+    { Project = "RoadRegistry.BackOffice.MessagingHost.Sqs"; Container = "backoffice-messaginghost-sqs" }
+    { Project = "RoadRegistry.BackOffice.UI"; Container = "backoffice-ui" }
+    { Project = "RoadRegistry.Projector"; Container = "projector" }
+    { Project = "RoadRegistry.Editor.ProjectionHost"; Container = "editor-projectionhost" }
+    { Project = "RoadRegistry.Product.ProjectionHost"; Container = "product-projectionhost" }
+    { Project = "RoadRegistry.Producer.Snapshot.ProjectionHost"; Container = "producer-snapshot-projectionhost" }
+    { Project = "RoadRegistry.StreetNameConsumer.ProjectionHost"; Container = "streetnameconsumer-projectionhost" }
+    { Project = "RoadRegistry.Syndication.ProjectionHost"; Container = "syndication-projectionhost" }
+    { Project = "RoadRegistry.Wfs.ProjectionHost"; Container = "wfs-projectionhost" }
+    { Project = "RoadRegistry.Wms.ProjectionHost"; Container = "wms-projectionhost" }
+    { Project = "RoadRegistry.Legacy.Import"; Container = "import-legacy" }
+    { Project = "RoadRegistry.Legacy.Extract"; Container = "extract-legacy" }
+  |] |> Array.Parallel.iter (fun o -> containerize o.Project o.Container))
+
+Target.create "SetAssemblyVersions" (fun _ -> setVersions "SolutionInfo.cs")
+
+
+// Target.create "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
 Target.create "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
 
-Target.create "Containerize_BackOfficeUI" (fun _ -> containerize "RoadRegistry.BackOffice.UI" "backoffice-ui")
+// Target.create "Containerize_BackOfficeUI" (fun _ -> containerize "RoadRegistry.BackOffice.UI" "backoffice-ui")
 Target.create "PushContainer_BackOfficeUI" (fun _ -> push "backoffice-ui")
 
-Target.create "Containerize_BackOfficeEventHost" (fun _ -> containerize "RoadRegistry.BackOffice.EventHost" "backoffice-eventhost")
+// Target.create "Containerize_BackOfficeEventHost" (fun _ -> containerize "RoadRegistry.BackOffice.EventHost" "backoffice-eventhost")
 Target.create "PushContainer_BackOfficeEventHost" (fun _ -> push "backoffice-eventhost")
 
-Target.create "Containerize_BackOfficeExtractHost" (fun _ -> containerize "RoadRegistry.BackOffice.ExtractHost" "backoffice-extracthost")
+// Target.create "Containerize_BackOfficeExtractHost" (fun _ -> containerize "RoadRegistry.BackOffice.ExtractHost" "backoffice-extracthost")
 Target.create "PushContainer_BackOfficeExtractHost" (fun _ -> push "backoffice-extracthost")
 
-Target.create "Containerize_BackOfficeCommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
+// Target.create "Containerize_BackOfficeCommandHost" (fun _ -> containerize "RoadRegistry.BackOffice.CommandHost" "backoffice-commandhost")
 Target.create "PushContainer_BackOfficeCommandHost" (fun _ -> push "backoffice-commandhost")
 
-Target.create "Containerize_BackOfficeMessagingHostSqs" (fun _ -> containerize "RoadRegistry.BackOffice.MessagingHost.Sqs" "backoffice-messaginghost-sqs")
+// Target.create "Containerize_BackOfficeMessagingHostSqs" (fun _ -> containerize "RoadRegistry.BackOffice.MessagingHost.Sqs" "backoffice-messaginghost-sqs")
 Target.create "PushContainer_BackOfficeMessagingHostSqs" (fun _ -> push "backoffice-messaginghost-sqs")
 
-Target.create "Containerize_AdminHost" (fun _ -> containerize "RoadRegistry.AdminHost" "adminhost")
+// Target.create "Containerize_AdminHost" (fun _ -> containerize "RoadRegistry.AdminHost" "adminhost")
 Target.create "PushContainer_AdminHost" (fun _ -> push "adminhost")
 
-Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
+// Target.create "Containerize_Projector" (fun _ -> containerize "RoadRegistry.Projector" "projector")
 Target.create "PushContainer_Projector" (fun _ -> push "projector")
 
-Target.create "Containerize_EditorProjectionHost" (fun _ -> containerize "RoadRegistry.Editor.ProjectionHost" "editor-projectionhost")
+// Target.create "Containerize_EditorProjectionHost" (fun _ -> containerize "RoadRegistry.Editor.ProjectionHost" "editor-projectionhost")
 Target.create "PushContainer_EditorProjectionHost" (fun _ -> push "editor-projectionhost")
 
-Target.create "Containerize_ProductProjectionHost" (fun _ -> containerize "RoadRegistry.Product.ProjectionHost" "product-projectionhost")
+// Target.create "Containerize_ProductProjectionHost" (fun _ -> containerize "RoadRegistry.Product.ProjectionHost" "product-projectionhost")
 Target.create "PushContainer_ProductProjectionHost" (fun _ -> push "product-projectionhost")
 
-Target.create "Containerize_ProducerSnapshotProjectionHost" (fun _ -> containerize "RoadRegistry.Producer.Snapshot.ProjectionHost" "producer-snapshot-projectionhost")
+// Target.create "Containerize_ProducerSnapshotProjectionHost" (fun _ -> containerize "RoadRegistry.Producer.Snapshot.ProjectionHost" "producer-snapshot-projectionhost")
 Target.create "PushContainer_ProducerSnapshotProjectionHost" (fun _ -> push "producer-snapshot-projectionhost")
 
-Target.create "Containerize_StreetNameConsumerProjectionHost" (fun _ -> containerize "RoadRegistry.StreetNameConsumer.ProjectionHost" "streetnameconsumer-projectionhost")
+// Target.create "Containerize_StreetNameConsumerProjectionHost" (fun _ -> containerize "RoadRegistry.StreetNameConsumer.ProjectionHost" "streetnameconsumer-projectionhost")
 Target.create "PushContainer_StreetNameConsumerProjectionHost" (fun _ -> push "streetnameconsumer-projectionhost")
 
-Target.create "Containerize_SyndicationProjectionHost" (fun _ -> containerize "RoadRegistry.Syndication.ProjectionHost" "syndication-projectionhost")
+// Target.create "Containerize_SyndicationProjectionHost" (fun _ -> containerize "RoadRegistry.Syndication.ProjectionHost" "syndication-projectionhost")
 Target.create "PushContainer_SyndicationProjectionHost" (fun _ -> push "syndication-projectionhost")
 
-Target.create "Containerize_WmsProjectionHost" (fun _ -> containerize "RoadRegistry.Wms.ProjectionHost" "wms-projectionhost")
+// Target.create "Containerize_WmsProjectionHost" (fun _ -> containerize "RoadRegistry.Wms.ProjectionHost" "wms-projectionhost")
 Target.create "PushContainer_WmsProjectionHost" (fun _ -> push "wms-projectionhost")
 
-Target.create "Containerize_WfsProjectionHost" (fun _ -> containerize "RoadRegistry.Wfs.ProjectionHost" "wfs-projectionhost")
+// Target.create "Containerize_WfsProjectionHost" (fun _ -> containerize "RoadRegistry.Wfs.ProjectionHost" "wfs-projectionhost")
 Target.create "PushContainer_WfsProjectionHost" (fun _ -> push "wfs-projectionhost")
 
-Target.create "Containerize_ImportLegacy" (fun _ -> containerize "RoadRegistry.Legacy.Import" "import-legacy")
+// Target.create "Containerize_ImportLegacy" (fun _ -> containerize "RoadRegistry.Legacy.Import" "import-legacy")
 Target.create "PushContainer_ImportLegacy" (fun _ -> push "import-legacy")
 
-Target.create "Containerize_ExtractLegacy" (fun _ -> containerize "RoadRegistry.Legacy.Extract" "extract-legacy")
+// Target.create "Containerize_ExtractLegacy" (fun _ -> containerize "RoadRegistry.Legacy.Extract" "extract-legacy")
 Target.create "PushContainer_ExtractLegacy" (fun _ -> push "extract-legacy")
 
 // --------------------------------------------------------------------------------
@@ -205,8 +230,8 @@ Target.create "Build" ignore
 Target.create "Test" ignore
 Target.create "Publish" ignore
 Target.create "Pack" ignore
-Target.create "Containerize" ignore
 Target.create "Push" ignore
+// Target.create "Containerize" ignore
 
 "NpmInstall"
   ==> "DotNetCli"
@@ -228,23 +253,23 @@ Target.create "Push" ignore
   ==> "Pack"
 
 "Pack"
-  ==> "Containerize_AdminHost"
-  ==> "Containerize_Projector"
-  ==> "Containerize_BackOfficeApi"
-  ==> "Containerize_EditorProjectionHost"
-  ==> "Containerize_ProductProjectionHost"
-  ==> "Containerize_ProducerSnapshotProjectionHost"
-  ==> "Containerize_WmsProjectionHost"
-  ==> "Containerize_WfsProjectionHost"
-  ==> "Containerize_SyndicationProjectionHost"
-  ==> "Containerize_BackOfficeEventHost"
-  ==> "Containerize_BackOfficeExtractHost"
-  ==> "Containerize_BackOfficeCommandHost"
-  ==> "Containerize_BackOfficeMessagingHostSqs"
-  ==> "Containerize_ImportLegacy"
-  ==> "Containerize_ExtractLegacy"
-  ==> "Containerize_BackOfficeUI"
-  ==> "Containerize_StreetNameConsumerProjectionHost"
+  // ==> "Containerize_AdminHost"
+  // ==> "Containerize_Projector"
+  // ==> "Containerize_BackOfficeApi"
+  // ==> "Containerize_EditorProjectionHost"
+  // ==> "Containerize_ProductProjectionHost"
+  // ==> "Containerize_ProducerSnapshotProjectionHost"
+  // ==> "Containerize_WmsProjectionHost"
+  // ==> "Containerize_WfsProjectionHost"
+  // ==> "Containerize_SyndicationProjectionHost"
+  // ==> "Containerize_BackOfficeEventHost"
+  // ==> "Containerize_BackOfficeExtractHost"
+  // ==> "Containerize_BackOfficeCommandHost"
+  // ==> "Containerize_BackOfficeMessagingHostSqs"
+  // ==> "Containerize_ImportLegacy"
+  // ==> "Containerize_ExtractLegacy"
+  // ==> "Containerize_BackOfficeUI"
+  // ==> "Containerize_StreetNameConsumerProjectionHost"
   ==> "Containerize"
 // Possibly add more projects to containerize here
 
