@@ -1,3 +1,10 @@
+## [3.56.6](https://github.com/informatievlaanderen/road-registry/compare/v3.56.5...v3.56.6) (2023-08-18)
+
+
+### Bug Fixes
+
+* deploy steps pipeline ([9f38d79](https://github.com/informatievlaanderen/road-registry/commit/9f38d792f51195d8be495bfbd03fad50afff1f55))
+
 ## [3.56.5](https://github.com/informatievlaanderen/road-registry/compare/v3.56.4...v3.56.5) (2023-08-18)
 
 
