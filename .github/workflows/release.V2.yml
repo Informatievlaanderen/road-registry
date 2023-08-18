@@ -758,9 +758,7 @@ jobs:
           'road-registry-streetnameconsumer-projectionhost',
           'road-registry-syndication-projectionhost',
           'road-registry-wms-projectionhost',
-          'road-registry-wfs-projectionhost',
-          'road-registry-import-legacy',
-          'road-registry-extract-legacy'
+          'road-registry-wfs-projectionhost'
         ]
     steps:
     - name: Deploy services
@@ -875,23 +873,21 @@ jobs:
     strategy:
       matrix:
         image: [
-          'road-registry-backoffice-api',
-          # 'road-registry-backoffice-ui',
-          'road-registry-backoffice-eventhost',
-          'road-registry-backoffice-extracthost',
-          'road-registry-backoffice-commandhost',
-          'road-registry-backoffice-messaginghost-sqs',
-          'road-registry-adminhost',
-          'road-registry-projector',
-          'road-registry-editor-projectionhost',
-          'road-registry-product-projectionhost',
-          'road-registry-producer-snapshot-projectionhost',
-          'road-registry-streetnameconsumer-projectionhost',
-          'road-registry-syndication-projectionhost',
-          'road-registry-wms-projectionhost',
-          'road-registry-wfs-projectionhost',
-          'road-registry-import-legacy',
-          'road-registry-extract-legacy'
+          'backoffice-api',
+        # 'backoffice-ui',
+          'backoffice-eventhost',
+          'backoffice-extracthost',
+          'backoffice-commandhost',
+          'backoffice-messaginghost-sqs',
+          'adminhost',
+          'projector',
+          'editor-projectionhost',
+          'product-projectionhost',
+          'producer-snapshot-projectionhost',
+          'streetnameconsumer-projectionhost',
+          'syndication-projectionhost',
+          'wms-projectionhost',
+          'wfs-projectionhost'
         ]
     steps:
       - name: Configure AWS credentials (Staging)
@@ -956,9 +952,7 @@ jobs:
           'road-registry-streetnameconsumer-projectionhost',
           'road-registry-syndication-projectionhost',
           'road-registry-wms-projectionhost',
-          'road-registry-wfs-projectionhost',
-          'road-registry-import-legacy',
-          'road-registry-extract-legacy'
+          'road-registry-wfs-projectionhost'
         ]
 
     steps:
