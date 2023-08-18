@@ -148,31 +148,6 @@ Target.create "Pack_Solution" (fun _ ->
     |> List.iter pack
 )
 
-type ContainerObject = { Project: string; Container: string }
-
-// Target.create "Containerize" (fun _ ->
-//   [|{ Project = "RoadRegistry.AdminHost"; Container = "backoffice-adminhost" }
-//     { Project = "RoadRegistry.BackOffice.Api"; Container = "backoffice-api" }
-//     { Project = "RoadRegistry.BackOffice.EventHost"; Container = "backoffice-eventhost" }
-//     { Project = "RoadRegistry.BackOffice.ExtractHost"; Container = "backoffice-extracthost" }
-//     { Project = "RoadRegistry.BackOffice.CommandHost"; Container = "backoffice-commandhost" }
-//     { Project = "RoadRegistry.BackOffice.MessagingHost.Sqs"; Container = "backoffice-messaginghost-sqs" }
-//     { Project = "RoadRegistry.BackOffice.UI"; Container = "backoffice-ui" }
-//     { Project = "RoadRegistry.Projector"; Container = "projector" }
-//     { Project = "RoadRegistry.Editor.ProjectionHost"; Container = "editor-projectionhost" }
-//     { Project = "RoadRegistry.Product.ProjectionHost"; Container = "product-projectionhost" }
-//     { Project = "RoadRegistry.Producer.Snapshot.ProjectionHost"; Container = "producer-snapshot-projectionhost" }
-//     { Project = "RoadRegistry.StreetNameConsumer.ProjectionHost"; Container = "streetnameconsumer-projectionhost" }
-//     { Project = "RoadRegistry.Syndication.ProjectionHost"; Container = "syndication-projectionhost" }
-//     { Project = "RoadRegistry.Wfs.ProjectionHost"; Container = "wfs-projectionhost" }
-//     { Project = "RoadRegistry.Wms.ProjectionHost"; Container = "wms-projectionhost" }
-//     { Project = "RoadRegistry.Legacy.Import"; Container = "import-legacy" }
-//     { Project = "RoadRegistry.Legacy.Extract"; Container = "extract-legacy" }
-//   |] |> Array.Parallel.iter (fun o -> containerize o.Project o.Container))
-
-Target.create "SetAssemblyVersions" (fun _ -> setVersions "SolutionInfo.cs")
-
-
 Target.create "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
 Target.create "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
 
