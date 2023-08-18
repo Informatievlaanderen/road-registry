@@ -157,6 +157,7 @@ Target.create "Containerize" (fun _ ->
     { Project = "RoadRegistry.BackOffice.ExtractHost"; Container = "backoffice-extracthost" }
     { Project = "RoadRegistry.BackOffice.CommandHost"; Container = "backoffice-commandhost" }
     { Project = "RoadRegistry.BackOffice.MessagingHost.Sqs"; Container = "backoffice-messaginghost-sqs" }
+    { Project = "RoadRegistry.BackOffice.UI"; Container = "backoffice-ui" }
     { Project = "RoadRegistry.Projector"; Container = "projector" }
     { Project = "RoadRegistry.Editor.ProjectionHost"; Container = "editor-projectionhost" }
     { Project = "RoadRegistry.Product.ProjectionHost"; Container = "product-projectionhost" }
