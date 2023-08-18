@@ -1,3 +1,10 @@
+## [3.56.8](https://github.com/informatievlaanderen/road-registry/compare/v3.56.7...v3.56.8) (2023-08-18)
+
+
+### Bug Fixes
+
+* upload lambdas in pipeline ([dc1aef7](https://github.com/informatievlaanderen/road-registry/commit/dc1aef7bdac7f9aff0bed37b323ea62d31576285))
+
 ## [3.56.7](https://github.com/informatievlaanderen/road-registry/compare/v3.56.6...v3.56.7) (2023-08-18)
 
 
