@@ -172,7 +172,6 @@ type ContainerObject = { Project: string; Container: string }
 
 Target.create "SetAssemblyVersions" (fun _ -> setVersions "SolutionInfo.cs")
 
-
 Target.create "Containerize_BackOfficeApi" (fun _ -> containerize "RoadRegistry.BackOffice.Api" "backoffice-api")
 Target.create "PushContainer_BackOfficeApi" (fun _ -> push "backoffice-api")
 
@@ -231,7 +230,7 @@ Target.create "Test" ignore
 Target.create "Publish" ignore
 Target.create "Pack" ignore
 Target.create "Push" ignore
-// Target.create "Containerize" ignore
+Target.create "Containerize" ignore
 
 "NpmInstall"
   ==> "DotNetCli"
