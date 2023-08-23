@@ -1318,7 +1318,7 @@ jobs:
 
   deploy_to_production_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images_to_production, deploy_to_test_finish_slack ]
+    needs: [ push_images_to_production, deploy_to_staging_finish_slack ]
     name: Deploy to production started
     environment: prd
     runs-on: ubuntu-latest
