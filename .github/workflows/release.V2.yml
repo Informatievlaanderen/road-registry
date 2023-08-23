@@ -900,8 +900,8 @@ jobs:
       shell: bash
       run: |
         docker pull ghcr.io/okigan/awscurl:latest
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "lam-vbr-test-basisregisters-rr-sqsbackofficefunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "lam-vbr-test-basisregisters-rr-sqssnapshotfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqsbackofficefunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqssnapshotfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
@@ -924,7 +924,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to test has started
+        slack-message: Deployment of road-registry to test has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -945,7 +945,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to test has finished
+        slack-message: Deployment of road-registry to test has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1113,7 +1113,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to staging has finished
+        slack-message: Deployment of road-registry to staging has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1135,7 +1135,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to staging has started
+        slack-message: Deployment of road-registry to staging has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
