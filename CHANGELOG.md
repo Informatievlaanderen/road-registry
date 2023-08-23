@@ -1,3 +1,10 @@
+## [3.56.9](https://github.com/informatievlaanderen/road-registry/compare/v3.56.8...v3.56.9) (2023-08-23)
+
+
+### Bug Fixes
+
+* release pipeline lambda function names ([#1130](https://github.com/informatievlaanderen/road-registry/issues/1130)) ([fb29724](https://github.com/informatievlaanderen/road-registry/commit/fb29724a118fc3216bc5699df9f62d2adbf0adf9))
+
 ## [3.56.8](https://github.com/informatievlaanderen/road-registry/compare/v3.56.7...v3.56.8) (2023-08-18)
 
 
