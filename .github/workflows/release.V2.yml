@@ -548,6 +548,108 @@ jobs:
         echo RELEASE_VERSION=$(cat semver) >> $GITHUB_ENV
       shell: bash
 
+  upload-lambda:
+    name: Upload Lambda
+    needs: [ release ]
+    runs-on: ubuntu-latest
+    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.release.outputs.version != 'none') }}
+    steps:
+    - name: Download Lambda Backoffice
+      uses: actions/download-artifact@v3
+      continue-on-error: false
+      with:
+        name: lambda-backoffice-${{ needs.release.outputs.version }}
+        path: ~/backoffice/
+
+    - name: Download Lambda Snapshot
+      uses: actions/download-artifact@v3
+      continue-on-error: false
+      with:
+        name: lambda-snapshot-${{ needs.release.outputs.version }}
+        path: ~/snapshot/
+
+    - name: Configure AWS credentials (Test)
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+    - name: Login to Amazon ECR (Test)
+      uses: aws-actions/amazon-ecr-login@v1.5.3
+
+    - name: Push Lambda functions to S3 Test
+      shell: bash
+      run: |
+        echo Push Lambda functions to S3 Test
+        echo aws s3 cp ~/backoffice/lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
+        echo aws s3 cp ~/snapshot/lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip
+        aws s3 cp ~/backoffice/lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
+        aws s3 cp ~/snapshot/lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip
+      env:
+        SEMVER: ${{ needs.release.outputs.version }}
+
+    - name: Configure AWS credentials (Staging)
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.VBR_AWS_REGION }}
+
+    - name: Login to Amazon ECR (Staging)
+      uses: aws-actions/amazon-ecr-login@v1.5.3
+
+    - name: Push Lambda functions to S3 Staging
+      shell: bash
+      run: |
+        echo Push Lambda functions to S3 Staging
+        echo aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+        echo aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+      env:
+        SEMVER: ${{ needs.release.outputs.version }}
+
+    # - name: Configure AWS credentials (New Production)
+    #   uses: aws-actions/configure-aws-credentials@v1-node16
+    #   with:
+    #     aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
+    #     aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
+    #     aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+    # - name: Login to Amazon ECR (New Production)
+    #   uses: aws-actions/amazon-ecr-login@v1.5.3
+
+    # - name: Push Lambda functions to S3 New Production
+    #   shell: bash
+    #   run: |
+    #     echo Push Lambda functions to S3 New Production
+    #     echo aws s3 cp ~/backoffice/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
+    #     aws s3 cp ~/backoffice/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
+    #   env:
+    #     SEMVER: ${{ needs.release.outputs.version }}
+
+    - name: Configure AWS credentials (Production)
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+    - name: Login to Amazon ECR (Production)
+      uses: aws-actions/amazon-ecr-login@v1.5.3
+
+    - name: Push Lambda functions to S3 Production
+      shell: bash
+      run: |
+        echo Push Lambda functions to S3 Production
+        echo aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+        echo aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+      env:
+        SEMVER: ${{ needs.release.outputs.version }}
+
   publish_to_nuget:
     needs: [ release ]
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.release.outputs.version != 'none') }}
@@ -738,29 +840,27 @@ jobs:
 
   deploy_to_test:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images_to_test, release ]
+    needs: [ push_images_to_test, release, upload-lambda ]
     name: Deploy to test
     runs-on: ubuntu-latest
     strategy:
       matrix:
         services: [
-          'backoffice-api', 
-          # 'backoffice-ui', 
-          'backoffice-eventhost', 
-          'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'backoffice-messaginghost-sqs', 
-          'adminhost', 
-          'projector', 
-          'editor-projectionhost', 
-          'product-projectionhost', 
-          'producer-snapshot-projectionhost', 
-          'streetnameconsumer-projectionhost', 
-          'syndication-projectionhost', 
-          'wms-projectionhost', 
-          'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'road-registry-backoffice-api',
+          # 'road-registry-backoffice-ui',
+          'road-registry-backoffice-eventhost',
+          'road-registry-backoffice-extracthost',
+          'road-registry-backoffice-commandhost',
+          'road-registry-backoffice-messaginghost-sqs',
+          'road-registry-adminhost',
+          'road-registry-projector',
+          'road-registry-editor-projectionhost',
+          'road-registry-product-projectionhost',
+          'road-registry-producer-snapshot-projectionhost',
+          'road-registry-streetnameconsumer-projectionhost',
+          'road-registry-syndication-projectionhost',
+          'road-registry-wms-projectionhost',
+          'road-registry-wfs-projectionhost'
         ]
     steps:
     - name: Deploy services
@@ -875,23 +975,21 @@ jobs:
     strategy:
       matrix:
         image: [
-          'backoffice-api', 
-          # 'backoffice-ui', 
-          'backoffice-eventhost', 
-          'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'backoffice-messaginghost-sqs', 
-          'adminhost', 
-          'projector', 
-          'editor-projectionhost', 
-          'product-projectionhost', 
-          'producer-snapshot-projectionhost', 
-          'streetnameconsumer-projectionhost', 
-          'syndication-projectionhost', 
-          'wms-projectionhost', 
-          'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'backoffice-api',
+        # 'backoffice-ui',
+          'backoffice-eventhost',
+          'backoffice-extracthost',
+          'backoffice-commandhost',
+          'backoffice-messaginghost-sqs',
+          'adminhost',
+          'projector',
+          'editor-projectionhost',
+          'product-projectionhost',
+          'producer-snapshot-projectionhost',
+          'streetnameconsumer-projectionhost',
+          'syndication-projectionhost',
+          'wms-projectionhost',
+          'wfs-projectionhost'
         ]
     steps:
       - name: Configure AWS credentials (Staging)
@@ -942,23 +1040,21 @@ jobs:
     strategy:
       matrix:
         services: [
-          'backoffice-api', 
-          # 'backoffice-ui', 
-          'backoffice-eventhost', 
-          'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'backoffice-messaginghost-sqs', 
-          'adminhost', 
-          'projector', 
-          'editor-projectionhost', 
-          'product-projectionhost', 
-          'producer-snapshot-projectionhost', 
-          'streetnameconsumer-projectionhost', 
-          'syndication-projectionhost', 
-          'wms-projectionhost', 
-          'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'road-registry-backoffice-api',
+        # 'road-registry-backoffice-ui',
+          'road-registry-backoffice-eventhost',
+          'road-registry-backoffice-extracthost',
+          'road-registry-backoffice-commandhost',
+          'road-registry-backoffice-messaginghost-sqs',
+          'road-registry-adminhost',
+          'road-registry-projector',
+          'road-registry-editor-projectionhost',
+          'road-registry-product-projectionhost',
+          'road-registry-producer-snapshot-projectionhost',
+          'road-registry-streetnameconsumer-projectionhost',
+          'road-registry-syndication-projectionhost',
+          'road-registry-wms-projectionhost',
+          'road-registry-wfs-projectionhost'
         ]
 
     steps:

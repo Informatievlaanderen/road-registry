@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
+using System;
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
@@ -51,7 +52,7 @@ public abstract class BackofficeApiController : ApiController
         return new Dictionary<string, object>
         {
             { "UserId", userId },
-            { "CorrelationId", correlationId }
+            { "CorrelationId", correlationId ?? Guid.NewGuid().ToString() }
         };
     }
 }

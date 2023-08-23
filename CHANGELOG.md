@@ -1,3 +1,56 @@
+## [3.56.8](https://github.com/informatievlaanderen/road-registry/compare/v3.56.7...v3.56.8) (2023-08-18)
+
+
+### Bug Fixes
+
+* upload lambdas in pipeline ([dc1aef7](https://github.com/informatievlaanderen/road-registry/commit/dc1aef7bdac7f9aff0bed37b323ea62d31576285))
+
+## [3.56.7](https://github.com/informatievlaanderen/road-registry/compare/v3.56.6...v3.56.7) (2023-08-18)
+
+
+### Bug Fixes
+
+* push to staging and deploy ([8287985](https://github.com/informatievlaanderen/road-registry/commit/828798580826e5a76d5c5a535bc6da32fb16e73e))
+
+## [3.56.6](https://github.com/informatievlaanderen/road-registry/compare/v3.56.5...v3.56.6) (2023-08-18)
+
+
+### Bug Fixes
+
+* deploy steps pipeline ([9f38d79](https://github.com/informatievlaanderen/road-registry/commit/9f38d792f51195d8be495bfbd03fad50afff1f55))
+
+## [3.56.5](https://github.com/informatievlaanderen/road-registry/compare/v3.56.4...v3.56.5) (2023-08-18)
+
+
+### Bug Fixes
+
+* Pre-init release V2 pipeline ([#1127](https://github.com/informatievlaanderen/road-registry/issues/1127)) ([5b593f4](https://github.com/informatievlaanderen/road-registry/commit/5b593f44927accb222efadba6619c0679ac4764b))
+
+## [3.56.4](https://github.com/informatievlaanderen/road-registry/compare/v3.56.3...v3.56.4) (2023-08-11)
+
+
+### Bug Fixes
+
+* build script add open system.io ([#1119](https://github.com/informatievlaanderen/road-registry/issues/1119)) ([fc964dd](https://github.com/informatievlaanderen/road-registry/commit/fc964dd89d2674bb73ac872b293cd265f371ee91))
+* build script define array syntax ([#1120](https://github.com/informatievlaanderen/road-registry/issues/1120)) ([e06c778](https://github.com/informatievlaanderen/road-registry/commit/e06c7789dae520bcab30d994117516e5cce99fe6))
+* ensure init.sh in docker image is the correct one ([#1117](https://github.com/informatievlaanderen/road-registry/issues/1117)) ([788dabe](https://github.com/informatievlaanderen/road-registry/commit/788dabec7c6cd7247767ae3e27d5858b9a00e67b))
+* only copy init.sh if it exists ([#1118](https://github.com/informatievlaanderen/road-registry/issues/1118)) ([d67264f](https://github.com/informatievlaanderen/road-registry/commit/d67264f73eb1ebb08115d225e887beb872f756f6))
+* WR-622+785 roadsegment organization name cannot be empty + update java version for build ([#1116](https://github.com/informatievlaanderen/road-registry/issues/1116)) ([8d114df](https://github.com/informatievlaanderen/road-registry/commit/8d114df07735a0abbdaef2b85c6ecce75bad1577))
+
+## [3.56.3](https://github.com/informatievlaanderen/road-registry/compare/v3.56.2...v3.56.3) (2023-08-11)
+
+
+### Bug Fixes
+
+* pipeline disable step 'Push Lambda functions to S3 New Production' ([#1115](https://github.com/informatievlaanderen/road-registry/issues/1115)) ([24a1015](https://github.com/informatievlaanderen/road-registry/commit/24a10157e2c3f4ca413c831a16bdb2d88edd8709))
+
+## [3.56.2](https://github.com/informatievlaanderen/road-registry/compare/v3.56.1...v3.56.2) (2023-08-10)
+
+
+### Bug Fixes
+
+* newprd lambda s3 bucket names ([#1114](https://github.com/informatievlaanderen/road-registry/issues/1114)) ([e4e35fa](https://github.com/informatievlaanderen/road-registry/commit/e4e35fa1918d073900a758a882887c64e758781b))
+
 ## [3.56.1](https://github.com/informatievlaanderen/road-registry/compare/v3.56.0...v3.56.1) (2023-08-10)
 
 

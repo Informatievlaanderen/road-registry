@@ -45,6 +45,12 @@ jobs:
       with:
           persist-credentials: false
 
+    # needed for Sonar, default is 11 and is decprecated
+    - name: Set up JDK 17
+      uses: actions/setup-java@v1
+      with:
+        java-version: 17
+
     - name: Log file system info
       shell: bash
       run: |
@@ -397,11 +403,11 @@ jobs:
       shell: bash
       run: |
         pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$SEMVER/lambda.zip --sse aws:kms --sse-kms-key-id arn:aws:kms:eu-west-1:196194905350:key/b4bef7ae-4c5f-4382-9133-b3a655a69203
+        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$SEMVER/lambda.zip --sse aws:kms
         popd
         
         pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
-        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip --sse aws:kms --sse-kms-key-id arn:aws:kms:eu-west-1:196194905350:key/b4bef7ae-4c5f-4382-9133-b3a655a69203
+        aws s3 cp lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip --sse aws:kms
         popd
       env:
         SEMVER: ${{ env.RELEASE_VERSION }}
@@ -474,13 +480,13 @@ jobs:
       if: env.RELEASE_VERSION != 'none'
       shell: bash
       run: |
-       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
-       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-       popd
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.BackOffice.Handlers.Sqs.Lambda/linux
+        aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
+        popd
        
-       pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
-       aws s3 cp lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
-       popd
+        pushd /home/runner/work/road-registry/road-registry/dist/RoadRegistry.Snapshot.Handlers.Sqs.Lambda/linux
+        aws s3 cp lambda.zip s3://077849980894-vbr-prd-lam-rr-sqssnapshot/$SEMVER/lambda.zip
+        popd
       env:
        SEMVER: ${{ env.RELEASE_VERSION }}
 
@@ -1426,7 +1432,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ env.RELEASE_VERSION }} to tst has started
+        slack-message: Deployment of road-registry ${{ needs.build.outputs.version }} to tst has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1531,7 +1537,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ env.RELEASE_VERSION }} to tst has finished
+        slack-message: Deployment of road-registry ${{ needs.build.outputs.version }} to tst has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1554,7 +1560,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ env.RELEASE_VERSION }} to stg has started
+        slack-message: Deployment of road-registry ${{ needs.build.outputs.version }} to stg has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1658,7 +1664,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ env.RELEASE_VERSION }} to stg has finished
+        slack-message: Deployment of road-registry ${{ needs.build.outputs.version }} to stg has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1680,7 +1686,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ env.RELEASE_VERSION }} to prd has started
+        slack-message: Deployment of road-registry ${{ needs.build.outputs.version }} to prd has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1784,7 +1790,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ env.RELEASE_VERSION }} to prd has finished
+        slack-message: Deployment of road-registry ${{ needs.build.outputs.version }} to prd has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1806,7 +1812,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ env.RELEASE_VERSION }} to newprd has started
+        slack-message: Deployment of road-registry ${{ needs.build.outputs.version }} to newprd has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1877,8 +1883,8 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$VERSION/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/lambda.zip --copy-props none
+        aws s3 cp s3://077849980894-vbr-prd-lam-rr-sqssnapshot/$VERSION/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqssnapshot/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.build.outputs.version }}
         
@@ -1910,7 +1916,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ env.RELEASE_VERSION }} to newprd has finished
+        slack-message: Deployment of road-registry ${{ needs.build.outputs.version }} to newprd has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
