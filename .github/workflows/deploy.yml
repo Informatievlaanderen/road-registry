@@ -119,6 +119,8 @@ jobs:
         ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'newprd' && 'acc' || github.event.inputs.environment }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
+        FUNCTION_BACKOFFICE: ${{ github.event.inputs.environment == 'tst' && 'lam-vbr-test-basisregisters-rr-sqsbackofficefunction' || 'wr-sqsbackofficehandlerfunction' }}
+        FUNCTION_SNAPSHOT: ${{ github.event.inputs.environment == 'tst' && 'lam-vbr-test-basisregisters-rr-sqssnapshotfunction' || 'wr-sqssnapshothandlerfunction' }}
 
   deploy_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
