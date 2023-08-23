@@ -1,3 +1,11 @@
+## [3.56.10](https://github.com/informatievlaanderen/road-registry/compare/v3.56.9...v3.56.10) (2023-08-23)
+
+
+### Bug Fixes
+
+* add missing docker network creation to run script ([#1131](https://github.com/informatievlaanderen/road-registry/issues/1131)) ([2424a93](https://github.com/informatievlaanderen/road-registry/commit/2424a93f1ac6b55b1edc5191fcd154300384e4f9))
+* release v2 stg approval ([#1132](https://github.com/informatievlaanderen/road-registry/issues/1132)) ([c672368](https://github.com/informatievlaanderen/road-registry/commit/c6723689ff2fa4329ab7ca5d190e5dd6e358bef8))
+
 ## [3.56.9](https://github.com/informatievlaanderen/road-registry/compare/v3.56.8...v3.56.9) (2023-08-23)
 
 
