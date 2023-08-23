@@ -1,3 +1,10 @@
+## [3.56.12](https://github.com/informatievlaanderen/road-registry/compare/v3.56.11...v3.56.12) (2023-08-23)
+
+
+### Bug Fixes
+
+* release v2 production steps order ([#1134](https://github.com/informatievlaanderen/road-registry/issues/1134)) ([71c482f](https://github.com/informatievlaanderen/road-registry/commit/71c482f52b0393662e3adbfb431cc879f9bee1f9))
+
 ## [3.56.11](https://github.com/informatievlaanderen/road-registry/compare/v3.56.10...v3.56.11) (2023-08-23)
 
 
