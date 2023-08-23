@@ -1,3 +1,10 @@
+## [3.56.11](https://github.com/informatievlaanderen/road-registry/compare/v3.56.10...v3.56.11) (2023-08-23)
+
+
+### Bug Fixes
+
+* pipeline lambda TST functionnames ([#1133](https://github.com/informatievlaanderen/road-registry/issues/1133)) ([1272abe](https://github.com/informatievlaanderen/road-registry/commit/1272abe4626521c076e44b64a1cf586ab2682f89))
+
 ## [3.56.10](https://github.com/informatievlaanderen/road-registry/compare/v3.56.9...v3.56.10) (2023-08-23)
 
 
