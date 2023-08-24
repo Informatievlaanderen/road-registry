@@ -1,3 +1,32 @@
+## [3.56.12](https://github.com/informatievlaanderen/road-registry/compare/v3.56.11...v3.56.12) (2023-08-23)
+
+
+### Bug Fixes
+
+* release v2 production steps order ([#1134](https://github.com/informatievlaanderen/road-registry/issues/1134)) ([71c482f](https://github.com/informatievlaanderen/road-registry/commit/71c482f52b0393662e3adbfb431cc879f9bee1f9))
+
+## [3.56.11](https://github.com/informatievlaanderen/road-registry/compare/v3.56.10...v3.56.11) (2023-08-23)
+
+
+### Bug Fixes
+
+* pipeline lambda TST functionnames ([#1133](https://github.com/informatievlaanderen/road-registry/issues/1133)) ([1272abe](https://github.com/informatievlaanderen/road-registry/commit/1272abe4626521c076e44b64a1cf586ab2682f89))
+
+## [3.56.10](https://github.com/informatievlaanderen/road-registry/compare/v3.56.9...v3.56.10) (2023-08-23)
+
+
+### Bug Fixes
+
+* add missing docker network creation to run script ([#1131](https://github.com/informatievlaanderen/road-registry/issues/1131)) ([2424a93](https://github.com/informatievlaanderen/road-registry/commit/2424a93f1ac6b55b1edc5191fcd154300384e4f9))
+* release v2 stg approval ([#1132](https://github.com/informatievlaanderen/road-registry/issues/1132)) ([c672368](https://github.com/informatievlaanderen/road-registry/commit/c6723689ff2fa4329ab7ca5d190e5dd6e358bef8))
+
+## [3.56.9](https://github.com/informatievlaanderen/road-registry/compare/v3.56.8...v3.56.9) (2023-08-23)
+
+
+### Bug Fixes
+
+* release pipeline lambda function names ([#1130](https://github.com/informatievlaanderen/road-registry/issues/1130)) ([fb29724](https://github.com/informatievlaanderen/road-registry/commit/fb29724a118fc3216bc5699df9f62d2adbf0adf9))
+
 ## [3.56.8](https://github.com/informatievlaanderen/road-registry/compare/v3.56.7...v3.56.8) (2023-08-18)
 
 

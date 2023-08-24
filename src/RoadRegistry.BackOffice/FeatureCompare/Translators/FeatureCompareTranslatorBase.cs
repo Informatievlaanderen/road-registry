@@ -43,8 +43,8 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
     {
         var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
         var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
-        var (integrationFeatures, integrationFeaturesProblems) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
-        return (extractFeatures, changeFeatures, integrationFeatures, extractFeaturesProblems + changeFeaturesProblems + integrationFeaturesProblems);
+        var (integrationFeatures, _) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
+        return (extractFeatures, changeFeatures, integrationFeatures, extractFeaturesProblems + changeFeaturesProblems);
     }
     
     public abstract Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);

@@ -581,9 +581,6 @@ jobs:
     - name: Push Lambda functions to S3 Test
       shell: bash
       run: |
-        echo Push Lambda functions to S3 Test
-        echo aws s3 cp ~/backoffice/lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
-        echo aws s3 cp ~/snapshot/lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip
         aws s3 cp ~/backoffice/lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
         aws s3 cp ~/snapshot/lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/$SEMVER/lambda.zip
       env:
@@ -602,13 +599,11 @@ jobs:
     - name: Push Lambda functions to S3 Staging
       shell: bash
       run: |
-        echo Push Lambda functions to S3 Staging
-        echo aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-        echo aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
-        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
+        aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
       env:
         SEMVER: ${{ needs.release.outputs.version }}
+        ENVIRONMENT: stg
 
     # - name: Configure AWS credentials (New Production)
     #   uses: aws-actions/configure-aws-credentials@v1-node16
@@ -623,8 +618,6 @@ jobs:
     # - name: Push Lambda functions to S3 New Production
     #   shell: bash
     #   run: |
-    #     echo Push Lambda functions to S3 New Production
-    #     echo aws s3 cp ~/backoffice/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
     #     aws s3 cp ~/backoffice/lambda.zip s3://077849980894-vbr-prd-lam-rr-sqsbackoffice/$SEMVER/lambda.zip
     #   env:
     #     SEMVER: ${{ needs.release.outputs.version }}
@@ -642,9 +635,6 @@ jobs:
     - name: Push Lambda functions to S3 Production
       shell: bash
       run: |
-        echo Push Lambda functions to S3 Production
-        echo aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
-        echo aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
         aws s3 cp ~/backoffice/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqsbackofficehandlerfunction/$SEMVER/lambda.zip
         aws s3 cp ~/snapshot/lambda.zip s3://s3-vbr-prd-basisregisters-lam-wr-sqssnapshothandlerfunction/$SEMVER/lambda.zip
       env:
@@ -762,16 +752,16 @@ jobs:
           CONFLUENCE_USERNAME: ${{ secrets.VBR_CONFLUENCE_USER }}
           CONFLUENCE_PASSWORD: ${{ secrets.VBR_CONFLUENCE_PASSWORD }}
 
-      - name: Create Jira Release
-        shell: bash
-        run: ./packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-jira.sh
-        env:
-          CONFLUENCE_TITLE: ${{ env.REPOSITORY_NAME }}
-          CONFLUENCE_USERNAME: ${{ secrets.VBR_CONFLUENCE_USER }}
-          CONFLUENCE_PASSWORD: ${{ secrets.VBR_CONFLUENCE_PASSWORD }}
-          JIRA_PREFIX: Road
-          JIRA_PROJECT: GAWR
-          JIRA_VERSION: ${{ needs.release.outputs.version }}
+     # - name: Create Jira Release
+     #   shell: bash
+     #   run: ./packages/Be.Vlaanderen.Basisregisters.Build.Pipeline/Content/ci-jira.sh
+     #   env:
+     #     CONFLUENCE_TITLE: ${{ env.REPOSITORY_NAME }}
+     #     CONFLUENCE_USERNAME: ${{ secrets.VBR_CONFLUENCE_USER }}
+     #     CONFLUENCE_PASSWORD: ${{ secrets.VBR_CONFLUENCE_PASSWORD }}
+     #     JIRA_PREFIX: Road
+     #     JIRA_PROJECT: WR
+     #     JIRA_VERSION: ${{ needs.release.outputs.version }}
 
   push_images_to_test:
     if: needs.release.outputs.version != 'none'
@@ -902,9 +892,7 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        echo aws s3 cp s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$VERSION/lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/lambda.zip --copy-props none
         aws s3 cp s3://196194905350-vbr-test-lam-rr-sqsbackoffice/$VERSION/lambda.zip s3://196194905350-vbr-test-lam-rr-sqsbackoffice/lambda.zip --copy-props none
-        echo aws s3 cp s3://196194905350-vbr-test-lam-rr-sqssnapshot/$VERSION/lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/lambda.zip --copy-props none
         aws s3 cp s3://196194905350-vbr-test-lam-rr-sqssnapshot/$VERSION/lambda.zip s3://196194905350-vbr-test-lam-rr-sqssnapshot/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.release.outputs.version }}
@@ -912,12 +900,9 @@ jobs:
     - name: Promote Lambda(s)
       shell: bash
       run: |
-        echo pulling awscurl docker image
         docker pull ghcr.io/okigan/awscurl:latest
-        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqsbackofficefunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqssnapshotfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/test
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
@@ -926,7 +911,7 @@ jobs:
 
   deploy_to_test_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images_to_test ]
+    needs: [ release, push_images_to_test ]
     name: Deploy to test started
     environment: test
     runs-on: ubuntu-latest
@@ -940,7 +925,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to test has started
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to test has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -948,7 +933,7 @@ jobs:
 
   deploy_to_test_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_lambda_to_test ]
+    needs: [ release, deploy_lambda_to_test ]
     name: Deploy to test finished
     runs-on: ubuntu-latest
 
@@ -961,7 +946,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to test has finished
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to test has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1034,7 +1019,7 @@ jobs:
 
   deploy_to_staging:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images_to_staging, deploy_to_test_finish_slack, release ]
+    needs: [ deploy_to_staging_start_slack, release ]
     name: Deploy to staging
     runs-on: ubuntu-latest
     strategy:
@@ -1097,31 +1082,28 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        echo aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-stg-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.release.outputs.version }}
+        ENVIRONMENT: stg
 
     - name: Promote Lambda(s)
       shell: bash
       run: |
-        echo pulling awscurl docker image
         docker pull ghcr.io/okigan/awscurl:latest
-        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
-        echo docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/stg
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
+        ENVIRONMENT: stg
 
   deploy_to_staging_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_lambda_to_staging ]
+    needs: [ release, deploy_lambda_to_staging ]
     name: Deploy to staging finished
     runs-on: ubuntu-latest
 
@@ -1134,7 +1116,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to staging has finished
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to staging has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1142,7 +1124,7 @@ jobs:
 
   deploy_to_staging_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images_to_staging, deploy_to_test_finish_slack ]
+    needs: [ release, push_images_to_staging, deploy_to_test_finish_slack ]
     name: Deploy to staging started
     environment: stg
     runs-on: ubuntu-latest
@@ -1156,7 +1138,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to staging has started
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to staging has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1220,11 +1202,138 @@ jobs:
         shell: bash
         run: |
           echo $IMAGE:$SEMVER
-          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY_PRD/road-registry/$IMAGE:$SEMVER
-          docker push $BUILD_DOCKER_REGISTRY_PRD/road-registry/$IMAGE:$SEMVER
+          docker tag $BUILD_DOCKER_REGISTRY_TST/road-registry/$IMAGE:$SEMVER $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
+          docker push $BUILD_DOCKER_REGISTRY/road-registry/$IMAGE:$SEMVER
         env:
           BUILD_DOCKER_REGISTRY_TST: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
-          BUILD_DOCKER_REGISTRY_PRD: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
+          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_PRD }}
           IMAGE: ${{ matrix.image }}
           SEMVER: ${{ needs.release.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
+
+  deploy_to_production:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [ deploy_to_production_start_slack, release ]
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        services: [
+          'road-registry-backoffice-api',
+        # 'road-registry-backoffice-ui',
+          'road-registry-backoffice-eventhost',
+          'road-registry-backoffice-extracthost',
+          'road-registry-backoffice-commandhost',
+          'road-registry-backoffice-messaginghost-sqs',
+          'road-registry-adminhost',
+          'road-registry-projector',
+          'road-registry-editor-projectionhost',
+          'road-registry-product-projectionhost',
+          'road-registry-producer-snapshot-projectionhost',
+          'road-registry-streetnameconsumer-projectionhost',
+          'road-registry-syndication-projectionhost',
+          'road-registry-wms-projectionhost',
+          'road-registry-wfs-projectionhost'
+        ]
+
+    steps:
+    - name: CD services
+      env:
+        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
+        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
+      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
+      with:
+          environment: prd
+          version: ${{ needs.release.outputs.version }}
+          status-url: $STATUS_URL
+          deploy-url: $BUILD_URL
+          access-key: ${{ secrets.VBR_AWS_BUILD_USER_ACCESS_KEY_ID }}
+          secret-key: ${{ secrets.VBR_AWS_BUILD_USER_SECRET_ACCESS_KEY }}
+          region: eu-west-1
+          interval: 2
+
+    - name: output CD services
+      shell: bash
+      run: |
+        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
+        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
+        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
+
+  deploy_lambda_to_production:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [ deploy_to_production, release ]
+    name: Deploy lambda to production
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: CD Lambda(s) Configure credentials
+      uses: aws-actions/configure-aws-credentials@v1-node16
+      with:
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
+
+    - name: Prepare Lambda(s)
+      shell: bash
+      run: |
+        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
+        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
+      env:
+        VERSION: ${{ needs.release.outputs.version }}
+        ENVIRONMENT: prd
+
+    - name: Promote Lambda(s)
+      shell: bash
+      run: |
+        docker pull ghcr.io/okigan/awscurl:latest
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
+      env:
+        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
+        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
+        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
+        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
+        ENVIRONMENT: prd
+
+  deploy_to_production_finish_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [ release, deploy_lambda_to_production ]
+    name: Deploy to production finished
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment finished
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to production has finished
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
+
+  deploy_to_production_start_slack:
+    if: github.repository_owner == 'Informatievlaanderen'
+    needs: [ release, push_images_to_production, deploy_to_staging_finish_slack ]
+    name: Deploy to production started
+    environment: prd
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Parse repository name
+      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
+      shell: bash
+
+    - name: Notify deployment started
+      uses: slackapi/slack-github-action@v1.23.0
+      with:
+        channel-id: '#team-wegenregister-dev'
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to production has started
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
