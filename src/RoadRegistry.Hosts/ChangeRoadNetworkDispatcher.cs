@@ -33,8 +33,6 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
     private readonly IRoadNetworkCommandQueue _commandQueue;
     private readonly IIdempotentCommandHandler _idempotentCommandHandler;
     private readonly EditorContext _editorContext;
-    private readonly RecyclableMemoryStreamManager _manager;
-    private readonly FileEncoding _fileEncoding;
     private readonly EventSourcedEntityMap _eventSourcedEntityMap;
     private readonly ILogger<ChangeRoadNetworkDispatcher> _logger;
     private readonly OrganizationDbaseRecordReader _organizationRecordReader;
@@ -51,11 +49,9 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         _commandQueue = commandQueue;
         _idempotentCommandHandler = idempotentCommandHandler;
         _editorContext = editorContext;
-        _manager = manager;
-        _fileEncoding = fileEncoding;
         _eventSourcedEntityMap = eventSourcedEntityMap;
         _logger = logger;
-        _organizationRecordReader = new OrganizationDbaseRecordReader(_manager, _fileEncoding);
+        _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
     }
 
     public async Task<ChangeRoadNetwork> DispatchAsync(SqsLambdaRequest lambdaRequest, string reason, Func<TranslatedChanges, Task<TranslatedChanges>> translatedChangesBuilder, CancellationToken cancellationToken)

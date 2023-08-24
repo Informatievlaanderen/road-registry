@@ -84,7 +84,9 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var translation = organization is null
             ? Organization.PredefinedTranslations.Unknown
-            : new Organization.DutchTranslation(new OrganizationId(organization.OvoCode), organization.Translation.Name);
+            //: new Organization.DutchTranslation(new OrganizationId(organization.OvoCode), organization.Translation.Name)
+            : organization.Translation;
+            ;
 
         var network = await context.RoadNetworks.Get(cancellationToken);
         var translator = new RequestedChangeTranslator(
