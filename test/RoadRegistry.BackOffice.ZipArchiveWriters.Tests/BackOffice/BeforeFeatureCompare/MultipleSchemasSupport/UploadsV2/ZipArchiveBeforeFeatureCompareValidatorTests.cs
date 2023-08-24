@@ -531,10 +531,6 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
     {
         var filesWithWarning = new[]
         {
-            "IWEGKNOOP.DBF",
-            "IWEGKNOOP.SHP",
-            "IWEGSEGMENT.DBF",
-            "IWEGSEGMENT.SHP",
             "EATTEUROPWEG.DBF",
             "ATTEUROPWEG.DBF",
             "EATTNATIONWEG.DBF",
@@ -544,14 +540,27 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
             "ERLTOGKRUISING.DBF",
             "RLTOGKRUISING.DBF"
         };
+        var integrationFiles = new[]
+        {
+            "IWEGKNOOP.DBF",
+            "IWEGKNOOP.SHP",
+            "IWEGKNOOP.PRJ",
+            "IWEGSEGMENT.DBF",
+            "IWEGSEGMENT.SHP",
+            "IWEGSEGMENT.PRJ"
+        };
 
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
 
             var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+            var entries = archive.Entries
+                .Where(entry => !integrationFiles.Contains(entry.Name, StringComparer.InvariantCultureIgnoreCase))
+                .ToArray();
+
             var expected = ZipArchiveProblems.Many(
-                archive.Entries.Select
+                entries.Select
                 (entry =>
                 {
                     var extension = Path.GetExtension(entry.Name);
@@ -569,7 +578,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                 })
             );
 
-            var files = archive.Entries.Select(x => x.Name).ToArray();
+            var files = entries.Select(x => x.Name).ToArray();
 
             foreach (var file in files)
             {
