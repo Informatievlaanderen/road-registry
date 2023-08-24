@@ -1,3 +1,10 @@
+## [3.56.13](https://github.com/informatievlaanderen/road-registry/compare/v3.56.12...v3.56.13) (2023-08-24)
+
+
+### Bug Fixes
+
+* ignore validation errors for integration data ([#1135](https://github.com/informatievlaanderen/road-registry/issues/1135)) ([98734d8](https://github.com/informatievlaanderen/road-registry/commit/98734d8945411e5825a8d67961f7b84198ec35fc))
+
 ## [3.56.12](https://github.com/informatievlaanderen/road-registry/compare/v3.56.11...v3.56.12) (2023-08-23)
 
 
