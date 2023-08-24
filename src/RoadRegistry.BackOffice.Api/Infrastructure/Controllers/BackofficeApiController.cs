@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
 using System;
 using System.Collections.Generic;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
@@ -30,16 +31,16 @@ public abstract class BackofficeApiController : ApiController
             .Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl));
     }
 
-    private ProvenanceData CreateFakeProvenanceData()
+    private ProvenanceData CreateProvenanceData()
     {
-        return new RoadRegistryProvenanceData(Modification.Insert);
+        return new RoadRegistryProvenanceData(Modification.Insert, User.FindFirst(AcmIdmClaimTypes.VoOrgCode)?.Value);
     }
 
     protected TRequest Enrich<TRequest>(TRequest request)
         where TRequest : SqsRequest
     {
         request.Metadata = GetMetadata();
-        request.ProvenanceData = CreateFakeProvenanceData();
+        request.ProvenanceData = CreateProvenanceData();
         return request;
     }
 

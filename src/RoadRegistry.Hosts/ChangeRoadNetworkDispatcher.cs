@@ -5,6 +5,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Abstractions.Exceptions;
+using BackOffice.Abstractions.Organizations;
 using BackOffice.Core;
 using BackOffice.Framework;
 using BackOffice.Messages;
@@ -12,9 +14,14 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
+using Editor.Schema;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.IO;
+using Reason = BackOffice.Reason;
 
 public interface IChangeRoadNetworkDispatcher
 {
@@ -25,20 +32,56 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
 {
     private readonly IRoadNetworkCommandQueue _commandQueue;
     private readonly IIdempotentCommandHandler _idempotentCommandHandler;
+    private readonly EditorContext _editorContext;
     private readonly EventSourcedEntityMap _eventSourcedEntityMap;
+    private readonly ILogger<ChangeRoadNetworkDispatcher> _logger;
+    private readonly OrganizationDbaseRecordReader _organizationRecordReader;
 
-    public ChangeRoadNetworkDispatcher(IRoadNetworkCommandQueue commandQueue, IIdempotentCommandHandler idempotentCommandHandler, EventSourcedEntityMap eventSourcedEntityMap)
+    public ChangeRoadNetworkDispatcher(
+        IRoadNetworkCommandQueue commandQueue,
+        IIdempotentCommandHandler idempotentCommandHandler,
+        EditorContext editorContext,
+        RecyclableMemoryStreamManager manager,
+        FileEncoding fileEncoding,
+        EventSourcedEntityMap eventSourcedEntityMap,
+        ILogger<ChangeRoadNetworkDispatcher> logger)
     {
         _commandQueue = commandQueue;
         _idempotentCommandHandler = idempotentCommandHandler;
+        _editorContext = editorContext;
         _eventSourcedEntityMap = eventSourcedEntityMap;
+        _logger = logger;
+        _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
     }
 
     public async Task<ChangeRoadNetwork> DispatchAsync(SqsLambdaRequest lambdaRequest, string reason, Func<TranslatedChanges, Task<TranslatedChanges>> translatedChangesBuilder, CancellationToken cancellationToken)
     {
+        var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
+        var organizationDetails = organizationRecords.Select(organization => _organizationRecordReader.Read(organization.DbaseRecord, organization.DbaseSchemaVersion)).ToList();
+        OrganizationDetail organizationDetail;
+
+        if (OrganizationOvoCode.AcceptsValue(lambdaRequest.Provenance.Operator))
+        {
+            organizationDetail = organizationDetails.SingleOrDefault(sod => sod.OvoCode == new OrganizationOvoCode(lambdaRequest.Provenance.Operator.ToString()));
+
+            if (organizationDetail is null)
+            {
+                var ex = new OrganizationOvoCodeNotFoundException(lambdaRequest.TicketId, lambdaRequest.Provenance);
+                _logger.LogError(ex, ex.Message);
+
+                organizationDetail = organizationDetails.SingleOrDefault(sod => sod.Code == new OrganizationId(lambdaRequest.Provenance.Operator.ToString()))
+                                     ?? organizationDetails.Single(s => s.Code == new OrganizationId("AGIV"));
+            }
+        }
+        else
+        {
+            organizationDetail = organizationDetails.SingleOrDefault(sod => sod.Code == new OrganizationId(lambdaRequest.Provenance.Operator.ToString()))
+                ?? organizationDetails.Single(s => s.Code == new OrganizationId("AGIV"));
+        }
+
         var translatedChanges = TranslatedChanges.Empty
-            .WithOrganization(new OrganizationId(lambdaRequest.Provenance.Organisation.ToString()))
-            .WithOperatorName(new OperatorName(lambdaRequest.Provenance.Operator))
+            .WithOrganization(organizationDetail.Code)
+            .WithOperatorName(new OperatorName(organizationDetail.Name))
             .WithReason(new Reason(reason));
 
         translatedChanges = await translatedChangesBuilder(translatedChanges);
