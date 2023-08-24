@@ -82,11 +82,18 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var organizationId = new OrganizationId(command.Body.OrganizationId);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
 
-        var translation = organization is null
-            ? Organization.PredefinedTranslations.Unknown
-            //: new Organization.DutchTranslation(new OrganizationId(organization.OvoCode), organization.Translation.Name)
-            : organization.Translation;
-            ;
+        Organization.DutchTranslation translation;
+        if (organization is null)
+        {
+            translation = Organization.PredefinedTranslations.Unknown;
+        } else if (organization.OvoCode is not null)
+        {
+            translation = new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
+        }
+        else
+        {
+            translation = organization.Translation;
+        }
 
         var network = await context.RoadNetworks.Get(cancellationToken);
         var translator = new RequestedChangeTranslator(
