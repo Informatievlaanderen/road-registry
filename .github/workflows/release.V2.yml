@@ -911,7 +911,7 @@ jobs:
 
   deploy_to_test_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images_to_test ]
+    needs: [ release, push_images_to_test ]
     name: Deploy to test started
     environment: test
     runs-on: ubuntu-latest
@@ -925,7 +925,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to test has started
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to test has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -933,7 +933,7 @@ jobs:
 
   deploy_to_test_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_lambda_to_test ]
+    needs: [ release, deploy_lambda_to_test ]
     name: Deploy to test finished
     runs-on: ubuntu-latest
 
@@ -946,7 +946,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to test has finished
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to test has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1103,7 +1103,7 @@ jobs:
 
   deploy_to_staging_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_lambda_to_staging ]
+    needs: [ release, deploy_lambda_to_staging ]
     name: Deploy to staging finished
     runs-on: ubuntu-latest
 
@@ -1116,7 +1116,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to staging has finished
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to staging has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1124,7 +1124,7 @@ jobs:
 
   deploy_to_staging_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images_to_staging, deploy_to_test_finish_slack ]
+    needs: [ release, push_images_to_staging, deploy_to_test_finish_slack ]
     name: Deploy to staging started
     environment: stg
     runs-on: ubuntu-latest
@@ -1138,7 +1138,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to staging has started
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to staging has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1297,7 +1297,7 @@ jobs:
 
   deploy_to_production_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_lambda_to_production ]
+    needs: [ release, deploy_lambda_to_production ]
     name: Deploy to production finished
     runs-on: ubuntu-latest
 
@@ -1310,7 +1310,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to production has finished
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to production has finished
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1318,7 +1318,7 @@ jobs:
 
   deploy_to_production_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ push_images_to_production, deploy_to_staging_finish_slack ]
+    needs: [ release, push_images_to_production, deploy_to_staging_finish_slack ]
     name: Deploy to production started
     environment: prd
     runs-on: ubuntu-latest
@@ -1332,7 +1332,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry to production has started
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to production has started
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
