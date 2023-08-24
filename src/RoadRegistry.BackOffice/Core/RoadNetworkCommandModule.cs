@@ -78,9 +78,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         DownloadId? downloadId = command.Body.DownloadId is not null ? new DownloadId(command.Body.DownloadId.Value) : null;
         var @operator = new OperatorName(command.Body.Operator);
         var reason = new Reason(command.Body.Reason);
+
         var organizationId = new OrganizationId(command.Body.OrganizationId);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
-        var translation = organization == null ? Organization.PredefinedTranslations.Unknown : organization.Translation;
+
+        var translation = organization is null
+            ? Organization.PredefinedTranslations.Unknown
+            : new Organization.DutchTranslation(new OrganizationId(organization.OvoCode), organization.Translation.Name);
 
         var network = await context.RoadNetworks.Get(cancellationToken);
         var translator = new RequestedChangeTranslator(

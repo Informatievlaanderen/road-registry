@@ -72,6 +72,9 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
             {
                 var ex = new OrganizationOvoCodeNotFoundException(lambdaRequest.TicketId, lambdaRequest.Provenance);
                 _logger.LogError(ex, ex.Message);
+
+                organizationDetail = organizationDetails.SingleOrDefault(sod => sod.Code == new OrganizationId(lambdaRequest.Provenance.Operator.ToString()))
+                                     ?? organizationDetails.Single(s => s.Code == new OrganizationId("AGIV"));
             }
         }
         else
