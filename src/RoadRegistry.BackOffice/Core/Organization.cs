@@ -10,16 +10,16 @@ public class Organization : EventSourcedEntity
 
     private Organization()
     {
-        On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
+        On<ImportedOrganization>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name)));
         On<CreateOrganizationAccepted>(e =>
         {
-            Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name));
+            Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name));
             OvoCode = OrganizationOvoCode.FromValue(e.OvoCode);
         });
-        On<RenameOrganizationAccepted>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name)));
+        On<RenameOrganizationAccepted>(e => Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name)));
         On<ChangeOrganizationAccepted>(e =>
         {
-            Translation = new DutchTranslation(new OrganizationId(e.Code), new OrganizationName(e.Name));
+            Translation = new DutchTranslation(new OrganizationId(e.Code), OrganizationName.WithoutExcessLength(e.Name));
             OvoCode = OrganizationOvoCode.FromValue(e.OvoCode);
         });
         On<DeleteOrganizationAccepted>(e =>
