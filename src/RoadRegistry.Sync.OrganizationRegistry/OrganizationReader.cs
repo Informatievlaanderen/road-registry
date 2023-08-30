@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 public interface IOrganizationReader
 {
-    Task ReadAsync(long changeId, Func<Organization, Task> handler, CancellationToken cancellationToken);
+    Task ReadAsync(long startAtChangeId, Func<Organization, Task> handler, CancellationToken cancellationToken);
 }
 
 public class OrganizationReader : IOrganizationReader
@@ -27,7 +27,7 @@ public class OrganizationReader : IOrganizationReader
         _options = options.ThrowIfNull();
     }
 
-    public async Task ReadAsync(long changeId, Func<Organization, Task> handler, CancellationToken cancellationToken)
+    public async Task ReadAsync(long startAtChangeId, Func<Organization, Task> handler, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(_options.OrganizationRegistrySyncUrl))
         {
@@ -37,7 +37,7 @@ public class OrganizationReader : IOrganizationReader
         ArgumentNullException.ThrowIfNull(handler);
 
         var httpClient = _factory.CreateClient();
-        var response = await httpClient.GetAsync(CreateSyncUri(changeId), cancellationToken);
+        var response = await httpClient.GetAsync(CreateSyncUri(startAtChangeId), cancellationToken);
 
         var scrollId = string.Empty;
         int? totalItems = null;

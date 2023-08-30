@@ -81,6 +81,8 @@ public class OrganizationConsumer: BackgroundService
 
                 await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
                 {
+                    _logger.LogInformation("Processing organization {OvoNumber}", organization.OvoNumber);
+
                     if (processedCount > 0 && organization.ChangeId != projectionState.Position)
                     {
                         await context.SaveChangesAsync(stoppingToken);
@@ -103,7 +105,6 @@ public class OrganizationConsumer: BackgroundService
                         _logger.LogInformation("{Count} organizations have an OVO-code", orgIdMapping.Count);
                     }
 
-                    _logger.LogInformation("Organization {OvoNumber}", organization.OvoNumber);
 
                     organization.Name = OrganizationName.WithoutExcessLength(organization.Name);
 

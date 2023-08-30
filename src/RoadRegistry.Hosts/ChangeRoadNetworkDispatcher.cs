@@ -54,21 +54,6 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
     }
 
-    private async Task<OrganizationDetail> GetOrganization(string code, CancellationToken cancellationToken)
-    {
-        var organizationRecord = await _editorContext.Organizations.FindAsync(new object[] { code }, cancellationToken);
-        if (organizationRecord is not null)
-        {
-            return _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion);
-        }
-
-        return new OrganizationDetail
-        {
-            Code = new OrganizationId(code),
-            Name = new OrganizationName(code)
-        };
-    }
-
     public async Task<ChangeRoadNetwork> DispatchAsync(SqsLambdaRequest lambdaRequest, string reason, Func<TranslatedChanges, Task<TranslatedChanges>> translatedChangesBuilder, CancellationToken cancellationToken)
     {
         var organization = await GetOrganization(lambdaRequest.Provenance.Operator, cancellationToken);
@@ -140,6 +125,21 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         }
 
         return changeRoadNetwork;
+    }
+
+    private async Task<OrganizationDetail> GetOrganization(string code, CancellationToken cancellationToken)
+    {
+        var organizationRecord = await _editorContext.Organizations.SingleOrDefaultAsync(x => x.Code == code, cancellationToken);
+        if (organizationRecord is not null)
+        {
+            return _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion);
+        }
+
+        return new OrganizationDetail
+        {
+            Code = new OrganizationId(code),
+            Name = new OrganizationName(code)
+        };
     }
 }
 

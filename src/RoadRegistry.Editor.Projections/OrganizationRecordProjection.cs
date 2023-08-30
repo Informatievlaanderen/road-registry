@@ -47,7 +47,7 @@ public class OrganizationRecordProjection : ConnectedProjection<EditorContext>
         When<Envelope<CreateOrganizationAccepted>>(async (context, envelope, token) =>
         {
             var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
-                               ?? await context.Organizations.SingleAsync(o => o.Code == envelope.Message.Code, token);
+                               ?? await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token);
             
             if (organization is null)
             {

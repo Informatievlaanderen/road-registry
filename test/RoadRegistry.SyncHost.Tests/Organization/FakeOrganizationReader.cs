@@ -12,9 +12,9 @@ public class FakeOrganizationReader : IOrganizationReader
         _organizations = organizations;
     }
 
-    public async Task ReadAsync(long changeId, Func<Organization, Task> handler, CancellationToken cancellationToken)
+    public async Task ReadAsync(long startAtChangeId, Func<Organization, Task> handler, CancellationToken cancellationToken)
     {
-        foreach (var organization in _organizations.Where(x => x.ChangeId >= changeId))
+        foreach (var organization in _organizations.Where(x => x.ChangeId >= startAtChangeId))
         {
             await handler(organization);
         }
