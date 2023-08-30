@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadRegistry.BackOffice;
 using Schema;
 
 public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
@@ -64,7 +65,7 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
             organization.DbaseRecord = new OrganizationDbaseRecord
             {
                 ORG = { Value = envelope.Message.Code },
-                LBLORG = { Value = envelope.Message.Name },
+                LBLORG = { Value = OrganizationName.WithoutExcessLength(envelope.Message.Name) },
                 OVOCODE = { Value = envelope.Message.OvoCode }
             }.ToBytes(manager, encoding);
         });
@@ -77,7 +78,7 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
             organization.DbaseRecord = new OrganizationDbaseRecord
             {
                 ORG = { Value = envelope.Message.Code },
-                LBLORG = { Value = envelope.Message.Name }
+                LBLORG = { Value = OrganizationName.WithoutExcessLength(envelope.Message.Name) }
             }.ToBytes(manager, encoding);
             organization.DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion;
         });
@@ -90,7 +91,7 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
             organization.DbaseRecord = new OrganizationDbaseRecord
             {
                 ORG = { Value = envelope.Message.Code },
-                LBLORG = { Value = envelope.Message.Name },
+                LBLORG = { Value = OrganizationName.WithoutExcessLength(envelope.Message.Name) },
                 OVOCODE = { Value = envelope.Message.OvoCode }
             }.ToBytes(manager, encoding);
             organization.DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion;
