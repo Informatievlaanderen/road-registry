@@ -57,10 +57,10 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
                 ORG = { Value = createOrganizationAccepted.Code },
                 LBLORG = { Value = createOrganizationAccepted.Name },
                 OVOCODE = { Value = createOrganizationAccepted.OvoCode }
-            }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
+            }.ToBytes(_services.MemoryStreamManager, _services.FileEncoding)
         };
 
-        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+        return new OrganizationRecordProjection(_services.MemoryStreamManager, _services.FileEncoding)
             .Scenario()
             .Given(createOrganizationAccepted)
             .Expect(expected);
@@ -79,7 +79,7 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
             Code = createOrganizationAccepted.Code
         };
 
-        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+        return new OrganizationRecordProjection(_services.MemoryStreamManager, _services.FileEncoding)
             .Scenario()
             .Given(createOrganizationAccepted, deleteOrganizationAccepted)
             .Expect(Enumerable.Empty<OrganizationRecord>());
@@ -112,7 +112,7 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
             }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
         };
 
-        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+        return new OrganizationRecordProjection(_services.MemoryStreamManager, _services.FileEncoding)
             .Scenario()
             .Given(importedOrganization, renameOrganizationAccepted)
             .Expect(expected);
@@ -147,7 +147,7 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
             }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
         };
 
-        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+        return new OrganizationRecordProjection(_services.MemoryStreamManager, _services.FileEncoding)
             .Scenario()
             .Given(importedOrganization, changeOrganizationAccepted)
             .Expect(expected);
@@ -179,7 +179,7 @@ public class OrganizationRecordProjectionTests : IClassFixture<ProjectionTestSer
                 };
             }).ToList();
 
-        return new OrganizationRecordProjection(new RecyclableMemoryStreamManager(), Encoding.UTF8)
+        return new OrganizationRecordProjection(_services.MemoryStreamManager, _services.FileEncoding)
             .Scenario()
             .Given(data.Select(d => d.ImportedOrganization))
             .Expect(data.Select(d => d.Expected));

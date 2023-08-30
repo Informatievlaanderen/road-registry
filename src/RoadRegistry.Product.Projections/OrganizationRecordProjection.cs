@@ -46,20 +46,27 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
 
         When<Envelope<CreateOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            var organization = new OrganizationRecord
-            {
-                Code = envelope.Message.Code,
-                SortableCode = GetSortableCodeFor(envelope.Message.Code),
-                DbaseRecord = new OrganizationDbaseRecord
-                {
-                    ORG = { Value = envelope.Message.Code },
-                    LBLORG = { Value = envelope.Message.Name },
-                    OVOCODE = { Value = envelope.Message.OvoCode }
-                }.ToBytes(manager, encoding),
-                DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion
-            };
+            var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
+                               ?? await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token);
 
-            await context.Organizations.AddAsync(organization, token);
+            if (organization is null)
+            {
+                organization = new OrganizationRecord
+                {
+                    Code = envelope.Message.Code,
+                    SortableCode = GetSortableCodeFor(envelope.Message.Code),
+                    DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion
+                };
+
+                await context.Organizations.AddAsync(organization, token);
+            }
+
+            organization.DbaseRecord = new OrganizationDbaseRecord
+            {
+                ORG = { Value = envelope.Message.Code },
+                LBLORG = { Value = envelope.Message.Name },
+                OVOCODE = { Value = envelope.Message.OvoCode }
+            }.ToBytes(manager, encoding);
         });
 
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>

@@ -77,7 +77,7 @@ Target.create "Test_Solution" (fun _ ->
     "test" @@ "RoadRegistry.Product.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Projector.Tests"
     "test" @@ "RoadRegistry.Snapshot.Handlers.Sqs.Lambda.Tests"
-    "test" @@ "RoadRegistry.StreetNameConsumer.ProjectionHost.Tests"
+    "test" @@ "RoadRegistry.SyncHost.Tests"
     "test" @@ "RoadRegistry.Syndication.ProjectionHost.Tests"
     "test" @@ "RoadRegistry.Tests"
     "test" @@ "RoadRegistry.Wfs.ProjectionHost.Tests"
@@ -104,7 +104,7 @@ Target.create "Publish_Solution" (fun _ ->
     "RoadRegistry.Producer.Snapshot.ProjectionHost"
     "RoadRegistry.Projector"
     "RoadRegistry.Snapshot.Handlers.Sqs.Lambda"
-    "RoadRegistry.StreetNameConsumer.ProjectionHost"
+    "RoadRegistry.SyncHost"
     "RoadRegistry.Syndication.ProjectionHost"
     "RoadRegistry.Wfs.ProjectionHost"
     "RoadRegistry.Wms.ProjectionHost"
@@ -205,8 +205,8 @@ Target.create "PushContainer_ProductProjectionHost" (fun _ -> push "product-proj
 Target.create "Containerize_ProducerSnapshotProjectionHost" (fun _ -> containerize "RoadRegistry.Producer.Snapshot.ProjectionHost" "producer-snapshot-projectionhost")
 Target.create "PushContainer_ProducerSnapshotProjectionHost" (fun _ -> push "producer-snapshot-projectionhost")
 
-Target.create "Containerize_StreetNameConsumerProjectionHost" (fun _ -> containerize "RoadRegistry.StreetNameConsumer.ProjectionHost" "streetnameconsumer-projectionhost")
-Target.create "PushContainer_StreetNameConsumerProjectionHost" (fun _ -> push "streetnameconsumer-projectionhost")
+Target.create "Containerize_SyncHost" (fun _ -> containerize "RoadRegistry.SyncHost" "synchost")
+Target.create "PushContainer_SyncHost" (fun _ -> push "synchost")
 
 Target.create "Containerize_SyndicationProjectionHost" (fun _ -> containerize "RoadRegistry.Syndication.ProjectionHost" "syndication-projectionhost")
 Target.create "PushContainer_SyndicationProjectionHost" (fun _ -> push "syndication-projectionhost")
@@ -290,7 +290,7 @@ Target.create "Containerize" ignore
   ==> "PushContainer_BackOfficeMessagingHostSqs"
   ==> "PushContainer_ImportLegacy"
   ==> "PushContainer_ExtractLegacy"
-  ==> "PushContainer_StreetNameConsumerProjectionHost"
+  ==> "PushContainer_SyncHost"
   ==> "Push"
 // Possibly add more projects to push here
 
