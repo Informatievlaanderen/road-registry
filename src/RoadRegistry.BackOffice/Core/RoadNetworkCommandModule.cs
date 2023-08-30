@@ -85,7 +85,9 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         Organization.DutchTranslation translation;
         if (organization is null)
         {
-            translation = Organization.PredefinedTranslations.Unknown;
+            translation = organizationId == OrganizationId.Other
+                ? Organization.PredefinedTranslations.Other
+                : Organization.PredefinedTranslations.Unknown;
         } else if (organization.OvoCode is not null)
         {
             translation = new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);

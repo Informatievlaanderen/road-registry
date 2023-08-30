@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
+using RoadRegistry.BackOffice;
 using Schema;
 
 public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
@@ -46,20 +47,27 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
 
         When<Envelope<CreateOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            var organization = new OrganizationRecord
-            {
-                Code = envelope.Message.Code,
-                SortableCode = GetSortableCodeFor(envelope.Message.Code),
-                DbaseRecord = new OrganizationDbaseRecord
-                {
-                    ORG = { Value = envelope.Message.Code },
-                    LBLORG = { Value = envelope.Message.Name },
-                    OVOCODE = { Value = envelope.Message.OvoCode }
-                }.ToBytes(manager, encoding),
-                DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion
-            };
+            var organization = context.Organizations.Local.SingleOrDefault(o => o.Code == envelope.Message.Code)
+                               ?? await context.Organizations.SingleOrDefaultAsync(o => o.Code == envelope.Message.Code, token);
 
-            await context.Organizations.AddAsync(organization, token);
+            if (organization is null)
+            {
+                organization = new OrganizationRecord
+                {
+                    Code = envelope.Message.Code,
+                    SortableCode = GetSortableCodeFor(envelope.Message.Code),
+                    DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion
+                };
+
+                await context.Organizations.AddAsync(organization, token);
+            }
+
+            organization.DbaseRecord = new OrganizationDbaseRecord
+            {
+                ORG = { Value = envelope.Message.Code },
+                LBLORG = { Value = OrganizationName.WithoutExcessLength(envelope.Message.Name) },
+                OVOCODE = { Value = envelope.Message.OvoCode }
+            }.ToBytes(manager, encoding);
         });
 
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
@@ -70,7 +78,7 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
             organization.DbaseRecord = new OrganizationDbaseRecord
             {
                 ORG = { Value = envelope.Message.Code },
-                LBLORG = { Value = envelope.Message.Name }
+                LBLORG = { Value = OrganizationName.WithoutExcessLength(envelope.Message.Name) }
             }.ToBytes(manager, encoding);
             organization.DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion;
         });
@@ -83,7 +91,7 @@ public class OrganizationRecordProjection : ConnectedProjection<ProductContext>
             organization.DbaseRecord = new OrganizationDbaseRecord
             {
                 ORG = { Value = envelope.Message.Code },
-                LBLORG = { Value = envelope.Message.Name },
+                LBLORG = { Value = OrganizationName.WithoutExcessLength(envelope.Message.Name) },
                 OVOCODE = { Value = envelope.Message.OvoCode }
             }.ToBytes(manager, encoding);
             organization.DbaseSchemaVersion = OrganizationDbaseRecord.DbaseSchemaVersion;

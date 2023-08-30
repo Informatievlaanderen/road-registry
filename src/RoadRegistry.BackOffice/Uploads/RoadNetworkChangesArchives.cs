@@ -33,9 +33,14 @@ public class RoadNetworkChangesArchives : IRoadNetworkChangesArchives
         _map.Attach(new EventSourcedEntityMapEntry(archive, new StreamName(archive.Id), expectedVersion));
     }
 
+    public static StreamName GetStreamName(ArchiveId id)
+    {
+        return new StreamName(id);
+    }
+
     public async Task<RoadNetworkChangesArchive> Get(ArchiveId id, CancellationToken ct = default)
     {
-        var stream = new StreamName(id);
+        var stream = GetStreamName(id);
         if (_map.TryGet(stream, out var entry)) return (RoadNetworkChangesArchive)entry.Entity;
         var page = await _store.ReadStreamForwards(stream, StreamVersion.Start, 1024, ct);
         if (page.Status == PageReadStatus.StreamNotFound)
