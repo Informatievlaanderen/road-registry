@@ -62,6 +62,7 @@ public class Program
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
                             new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()),
+                            sp.GetRequiredService<IRoadNetworkEventWriter>(),
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
                         new RoadNetworkBackOfficeEventModule(
