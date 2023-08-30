@@ -105,9 +105,6 @@ public class OrganizationConsumer: BackgroundService
                         _logger.LogInformation("{Count} organizations have an OVO-code", orgIdMapping.Count);
                     }
 
-
-                    organization.Name = OrganizationName.WithoutExcessLength(organization.Name);
-
                     await CreateOrUpdateOrganizationWithOvoCode(organizationsContext, organization, stoppingToken);
                     await UpdateOrganizationsWithOldOrganizationId(orgIdMapping, organization, stoppingToken);
 
