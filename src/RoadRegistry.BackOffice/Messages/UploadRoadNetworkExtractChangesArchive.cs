@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Messages;
 using System;
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
+using Framework;
 
 public interface IRoadRegistryIdentity
 {
