@@ -1,3 +1,17 @@
+# [3.57.0](https://github.com/informatievlaanderen/road-registry/compare/v3.56.13...v3.57.0) (2023-08-30)
+
+
+### Bug Fixes
+
+* manual pipeline lambda credentials ([#1138](https://github.com/informatievlaanderen/road-registry/issues/1138)) ([623d988](https://github.com/informatievlaanderen/road-registry/commit/623d988ac8b8b6caa7976a1654ad96b6d5a6a2fd))
+* WR-792 keep long names of organizations during sync + error handling of ZipArchiveValidationException with new FC ([#1140](https://github.com/informatievlaanderen/road-registry/issues/1140)) ([c236735](https://github.com/informatievlaanderen/road-registry/commit/c2367351cb1c557f0b9422d06f38a31f9ec5aa3c))
+
+
+### Features
+
+* add SyncHost with OrganizationConsumer ([#1139](https://github.com/informatievlaanderen/road-registry/issues/1139)) ([a01e691](https://github.com/informatievlaanderen/road-registry/commit/a01e691c30d10fab706799d0002d40a48bf5a19c))
+* WR-752 Capture administrative actions origin provenance ([#1113](https://github.com/informatievlaanderen/road-registry/issues/1113)) ([dae03e6](https://github.com/informatievlaanderen/road-registry/commit/dae03e639cb56f9037d8e9bc381addc5bf3cb940))
+
 ## [3.56.13](https://github.com/informatievlaanderen/road-registry/compare/v3.56.12...v3.56.13) (2023-08-24)
 
 
