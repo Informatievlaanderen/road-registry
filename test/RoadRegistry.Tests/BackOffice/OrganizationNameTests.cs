@@ -44,6 +44,29 @@ public class OrganizationNameTests
     }
 
     [Fact]
+    public void WithoutExcessLengthWithTooLongValue()
+    {
+        const int length = OrganizationName.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+        var name = OrganizationName.WithoutExcessLength(value);
+
+        Assert.NotEqual(value.Length, name.ToString()!.Length);
+        Assert.Equal(OrganizationName.MaxLength, name.ToString()!.Length);
+    }
+
+    [Fact]
+    public void WithoutExcessLengthWithShortValue()
+    {
+        const int length = OrganizationName.MaxLength - 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+        var name = OrganizationName.WithoutExcessLength(value);
+
+        Assert.Equal(value.Length, name.ToString()!.Length);
+    }
+
+    [Fact]
     public void ToStringReturnsExpectedResult()
     {
         var value = new string(

@@ -53,6 +53,14 @@ public static class ServiceCollectionExtensions
                                     ).Options);
                     }
                 )
+                .AddDbContext<EditorContext>((sp, options) => options
+                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                    .UseSqlServer(
+                        sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
+                        sqlOptions => sqlOptions
+                            .UseNetTopologySuite())
+                )
             ;
     }
 

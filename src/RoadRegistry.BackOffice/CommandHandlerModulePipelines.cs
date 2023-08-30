@@ -12,7 +12,6 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
-using SqlStreamStore.Streams;
 
 public static class CommandHandlerModulePipelines
 {

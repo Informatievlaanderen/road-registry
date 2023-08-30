@@ -54,34 +54,28 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
     }
 
+    private async Task<OrganizationDetail> GetOrganization(string code, CancellationToken cancellationToken)
+    {
+        var organizationRecord = await _editorContext.Organizations.FindAsync(new object[] { code }, cancellationToken);
+        if (organizationRecord is not null)
+        {
+            return _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion);
+        }
+
+        return new OrganizationDetail
+        {
+            Code = new OrganizationId(code),
+            Name = new OrganizationName(code)
+        };
+    }
+
     public async Task<ChangeRoadNetwork> DispatchAsync(SqsLambdaRequest lambdaRequest, string reason, Func<TranslatedChanges, Task<TranslatedChanges>> translatedChangesBuilder, CancellationToken cancellationToken)
     {
-        var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
-        var organizationDetails = organizationRecords.Select(organization => _organizationRecordReader.Read(organization.DbaseRecord, organization.DbaseSchemaVersion)).ToList();
-        OrganizationDetail organizationDetail;
-
-        if (OrganizationOvoCode.AcceptsValue(lambdaRequest.Provenance.Operator))
-        {
-            organizationDetail = organizationDetails.SingleOrDefault(sod => sod.OvoCode == new OrganizationOvoCode(lambdaRequest.Provenance.Operator.ToString()));
-
-            if (organizationDetail is null)
-            {
-                var ex = new OrganizationOvoCodeNotFoundException(lambdaRequest.TicketId, lambdaRequest.Provenance);
-                _logger.LogError(ex, ex.Message);
-
-                organizationDetail = organizationDetails.SingleOrDefault(sod => sod.Code == new OrganizationId(lambdaRequest.Provenance.Operator.ToString()))
-                                     ?? organizationDetails.Single(s => s.Code == new OrganizationId("AGIV"));
-            }
-        }
-        else
-        {
-            organizationDetail = organizationDetails.SingleOrDefault(sod => sod.Code == new OrganizationId(lambdaRequest.Provenance.Operator.ToString()))
-                ?? organizationDetails.Single(s => s.Code == new OrganizationId("AGIV"));
-        }
-
+        var organization = await GetOrganization(lambdaRequest.Provenance.Operator, cancellationToken);
+        
         var translatedChanges = TranslatedChanges.Empty
-            .WithOrganization(organizationDetail.Code)
-            .WithOperatorName(new OperatorName(organizationDetail.Name))
+            .WithOrganization(organization.Code)
+            .WithOperatorName(new OperatorName(organization.Name))
             .WithReason(new Reason(reason));
 
         translatedChanges = await translatedChangesBuilder(translatedChanges);
