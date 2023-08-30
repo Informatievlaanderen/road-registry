@@ -59,9 +59,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                             change.TranslateTo(requestedChange);
                             requestedChanges.Add(requestedChange);
                         }
-                        //TODO-rik temp
-                        //throw new ZipArchiveValidationException(ZipArchiveProblems.Single(new FileError("test.dbf", "SomeReason")));
-
+                        
                         var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
                         var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
                         var downloadId = transactionZoneFeatures.Single().Attributes.DownloadId;
