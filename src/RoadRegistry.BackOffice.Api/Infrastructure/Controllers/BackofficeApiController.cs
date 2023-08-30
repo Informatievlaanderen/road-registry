@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
 using System;
 using System.Collections.Generic;
+using Abstractions;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
@@ -43,6 +44,16 @@ public abstract class BackofficeApiController : ApiController
         request.ProvenanceData = CreateProvenanceData();
         return request;
     }
+
+    protected TRequest EnrichRequest<TRequest, TResponse>(TRequest request)
+        where TRequest : EndpointRequest<TResponse>
+        where TResponse : EndpointResponse
+    {
+        request.Metadata = GetMetadata();
+        request.ProvenanceData = CreateProvenanceData();
+        return request;
+    }
+
 
     private IDictionary<string, object> GetMetadata()
     {
