@@ -1,3 +1,11 @@
+## [3.57.1](https://github.com/informatievlaanderen/road-registry/compare/v3.57.0...v3.57.1) (2023-08-31)
+
+
+### Bug Fixes
+
+* add roadnode id to translated error message ([#1141](https://github.com/informatievlaanderen/road-registry/issues/1141)) ([d05373b](https://github.com/informatievlaanderen/road-registry/commit/d05373b49ecc1363d6e4a17696c8f919365f270d))
+* WR-792 OrganizationConsumer stop trying when ConfigurationErrorsExcepti… ([#1142](https://github.com/informatievlaanderen/road-registry/issues/1142)) ([693fff1](https://github.com/informatievlaanderen/road-registry/commit/693fff19bbb9e4cad124c39a731a9fbd5e82babe))
+
 # [3.57.0](https://github.com/informatievlaanderen/road-registry/compare/v3.56.13...v3.57.0) (2023-08-30)
 
 
