@@ -37,7 +37,8 @@ public class StreetNameConsumer : BackgroundService
     {
         if (string.IsNullOrEmpty(_options.Consumers?.StreetName?.Topic))
         {
-            throw new ConfigurationErrorsException("Configuration has no StreetName Consumer with a Topic.");
+            _logger.LogError("Configuration has no StreetName Consumer with a Topic.");
+            return;
         }
 
         while (!stoppingToken.IsCancellationRequested)

@@ -119,9 +119,10 @@ public class OrganizationConsumer: BackgroundService
                     await context.SaveChangesAsync(stoppingToken);
                 }
             }
-            catch (ConfigurationErrorsException)
+            catch (ConfigurationErrorsException ex)
             {
-                throw;
+                _logger.LogError(ex.Message);
+                return;
             }
             catch (Exception ex)
             {
