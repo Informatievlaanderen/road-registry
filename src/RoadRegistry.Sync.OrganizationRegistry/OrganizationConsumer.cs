@@ -16,6 +16,7 @@ using Microsoft.IO;
 using Newtonsoft.Json;
 using SqlStreamStore;
 using System;
+using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,12 +71,12 @@ public class OrganizationConsumer: BackgroundService
 
             var projectionState = await context.InitializeProjectionState(ProjectionStateName, stoppingToken);
             projectionState.ErrorMessage = null;
-            
+
             try
             {
                 var map = _container.Resolve<EventSourcedEntityMap>();
                 var organizationsContext = new Organizations(map, _store, SerializerSettings, EventMapping);
-                
+
                 _logger.LogInformation("Start consuming organizations...");
                 var processedCount = 0;
 
@@ -98,6 +99,7 @@ public class OrganizationConsumer: BackgroundService
                         {
                             organizationRecords = editorContext.Organizations.Local.ToList();
                         }
+
                         orgIdMapping = organizationRecords
                             .Select(x => _organizationRecordReader.Read(x.DbaseRecord, x.DbaseSchemaVersion))
                             .Where(x => x.OvoCode is not null)
@@ -117,10 +119,15 @@ public class OrganizationConsumer: BackgroundService
                     await context.SaveChangesAsync(stoppingToken);
                 }
             }
+            catch (ConfigurationErrorsException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex, "Error consuming organizations, trying again in {seconds} seconds", _options.ConsumerDelaySeconds);
-                await context.SetErrorMessage(ProjectionStateName, ex.Message, stoppingToken);
+                projectionState.ErrorMessage = ex.Message;
+                await context.SaveChangesAsync(stoppingToken);
             }
 
             if (_options.ConsumerDelaySeconds == -1)
