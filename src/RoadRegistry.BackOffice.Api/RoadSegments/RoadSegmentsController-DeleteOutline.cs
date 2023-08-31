@@ -58,12 +58,7 @@ public partial class RoadSegmentsController
         {
             await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
 
-            var result = await _mediator.Send(Enrich(
-                new DeleteRoadSegmentOutlineSqsRequest
-                {
-                    Request = new DeleteRoadSegmentOutlineRequest(new RoadSegmentId(id))
-                }
-            ), cancellationToken);
+            var result = await _mediator.Send(new DeleteRoadSegmentOutlineSqsRequest { Request = new DeleteRoadSegmentOutlineRequest(new RoadSegmentId(id)) }, cancellationToken);
 
             return Accepted(result);
         }

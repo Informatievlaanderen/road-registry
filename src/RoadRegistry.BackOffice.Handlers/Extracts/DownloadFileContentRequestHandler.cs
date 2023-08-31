@@ -93,7 +93,7 @@ public class DownloadFileContentRequestHandler : EndpointRequestHandler<Download
                 DownloadId = new DownloadId(parsedDownloadId),
                 ExternalRequestId = record.ExternalRequestId
             });
-            await Dispatcher(command, cancellationToken);
+            await Dispatch(command, cancellationToken);
 
             return new DownloadFileContentResponse(
                 filename,

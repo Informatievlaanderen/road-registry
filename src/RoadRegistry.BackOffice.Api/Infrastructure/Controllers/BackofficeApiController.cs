@@ -1,12 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
-
-using System;
-using System.Collections.Generic;
-using Abstractions;
-using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api;
-using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Hosts.Infrastructure.Options;
 using Microsoft.AspNetCore.Mvc;
@@ -30,40 +23,5 @@ public abstract class BackofficeApiController : ApiController
             .Location
             .ToString()
             .Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl));
-    }
-
-    private ProvenanceData CreateProvenanceData()
-    {
-        return new RoadRegistryProvenanceData(Modification.Insert, User.FindFirst(AcmIdmClaimTypes.VoOrgCode)?.Value);
-    }
-
-    protected TRequest Enrich<TRequest>(TRequest request)
-        where TRequest : SqsRequest
-    {
-        request.Metadata = GetMetadata();
-        request.ProvenanceData = CreateProvenanceData();
-        return request;
-    }
-
-    protected TRequest EnrichRequest<TRequest, TResponse>(TRequest request)
-        where TRequest : EndpointRequest<TResponse>
-        where TResponse : EndpointResponse
-    {
-        request.Metadata = GetMetadata();
-        request.ProvenanceData = CreateProvenanceData();
-        return request;
-    }
-
-
-    private IDictionary<string, object> GetMetadata()
-    {
-        var userId = User.FindFirst("urn:be:vlaanderen:roadregistry:acmid")?.Value;
-        var correlationId = User.FindFirst(AddCorrelationIdMiddleware.UrnBasisregistersVlaanderenCorrelationId)?.Value;
-
-        return new Dictionary<string, object>
-        {
-            { "UserId", userId },
-            { "CorrelationId", correlationId ?? Guid.NewGuid().ToString() }
-        };
     }
 }

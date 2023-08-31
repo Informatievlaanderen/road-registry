@@ -37,7 +37,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     private readonly TransactionZoneFeatureCompareFeatureReader _transactionZoneFeatureReader;
 
     public UploadExtractRequestHandler(
-        CommandHandlerDispatcher dispatcher,
         RoadNetworkUploadsBlobClient client,
         IExtractUploadFailedEmailClient emailClient,
         TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
@@ -48,7 +47,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
         FileEncoding encoding,
         UseCleanZipArchiveFeatureToggle useCleanZipArchiveFeatureToggle,
-        ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
+        ILogger<UploadExtractRequestHandler> logger) : base(roadNetworkCommandQueue, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
         _emailClient = emailClient;
@@ -78,14 +77,14 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         );
 
         if (_uploadZipArchiveValidationFeatureToggle.FeatureEnabled)
-            await ValidateAndUploadAndDispatchCommand(request, readStream, archiveId, metadata, cancellationToken);
+            await ValidateAndUploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
         else
-            await UploadAndDispatchCommand(request, readStream, archiveId, metadata, cancellationToken);
+            await UploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
 
         return new UploadExtractResponse(archiveId);
     }
     
-    private async Task UploadAndDispatchCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    private async Task UploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
         readStream.Position = 0;
 
@@ -102,12 +101,12 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             ArchiveId = archiveId.ToString(),
             UseZipArchiveFeatureCompareTranslator = request.UseZipArchiveFeatureCompareTranslator
         });
-        await _roadNetworkCommandQueue.Write(command, cancellationToken);
+        await Queue(command, cancellationToken);
 
-        _logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), archiveId);
+        Logger.LogInformation("Command queued {Command} for archive {ArchiveId}", nameof(UploadRoadNetworkChangesArchive), archiveId);
     }
 
-    private async Task ValidateAndUploadAndDispatchCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
+    private async Task ValidateAndUploadAndQueueCommand(UploadExtractRequest request, Stream readStream, ArchiveId archiveId, Metadata metadata, CancellationToken cancellationToken)
     {
         var entity = RoadNetworkChangesArchive.Upload(archiveId, readStream);
 
@@ -139,7 +138,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 throw ex;
             }
 
-            await UploadAndDispatchCommand(request, readStream, archiveId, metadata, cancellationToken);
+            await UploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
         }
     }
 }

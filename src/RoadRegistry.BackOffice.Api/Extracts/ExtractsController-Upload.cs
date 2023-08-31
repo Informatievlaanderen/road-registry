@@ -34,8 +34,9 @@ public partial class ExtractsController
         return PostUpload(archive, async () =>
         {
             var response = await _mediator.Send(
-                EnrichRequest<UploadExtractRequest, Abstractions.Extracts.UploadExtractResponse>(
-                    new UploadExtractRequest(downloadId, new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType)))
+                new UploadExtractRequest(
+                    downloadId,
+                    new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType))
                 ), cancellationToken);
             return Accepted(new UploadExtractResponseBody(response.UploadId.ToString()));
         });
