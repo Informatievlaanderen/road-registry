@@ -29,7 +29,7 @@ public static class ProblemTranslator
         {ProblemCode.NationalRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze nationale weg met nummer {problem.Parameters[0].Value}.") },
         {ProblemCode.NumberedRoad.NumberNotFound, problem => new(problem.Severity, problem.Reason, $"Het wegsegment is reeds geen onderdeel meer van deze genummerde weg met nummer {problem.Parameters[0].Value}.") },
         {ProblemCode.RoadNetwork.NotFound, problem => new(problem.Severity, "NotFound", "Onbestaand wegen netwerk.")},
-        {ProblemCode.RoadNode.NotConnectedToAnySegment, problem => new(problem.Severity, problem.Reason, "De wegknoop is met geen enkel wegsegment verbonden.") },
+        {ProblemCode.RoadNode.NotConnectedToAnySegment, problem => new(problem.Severity, problem.Reason, $"De wegknoop {problem.Parameters[0].Value} is met geen enkel wegsegment verbonden.") },
         {ProblemCode.RoadNode.NotFound, problem => new(problem.Severity, problem.Reason, "De wegknoop is niet langer onderdeel van het wegen netwerk.") },
         {ProblemCode.RoadNode.TooClose, problem => new(problem.Severity, problem.Reason, $"De geometrie ligt te dicht bij wegsegment met id {problem.Parameters[0].Value}.") },
         {ProblemCode.RoadNode.TypeMismatch, problem => new(problem.Severity, problem.Reason, GetRoadNodeTypeMismatch(problem)) },
