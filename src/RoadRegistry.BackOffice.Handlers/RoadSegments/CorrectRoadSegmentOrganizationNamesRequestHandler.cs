@@ -17,6 +17,7 @@ using RoadRegistry.Editor.Schema;
 using System.Diagnostics;
 using Abstractions.Extracts;
 using BackOffice.Extensions;
+using Product.Schema;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = Reason;
 using RoadRegistry.BackOffice;
@@ -26,7 +27,8 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequest
 {
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
     private readonly IRoadRegistryContext _roadRegistryContext;
-    private readonly Func<EditorContext> _editorContextFactory;
+    private readonly EditorContext _editorContext;
+    private readonly ProductContext _productContext;
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly FileEncoding _fileEncoding;
     private readonly ILogger<CorrectRoadSegmentOrganizationNamesRequestHandler> _logger;
@@ -34,14 +36,16 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequest
     public CorrectRoadSegmentOrganizationNamesRequestHandler(
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
         IRoadRegistryContext roadRegistryContext,
-        Func<EditorContext> editorContextFactory,
+        EditorContext editorContext,
+        ProductContext productContext,
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
         ILogger<CorrectRoadSegmentOrganizationNamesRequestHandler> logger)
     {
         _roadNetworkCommandQueue = roadNetworkCommandQueue;
         _roadRegistryContext = roadRegistryContext;
-        _editorContextFactory = editorContextFactory;
+        _editorContext = editorContext;
+        _productContext = productContext;
         _manager = manager;
         _fileEncoding = fileEncoding;
         _logger = logger;
@@ -112,41 +116,74 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequest
 
     private async Task<List<int>> GetInvalidRoadSegmentIds(CancellationToken cancellationToken)
     {
-        await using var context = _editorContextFactory();
-
         var roadSegmentIds = new List<int>();
         const int pageSize = 5000;
-        var pageIndex = 0;
 
-        while (await FillInvalidRoadSegmentIds(context, pageIndex++, pageSize, roadSegmentIds, cancellationToken))
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            var pageIndex = 0;
+            while (await FillInvalidRoadSegmentIdsFromEditorContext(pageIndex++, pageSize, roadSegmentIds, cancellationToken))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
         }
 
-        return roadSegmentIds;
+        {
+            var pageIndex = 0;
+            while (await FillInvalidRoadSegmentIdsFromProductContext(pageIndex++, pageSize, roadSegmentIds, cancellationToken))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+        }
+
+        return roadSegmentIds.Distinct().ToList();
     }
 
-    private async Task<bool> FillInvalidRoadSegmentIds(EditorContext context, int pageIndex, int pageSize, List<int> roadSegmentIds, CancellationToken cancellationToken)
+    private async Task<bool> FillInvalidRoadSegmentIdsFromEditorContext(int pageIndex, int pageSize, List<int> roadSegmentIds, CancellationToken cancellationToken)
     {
         var sw = Stopwatch.StartNew();
 
-        _logger.LogInformation("Read started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(context.RoadSegments), pageIndex, pageSize);
-        var roadSegments = await context.RoadSegments
+        _logger.LogInformation("Read started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(_editorContext.RoadSegments), pageIndex, pageSize);
+        var roadSegments = await _editorContext.RoadSegments
             .OrderBy(x => x.Id)
             .Skip(pageIndex * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
-        _logger.LogInformation("Read finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(context.RoadSegments), sw.ElapsedMilliseconds);
+        _logger.LogInformation("Read finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(_editorContext.RoadSegments), sw.ElapsedMilliseconds);
 
         sw.Restart();
 
-        _logger.LogInformation("Add DbaseRecord temp collection started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(context.RoadSegments), pageIndex, pageSize);
+        _logger.LogInformation("Add DbaseRecord temp collection started for {EntityName} from EditorContext (Page {PageIndex}, Size {PageSize})", nameof(_editorContext.RoadSegments), pageIndex, pageSize);
 
         roadSegmentIds.AddRange(roadSegments
             .Select(x => new RoadSegmentDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
             .Where(x => string.IsNullOrEmpty(x.LBLBEHEER.GetValue()))
             .Select(x => x.WS_OIDN.Value));
-        _logger.LogInformation("Add DbaseRecord temp collection finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(context.RoadSegments), sw.ElapsedMilliseconds);
+        _logger.LogInformation("Add DbaseRecord temp collection finished for {EntityName} from EditorContext in {StopwatchElapsedMilliseconds}ms", nameof(_editorContext.RoadSegments), sw.ElapsedMilliseconds);
+
+        return roadSegments.Any();
+    }
+
+    private async Task<bool> FillInvalidRoadSegmentIdsFromProductContext(int pageIndex, int pageSize, List<int> roadSegmentIds, CancellationToken cancellationToken)
+    {
+        var sw = Stopwatch.StartNew();
+
+        _logger.LogInformation("Read started for {EntityName} from ProductContext (Page {PageIndex}, Size {PageSize})", nameof(_productContext.RoadSegments), pageIndex, pageSize);
+        var roadSegments = await _productContext.RoadSegments
+            .OrderBy(x => x.Id)
+            .Skip(pageIndex * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        _logger.LogInformation("Read finished for {EntityName} from ProductContext in {StopwatchElapsedMilliseconds}ms", nameof(_productContext.RoadSegments), sw.ElapsedMilliseconds);
+
+        sw.Restart();
+
+        _logger.LogInformation("Add DbaseRecord temp collection started for {EntityName} from ProductContext (Page {PageIndex}, Size {PageSize})", nameof(_productContext.RoadSegments), pageIndex, pageSize);
+
+        roadSegmentIds.AddRange(roadSegments
+            .Select(x => new RoadSegmentDbaseRecord().FromBytes(x.DbaseRecord, _manager, _fileEncoding))
+            .Where(x => string.IsNullOrEmpty(x.LBLBEHEER.GetValue()))
+            .Select(x => x.WS_OIDN.Value));
+        _logger.LogInformation("Add DbaseRecord temp collection finished for {EntityName} from ProductContext in {StopwatchElapsedMilliseconds}ms", nameof(_productContext.RoadSegments), sw.ElapsedMilliseconds);
 
         return roadSegments.Any();
     }

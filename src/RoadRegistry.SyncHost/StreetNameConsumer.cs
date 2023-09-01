@@ -41,58 +41,69 @@ public class StreetNameConsumer : BackgroundService
             return;
         }
 
-        _logger.LogInformation("Start consuming streetnames...");
-
-        while (!stoppingToken.IsCancellationRequested)
+        _logger.LogInformation("Consuming streetnames started...");
+        try
         {
-            var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
-
-            var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameConsumer)}.{_options.Consumers.StreetName.Topic}{_options.Consumers.StreetName.GroupSuffix}";
-            try
+            while (!stoppingToken.IsCancellationRequested)
             {
-                var jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
+                var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
 
-                var consumerOptions = new ConsumerOptions(
-                        new BootstrapServers(_options.BootstrapServers),
-                        new Topic(_options.Consumers.StreetName.Topic),
-                        new ConsumerGroupId(consumerGroupId),
-                        jsonSerializerSettings,
-                        new SnapshotMessageSerializer<StreetNameSnapshotOsloRecord>(jsonSerializerSettings)
-                    );
-                if (!string.IsNullOrEmpty(_options.SaslUserName))
+                var consumerGroupId = $"{nameof(RoadRegistry)}.{nameof(StreetNameConsumer)}.{_options.Consumers.StreetName.Topic}{_options.Consumers.StreetName.GroupSuffix}";
+                try
                 {
-                    consumerOptions.ConfigureSaslAuthentication(new SaslAuthentication(_options.SaslUserName, _options.SaslPassword));
-                }
+                    var jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-                await new Consumer(consumerOptions, _loggerFactory)
-                    .ConsumeContinuously(async message =>
+                    var consumerOptions = new ConsumerOptions(
+                            new BootstrapServers(_options.BootstrapServers),
+                            new Topic(_options.Consumers.StreetName.Topic),
+                            new ConsumerGroupId(consumerGroupId),
+                            jsonSerializerSettings,
+                            new SnapshotMessageSerializer<StreetNameSnapshotOsloRecord>(jsonSerializerSettings)
+                        );
+                    if (!string.IsNullOrEmpty(_options.SaslUserName))
                     {
-                        var snapshotMessage = (SnapshotMessage)message;
-                        var record = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
+                        consumerOptions.ConfigureSaslAuthentication(new SaslAuthentication(_options.SaslUserName, _options.SaslPassword));
+                    }
 
-                        _logger.LogInformation("Processing streetname {Id}", record.Identificator.Id);
-
-                        await using var scope = _container.BeginLifetimeScope();
-                        await using var context = scope.Resolve<StreetNameConsumerContext>();
-
-                        await projector.ProjectAsync(context, new StreetNameSnapshotOsloWasProduced
+                    await new Consumer(consumerOptions, _loggerFactory)
+                        .ConsumeContinuously(async message =>
                         {
-                            StreetNameId = snapshotMessage.Key,
-                            Offset = snapshotMessage.Offset,
-                            Record = record
+                            var snapshotMessage = (SnapshotMessage)message;
+                            var record = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
+
+                            _logger.LogInformation("Processing streetname {Id}", record.Identificator.Id);
+
+                            await using var scope = _container.BeginLifetimeScope();
+                            await using var context = scope.Resolve<StreetNameConsumerContext>();
+
+                            await projector.ProjectAsync(context, new StreetNameSnapshotOsloWasProduced
+                            {
+                                StreetNameId = snapshotMessage.Key,
+                                Offset = snapshotMessage.Offset,
+                                Record = record
+                            }, stoppingToken);
+
+                            await context.SaveChangesAsync(stoppingToken);
+
+                            _logger.LogInformation("Processed streetname {Id}", record.Identificator.Id);
                         }, stoppingToken);
-
-                        await context.SaveChangesAsync(stoppingToken);
-
-                        _logger.LogInformation("Processed streetname {Id}", record.Identificator.Id);
-                    }, stoppingToken);
+                }
+                catch (ConfigurationErrorsException ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    const int waitSeconds = 30;
+                    _logger.LogCritical(ex, "Error consuming kafka events, trying again in {seconds} seconds", waitSeconds);
+                    await Task.Delay(waitSeconds * 1000, stoppingToken);
+                }
             }
-            catch (Exception ex)
-            {
-                const int waitSeconds = 30;
-                _logger.LogCritical(ex, "Error consuming kafka events, trying again in {seconds} seconds", waitSeconds);
-                await Task.Delay(waitSeconds * 1000, stoppingToken);
-            }
+        }
+        finally
+        {
+            _logger.LogInformation("Consuming streetnames stopped.");
         }
     }
 }
