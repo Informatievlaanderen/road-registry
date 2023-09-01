@@ -62,12 +62,6 @@ public class OrganizationConsumer: BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (string.IsNullOrEmpty(_options.OrganizationRegistrySyncUrl))
-        {
-            _logger.LogError($"{nameof(_options.OrganizationRegistrySyncUrl)} is not configured");
-            return;
-        }
-
         _logger.LogInformation("Consuming organizations started...");
         try
         {
@@ -128,6 +122,11 @@ public class OrganizationConsumer: BackgroundService
                     {
                         await context.SaveChangesAsync(stoppingToken);
                     }
+                }
+                catch (ConfigurationErrorsException ex)
+                {
+                    _logger.LogError(ex.Message);
+                    return;
                 }
                 catch (Exception ex)
                 {
