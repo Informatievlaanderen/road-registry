@@ -173,6 +173,8 @@ namespace RoadRegistry.SyncHost.Tests.Organization
 
             var page = await store.ReadAllForwards(Position.Start, 2);
 
+            Assert.Equal(2, page.Messages.Length);
+
             {
                 var message = page.Messages[0];
                 Assert.Equal(nameof(CreateOrganization), message.Type);

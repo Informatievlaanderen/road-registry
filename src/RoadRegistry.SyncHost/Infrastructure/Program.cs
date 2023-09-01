@@ -1,21 +1,19 @@
 namespace RoadRegistry.SyncHost.Infrastructure;
 
 using Autofac;
+using BackOffice.Extensions;
+using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.Projector.Modules;
 using Hosts;
-using Microsoft.Extensions.Configuration;
+using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Modules;
 using RoadRegistry.StreetNameConsumer.Schema;
 using Sync.OrganizationRegistry;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice.Extensions;
-using BackOffice.Framework;
-using Hosts.Infrastructure.Extensions;
 
 public class Program
 {
