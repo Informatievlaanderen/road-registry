@@ -1,3 +1,10 @@
+## [3.57.2](https://github.com/informatievlaanderen/road-registry/compare/v3.57.1...v3.57.2) (2023-09-01)
+
+
+### Bug Fixes
+
+* add logging to streetnameconsumer ([#1144](https://github.com/informatievlaanderen/road-registry/issues/1144)) ([82e14ed](https://github.com/informatievlaanderen/road-registry/commit/82e14ed20c711e38e5ca6307e6265bc1a4b93c16))
+
 ## [3.57.1](https://github.com/informatievlaanderen/road-registry/compare/v3.57.0...v3.57.1) (2023-08-31)
 
 
