@@ -136,6 +136,7 @@ public class OrganizationConsumer: BackgroundService
 
             if (_options.ConsumerDelaySeconds == -1)
             {
+                _logger.LogInformation("Stop consuming organizations, ran only once");
                 break;
             }
 
