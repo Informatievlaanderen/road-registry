@@ -1,4 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
+
+using System.Globalization;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Hosts.Infrastructure.Options;
@@ -23,5 +25,13 @@ public abstract class BackofficeApiController : ApiController
             .Location
             .ToString()
             .Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl));
+    }
+
+    protected void AddHeaderRetryAfter(int retryAfter)
+    {
+        if (retryAfter > 0)
+        {
+            Response.Headers.Add("Retry-After", retryAfter.ToString(CultureInfo.InvariantCulture));
+        }
     }
 }
