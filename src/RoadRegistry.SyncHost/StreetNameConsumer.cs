@@ -70,8 +70,8 @@ public class StreetNameConsumer : BackgroundService
                         {
                             var snapshotMessage = (SnapshotMessage)message;
                             var record = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
-
-                            _logger.LogInformation("Processing streetname {Id}", record.Identificator.Id);
+                            
+                            _logger.LogInformation("Processing streetname {Key}", snapshotMessage.Key);
 
                             await using var scope = _container.BeginLifetimeScope();
                             await using var context = scope.Resolve<StreetNameConsumerContext>();
@@ -85,7 +85,7 @@ public class StreetNameConsumer : BackgroundService
 
                             await context.SaveChangesAsync(stoppingToken);
 
-                            _logger.LogInformation("Processed streetname {Id}", record.Identificator.Id);
+                            _logger.LogInformation("Processed streetname {Key}", snapshotMessage.Key);
                         }, stoppingToken);
                 }
                 catch (ConfigurationErrorsException ex)
