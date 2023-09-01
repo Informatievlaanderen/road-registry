@@ -5,7 +5,7 @@ using MediatR;
 
 public abstract record EndpointRequest
 {
-    public IDictionary<string, object?> Metadata { get; set; }
+    public IDictionary<string, object> Metadata { get; set; }
     public ProvenanceData ProvenanceData { get; set; }
 }
 

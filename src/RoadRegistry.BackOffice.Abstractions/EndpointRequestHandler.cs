@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Abstractions;
 
 using Framework;
-using Messages;
 using Microsoft.Extensions.Logging;
 
 public abstract class EndpointRequestHandler<TRequest, TResponse> : RequestHandler<TRequest, TResponse>
@@ -35,15 +34,8 @@ public abstract class EndpointRequestHandler<TRequest, TResponse> : RequestHandl
 
         async Task HandleInitializer(Command command, CancellationToken token)
         {
-            if (command.Body is RoadRegistryCommandIdentity commandMessage)
-            {
-                commandMessage.IdentityData = new RoadRegistryIdentity
-                {
-                    Metadata = request.Metadata,
-                    ProvenanceData = request.ProvenanceData
-                };
-            }
-            await _commandSender(command, token);
+            var decoratedCommand = command.WithProvenanceData(request.ProvenanceData);
+            await _commandSender(decoratedCommand, token);
         }
     }
 }
