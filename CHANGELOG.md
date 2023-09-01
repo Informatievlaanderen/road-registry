@@ -1,3 +1,10 @@
+## [3.57.3](https://github.com/informatievlaanderen/road-registry/compare/v3.57.2...v3.57.3) (2023-09-01)
+
+
+### Bug Fixes
+
+* add ProductContext to OrganizationNames correction ([#1145](https://github.com/informatievlaanderen/road-registry/issues/1145)) ([9663185](https://github.com/informatievlaanderen/road-registry/commit/96631856f7eacdf293a6831a40c1d2ee07820616))
+
 ## [3.57.2](https://github.com/informatievlaanderen/road-registry/compare/v3.57.1...v3.57.2) (2023-09-01)
 
 
