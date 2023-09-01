@@ -41,6 +41,8 @@ public class StreetNameConsumer : BackgroundService
             return;
         }
 
+        _logger.LogInformation("Start consuming streetnames...");
+
         while (!stoppingToken.IsCancellationRequested)
         {
             var projector = new ConnectedProjector<StreetNameConsumerContext>(Resolve.WhenEqualToHandlerMessageType(new StreetNameConsumerProjection().Handlers));
@@ -67,7 +69,9 @@ public class StreetNameConsumer : BackgroundService
                     {
                         var snapshotMessage = (SnapshotMessage)message;
                         var record = (StreetNameSnapshotOsloRecord)snapshotMessage.Value;
-                        
+
+                        _logger.LogInformation("Processing streetname {Id}", record.Identificator.Id);
+
                         await using var scope = _container.BeginLifetimeScope();
                         await using var context = scope.Resolve<StreetNameConsumerContext>();
 
@@ -79,6 +83,8 @@ public class StreetNameConsumer : BackgroundService
                         }, stoppingToken);
 
                         await context.SaveChangesAsync(stoppingToken);
+
+                        _logger.LogInformation("Processed streetname {Id}", record.Identificator.Id);
                     }, stoppingToken);
             }
             catch (Exception ex)

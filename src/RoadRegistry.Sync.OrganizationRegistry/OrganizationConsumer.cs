@@ -62,6 +62,8 @@ public class OrganizationConsumer: BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _logger.LogInformation("Start consuming organizations...");
+
         while (!stoppingToken.IsCancellationRequested)
         {
             ILookup<OrganizationOvoCode, OrganizationId>? orgIdMapping = null;
@@ -77,7 +79,6 @@ public class OrganizationConsumer: BackgroundService
                 var map = _container.Resolve<EventSourcedEntityMap>();
                 var organizationsContext = new Organizations(map, _store, SerializerSettings, EventMapping);
 
-                _logger.LogInformation("Start consuming organizations...");
                 var processedCount = 0;
 
                 await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
@@ -112,6 +113,8 @@ public class OrganizationConsumer: BackgroundService
 
                     projectionState.Position = organization.ChangeId;
                     processedCount++;
+
+                    _logger.LogInformation("Processed organization {OvoNumber}", organization.OvoNumber);
                 }, stoppingToken);
 
                 if (processedCount > 0)
