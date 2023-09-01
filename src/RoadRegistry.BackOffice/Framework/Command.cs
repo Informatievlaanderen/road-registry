@@ -42,7 +42,8 @@ public class Command: IRoadRegistryMessage
 
     public Command WithProvenanceData(ProvenanceData value)
     {
-        ArgumentNullException.ThrowIfNull(value);
-        return new Command(MessageId, Principal, value, Body);
+        return value is not null
+            ? new Command(MessageId, Principal, value, Body)
+            : this;
     }
 }
