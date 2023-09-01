@@ -1,3 +1,25 @@
+## [3.57.3](https://github.com/informatievlaanderen/road-registry/compare/v3.57.2...v3.57.3) (2023-09-01)
+
+
+### Bug Fixes
+
+* add ProductContext to OrganizationNames correction ([#1145](https://github.com/informatievlaanderen/road-registry/issues/1145)) ([9663185](https://github.com/informatievlaanderen/road-registry/commit/96631856f7eacdf293a6831a40c1d2ee07820616))
+
+## [3.57.2](https://github.com/informatievlaanderen/road-registry/compare/v3.57.1...v3.57.2) (2023-09-01)
+
+
+### Bug Fixes
+
+* add logging to streetnameconsumer ([#1144](https://github.com/informatievlaanderen/road-registry/issues/1144)) ([82e14ed](https://github.com/informatievlaanderen/road-registry/commit/82e14ed20c711e38e5ca6307e6265bc1a4b93c16))
+
+## [3.57.1](https://github.com/informatievlaanderen/road-registry/compare/v3.57.0...v3.57.1) (2023-08-31)
+
+
+### Bug Fixes
+
+* add roadnode id to translated error message ([#1141](https://github.com/informatievlaanderen/road-registry/issues/1141)) ([d05373b](https://github.com/informatievlaanderen/road-registry/commit/d05373b49ecc1363d6e4a17696c8f919365f270d))
+* WR-792 OrganizationConsumer stop trying when ConfigurationErrorsExcepti… ([#1142](https://github.com/informatievlaanderen/road-registry/issues/1142)) ([693fff1](https://github.com/informatievlaanderen/road-registry/commit/693fff19bbb9e4cad124c39a731a9fbd5e82babe))
+
 # [3.57.0](https://github.com/informatievlaanderen/road-registry/compare/v3.56.13...v3.57.0) (2023-08-30)
 
 
