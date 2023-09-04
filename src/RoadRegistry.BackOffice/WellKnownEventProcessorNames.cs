@@ -2,12 +2,12 @@ namespace RoadRegistry.BackOffice
 {
     public static class WellKnownEventProcessorNames
     {
-        public static string RoadNetwork = "RoadNetworkEventProcessor";
-        public static string ExtractRequest = "ExtractRequestEventProcessor";
-        public static string ExtractDownload = "ExtractDownloadEventProcessor";
-        public static string ExtractUpload = "ExtractUploadEventProcessor";
-        public static string Organization = "OrganizationEventProcessor";
-        public static string ChangeFeed = "ChangeFeedEventProcessor";
-        public static string Municipality = "MunicipalityEventProcessor";
+        public const string RoadNetwork = "RoadNetworkEventProcessor";
+        public const string ExtractRequest = "ExtractRequestEventProcessor";
+        public const string ExtractDownload = "ExtractDownloadEventProcessor";
+        public const string ExtractUpload = "ExtractUploadEventProcessor";
+        public const string Organization = "OrganizationEventProcessor";
+        public const string ChangeFeed = "ChangeFeedEventProcessor";
+        public const string Municipality = "MunicipalityEventProcessor";
     }
 }
