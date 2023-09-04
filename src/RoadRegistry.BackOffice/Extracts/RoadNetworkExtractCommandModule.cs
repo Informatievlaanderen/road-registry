@@ -125,27 +125,27 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
 
         For<UploadRoadNetworkExtractChangesArchive>()
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, EnrichEvent.WithTime(clock))
-            .Handle(async (context, message, _, ct) =>
+            .Handle(async (context, command, _, ct) =>
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(UploadRoadNetworkExtractChangesArchive));
 
-                    var downloadId = new DownloadId(message.Body.DownloadId);
-                    var archiveId = new ArchiveId(message.Body.ArchiveId);
-                    var uploadId = new UploadId(message.Body.UploadId);
+                    var downloadId = new DownloadId(command.Body.DownloadId);
+                    var archiveId = new ArchiveId(command.Body.ArchiveId);
+                    var uploadId = new UploadId(command.Body.UploadId);
 
-                    var extractRequestId = ExtractRequestId.FromString(message.Body.RequestId);
+                    var extractRequestId = ExtractRequestId.FromString(command.Body.RequestId);
                     var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
 
                 try
                 {
-                    var upload = extract.Upload(downloadId, uploadId, archiveId, message.Body.FeatureCompareCompleted);
+                    var upload = extract.Upload(downloadId, uploadId, archiveId, command.Body.FeatureCompareCompleted);
 
                     var archiveBlob = await uploadsBlobClient.GetBlobAsync(new BlobName(archiveId), ct);
                     await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
-                        IZipArchiveValidator validator = message.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
-                        upload.ValidateArchiveUsing(archive, validator, message.Body.UseZipArchiveFeatureCompareTranslator);
+                        IZipArchiveValidator validator = command.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
+                        upload.ValidateArchiveUsing(archive, validator, command.Body.UseZipArchiveFeatureCompareTranslator);
                     }
                 }
                 catch (Exception ex)

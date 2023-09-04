@@ -29,20 +29,8 @@ public partial class ExtractsController
     }
 }
 
-/// <summary>
-///     Class DownloadExtractByContourRequestBody.
-///     Implements the
-///     <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
-/// </summary>
-/// <seealso cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
 public record DownloadExtractByContourRequestBody
 {
-    /// <summary>
-    ///     Class DownloadExtractByContourRequestBody.
-    ///     Implements the
-    ///     <see cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
-    /// </summary>
-    /// <seealso cref="System.IEquatable{RoadRegistry.BackOffice.Api.Extracts.DownloadExtractByContourRequestBody}" />
     public DownloadExtractByContourRequestBody(int Buffer, string Contour, string Description, bool IsInformative)
     {
         this.Buffer = Buffer;

@@ -16,7 +16,7 @@ public class ConfigurationApiTokenReader : IApiTokenReader
         _clientName = clientName;
     }
 
-    public async Task<ApiToken> ReadAsync(string apiKey)
+    public Task<ApiToken> ReadAsync(string apiKey)
     {
         var apiKeys = _configuration
             .GetSection("ApiKeys:Road")
@@ -25,9 +25,9 @@ public class ConfigurationApiTokenReader : IApiTokenReader
             .ToArray();
         if (apiKeys.Contains(apiKey))
         {
-            return new ApiToken(apiKey, _clientName, new ApiTokenMetadata(true));
+            return Task.FromResult(new ApiToken(apiKey, _clientName, new ApiTokenMetadata(true)));
         }
 
-        return null;
+        return Task.FromResult<ApiToken>(null);
     }
 }

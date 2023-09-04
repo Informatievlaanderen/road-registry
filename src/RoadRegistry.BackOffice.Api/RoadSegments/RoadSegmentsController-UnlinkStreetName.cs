@@ -82,11 +82,7 @@ public partial class RoadSegmentsController
             var request = new UnlinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
-            var result = await _mediator.Send(Enrich(
-                new UnlinkStreetNameSqsRequest
-                {
-                    Request = request
-                }), cancellationToken);
+            var result = await _mediator.Send(new UnlinkStreetNameSqsRequest { Request = request }, cancellationToken);
 
             return Accepted(result);
         }

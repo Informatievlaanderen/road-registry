@@ -33,7 +33,7 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
         };
 
         var command = new Command(message);
-        await Dispatcher(command, cancellationToken);
+        await Dispatch(command, cancellationToken);
 
         return new DownloadExtractByFileResponse(downloadId, request.IsInformative);
     }

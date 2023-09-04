@@ -39,19 +39,20 @@ public partial class ExtractsController
         {
             if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
             {
-                UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-                var request = new UploadExtractRequest(downloadId, requestArchive)
-                {
-                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled
-                };
-                var response = await _mediator.Send(request, cancellationToken);
+                var response = await _mediator.Send(
+                    new UploadExtractRequest(
+                        downloadId,
+                        new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType))
+                    ) { UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled }, cancellationToken);
                 return Accepted(new UploadExtractFeatureCompareResponseBody(response.UploadId.ToString()));
             }
             else
             {
-                UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-                var request = new UploadExtractFeatureCompareRequest(downloadId, requestArchive);
-                var response = await _mediator.Send(request, cancellationToken);
+                var response = await _mediator.Send(
+                    new UploadExtractFeatureCompareRequest(
+                        downloadId,
+                        new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType))
+                    ), cancellationToken);
                 return Accepted(new UploadExtractFeatureCompareResponseBody(response.UploadId.ToString()));
             }
         });
