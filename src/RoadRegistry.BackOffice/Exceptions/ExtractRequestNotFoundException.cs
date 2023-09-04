@@ -21,4 +21,13 @@ public class ExtractRequestNotFoundException : RoadRegistryException
         : base(info, context)
     {
     }
+
+    public ExtractRequestNotFoundException(DownloadId downloadId, int retryAfterSeconds)
+        : this(downloadId, "Extract request could not be found")
+    {
+        RetryAfterSeconds = retryAfterSeconds;
+    }
+
+    public int RetryAfterSeconds { get; init; }
+
 }

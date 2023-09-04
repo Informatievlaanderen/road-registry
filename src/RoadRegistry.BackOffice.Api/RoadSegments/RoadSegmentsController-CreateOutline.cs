@@ -80,7 +80,7 @@ public partial class RoadSegmentsController
                     RoadSegmentLaneDirection.ParseUsingDutchName(parameters.AantalRijstroken.Richting)
                 )
             };
-            var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
+            var result = await _mediator.Send(sqsRequest, cancellationToken);
 
             return Accepted(result);
         }

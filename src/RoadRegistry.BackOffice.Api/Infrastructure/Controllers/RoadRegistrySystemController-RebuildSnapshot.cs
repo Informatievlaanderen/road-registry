@@ -37,10 +37,10 @@ public partial class RoadRegistrySystemController
 
         if (snapshotFeatureToggle.FeatureEnabled)
         {
-            await Mediator.Send(Enrich(new RebuildRoadNetworkSnapshotSqsRequest
+            await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
             {
                 Request = new RebuildRoadNetworkSnapshotRequest()
-            }), cancellationToken);
+            }, cancellationToken);
             return Accepted();
         }
 

@@ -70,7 +70,7 @@ public partial class RoadSegmentsController
                     GeometryTranslator.Translate(GeometryTranslator.ParseGmlLineString(parameters.MiddellijnGeometrie))
                 )
             };
-            var result = await _mediator.Send(Enrich(sqsRequest), cancellationToken);
+            var result = await _mediator.Send(sqsRequest, cancellationToken);
 
             return Accepted(result);
         }

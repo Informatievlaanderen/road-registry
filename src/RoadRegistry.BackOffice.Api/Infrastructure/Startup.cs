@@ -22,6 +22,7 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Behaviors;
 using Configuration;
 using Controllers.Attributes;
 using Core;
@@ -34,6 +35,7 @@ using Handlers.Extensions;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -169,8 +171,10 @@ public class Startup
             .RegisterModule(new DataDogModule(_configuration))
             .RegisterModule<BlobClientModule>()
             .RegisterModule<MediatorModule>()
-            .RegisterModule<SnapshotSqsHandlersModule>()
-            ;
+            .RegisterModule<SnapshotSqsHandlersModule>();
+
+        builder
+            .RegisterGeneric(typeof(IdentityPipelineBehavior<,>)).As(typeof(IPipelineBehavior<,>));
 
         builder
             .RegisterModulesFromAssemblyContaining<Startup>()
