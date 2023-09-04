@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare;
 
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Linq;
 using Uploads;
 
 public class ZipArchiveEntryFeatureCompareTranslateContext: ZipArchiveFeatureReaderContext
@@ -16,5 +17,11 @@ public class ZipArchiveEntryFeatureCompareTranslateContext: ZipArchiveFeatureRea
         Archive = archive;
         RoadNodeRecords = new List<RoadNodeFeatureCompareRecord>();
         RoadSegmentRecords = new List<RoadSegmentFeatureCompareRecord>();
+    }
+
+    public RoadNodeFeatureCompareRecord FindNotRemovedRoadNode(RoadNodeId id)
+    {
+        return RoadNodeRecords.SingleOrDefault(x => x.Id == id && x.RecordType != RecordType.Removed)
+            ?? RoadNodeRecords.SingleOrDefault(x => x.Attributes.Id == id && x.RecordType != RecordType.Removed);
     }
 }

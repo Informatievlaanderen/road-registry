@@ -15,7 +15,8 @@ namespace RoadRegistry.Tests.BackOffice
     using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
     using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
     using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
-    
+    using Point = NetTopologySuite.Geometries.Point;
+
     public class ExtractsZipArchiveBuilder
     {
         public Fixture Fixture { get; }
@@ -342,21 +343,16 @@ namespace RoadRegistry.Tests.BackOffice
             _fixture = fixture;
 
             TestData.RoadNode1DbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadNode1ShapeRecord = CreateRoadNodeShapeRecord();
-
             TestData.RoadNode2DbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadNode2ShapeRecord = CreateRoadNodeShapeRecord();
-
             TestData.RoadNode3DbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadNode3ShapeRecord = CreateRoadNodeShapeRecord();
-
             TestData.RoadNode4DbaseRecord = CreateRoadNodeDbaseRecord();
-            TestData.RoadNode4ShapeRecord = CreateRoadNodeShapeRecord();
-
+            
             TestData.RoadSegment1DbaseRecord = CreateRoadSegmentDbaseRecord();
             TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = TestData.RoadNode1DbaseRecord.WK_OIDN.Value;
             TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = TestData.RoadNode2DbaseRecord.WK_OIDN.Value;
             var roadSegment1LineString = CreateRoadSegmentGeometry();
+            TestData.RoadNode1ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.StartPoint);
+            TestData.RoadNode2ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.EndPoint);
             TestData.RoadSegment1ShapeRecord = roadSegment1LineString.ToShapeContent();
             
             TestData.RoadSegment2DbaseRecord = CreateRoadSegmentDbaseRecord();
@@ -367,6 +363,8 @@ namespace RoadRegistry.Tests.BackOffice
                 new CoordinateM(roadSegment1LineString.Coordinates[0].X + 1000, roadSegment1LineString.Coordinates[0].Y + 1000, roadSegment1LineString.Coordinates[0].M),
                 new CoordinateM(roadSegment1LineString.Coordinates[1].X + 1000, roadSegment1LineString.Coordinates[1].Y + 1000, roadSegment1LineString.Coordinates[1].M)
             }) { SRID = roadSegment1LineString.SRID };
+            TestData.RoadNode3ShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.StartPoint);
+            TestData.RoadNode4ShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.EndPoint);
             TestData.RoadSegment2ShapeRecord = roadSegment2LineString.ToShapeContent();
         
             TestData.RoadSegment1EuropeanRoadDbaseRecord = CreateRoadSegmentEuropeanRoadDbaseRecord();
@@ -422,6 +420,10 @@ namespace RoadRegistry.Tests.BackOffice
         public PointShapeContent CreateRoadNodeShapeRecord()
         {
             return _fixture.Create<PointShapeContent>();
+        }
+        public PointShapeContent CreateRoadNodeShapeRecord(Point point)
+        {
+            return new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(point));
         }
         public RoadSegmentDbaseRecord CreateRoadSegmentDbaseRecord()
         {

@@ -187,8 +187,8 @@ public class ExtractsZipArchiveTestData : IDisposable
         fixture.Customize<LineString>(customization =>
             customization.FromFactory(generator =>
                 {
-                    var x = generator.Next(15000, 297000);
-                    var y = generator.Next(21000, 245000);
+                    var x = generator.Next(15000, 99000);
+                    var y = generator.Next(21000, 99000);
                     var m = generator.Next(5, 100);
 
                     return new LineString(
