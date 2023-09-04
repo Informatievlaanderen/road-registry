@@ -268,30 +268,22 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
     private void MigrateRoadNodeIds(RoadSegmentFeatureCompareRecord record, ZipArchiveEntryFeatureCompareTranslateContext context)
     {
-        var startNode = context.RoadNodeRecords.SingleOrDefault(x => x.Id == record.Attributes.StartNodeId);
-        if (startNode is null)
+        var startNode = context.FindNotRemovedRoadNode(record.Attributes.StartNodeId);
+        if (startNode is not null)
         {
-            startNode = context.RoadNodeRecords.SingleOrDefault(x => x.Attributes.Id == record.Attributes.StartNodeId);
-            if (startNode is not null)
+            record.Attributes = record.Attributes with
             {
-                record.Attributes = record.Attributes with
-                {
-                    StartNodeId = startNode.Id
-                };
-            }
+                StartNodeId = startNode.Id
+            };
         }
 
-        var endNode = context.RoadNodeRecords.SingleOrDefault(x => x.Id == record.Attributes.EndNodeId);
-        if (endNode is null)
+        var endNode = context.FindNotRemovedRoadNode(record.Attributes.EndNodeId);
+        if (endNode is not null)
         {
-            endNode = context.RoadNodeRecords.SingleOrDefault(x => x.Attributes.Id == record.Attributes.EndNodeId);
-            if (endNode is not null)
+            record.Attributes = record.Attributes with
             {
-                record.Attributes = record.Attributes with
-                {
-                    EndNodeId = endNode.Id
-                };
-            }
+                EndNodeId = endNode.Id
+            };
         }
     }
 

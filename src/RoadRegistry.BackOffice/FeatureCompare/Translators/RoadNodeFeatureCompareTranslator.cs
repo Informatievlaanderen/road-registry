@@ -47,6 +47,12 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
             }
             else
             {
+                var extractFeature = extractFeatures.FirstOrDefault(x => x.Attributes.Id == changeFeature.Attributes.Id);
+                if (extractFeature is not null)
+                {
+                    processedRecords.Add(new RoadNodeFeatureCompareRecord(extractFeature.RecordNumber, extractFeature.Attributes, extractFeature.Attributes.Id, RecordType.Removed));
+                }
+                
                 processedRecords.Add(new RoadNodeFeatureCompareRecord(changeFeature.RecordNumber, changeFeature.Attributes, changeFeature.Attributes.Id, RecordType.Added));
             }
         }
