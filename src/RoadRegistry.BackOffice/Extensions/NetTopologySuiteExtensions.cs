@@ -379,25 +379,9 @@ public static class NetTopologySuiteExtensions
         }
     }
 
-    public static IEnumerable<Point> GetEndNodes(this LineString lineString)
+    public static bool IsFarEnoughAwayFrom(this Point intersection, IEnumerable<Point> points, double tolerance)
     {
-        yield return lineString.StartPoint;
-        yield return lineString.EndPoint;
-    }
-
-    public static bool StartOrEndPointConnectsToOtherStartOrEndPointAtIntersection(this LineString lineString1, LineString lineString2, Point intersection, double tolerance)
-    {
-        return lineString1.GetEndNodes().Any(point => intersection.IsReasonablyEqualTo(point, tolerance))
-               &&
-               lineString2.GetEndNodes().Any(point => intersection.IsReasonablyEqualTo(point, tolerance));
-    }
-
-    public static bool IsTCrossingAtIntersection(this LineString lineString1, LineString lineString2, Point intersection, double tolerance)
-    {
-        //TODO-rik hoe T kruisingen excluden?
-        return lineString1.GetEndNodes().Any(point => lineString2.IsWithinDistance(point, tolerance))
-               &&
-               lineString2.GetEndNodes().Any(point => lineString1.IsWithinDistance(point, tolerance));
+        return points.All(point => !intersection.IsWithinDistance(point, tolerance));
     }
 
     public static MultiPolygon ToMultiPolygon(this Geometry geometry)
