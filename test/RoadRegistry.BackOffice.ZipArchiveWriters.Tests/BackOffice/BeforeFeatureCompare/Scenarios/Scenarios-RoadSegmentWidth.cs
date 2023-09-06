@@ -23,12 +23,12 @@ public class RoadSegmentWidthScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var widthDbaseRecord1 = builder.CreateRoadSegmentWidthDbaseRecord();
                 widthDbaseRecord1.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                widthDbaseRecord1.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
-                widthDbaseRecord1.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
+                widthDbaseRecord1.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
+                widthDbaseRecord1.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
                 var widthDbaseRecord2 = builder.CreateRoadSegmentWidthDbaseRecord();
                 widthDbaseRecord2.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                widthDbaseRecord2.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min;
-                widthDbaseRecord2.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min + 1;
+                widthDbaseRecord2.VANPOS.Value = 0;
+                widthDbaseRecord2.TOTPOS.Value = 1;
 
                 builder.DataSet.WidthDbaseRecords = new[] { widthDbaseRecord1, widthDbaseRecord2, builder.TestData.RoadSegment2WidthDbaseRecord }.ToList();
             })
@@ -62,18 +62,18 @@ public class RoadSegmentWidthScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var widthDbaseRecord1 = builder.CreateRoadSegmentWidthDbaseRecord();
                 widthDbaseRecord1.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                widthDbaseRecord1.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min;
-                widthDbaseRecord1.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min + 1;
+                widthDbaseRecord1.VANPOS.Value = 0;
+                widthDbaseRecord1.TOTPOS.Value = 1;
 
                 var widthDbaseRecord2 = builder.CreateRoadSegmentWidthDbaseRecord();
                 widthDbaseRecord2.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                widthDbaseRecord2.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
-                widthDbaseRecord2.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
+                widthDbaseRecord2.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
+                widthDbaseRecord2.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
 
                 var widthDbaseRecord3 = builder.CreateRoadSegmentWidthDbaseRecord();
                 widthDbaseRecord3.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                widthDbaseRecord3.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
-                widthDbaseRecord3.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
+                widthDbaseRecord3.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
+                widthDbaseRecord3.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
 
                 builder.DataSet.WidthDbaseRecords = new[] { widthDbaseRecord1, widthDbaseRecord2, widthDbaseRecord3, builder.TestData.RoadSegment2WidthDbaseRecord }.ToList();
             })
@@ -89,7 +89,7 @@ public class RoadSegmentWidthScenarios : FeatureCompareTranslatorScenariosBase
         var zipArchive = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
+                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
             })
             .Build();
 
@@ -121,8 +121,8 @@ public class RoadSegmentWidthScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var laneDbaseRecord3 = builder.CreateRoadSegmentWidthDbaseRecord();
                 laneDbaseRecord3.WS_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(new RoadSegmentId(builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value), new RoadSegmentId(builder.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value));
-                laneDbaseRecord3.VANPOS.Value = builder.TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Min;
-                laneDbaseRecord3.TOTPOS.Value = builder.TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Max;
+                laneDbaseRecord3.VANPOS.Value = 0;
+                laneDbaseRecord3.TOTPOS.Value = builder.TestData.RoadSegment2ShapeRecord.Geometry.Length;
 
                 builder.DataSet.WidthDbaseRecords = new[] { builder.TestData.RoadSegment1WidthDbaseRecord, builder.TestData.RoadSegment2WidthDbaseRecord, laneDbaseRecord3 }.ToList();
             })

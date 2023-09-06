@@ -316,9 +316,9 @@ namespace RoadRegistry.Tests.BackOffice
             DataSet ??= new ZipArchiveIntegrationDataSet
             {
                 RoadNodeDbaseRecords = new[] { _fixture.Create<RoadNodeDbaseRecord>() }.ToList(),
-                RoadNodeShapeRecords = new[] { _fixture.Create<PointShapeContent>() }.ToList(),
+                RoadNodeShapeRecords = new[] { _fixture.Create<RoadNodeShapeRecord>() }.ToList(),
                 RoadSegmentDbaseRecords = new[] { _fixture.Create<RoadSegmentDbaseRecord>() }.ToList(),
-                RoadSegmentShapeRecords = new[] { _fixture.Create<PolyLineMShapeContent>() }.ToList()
+                RoadSegmentShapeRecords = new[] { _fixture.Create<RoadSegmentShapeRecord>() }.ToList()
             };
             
             configure(this, new ExtractsZipArchiveDataSetBuilderContext(_fixture));
@@ -353,7 +353,7 @@ namespace RoadRegistry.Tests.BackOffice
             var roadSegment1LineString = CreateRoadSegmentGeometry();
             TestData.RoadNode1ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.StartPoint);
             TestData.RoadNode2ShapeRecord = CreateRoadNodeShapeRecord(roadSegment1LineString.EndPoint);
-            TestData.RoadSegment1ShapeRecord = roadSegment1LineString.ToShapeContent();
+            TestData.RoadSegment1ShapeRecord = CreateRoadSegmentShapeRecord(roadSegment1LineString);
             
             TestData.RoadSegment2DbaseRecord = CreateRoadSegmentDbaseRecord();
             TestData.RoadSegment2DbaseRecord.B_WK_OIDN.Value = TestData.RoadNode3DbaseRecord.WK_OIDN.Value;
@@ -365,7 +365,7 @@ namespace RoadRegistry.Tests.BackOffice
             }) { SRID = roadSegment1LineString.SRID };
             TestData.RoadNode3ShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.StartPoint);
             TestData.RoadNode4ShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.EndPoint);
-            TestData.RoadSegment2ShapeRecord = roadSegment2LineString.ToShapeContent();
+            TestData.RoadSegment2ShapeRecord = CreateRoadSegmentShapeRecord(roadSegment2LineString);
         
             TestData.RoadSegment1EuropeanRoadDbaseRecord = CreateRoadSegmentEuropeanRoadDbaseRecord();
             TestData.RoadSegment1EuropeanRoadDbaseRecord.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
@@ -378,33 +378,33 @@ namespace RoadRegistry.Tests.BackOffice
           
             TestData.RoadSegment1LaneDbaseRecord = CreateRoadSegmentLaneDbaseRecord();
             TestData.RoadSegment1LaneDbaseRecord.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-            TestData.RoadSegment1LaneDbaseRecord.VANPOS.Value = TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min;
-            TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
-         
+            TestData.RoadSegment1LaneDbaseRecord.VANPOS.Value = 0;
+            TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = TestData.RoadSegment1ShapeRecord.Geometry.Length;
+
             TestData.RoadSegment2LaneDbaseRecord = CreateRoadSegmentLaneDbaseRecord();
             TestData.RoadSegment2LaneDbaseRecord.WS_OIDN.Value = TestData.RoadSegment2DbaseRecord.WS_OIDN.Value;
-            TestData.RoadSegment2LaneDbaseRecord.VANPOS.Value = TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Min;
-            TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Max;
-           
+            TestData.RoadSegment2LaneDbaseRecord.VANPOS.Value = 0;
+            TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = TestData.RoadSegment2ShapeRecord.Geometry.Length;
+
             TestData.RoadSegment1SurfaceDbaseRecord = CreateRoadSegmentSurfaceDbaseRecord();
             TestData.RoadSegment1SurfaceDbaseRecord.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-            TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value = TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min;
-            TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
-        
+            TestData.RoadSegment1SurfaceDbaseRecord.VANPOS.Value = 0;
+            TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = TestData.RoadSegment1ShapeRecord.Geometry.Length;
+
             TestData.RoadSegment2SurfaceDbaseRecord = CreateRoadSegmentSurfaceDbaseRecord();
             TestData.RoadSegment2SurfaceDbaseRecord.WS_OIDN.Value = TestData.RoadSegment2DbaseRecord.WS_OIDN.Value;
-            TestData.RoadSegment2SurfaceDbaseRecord.VANPOS.Value = TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Min;
-            TestData.RoadSegment2SurfaceDbaseRecord.TOTPOS.Value = TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Max;
-          
+            TestData.RoadSegment2SurfaceDbaseRecord.VANPOS.Value = 0;
+            TestData.RoadSegment2SurfaceDbaseRecord.TOTPOS.Value = TestData.RoadSegment2ShapeRecord.Geometry.Length;
+
             TestData.RoadSegment1WidthDbaseRecord = CreateRoadSegmentWidthDbaseRecord();
             TestData.RoadSegment1WidthDbaseRecord.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-            TestData.RoadSegment1WidthDbaseRecord.VANPOS.Value = TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min;
-            TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
-          
+            TestData.RoadSegment1WidthDbaseRecord.VANPOS.Value = 0;
+            TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = TestData.RoadSegment1ShapeRecord.Geometry.Length;
+
             TestData.RoadSegment2WidthDbaseRecord = CreateRoadSegmentWidthDbaseRecord();
             TestData.RoadSegment2WidthDbaseRecord.WS_OIDN.Value = TestData.RoadSegment2DbaseRecord.WS_OIDN.Value;
-            TestData.RoadSegment2WidthDbaseRecord.VANPOS.Value = TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Min;
-            TestData.RoadSegment2WidthDbaseRecord.TOTPOS.Value = TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Max;
+            TestData.RoadSegment2WidthDbaseRecord.VANPOS.Value = 0;
+            TestData.RoadSegment2WidthDbaseRecord.TOTPOS.Value = TestData.RoadSegment2ShapeRecord.Geometry.Length;
 
             TestData.GradeSeparatedJunctionDbaseRecord = CreateGradeSeparatedJunctionDbaseRecord();
             TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
@@ -417,17 +417,31 @@ namespace RoadRegistry.Tests.BackOffice
         {
             return _fixture.Create<RoadNodeDbaseRecord>();
         }
-        public PointShapeContent CreateRoadNodeShapeRecord()
+        public RoadNodeShapeRecord CreateRoadNodeShapeRecord()
         {
-            return _fixture.Create<PointShapeContent>();
+            return CreateRoadNodeShapeRecord(_fixture.Create<Point>());
         }
-        public PointShapeContent CreateRoadNodeShapeRecord(Point point)
+        public RoadNodeShapeRecord CreateRoadNodeShapeRecord(Point point)
         {
-            return new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(point));
+            return new RoadNodeShapeRecord
+            {
+                Geometry = point
+            };
         }
         public RoadSegmentDbaseRecord CreateRoadSegmentDbaseRecord()
         {
             return _fixture.Create<RoadSegmentDbaseRecord>();
+        }
+        public RoadSegmentShapeRecord CreateRoadSegmentShapeRecord()
+        {
+            return CreateRoadSegmentShapeRecord(CreateRoadSegmentGeometry());
+        }
+        public RoadSegmentShapeRecord CreateRoadSegmentShapeRecord(LineString lineString)
+        {
+            return new RoadSegmentShapeRecord
+            {
+                Geometry = lineString.ToMultiLineString()
+            };
         }
         public LineString CreateRoadSegmentGeometry()
         {
@@ -508,22 +522,22 @@ namespace RoadRegistry.Tests.BackOffice
 
             var testData = extractBuilder.TestData;
             TestData.RoadNode1DbaseRecord = testData.RoadNode1DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode1ShapeRecord = testData.RoadNode1ShapeRecord.Clone(manager, encoding);
+            TestData.RoadNode1ShapeRecord = testData.RoadNode1ShapeRecord.Clone();
 
             TestData.RoadNode2DbaseRecord = testData.RoadNode2DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode2ShapeRecord = testData.RoadNode2ShapeRecord.Clone(manager, encoding);
+            TestData.RoadNode2ShapeRecord = testData.RoadNode2ShapeRecord.Clone();
 
             TestData.RoadNode3DbaseRecord = testData.RoadNode3DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode3ShapeRecord = testData.RoadNode3ShapeRecord.Clone(manager, encoding);
+            TestData.RoadNode3ShapeRecord = testData.RoadNode3ShapeRecord.Clone();
 
             TestData.RoadNode4DbaseRecord = testData.RoadNode4DbaseRecord.Clone(manager, encoding);
-            TestData.RoadNode4ShapeRecord = testData.RoadNode4ShapeRecord.Clone(manager, encoding);
+            TestData.RoadNode4ShapeRecord = testData.RoadNode4ShapeRecord.Clone();
 
             TestData.RoadSegment1DbaseRecord = testData.RoadSegment1DbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment1ShapeRecord = testData.RoadSegment1ShapeRecord.Clone(manager, encoding);
+            TestData.RoadSegment1ShapeRecord = testData.RoadSegment1ShapeRecord.Clone();
 
             TestData.RoadSegment2DbaseRecord = testData.RoadSegment2DbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment2ShapeRecord = testData.RoadSegment2ShapeRecord.Clone(manager, encoding);
+            TestData.RoadSegment2ShapeRecord = testData.RoadSegment2ShapeRecord.Clone();
 
             TestData.RoadSegment1EuropeanRoadDbaseRecord = testData.RoadSegment1EuropeanRoadDbaseRecord.Clone(manager, encoding);
             TestData.RoadSegment1NationalRoadDbaseRecord = testData.RoadSegment1NationalRoadDbaseRecord.Clone(manager, encoding);
@@ -573,21 +587,46 @@ namespace RoadRegistry.Tests.BackOffice
         }
     }
 
+    public class RoadSegmentShapeRecord
+    {
+        public MultiLineString Geometry { get; set; }
+
+        public RoadSegmentShapeRecord Clone()
+        {
+            return new RoadSegmentShapeRecord
+            {
+                Geometry = Geometry
+            };
+        }
+    }
+    public class RoadNodeShapeRecord
+    {
+        public Point Geometry { get; set; }
+
+        public RoadNodeShapeRecord Clone()
+        {
+            return new RoadNodeShapeRecord
+            {
+                Geometry = Geometry
+            };
+        }
+    }
+
     public class ZipArchiveDataSetTestData
     {
         public RoadNodeDbaseRecord RoadNode1DbaseRecord { get; set; }
-        public PointShapeContent RoadNode1ShapeRecord { get; set; }
+        public RoadNodeShapeRecord RoadNode1ShapeRecord { get; set; }
         public RoadNodeDbaseRecord RoadNode2DbaseRecord { get; set; }
-        public PointShapeContent RoadNode2ShapeRecord { get; set; }
+        public RoadNodeShapeRecord RoadNode2ShapeRecord { get; set; }
         public RoadNodeDbaseRecord RoadNode3DbaseRecord { get; set; }
-        public PointShapeContent RoadNode3ShapeRecord { get; set; }
+        public RoadNodeShapeRecord RoadNode3ShapeRecord { get; set; }
         public RoadNodeDbaseRecord RoadNode4DbaseRecord { get; set; }
-        public PointShapeContent RoadNode4ShapeRecord { get; set; }
+        public RoadNodeShapeRecord RoadNode4ShapeRecord { get; set; }
 
         public RoadSegmentDbaseRecord RoadSegment1DbaseRecord { get; set; }
-        public PolyLineMShapeContent RoadSegment1ShapeRecord { get; set; }
+        public RoadSegmentShapeRecord RoadSegment1ShapeRecord { get; set; }
         public RoadSegmentDbaseRecord RoadSegment2DbaseRecord { get; set; }
-        public PolyLineMShapeContent RoadSegment2ShapeRecord { get; set; }
+        public RoadSegmentShapeRecord RoadSegment2ShapeRecord { get; set; }
 
         public RoadSegmentEuropeanRoadAttributeDbaseRecord RoadSegment1EuropeanRoadDbaseRecord { get; set; }
         public RoadSegmentNationalRoadAttributeDbaseRecord RoadSegment1NationalRoadDbaseRecord { get; set; }
@@ -606,9 +645,9 @@ namespace RoadRegistry.Tests.BackOffice
     public class ZipArchiveIntegrationDataSet
     {
         public List<RoadNodeDbaseRecord> RoadNodeDbaseRecords { get; set; }
-        public List<PointShapeContent> RoadNodeShapeRecords { get; set; }
+        public List<RoadNodeShapeRecord> RoadNodeShapeRecords { get; set; }
         public List<RoadSegmentDbaseRecord> RoadSegmentDbaseRecords { get; set; }
-        public List<PolyLineMShapeContent> RoadSegmentShapeRecords { get; set; }
+        public List<RoadSegmentShapeRecord> RoadSegmentShapeRecords { get; set; }
     }
 
     public class ZipArchiveDataSet: ZipArchiveIntegrationDataSet
@@ -628,9 +667,9 @@ namespace RoadRegistry.Tests.BackOffice
         public ZipArchiveIntegrationDataSetStreams(Fixture fixture, ZipArchiveIntegrationDataSet set)
         {
             RoadNodeDbaseRecords = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, set.RoadNodeDbaseRecords ?? new List<RoadNodeDbaseRecord>());
-            RoadNodeShapeRecords = fixture.CreateRoadNodeShapeFile(set.RoadNodeShapeRecords ?? new List<PointShapeContent>());
+            RoadNodeShapeRecords = fixture.CreateRoadNodeShapeFile((set.RoadNodeShapeRecords ?? new List<RoadNodeShapeRecord>()).Select(x => x.Geometry.ToShapeContent()).ToList());
             RoadSegmentDbaseRecords = fixture.CreateDbfFile(RoadSegmentDbaseRecord.Schema, set.RoadSegmentDbaseRecords ?? new List<RoadSegmentDbaseRecord>());
-            RoadSegmentShapeRecords = fixture.CreateRoadSegmentShapeFile(set.RoadSegmentShapeRecords ?? new List<PolyLineMShapeContent>());
+            RoadSegmentShapeRecords = fixture.CreateRoadSegmentShapeFile((set.RoadSegmentShapeRecords ?? new List<RoadSegmentShapeRecord>()).Select(x => x.Geometry.ToShapeContent()).ToList());
         }
 
         public MemoryStream RoadNodeDbaseRecords { get; }

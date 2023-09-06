@@ -43,14 +43,14 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                             new RecordNumber(1),
                             new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
                             RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value]
-                        ).WithGeometry(GeometryTranslator.ToPoint(context.Change.TestData.RoadNode1ShapeRecord.Shape))
+                        ).WithGeometry(context.Change.TestData.RoadNode1ShapeRecord.Geometry)
                     )
                     .AppendChange(
                         new AddRoadNode(
                             new RecordNumber(2),
                             new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
                             RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode2DbaseRecord.TYPE.Value]
-                        ).WithGeometry(GeometryTranslator.ToPoint(context.Change.TestData.RoadNode2ShapeRecord.Shape))
+                        ).WithGeometry(context.Change.TestData.RoadNode2ShapeRecord.Geometry)
                     )
                     .AppendChange(
                         new AddRoadSegment(
@@ -67,7 +67,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                             RoadSegmentAccessRestriction.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TGBEP.Value],
                             CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
                             CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
-                        ).WithGeometry(GeometryTranslator.ToMultiLineString(context.Change.TestData.RoadSegment1ShapeRecord.Shape))
+                        ).WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                             .WithLane(
                                 new RoadSegmentLaneAttribute(
                                     new AttributeId(context.Change.TestData.RoadSegment1LaneDbaseRecord.RS_OIDN.Value),
@@ -164,7 +164,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                             new RecordNumber(1),
                             new RoadNodeId(context.Change.TestData.RoadNode1DbaseRecord.WK_OIDN.Value),
                             RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode1DbaseRecord.TYPE.Value]
-                        ).WithGeometry(GeometryTranslator.ToPoint(context.Change.TestData.RoadNode1ShapeRecord.Shape))
+                        ).WithGeometry(context.Change.TestData.RoadNode1ShapeRecord.Geometry)
                     )
                     .AppendChange(
                         new ModifyRoadSegment(
@@ -181,7 +181,7 @@ public class AllScenarios : FeatureCompareTranslatorScenariosBase
                                 CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
                                 CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                             )
-                            .WithGeometry(GeometryTranslator.ToMultiLineString(context.Change.TestData.RoadSegment1ShapeRecord.Shape))
+                            .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                             .WithLane(
                                 new RoadSegmentLaneAttribute(
                                     new AttributeId(context.Change.TestData.RoadSegment1LaneDbaseRecord.RS_OIDN.Value),

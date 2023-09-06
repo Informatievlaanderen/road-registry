@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
@@ -70,7 +71,7 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
     {
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, ExtractFileName.Wegknoop, context);
 
-        var batchCount = 2;
+        var batchCount = Debugger.IsAttached ? 1 : 2;
 
         var processedLeveringRecords = await Task.WhenAll(
             changeFeatures.SplitIntoBatches(batchCount)

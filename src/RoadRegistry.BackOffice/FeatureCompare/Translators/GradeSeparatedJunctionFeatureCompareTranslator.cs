@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
+using System;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Extracts;
+using NetTopologySuite.Geometries;
 using Uploads;
 
 internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
@@ -48,8 +50,14 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
 
             var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
 
-            var boWegsegmentFeature = context.RoadSegmentRecords.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.GetOriginalId() == changeFeature.Attributes.UpperRoadSegmentId);
-            var onWegsegmentFeature = context.RoadSegmentRecords.SingleOrDefault(x => !x.RecordType.Equals(RecordType.Removed) && x.GetOriginalId() == changeFeature.Attributes.LowerRoadSegmentId);
+            if (changeFeature.Attributes.LowerRoadSegmentId == changeFeature.Attributes.UpperRoadSegmentId)
+            {
+                problems += recordContext.GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment(changeFeature.Attributes.LowerRoadSegmentId);
+                continue;
+            }
+
+            var boWegsegmentFeature = context.GetNonRemovedRoadSegmentRecords().SingleOrDefault(x => x.GetOriginalId() == changeFeature.Attributes.UpperRoadSegmentId);
+            var onWegsegmentFeature = context.GetNonRemovedRoadSegmentRecords().SingleOrDefault(x => x.GetOriginalId() == changeFeature.Attributes.LowerRoadSegmentId);
             
             if (boWegsegmentFeature is null || onWegsegmentFeature is null)
             {
@@ -106,6 +114,8 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
             RemoveFeatures(extractFeaturesWithoutChangeFeatures);
         }
 
+        problems += ValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction(context, processedRecords);
+
         foreach (var record in processedRecords)
         {
             switch (record.RecordType.Translation.Identifier)
@@ -133,6 +143,68 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
         }
 
         return Task.FromResult((changes, problems));
+    }
+
+    private ZipArchiveProblems ValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction(ZipArchiveEntryFeatureCompareTranslateContext context, List<Record> processedRecords)
+    {
+        var problems = ZipArchiveProblems.None;
+
+        string CreateCombinationKey(RoadSegmentId id1, RoadSegmentId id2)
+        {
+            return $"{Math.Min(id1, id2)}_{Math.Max(id1, id2)}";
+        }
+
+        var gradeSeparatedJunctions = processedRecords
+            .Where(x => x.RecordType != RecordType.Removed)
+            .Select(x => new
+            {
+                x.Feature.Attributes,
+                CombinationKey = CreateCombinationKey(x.Feature.Attributes.LowerRoadSegmentId, x.Feature.Attributes.UpperRoadSegmentId)
+            })
+            .ToList();
+
+        var roadSegmentIntersections = (
+            from r1 in context.GetNonRemovedRoadSegmentRecords()
+            from r2 in context.GetNonRemovedRoadSegmentRecords()
+            where r1.Id != r2.Id
+            let intersection = r1.Attributes.Geometry.Intersection(r2.Attributes.Geometry)
+            where intersection is Point
+            let combinationKey = CreateCombinationKey(r1.Id, r2.Id)
+            let gradeSeparatedJunctionsCount = gradeSeparatedJunctions.Count(grade => grade.CombinationKey == combinationKey)
+            select new
+            {
+                RoadSegment1 = r1,
+                RoadSegment2 = r2,
+                CombinationKey = combinationKey,
+                Intersection = intersection,
+                GradeSeparatedJunctionsCount = gradeSeparatedJunctionsCount
+            }
+        ).DistinctBy(x => new { x.CombinationKey, Wkt = x.Intersection.ToText()}).ToList();
+
+        var roadSegmentIntersectionsWithoutGradeSeparatedJunction = roadSegmentIntersections
+            .Where(x => x.GradeSeparatedJunctionsCount == 0)
+            .ToList();
+
+        foreach (var i in roadSegmentIntersectionsWithoutGradeSeparatedJunction)
+        {
+            var recordContext = ExtractFileName.Wegsegment.AtDbaseRecord(FeatureType.Change, i.RoadSegment1.RecordNumber);
+            
+            problems += recordContext.GradeSeparatedJunctionMissing(i.RoadSegment1.Id, i.RoadSegment2.Id);
+        }
+
+        //TODO-rik #WR-470 once it's refined
+        //var roadSegmentIntersectionsWithNotEnoughGradeSeparatedJunctions = roadSegmentIntersections
+        //    .Where(x => x.Intersections.Count != x.GradeSeparatedJunctionsCount)
+        //    .ToArray();
+
+        //foreach (var i in roadSegmentIntersectionsWithNotEnoughGradeSeparatedJunctions)
+        //{
+        //    var recordContext = ExtractFileName.Wegsegment.AtDbaseRecord(FeatureType.Change, i.RoadSegment1.RecordNumber);
+
+        //    problems += recordContext.ExpectedGradeSeparatedJunctionsCountDiffersFromActual(i.RoadSegment1.Id, i.RoadSegment2.Id, i.Intersections.Count, i.GradeSeparatedJunctionsCount);
+        //}
+
+        return problems;
     }
 
     private sealed record Record(Feature<GradeSeparatedJunctionFeatureCompareAttributes> Feature, RecordType RecordType);
