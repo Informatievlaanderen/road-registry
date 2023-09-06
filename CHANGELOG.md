@@ -1,3 +1,10 @@
+## [3.58.1](https://github.com/informatievlaanderen/road-registry/compare/v3.58.0...v3.58.1) (2023-09-06)
+
+
+### Bug Fixes
+
+* add newprd to release pipeline ([#1149](https://github.com/informatievlaanderen/road-registry/issues/1149)) ([9ef50d6](https://github.com/informatievlaanderen/road-registry/commit/9ef50d6f2cf6edee7cccfa38b665ff4459b63071))
+
 # [3.58.0](https://github.com/informatievlaanderen/road-registry/compare/v3.57.3...v3.58.0) (2023-09-06)
 
 
