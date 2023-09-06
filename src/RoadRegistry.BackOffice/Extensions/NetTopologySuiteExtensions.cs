@@ -379,6 +379,27 @@ public static class NetTopologySuiteExtensions
         }
     }
 
+    public static IEnumerable<Point> GetEndNodes(this LineString lineString)
+    {
+        yield return lineString.StartPoint;
+        yield return lineString.EndPoint;
+    }
+
+    public static bool StartOrEndPointConnectsToOtherStartOrEndPointAtIntersection(this LineString lineString1, LineString lineString2, Point intersection, double tolerance)
+    {
+        return lineString1.GetEndNodes().Any(point => intersection.IsReasonablyEqualTo(point, tolerance))
+               &&
+               lineString2.GetEndNodes().Any(point => intersection.IsReasonablyEqualTo(point, tolerance));
+    }
+
+    public static bool IsTCrossingAtIntersection(this LineString lineString1, LineString lineString2, Point intersection, double tolerance)
+    {
+        //TODO-rik hoe T kruisingen excluden?
+        return lineString1.GetEndNodes().Any(point => lineString2.IsWithinDistance(point, tolerance))
+               &&
+               lineString2.GetEndNodes().Any(point => lineString1.IsWithinDistance(point, tolerance));
+    }
+
     public static MultiPolygon ToMultiPolygon(this Geometry geometry)
     {
         if (geometry is MultiPolygon multiPolygon)
@@ -420,5 +441,23 @@ public static class NetTopologySuiteExtensions
         }
 
         throw new InvalidCastException($"The geometry of type {geometry.GetType().Name} must be either a {nameof(LineString)} or a {nameof(MultiLineString)}.");
+    }
+
+    public static MultiPoint ToMultiPoint(this Geometry geometry, GeometryFactory geometryFactory = null)
+    {
+        if (geometry is MultiPoint multiPoint)
+        {
+            return multiPoint;
+        }
+
+        if (geometry is Point point)
+        {
+            return new MultiPoint(new[] { point }, geometryFactory ?? point.Factory)
+            {
+                SRID = point.SRID
+            };
+        }
+
+        throw new InvalidCastException($"The geometry of type {geometry.GetType().Name} must be either a {nameof(Point)} or a {nameof(MultiPoint)}.");
     }
 }

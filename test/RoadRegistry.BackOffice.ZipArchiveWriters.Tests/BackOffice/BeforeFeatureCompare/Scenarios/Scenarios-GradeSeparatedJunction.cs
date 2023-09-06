@@ -85,7 +85,7 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
 
                 var roadSegment2Geometry = new LineString(new Coordinate[]
                 {
-                    new (intersection.X, intersection.Y - 5),
+                    new (intersection.X, intersection.Y - 1),
                     new (intersection.X, intersection.Y + 5)
                 });
                 builder.TestData.RoadSegment2ShapeRecord.Geometry = roadSegment2Geometry.ToMultiLineString();
@@ -100,6 +100,62 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
 
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, expected));
         Assert.Contains(ex.Problems, x => x.Reason == nameof(DbaseFileProblems.GradeSeparatedJunctionMissing));
+    }
+
+    [Fact]
+    public async Task IntersectingRoadSegmentsAtTheirStartOrEndPointsWithoutGradeSeparatedJunctionShouldNotGiveProblem()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                var roadSegment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
+
+                var intersection = roadSegment1Geometry.StartPoint;
+
+                var roadSegment2Geometry = new LineString(new Coordinate[]
+                {
+                    new (intersection.X, intersection.Y),
+                    new (intersection.X, intersection.Y + 5)
+                });
+                builder.TestData.RoadSegment2ShapeRecord.Geometry = roadSegment2Geometry.ToMultiLineString();
+
+                builder.TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
+                builder.TestData.RoadSegment2SurfaceDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
+                builder.TestData.RoadSegment2WidthDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
+
+                builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
+            })
+            .BuildWithResult(_ => TranslatedChanges.Empty);
+
+        await TranslateSucceeds(zipArchive);
+    }
+
+    [Fact]
+    public async Task IntersectingRoadSegmentsInA_TShape_WithoutGradeSeparatedJunctionShouldNotGiveProblem()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                var roadSegment1Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
+
+                var intersection = roadSegment1Geometry.Centroid;
+                
+                var roadSegment2Geometry = new LineString(new Coordinate[]
+                {
+                    new (intersection.X, intersection.Y),
+                    new (intersection.X, intersection.Y + 5)
+                });
+                builder.TestData.RoadSegment2ShapeRecord.Geometry = roadSegment2Geometry.ToMultiLineString();
+
+                builder.TestData.RoadSegment2LaneDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
+                builder.TestData.RoadSegment2SurfaceDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
+                builder.TestData.RoadSegment2WidthDbaseRecord.TOTPOS.Value = roadSegment2Geometry.Length;
+
+                builder.DataSet.GradeSeparatedJunctionDbaseRecords.Clear();
+            })
+            .BuildWithResult(_ => TranslatedChanges.Empty);
+
+        await TranslateSucceeds(zipArchive);
     }
 
     [Fact]
