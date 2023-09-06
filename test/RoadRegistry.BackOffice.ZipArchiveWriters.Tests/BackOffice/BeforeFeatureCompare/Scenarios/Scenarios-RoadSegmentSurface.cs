@@ -22,12 +22,12 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var surfaceDbaseRecord1 = builder.CreateRoadSegmentSurfaceDbaseRecord();
                 surfaceDbaseRecord1.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                surfaceDbaseRecord1.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
-                surfaceDbaseRecord1.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
+                surfaceDbaseRecord1.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
+                surfaceDbaseRecord1.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
                 var surfaceDbaseRecord2 = builder.CreateRoadSegmentSurfaceDbaseRecord();
                 surfaceDbaseRecord2.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                surfaceDbaseRecord2.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min;
-                surfaceDbaseRecord2.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min + 1;
+                surfaceDbaseRecord2.VANPOS.Value = 0;
+                surfaceDbaseRecord2.TOTPOS.Value = 1;
 
                 builder.DataSet.SurfaceDbaseRecords = new[] { surfaceDbaseRecord1, surfaceDbaseRecord2, builder.TestData.RoadSegment2SurfaceDbaseRecord }.ToList();
             })
@@ -61,18 +61,18 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var surfaceDbaseRecord1 = builder.CreateRoadSegmentSurfaceDbaseRecord();
                 surfaceDbaseRecord1.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                surfaceDbaseRecord1.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min;
-                surfaceDbaseRecord1.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Min + 1;
+                surfaceDbaseRecord1.VANPOS.Value = 0;
+                surfaceDbaseRecord1.TOTPOS.Value = 1;
 
                 var surfaceDbaseRecord2 = builder.CreateRoadSegmentSurfaceDbaseRecord();
                 surfaceDbaseRecord2.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                surfaceDbaseRecord2.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
-                surfaceDbaseRecord2.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
+                surfaceDbaseRecord2.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
+                surfaceDbaseRecord2.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
 
                 var surfaceDbaseRecord3 = builder.CreateRoadSegmentSurfaceDbaseRecord();
                 surfaceDbaseRecord3.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-                surfaceDbaseRecord3.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
-                surfaceDbaseRecord3.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
+                surfaceDbaseRecord3.VANPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
+                surfaceDbaseRecord3.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
 
                 builder.DataSet.SurfaceDbaseRecords = new[] { surfaceDbaseRecord1, surfaceDbaseRecord2, surfaceDbaseRecord3, builder.TestData.RoadSegment2SurfaceDbaseRecord }.ToList();
             })
@@ -88,7 +88,7 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
         var zipArchive = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max - 1;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length - 1;
             })
             .Build();
 
@@ -120,8 +120,8 @@ public class RoadSegmentSurfaceScenarios : FeatureCompareTranslatorScenariosBase
             {
                 var laneDbaseRecord3 = builder.CreateRoadSegmentSurfaceDbaseRecord();
                 laneDbaseRecord3.WS_OIDN.Value = context.Fixture.CreateWhichIsDifferentThan(new RoadSegmentId(builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value), new RoadSegmentId(builder.TestData.RoadSegment2DbaseRecord.WS_OIDN.Value));
-                laneDbaseRecord3.VANPOS.Value = builder.TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Min;
-                laneDbaseRecord3.TOTPOS.Value = builder.TestData.RoadSegment2ShapeRecord.Shape.MeasureRange.Max;
+                laneDbaseRecord3.VANPOS.Value = 0;
+                laneDbaseRecord3.TOTPOS.Value = builder.TestData.RoadSegment2ShapeRecord.Geometry.Length;
 
                 builder.DataSet.SurfaceDbaseRecords = new[] { builder.TestData.RoadSegment1SurfaceDbaseRecord, builder.TestData.RoadSegment2SurfaceDbaseRecord, laneDbaseRecord3 }.ToList();
             })

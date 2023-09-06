@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
@@ -131,7 +132,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
             FeatureType = FeatureType.Integration
         }));
 
-        const int batchCount = 2;
+        var batchCount = Debugger.IsAttached ? 1 : 2;
 
         if (changeFeatures.Any())
         {

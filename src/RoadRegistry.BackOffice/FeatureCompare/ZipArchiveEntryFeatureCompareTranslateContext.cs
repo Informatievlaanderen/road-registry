@@ -24,4 +24,9 @@ public class ZipArchiveEntryFeatureCompareTranslateContext: ZipArchiveFeatureRea
         return RoadNodeRecords.SingleOrDefault(x => x.Id == id && x.RecordType != RecordType.Removed)
             ?? RoadNodeRecords.SingleOrDefault(x => x.Attributes.Id == id && x.RecordType != RecordType.Removed);
     }
+
+    public IEnumerable<RoadSegmentFeatureCompareRecord> GetNonRemovedRoadSegmentRecords()
+    {
+        return RoadSegmentRecords.Where(x => x.RecordType != RecordType.Removed);
+    }
 }

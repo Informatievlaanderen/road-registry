@@ -994,6 +994,10 @@ public static class Customizations
         return true;
     }
 
+    public static PointShapeContent ToShapeContent(this Point point)
+    {
+        return new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(point));
+    }
     public static PolyLineMShapeContent ToShapeContent(this LineString lineString)
     {
         return lineString.ToMultiLineString().ToShapeContent();
