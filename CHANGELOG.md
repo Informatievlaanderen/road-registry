@@ -1,3 +1,16 @@
+# [3.58.0](https://github.com/informatievlaanderen/road-registry/compare/v3.57.3...v3.58.0) (2023-09-06)
+
+
+### Bug Fixes
+
+* WR-774 new FC, delete roadnodes which are added with the same ID ([#1147](https://github.com/informatievlaanderen/road-registry/issues/1147)) ([4af9fd9](https://github.com/informatievlaanderen/road-registry/commit/4af9fd965164fce46b19ed05fa3bd0c28ee1753c))
+
+
+### Features
+
+* WR-758 WR-710 add GradeSeparatedJunction validations ([#1148](https://github.com/informatievlaanderen/road-registry/issues/1148)) ([134143a](https://github.com/informatievlaanderen/road-registry/commit/134143a39d3aba1b29745e029d0073f446f708c3))
+* WR-813 Add identity information on endpoint requests, SQS requests and commands ([#1143](https://github.com/informatievlaanderen/road-registry/issues/1143)) ([efc9d3a](https://github.com/informatievlaanderen/road-registry/commit/efc9d3ac04509bf3ed72e7988eb627920497b400))
+
 ## [3.57.3](https://github.com/informatievlaanderen/road-registry/compare/v3.57.2...v3.57.3) (2023-09-01)
 
 
