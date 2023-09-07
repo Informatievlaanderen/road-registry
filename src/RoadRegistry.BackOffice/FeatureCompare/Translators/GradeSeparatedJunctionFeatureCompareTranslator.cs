@@ -164,13 +164,19 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
             .ToList();
 
         var roadSegmentIntersections = (
-            from r1 in context.GetNonRemovedRoadSegmentRecords()
+            from r1 in context.RoadSegmentRecords.Where(x => x.FeatureType == FeatureType.Change)
             from r2 in context.GetNonRemovedRoadSegmentRecords()
             where r1.Id != r2.Id
-            let intersection = r1.Attributes.Geometry.Intersection(r2.Attributes.Geometry)
-            where intersection is Point
+            let intersectionGeometry = r1.Attributes.Geometry.Intersection(r2.Attributes.Geometry)
+            where intersectionGeometry is Point || intersectionGeometry is MultiPoint
+            let intersections = intersectionGeometry.ToMultiPoint()
             let combinationKey = CreateCombinationKey(r1.Id, r2.Id)
             let gradeSeparatedJunctionsCount = gradeSeparatedJunctions.Count(grade => grade.CombinationKey == combinationKey)
+            let r1Geometry = r1.Attributes.Geometry.GetSingleLineString()
+            let r2Geometry = r2.Attributes.Geometry.GetSingleLineString()
+            from intersection in intersections.OfType<Point>()
+            let intersectionIsFarAwayFromStartEndPoints = intersection.IsFarEnoughAwayFrom(new[] { r1Geometry.StartPoint, r1Geometry.EndPoint, r2Geometry.StartPoint, r2Geometry.EndPoint}, context.Tolerances.MeasurementTolerance)
+            where intersectionIsFarAwayFromStartEndPoints
             select new
             {
                 RoadSegment1 = r1,
@@ -179,7 +185,11 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
                 Intersection = intersection,
                 GradeSeparatedJunctionsCount = gradeSeparatedJunctionsCount
             }
-        ).DistinctBy(x => new { x.CombinationKey, Wkt = x.Intersection.ToText()}).ToList();
+        )
+            .DistinctBy(x => new { x.CombinationKey, Wkt = x.Intersection.ToText()})
+            .OrderBy(x => x.CombinationKey)
+            .ThenBy(x => x.Intersection)
+            .ToList();
 
         var roadSegmentIntersectionsWithoutGradeSeparatedJunction = roadSegmentIntersections
             .Where(x => x.GradeSeparatedJunctionsCount == 0)

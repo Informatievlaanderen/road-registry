@@ -26,7 +26,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
         TestOutputHelper = testOutputHelper;
         Logger = logger;
     }
-    
+
     protected Fixture CreateFixture(RoadRegistry.Tests.BackOffice.ExtractsZipArchiveTestData testData)
     {
         var fixture = testData.Fixture;
@@ -155,24 +155,15 @@ public abstract class FeatureCompareTranslatorScenariosBase
         return fixture;
     }
 
-    protected async Task TranslateReturnsExpectedResult(ZipArchive archive, TranslatedChanges expected)
+    protected async Task<TranslatedChanges> TranslateSucceeds(ZipArchive archive)
     {
         using (archive)
         {
             var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger);
 
-            TranslatedChanges result = null;
             try
             {
-                result = await sut.Translate(archive, CancellationToken.None);
-
-                Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
-            }
-            catch (EqualException)
-            {
-                TestOutputHelper.WriteLine($"Expected:\n{expected.Describe()}");
-                TestOutputHelper.WriteLine($"Actual:\n{result?.Describe()}");
-                throw;
+                return await sut.Translate(archive, CancellationToken.None);
             }
             catch (ZipArchiveValidationException ex)
             {
@@ -182,6 +173,23 @@ public abstract class FeatureCompareTranslatorScenariosBase
                 }
                 throw;
             }
+        }
+    }
+
+    protected async Task TranslateReturnsExpectedResult(ZipArchive archive, TranslatedChanges expected)
+    {
+        TranslatedChanges result = null;
+        try
+        {
+            result = await TranslateSucceeds(archive);
+
+            Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
+        }
+        catch (EqualException)
+        {
+            TestOutputHelper.WriteLine($"Expected:\n{expected.Describe()}");
+            TestOutputHelper.WriteLine($"Actual:\n{result?.Describe()}");
+            throw;
         }
     }
 }
