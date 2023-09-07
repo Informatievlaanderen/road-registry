@@ -1,3 +1,10 @@
+## [3.58.2](https://github.com/informatievlaanderen/road-registry/compare/v3.58.1...v3.58.2) (2023-09-07)
+
+
+### Bug Fixes
+
+* WR-774 exclude intersections of segments and their endnodes ([#1150](https://github.com/informatievlaanderen/road-registry/issues/1150)) ([8a54c23](https://github.com/informatievlaanderen/road-registry/commit/8a54c236a4990a9e396afa7eef088745f3d161ac))
+
 ## [3.58.1](https://github.com/informatievlaanderen/road-registry/compare/v3.58.0...v3.58.1) (2023-09-06)
 
 
