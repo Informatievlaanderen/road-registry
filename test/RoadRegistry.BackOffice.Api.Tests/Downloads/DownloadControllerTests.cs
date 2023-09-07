@@ -190,7 +190,7 @@ public partial class DownloadControllerTests : ControllerTests<DownloadControlle
             {
                 RecordFrom(RoadSegmentStatus.Unknown),
                 RecordFrom(RoadSegmentStatus.PermitRequested),
-                RecordFrom(RoadSegmentStatus.BuildingPermitGranted),
+                RecordFrom(RoadSegmentStatus.PermitGranted),
                 RecordFrom(RoadSegmentStatus.UnderConstruction),
                 RecordFrom(RoadSegmentStatus.InUse),
                 RecordFrom(RoadSegmentStatus.OutOfUse)
