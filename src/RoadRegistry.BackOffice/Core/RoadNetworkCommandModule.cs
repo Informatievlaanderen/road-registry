@@ -1,18 +1,20 @@
 namespace RoadRegistry.BackOffice.Core;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
+using FeatureToggles;
 using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
     private readonly IStreamStore _store;
+    private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
     private readonly ILogger _logger;
     private readonly EventEnricher _enricher;
 
@@ -21,6 +23,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         ILifetimeScope lifetimeScope,
         IRoadNetworkSnapshotReader snapshotReader,
         IClock clock,
+        UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -29,6 +32,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         _store = store;
+        _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
         _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
         _enricher = EnrichEvent.WithTime(clock);
         
@@ -88,7 +92,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             translation = organizationId == OrganizationId.Other
                 ? Organization.PredefinedTranslations.Other
                 : Organization.PredefinedTranslations.Unknown;
-        } else if (organization.OvoCode is not null)
+        } else if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
         {
             translation = new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
         }

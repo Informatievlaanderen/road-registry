@@ -8,6 +8,7 @@ using Framework;
 using Messages;
 using Microsoft.Extensions.Logging;
 using NodaTime.Text;
+using RoadRegistry.BackOffice.FeatureToggles;
 using StreetNameConsumer.Schema;
 using Xunit.Abstractions;
 using AcceptedChange = Messages.AcceptedChange;
@@ -41,6 +42,7 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
                     EntityMapFactory,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     LoggerFactory
                 )
             }), ApplicationMetadata));

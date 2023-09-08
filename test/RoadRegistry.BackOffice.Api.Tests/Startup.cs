@@ -26,6 +26,7 @@ using Api.Downloads;
 using Api.Extracts;
 using Api.Information;
 using Api.Uploads;
+using FeatureToggles;
 using MediatorModule = BackOffice.MediatorModule;
 
 public class Startup : TestStartup
@@ -50,6 +51,7 @@ public class Startup : TestStartup
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IClock>(),
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     sp.GetService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(
