@@ -145,7 +145,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
                         IZipArchiveValidator validator = command.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
-                        upload.ValidateArchiveUsing(archive, validator, command.Body.UseZipArchiveFeatureCompareTranslator);
+                        upload.ValidateArchiveUsing(archive, validator, extractUploadFailedEmailClient, ct, command.Body.UseZipArchiveFeatureCompareTranslator);
                     }
                 }
                 catch (Exception ex)
