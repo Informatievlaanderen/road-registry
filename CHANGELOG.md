@@ -1,3 +1,11 @@
+## [3.58.4](https://github.com/informatievlaanderen/road-registry/compare/v3.58.3...v3.58.4) (2023-09-08)
+
+
+### Bug Fixes
+
+* Send mail message after Rejected been applied ([#1152](https://github.com/informatievlaanderen/road-registry/issues/1152)) ([9213409](https://github.com/informatievlaanderen/road-registry/commit/92134091fc4574d0b4ad575820456287fe1d566d))
+* treat empty files during upload always as warning ([#1153](https://github.com/informatievlaanderen/road-registry/issues/1153)) ([532e85f](https://github.com/informatievlaanderen/road-registry/commit/532e85f69e1a41215390d2193f56d5dc4377580f))
+
 ## [3.58.3](https://github.com/informatievlaanderen/road-registry/compare/v3.58.2...v3.58.3) (2023-09-08)
 
 
