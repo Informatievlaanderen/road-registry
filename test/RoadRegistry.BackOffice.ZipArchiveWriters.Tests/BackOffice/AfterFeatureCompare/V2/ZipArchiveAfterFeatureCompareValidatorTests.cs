@@ -1099,15 +1099,6 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
     [Fact]
     public void ValidateReturnsExpectedResultFromEntryValidators()
     {
-        var filesWithWarning = new[]
-        {
-            "TRANSACTIEZONES.DBF",
-            "ATTEUROPWEG_ALL.DBF",
-            "ATTNATIONWEG_ALL.DBF",
-            "ATTGENUMWEG_ALL.DBF",
-            "RLTOGKRUISING_ALL.DBF"
-        };
-
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveAfterFeatureCompareValidator(FileEncoding.UTF8);
@@ -1122,9 +1113,9 @@ public class ZipArchiveAfterFeatureCompareValidatorTests
                     switch (extension)
                     {
                         case ".SHP":
-                            return entry.HasNoShapeRecords(filesWithWarning.Contains(entry.Name));
+                            return entry.HasNoShapeRecords();
                         case ".DBF":
-                            return entry.HasNoDbaseRecords(filesWithWarning.Contains(entry.Name));
+                            return entry.HasNoDbaseRecords();
                         case ".PRJ":
                             return entry.ProjectionFormatInvalid();
                     }
