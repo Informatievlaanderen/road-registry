@@ -1,3 +1,10 @@
+## [3.58.3](https://github.com/informatievlaanderen/road-registry/compare/v3.58.2...v3.58.3) (2023-09-08)
+
+
+### Bug Fixes
+
+* WR-752 add featuretoggle UseOvoCodeInChangeRoadNetwork ([#1151](https://github.com/informatievlaanderen/road-registry/issues/1151)) ([f860e8d](https://github.com/informatievlaanderen/road-registry/commit/f860e8d26b8759eccf2f4c2ea9c612516cb66855))
+
 ## [3.58.2](https://github.com/informatievlaanderen/road-registry/compare/v3.58.1...v3.58.2) (2023-09-07)
 
 
