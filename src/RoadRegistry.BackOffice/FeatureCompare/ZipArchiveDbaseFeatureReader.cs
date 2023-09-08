@@ -15,13 +15,11 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
 {
     private readonly Encoding _encoding;
     private readonly DbaseSchema _dbaseSchema;
-    private readonly Func<FeatureType, bool> _treatHasNoDbaseRecordsAsWarning;
 
-    protected ZipArchiveDbaseFeatureReader(Encoding encoding, DbaseSchema dbaseSchema, Func<FeatureType, bool> treatHasNoDbaseRecordsAsWarning = null)
+    protected ZipArchiveDbaseFeatureReader(Encoding encoding, DbaseSchema dbaseSchema)
     {
         _encoding = encoding;
         _dbaseSchema = dbaseSchema;
-        _treatHasNoDbaseRecordsAsWarning = treatHasNoDbaseRecordsAsWarning ?? (_ => false);
     }
 
     protected abstract (TFeature, ZipArchiveProblems) ConvertToFeature(FeatureType featureType, ExtractFileName fileName, RecordNumber recordNumber, TDbaseRecord dbaseRecord, ZipArchiveFeatureReaderContext context);
@@ -95,7 +93,7 @@ public abstract class ZipArchiveDbaseFeatureReader<TDbaseRecord, TFeature> : IZi
             }
             else
             {
-                problems += entry.HasNoDbaseRecords(_treatHasNoDbaseRecordsAsWarning(featureType));
+                problems += entry.HasNoDbaseRecords();
             }
         }
         catch (Exception exception)

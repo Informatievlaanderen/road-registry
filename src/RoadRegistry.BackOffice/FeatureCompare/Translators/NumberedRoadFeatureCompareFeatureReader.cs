@@ -1,19 +1,16 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Text;
 using Uploads;
 
 public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<NumberedRoadFeatureCompareAttributes>>
 {
-    private static readonly Func<FeatureType, bool> TreatHasNoRecordsAsWarning = _ => true;
-
     public NumberedRoadFeatureCompareFeatureReader(Encoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding),
@@ -33,7 +30,7 @@ public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentNumberedRoadAttributeDbaseRecord, Feature<NumberedRoadFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
+            : base(encoding, RoadSegmentNumberedRoadAttributeDbaseRecord.Schema)
         {
         }
 
@@ -53,7 +50,7 @@ public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord, Feature<NumberedRoadFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
+            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema)
         {
         }
 
@@ -73,7 +70,7 @@ public class NumberedRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
     private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord, Feature<NumberedRoadFeatureCompareAttributes>>
     {
         public UploadsV1FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
+            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentNumberedRoadAttributeDbaseRecord.Schema)
         {
         }
 

@@ -7,11 +7,9 @@ using NetTopologySuite.IO;
 
 public static class ShapeFileProblems
 {
-    public static FileProblem HasNoShapeRecords(this IFileProblemBuilder builder, bool treatAsWarning)
+    public static FileProblem HasNoShapeRecords(this IFileProblemBuilder builder)
     {
-        if (treatAsWarning)
-            return builder.Warning(nameof(HasNoShapeRecords)).Build();
-        return builder.Error(nameof(HasNoShapeRecords)).Build();
+        return builder.Warning(nameof(HasNoShapeRecords)).Build();
     }
 
     // record

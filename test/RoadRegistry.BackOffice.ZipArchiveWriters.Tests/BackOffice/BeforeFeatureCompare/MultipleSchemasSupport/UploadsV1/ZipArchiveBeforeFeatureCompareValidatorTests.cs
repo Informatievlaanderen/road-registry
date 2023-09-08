@@ -529,17 +529,6 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
     [Fact]
     public void ValidateReturnsExpectedResultFromEntryValidators()
     {
-        var filesWithWarning = new[]
-        {
-            "EATTEUROPWEG.DBF",
-            "ATTEUROPWEG.DBF",
-            "EATTNATIONWEG.DBF",
-            "ATTNATIONWEG.DBF",
-            "EATTGENUMWEG.DBF",
-            "ATTGENUMWEG.DBF",
-            "ERLTOGKRUISING.DBF",
-            "RLTOGKRUISING.DBF"
-        };
         var integrationFiles = new[]
         {
             "IWEGKNOOP.DBF",
@@ -567,9 +556,9 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                     switch (extension)
                     {
                         case ".SHP":
-                            return entry.HasNoShapeRecords(filesWithWarning.Contains(entry.Name));
+                            return entry.HasNoShapeRecords();
                         case ".DBF":
-                            return entry.HasNoDbaseRecords(filesWithWarning.Contains(entry.Name));
+                            return entry.HasNoDbaseRecords();
                         case ".PRJ":
                             return entry.ProjectionFormatInvalid();
                     }
