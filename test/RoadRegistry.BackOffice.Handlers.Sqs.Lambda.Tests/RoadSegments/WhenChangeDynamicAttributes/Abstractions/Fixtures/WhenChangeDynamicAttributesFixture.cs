@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
@@ -69,6 +70,7 @@ public abstract class WhenChangeDynamicAttributesFixture : SqsLambdaHandlerFixtu
                     LifetimeScope,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     LoggerFactory
                 )
             }), ApplicationMetadata);

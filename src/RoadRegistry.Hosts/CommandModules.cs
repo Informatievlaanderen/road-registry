@@ -3,6 +3,7 @@ namespace RoadRegistry.Hosts;
 using System;
 using Autofac;
 using BackOffice.Core;
+using BackOffice.FeatureToggles;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
@@ -17,6 +18,7 @@ public static class CommandModules
             sp.GetService<ILifetimeScope>(),
             sp.GetService<IRoadNetworkSnapshotReader>(),
             sp.GetService<IClock>(),
+            sp.GetService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
             sp.GetService<ILoggerFactory>()
         );
     }
