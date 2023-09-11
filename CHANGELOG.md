@@ -1,3 +1,10 @@
+## [3.58.5](https://github.com/informatievlaanderen/road-registry/compare/v3.58.4...v3.58.5) (2023-09-11)
+
+
+### Bug Fixes
+
+* prd/newprd lambda environment ([#1154](https://github.com/informatievlaanderen/road-registry/issues/1154)) ([af793a1](https://github.com/informatievlaanderen/road-registry/commit/af793a17eb62e656bf78e3fba834a7e582a3ba4f))
+
 ## [3.58.4](https://github.com/informatievlaanderen/road-registry/compare/v3.58.3...v3.58.4) (2023-09-08)
 
 
