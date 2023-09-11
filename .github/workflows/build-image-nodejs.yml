@@ -67,7 +67,12 @@ jobs:
         run: npm ci
         env:
           NPM_TOKEN: ${{ inputs.npm-token }}
-  
+
+      - name: Build UI
+        shell: bash
+        run: |
+          npm build
+
       - name: Save artifacts
         if: inputs.semver != 'none'
         shell: bash
