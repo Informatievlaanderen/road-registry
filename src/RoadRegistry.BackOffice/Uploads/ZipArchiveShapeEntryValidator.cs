@@ -47,7 +47,7 @@ public class ZipArchiveShapeEntryValidator : IZipArchiveEntryValidator
 
             if (!hasRecord)
             {
-                problems += entry.HasNoShapeRecords(false);
+                problems += entry.HasNoShapeRecords();
             }
         }
         catch (Exception exception)

@@ -16,7 +16,6 @@ using Uploads;
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>
 {
     private readonly Encoding _encoding;
-    private static readonly Func<FeatureType, bool> TreatHasNoRecordsAsWarning = featureType => featureType == FeatureType.Integration;
 
     public RoadSegmentFeatureCompareFeatureReader(Encoding encoding)
         : base(new ExtractsFeatureReader(encoding),
@@ -139,7 +138,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
                 if (currentRecordNumber is null)
                 {
-                    problems += shpEntry.HasNoShapeRecords(TreatHasNoRecordsAsWarning(featureType));
+                    problems += shpEntry.HasNoShapeRecords();
                 }
             }
         }
@@ -168,7 +167,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
     private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, RoadSegmentDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
+            : base(encoding, RoadSegmentDbaseRecord.Schema)
         {
         }
 
@@ -194,7 +193,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
     private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
+            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentDbaseRecord.Schema)
         {
         }
 
@@ -220,7 +219,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
     private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentDbaseRecord, Feature<RoadSegmentFeatureCompareAttributes>>
     {
         public UploadsV1FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
+            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentDbaseRecord.Schema)
         {
         }
 

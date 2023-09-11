@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using SqlStreamStore;
@@ -49,6 +50,7 @@ public class Startup : TestStartup
                     c.Resolve<ILifetimeScope>(),
                     new FakeRoadNetworkSnapshotReader(),
                     c.Resolve<IClock>(),
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     c.Resolve<ILoggerFactory>()
                 )
             }), ApplicationMetadata));

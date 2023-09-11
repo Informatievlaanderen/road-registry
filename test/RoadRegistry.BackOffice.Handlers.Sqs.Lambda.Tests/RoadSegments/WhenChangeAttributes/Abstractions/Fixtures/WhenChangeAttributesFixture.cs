@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
 using Requests;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using Sqs.RoadSegments;
 
@@ -65,6 +66,7 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
                     LifetimeScope,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                     LoggerFactory
                 )
             }), ApplicationMetadata);

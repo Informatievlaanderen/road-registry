@@ -1,3 +1,25 @@
+## [3.58.5](https://github.com/informatievlaanderen/road-registry/compare/v3.58.4...v3.58.5) (2023-09-11)
+
+
+### Bug Fixes
+
+* prd/newprd lambda environment ([#1154](https://github.com/informatievlaanderen/road-registry/issues/1154)) ([af793a1](https://github.com/informatievlaanderen/road-registry/commit/af793a17eb62e656bf78e3fba834a7e582a3ba4f))
+
+## [3.58.4](https://github.com/informatievlaanderen/road-registry/compare/v3.58.3...v3.58.4) (2023-09-08)
+
+
+### Bug Fixes
+
+* Send mail message after Rejected been applied ([#1152](https://github.com/informatievlaanderen/road-registry/issues/1152)) ([9213409](https://github.com/informatievlaanderen/road-registry/commit/92134091fc4574d0b4ad575820456287fe1d566d))
+* treat empty files during upload always as warning ([#1153](https://github.com/informatievlaanderen/road-registry/issues/1153)) ([532e85f](https://github.com/informatievlaanderen/road-registry/commit/532e85f69e1a41215390d2193f56d5dc4377580f))
+
+## [3.58.3](https://github.com/informatievlaanderen/road-registry/compare/v3.58.2...v3.58.3) (2023-09-08)
+
+
+### Bug Fixes
+
+* WR-752 add featuretoggle UseOvoCodeInChangeRoadNetwork ([#1151](https://github.com/informatievlaanderen/road-registry/issues/1151)) ([f860e8d](https://github.com/informatievlaanderen/road-registry/commit/f860e8d26b8759eccf2f4c2ea9c612516cb66855))
+
 ## [3.58.2](https://github.com/informatievlaanderen/road-registry/compare/v3.58.1...v3.58.2) (2023-09-07)
 
 

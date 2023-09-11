@@ -11,6 +11,7 @@ using BackOffice.Core;
 using BackOffice.Framework;
 using BackOffice.Messages;
 using BackOffice.Uploads;
+using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
@@ -21,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using RoadRegistry.BackOffice.FeatureToggles;
 using Reason = BackOffice.Reason;
 
 public interface IChangeRoadNetworkDispatcher
@@ -34,6 +36,7 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
     private readonly IIdempotentCommandHandler _idempotentCommandHandler;
     private readonly EditorContext _editorContext;
     private readonly EventSourcedEntityMap _eventSourcedEntityMap;
+    private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
     private readonly ILogger<ChangeRoadNetworkDispatcher> _logger;
     private readonly OrganizationDbaseRecordReader _organizationRecordReader;
 
@@ -44,12 +47,14 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
         EventSourcedEntityMap eventSourcedEntityMap,
+        UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
         ILogger<ChangeRoadNetworkDispatcher> logger)
     {
         _commandQueue = commandQueue;
         _idempotentCommandHandler = idempotentCommandHandler;
         _editorContext = editorContext;
         _eventSourcedEntityMap = eventSourcedEntityMap;
+        _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
         _logger = logger;
         _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
     }
@@ -127,18 +132,38 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         return changeRoadNetwork;
     }
 
-    private async Task<OrganizationDetail> GetOrganization(string code, CancellationToken cancellationToken)
+    private async Task<OrganizationDetail> GetOrganization(Operator @operator, CancellationToken cancellationToken)
     {
-        var organizationRecord = await _editorContext.Organizations.SingleOrDefaultAsync(x => x.Code == code, cancellationToken);
-        if (organizationRecord is not null)
+        if (OrganizationOvoCode.AcceptsValue(@operator))
         {
-            return _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion);
+            if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled)
+            {
+                var organizationRecord = await _editorContext.Organizations.SingleOrDefaultAsync(x => x.Code == @operator, cancellationToken);
+                if (organizationRecord is not null)
+                {
+                    return _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion);
+                }
+            }
+            else
+            {
+                var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
+                var organizationDetails = organizationRecords.Select(organization => _organizationRecordReader.Read(organization.DbaseRecord, organization.DbaseSchemaVersion)).ToList();
+
+                var ovoCode = new OrganizationOvoCode(@operator.ToString());
+                var organizationDetail = organizationDetails.SingleOrDefault(sod => sod.OvoCode == ovoCode);
+                if (organizationDetail is not null)
+                {
+                    return organizationDetail;
+                }
+
+                _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");
+            }
         }
 
         return new OrganizationDetail
         {
-            Code = new OrganizationId(code),
-            Name = new OrganizationName(code)
+            Code = new OrganizationId(@operator),
+            Name = new OrganizationName(@operator)
         };
     }
 }

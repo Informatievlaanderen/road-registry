@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Editor.Projections;
 using Editor.Schema;
+using FeatureToggles;
 using Hosts;
 using Infrastructure;
 using Messages;
@@ -92,6 +93,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
             RecyclableMemoryStreamManager,
             FileEncoding,
             LifetimeScope.Resolve<EventSourcedEntityMap>(),
+            new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
             LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>());
 
         Exception = null;

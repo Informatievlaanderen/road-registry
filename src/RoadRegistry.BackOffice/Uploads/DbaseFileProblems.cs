@@ -176,11 +176,9 @@ public static class DbaseFileProblems
     }
 
     // file
-    public static FileProblem HasNoDbaseRecords(this IFileProblemBuilder builder, bool treatAsWarning)
+    public static FileProblem HasNoDbaseRecords(this IFileProblemBuilder builder)
     {
-        if (treatAsWarning)
-            return builder.Warning(nameof(HasNoDbaseRecords)).Build();
-        return builder.Error(nameof(HasNoDbaseRecords)).Build();
+        return builder.Warning(nameof(HasNoDbaseRecords)).Build();
     }
 
     public static FileProblem HasTooManyDbaseRecords(this IFileProblemBuilder builder, int expectedCount, int actualCount)

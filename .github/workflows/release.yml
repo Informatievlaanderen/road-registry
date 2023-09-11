@@ -1265,8 +1265,8 @@ jobs:
     - name: CD Lambda(s) Configure credentials
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
     - name: Prepare Lambda(s)
@@ -1457,8 +1457,8 @@ jobs:
     - name: CD Lambda(s) Configure credentials
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
     - name: Prepare Lambda(s)
@@ -1478,8 +1478,8 @@ jobs:
         docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqsbackofficefunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
         docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqssnapshotfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
       env:
-        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
-        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
+        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
+        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
         ENVIRONMENT: acc
