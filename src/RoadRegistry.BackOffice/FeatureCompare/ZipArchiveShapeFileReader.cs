@@ -20,7 +20,7 @@ public class ZipArchiveShapeFileReader
             fileStream.CopyTo(memoryStream);
             memoryStream.Position = 0;
 
-            var streamProvider = new ExternallyManagedStreamProvider("Shape", memoryStream);
+            var streamProvider = new ExternallyManagedStreamProvider(StreamTypes.Shape, memoryStream);
             var streamProviderRegistry = new ShapefileStreamProviderRegistry(streamProvider, null);
             var shpReader = new NetTopologySuite.IO.ShapeFile.Extended.ShapeReader(streamProviderRegistry);
 

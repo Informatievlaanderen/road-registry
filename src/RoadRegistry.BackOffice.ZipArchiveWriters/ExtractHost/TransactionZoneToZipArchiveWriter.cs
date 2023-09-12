@@ -2,11 +2,17 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.ExtractHost;
 
 using System.IO.Compression;
 using System.Text;
+using System.Threading;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Editor.Schema;
 using Extensions;
 using Extracts;
 using Extracts.Dbase;
+using NetTopologySuite.Features;
+using NetTopologySuite.IO;
+using NetTopologySuite.IO.Streams;
+using DbaseFileHeader = Be.Vlaanderen.Basisregisters.Shaperon.DbaseFileHeader;
 
 public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 {
@@ -90,5 +96,53 @@ public class TransactionZoneToZipArchiveWriter : IZipArchiveWriter<EditorContext
         }
 
         await archive.CreateCpgEntry("Transactiezones.cpg", _encoding, cancellationToken);
+    }
+}
+
+
+public class ZipArchiveShapeFileWriter
+{
+    private readonly Encoding _encoding;
+
+    public ZipArchiveShapeFileWriter(Encoding encoding)
+    {
+        _encoding = encoding.ThrowIfNull();
+    }
+
+    public async Task Write(ZipArchiveEntry entry, IList<IFeature> features)
+    {
+        //OLD
+        //var shpHeader = new ShapeFileHeader(
+        //    shapeContent.ContentLength,
+        //    ShapeType.Polygon,
+        //    shpBoundingBox);
+        //await using (var shpEntryStream = entry.Open())
+        //using (var shpWriter =
+        //       new ShapeBinaryWriter(
+        //           shpHeader,
+        //           new BinaryWriter(shpEntryStream, _encoding, true)))
+        //{
+        //    shpWriter.Write(shapeContent.RecordAs(RecordNumber.Initial));
+        //    shpWriter.Writer.Flush();
+        //    await shpEntryStream.FlushAsync(cancellationToken);
+        //}
+
+        await using (var shpEntryStream = entry.Open())
+        {
+
+            //var attributesTable = new AttributesTable { { "Foo", "Bar" } };
+            //var features = new List<IFeature>
+            //{
+            //    new Feature(contour, attributesTable)
+            //};
+            
+            var streamProvider = new ExternallyManagedStreamProvider(StreamTypes.Shape, shpEntryStream);
+            var streamProviderRegistry = new ShapefileStreamProviderRegistry(streamProvider, null);
+
+            var writer = new ShapefileDataWriter(streamProviderRegistry, GeometryConfiguration.GeometryFactory, _encoding);
+            var outDbaseHeader = ShapefileDataWriter.GetHeader(features[0], features.Count);
+            writer.Header = outDbaseHeader;
+            writer.Write(features);
+        }
     }
 }

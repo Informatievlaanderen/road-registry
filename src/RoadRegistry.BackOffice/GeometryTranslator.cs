@@ -293,7 +293,7 @@ public static class GeometryTranslator
 
     public static RoadNetworkExtractGeometry TranslateToRoadNetworkExtractGeometry(IPolygonal geometry, double buffer = 0)
     {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+        ArgumentNullException.ThrowIfNull(geometry);
 
         var geometryWithBuffer = buffer != 0
             ? ApplyBuffer(geometry, buffer) as IPolygonal
@@ -397,15 +397,5 @@ public static class GeometryTranslator
                 throw new InvalidOperationException(
                     $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");
         }
-    }
-
-    public static T WithSrid<T>(this T geometry, int srid)
-        where T: Geometry
-    {
-        geometry.SRID = srid > 0
-            ? srid
-            : GeometryConfiguration.GeometryFactory.SRID;
-
-        return geometry;
     }
 }

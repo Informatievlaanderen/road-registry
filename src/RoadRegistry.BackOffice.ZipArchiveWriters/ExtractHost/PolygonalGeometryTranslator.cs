@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
 
-internal static class PolygonalGeometryTranslator
+public static class PolygonalGeometryTranslator
 {
     public static Polygon FromGeometry(IPolygonal polygonal)
     {

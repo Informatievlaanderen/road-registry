@@ -1498,7 +1498,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to New Production has finished. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to new production has finished. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1520,7 +1520,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to New Production has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to new production has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
