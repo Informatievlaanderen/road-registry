@@ -1,3 +1,10 @@
+## [3.58.6](https://github.com/informatievlaanderen/road-registry/compare/v3.58.5...v3.58.6) (2023-09-12)
+
+
+### Bug Fixes
+
+* handle ZipArchiveValidationException with extracts upload endpoint ([#1157](https://github.com/informatievlaanderen/road-registry/issues/1157)) ([e50db26](https://github.com/informatievlaanderen/road-registry/commit/e50db26626756563956cdaa749396eb6c0f6dc17))
+
 ## [3.58.5](https://github.com/informatievlaanderen/road-registry/compare/v3.58.4...v3.58.5) (2023-09-11)
 
 

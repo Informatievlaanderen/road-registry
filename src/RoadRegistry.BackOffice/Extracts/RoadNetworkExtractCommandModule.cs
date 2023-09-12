@@ -1,8 +1,5 @@
 namespace RoadRegistry.BackOffice.Extracts;
 
-using System;
-using System.IO.Compression;
-using System.Threading;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Core;
@@ -11,6 +8,8 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
+using System;
+using System.IO.Compression;
 using Uploads;
 
 public class RoadNetworkExtractCommandModule : CommandHandlerModule
@@ -145,7 +144,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
                         IZipArchiveValidator validator = command.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
-                        upload.ValidateArchiveUsing(archive, validator, extractUploadFailedEmailClient, ct, command.Body.UseZipArchiveFeatureCompareTranslator);
+                        await upload.ValidateArchiveUsing(archive, validator, extractUploadFailedEmailClient, ct, command.Body.UseZipArchiveFeatureCompareTranslator);
                     }
                 }
                 catch (Exception ex)
