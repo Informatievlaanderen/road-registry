@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
+using System.Linq;
 using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -12,6 +13,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Threading;
 using System.Threading.Tasks;
+using FeatureToggle;
 
 public partial class UploadController
 {
@@ -48,12 +50,12 @@ public partial class UploadController
 
         return await PostUpload(archive, async () =>
         {
-            if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
+            if (GetFeatureToggleValue(useZipArchiveFeatureCompareTranslatorFeatureToggle))
             {
                 UploadExtractArchiveRequest requestArchive = new(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
                 var request = new UploadExtractRequest(requestArchive)
                 {
-                    UseZipArchiveFeatureCompareTranslator = useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled
+                    UseZipArchiveFeatureCompareTranslator = true
                 };
                 var response = await _mediator.Send(request, cancellationToken);
                 return Accepted(new UploadExtractFeatureCompareResponseBody(response.ArchiveId.ToString()));

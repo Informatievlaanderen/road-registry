@@ -37,7 +37,7 @@ public partial class ExtractsController
     {
         return PostUpload(archive, async () =>
         {
-            if (useZipArchiveFeatureCompareTranslatorFeatureToggle.FeatureEnabled)
+            if (GetFeatureToggleValue(useZipArchiveFeatureCompareTranslatorFeatureToggle))
             {
                 var response = await _mediator.Send(
                     new UploadExtractRequest(
