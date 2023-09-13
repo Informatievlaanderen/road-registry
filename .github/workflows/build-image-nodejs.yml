@@ -9,16 +9,13 @@ on:
       build-target:
         required: true
         type: string
+      build-project: #RoadRegistry.Api.BackOffice
+        required: true
+        type: string
       image-file: #rr-ui-backoffice.tar
         required: true
         type: string
       image-name: #ui-backoffice
-        required: true
-        type: string
-      test-project: #RoadRegistry.Tests
-        required: true
-        type: string
-      build-project: #RoadRegistry.Api.BackOffice
         required: true
         type: string
       semver:
