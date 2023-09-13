@@ -1,3 +1,14 @@
+## [3.58.7](https://github.com/informatievlaanderen/road-registry/compare/v3.58.6...v3.58.7) (2023-09-13)
+
+
+### Bug Fixes
+
+* Add nodejs pipeline code ([#1156](https://github.com/informatievlaanderen/road-registry/issues/1156)) ([e5ad849](https://github.com/informatievlaanderen/road-registry/commit/e5ad849718d3a035cbb8f2701d97cf8eef9e296d))
+* translation message + add featuretoggle override in API through request ([#1158](https://github.com/informatievlaanderen/road-registry/issues/1158)) ([cb27a27](https://github.com/informatievlaanderen/road-registry/commit/cb27a27229380922d504b1e6981e500b308c7e9e))
+* UI pipeline ([#1159](https://github.com/informatievlaanderen/road-registry/issues/1159)) ([f987492](https://github.com/informatievlaanderen/road-registry/commit/f987492308216e0d7ae097883b14d3741f4629d6))
+* UI pipeline ([#1161](https://github.com/informatievlaanderen/road-registry/issues/1161)) ([1337f71](https://github.com/informatievlaanderen/road-registry/commit/1337f718b58f1accbbcb3c0da1c8b395837b33b5))
+* Update UI pipeline ([#1160](https://github.com/informatievlaanderen/road-registry/issues/1160)) ([acd0631](https://github.com/informatievlaanderen/road-registry/commit/acd06312868b7cb7d602f8e95ef65618199ac3d1))
+
 ## [3.58.6](https://github.com/informatievlaanderen/road-registry/compare/v3.58.5...v3.58.6) (2023-09-12)
 
 
