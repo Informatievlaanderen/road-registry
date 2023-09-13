@@ -6,15 +6,17 @@ namespace RoadRegistry.StreetName
     using System.Linq;
     using System.Net;
     using System.Net.Http;
-    using System.Net.Http.Json;
     using System.Threading;
     using System.Threading.Tasks;
+    using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
+    using Newtonsoft.Json;
 
     public class StreetNameApiClient: IStreetNameClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly StreetNameRegistryOptions _options;
+        private readonly JsonSerializerSettings _jsonSerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
         public StreetNameApiClient(IHttpClientFactory httpClientFactory, StreetNameRegistryOptions options)
         {
@@ -30,9 +32,7 @@ namespace RoadRegistry.StreetName
             }
 
             var httpClient = _httpClientFactory.CreateClient();
-            var uri = CreateUri(id);
-
-            var response = await httpClient.GetAsync(uri, cancellationToken);
+            var response = await httpClient.GetAsync(CreateUri(id), cancellationToken);
             if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Gone)
             {
                 return null;
@@ -43,7 +43,8 @@ namespace RoadRegistry.StreetName
                 throw new StreetNameRegistryException(response.StatusCode);
             }
 
-            var streetName = await response.Content.ReadFromJsonAsync<StreetNameSnapshotOsloRecord>(cancellationToken: cancellationToken);
+            var streetNameJson = await response.Content.ReadAsStringAsync(cancellationToken);
+            var streetName = JsonConvert.DeserializeObject<StreetNameSnapshotOsloRecord>(streetNameJson, _jsonSerializerSettings);
 
             return new StreetNameItem
             {
@@ -58,7 +59,7 @@ namespace RoadRegistry.StreetName
             return new Uri(new Uri(_options.StreetNameRegistryBaseUrl), $"/v2/straatnamen/{id}");
         }
 
-        private static string? GetSpelling(List<DeseriazableGeografischeNaam>? namen, Taal taal)
+        private static string GetSpelling(List<DeseriazableGeografischeNaam> namen, Taal taal)
         {
             return namen?.SingleOrDefault(x => x.Taal == taal)?.Spelling;
         }

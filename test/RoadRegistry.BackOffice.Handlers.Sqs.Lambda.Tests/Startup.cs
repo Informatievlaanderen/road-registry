@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests;
 
-using System.Reflection;
 using Autofac;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.CommandHandling.Idempotency;
@@ -20,6 +19,8 @@ using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework;
 using SqlStreamStore;
+using StreetName;
+using System.Reflection;
 using MediatorModule = Sqs.MediatorModule;
 
 public class Startup : TestStartup

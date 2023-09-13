@@ -17,15 +17,19 @@ public class FakeStreetNameCache : IStreetNameCache
     
     public Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken)
     {
+        StreetNameCacheItem result = null;
+
         if (_cache.TryGetValue(streetNameId, out var streetName))
         {
-            return Task.FromResult(new StreetNameCacheItem
+            result = new StreetNameCacheItem
             {
-                Name = streetName.Name
-            });
+                Id = streetNameId,
+                Name = streetName.Name,
+                Status = streetName.Status
+            };
         }
 
-        return null;
+        return Task.FromResult(result);
     }
 
     public Task<long> GetMaxPositionAsync(CancellationToken cancellationToken)

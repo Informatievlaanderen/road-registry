@@ -154,7 +154,8 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         {
             Logger.LogError(ex.Message);
 
-            //TODO-rik add problem
+            //TODO-rik add problem, vertaling? statuscode weten?
+            problems += new StreetNameRegistryUnknownError();
         }
 
         return problems;
