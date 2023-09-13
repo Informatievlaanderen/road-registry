@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
-using Abstractions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -12,21 +11,22 @@ using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using StreetName;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 
 public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<LinkStreetNameSqsLambdaRequest>
 {
     private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
-    private readonly IStreetNameCache _streetNameCache;
+    private readonly IStreetNameClient _streetNameClient;
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
 
     private static readonly string[] ProposedOrCurrentStreetNameStatuses = new[]
     {
         Syndication.Schema.StreetNameStatus.Current.ToString(),
         Syndication.Schema.StreetNameStatus.Proposed.ToString(),
-        StreetNameConsumer.Schema.StreetNameStatus.Current,
-        StreetNameConsumer.Schema.StreetNameStatus.Proposed
+        StreetNameStatus.Current,
+        StreetNameStatus.Proposed
     };
 
     public LinkStreetNameSqsLambdaRequestHandler(
@@ -35,7 +35,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
         ITicketing ticketing,
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
-        IStreetNameCache streetNameCache,
+        IStreetNameClient streetNameClient,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<LinkStreetNameSqsLambdaRequestHandler> logger)
@@ -47,7 +47,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
             roadRegistryContext,
             logger)
     {
-        _streetNameCache = streetNameCache;
+        _streetNameClient = streetNameClient;
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
@@ -137,16 +137,24 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
 
     private async Task<Problems> ValidateStreetName(int streetNameId, Problems problems, CancellationToken cancellationToken)
     {
-        var streetNameStatuses = await _streetNameCache.GetStreetNameStatusesById(new[] { streetNameId }, cancellationToken);
-        if (!streetNameStatuses.TryGetValue(streetNameId, out var streetNameStatus)
-            || streetNameStatus is null)
+        try
         {
-            return problems.Add(new StreetNameNotFound());
+            var streetName = await _streetNameClient.GetAsync(streetNameId, cancellationToken);
+            if (streetName is null)
+            {
+                return problems.Add(new StreetNameNotFound());
+            }
+
+            if (ProposedOrCurrentStreetNameStatuses.All(status => !string.Equals(streetName.Status, status, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                return problems.Add(new RoadSegmentStreetNameNotProposedOrCurrent());
+            }
         }
-        
-        if (ProposedOrCurrentStreetNameStatuses.All(status => !string.Equals(streetNameStatus, status, StringComparison.InvariantCultureIgnoreCase)))
+        catch (StreetNameRegistryException ex)
         {
-            return problems.Add(new RoadSegmentStreetNameNotProposedOrCurrent());
+            Logger.LogError(ex.Message);
+
+            //TODO-rik add problem
         }
 
         return problems;

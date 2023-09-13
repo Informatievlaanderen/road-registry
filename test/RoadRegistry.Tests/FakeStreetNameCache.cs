@@ -14,16 +14,7 @@ public class FakeStreetNameCache : IStreetNameCache
             .ToDictionary(streetNameId => streetNameId, streetNameId => _cache[streetNameId].Name)
         );
     }
-
-    public Task<Dictionary<int, string>> GetStreetNameStatusesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(streetNameIds
-            .Distinct()
-            .Where(streetNameId => _cache.ContainsKey(streetNameId))
-            .ToDictionary(streetNameId => streetNameId, streetNameId => _cache[streetNameId].Status)
-        );
-    }
-
+    
     public Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken)
     {
         if (_cache.TryGetValue(streetNameId, out var streetName))

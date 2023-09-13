@@ -39,14 +39,7 @@ public class StreetNameCache : IStreetNameCache
         
         return items.ToDictionary(x => x.Id, x => x.Name);
     }
-
-    public async Task<Dictionary<int, string>> GetStreetNameStatusesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
-    {
-        var items = await GetAsync(streetNameIds, cancellationToken);
-
-        return items.ToDictionary(x => x.Id, x => x.Status);
-    }
-
+    
     private async Task<ICollection<StreetNameCacheItem>> GetAsync(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
     {
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
