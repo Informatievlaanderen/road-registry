@@ -1,3 +1,10 @@
+## [3.58.8](https://github.com/informatievlaanderen/road-registry/compare/v3.58.7...v3.58.8) (2023-09-13)
+
+
+### Bug Fixes
+
+* FC GradeSeparatedJunction validation messages ([#1162](https://github.com/informatievlaanderen/road-registry/issues/1162)) ([647fc2b](https://github.com/informatievlaanderen/road-registry/commit/647fc2b0f61e58ed5e5a8518c1fa1019e47e77de))
+
 ## [3.58.7](https://github.com/informatievlaanderen/road-registry/compare/v3.58.6...v3.58.7) (2023-09-13)
 
 
