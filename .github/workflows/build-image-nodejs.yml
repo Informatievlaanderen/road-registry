@@ -1,0 +1,81 @@
+name: Build image NodeJS
+
+on:
+  workflow_call:
+    inputs:
+      registry:
+        required: true
+        type: string
+      build-target:
+        required: true
+        type: string
+      build-project: #RoadRegistry.Api.BackOffice
+        required: true
+        type: string
+      image-file: #rr-ui-backoffice.tar
+        required: true
+        type: string
+      image-name: #ui-backoffice
+        required: true
+        type: string
+      semver:
+        required: true
+        type: string
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check version
+        shell: bash
+        run: echo $SEMVER
+        env:
+          SEMVER: ${{ inputs.semver }}
+
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        
+      - name: Cache NPM
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-npm
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3.5.1
+        with:
+          node-version: 18.12.1
+
+      - name: Node version
+        shell: bash
+        run: node --version
+    
+      - name: Install NPM dependencies
+        shell: bash
+        run: npm ci
+        env:
+          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+          
+      - name: Build UI
+        shell: bash
+        run: |
+          npm build
+
+      - name: Save artifacts
+        if: inputs.semver != 'none'
+        shell: bash
+        run: |
+          docker image save $BUILD_DOCKER_REGISTRY/$REGISTRY/$IMAGE_NAME:$SEMVER -o ~/$IMAGE_FILE
+        env:
+          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
+          SEMVER: ${{ inputs.semver }}
+          REGISTRY: ${{ inputs.registry }}
+          IMAGE_NAME: ${{ inputs.image-name }}
+          IMAGE_FILE: ${{ inputs.image-file }}
+              

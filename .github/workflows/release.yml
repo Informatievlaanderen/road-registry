@@ -76,19 +76,19 @@ jobs:
       semver: ${{ needs.set-release-version.outputs.version }}      
     secrets: inherit
 
-  # build-backoffice-ui:
-  #   name: Build BackOffice UI
-  #   uses: Informatievlaanderen/build-pipeline/.github/workflows/build-ui-image.yml@main
-  #   needs: [ set-release-version ]
-  #   if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
-  #   with:
-  #     registry: road-registry
-  #     build-target: Containerize_BackOfficeUi
-  #     image-file: rr--backoffice-ui-image.tar
-  #     image-name: backoffice-ui
-  #     build-project: RoadRegistry.BackOffice.UI
-  #     semver: ${{ needs.set-release-version.outputs.version }}
-  #   secrets: inherit
+  build-backoffice-ui:
+    name: Build BackOffice UI
+    uses: ./.github/workflows/build-image-nodejs.yml
+    needs: [ set-release-version ]
+    if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
+    with:
+      registry: road-registry
+      build-target: Containerize_BackOfficeUi
+      image-file: rr-backoffice-ui-image.tar
+      image-name: backoffice-ui
+      build-project: RoadRegistry.BackOffice.UI
+      semver: ${{ needs.set-release-version.outputs.version }}
+    secrets: inherit
 
   build-backoffice-eventhost:
     name: Build BackOffice Event Host
@@ -1264,8 +1264,8 @@ jobs:
     - name: CD Lambda(s) Configure credentials
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
     - name: Prepare Lambda(s)
@@ -1456,8 +1456,8 @@ jobs:
     - name: CD Lambda(s) Configure credentials
       uses: aws-actions/configure-aws-credentials@v1-node16
       with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
+        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
+        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
     - name: Prepare Lambda(s)
@@ -1477,8 +1477,8 @@ jobs:
         docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqsbackofficefunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
         docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqssnapshotfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
       env:
-        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
-        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
+        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
+        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
         ENVIRONMENT: acc

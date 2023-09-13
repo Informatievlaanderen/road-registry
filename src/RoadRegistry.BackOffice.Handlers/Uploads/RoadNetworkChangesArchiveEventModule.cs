@@ -13,7 +13,6 @@ using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
-using FileProblem = BackOffice.Uploads.FileProblem;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 {
@@ -33,16 +32,19 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(applicationMetadata);
         ArgumentNullException.ThrowIfNull(transactionZoneFeatureReader);
+        ArgumentNullException.ThrowIfNull(roadNetworkEventWriter);
+        ArgumentNullException.ThrowIfNull(logger);
 
         For<RoadNetworkChangesArchiveAccepted>()
             .UseRoadNetworkCommandQueue(store, applicationMetadata)
             .Handle(async (queue, message, ct) =>
             {
+                logger.LogInformation("Event handler started for {EventName}", message.Body.GetType().Name);
+
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var requestId = ChangeRequestId.FromArchiveId(archiveId);
-                var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
                 
-                logger.LogInformation("Event handler started for {EventName}", nameof(RoadNetworkChangesArchiveAccepted));
+                var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
 
                 try
                 {
@@ -59,7 +61,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                             change.TranslateTo(requestedChange);
                             requestedChanges.Add(requestedChange);
                         }
-                        
+
                         var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
                         var transactionZoneFeatures = transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;
                         var downloadId = transactionZoneFeatures.Single().Attributes.DownloadId;
@@ -86,14 +88,16 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                         Description = message.Body.Description,
                         Problems = ex.Problems.Select(problem => problem.Translate()).ToArray()
                     };
-                    
+
                     await roadNetworkEventWriter.WriteAsync(RoadNetworkChangesArchives.GetStreamName(archiveId), message, message.StreamVersion, new object[]
                     {
                         rejectedChangeEvent
                     }, ct);
                 }
-
-                logger.LogInformation("Event handler finished for {EventName}", nameof(RoadNetworkChangesArchiveAccepted));
+                finally
+                {
+                    logger.LogInformation("Event handler finished for {EventName}", message.Body.GetType().Name);
+                }
             });
     }
 }
