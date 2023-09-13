@@ -24,9 +24,6 @@ on:
       semver:
         required: true
         type: string
-      npm-token:
-        required: true
-        type: string
 
 jobs:
   build-image:
@@ -66,8 +63,8 @@ jobs:
         shell: bash
         run: npm ci
         env:
-          NPM_TOKEN: ${{ inputs.npm-token }}
-
+          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+          
       - name: Build UI
         shell: bash
         run: |
