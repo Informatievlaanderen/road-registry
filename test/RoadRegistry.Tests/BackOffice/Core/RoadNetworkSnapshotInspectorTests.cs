@@ -112,8 +112,8 @@ public class RoadNetworkSnapshotInspectorTests
         }
     }
 
-    //[Fact(Skip = "Loads a message to your local computer. Useful for debugging purposes")]
-    [Fact]
+    [Fact(Skip = "Loads a message to your local computer. Useful for debugging purposes")]
+    //[Fact]
     public async Task InspectMessage()
     {
         const int position = 1858902;
