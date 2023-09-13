@@ -55,7 +55,13 @@ jobs:
       - name: Node version
         shell: bash
         run: node --version
-    
+
+      - name: Move into workspace
+        shell: bash
+        run: cd src/$BUILD_PROJECT
+        env:
+          BUILD_PROJECT: ${{ inputs.build-project }}
+
       - name: Install NPM dependencies
         shell: bash
         run: npm ci
