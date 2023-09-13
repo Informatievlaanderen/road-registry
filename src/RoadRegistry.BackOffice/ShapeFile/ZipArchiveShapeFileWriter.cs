@@ -35,7 +35,10 @@ public class ZipArchiveShapeFileWriter
         var streamProviderRegistry = new ShapefileStreamProviderRegistry(shpStreamProvider, dbfStreamProvider, shxStreamProvider);
 
         var writer = new ShapefileDataWriter(streamProviderRegistry, GeometryConfiguration.GeometryFactory, _encoding);
-        var dbaseFileHeader = ShapefileDataWriter.GetHeader(featuresList[0], featuresList.Count);
+
+        var dbaseFileHeader = featuresList.Any()
+            ? ShapefileDataWriter.GetHeader(featuresList[0], featuresList.Count)
+            : ShapefileDataWriter.GetHeader(Array.Empty<DbaseFieldDescriptor>(), 0);
         writer.Header = dbaseFileHeader;
         writer.Write(featuresList);
     }

@@ -1,15 +1,9 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
 using Abstractions.Extracts;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentAssertions;
 using FluentValidation;
 using Handlers.Extracts;
-using Messages;
-using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
-using Newtonsoft.Json;
 using ContentType = Be.Vlaanderen.Basisregisters.BlobStore.ContentType;
 
 public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
