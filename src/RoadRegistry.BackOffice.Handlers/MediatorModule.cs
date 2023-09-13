@@ -11,7 +11,7 @@ public class MediatorModule : Module
     {
         builder.RegisterMediatrHandlersFromAssemblyContaining(GetType());
 
-        builder.Register(c => (IDownloadExtractByFileRequestItemTranslator)(c.Resolve<UseNetTopologySuiteShapeWriterFeatureToggle>().FeatureEnabled
+        builder.Register(c => (IDownloadExtractByFileRequestItemTranslator)(c.Resolve<UseNetTopologySuiteShapeReaderWriterFeatureToggle>().FeatureEnabled
             ? new DownloadExtractByFileRequestItemTranslatorNetTopologySuite()
             : new DownloadExtractByFileRequestItemTranslator(
                 WellKnownEncodings.WindowsAnsi)

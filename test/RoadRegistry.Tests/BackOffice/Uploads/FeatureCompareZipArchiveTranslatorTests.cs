@@ -32,8 +32,8 @@ public class FeatureCompareZipArchiveTranslatorTests
         Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
     }
 
-    //[Fact(Skip = "For debugging purposes, local feature compare testing only due to big archive files")]
-    [Fact]
+    [Fact(Skip = "For debugging purposes, local feature compare testing only due to big archive files")]
+    //[Fact]
     public async Task TranslateWithRecordsReturnsExpectedResult()
     {
         const string featureCompareArchivesPath = @"\temp\fc-archives";

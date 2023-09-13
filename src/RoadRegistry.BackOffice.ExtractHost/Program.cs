@@ -19,6 +19,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
+using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
 using Uploads;
 using ZipArchiveWriters.ExtractHost;
@@ -54,7 +55,9 @@ public class Program
                             sp.GetService<ZipArchiveWriterOptions>(),
                             sp.GetService<IStreetNameCache>(),
                             sp.GetService<RecyclableMemoryStreamManager>(),
-                            sp.GetRequiredService<FileEncoding>()))
+                            sp.GetRequiredService<FileEncoding>(),
+                            sp.GetRequiredService<UseNetTopologySuiteShapeReaderWriterFeatureToggle>()
+                        ))
                     .AddSingleton<Func<EditorContext>>(sp =>
                         () =>
                             new EditorContext(

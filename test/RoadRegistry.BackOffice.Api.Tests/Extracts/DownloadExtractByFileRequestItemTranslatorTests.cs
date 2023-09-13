@@ -109,32 +109,4 @@ public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
         var act = () => Task.FromResult(_translator.Translate(_shpFilePoint, ValidBuffer));
         await act.Should().ThrowAsync<ValidationException>();
     }
-
-    [Fact]
-    public void WriteShapeUsingNetTopologySuite()
-    {
-        var message = JsonConvert.DeserializeObject<RoadNetworkExtractGotRequestedV2>(File.ReadAllText(@"C:\DV\Repos\road-registry\test\RoadRegistry.Tests\bin\Debug\net6.0\message-1858902.json"));
-        var contour = (Geometry)RoadRegistry.BackOffice.GeometryTranslator.Translate(message.Contour);
-
-        //is invalid?
-        //var polygonToWriteInShapeFile = PolygonalGeometryTranslator.FromGeometry(contour);
-
-
-        var attributesTable = new AttributesTable { { "Foo", "Bar" } };
-        var features = new List<IFeature>
-        {
-            new Feature(contour, attributesTable)
-        };
-
-        // Construct the shapefile name. Don't add the .shp extension or the ShapefileDataWriter will 
-        // produce an unwanted shapefile
-        var shapeFileName = "_contour";
-
-        // Create the shapefile
-        var outGeomFactory = GeometryConfiguration.GeometryFactory;
-        var writer = new ShapefileDataWriter(shapeFileName, outGeomFactory);
-        var outDbaseHeader = ShapefileDataWriter.GetHeader(features[0], features.Count);
-        writer.Header = outDbaseHeader;
-        writer.Write(features);
-    }
 }

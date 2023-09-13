@@ -22,6 +22,7 @@ public interface IDownloadExtractByFileRequestItemTranslator
     RoadNetworkExtractGeometry Translate(DownloadExtractByFileRequestItem shapeFile, int buffer);
 }
 
+[Obsolete("Use DownloadExtractByFileRequestItemTranslatorNetTopologySuite instead")]
 public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFileRequestItemTranslator
 {
     private readonly Encoding _encoding;

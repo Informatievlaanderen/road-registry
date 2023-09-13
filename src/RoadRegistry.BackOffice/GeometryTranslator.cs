@@ -14,6 +14,7 @@ using System.Linq;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 using Polygon = Be.Vlaanderen.Basisregisters.Shaperon.Polygon;
+using ShaperonGeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public static class GeometryTranslator
 {
@@ -113,7 +114,7 @@ public static class GeometryTranslator
 
     public static MultiLineString ToMultiLineString(PolyLineM polyLineM)
     {
-        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiLineString(polyLineM)
+        return ShaperonGeometryTranslator.ToGeometryMultiLineString(polyLineM)
             .WithMeasureOrdinates();
     }
 
@@ -121,13 +122,13 @@ public static class GeometryTranslator
     {
         try
         {
-            return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiPolygon(polygon);
+            return ShaperonGeometryTranslator.ToGeometryMultiPolygon(polygon);
         }
         catch (InvalidOperationException ex)
         {
             if (ex.Message == "The shell of a polygon must have a clockwise orientation.")
             {
-                return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryMultiPolygon(new Polygon(polygon.BoundingBox, polygon.Parts, polygon.Points.Reverse().ToArray()));
+                return ShaperonGeometryTranslator.ToGeometryMultiPolygon(new Polygon(polygon.BoundingBox, polygon.Parts, polygon.Points.Reverse().ToArray()));
             }
             throw;
         }
@@ -135,12 +136,12 @@ public static class GeometryTranslator
 
     public static Point ToPoint(Be.Vlaanderen.Basisregisters.Shaperon.Point point)
     {
-        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPoint(point);
+        return ShaperonGeometryTranslator.ToGeometryPoint(point);
     }
 
     public static NetTopologySuite.Geometries.Polygon ToPolygon(Polygon polygon)
     {
-        return Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.ToGeometryPolygon(polygon);
+        return ShaperonGeometryTranslator.ToGeometryPolygon(polygon);
     }
     
     public static Point Translate(RoadNodeGeometry geometry)
@@ -396,6 +397,20 @@ public static class GeometryTranslator
             default:
                 throw new InvalidOperationException(
                     $"The geometry must be either a polygon or a multipolygon to be able to translate it to a road network extract geometry. The geometry was a {geometry.GetType().Name}");
+        }
+    }
+
+    public static Polygon FromPolygonal(IPolygonal polygonal)
+    {
+        switch (polygonal)
+        {
+            case MultiPolygon multiPolygon:
+                return ShaperonGeometryTranslator.FromGeometryMultiPolygon(multiPolygon);
+            case NetTopologySuite.Geometries.Polygon polygon:
+                return ShaperonGeometryTranslator.FromGeometryPolygon(polygon);
+            default:
+                throw new InvalidOperationException(
+                    $"The polygonal was expected to be either a Polygon or MultiPolygon. The polygonal was {polygonal.GetType().Name}.");
         }
     }
 }
