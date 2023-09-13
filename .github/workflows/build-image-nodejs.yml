@@ -56,23 +56,17 @@ jobs:
         shell: bash
         run: node --version
 
-      - name: Move into workspace
-        shell: bash
-        run: cd ./src/$BUILD_PROJECT
-        env:
-          BUILD_PROJECT: ${{ inputs.build-project }}
-
-      - name: Install NPM dependencies
-        shell: bash
-        run: npm ci
-        env:
-          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
-          
       - name: Build UI
         shell: bash
         run: |
+          cd ./src/$BUILD_PROJECT
+          npm ci
+          npm install
           npm run build
-
+        env:
+          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+          BUILD_PROJECT: ${{ inputs.build-project }}
+  
       - name: Save artifacts
         if: inputs.semver != 'none'
         shell: bash
