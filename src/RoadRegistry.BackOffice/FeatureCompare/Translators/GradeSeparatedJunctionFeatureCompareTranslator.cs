@@ -199,7 +199,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
         {
             var recordContext = ExtractFileName.Wegsegment.AtDbaseRecord(FeatureType.Change, i.RoadSegment1.RecordNumber);
             
-            problems += recordContext.GradeSeparatedJunctionMissing(i.RoadSegment1.Id, i.RoadSegment2.Id);
+            problems += recordContext.GradeSeparatedJunctionMissing(i.RoadSegment1.GetOriginalId(), i.RoadSegment2.GetOriginalId(), i.Intersection.X, i.Intersection.Y);
         }
 
         //TODO-rik #WR-470 once it's refined
