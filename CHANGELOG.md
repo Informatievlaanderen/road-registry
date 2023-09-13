@@ -1,3 +1,10 @@
+## [3.58.9](https://github.com/informatievlaanderen/road-registry/compare/v3.58.8...v3.58.9) (2023-09-13)
+
+
+### Bug Fixes
+
+* UI pipeline ([#1163](https://github.com/informatievlaanderen/road-registry/issues/1163)) ([448bee9](https://github.com/informatievlaanderen/road-registry/commit/448bee93dea6517d557a74ef86905751c9428eb3))
+
 ## [3.58.8](https://github.com/informatievlaanderen/road-registry/compare/v3.58.7...v3.58.8) (2023-09-13)
 
 
