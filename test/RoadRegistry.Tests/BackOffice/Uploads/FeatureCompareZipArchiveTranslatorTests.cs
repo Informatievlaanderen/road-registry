@@ -85,53 +85,56 @@ public class FeatureCompareZipArchiveTranslatorTests
                         && !File.Exists(x.TxtErrorPath))
             .ToArray();
 
-        //foreach (var archiveToProcess in archivesToProcess)
-        //{
-        //    if (!File.Exists(archiveToProcess.AfterFcPath))
-        //    {
-        //        var tempPath = Path.Combine(Path.GetTempPath(), archiveToProcess.DownloadId);
-        //        var tempPathBeforeFc = Path.Combine(tempPath, "before");
-        //        var tempPathAfterFc = Path.Combine(tempPath, "after");
+        if (File.Exists(featureCompareRunnerPath))
+        {
+            foreach (var archiveToProcess in archivesToProcess)
+            {
+                if (!File.Exists(archiveToProcess.AfterFcPath))
+                {
+                    var tempPath = Path.Combine(Path.GetTempPath(), archiveToProcess.DownloadId);
+                    var tempPathBeforeFc = Path.Combine(tempPath, "before");
+                    var tempPathAfterFc = Path.Combine(tempPath, "after");
 
-        //        Directory.CreateDirectory(tempPathBeforeFc);
-        //        Directory.CreateDirectory(tempPathAfterFc);
+                    Directory.CreateDirectory(tempPathBeforeFc);
+                    Directory.CreateDirectory(tempPathAfterFc);
 
-        //        using (var beforeFcArchive = new ZipArchive(File.OpenRead(archiveToProcess.BeforeFcPath)))
-        //        {
-        //            beforeFcArchive.ExtractToDirectory(tempPathBeforeFc);
-        //        }
+                    using (var beforeFcArchive = new ZipArchive(File.OpenRead(archiveToProcess.BeforeFcPath)))
+                    {
+                        beforeFcArchive.ExtractToDirectory(tempPathBeforeFc);
+                    }
 
-        //        try
-        //        {
-        //            await Process.Start(featureCompareRunnerPath, new[]
-        //            {
-        //                tempPathBeforeFc, tempPathAfterFc
-        //            }).WaitForExitAsync();
+                    try
+                    {
+                        await Process.Start(featureCompareRunnerPath, new[]
+                        {
+                        tempPathBeforeFc, tempPathAfterFc
+                    }).WaitForExitAsync();
 
-        //            using (var ms = new MemoryStream())
-        //            {
-        //                using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, true, Encoding.UTF8))
-        //                {
-        //                    var afterFcFiles = Directory.GetFiles(tempPathAfterFc);
-        //                    foreach (var file in afterFcFiles)
-        //                    {
-        //                        var entry = archive.CreateEntry(new FileInfo(file).Name);
-        //                        using (var entryStream = entry.Open())
-        //                        {
-        //                            await entryStream.WriteAsync(await File.ReadAllBytesAsync(file));
-        //                        }
-        //                    }
-        //                }
+                        using (var ms = new MemoryStream())
+                        {
+                            using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, true, Encoding.UTF8))
+                            {
+                                var afterFcFiles = Directory.GetFiles(tempPathAfterFc);
+                                foreach (var file in afterFcFiles)
+                                {
+                                    var entry = archive.CreateEntry(new FileInfo(file).Name);
+                                    using (var entryStream = entry.Open())
+                                    {
+                                        await entryStream.WriteAsync(await File.ReadAllBytesAsync(file));
+                                    }
+                                }
+                            }
 
-        //                await File.WriteAllBytesAsync(archiveToProcess.AfterFcPath, ms.ToArray());
-        //            }
-        //        }
-        //        finally
-        //        {
-        //            Directory.Delete(tempPath, true);
-        //        }
-        //    }
-        //}
+                            await File.WriteAllBytesAsync(archiveToProcess.AfterFcPath, ms.ToArray());
+                        }
+                    }
+                    finally
+                    {
+                        Directory.Delete(tempPath, true);
+                    }
+                }
+            }
+        }
 
         foreach (var archiveToProcess in archivesToProcess)
         {
@@ -142,17 +145,20 @@ public class FeatureCompareZipArchiveTranslatorTests
 
             try
             {
-                TranslatedChanges expected, changes;
+                TranslatedChanges expected = null, changes = null;
 
-                //using (var archiveStream = File.OpenRead(archiveToProcess.AfterFcPath))
-                //using (var archive = new ZipArchive(archiveStream))
-                //{
-                //    var sw = Stopwatch.StartNew();
-                //    _outputHelper.WriteLine($"{archiveToProcess.DownloadId} started translate After-FC");
-                //    expected = _zipArchiveTranslator.Translate(archive);
-                //    _outputHelper.WriteLine($"{archiveToProcess.DownloadId} finished translate After-FC at {sw.Elapsed}");
-                //    await WriteToFile(expectedChangesJsonPath, expected);
-                //}
+                if (File.Exists(archiveToProcess.AfterFcPath))
+                {
+                    using (var archiveStream = File.OpenRead(archiveToProcess.AfterFcPath))
+                    using (var archive = new ZipArchive(archiveStream))
+                    {
+                        var sw = Stopwatch.StartNew();
+                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} started translate After-FC");
+                        expected = _zipArchiveTranslator.Translate(archive);
+                        _outputHelper.WriteLine($"{archiveToProcess.DownloadId} finished translate After-FC at {sw.Elapsed}");
+                        await WriteToFile(expectedChangesJsonPath, expected);
+                    }
+                }
 
                 using (var archiveStream = File.OpenRead(archiveToProcess.BeforeFcPath))
                 using (var archive = new ZipArchive(archiveStream))
@@ -164,13 +170,18 @@ public class FeatureCompareZipArchiveTranslatorTests
                     await WriteToFile(actualChangesJsonPath, changes);
                 }
 
-                //Assert.Equal(expected, changes, new TranslatedChangeEqualityComparer(true));
+                if (expected is not null && changes is not null)
+                {
+                    Assert.Equal(expected, changes, new TranslatedChangeEqualityComparer(true));
+                }
 
                 completed = true;
             }
             catch (Exception ex)
             {
                 completed = false;
+
+                await File.WriteAllTextAsync(archiveToProcess.TxtErrorPath, ex.ToString());
 
                 if (File.Exists(expectedChangesJsonPath))
                 {
@@ -180,11 +191,14 @@ public class FeatureCompareZipArchiveTranslatorTests
                 {
                     File.Move(actualChangesJsonPath, $"{archiveToProcess.BeforeFcErrorPath}-events-actual.json");
                 }
-
-                File.Move(archiveToProcess.BeforeFcPath, archiveToProcess.BeforeFcErrorPath);
-                File.Move(archiveToProcess.AfterFcPath, archiveToProcess.AfterFcErrorPath);
-
-                await File.WriteAllTextAsync(archiveToProcess.TxtErrorPath, ex.ToString());
+                if (File.Exists(archiveToProcess.BeforeFcPath))
+                {
+                    File.Move(archiveToProcess.BeforeFcPath, archiveToProcess.BeforeFcErrorPath);
+                }
+                if (File.Exists(archiveToProcess.AfterFcPath))
+                {
+                    File.Move(archiveToProcess.AfterFcPath, archiveToProcess.AfterFcErrorPath);
+                }
             }
 
             if (completed)

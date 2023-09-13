@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using FeatureCompare;
 using System;
 using System.IO.Compression;
+using ShapeFile;
 
 public class ZipArchiveShapeEntryValidator : IZipArchiveEntryValidator
 {

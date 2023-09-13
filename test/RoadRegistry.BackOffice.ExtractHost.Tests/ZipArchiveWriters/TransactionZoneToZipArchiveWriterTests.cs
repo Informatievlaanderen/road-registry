@@ -19,11 +19,11 @@ using RoadRegistry.Tests.Framework.Projections;
 public class TransactionZoneToZipArchiveWriterTests
 {
     private readonly Fixture _fixture;
-    private readonly TransactionZoneToZipArchiveWriter _sut;
+    private readonly IZipArchiveWriter<EditorContext> _sut;
 
     public TransactionZoneToZipArchiveWriterTests()
     {
-        _sut = new TransactionZoneToZipArchiveWriter(Encoding.UTF8);
+        _sut = new TransactionZoneToZipArchiveWriterNetTopologySuite(Encoding.UTF8);
         _fixture = new Fixture();
 
         CustomizeRoadNetworkExtractAssemblyRequestFixture(_fixture);

@@ -116,8 +116,8 @@ public class RoadNetworkSnapshotInspectorTests
     //[Fact]
     public async Task InspectMessage()
     {
-        const int position = 1828076;
-        var connectionString = GetEventsConnectionString(DbEnvironment.DEV);
+        const int position = 1858902;
+        var connectionString = GetEventsConnectionString(DbEnvironment.PRD);
         var messageFilePath = $"message-{position}.json";
 
         await using (var connection = new SqlConnection(connectionString))
