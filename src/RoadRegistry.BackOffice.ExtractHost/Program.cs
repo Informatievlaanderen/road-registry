@@ -39,7 +39,9 @@ public class Program
                 services
                     .AddHostedService<EventProcessor>()
                     .RegisterOptions<ZipArchiveWriterOptions>()
+                    .AddEmailClient()
                     .AddRoadRegistrySnapshot()
+                    .AddRoadNetworkEventWriter()
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
@@ -79,7 +81,10 @@ public class Program
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
                             new ZipArchiveFeatureCompareTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()),
                             sp.GetService<IStreamStore>(),
-                            ApplicationMetadata)
+                            ApplicationMetadata,
+                            sp.GetService<IRoadNetworkEventWriter>(),
+                            sp.GetService<IExtractUploadFailedEmailClient>(),
+                            sp.GetService<ILogger<RoadNetworkExtractEventModule>>())
                     })
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
