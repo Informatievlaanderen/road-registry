@@ -6,6 +6,7 @@ using Abstractions;
 using Editor.Schema;
 using Extracts;
 using Extracts.Dbase.Lists;
+using FeatureToggles;
 using Microsoft.IO;
 
 public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorContext>
@@ -16,20 +17,21 @@ public class RoadNetworkExtractToZipArchiveWriter : IZipArchiveWriter<EditorCont
         ZipArchiveWriterOptions zipArchiveWriterOptions,
         IStreetNameCache streetNameCache,
         RecyclableMemoryStreamManager manager,
-        Encoding encoding)
+        Encoding encoding,
+        UseNetTopologySuiteShapeReaderWriterFeatureToggle useNetTopologySuiteShapeReaderWriterFeatureToggle)
     {
-        if (zipArchiveWriterOptions == null) throw new ArgumentNullException(nameof(zipArchiveWriterOptions));
-
-        if (streetNameCache == null) throw new ArgumentNullException(nameof(streetNameCache));
-
-        if (manager == null) throw new ArgumentNullException(nameof(manager));
-
-        if (encoding == null) throw new ArgumentNullException(nameof(encoding));
+        ArgumentNullException.ThrowIfNull(zipArchiveWriterOptions);
+        ArgumentNullException.ThrowIfNull(streetNameCache);
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(encoding);
+        ArgumentNullException.ThrowIfNull(useNetTopologySuiteShapeReaderWriterFeatureToggle);
 
         _writer = new CompositeZipArchiveWriter<EditorContext>(
             new ReadCommittedZipArchiveWriter<EditorContext>(
                 new CompositeZipArchiveWriter<EditorContext>(
-                    new TransactionZoneToZipArchiveWriter(encoding),
+                    useNetTopologySuiteShapeReaderWriterFeatureToggle.FeatureEnabled
+                        ? new TransactionZoneToZipArchiveWriterNetTopologySuite(encoding)
+                        : new TransactionZoneToZipArchiveWriter(encoding),
                     new OrganizationsToZipArchiveWriter(manager, encoding),
                     new RoadNodesToZipArchiveWriter(manager, encoding),
                     new RoadSegmentsToZipArchiveWriter(zipArchiveWriterOptions, streetNameCache, manager, encoding),

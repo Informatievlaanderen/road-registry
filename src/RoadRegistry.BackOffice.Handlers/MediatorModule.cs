@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Handlers;
 using Autofac;
 using BackOffice.Extensions;
 using Extracts;
+using FeatureToggles;
 
 public class MediatorModule : Module
 {
@@ -10,8 +11,10 @@ public class MediatorModule : Module
     {
         builder.RegisterMediatrHandlersFromAssemblyContaining(GetType());
 
-        builder.Register(_ => new DownloadExtractByFileRequestItemTranslator(
-            WellKnownEncodings.WindowsAnsi)
-        );
+        builder.Register(c => (IDownloadExtractByFileRequestItemTranslator)(c.Resolve<UseNetTopologySuiteShapeReaderWriterFeatureToggle>().FeatureEnabled
+            ? new DownloadExtractByFileRequestItemTranslatorNetTopologySuite()
+            : new DownloadExtractByFileRequestItemTranslator(
+                WellKnownEncodings.WindowsAnsi)
+            ));
     }
 }

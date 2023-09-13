@@ -6,6 +6,7 @@ using Abstractions;
 using BackOffice.ZipArchiveWriters.ExtractHost;
 using Editor.Schema;
 using Extracts;
+using FeatureToggles;
 using Microsoft.IO;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -26,7 +27,8 @@ public class RoadNetworkExtractToZipArchiveWriterFixture : ZipArchiveWriterFixtu
             zipArchiveWriterOptions,
             streetNameCache,
             memoryStreamManager,
-            Encoding.UTF8);
+            Encoding.UTF8,
+            new UseNetTopologySuiteShapeReaderWriterFeatureToggle(true));
 
         _assembler = new RoadNetworkExtractArchiveAssembler(
             memoryStreamManager,

@@ -1,26 +1,22 @@
 namespace RoadRegistry.BackOffice.Api.Tests.Extracts;
 
-using System.Text;
 using Abstractions.Extracts;
-using Be.Vlaanderen.Basisregisters.BlobStore;
 using FluentAssertions;
 using FluentValidation;
 using Handlers.Extracts;
+using ContentType = Be.Vlaanderen.Basisregisters.BlobStore.ContentType;
 
 public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
 {
     private const int ValidBuffer = 50;
-    private readonly Encoding _encoding = Encoding.UTF8;
-    private readonly DownloadExtractByFileRequestItemTranslator _translator;
+    
+    private readonly IDownloadExtractByFileRequestItemTranslator _translator = new DownloadExtractByFileRequestItemTranslatorNetTopologySuite();
     private DownloadExtractByFileRequestItem _prjFilePoint;
     private DownloadExtractByFileRequestItem _prjFilePolygon;
     private DownloadExtractByFileRequestItem _shpFilePoint;
     private DownloadExtractByFileRequestItem _shpFilePolygon;
-
-    public DownloadExtractByFileRequestItemTranslatorTests()
-    {
-        _translator = new DownloadExtractByFileRequestItemTranslator(_encoding);
-    }
+    private DownloadExtractByFileRequestItem _shpFilePolygonCounterClockWise;
+    private DownloadExtractByFileRequestItem _shpFilePolygonNetTopologySuite;
 
     public async Task DisposeAsync()
     {
@@ -28,12 +24,16 @@ public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
         await _shpFilePolygon.ReadStream.DisposeAsync();
         await _prjFilePoint.ReadStream.DisposeAsync();
         await _shpFilePoint.ReadStream.DisposeAsync();
+        await _shpFilePolygonCounterClockWise.ReadStream.DisposeAsync();
+        await _shpFilePolygonNetTopologySuite.ReadStream.DisposeAsync();
     }
 
     public async Task InitializeAsync()
     {
         _prjFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.prj");
         _shpFilePolygon = await GetDownloadExtractByFileRequestItemFromResource("polygon.shp");
+        _shpFilePolygonCounterClockWise = await GetDownloadExtractByFileRequestItemFromResource("polygon-ccw.shp");
+        _shpFilePolygonNetTopologySuite = await GetDownloadExtractByFileRequestItemFromResource("polygon-nettopologysuite.shp");
         _prjFilePoint = await GetDownloadExtractByFileRequestItemFromResource("point.prj");
         _shpFilePoint = await GetDownloadExtractByFileRequestItemFromResource("point.shp");
     }
@@ -58,6 +58,20 @@ public class DownloadExtractByFileRequestItemTranslatorTests : IAsyncLifetime
     public async Task Translate_will_allow_valid_geometry_type()
     {
         var act = () => Task.FromResult(_translator.Translate(_shpFilePolygon, ValidBuffer));
+        await act.Should().NotThrowAsync<ValidationException>();
+    }
+
+    [Fact]
+    public async Task Translate_will_allow_valid_counterclockwise_polygon()
+    {
+        var act = () => Task.FromResult(_translator.Translate(_shpFilePolygonCounterClockWise, ValidBuffer));
+        await act.Should().NotThrowAsync<ValidationException>();
+    }
+
+    [Fact]
+    public async Task Translate_will_allow_valid_nettopologysuite_polygon()
+    {
+        var act = () => Task.FromResult(_translator.Translate(_shpFilePolygonNetTopologySuite, ValidBuffer));
         await act.Should().NotThrowAsync<ValidationException>();
     }
 
