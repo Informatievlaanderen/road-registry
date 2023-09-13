@@ -58,7 +58,7 @@ jobs:
 
       - name: Move into workspace
         shell: bash
-        run: cd src/$BUILD_PROJECT
+        run: cd ./src/$BUILD_PROJECT
         env:
           BUILD_PROJECT: ${{ inputs.build-project }}
 
