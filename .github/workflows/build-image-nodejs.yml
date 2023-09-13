@@ -65,7 +65,7 @@ jobs:
       - name: Build UI
         shell: bash
         run: |
-          npm build
+          npm run build
 
       - name: Save artifacts
         if: inputs.semver != 'none'
