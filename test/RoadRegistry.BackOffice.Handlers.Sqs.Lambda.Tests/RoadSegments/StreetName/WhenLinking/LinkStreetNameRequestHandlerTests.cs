@@ -8,6 +8,7 @@ using BackOffice.Framework;
 using BackOffice.Handlers.RoadSegments;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Core;
+using FeatureToggles;
 using Handlers;
 using Hosts;
 using Messages;
@@ -45,6 +46,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
                 RecyclableMemoryStreamManager,
                 FileEncoding,
                 EntityMapFactory.Resolve<EventSourcedEntityMap>(),
+                new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
                 LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>()),
             new FakeDistributedStreamStoreLockOptions(),
             LoggerFactory.CreateLogger<LinkStreetNameSqsLambdaRequestHandler>()

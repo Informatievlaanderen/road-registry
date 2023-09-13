@@ -22,18 +22,17 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
-                var lineString = GeometryTranslator.ToMultiLineString(builder.TestData.RoadSegment1ShapeRecord.Shape).GetSingleLineString();
+                var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
                 lineString = new LineString(new[]
                 {
                     lineString.Coordinates[0],
                     new CoordinateM(lineString.Coordinates[1].X + 1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 1)
                 });
-                builder.TestData.RoadSegment1ShapeRecord = lineString.ToShapeContent();
-                builder.DataSet.RoadSegmentShapeRecords = new[] { builder.TestData.RoadSegment1ShapeRecord, builder.TestData.RoadSegment2ShapeRecord }.ToList();
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
 
-                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
-                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
-                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
+                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
             })
             .BuildWithResult(context => TranslatedChanges.Empty
                 .AppendChange(new ModifyRoadSegment(
@@ -50,7 +49,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                     CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
                     CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                 )
-                .WithGeometry(GeometryTranslator.ToMultiLineString(context.Change.TestData.RoadSegment1ShapeRecord.Shape))
+                .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                 .WithLane(
                     new RoadSegmentLaneAttribute(
                         new AttributeId(context.Change.TestData.RoadSegment1LaneDbaseRecord.RS_OIDN.Value),
@@ -91,23 +90,21 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                     new CoordinateM(100000, 100000, 0),
                     new CoordinateM(100100, 100000, 0)
                 });
-                builder.TestData.RoadSegment1ShapeRecord = lineString.ToShapeContent();
-                builder.DataSet.RoadSegmentShapeRecords[0] = builder.TestData.RoadSegment1ShapeRecord;
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
             })
             .WithChange((builder, context) =>
             {
-                var lineString = GeometryTranslator.ToMultiLineString(builder.TestData.RoadSegment1ShapeRecord.Shape).GetSingleLineString();
+                var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
                 lineString = new LineString(new[]
                 {
                     lineString.Coordinates[0],
                     new CoordinateM(lineString.Coordinates[1].X + 9000, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 9000)
                 });
-                builder.TestData.RoadSegment1ShapeRecord = lineString.ToShapeContent();
-                builder.DataSet.RoadSegmentShapeRecords[0] = builder.TestData.RoadSegment1ShapeRecord;
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
 
-                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
-                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
-                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Shape.MeasureRange.Max;
+                builder.TestData.RoadSegment1LaneDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
+                builder.TestData.RoadSegment1WidthDbaseRecord.TOTPOS.Value = builder.TestData.RoadSegment1ShapeRecord.Geometry.Length;
             })
             .BuildWithResult(context =>
             {
@@ -130,7 +127,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                             CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
                             CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                         )
-                        .WithGeometry(GeometryTranslator.ToMultiLineString(context.Change.TestData.RoadSegment1ShapeRecord.Shape))
+                        .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                         .WithLane(
                             new RoadSegmentLaneAttribute(
                                 new AttributeId(context.Change.TestData.RoadSegment1LaneDbaseRecord.RS_OIDN.Value),
@@ -242,7 +239,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                         CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
                         CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
                     )
-                    .WithGeometry(GeometryTranslator.ToMultiLineString(context.Change.TestData.RoadSegment1ShapeRecord.Shape))
+                    .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
                     .WithLane(
                         new RoadSegmentLaneAttribute(
                             new AttributeId(context.Change.TestData.RoadSegment1LaneDbaseRecord.RS_OIDN.Value),
@@ -286,13 +283,13 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 builder.DataSet.RoadNodeDbaseRecords.Add(roadNodeDbaseRecord1);
                 builder.DataSet.RoadNodeDbaseRecords.Add(roadNodeDbaseRecord2);
 
-                var lineString = GeometryTranslator.ToMultiLineString(builder.TestData.RoadSegment1ShapeRecord.Shape).GetSingleLineString();
+                var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
                 lineString = new LineString(new[]
                 {
                     lineString.Coordinates[0],
                     new CoordinateM(lineString.Coordinates[1].X + 0.1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 0.1)
                 });
-                var roadSegmentShapeRecord = lineString.ToShapeContent();
+                var roadSegmentShapeRecord = builder.CreateRoadSegmentShapeRecord(lineString);
                 builder.DataSet.RoadSegmentShapeRecords.Add(roadSegmentShapeRecord);
                 
                 var roadSegmentDbaseRecord = builder.CreateRoadSegmentDbaseRecord();
@@ -302,20 +299,20 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                 
                 var laneDbaseRecord = builder.CreateRoadSegmentLaneDbaseRecord();
                 laneDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord.WS_OIDN.Value;
-                laneDbaseRecord.VANPOS.Value = roadSegmentShapeRecord.Shape.MeasureRange.Min;
-                laneDbaseRecord.TOTPOS.Value = roadSegmentShapeRecord.Shape.MeasureRange.Max;
+                laneDbaseRecord.VANPOS.Value = 0;
+                laneDbaseRecord.TOTPOS.Value = roadSegmentShapeRecord.Geometry.Length;
                 builder.DataSet.LaneDbaseRecords.Add(laneDbaseRecord);
 
                 var surfaceDbaseRecord = builder.CreateRoadSegmentSurfaceDbaseRecord();
                 surfaceDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord.WS_OIDN.Value;
-                surfaceDbaseRecord.VANPOS.Value = roadSegmentShapeRecord.Shape.MeasureRange.Min;
-                surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeRecord.Shape.MeasureRange.Max;
+                surfaceDbaseRecord.VANPOS.Value = 0;
+                surfaceDbaseRecord.TOTPOS.Value = roadSegmentShapeRecord.Geometry.Length;
                 builder.DataSet.SurfaceDbaseRecords.Add(surfaceDbaseRecord);
 
                 var widthDbaseRecord = builder.CreateRoadSegmentWidthDbaseRecord();
                 widthDbaseRecord.WS_OIDN.Value = roadSegmentDbaseRecord.WS_OIDN.Value;
-                widthDbaseRecord.VANPOS.Value = roadSegmentShapeRecord.Shape.MeasureRange.Min;
-                widthDbaseRecord.TOTPOS.Value = roadSegmentShapeRecord.Shape.MeasureRange.Max;
+                widthDbaseRecord.VANPOS.Value = 0;
+                widthDbaseRecord.TOTPOS.Value = roadSegmentShapeRecord.Geometry.Length;
                 builder.DataSet.WidthDbaseRecords.Add(widthDbaseRecord);
             })
             .Build();

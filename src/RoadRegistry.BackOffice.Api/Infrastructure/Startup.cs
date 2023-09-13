@@ -29,6 +29,7 @@ using Core;
 using Editor.Schema;
 using Extensions;
 using FeatureCompare.Translators;
+using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Handlers.Extensions;
@@ -288,7 +289,7 @@ public class Startup
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()
             .AddScoped(_ => new EventSourcedEntityMap())
-            .AddEmailClient(_configuration)
+            .AddEmailClient()
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
@@ -306,6 +307,7 @@ public class Startup
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IClock>(),
+                        sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                         sp.GetService<ILoggerFactory>()
                     ),
                     new RoadNetworkExtractCommandModule(

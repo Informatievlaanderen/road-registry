@@ -1,19 +1,16 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.GradeSeparatedJuntions;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Text;
 using Uploads;
 
 public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
 {
-    private static readonly Func<FeatureType, bool> TreatHasNoRecordsAsWarning = _ => true;
-
     public GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding),
@@ -33,7 +30,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
     private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, GradeSeparatedJunctionDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
+            : base(encoding, GradeSeparatedJunctionDbaseRecord.Schema)
         {
         }
 
@@ -52,7 +49,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
     private sealed class UploadsV2FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
         public UploadsV2FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
+            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V2.Schema.GradeSeparatedJunctionDbaseRecord.Schema)
         {
         }
 
@@ -71,7 +68,7 @@ public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArc
     private sealed class UploadsV1FeatureReader : ZipArchiveDbaseFeatureReader<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.GradeSeparatedJunctionDbaseRecord, Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
     {
         public UploadsV1FeatureReader(Encoding encoding)
-            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.GradeSeparatedJunctionDbaseRecord.Schema, TreatHasNoRecordsAsWarning)
+            : base(encoding, Uploads.Dbase.BeforeFeatureCompare.V1.Schema.GradeSeparatedJunctionDbaseRecord.Schema)
         {
         }
 

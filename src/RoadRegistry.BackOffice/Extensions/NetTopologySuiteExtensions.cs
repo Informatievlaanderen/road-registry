@@ -379,6 +379,11 @@ public static class NetTopologySuiteExtensions
         }
     }
 
+    public static bool IsFarEnoughAwayFrom(this Point intersection, IEnumerable<Point> points, double tolerance)
+    {
+        return points.All(point => !intersection.IsWithinDistance(point, tolerance));
+    }
+
     public static MultiPolygon ToMultiPolygon(this Geometry geometry)
     {
         if (geometry is MultiPolygon multiPolygon)
@@ -420,5 +425,23 @@ public static class NetTopologySuiteExtensions
         }
 
         throw new InvalidCastException($"The geometry of type {geometry.GetType().Name} must be either a {nameof(LineString)} or a {nameof(MultiLineString)}.");
+    }
+
+    public static MultiPoint ToMultiPoint(this Geometry geometry, GeometryFactory geometryFactory = null)
+    {
+        if (geometry is MultiPoint multiPoint)
+        {
+            return multiPoint;
+        }
+
+        if (geometry is Point point)
+        {
+            return new MultiPoint(new[] { point }, geometryFactory ?? point.Factory)
+            {
+                SRID = point.SRID
+            };
+        }
+
+        throw new InvalidCastException($"The geometry of type {geometry.GetType().Name} must be either a {nameof(Point)} or a {nameof(MultiPoint)}.");
     }
 }

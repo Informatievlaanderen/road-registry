@@ -102,7 +102,7 @@ public class RoadNodeChangeDbaseRecordsValidator : IZipArchiveDbaseRecordsValida
             }
             else
             {
-                problems += entry.HasNoDbaseRecords(false);
+                problems += entry.HasNoDbaseRecords();
             }
         }
         catch (Exception exception)

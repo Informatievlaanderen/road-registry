@@ -19,6 +19,7 @@ using RoadRegistry.Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Threading.Tasks;
+using FeatureToggles;
 using Uploads;
 using ZipArchiveWriters.Validation;
 
@@ -35,7 +36,7 @@ public class Program
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
                 .AddTicketing()
-                .AddEmailClient(hostContext.Configuration)
+                .AddEmailClient()
                 .AddRoadRegistrySnapshot()
                 .AddRoadNetworkEventWriter()
                 .AddScoped(_ => new EventSourcedEntityMap())
@@ -62,6 +63,7 @@ public class Program
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
                     sp.GetRequiredService<IClock>(),
+                    sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
                     sp.GetRequiredService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(

@@ -49,16 +49,16 @@ public static class ZipArchiveEntryProblems
 
     // dbase
 
-    public static FileProblem HasNoDbaseRecords(this ZipArchiveEntry entry, bool treatAsWarning)
+    public static FileProblem HasNoDbaseRecords(this ZipArchiveEntry entry)
     {
-        return new FileProblemBuilder(entry.Name).HasNoDbaseRecords(treatAsWarning);
+        return new FileProblemBuilder(entry.Name).HasNoDbaseRecords();
     }
 
     // shape
 
-    public static FileProblem HasNoShapeRecords(this ZipArchiveEntry entry, bool treatAsWarning)
+    public static FileProblem HasNoShapeRecords(this ZipArchiveEntry entry)
     {
-        return new FileProblemBuilder(entry.Name).HasNoShapeRecords(treatAsWarning);
+        return new FileProblemBuilder(entry.Name).HasNoShapeRecords();
     }
 
     public static FileError HasShapeRecordFormatError(this ZipArchiveEntry entry, Exception exception)
