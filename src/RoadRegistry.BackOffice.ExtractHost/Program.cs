@@ -82,7 +82,11 @@ public class Program
                             sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
-                            new ZipArchiveFeatureCompareTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()),
+                            new ZipArchiveFeatureCompareTranslator(
+                                sp.GetRequiredService<FileEncoding>(),
+                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>(),
+                                sp.GetRequiredService<UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle>()
+                            ),
                             sp.GetService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetService<IRoadNetworkEventWriter>(),

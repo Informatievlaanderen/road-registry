@@ -1,9 +1,11 @@
 namespace RoadRegistry.StreetName;
 
+using System;
 using System.Net;
 using System.Runtime.Serialization;
 using BackOffice.Exceptions;
 
+[Serializable]
 public class StreetNameRegistryUnexpectedStatusCodeException : RoadRegistryException
 {
     public HttpStatusCode StatusCode { get; }
