@@ -21,7 +21,13 @@ public class ProblemTranslatorTests
                     new ProblemParameter { Name = "ConnectedSegmentCount", Value = "1" },
                     new ProblemParameter { Name = "Actual", Value = RoadNodeType.EndNode.ToString() }
                 }
-            }
+            },
+            {
+                ProblemCode.StreetName.RegistryUnexpectedError, new[]
+                {
+                    new ProblemParameter { Name = "StatusCode", Value = "500" },
+                }
+            },
         };
 
         var allValues = ProblemCode.GetValues();

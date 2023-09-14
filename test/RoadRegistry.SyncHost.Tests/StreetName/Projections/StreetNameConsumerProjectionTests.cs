@@ -1,6 +1,7 @@
 namespace RoadRegistry.SyncHost.Tests.StreetName.Projections;
 
 using Fixtures;
+using RoadRegistry.StreetName;
 using RoadRegistry.StreetNameConsumer.Projections;
 using RoadRegistry.StreetNameConsumer.Schema;
 

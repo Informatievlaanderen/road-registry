@@ -9,22 +9,16 @@ on:
       build-target:
         required: true
         type: string
+      build-project: #RoadRegistry.Api.BackOffice
+        required: true
+        type: string
       image-file: #rr-ui-backoffice.tar
         required: true
         type: string
       image-name: #ui-backoffice
         required: true
         type: string
-      test-project: #RoadRegistry.Tests
-        required: true
-        type: string
-      build-project: #RoadRegistry.Api.BackOffice
-        required: true
-        type: string
       semver:
-        required: true
-        type: string
-      npm-token:
         required: true
         type: string
 
@@ -61,18 +55,29 @@ jobs:
       - name: Node version
         shell: bash
         run: node --version
-    
-      - name: Install NPM dependencies
-        shell: bash
-        run: npm ci
-        env:
-          NPM_TOKEN: ${{ inputs.npm-token }}
 
       - name: Build UI
         shell: bash
         run: |
-          npm build
-
+          cd ./src/$BUILD_PROJECT
+          npm ci
+          npm install
+          npm run build
+        env:
+          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+          BUILD_PROJECT: ${{ inputs.build-project }}
+  
+      - name: Build Docker
+        shell: bash
+        run: |
+          docker build -t $BUILD_DOCKER_REGISTRY/$REGISTRY/$IMAGE_NAME:$SEMVER ./src/$BUILD_PROJECT
+        env:
+          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
+          BUILD_PROJECT: ${{ inputs.build-project }}
+          SEMVER: ${{ inputs.semver }}
+          REGISTRY: ${{ inputs.registry }}
+          IMAGE_NAME: ${{ inputs.image-name }}
+      
       - name: Save artifacts
         if: inputs.semver != 'none'
         shell: bash
@@ -84,4 +89,3 @@ jobs:
           REGISTRY: ${{ inputs.registry }}
           IMAGE_NAME: ${{ inputs.image-name }}
           IMAGE_FILE: ${{ inputs.image-file }}
-              

@@ -38,7 +38,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             ticketing,
             idempotentCommandHandler,
             RoadRegistryContext,
-            StreetNameCache,
+            StreetNameClient,
             new ChangeRoadNetworkDispatcher(
                 new RoadNetworkCommandQueue(Store, ApplicationMetadata),
                 idempotentCommandHandler,

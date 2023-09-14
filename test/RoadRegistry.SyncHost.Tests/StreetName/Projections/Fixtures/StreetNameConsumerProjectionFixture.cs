@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Gemeente;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy.Straatnaam;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
+using RoadRegistry.StreetName;
 using RoadRegistry.StreetNameConsumer.Projections;
 using RoadRegistry.StreetNameConsumer.Schema;
 

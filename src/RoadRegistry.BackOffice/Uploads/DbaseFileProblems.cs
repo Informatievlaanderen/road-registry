@@ -120,12 +120,14 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError GradeSeparatedJunctionMissing(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2)
+    public static FileError GradeSeparatedJunctionMissing(this IDbaseFileRecordProblemBuilder builder, RoadSegmentId roadSegmentId1, RoadSegmentId roadSegmentId2, double intersectionX, double intersectionY)
     {
         return builder
             .Error(nameof(GradeSeparatedJunctionMissing))
             .WithParameter(new ProblemParameter("RoadSegmentId1", roadSegmentId1.ToString()))
             .WithParameter(new ProblemParameter("RoadSegmentId2", roadSegmentId2.ToString()))
+            .WithParameter(new ProblemParameter("IntersectionX", intersectionX.ToString(Provider)))
+            .WithParameter(new ProblemParameter("IntersectionY", intersectionY.ToString(Provider)))
             .Build();
     }
 

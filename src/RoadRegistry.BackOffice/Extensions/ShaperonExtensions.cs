@@ -1,5 +1,4 @@
 namespace RoadRegistry.BackOffice.Extensions;
-
 using Be.Vlaanderen.Basisregisters.Shaperon;
 
 public static class ShaperonExtensions

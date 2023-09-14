@@ -3,6 +3,7 @@ namespace NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Polly;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
@@ -443,5 +444,15 @@ public static class NetTopologySuiteExtensions
         }
 
         throw new InvalidCastException($"The geometry of type {geometry.GetType().Name} must be either a {nameof(Point)} or a {nameof(MultiPoint)}.");
+    }
+
+    public static T WithSrid<T>(this T geometry, int srid)
+        where T : Geometry
+    {
+        geometry.SRID = srid > 0
+            ? srid
+            : GeometryConfiguration.GeometryFactory.SRID;
+
+        return geometry;
     }
 }

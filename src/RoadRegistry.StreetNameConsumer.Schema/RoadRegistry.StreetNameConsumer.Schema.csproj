@@ -15,6 +15,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
+	  <ProjectReference Include="..\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
 	</ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />
