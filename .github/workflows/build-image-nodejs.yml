@@ -89,10 +89,6 @@ jobs:
           NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
           SEMVER: ${{ inputs.semver }}
 
-      - name: Show files
-        shell: bash
-        run: ls -R            
-
       - name: Containerize
         shell: bash
         run: CI_BUILD_NUMBER=$SEMVER ./build.sh ${{ inputs.containerize-target }}
