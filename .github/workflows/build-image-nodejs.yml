@@ -81,19 +81,13 @@ jobs:
         run: |
           dotnet tool restore
 
-      - name: Set Assembly Versions
-        shell: bash
-        run: CI_BUILD_NUMBER=$SEMVER ./build.sh SetAssemblyVersions
-        env:          
-          SEMVER: ${{ inputs.semver }}
-
       - name: Build
         shell: bash
         run: ./build.sh ${{ inputs.build-target }}
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
+          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
           SEMVER: ${{ inputs.semver }}
-
   
       - name: Containerize
         shell: bash
