@@ -1,4 +1,4 @@
-namespace RoadRegistry.StreetNameConsumer.Schema;
+namespace RoadRegistry.StreetName;
 
 public static class StreetNameStatus
 {

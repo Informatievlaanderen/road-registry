@@ -1,6 +1,6 @@
 namespace RoadRegistry.StreetNameConsumer.Projections;
 
-using Schema;
+using StreetName;
 
 public class StreetNameSnapshotOsloWasProduced
 {

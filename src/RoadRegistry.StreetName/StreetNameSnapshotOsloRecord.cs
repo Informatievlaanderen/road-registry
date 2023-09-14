@@ -1,4 +1,4 @@
-namespace RoadRegistry.StreetNameConsumer.Schema;
+namespace RoadRegistry.StreetName;
 
 using System.Collections.Generic;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
