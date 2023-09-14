@@ -15,6 +15,7 @@ using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using StreetName;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
@@ -44,6 +45,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                 })
             )
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
+            .AddStreetNameClient()
             ;
     }
 

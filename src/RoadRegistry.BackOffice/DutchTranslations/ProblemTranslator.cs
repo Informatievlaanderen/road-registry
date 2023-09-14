@@ -116,6 +116,7 @@ public static class ProblemTranslator
         {ProblemCode.ShapeFile.InvalidHeader, problem => new(problem.Severity, problem.Reason, $"Kan header van de shape file niet lezen: '{problem.Parameters[0].Value}'")},
         {ProblemCode.ShapeFile.InvalidPolygonShellOrientation, problem => new(problem.Severity, problem.Reason, "De orientatie van de polygoon moet in wijzerzin zijn.")},
         {ProblemCode.StreetName.NotFound, problem => new(problem.Severity, "StraatnaamNietGekend", "De straatnaam is niet gekend in het Straatnamenregister.")},
+        {ProblemCode.StreetName.RegistryUnexpectedError, problem => new(problem.Severity, "StraatnamenregisterOnverwachteFout", $"Het Straatnamenregister gaf een onverwachte fout {problem.GetParameterValue("StatusCode")}.")},
         {ProblemCode.ToPosition.IsRequired, problem => new(problem.Severity, "TotPositieVerplicht", "TotPositie is verplicht.")},
         {ProblemCode.ToPosition.NotEqualToNextFromPosition, problem => new(problem.Severity, "TotPositieNietGelijkAanVolgendeVanPositie", $"De totPositie verschilt van de volgende vanPositie.")},
         {ProblemCode.ToPosition.LessThanOrEqualFromPosition, problem => new(problem.Severity, "TotPositieKleinerOfGelijkAanVanPositie", $"De totPositie moet groter zijn dan de vanPositie.")},

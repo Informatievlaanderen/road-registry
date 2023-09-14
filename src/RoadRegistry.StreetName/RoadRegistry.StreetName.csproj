@@ -2,7 +2,7 @@
 	<Import Project="..\..\packages\Be.Vlaanderen.Basisregisters.Build.Pipeline\Content\Be.Vlaanderen.Basisregisters.Build.Pipeline.Settings.Library.props" />
 
 	<PropertyGroup>
-    <RootNamespace>RoadRegistry.StreetNameConsumer.Schema</RootNamespace>
+    <RootNamespace>RoadRegistry.StreetName</RootNamespace>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <Nullable>disable</Nullable>
 	  <EnableDefaultContentItems>false</EnableDefaultContentItems>
@@ -15,7 +15,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
-	  <ProjectReference Include="..\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
+	  <ProjectReference Include="..\RoadRegistry.BackOffice.Abstractions\RoadRegistry.BackOffice.Abstractions.csproj" />
 	</ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />
