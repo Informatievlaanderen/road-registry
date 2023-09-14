@@ -40,7 +40,7 @@ namespace RoadRegistry.StreetName
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new StreetNameRegistryException(response.StatusCode);
+                throw new StreetNameRegistryUnexpectedStatusCodeException(response.StatusCode);
             }
 
             var streetNameJson = await response.Content.ReadAsStringAsync(cancellationToken);

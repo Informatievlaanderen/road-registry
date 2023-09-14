@@ -150,12 +150,11 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
                 return problems.Add(new RoadSegmentStreetNameNotProposedOrCurrent());
             }
         }
-        catch (StreetNameRegistryException ex)
+        catch (StreetNameRegistryUnexpectedStatusCodeException ex)
         {
             Logger.LogError(ex.Message);
 
-            //TODO-rik add problem, vertaling? statuscode weten?
-            problems += new StreetNameRegistryUnknownError();
+            problems += new StreetNameRegistryUnexpectedError((int)ex.StatusCode);
         }
 
         return problems;
