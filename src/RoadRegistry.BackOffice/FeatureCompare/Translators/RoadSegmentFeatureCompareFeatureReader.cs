@@ -11,6 +11,7 @@ using Extracts;
 using Extracts.Dbase.RoadSegments;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using ShapeFile;
 using Uploads;
 
 public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentFeatureCompareAttributes>>

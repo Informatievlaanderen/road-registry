@@ -6,15 +6,19 @@ public static class FeatureTypeExtensions
 {
     public static string GetDbaseFileName(this FeatureType featureType, ExtractFileName fileName)
     {
-        return $"{GetFileNamePrefix(featureType)}{fileName}.dbf";
+        return $"{GetFileNamePrefix(featureType)}{fileName.ToDbaseFileName()}";
     }
     public static string GetShapeFileName(this FeatureType featureType, ExtractFileName fileName)
     {
-        return $"{GetFileNamePrefix(featureType)}{fileName}.shp";
+        return $"{GetFileNamePrefix(featureType)}{fileName.ToShapeFileName()}";
+    }
+    public static string GetShapeIndexFileName(this FeatureType featureType, ExtractFileName fileName)
+    {
+        return $"{GetFileNamePrefix(featureType)}{fileName.ToShapeIndexFileName()}";
     }
     public static string GetProjectionFileName(this FeatureType featureType, ExtractFileName fileName)
     {
-        return $"{GetFileNamePrefix(featureType)}{fileName}.prj";
+        return $"{GetFileNamePrefix(featureType)}{fileName.ToProjectionFileName()}";
     }
 
     private static string GetFileNamePrefix(FeatureType featureType)
