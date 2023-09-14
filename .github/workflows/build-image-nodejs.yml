@@ -91,13 +91,8 @@ jobs:
       - name: Build UI
         shell: bash
         run: |
-          cd ./src/$BUILD_PROJECT
-          npm ci
-          npm install
-          npm run build
-        env:
-          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
-          BUILD_PROJECT: ${{ inputs.build-project }}
+          npx update-browserslist-db@latest
+          ./build.sh publish
   
       - name: Set Assembly Versions
         shell: bash
