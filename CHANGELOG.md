@@ -1,3 +1,21 @@
+# [3.59.0](https://github.com/informatievlaanderen/road-registry/compare/v3.58.9...v3.59.0) (2023-09-14)
+
+
+### Bug Fixes
+
+* Include UI build ([#1165](https://github.com/informatievlaanderen/road-registry/issues/1165)) ([90da2d3](https://github.com/informatievlaanderen/road-registry/commit/90da2d3bb8bba3a270d9a09f81b2aa6dfe9e9590))
+* UI pipeline ([#1166](https://github.com/informatievlaanderen/road-registry/issues/1166)) ([618d78b](https://github.com/informatievlaanderen/road-registry/commit/618d78bf5299547d8b8fb51b34d3294d148f1935))
+* UI pipeline ([#1167](https://github.com/informatievlaanderen/road-registry/issues/1167)) ([ec1a449](https://github.com/informatievlaanderen/road-registry/commit/ec1a449cd9033e54526b6f28da0f0f033fe71079))
+* UI pipeline ([#1168](https://github.com/informatievlaanderen/road-registry/issues/1168)) ([d166de6](https://github.com/informatievlaanderen/road-registry/commit/d166de63377adbac65494ad9703a4f93a6fdc572))
+* UI pipeline ([#1171](https://github.com/informatievlaanderen/road-registry/issues/1171)) ([1fba20f](https://github.com/informatievlaanderen/road-registry/commit/1fba20f2dcf6de3b0730e382c818de62d976de36))
+* UI pipeline ([#1172](https://github.com/informatievlaanderen/road-registry/issues/1172)) ([ddd7e5b](https://github.com/informatievlaanderen/road-registry/commit/ddd7e5b9b8b1fd66ae29d9f8e1ea57234b0b9698))
+* WR-783 add shape reader/writer using NetTopologySuite ([#1164](https://github.com/informatievlaanderen/road-registry/issues/1164)) ([a324e3f](https://github.com/informatievlaanderen/road-registry/commit/a324e3f16b534eaceaf42cc6b53343b2ced00dd6))
+
+
+### Features
+
+* WR-833 use StreetNameClient instead of kafka cache for write operations ([#1170](https://github.com/informatievlaanderen/road-registry/issues/1170)) ([caec8f1](https://github.com/informatievlaanderen/road-registry/commit/caec8f1344265291ccf8b1a5fc219f8e5532b7dc))
+
 ## [3.58.9](https://github.com/informatievlaanderen/road-registry/compare/v3.58.8...v3.58.9) (2023-09-13)
 
 
