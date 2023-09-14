@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\RoadRegistry.BackOffice.Handlers.Sqs.Lambda\RoadRegistry.BackOffice.Handlers.Sqs.Lambda.csproj" />
     <ProjectReference Include="..\..\src\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\..\src\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
     <ProjectReference Include="..\RoadRegistry.Tests\RoadRegistry.Tests.csproj" />
   </ItemGroup>
 

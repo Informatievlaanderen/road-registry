@@ -38,6 +38,7 @@
     <ProjectReference Include="..\RoadRegistry.BackOffice.ZipArchiveWriters\RoadRegistry.BackOffice.ZipArchiveWriters.csproj" />
     <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
     <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
+    <ProjectReference Include="..\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
     <ProjectReference Include="..\RoadRegistry.Syndication.Schema\RoadRegistry.Syndication.Schema.csproj" />
   </ItemGroup>
 

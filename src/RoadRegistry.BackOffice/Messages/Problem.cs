@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.Messages;
 
+using System;
+using System.Linq;
 using System.Text;
 
 public class Problem
@@ -25,5 +27,15 @@ public class Problem
         }
 
         return sb.ToString();
+    }
+
+    public string GetParameterValue(string parameterName)
+    {
+        var parameter = Parameters.SingleOrDefault(x => x.Name == parameterName);
+        if (parameter is null)
+        {
+            throw new ArgumentException($"No parameter found with name '{parameterName}'");
+        }
+        return parameter.Value;
     }
 }

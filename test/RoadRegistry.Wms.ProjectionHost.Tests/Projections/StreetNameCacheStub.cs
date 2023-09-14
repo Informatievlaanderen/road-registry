@@ -19,11 +19,6 @@ public class StreetNameCacheStub : IStreetNameCache
         throw new NotImplementedException();
     }
 
-    public Task<Dictionary<int, string>> GetStreetNameStatusesById(IEnumerable<int> streetNameIds, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<StreetNameCacheItem> GetAsync(int streetNameId, CancellationToken cancellationToken)
     {
         return Task.FromResult(new StreetNameCacheItem

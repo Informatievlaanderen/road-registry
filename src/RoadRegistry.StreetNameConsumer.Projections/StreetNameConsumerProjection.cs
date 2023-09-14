@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Be.Vlaanderen.Basisregisters.GrAr.Legacy;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Schema;
+using StreetName;
 
 public class StreetNameConsumerProjection : ConnectedProjection<StreetNameConsumerContext>
 {
