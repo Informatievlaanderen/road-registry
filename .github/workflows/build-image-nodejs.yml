@@ -36,7 +36,21 @@ jobs:
 
       - name: Checkout Code
         uses: actions/checkout@v3
-        
+
+      - name: Cache Paket
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-paket
+        with:
+          path: packages
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('paket.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+
+      - name: Parse repository name
+        run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
+        shell: bash
+       
       - name: Cache NPM
         uses: actions/cache@v3
         env:
@@ -46,6 +60,24 @@ jobs:
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: ${{ secrets.VBR_DOTNET_VERSION }}
+      
+      - name: .NET version
+        shell: bash
+        run: dotnet --info
+  
+      - name: Restore dotnet tools
+        shell: bash
+        run: |
+          dotnet tool restore
+  
+      - name: Paket install
+        shell: bash
+        run: dotnet paket install
 
       - name: Setup Node.js
         uses: actions/setup-node@v3.5.1
