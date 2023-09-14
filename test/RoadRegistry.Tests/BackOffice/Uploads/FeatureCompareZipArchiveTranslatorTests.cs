@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
 using Xunit.Sdk;
@@ -22,7 +23,7 @@ public class FeatureCompareZipArchiveTranslatorTests
     public FeatureCompareZipArchiveTranslatorTests(ITestOutputHelper outputHelper, ILogger<FeatureCompareZipArchiveTranslatorTests> logger)
     {
         _outputHelper = outputHelper;
-        _sut = new ZipArchiveFeatureCompareTranslator(Encoding.UTF8, logger);
+        _sut = new ZipArchiveFeatureCompareTranslator(Encoding.UTF8, logger, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true));
         _zipArchiveTranslator = new ZipArchiveTranslator(Encoding.UTF8);
     }
 

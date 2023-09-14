@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using FeatureToggles;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice.Exceptions;
@@ -258,7 +259,7 @@ public class FeaturesReaderTests
 
         using (zipArchive)
         {
-            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger);
+            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true));
 
             try
             {

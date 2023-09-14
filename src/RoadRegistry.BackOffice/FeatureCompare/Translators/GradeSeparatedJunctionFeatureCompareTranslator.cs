@@ -21,7 +21,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
         UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle useValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction)
         : base(encoding)
     {
-        _useValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction = useValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction;
+        _useValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction = useValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction.ThrowIfNull();
     }
 
     protected override (List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
