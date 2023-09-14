@@ -83,7 +83,6 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       registry: road-registry
-      build-target: Containerize_BackOfficeUi
       image-file: rr-backoffice-ui-image.tar
       image-name: backoffice-ui
       build-project: RoadRegistry.BackOffice.UI
@@ -411,7 +410,7 @@ jobs:
       pack-backoffice-ziparchivewriters,
       pack-projector,
       build-backoffice-api,
-      # build-backoffice-ui,
+      build-backoffice-ui,
       build-backoffice-eventhost,
       build-backoffice-extracthost,
       build-backoffice-commandhost,
@@ -773,7 +772,7 @@ jobs:
       matrix:
         image: [
           'backoffice-api', 
-          # 'backoffice-ui', 
+          'backoffice-ui', 
           'backoffice-eventhost', 
           'backoffice-extracthost', 
           'backoffice-commandhost', 
@@ -836,7 +835,7 @@ jobs:
       matrix:
         services: [
           'road-registry-backoffice-api',
-          # 'road-registry-backoffice-ui',
+          'road-registry-backoffice-ui',
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
           'road-registry-backoffice-commandhost',
@@ -960,7 +959,7 @@ jobs:
       matrix:
         image: [
           'backoffice-api',
-        # 'backoffice-ui',
+          'backoffice-ui',
           'backoffice-eventhost',
           'backoffice-extracthost',
           'backoffice-commandhost',
@@ -1023,7 +1022,7 @@ jobs:
       matrix:
         services: [
           'road-registry-backoffice-api',
-        # 'road-registry-backoffice-ui',
+          'road-registry-backoffice-ui',
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
           'road-registry-backoffice-commandhost',
@@ -1150,7 +1149,7 @@ jobs:
       matrix:
         image: [
           'backoffice-api', 
-          # 'backoffice-ui', 
+          'backoffice-ui', 
           'backoffice-eventhost', 
           'backoffice-extracthost', 
           'backoffice-commandhost', 
@@ -1215,7 +1214,7 @@ jobs:
       matrix:
         services: [
           'road-registry-backoffice-api',
-        # 'road-registry-backoffice-ui',
+          'road-registry-backoffice-ui',
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
           'road-registry-backoffice-commandhost',
@@ -1342,7 +1341,7 @@ jobs:
       matrix:
         image: [
           'backoffice-api', 
-          # 'backoffice-ui', 
+          'backoffice-ui', 
           'backoffice-eventhost', 
           'backoffice-extracthost', 
           'backoffice-commandhost', 
@@ -1407,7 +1406,7 @@ jobs:
       matrix:
         services: [
           'road-registry-backoffice-api',
-        # 'road-registry-backoffice-ui',
+          'road-registry-backoffice-ui',
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
           'road-registry-backoffice-commandhost',

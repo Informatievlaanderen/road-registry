@@ -6,16 +6,13 @@ on:
       registry:
         required: true
         type: string
-      build-target:
+      build-project:
         required: true
         type: string
-      build-project: #RoadRegistry.Api.BackOffice
+      image-file:
         required: true
         type: string
-      image-file: #rr-ui-backoffice.tar
-        required: true
-        type: string
-      image-name: #ui-backoffice
+      image-name:
         required: true
         type: string
       semver:
