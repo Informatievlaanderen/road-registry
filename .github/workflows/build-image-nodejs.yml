@@ -54,6 +54,19 @@ jobs:
         run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
         shell: bash
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3.5.1
+
+      - name: Node version
+        shell: bash
+        run: node --version
+
+      - name: Install NPM dependencies
+        shell: bash
+        run: npm ci
+        env:
+          NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
+
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
         with:
