@@ -75,10 +75,6 @@ jobs:
         run: |
           dotnet tool restore
   
-      - name: Paket install
-        shell: bash
-        run: dotnet paket install
-
       - name: Setup Node.js
         uses: actions/setup-node@v3.5.1
         with:
@@ -88,11 +84,9 @@ jobs:
         shell: bash
         run: node --version
 
-      - name: Build UI
+      - name: Publish
         shell: bash
-        run: |
-          npx update-browserslist-db@latest
-          ./build.sh publish
+        run: ./build.sh publish
   
       - name: Set Assembly Versions
         shell: bash
