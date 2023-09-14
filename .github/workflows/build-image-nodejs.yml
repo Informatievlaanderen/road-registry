@@ -6,6 +6,9 @@ on:
       registry:
         required: true
         type: string
+      build-target:
+        required: true
+        type: string
       build-project:
         required: true
         type: string
@@ -64,25 +67,34 @@ jobs:
           NPM_TOKEN: ${{ secrets.VBR_WEBCOMP_NPM_TOKEN }}
           BUILD_PROJECT: ${{ inputs.build-project }}
   
-      - name: Build Docker
+      - name: Set Assembly Versions
         shell: bash
-        run: |
-          docker build -t $BUILD_DOCKER_REGISTRY/$REGISTRY/$IMAGE_NAME:$SEMVER ./src/$BUILD_PROJECT
+        run: CI_BUILD_NUMBER=$SEMVER ./build.sh SetAssemblyVersions
+        env:          
+          SEMVER: ${{ inputs.semver }}
+
+      - name: Containerize
+        shell: bash
+        run: CI_BUILD_NUMBER=$SEMVER ./build.sh ${{ inputs.build-target }}
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
-          BUILD_PROJECT: ${{ inputs.build-project }}
           SEMVER: ${{ inputs.semver }}
-          REGISTRY: ${{ inputs.registry }}
-          IMAGE_NAME: ${{ inputs.image-name }}
-      
-      - name: Save artifacts
+
+      - name: Show images
+        shell: bash
+        run: docker images
+
+      - name: Save Image
         if: inputs.semver != 'none'
         shell: bash
-        run: |
-          docker image save $BUILD_DOCKER_REGISTRY/$REGISTRY/$IMAGE_NAME:$SEMVER -o ~/$IMAGE_FILE
+        run: docker image save $BUILD_DOCKER_REGISTRY/${{ inputs.registry }}/${{ inputs.image-name }}:$SEMVER -o ~/${{ inputs.image-file}}
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           SEMVER: ${{ inputs.semver }}
-          REGISTRY: ${{ inputs.registry }}
-          IMAGE_NAME: ${{ inputs.image-name }}
-          IMAGE_FILE: ${{ inputs.image-file }}
+
+      - name: Upload image
+        if: inputs.semver != 'none'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.image-name }}-${{ inputs.semver }}
+          path: ~/${{ inputs.image-file }}
