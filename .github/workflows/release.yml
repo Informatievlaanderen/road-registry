@@ -83,7 +83,8 @@ jobs:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     with:
       registry: road-registry
-      build-target: Containerize_BackOfficeUI
+      build-target: Build_BackOfficeUI
+      containerize-target: Containerize_BackOfficeUI
       image-file: rr-backoffice-ui-image.tar
       image-name: backoffice-ui
       build-project: RoadRegistry.BackOffice.UI

@@ -12,6 +12,9 @@ on:
       build-project:
         required: true
         type: string
+      containerize-target:
+        required: true
+        type: string
       image-file:
         required: true
         type: string
@@ -36,7 +39,7 @@ jobs:
 
       - name: Checkout Code
         uses: actions/checkout@v3
-
+        
       - name: Cache Paket
         uses: actions/cache@v3
         env:
@@ -50,61 +53,46 @@ jobs:
       - name: Parse repository name
         run: echo REPOSITORY_NAME=$(echo "$GITHUB_REPOSITORY" | awk -F / '{print $2}' | sed -e "s/:refs//") >> $GITHUB_ENV
         shell: bash
-       
-      - name: Cache NPM
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-npm
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
         with:
           dotnet-version: ${{ secrets.VBR_DOTNET_VERSION }}
-      
+
       - name: .NET version
         shell: bash
         run: dotnet --info
-  
+
       - name: Restore dotnet tools
         shell: bash
         run: |
           dotnet tool restore
-  
-      - name: Setup Node.js
-        uses: actions/setup-node@v3.5.1
-        with:
-          node-version: 18.12.1
 
-      - name: Node version
-        shell: bash
-        run: node --version
-
-      - name: Publish
-        shell: bash
-        run: ./build.sh publish
-  
       - name: Set Assembly Versions
         shell: bash
         run: CI_BUILD_NUMBER=$SEMVER ./build.sh SetAssemblyVersions
         env:          
           SEMVER: ${{ inputs.semver }}
 
-      - name: Containerize
+      - name: Build
         shell: bash
-        run: CI_BUILD_NUMBER=$SEMVER ./build.sh ${{ inputs.build-target }}
+        run: ./build.sh ${{ inputs.build-target }}
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           SEMVER: ${{ inputs.semver }}
 
+  
+      - name: Containerize
+        shell: bash
+        run: CI_BUILD_NUMBER=$SEMVER ./build.sh ${{ inputs.containerize-target }}
+        env:
+          BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
+          SEMVER: ${{ inputs.semver }}
+    
       - name: Show images
         shell: bash
         run: docker images
-
+    
       - name: Save Image
         if: inputs.semver != 'none'
         shell: bash
@@ -112,10 +100,11 @@ jobs:
         env:
           BUILD_DOCKER_REGISTRY: ${{ secrets.VBR_BUILD_DOCKER_REGISTRY_TST }}
           SEMVER: ${{ inputs.semver }}
-
+    
       - name: Upload image
         if: inputs.semver != 'none'
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.image-name }}-${{ inputs.semver }}
           path: ~/${{ inputs.image-file }}
+      
