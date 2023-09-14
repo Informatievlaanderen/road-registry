@@ -40,6 +40,30 @@ supportedRuntimeIdentifiers <- [ "msil"; "linux-x64" ]
 
 Target.create "Restore_Solution" (fun _ -> restore "RoadRegistry")
 
+Target.create "Publish_BackOfficeUI" (fun _ -> 
+  Shell.cleanDir ("src" @@ "RoadRegistry.BackOffice.UI" @@ "dist")
+
+  Npm.install (fun p ->
+    { p with
+        WorkingDirectory = "src" @@ "RoadRegistry.BackOffice.UI"
+    }
+  )
+
+  Npm.run "build" (fun p ->
+    { p with
+        WorkingDirectory = "src" @@ "RoadRegistry.BackOffice.UI"
+    }
+  )
+
+  let dist = (buildDir @@ "RoadRegistry.BackOffice.UI" @@ "linux")
+  let source = "src" @@ "RoadRegistry.BackOffice.UI"
+
+  Shell.copyDir (dist @@ "dist") (source @@ "dist") (fun _ -> true)
+  Shell.copyFile dist (source @@ "default.conf.template")
+  Shell.copyFile dist (source @@ "Dockerfile")
+  Shell.copyFile dist (source @@ "init.sh")
+)
+
 Target.create "Build_Solution" (fun _ ->
   Shell.cleanDir ("src" @@ "RoadRegistry.BackOffice.UI" @@ "dist")
 

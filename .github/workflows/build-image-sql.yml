@@ -9,6 +9,9 @@ on:
       build-target:
         required: true
         type: string
+      build-project: #StreetNameRegistry.Api.BackOffice
+        required: true
+        type: string
       image-file: #sr-api-backoffice.tar
         required: true
         type: string
@@ -16,9 +19,6 @@ on:
         required: true
         type: string
       test-project: #StreetNameRegistry.Tests
-        required: true
-        type: string
-      build-project: #StreetNameRegistry.Api.BackOffice
         required: true
         type: string
       semver:
