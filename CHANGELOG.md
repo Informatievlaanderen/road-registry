@@ -1,3 +1,11 @@
+## [3.59.2](https://github.com/informatievlaanderen/road-registry/compare/v3.59.1...v3.59.2) (2023-09-14)
+
+
+### Bug Fixes
+
+* Remove file listing ([#1182](https://github.com/informatievlaanderen/road-registry/issues/1182)) ([4c15d6b](https://github.com/informatievlaanderen/road-registry/commit/4c15d6bd6544030d760c6ef846a2b8947a9931d0))
+* set Accept header for StreetNameRegistry requests ([#1183](https://github.com/informatievlaanderen/road-registry/issues/1183)) ([1af80b9](https://github.com/informatievlaanderen/road-registry/commit/1af80b946807555427403e30ea1f98e3d99bad91))
+
 ## [3.59.1](https://github.com/informatievlaanderen/road-registry/compare/v3.59.0...v3.59.1) (2023-09-14)
 
 
