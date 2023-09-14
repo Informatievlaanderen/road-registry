@@ -1,3 +1,17 @@
+## [3.59.1](https://github.com/informatievlaanderen/road-registry/compare/v3.59.0...v3.59.1) (2023-09-14)
+
+
+### Bug Fixes
+
+* add featuretoggle UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction ([#1180](https://github.com/informatievlaanderen/road-registry/issues/1180)) ([08f0401](https://github.com/informatievlaanderen/road-registry/commit/08f04019672a527265da80b13fd29c72826d52b2))
+* Add NPM token into pipeline ([#1179](https://github.com/informatievlaanderen/road-registry/issues/1179)) ([85df89c](https://github.com/informatievlaanderen/road-registry/commit/85df89c8c74fe7f1072892e26267074998bba047))
+* Removed double paket install ([#1176](https://github.com/informatievlaanderen/road-registry/issues/1176)) ([d5dda9e](https://github.com/informatievlaanderen/road-registry/commit/d5dda9e459cbbef7171d48ec8dd4cfe0770d4b41))
+* UI pipeline containerize ([#1181](https://github.com/informatievlaanderen/road-registry/issues/1181)) ([7b7d680](https://github.com/informatievlaanderen/road-registry/commit/7b7d6801cbc51fdd369c7207aeb844919043c298))
+* UI pipeline requirement for build.fsx ([#1174](https://github.com/informatievlaanderen/road-registry/issues/1174)) ([5a91891](https://github.com/informatievlaanderen/road-registry/commit/5a91891efb8add4c488b346bd7527d8fbc972472))
+* Unauthenticated npm repo ([#1178](https://github.com/informatievlaanderen/road-registry/issues/1178)) ([38a3bc2](https://github.com/informatievlaanderen/road-registry/commit/38a3bc2277d11cc333c1fd679da563f7aac4106d))
+* Use build.sh publish for UI pipeline ([#1175](https://github.com/informatievlaanderen/road-registry/issues/1175)) ([355e887](https://github.com/informatievlaanderen/road-registry/commit/355e8870638307bf397f6e1d695dfe17dc692c2c))
+* Use containerize from fsx file ([#1173](https://github.com/informatievlaanderen/road-registry/issues/1173)) ([8abc3bb](https://github.com/informatievlaanderen/road-registry/commit/8abc3bbac90423df32d98a6519aa255160952459))
+
 # [3.59.0](https://github.com/informatievlaanderen/road-registry/compare/v3.58.9...v3.59.0) (2023-09-14)
 
 
