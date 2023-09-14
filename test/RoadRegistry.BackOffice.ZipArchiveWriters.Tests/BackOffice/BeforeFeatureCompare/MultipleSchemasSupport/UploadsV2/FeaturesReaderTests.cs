@@ -5,6 +5,7 @@ using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
 using RoadRegistry.Tests.BackOffice;
@@ -239,7 +240,7 @@ public class FeaturesReaderTests
 
         using (zipArchive)
         {
-            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger);
+            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true));
 
             var result = await sut.Translate(zipArchive, CancellationToken.None);
 

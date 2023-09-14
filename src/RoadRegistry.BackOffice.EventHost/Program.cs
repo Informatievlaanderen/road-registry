@@ -58,7 +58,11 @@ public class Program
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
-                            new ZipArchiveFeatureCompareTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()),
+                            new ZipArchiveFeatureCompareTranslator(
+                                sp.GetRequiredService<FileEncoding>(),
+                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>(),
+                                sp.GetRequiredService<UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle>()
+                            ),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
                             new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()),

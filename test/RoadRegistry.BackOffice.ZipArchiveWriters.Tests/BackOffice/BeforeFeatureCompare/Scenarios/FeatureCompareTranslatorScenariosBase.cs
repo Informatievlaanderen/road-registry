@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using Uploads;
@@ -159,7 +160,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
     {
         using (archive)
         {
-            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger);
+            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true));
 
             try
             {
