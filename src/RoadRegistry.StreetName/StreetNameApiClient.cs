@@ -6,6 +6,7 @@ namespace RoadRegistry.StreetName
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
     using Be.Vlaanderen.Basisregisters.EventHandling;
@@ -32,6 +33,8 @@ namespace RoadRegistry.StreetName
             }
 
             var httpClient = _httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Accept.Clear();
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/ld+json"));
             var response = await httpClient.GetAsync(CreateUri(id), cancellationToken);
             if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.Gone)
             {

@@ -61,6 +61,7 @@ public abstract class WhenChangeOutlineGeometryFixture : SqsLambdaHandlerFixture
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
             }), ApplicationMetadata);

@@ -67,6 +67,7 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
             }), ApplicationMetadata);
