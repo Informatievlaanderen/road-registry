@@ -28,7 +28,7 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
 
     public static readonly RoadSegmentStatus PermitRequested =
         new(
-            "BuildingPermitRequested",
+            "PermitRequested",
             new DutchTranslation(
                 1,
                 "vergunning aangevraagd",
@@ -38,7 +38,7 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
 
     public static readonly RoadSegmentStatus PermitGranted =
         new(
-            nameof(PermitGranted),
+            "BuildingPermitGranted",
             new DutchTranslation(
                 2,
                 "vergunning verleend",
