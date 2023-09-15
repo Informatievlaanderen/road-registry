@@ -1,3 +1,11 @@
+## [3.59.3](https://github.com/informatievlaanderen/road-registry/compare/v3.59.2...v3.59.3) (2023-09-15)
+
+
+### Bug Fixes
+
+* Add configuration and updated application definitions ([#1185](https://github.com/informatievlaanderen/road-registry/issues/1185)) ([f027796](https://github.com/informatievlaanderen/road-registry/commit/f027796456c5984005d14fb4a75660b39b707a57))
+* Send email for RoadNetwork ([#1184](https://github.com/informatievlaanderen/road-registry/issues/1184)) ([b07eabb](https://github.com/informatievlaanderen/road-registry/commit/b07eabb948119400b91b34ceb7aeb02f9a5db4c9))
+
 ## [3.59.2](https://github.com/informatievlaanderen/road-registry/compare/v3.59.1...v3.59.2) (2023-09-14)
 
 
