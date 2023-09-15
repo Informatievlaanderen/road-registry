@@ -61,6 +61,7 @@ public abstract class WhenCreateOutlineFixture : SqsLambdaHandlerFixture<CreateR
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
             }), ApplicationMetadata);

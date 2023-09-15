@@ -52,6 +52,7 @@ public class Startup : TestStartup
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IClock>(),
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(

@@ -52,6 +52,7 @@ public class Startup : TestStartup
                     new FakeRoadNetworkSnapshotReader(),
                     c.Resolve<IClock>(),
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     c.Resolve<ILoggerFactory>()
                 )
             }), ApplicationMetadata));

@@ -67,6 +67,7 @@ public class Program
                             ApplicationMetadata,
                             new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()),
                             sp.GetRequiredService<IRoadNetworkEventWriter>(),
+                            sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
                         new RoadNetworkBackOfficeEventModule(

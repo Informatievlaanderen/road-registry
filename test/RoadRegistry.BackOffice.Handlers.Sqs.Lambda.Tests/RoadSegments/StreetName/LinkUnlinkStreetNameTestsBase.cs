@@ -42,6 +42,7 @@ public abstract class LinkUnlinkStreetNameTestsBase : SqsLambdaTestsBase
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
                     new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
             }), ApplicationMetadata));

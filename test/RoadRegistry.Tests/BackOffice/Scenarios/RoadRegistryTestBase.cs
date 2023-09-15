@@ -136,7 +136,14 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
         _runner = new ScenarioRunner(
             Resolve.WhenEqualToMessage(new CommandHandlerModule[]
             {
-                new RoadNetworkCommandModule(Store, EntityMapFactory, new FakeRoadNetworkSnapshotReader(), Clock, new UseOvoCodeInChangeRoadNetworkFeatureToggle(true), LoggerFactory),
+                new RoadNetworkCommandModule(
+                    Store,
+                    EntityMapFactory,
+                    new FakeRoadNetworkSnapshotReader(),
+                    Clock,
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
+                    LoggerFactory),
                 new RoadNetworkExtractCommandModule(
                     new RoadNetworkExtractUploadsBlobClient(Client),
                     Store,
