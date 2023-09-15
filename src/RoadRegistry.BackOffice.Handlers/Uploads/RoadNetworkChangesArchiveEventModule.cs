@@ -13,6 +13,8 @@ using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using FluentValidation;
+using Newtonsoft.Json;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 {
@@ -24,6 +26,7 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         ApplicationMetadata applicationMetadata,
         TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
         IRoadNetworkEventWriter roadNetworkEventWriter,
+        IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ILogger<RoadNetworkChangesArchiveEventModule> logger)
     {
         ArgumentNullException.ThrowIfNull(client);
@@ -93,6 +96,8 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
                     {
                         rejectedChangeEvent
                     }, ct);
+
+                    await extractUploadFailedEmailClient.SendAsync(message.Body.Description, new ValidationException(JsonConvert.SerializeObject(rejectedChangeEvent, Formatting.Indented)), ct);
                 }
                 finally
                 {

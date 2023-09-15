@@ -15,6 +15,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 {
     private readonly IStreamStore _store;
     private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
+    private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly ILogger _logger;
     private readonly EventEnricher _enricher;
 
@@ -24,6 +25,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         IRoadNetworkSnapshotReader snapshotReader,
         IClock clock,
         UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
+        IExtractUploadFailedEmailClient emailClient,
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
@@ -33,6 +35,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         _store = store;
         _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
+        _emailClient = emailClient;
         _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
         _enricher = EnrichEvent.WithTime(clock);
         
@@ -119,7 +122,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         );
         var requestedChanges = await translator.Translate(command.Body.Changes, context.Organizations, cancellationToken);
 
-        network.Change(request, downloadId, reason, @operator, translation, requestedChanges);
+        await network.Change(request, downloadId, reason, @operator, translation, requestedChanges, _emailClient, cancellationToken);
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }

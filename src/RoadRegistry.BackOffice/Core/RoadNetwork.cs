@@ -4,9 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentValidation;
 using Framework;
 using Messages;
 using NetTopologySuite.Geometries;
+using Newtonsoft.Json;
 
 public class RoadNetwork : EventSourcedEntity
 {
@@ -27,13 +31,15 @@ public class RoadNetwork : EventSourcedEntity
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
     }
 
-    public void Change(
+    public async Task Change(
         ChangeRequestId requestId,
         DownloadId? downloadId,
         Reason reason,
         OperatorName @operator,
         Organization.DutchTranslation organization,
-        RequestedChanges requestedChanges)
+        RequestedChanges requestedChanges,
+        IExtractUploadFailedEmailClient emailClient,
+        CancellationToken cancellationToken)
     {
         var verifiableChanges =
             requestedChanges
@@ -61,7 +67,7 @@ public class RoadNetwork : EventSourcedEntity
 
         if (verifiedChanges.Count == 0)
         {
-            Apply(new NoRoadNetworkChanges
+            var @event = new NoRoadNetworkChanges
             {
                 RequestId = requestId,
                 Reason = reason,
@@ -69,11 +75,12 @@ public class RoadNetwork : EventSourcedEntity
                 OrganizationId = organization.Identifier,
                 Organization = organization.Name,
                 TransactionId = requestedChanges.TransactionId
-            });
+            };
+            Apply(@event);
         }
         else if (verifiedChanges.OfType<RejectedChange>().Any())
         {
-            Apply(new RoadNetworkChangesRejected
+            var @event = new RoadNetworkChangesRejected
             {
                 RequestId = requestId,
                 Reason = reason,
@@ -85,11 +92,14 @@ public class RoadNetwork : EventSourcedEntity
                     .OfType<RejectedChange>()
                     .Select(change => change.Translate())
                     .ToArray()
-            });
+            };
+            Apply(@event);
+
+            await emailClient.SendAsync(@event.Reason, new ValidationException(JsonConvert.SerializeObject(@event, Formatting.Indented)), cancellationToken);
         }
         else
         {
-            Apply(new RoadNetworkChangesAccepted
+            var @event = new RoadNetworkChangesAccepted
             {
                 RequestId = requestId,
                 DownloadId = downloadId,
@@ -102,7 +112,8 @@ public class RoadNetwork : EventSourcedEntity
                     .OfType<AcceptedChange>()
                     .Select(change => change.Translate())
                     .ToArray()
-            });
+            };
+            Apply(@event);
         }
     }
 
