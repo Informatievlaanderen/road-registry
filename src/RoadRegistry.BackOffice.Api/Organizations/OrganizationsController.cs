@@ -15,7 +15,7 @@ using SqlStreamStore;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("organizations")]
 [ApiExplorerSettings(GroupName = "Organisaties")]
-[ApiKey]
+[ApiKey(Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
 public partial class OrganizationsController : BackofficeApiController
 {

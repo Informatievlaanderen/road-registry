@@ -24,7 +24,7 @@ using Version = Infrastructure.Version;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("upload")]
 [ApiExplorerSettings(GroupName = "Upload")]
-[ApiKey]
+[ApiKey(Policy = PolicyNames.IngemetenWeg.Beheerder)]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.IngemetenWeg.Beheerder)]
 public partial class UploadController : BackofficeApiController
 {
