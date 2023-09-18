@@ -16,7 +16,7 @@ public partial class RoadRegistrySecurityController
 
     [HttpGet(UserRoute, Name = nameof(GetUser))]
     [SwaggerOperation(OperationId = nameof(GetUser), Description = "")]
-    [ApiKey]
+    [ApiKey(Policy = AcmIdmConstants.PolicyNames.VoInfo)]
     [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
     public IActionResult GetUser()
     {

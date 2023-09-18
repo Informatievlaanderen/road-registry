@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("information")]
 [ApiExplorerSettings(GroupName = "Info")]
-[ApiKey]
+[ApiKey(Policy = AcmIdmConstants.PolicyNames.VoInfo)]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = AcmIdmConstants.PolicyNames.VoInfo)]
 public partial class InformationController : ApiController
 {

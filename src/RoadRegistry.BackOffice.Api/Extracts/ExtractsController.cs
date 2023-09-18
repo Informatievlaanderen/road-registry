@@ -25,7 +25,7 @@ using Version = Infrastructure.Version;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("extracts")]
 [ApiExplorerSettings(GroupName = "Extract")]
-[ApiKey]
+[ApiKey(Policy = PolicyNames.IngemetenWeg.Beheerder)]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.IngemetenWeg.Beheerder)]
 public partial class ExtractsController : BackofficeApiController
 {

@@ -13,7 +13,7 @@ using SqlStreamStore;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("system")]
 [ApiExplorerSettings(GroupName = "Infrastructuur")]
-[ApiKey]
+[ApiKey(Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
 public partial class RoadRegistrySystemController : BackofficeApiController
 {
