@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Exceptions;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.FeatureToggles;
 using Translators;
 using Uploads;
 
@@ -22,8 +21,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
     private readonly ILogger _logger;
     private readonly IReadOnlyCollection<IZipArchiveEntryFeatureCompareTranslator> _translators;
 
-    public ZipArchiveFeatureCompareTranslator(Encoding encoding, ILogger logger,
-        UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle useValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction)
+    public ZipArchiveFeatureCompareTranslator(Encoding encoding, ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(encoding);
 
@@ -40,7 +38,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
             new EuropeanRoadFeatureCompareTranslator(encoding),
             new NationalRoadFeatureCompareTranslator(encoding),
             new NumberedRoadFeatureCompareTranslator(encoding),
-            new GradeSeparatedJunctionFeatureCompareTranslator(encoding, useValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction)
+            new GradeSeparatedJunctionFeatureCompareTranslator(encoding)
         };
     }
 

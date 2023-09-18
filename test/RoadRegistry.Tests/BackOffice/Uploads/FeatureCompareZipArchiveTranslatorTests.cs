@@ -23,7 +23,7 @@ public class FeatureCompareZipArchiveTranslatorTests
     public FeatureCompareZipArchiveTranslatorTests(ITestOutputHelper outputHelper, ILogger<FeatureCompareZipArchiveTranslatorTests> logger)
     {
         _outputHelper = outputHelper;
-        _sut = new ZipArchiveFeatureCompareTranslator(Encoding.UTF8, logger, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true));
+        _sut = new ZipArchiveFeatureCompareTranslator(Encoding.UTF8, logger);
         _zipArchiveTranslator = new ZipArchiveTranslator(Encoding.UTF8);
     }
 
