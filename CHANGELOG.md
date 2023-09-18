@@ -1,3 +1,10 @@
+## [3.59.4](https://github.com/informatievlaanderen/road-registry/compare/v3.59.3...v3.59.4) (2023-09-18)
+
+
+### Bug Fixes
+
+* WR-758 performance for missing gradeseparatedjunctions at roadsegment intersections ([#1186](https://github.com/informatievlaanderen/road-registry/issues/1186)) ([2f1ec32](https://github.com/informatievlaanderen/road-registry/commit/2f1ec32ffc97f4fff8f7b264a538a0c3b75cfc3e))
+
 ## [3.59.3](https://github.com/informatievlaanderen/road-registry/compare/v3.59.2...v3.59.3) (2023-09-15)
 
 
