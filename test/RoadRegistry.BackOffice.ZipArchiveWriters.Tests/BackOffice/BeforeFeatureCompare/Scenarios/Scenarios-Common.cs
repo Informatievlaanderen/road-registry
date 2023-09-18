@@ -15,13 +15,13 @@ public class CommonScenarios: FeatureCompareTranslatorScenariosBase
     [Fact]
     public void EncodingCanNotBeNull()
     {
-        Assert.Throws<ArgumentNullException>(() => new ZipArchiveFeatureCompareTranslator(null, null, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true)));
+        Assert.Throws<ArgumentNullException>(() => new ZipArchiveFeatureCompareTranslator(null, null));
     }
     
     [Fact]
     public void IsZipArchiveFeatureCompareTranslator()
     {
-        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true));
+        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger);
 
         Assert.IsAssignableFrom<IZipArchiveFeatureCompareTranslator>(sut);
     }
@@ -29,7 +29,7 @@ public class CommonScenarios: FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task TranslateArchiveCanNotBeNull()
     {
-        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true));
+        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger);
 
         await Assert.ThrowsAsync<ArgumentNullException>(() => sut.Translate(null, CancellationToken.None));
     }

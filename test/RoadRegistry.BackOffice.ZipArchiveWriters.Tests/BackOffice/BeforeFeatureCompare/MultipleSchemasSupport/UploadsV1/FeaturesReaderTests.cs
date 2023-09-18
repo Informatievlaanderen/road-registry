@@ -240,7 +240,7 @@ public class FeaturesReaderTests
 
         using (zipArchive)
         {
-            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true));
+            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger);
 
             var result = await sut.Translate(zipArchive, CancellationToken.None);
 

@@ -160,7 +160,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
     {
         using (archive)
         {
-            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger, new UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(true));
+            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger);
 
             try
             {
