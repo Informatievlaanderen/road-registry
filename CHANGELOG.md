@@ -1,3 +1,10 @@
+## [3.59.5](https://github.com/informatievlaanderen/road-registry/compare/v3.59.4...v3.59.5) (2023-09-18)
+
+
+### Bug Fixes
+
+* WR-689 set policies for apikey auth attributes ([#1190](https://github.com/informatievlaanderen/road-registry/issues/1190)) ([6163784](https://github.com/informatievlaanderen/road-registry/commit/616378425ad4e28d1bd724e74443e20c0d1d1144))
+
 ## [3.59.4](https://github.com/informatievlaanderen/road-registry/compare/v3.59.3...v3.59.4) (2023-09-18)
 
 
