@@ -152,7 +152,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
 
         var changedRoadSegments = context.RoadSegmentRecords
             .Where(x => x.FeatureType == FeatureType.Change
-                        && (x.RecordType == RecordType.Added || x.RecordType == RecordType.Modified))
+                        && (x.RecordType == RecordType.Added || (x.RecordType == RecordType.Modified && x.GeometryChanged)))
             .ToList();
 
         var uniqueRoadSegmentCombinations = (
@@ -163,7 +163,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
         ).DistinctBy(x => x.Key).ToList();
 
         var batchCount = Debugger.IsAttached ? 1 : 2;
-        
+
         var allProblemsForMissingGradeSeparatedJunctions = await Task.WhenAll(
             uniqueRoadSegmentCombinations.SplitIntoBatches(batchCount)
                 .Select(uniqueRoadSegmentCombinationsBatch => Task.Run(() =>
