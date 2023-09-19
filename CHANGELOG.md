@@ -1,3 +1,10 @@
+## [3.59.6](https://github.com/informatievlaanderen/road-registry/compare/v3.59.5...v3.59.6) (2023-09-19)
+
+
+### Bug Fixes
+
+* WR-689 remove ApiKeyAttribute ([#1191](https://github.com/informatievlaanderen/road-registry/issues/1191)) ([07f36ed](https://github.com/informatievlaanderen/road-registry/commit/07f36edd56690b32e8cc7f57d34a1db739cbb6e0))
+
 ## [3.59.5](https://github.com/informatievlaanderen/road-registry/compare/v3.59.4...v3.59.5) (2023-09-18)
 
 
