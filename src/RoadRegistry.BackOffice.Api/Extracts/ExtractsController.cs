@@ -14,7 +14,6 @@ using FluentValidation;
 using FluentValidation.Results;
 using Infrastructure.Authentication;
 using Infrastructure.Controllers;
-using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,8 +24,7 @@ using Version = Infrastructure.Version;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("extracts")]
 [ApiExplorerSettings(GroupName = "Extract")]
-[ApiKey(Policy = PolicyNames.IngemetenWeg.Beheerder)]
-[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.IngemetenWeg.Beheerder)]
+[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = PolicyNames.IngemetenWeg.Beheerder)]
 public partial class ExtractsController : BackofficeApiController
 {
     private readonly IMediator _mediator;
