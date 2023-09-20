@@ -1,4 +1,4 @@
-name: Manual Deploy
+name: Deploy Manual
 run-name: 'Manual Deploy to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
 
 on:
