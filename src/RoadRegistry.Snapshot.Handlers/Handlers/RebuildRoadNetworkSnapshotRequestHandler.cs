@@ -33,6 +33,15 @@ public sealed class RebuildRoadNetworkSnapshotRequestHandler : IRequestHandler<R
 
         try
         {
+            if (request.MaxStreamVersion > 0)
+            {
+                _logger.LogInformation("Loading messages until {MaxStreamVersion}", request.MaxStreamVersion);
+            }
+            else
+            {
+                _logger.LogInformation("Loading messages until latest");
+            }
+
             var (roadNetwork, snapshotVersion) = await _context.RoadNetworks
                 .GetWithVersion(false, (messageStreamVersion, pageLastStreamVersion) =>
                     {
