@@ -18,6 +18,9 @@ using RoadRegistry.Editor.Schema;
 using System.Diagnostics;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = BackOffice.Reason;
+using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<CorrectRoadSegmentVersionsRequest, CorrectRoadSegmentVersionsResponse>
 {
@@ -51,7 +54,12 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
             .WithOperatorName(OperatorName.Unknown)
             .WithReason(new Reason("Corrigeer wegsegmenten versies"));
 
-        var roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
+        var roadSegmentIdsWithGeometryVersionZero = request.RoadSegmentIds?.ToList();
+        if (roadSegmentIdsWithGeometryVersionZero is null)
+        {
+            roadSegmentIdsWithGeometryVersionZero = await GetRoadSegmentIdsWithInvalidVersions(cancellationToken);
+        }
+        
         if (!roadSegmentIdsWithGeometryVersionZero.Any())
         {
             return new CorrectRoadSegmentVersionsResponse(0);
@@ -62,25 +70,44 @@ public sealed class CorrectRoadSegmentVersionsRequestHandler : IRequestHandler<C
         var roadSegments = network.FindRoadSegments(roadSegmentIdsWithGeometryVersionZero.Select(x => new RoadSegmentId(x)));
 
         var recordNumber = RecordNumber.Initial;
+        var attributeId = AttributeId.Initial;
 
         foreach (var roadSegment in roadSegments)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
-                recordNumber,
-                roadSegment.Id,
-                roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.Start,
-                roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.End,
-                roadSegment.AttributeHash.OrganizationId,
-                roadSegment.AttributeHash.GeometryDrawMethod,
-                roadSegment.AttributeHash.Morphology,
-                roadSegment.AttributeHash.Status,
-                roadSegment.AttributeHash.Category,
-                roadSegment.AttributeHash.AccessRestriction,
-                roadSegment.AttributeHash.LeftStreetNameId,
-                roadSegment.AttributeHash.RightStreetNameId
-            ).WithGeometry(roadSegment.Geometry));
+            var modifyRoadSegment = new ModifyRoadSegment(
+                    recordNumber,
+                    roadSegment.Id,
+                    roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.Start,
+                    roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.End,
+                    roadSegment.AttributeHash.OrganizationId,
+                    roadSegment.AttributeHash.GeometryDrawMethod,
+                    roadSegment.AttributeHash.Morphology,
+                    roadSegment.AttributeHash.Status,
+                    roadSegment.AttributeHash.Category,
+                    roadSegment.AttributeHash.AccessRestriction,
+                    roadSegment.AttributeHash.LeftStreetNameId,
+                    roadSegment.AttributeHash.RightStreetNameId
+                ).WithGeometry(roadSegment.Geometry);
+            
+            foreach (var lane in roadSegment.AttributeHash.Lanes)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
+                attributeId = attributeId.Next();
+            }
+            foreach (var surface in roadSegment.AttributeHash.Surfaces)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
+                attributeId = attributeId.Next();
+            }
+            foreach (var width in roadSegment.AttributeHash.Widths)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
+                attributeId = attributeId.Next();
+            }
+
+            translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
 
             recordNumber = recordNumber.Next();
         }
