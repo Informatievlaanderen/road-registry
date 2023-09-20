@@ -1,0 +1,4 @@
+Microsoft.Extensions.DependencyInjection.Abstractions
+Microsoft.NET.Test.Sdk
+xunit.runner.visualstudio
+xunit.categories
