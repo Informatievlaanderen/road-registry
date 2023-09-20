@@ -54,7 +54,6 @@ jobs:
          services: [
           'road-registry-adminhost',
           'road-registry-backoffice-commandhost',
-          'road-registry-backoffice-messaginghost-sqs',
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
           'road-registry-backoffice-api',
