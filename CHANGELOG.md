@@ -1,3 +1,13 @@
+## [3.59.8](https://github.com/informatievlaanderen/road-registry/compare/v3.59.7...v3.59.8) (2023-09-20)
+
+
+### Bug Fixes
+
+* bulk update roadsegments for given IDs ([#1200](https://github.com/informatievlaanderen/road-registry/issues/1200)) ([50a36e6](https://github.com/informatievlaanderen/road-registry/commit/50a36e6aaed7e22722b455c0b336aaea2d187caa))
+* lambda deploy to newprd ([#1199](https://github.com/informatievlaanderen/road-registry/issues/1199)) ([e7f79a8](https://github.com/informatievlaanderen/road-registry/commit/e7f79a80ace23578962499d459a40f1dc1090add))
+* pipeline structure ([#1198](https://github.com/informatievlaanderen/road-registry/issues/1198)) ([7a4c26b](https://github.com/informatievlaanderen/road-registry/commit/7a4c26b28cd53961bdc3e644ebbc75241958a0cf))
+* update Be.Vlaanderen.Basisregisters.Aws.DistributedMutex ([#1197](https://github.com/informatievlaanderen/road-registry/issues/1197)) ([eacb284](https://github.com/informatievlaanderen/road-registry/commit/eacb284acfdaf3c1aaa0f191d522359c33556fca))
+
 ## [3.59.7](https://github.com/informatievlaanderen/road-registry/compare/v3.59.6...v3.59.7) (2023-09-20)
 
 
