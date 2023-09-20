@@ -1,4 +1,4 @@
-name: ksql
+name: Deploy KSQL
 
 on:
   workflow_dispatch: 
