@@ -58,7 +58,7 @@ jobs:
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
           'road-registry-backoffice-api',
-          #'road-registry-backoffice-ui',
+          'road-registry-backoffice-ui',
           'road-registry-product-projectionhost',
           'road-registry-wms-projectionhost',
           'road-registry-wfs-projectionhost',
