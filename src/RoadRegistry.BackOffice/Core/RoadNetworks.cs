@@ -70,9 +70,9 @@ public class RoadNetworks : IRoadNetworks
         var (roadNetwork, _) = await GetWithVersion(cancellationToken);
         return roadNetwork;
     }
-    public async Task<RoadNetwork> Get(bool restoreSnapshot, ProcessMessageHandler processMessage, CancellationToken cancellationToken)
+    public async Task<RoadNetwork> Get(bool restoreSnapshot, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
     {
-        var (roadNetwork, _) = await GetWithVersion(restoreSnapshot, processMessage, cancellationToken);
+        var (roadNetwork, _) = await GetWithVersion(restoreSnapshot, cancelMessageProcessing, cancellationToken);
         return roadNetwork;
     }
 
@@ -81,7 +81,7 @@ public class RoadNetworks : IRoadNetworks
         return GetWithVersion(true, null, cancellationToken);
     }
 
-    public async Task<(RoadNetwork, int)> GetWithVersion(bool restoreSnapshot, ProcessMessageHandler processMessage, CancellationToken cancellationToken)
+    public async Task<(RoadNetwork, int)> GetWithVersion(bool restoreSnapshot, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
     {
         if (_map.TryGet(Stream, out var entry)) return ((RoadNetwork)entry.Entity, entry.ExpectedVersion);
 
@@ -100,7 +100,7 @@ public class RoadNetworks : IRoadNetworks
         }
 
         var snapshotContext = new ProcessSnapshotContext(version);
-        view = await ProcessPages(view, snapshotContext, page, processMessage, cancellationToken);
+        view = await ProcessPages(view, snapshotContext, page, cancelMessageProcessing, cancellationToken);
         
         var roadNetwork = RoadNetwork.Factory(view.ToImmutable());
         _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, ExpectedVersion.Any));
@@ -115,9 +115,9 @@ public class RoadNetworks : IRoadNetworks
         return (initial, ExpectedVersion.NoStream);
     }
 
-    private async Task<IRoadNetworkView> ProcessPages(IRoadNetworkView view, ProcessSnapshotContext snapshotContext, ReadStreamPage page, ProcessMessageHandler processMessage, CancellationToken cancellationToken)
+    private async Task<IRoadNetworkView> ProcessPages(IRoadNetworkView view, ProcessSnapshotContext snapshotContext, ReadStreamPage page, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
     {
-        view = await ProcessPage(view, snapshotContext, page, processMessage, cancellationToken);
+        view = await ProcessPage(view, snapshotContext, page, cancelMessageProcessing, cancellationToken);
         
         var sw = Stopwatch.StartNew();
         while (!page.IsEnd && !snapshotContext.ProcessingCancelled)
@@ -132,13 +132,13 @@ public class RoadNetworks : IRoadNetworks
                 throw new InvalidOperationException($"Page status {page.Status} encountered while processing consecutive pages");
             }
 
-            view = await ProcessPage(view, snapshotContext, page, processMessage, cancellationToken);
+            view = await ProcessPage(view, snapshotContext, page, cancelMessageProcessing, cancellationToken);
         }
 
         return view;
     }
 
-    private async Task<IRoadNetworkView> ProcessPage(IRoadNetworkView view, ProcessSnapshotContext snapshotContext, ReadStreamPage page, ProcessMessageHandler processMessage, CancellationToken cancellationToken)
+    private async Task<IRoadNetworkView> ProcessPage(IRoadNetworkView view, ProcessSnapshotContext snapshotContext, ReadStreamPage page, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
     {
         var messages = new List<object>(page.Messages.Length);
         
@@ -146,7 +146,7 @@ public class RoadNetworks : IRoadNetworks
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (processMessage != null && processMessage(message.StreamVersion, page.LastStreamVersion))
+            if (cancelMessageProcessing != null && cancelMessageProcessing(message.StreamVersion, page.LastStreamVersion))
             {
                 snapshotContext.ProcessingCancelled = true;
                 _logger.LogInformation("Stopped processing more messages at StreamVersion {MessageStreamVersion}", message.StreamVersion);
