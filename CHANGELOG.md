@@ -1,3 +1,14 @@
+## [3.59.7](https://github.com/informatievlaanderen/road-registry/compare/v3.59.6...v3.59.7) (2023-09-20)
+
+
+### Bug Fixes
+
+* add MaxStreamVersion to rebuild snapshot ([#1194](https://github.com/informatievlaanderen/road-registry/issues/1194)) ([b78fd4a](https://github.com/informatievlaanderen/road-registry/commit/b78fd4aca047bdb6120be9579939c8af2e84b295))
+* add single servide deploy pipeline ([#1195](https://github.com/informatievlaanderen/road-registry/issues/1195)) ([e78bb40](https://github.com/informatievlaanderen/road-registry/commit/e78bb406e631c47c2fd26f36d55a40093641cfc6))
+* enable UI in manual deploy ([#1192](https://github.com/informatievlaanderen/road-registry/issues/1192)) ([42d20ac](https://github.com/informatievlaanderen/road-registry/commit/42d20ac0976ff9179575f96bb0448c1f490069bf))
+* remove MessagingHost.Sqs from pipelines ([#1193](https://github.com/informatievlaanderen/road-registry/issues/1193)) ([ae7aa1f](https://github.com/informatievlaanderen/road-registry/commit/ae7aa1f243cbb52878f3e75c126badf1185a222a))
+* remove partial deploy ([#1196](https://github.com/informatievlaanderen/road-registry/issues/1196)) ([061cea5](https://github.com/informatievlaanderen/road-registry/commit/061cea57f1dd8bb7ed8bdae2b17ca2eb5013ff12))
+
 ## [3.59.6](https://github.com/informatievlaanderen/road-registry/compare/v3.59.5...v3.59.6) (2023-09-19)
 
 
