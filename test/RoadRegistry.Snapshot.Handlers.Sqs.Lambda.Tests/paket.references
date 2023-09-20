@@ -1,3 +1,4 @@
+Be.Vlaanderen.Basisregisters.Aws.DistributedMutex
 Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache
 Be.Vlaanderen.Basisregisters.Sqs
 Be.Vlaanderen.Basisregisters.Sqs.Lambda
