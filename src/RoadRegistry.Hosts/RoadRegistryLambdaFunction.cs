@@ -118,7 +118,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             ;
     }
 
-    private void ConfigureDefaultContainer(HostBuilderContext context, ContainerBuilder builder)
+    private static void ConfigureDefaultContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder
             .RegisterAssemblyTypes(typeof(TMessageHandler).GetTypeInfo().Assembly)
@@ -146,10 +146,8 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         var configuration = sp.GetRequiredService<IConfiguration>();
         logger.LogKnownSqlServerConnectionStrings(configuration);
 
-        using (var scope = sp.CreateScope())
-        {
-            var optionsValidator = scope.ServiceProvider.GetRequiredService<OptionsValidator>();
-            optionsValidator.ValidateAndThrow();
-        }
+        using var scope = sp.CreateScope();
+        var optionsValidator = scope.ServiceProvider.GetRequiredService<OptionsValidator>();
+        optionsValidator.ValidateAndThrow();
     }
 }
