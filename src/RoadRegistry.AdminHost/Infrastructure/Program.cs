@@ -37,7 +37,7 @@ public class Program
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
-                .AddEmailClient()
+                .AddEmailClient(hostContext.Configuration)
                 .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                     new CommandHandlerModule[]
                     {

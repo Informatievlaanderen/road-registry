@@ -1,5 +1,5 @@
-name: Deploy Manual
-run-name: 'Manual Deploy to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
+name: 3. Deploy
+run-name: 'Deploy road-registry to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
 
 on:
   workflow_dispatch:
@@ -29,16 +29,11 @@ jobs:
       run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
       shell: bash
 
-    - name: Uppercase environment
-      run: |
-        environment=${{ github.event.inputs.environment }}
-        echo "ENVIRONMENT_UPPER=${environment,,}" >>${GITHUB_ENV}
-
     - name: Notify deployment started
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Manual Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        slack-message: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -53,19 +48,19 @@ jobs:
        matrix: 
          services: [
           'road-registry-adminhost',
+          'road-registry-backoffice-api',
           'road-registry-backoffice-commandhost',
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
-          'road-registry-backoffice-api',
           'road-registry-backoffice-ui',
-          'road-registry-product-projectionhost',
-          'road-registry-wms-projectionhost',
-          'road-registry-wfs-projectionhost',
           'road-registry-editor-projectionhost',
-          'road-registry-syndication-projectionhost',
-          'road-registry-projector',
           'road-registry-producer-snapshot-projectionhost',
-          'road-registry-synchost'
+          'road-registry-product-projectionhost',
+          'road-registry-projector',
+          'road-registry-synchost',
+          'road-registry-syndication-projectionhost',
+          'road-registry-wfs-projectionhost',
+          'road-registry-wms-projectionhost'
         ]
 
     steps:
@@ -136,7 +131,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Manual Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        slack-message: Deployment of road-registry ${{ github.event.inputs.version }} to ${{ github.event.inputs.environment }} has finished. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}

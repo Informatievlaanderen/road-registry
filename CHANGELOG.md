@@ -1,3 +1,14 @@
+## [3.59.9](https://github.com/informatievlaanderen/road-registry/compare/v3.59.8...v3.59.9) (2023-09-21)
+
+
+### Bug Fixes
+
+* Add shell appsettings to test library ([#1203](https://github.com/informatievlaanderen/road-registry/issues/1203)) ([94ac694](https://github.com/informatievlaanderen/road-registry/commit/94ac6948cb596412edfbe4fa8245900530fe9036))
+* deploy pipeline lambda deploy ([#1201](https://github.com/informatievlaanderen/road-registry/issues/1201)) ([98fda15](https://github.com/informatievlaanderen/road-registry/commit/98fda15c95a60eef1fea4d4f0591ed0558eaa235))
+* let release pipeline finish when TST deploy is completed ([#1204](https://github.com/informatievlaanderen/road-registry/issues/1204)) ([01dd134](https://github.com/informatievlaanderen/road-registry/commit/01dd134e141b1ff9a355471f341fad6e2fded083))
+* Updated lambda email client and appsettings solution wide ([#1202](https://github.com/informatievlaanderen/road-registry/issues/1202)) ([87d5037](https://github.com/informatievlaanderen/road-registry/commit/87d5037467f4b364b1fcf64b0a9d7fc63bd3e54c))
+* WR-830 color theme for tst/stg ([#1205](https://github.com/informatievlaanderen/road-registry/issues/1205)) ([ba15b07](https://github.com/informatievlaanderen/road-registry/commit/ba15b077b0d520f9eea0773e9054ed40184979dd))
+
 ## [3.59.8](https://github.com/informatievlaanderen/road-registry/compare/v3.59.7...v3.59.8) (2023-09-20)
 
 

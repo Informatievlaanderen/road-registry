@@ -1,4 +1,4 @@
-name: Release
+name: 2. Release
 
 on:
   workflow_dispatch:
@@ -757,22 +757,22 @@ jobs:
     strategy:
       matrix:
         image: [
+          'adminhost', 
           'backoffice-api', 
-          'backoffice-ui', 
+          'backoffice-commandhost', 
           'backoffice-eventhost', 
           'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'adminhost', 
-          'projector', 
+          'backoffice-ui', 
           'editor-projectionhost', 
-          'product-projectionhost', 
+          'extract-legacy',
+          'import-legacy', 
           'producer-snapshot-projectionhost',
+          'product-projectionhost', 
+          'projector', 
           'synchost',
           'syndication-projectionhost', 
-          'wms-projectionhost', 
           'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'wms-projectionhost'
         ]
     steps:
       - name: Configure AWS credentials (Test)
@@ -819,20 +819,20 @@ jobs:
     strategy:
       matrix:
         services: [
+          'road-registry-adminhost',
           'road-registry-backoffice-api',
-          'road-registry-backoffice-ui',
+          'road-registry-backoffice-commandhost',
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
-          'road-registry-backoffice-commandhost',
-          'road-registry-adminhost',
-          'road-registry-projector',
+          'road-registry-backoffice-ui',
           'road-registry-editor-projectionhost',
-          'road-registry-product-projectionhost',
           'road-registry-producer-snapshot-projectionhost',
+          'road-registry-product-projectionhost',
+          'road-registry-projector',
           'road-registry-synchost',
           'road-registry-syndication-projectionhost',
-          'road-registry-wms-projectionhost',
-          'road-registry-wfs-projectionhost'
+          'road-registry-wfs-projectionhost',
+          'road-registry-wms-projectionhost'
         ]
     steps:
     - name: Deploy services
@@ -928,7 +928,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to test has finished. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to test has finished.
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -996,132 +996,6 @@ jobs:
           SEMVER: ${{ needs.release.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
 
-  deploy_to_staging:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_to_staging_start_slack, release ]
-    name: Deploy to staging
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        services: [
-          'road-registry-backoffice-api',
-          'road-registry-backoffice-ui',
-          'road-registry-backoffice-eventhost',
-          'road-registry-backoffice-extracthost',
-          'road-registry-backoffice-commandhost',
-          'road-registry-adminhost',
-          'road-registry-projector',
-          'road-registry-editor-projectionhost',
-          'road-registry-product-projectionhost',
-          'road-registry-producer-snapshot-projectionhost',
-          'road-registry-synchost',
-          'road-registry-syndication-projectionhost',
-          'road-registry-wms-projectionhost',
-          'road-registry-wfs-projectionhost'
-        ]
-
-    steps:
-    - name: CD services
-      env:
-        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
-        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
-      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
-      with:
-          environment: stg
-          version: ${{ needs.release.outputs.version }}
-          status-url: $STATUS_URL
-          deploy-url: $BUILD_URL
-          access-key: ${{ secrets.VBR_AWS_BUILD_USER_ACCESS_KEY_ID }}
-          secret-key: ${{ secrets.VBR_AWS_BUILD_USER_SECRET_ACCESS_KEY }}
-          region: eu-west-1
-          interval: 2
-
-    - name: output CD services
-      shell: bash
-      run: |
-        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
-        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
-        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
-
-  deploy_lambda_to_staging:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_to_staging, release ]
-    name: Deploy lambda to staging
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
-      with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-    - name: Prepare Lambda(s)
-      shell: bash
-      run: |
-        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
-      env:
-        VERSION: ${{ needs.release.outputs.version }}
-        ENVIRONMENT: stg
-
-    - name: Promote Lambda(s)
-      shell: bash
-      run: |
-        docker pull ghcr.io/okigan/awscurl:latest
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-      env:
-        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
-        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
-        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
-        ENVIRONMENT: stg
-
-  deploy_to_staging_finish_slack:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, deploy_lambda_to_staging ]
-    name: Deploy to staging finished
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-      shell: bash
-
-    - name: Notify deployment finished
-      uses: slackapi/slack-github-action@v1.23.0
-      with:
-        channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to staging has finished. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-
-  deploy_to_staging_start_slack:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, push_images_to_staging, deploy_to_test_finish_slack ]
-    name: Deploy to staging started
-    environment: stg
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-      shell: bash
-
-    - name: Notify deployment started
-      uses: slackapi/slack-github-action@v1.23.0
-      with:
-        channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to staging has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-
   push_images_to_production:
     if: needs.release.outputs.version != 'none'
     needs: [ release ]
@@ -1130,22 +1004,22 @@ jobs:
     strategy:
       matrix:
         image: [
+          'adminhost', 
           'backoffice-api', 
-          'backoffice-ui', 
+          'backoffice-commandhost', 
           'backoffice-eventhost', 
           'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'adminhost', 
-          'projector', 
+          'backoffice-ui', 
           'editor-projectionhost', 
-          'product-projectionhost', 
+          'extract-legacy',
+          'import-legacy', 
           'producer-snapshot-projectionhost',
+          'product-projectionhost', 
+          'projector', 
           'synchost',
           'syndication-projectionhost', 
-          'wms-projectionhost', 
           'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'wms-projectionhost'
         ]
     steps:
       - name: Configure AWS credentials (Production)
@@ -1186,132 +1060,6 @@ jobs:
           SEMVER: ${{ needs.release.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
 
-  deploy_to_production:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_to_production_start_slack, release ]
-    name: Deploy to production
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        services: [
-          'road-registry-backoffice-api',
-          'road-registry-backoffice-ui',
-          'road-registry-backoffice-eventhost',
-          'road-registry-backoffice-extracthost',
-          'road-registry-backoffice-commandhost',
-          'road-registry-adminhost',
-          'road-registry-projector',
-          'road-registry-editor-projectionhost',
-          'road-registry-product-projectionhost',
-          'road-registry-producer-snapshot-projectionhost',
-          'road-registry-synchost',
-          'road-registry-syndication-projectionhost',
-          'road-registry-wms-projectionhost',
-          'road-registry-wfs-projectionhost'
-        ]
-
-    steps:
-    - name: CD services
-      env:
-        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
-        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
-      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
-      with:
-          environment: prd
-          version: ${{ needs.release.outputs.version }}
-          status-url: $STATUS_URL
-          deploy-url: $BUILD_URL
-          access-key: ${{ secrets.VBR_AWS_BUILD_USER_ACCESS_KEY_ID }}
-          secret-key: ${{ secrets.VBR_AWS_BUILD_USER_SECRET_ACCESS_KEY }}
-          region: eu-west-1
-          interval: 2
-
-    - name: output CD services
-      shell: bash
-      run: |
-        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
-        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
-        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
-
-  deploy_lambda_to_production:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_to_production, release ]
-    name: Deploy lambda to production
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
-      with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_PRD }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD }}
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-    - name: Prepare Lambda(s)
-      shell: bash
-      run: |
-        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqsbackofficehandlerfunction/lambda.zip --copy-props none
-        aws s3 cp s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/$VERSION/lambda.zip s3://s3-vbr-$ENVIRONMENT-basisregisters-lam-wr-sqssnapshothandlerfunction/lambda.zip --copy-props none
-      env:
-        VERSION: ${{ needs.release.outputs.version }}
-        ENVIRONMENT: prd
-
-    - name: Promote Lambda(s)
-      shell: bash
-      run: |
-        docker pull ghcr.io/okigan/awscurl:latest
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqsbackofficehandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "wr-sqssnapshothandlerfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-      env:
-        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
-        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
-        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
-        ENVIRONMENT: prd
-
-  deploy_to_production_finish_slack:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, deploy_lambda_to_production ]
-    name: Deploy to production finished
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-      shell: bash
-
-    - name: Notify deployment finished
-      uses: slackapi/slack-github-action@v1.23.0
-      with:
-        channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to production has finished. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-
-  deploy_to_production_start_slack:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, push_images_to_production, deploy_to_staging_finish_slack ]
-    name: Deploy to production started
-    environment: prd
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-      shell: bash
-
-    - name: Notify deployment started
-      uses: slackapi/slack-github-action@v1.23.0
-      with:
-        channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to production has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-
   push_images_to_newproduction:
     if: needs.release.outputs.version != 'none'
     needs: [ release ]
@@ -1320,22 +1068,22 @@ jobs:
     strategy:
       matrix:
         image: [
+          'adminhost', 
           'backoffice-api', 
-          'backoffice-ui', 
+          'backoffice-commandhost', 
           'backoffice-eventhost', 
           'backoffice-extracthost', 
-          'backoffice-commandhost', 
-          'adminhost', 
-          'projector', 
+          'backoffice-ui', 
           'editor-projectionhost', 
-          'product-projectionhost', 
+          'extract-legacy',
+          'import-legacy', 
           'producer-snapshot-projectionhost',
+          'product-projectionhost', 
+          'projector', 
           'synchost',
           'syndication-projectionhost', 
-          'wms-projectionhost', 
           'wfs-projectionhost', 
-          'import-legacy', 
-          'extract-legacy'
+          'wms-projectionhost'
         ]
     steps:
       - name: Configure AWS credentials (New Production)
@@ -1375,130 +1123,3 @@ jobs:
           IMAGE: ${{ matrix.image }}
           SEMVER: ${{ needs.release.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
-
-  deploy_to_newproduction:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_to_newproduction_start_slack, release ]
-    name: Deploy to New Production
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        services: [
-          'road-registry-backoffice-api',
-          'road-registry-backoffice-ui',
-          'road-registry-backoffice-eventhost',
-          'road-registry-backoffice-extracthost',
-          'road-registry-backoffice-commandhost',
-          'road-registry-adminhost',
-          'road-registry-projector',
-          'road-registry-editor-projectionhost',
-          'road-registry-product-projectionhost',
-          'road-registry-producer-snapshot-projectionhost',
-          'road-registry-synchost',
-          'road-registry-syndication-projectionhost',
-          'road-registry-wms-projectionhost',
-          'road-registry-wfs-projectionhost'
-        ]
-
-    steps:
-    - name: CD services
-      env:
-        BUILD_URL: ${{ secrets.VBR_AWS_BUILD_API }}/${{matrix.services}}
-        STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
-      uses: informatievlaanderen/awscurl-polling-action/polling-action@main
-      with:
-          environment: prd
-          version: ${{ needs.release.outputs.version }}
-          status-url: $STATUS_URL
-          deploy-url: $BUILD_URL
-          access-key: ${{ secrets.VBR_AWS_BUILD_USER_ACCESS_KEY_ID }}
-          secret-key: ${{ secrets.VBR_AWS_BUILD_USER_SECRET_ACCESS_KEY }}
-          region: eu-west-1
-          interval: 2
-
-    - name: output CD services
-      shell: bash
-      run: |
-        echo build-uuid: ${{ steps.awscurl-polling-action.outputs.build-uuid }}
-        echo Status: ${{ steps.awscurl-polling-action.outputs.status }}
-        echo ${{ steps.awscurl-polling-action.outputs.final-message }}
-
-  deploy_lambda_to_newproduction:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ deploy_to_newproduction, release ]
-    name: Deploy lambda to New Production
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: CD Lambda(s) Configure credentials
-      uses: aws-actions/configure-aws-credentials@v1-node16
-      with:
-        aws-access-key-id: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD }}
-        aws-secret-access-key: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD }}
-        aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
-
-    - name: Prepare Lambda(s)
-      shell: bash
-      run: |
-        aws s3 cp $S3_BASEURL-sqsbackoffice/$VERSION/lambda.zip $S3_BASEURL-sqsbackoffice/lambda.zip --copy-props none
-        aws s3 cp $S3_BASEURL-sqssnapshot/$VERSION/lambda.zip $S3_BASEURL-sqssnapshot/lambda.zip --copy-props none
-      env:
-        VERSION: ${{ needs.release.outputs.version }}
-        S3_BASEURL: s3://077849980894-vbr-prd-lam-rr
-
-    - name: Promote Lambda(s)
-      shell: bash
-      run: |
-        docker pull ghcr.io/okigan/awscurl:latest
-        
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqsbackofficefunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "rr-sqssnapshotfunction", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-      env:
-        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
-        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
-        REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
-        PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
-        ENVIRONMENT: acc
-
-  deploy_to_newproduction_finish_slack:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, deploy_lambda_to_newproduction ]
-    name: Deploy to New Production finished
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-      shell: bash
-
-    - name: Notify deployment finished
-      uses: slackapi/slack-github-action@v1.23.0
-      with:
-        channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to new production has finished. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
-
-  deploy_to_newproduction_start_slack:
-    if: github.repository_owner == 'Informatievlaanderen'
-    needs: [ release, push_images_to_newproduction, deploy_to_staging_finish_slack ]
-    name: Deploy to New Production started
-    environment: prd
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Parse repository name
-      run: echo REPOSITORY_NAME=$(echo ""$GITHUB_REPOSITORY"" | awk -F / '{print $2}' | sed -e ""s/:refs//"") >> $GITHUB_ENV
-      shell: bash
-
-    - name: Notify deployment started
-      uses: slackapi/slack-github-action@v1.23.0
-      with:
-        channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to new production has started. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
-        SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
-        REPOSITORY_NAME: ${{ env.REPOSITORY_NAME }}
