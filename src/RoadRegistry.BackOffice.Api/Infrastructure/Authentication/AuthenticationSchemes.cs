@@ -7,4 +7,5 @@ public static class AuthenticationSchemes
     public const string JwtBearer = "JwtBearer";
 
     public const string AllBearerSchemes = $"{Bearer},{JwtBearer}";
+    public const string AllSchemes = $"{ApiKey},{AllBearerSchemes}";
 }

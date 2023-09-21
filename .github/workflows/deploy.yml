@@ -1,4 +1,4 @@
-name: Manual Deploy
+name: Deploy Manual
 run-name: 'Manual Deploy to ${{ github.event.inputs.environment }}: ${{ github.event.inputs.version }}'
 
 on:
@@ -54,11 +54,10 @@ jobs:
          services: [
           'road-registry-adminhost',
           'road-registry-backoffice-commandhost',
-          'road-registry-backoffice-messaginghost-sqs',
           'road-registry-backoffice-eventhost',
           'road-registry-backoffice-extracthost',
           'road-registry-backoffice-api',
-          #'road-registry-backoffice-ui',
+          'road-registry-backoffice-ui',
           'road-registry-product-projectionhost',
           'road-registry-wms-projectionhost',
           'road-registry-wfs-projectionhost',
@@ -111,11 +110,11 @@ jobs:
       run: |
         docker pull ghcr.io/okigan/awscurl:latest
         
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "$FUNCTION_BACKOFFICE", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
-        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "$FUNCTION_SNAPSHOT", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_BACKOFFICE'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
+        docker run --rm okigan/awscurl --access_key $ACCESS_KEY_ID --secret_key $SECRET_ACCESS_KEY_ID --region $REGION -X POST -d '{ "functionName": "'$FUNCTION_SNAPSHOT'", "project": "basisregisters", "domain": "basisregisters" }' $PROMOTEURL/$ENVIRONMENT
       env:
-        ACCESS_KEY_ID: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_ACCESS_KEY_ID_TST || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_ACCESS_KEY_ID || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_ACCESS_KEY_ID_PRD || github.event.inputs.environment == 'newprd' && secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD || ''}}
-        SECRET_ACCESS_KEY_ID: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_SECRET_ACCESS_KEY_TST || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_SECRET_ACCESS_KEY || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD || github.event.inputs.environment == 'newprd' && secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD || ''}}
+        ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
+        SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
         ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'newprd' && 'acc' || github.event.inputs.environment }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}

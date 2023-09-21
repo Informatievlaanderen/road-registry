@@ -70,7 +70,7 @@ export const AuthService = {
       if (!isAuthenticated) {
         throw new Error("Er is een fout gebeurd bij het inloggen.");
       }
-      
+
       const url = sessionStorage.getItem(WR_AUTH_REDIRECT_URL) as string;
       router.push(url || "/");
     } catch (err) {
@@ -79,6 +79,9 @@ export const AuthService = {
     }
   },
   async logout(): Promise<void> {
+    if (this.getToken()) {
+      await OidcClient.instance.createSignoutRequest();
+    }
     this.reset();
     router.push({ name: "login" });
   },

@@ -22,6 +22,9 @@ using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = Reason;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequestHandler<CorrectRoadSegmentOrganizationNamesRequest, CorrectRoadSegmentOrganizationNamesResponse>
 {
@@ -69,12 +72,13 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequest
         var roadSegments = network.FindRoadSegments(invalidRoadSegmentIds.Select(x => new RoadSegmentId(x)));
 
         var recordNumber = RecordNumber.Initial;
+        var attributeId = AttributeId.Initial;
 
         foreach (var roadSegment in roadSegments)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
+            var modifyRoadSegment = new ModifyRoadSegment(
                 recordNumber,
                 roadSegment.Id,
                 roadSegment.Start,
@@ -87,7 +91,25 @@ public sealed class CorrectRoadSegmentOrganizationNamesRequestHandler : IRequest
                 roadSegment.AttributeHash.AccessRestriction,
                 roadSegment.AttributeHash.LeftStreetNameId,
                 roadSegment.AttributeHash.RightStreetNameId
-            ).WithGeometry(roadSegment.Geometry));
+            ).WithGeometry(roadSegment.Geometry);
+
+            foreach (var lane in roadSegment.AttributeHash.Lanes)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
+                attributeId = attributeId.Next();
+            }
+            foreach (var surface in roadSegment.AttributeHash.Surfaces)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
+                attributeId = attributeId.Next();
+            }
+            foreach (var width in roadSegment.AttributeHash.Widths)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
+                attributeId = attributeId.Next();
+            }
+
+            translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
 
             recordNumber = recordNumber.Next();
         }

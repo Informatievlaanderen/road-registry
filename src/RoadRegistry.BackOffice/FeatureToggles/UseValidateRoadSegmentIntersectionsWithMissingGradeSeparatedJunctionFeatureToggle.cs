@@ -1,3 +1,0 @@
-namespace RoadRegistry.BackOffice.FeatureToggles;
-
-public sealed record UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle(bool FeatureEnabled) : ApplicationFeatureToggle(FeatureEnabled);

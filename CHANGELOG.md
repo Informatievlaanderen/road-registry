@@ -1,3 +1,53 @@
+## [3.59.8](https://github.com/informatievlaanderen/road-registry/compare/v3.59.7...v3.59.8) (2023-09-20)
+
+
+### Bug Fixes
+
+* bulk update roadsegments for given IDs ([#1200](https://github.com/informatievlaanderen/road-registry/issues/1200)) ([50a36e6](https://github.com/informatievlaanderen/road-registry/commit/50a36e6aaed7e22722b455c0b336aaea2d187caa))
+* lambda deploy to newprd ([#1199](https://github.com/informatievlaanderen/road-registry/issues/1199)) ([e7f79a8](https://github.com/informatievlaanderen/road-registry/commit/e7f79a80ace23578962499d459a40f1dc1090add))
+* pipeline structure ([#1198](https://github.com/informatievlaanderen/road-registry/issues/1198)) ([7a4c26b](https://github.com/informatievlaanderen/road-registry/commit/7a4c26b28cd53961bdc3e644ebbc75241958a0cf))
+* update Be.Vlaanderen.Basisregisters.Aws.DistributedMutex ([#1197](https://github.com/informatievlaanderen/road-registry/issues/1197)) ([eacb284](https://github.com/informatievlaanderen/road-registry/commit/eacb284acfdaf3c1aaa0f191d522359c33556fca))
+
+## [3.59.7](https://github.com/informatievlaanderen/road-registry/compare/v3.59.6...v3.59.7) (2023-09-20)
+
+
+### Bug Fixes
+
+* add MaxStreamVersion to rebuild snapshot ([#1194](https://github.com/informatievlaanderen/road-registry/issues/1194)) ([b78fd4a](https://github.com/informatievlaanderen/road-registry/commit/b78fd4aca047bdb6120be9579939c8af2e84b295))
+* add single servide deploy pipeline ([#1195](https://github.com/informatievlaanderen/road-registry/issues/1195)) ([e78bb40](https://github.com/informatievlaanderen/road-registry/commit/e78bb406e631c47c2fd26f36d55a40093641cfc6))
+* enable UI in manual deploy ([#1192](https://github.com/informatievlaanderen/road-registry/issues/1192)) ([42d20ac](https://github.com/informatievlaanderen/road-registry/commit/42d20ac0976ff9179575f96bb0448c1f490069bf))
+* remove MessagingHost.Sqs from pipelines ([#1193](https://github.com/informatievlaanderen/road-registry/issues/1193)) ([ae7aa1f](https://github.com/informatievlaanderen/road-registry/commit/ae7aa1f243cbb52878f3e75c126badf1185a222a))
+* remove partial deploy ([#1196](https://github.com/informatievlaanderen/road-registry/issues/1196)) ([061cea5](https://github.com/informatievlaanderen/road-registry/commit/061cea57f1dd8bb7ed8bdae2b17ca2eb5013ff12))
+
+## [3.59.6](https://github.com/informatievlaanderen/road-registry/compare/v3.59.5...v3.59.6) (2023-09-19)
+
+
+### Bug Fixes
+
+* WR-689 remove ApiKeyAttribute ([#1191](https://github.com/informatievlaanderen/road-registry/issues/1191)) ([07f36ed](https://github.com/informatievlaanderen/road-registry/commit/07f36edd56690b32e8cc7f57d34a1db739cbb6e0))
+
+## [3.59.5](https://github.com/informatievlaanderen/road-registry/compare/v3.59.4...v3.59.5) (2023-09-18)
+
+
+### Bug Fixes
+
+* WR-689 set policies for apikey auth attributes ([#1190](https://github.com/informatievlaanderen/road-registry/issues/1190)) ([6163784](https://github.com/informatievlaanderen/road-registry/commit/616378425ad4e28d1bd724e74443e20c0d1d1144))
+
+## [3.59.4](https://github.com/informatievlaanderen/road-registry/compare/v3.59.3...v3.59.4) (2023-09-18)
+
+
+### Bug Fixes
+
+* WR-758 performance for missing gradeseparatedjunctions at roadsegment intersections ([#1186](https://github.com/informatievlaanderen/road-registry/issues/1186)) ([2f1ec32](https://github.com/informatievlaanderen/road-registry/commit/2f1ec32ffc97f4fff8f7b264a538a0c3b75cfc3e))
+
+## [3.59.3](https://github.com/informatievlaanderen/road-registry/compare/v3.59.2...v3.59.3) (2023-09-15)
+
+
+### Bug Fixes
+
+* Add configuration and updated application definitions ([#1185](https://github.com/informatievlaanderen/road-registry/issues/1185)) ([f027796](https://github.com/informatievlaanderen/road-registry/commit/f027796456c5984005d14fb4a75660b39b707a57))
+* Send email for RoadNetwork ([#1184](https://github.com/informatievlaanderen/road-registry/issues/1184)) ([b07eabb](https://github.com/informatievlaanderen/road-registry/commit/b07eabb948119400b91b34ceb7aeb02f9a5db4c9))
+
 ## [3.59.2](https://github.com/informatievlaanderen/road-registry/compare/v3.59.1...v3.59.2) (2023-09-14)
 
 

@@ -39,7 +39,10 @@ public partial class RoadRegistrySystemController
         {
             await Mediator.Send(new RebuildRoadNetworkSnapshotSqsRequest
             {
-                Request = new RebuildRoadNetworkSnapshotRequest()
+                Request = new RebuildRoadNetworkSnapshotRequest
+                {
+                    MaxStreamVersion = parameters.MaxStreamVersion
+                }
             }, cancellationToken);
             return Accepted();
         }
@@ -53,6 +56,7 @@ public partial class RoadRegistrySystemController
 
 public class RebuildSnapshotParameters
 {
+    public int MaxStreamVersion { get; set; }
 }
 
 public class RebuildSnapshotParametersValidator : AbstractValidator<RebuildSnapshotParameters>

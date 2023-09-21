@@ -84,8 +84,7 @@ public class Program
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
                             new ZipArchiveFeatureCompareTranslator(
                                 sp.GetRequiredService<FileEncoding>(),
-                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>(),
-                                sp.GetRequiredService<UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunctionFeatureToggle>()
+                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()
                             ),
                             sp.GetService<IStreamStore>(),
                             ApplicationMetadata,

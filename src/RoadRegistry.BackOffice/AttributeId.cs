@@ -7,6 +7,7 @@ using System.Globalization;
 public readonly struct AttributeId : IEquatable<AttributeId>, IComparable<AttributeId>
 {
     private readonly int _value;
+    public static readonly AttributeId Initial = new AttributeId(0);
 
     public AttributeId(int value)
     {

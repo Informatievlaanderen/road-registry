@@ -5,7 +5,6 @@ using Be.Vlaanderen.Basisregisters.Api;
 using Infrastructure;
 using Infrastructure.Authentication;
 using Infrastructure.Controllers;
-using Infrastructure.Controllers.Attributes;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +14,7 @@ using SqlStreamStore;
 [AdvertiseApiVersions(Version.CurrentAdvertised)]
 [ApiRoute("organizations")]
 [ApiExplorerSettings(GroupName = "Organisaties")]
-[ApiKey]
-[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
+[Authorize(AuthenticationSchemes = AuthenticationSchemes.AllSchemes, Policy = PolicyNames.WegenUitzonderingen.Beheerder)]
 public partial class OrganizationsController : BackofficeApiController
 {
     public OrganizationsController(
