@@ -40,7 +40,7 @@ public class Program
                 services
                     .AddHostedService<EventProcessor>()
                     .RegisterOptions<ZipArchiveWriterOptions>()
-                    .AddEmailClient()
+                    .AddEmailClient(hostContext.Configuration)
                     .AddRoadRegistrySnapshot()
                     .AddRoadNetworkEventWriter()
                     .AddSingleton<IEventProcessorPositionStore>(sp =>

@@ -43,7 +43,7 @@ public class Program
             {
                 services
                     .AddHostedService<EventProcessor>()
-                    .AddEmailClient()
+                    .AddEmailClient(hostContext.Configuration)
                     .AddTicketing()
                     .AddRoadRegistrySnapshot()
                     .AddRoadNetworkEventWriter()

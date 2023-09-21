@@ -289,7 +289,7 @@ public class Startup
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()
             .AddScoped(_ => new EventSourcedEntityMap())
-            .AddEmailClient()
+            .AddEmailClient(_configuration)
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {

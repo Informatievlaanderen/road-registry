@@ -67,10 +67,11 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             ContentRootPath = Directory.GetCurrentDirectory(),
             ContentRootFileProvider = new NullFileProvider()
         };
-        services.AddEmailClient();
         services.AddSingleton<IHostEnvironment>(hostEnvironment);
 
         var configuration = BuildConfiguration(hostEnvironment);
+        services.AddEmailClient(configuration);
+
         var context = new HostBuilderContext(new Dictionary<object, object>())
         {
             HostingEnvironment = hostEnvironment,
