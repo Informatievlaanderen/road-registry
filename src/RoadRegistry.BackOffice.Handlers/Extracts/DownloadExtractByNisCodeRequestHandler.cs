@@ -33,7 +33,7 @@ public class DownloadExtractByNisCodeRequestHandler : ExtractRequestHandler<Down
         };
 
         var command = new Command(message);
-        await Dispatcher(command, cancellationToken);
+        await Dispatch(command, cancellationToken);
 
         return new DownloadExtractByNisCodeResponse(downloadId, request.IsInformative);
     }

@@ -8,12 +8,12 @@ using Microsoft.Extensions.Logging;
 
 public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<DownloadExtractByFileRequest, DownloadExtractByFileResponse>
 {
-    private readonly DownloadExtractByFileRequestItemTranslator _translator;
+    private readonly IDownloadExtractByFileRequestItemTranslator _translator;
 
     public DownloadExtractByFileRequestHandler(
         EditorContext context,
         CommandHandlerDispatcher dispatcher,
-        DownloadExtractByFileRequestItemTranslator translator,
+        IDownloadExtractByFileRequestItemTranslator translator,
         ILogger<DownloadExtractByContourRequestHandler> logger) : base(context, dispatcher, logger)
     {
         _translator = translator;
@@ -33,7 +33,7 @@ public class DownloadExtractByFileRequestHandler : ExtractRequestHandler<Downloa
         };
 
         var command = new Command(message);
-        await Dispatcher(command, cancellationToken);
+        await Dispatch(command, cancellationToken);
 
         return new DownloadExtractByFileResponse(downloadId, request.IsInformative);
     }

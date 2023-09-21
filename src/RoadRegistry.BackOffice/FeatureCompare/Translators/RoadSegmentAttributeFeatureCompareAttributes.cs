@@ -1,9 +1,9 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-public abstract class RoadSegmentAttributeFeatureCompareAttributes
+public abstract record RoadSegmentAttributeFeatureCompareAttributes
 {
-    public int? Id { get; init; }
-    public int? RoadSegmentId { get; set; }
-    public double? FromPosition { get; set; }
-    public double? ToPosition { get; set; }
+    public AttributeId Id { get; init; }
+    public RoadSegmentId RoadSegmentId { get; init; }
+    public RoadSegmentPosition FromPosition { get; init; }
+    public RoadSegmentPosition ToPosition { get; init; }
 }

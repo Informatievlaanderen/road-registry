@@ -1,6 +1,6 @@
 namespace RoadRegistry.BackOffice;
-
 using System;
+using Extensions;
 
 public readonly struct OrganizationName : IEquatable<OrganizationName>
 {
@@ -9,11 +9,15 @@ public readonly struct OrganizationName : IEquatable<OrganizationName>
 
     public OrganizationName(string value)
     {
-        if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(value), "The organization name must not be null or empty.");
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new ArgumentNullException(nameof(value), "The organization name must not be null or empty.");
+        }
 
         if (value.Length > MaxLength)
-            throw new ArgumentOutOfRangeException(nameof(value),
-                $"The organization name must be {MaxLength} characters or less.");
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), $"The organization name must be {MaxLength} characters or less.");
+        }
 
         _value = value;
     }
@@ -43,16 +47,19 @@ public readonly struct OrganizationName : IEquatable<OrganizationName>
         return _value;
     }
 
-    private OrganizationName Substring(int startIndex, int? length = null)
-    {
-        return length == null
-            ? new OrganizationName(_value.Substring(startIndex))
-            : new OrganizationName(_value.Substring(startIndex, Math.Min(_value.Length, length.Value)));
-    }
-
     public OrganizationName WithMaxLength(int length)
     {
-        return new OrganizationName(Substring(0, length));
+        return new OrganizationName(_value.WithMaxLength(length));
+    }
+
+    public static OrganizationName WithoutExcessLength(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            throw new ArgumentNullException(nameof(value), "The organization name must not be null or empty.");
+        }
+
+        return new OrganizationName(value.WithMaxLength(MaxLength));
     }
 
     public static implicit operator string(OrganizationName instance)

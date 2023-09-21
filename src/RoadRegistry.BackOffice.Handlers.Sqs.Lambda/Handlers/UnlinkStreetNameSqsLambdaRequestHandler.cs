@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
-using Abstractions.Exceptions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
@@ -50,10 +49,11 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                 var problems = Problems.None;
 
                 var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
-                var roadSegment = roadNetwork.FindRoadSegment(new RoadSegmentId(request.Request.WegsegmentId));
+                var roadSegmentId = new RoadSegmentId(request.Request.WegsegmentId);
+                var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
                 if (roadSegment == null)
                 {
-                    problems = problems.Add(new RoadSegmentNotFound());
+                    problems += new RoadSegmentNotFound(roadSegmentId);
                     throw new RoadRegistryProblemsException(problems);
                 }
 
@@ -68,7 +68,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                     {
                         if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.LeftStreetNameId) || (roadSegment.AttributeHash.LeftStreetNameId ?? 0) != leftStreetNameId)
                         {
-                            problems = problems.Add(new RoadSegmentStreetNameLeftNotLinked(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId));
+                            problems += new RoadSegmentStreetNameLeftNotLinked(request.Request.WegsegmentId, request.Request.LinkerstraatnaamId);
                         }
                     }
 
@@ -76,7 +76,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                     {
                         if (CrabStreetnameId.IsEmpty(roadSegment.AttributeHash.RightStreetNameId) || (roadSegment.AttributeHash.RightStreetNameId ?? 0) != rightStreetNameId)
                         {
-                            problems = problems.Add(new RoadSegmentStreetNameRightNotLinked(request.Request.WegsegmentId, request.Request.RechterstraatnaamId));
+                            problems += new RoadSegmentStreetNameRightNotLinked(request.Request.WegsegmentId, request.Request.RechterstraatnaamId);
                         }
                     }
 

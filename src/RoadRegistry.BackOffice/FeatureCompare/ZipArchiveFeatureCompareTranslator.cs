@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Exceptions;
 using Microsoft.Extensions.Logging;
 using Translators;
 using Uploads;
@@ -46,8 +47,8 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         ArgumentNullException.ThrowIfNull(archive);
 
         var changes = TranslatedChanges.Empty;
-
-        var roadSegments = new List<RoadSegmentRecord>();
+        
+        var context = new ZipArchiveEntryFeatureCompareTranslateContext(archive, ZipArchiveMetadata.Empty);
 
         foreach (var translator in _translators)
         {
@@ -55,11 +56,16 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
 
             var sw = Stopwatch.StartNew();
             _logger.LogInformation("{Type} started...", translator.GetType().Name);
-            var context = new ZipArchiveEntryFeatureCompareTranslateContext(archive.Entries, roadSegments);
-            changes = await translator.TranslateAsync(context, changes, cancellationToken);
+            
+            (changes, var problems) = await translator.TranslateAsync(context, changes, cancellationToken);
+            if (problems.HasError())
+            {
+                throw new ZipArchiveValidationException(problems);
+            }
+
             _logger.LogInformation("{Type} completed in {Elapsed}", translator.GetType().Name, sw.Elapsed);
         }
-
+        
         return changes;
     }
 }

@@ -20,6 +20,7 @@ nuget AWSSDK.SimpleEmailV2 3.7.103.13
 nuget AWSSDK.SimpleNotificationService
 nuget AWSSDK.SQS 3.7.102.2
 nuget AWSSDK.Lambda 3.7.109.6
+nuget Confluent.Kafka 1.8.2
 nuget CompareNETObjects 4.79.0
 nuget CsvHelper 30.0.1
 nuget Docker.DotNet 3.125.14
@@ -96,7 +97,7 @@ nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.CommandHandling 8.0.0
 nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.SqlStreamStore.Autofac 8.0.0
 nuget Be.Vlaanderen.Basisregisters.AggregateSource.Testing.Xunit 8.0.0
 nuget Be.Vlaanderen.Basisregisters.Api 20.0.1
-nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 3.0.3
+nuget Be.Vlaanderen.Basisregisters.Aws.DistributedMutex 3.0.4
 nuget Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache 1.0.5
 nuget Be.Vlaanderen.Basisregisters.Aws.Lambda 2.0.1
 nuget Be.Vlaanderen.Basisregisters.BlobStore 3.0.0
@@ -112,8 +113,10 @@ nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.2.3
 nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 19.1.0
 nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 19.1.0
 nuget Be.Vlaanderen.Basisregisters.GrAr.Provenance 19.1.0
-nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.8.2
-nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.8.2
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.9.1
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Consumer 4.9.1
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Producer 4.9.1
+nuget Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple 4.9.1
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.LastChangedList 11.0.7
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner 11.0.7
 nuget Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore 11.0.7

@@ -1,12 +1,21 @@
 namespace RoadRegistry.Tests.BackOffice.Core;
 
 using System.Data;
+using System.Text;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Polly;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
+using Serilog.Enrichers;
+using SqlStreamStore;
 
 public class RoadNetworkSnapshotInspectorTests
 {
@@ -26,18 +35,66 @@ public class RoadNetworkSnapshotInspectorTests
         return Configuration.GetConnectionString($"EditorProjections-{environment}") ?? Configuration.GetConnectionString("EditorProjections");
     }
 
+    private IStreamStore GetStreamStore(DbEnvironment dbEnvironment)
+    {
+        var connectionString = GetEventsConnectionString(dbEnvironment);
+        return new MsSqlStreamStoreV3(
+            new MsSqlStreamStoreV3Settings(
+                connectionString)
+            {
+                Schema = WellknownSchemas.EventSchema
+            });
+    }
+    private EditorContext GetEditorContext(DbEnvironment dbEnvironment)
+    {
+        return new EditorContext(new DbContextOptionsBuilder<EditorContext>()
+                   .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                   .UseSqlServer(GetEditorProjectionsConnectionString(dbEnvironment), options =>
+                       options.UseNetTopologySuite()
+                   ).Options);
+    }
+
     [Fact(Skip = "Reads data from EditorContext. Useful for debugging purposes")]
     //[Fact]
     public async Task ReadEditorContext()
     {
-        var connectionString = GetEditorProjectionsConnectionString(DbEnvironment.DEV);
-        
-        using (var dbContext = new EditorContext(new DbContextOptionsBuilder<EditorContext>()
-                   .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                   .UseSqlServer(connectionString, options =>
-                       options.UseNetTopologySuite()
-                   ).Options))
+        const DbEnvironment dbEnvironment = DbEnvironment.PRD;
+
+        using (var dbContext = GetEditorContext(dbEnvironment))
         {
+            var enricher = EnrichEvent.WithTime(NodaTime.SystemClock.Instance);
+
+            //add events
+            //using (var store = GetStreamStore(dbEnvironment))
+            //{
+            //    IRoadNetworkEventWriter roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
+
+            //    foreach (var extract in extractsToOpenAndMarkAsDownloaded)
+            //    {
+            //        var map = new EventSourcedEntityMap();
+            //        var roadRegistryContext = new RoadRegistryContext(map,
+            //            store,
+            //            new FakeRoadNetworkSnapshotReader(),
+            //            EventsJsonSerializerSettingsProvider.CreateSerializerSettings(),
+            //            new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly)),
+            //            new LoggerFactory());
+
+            //        var extractRequest = await roadRegistryContext.RoadNetworkExtracts.Get(ExtractRequestId.FromExternalRequestId(extract.ExternalRequestId));
+            //        extractRequest.Download(new DownloadId(extract.DownloadId));
+
+            //        foreach (var entry in map.Entries)
+            //        {
+            //            var events = entry.Entity.TakeEvents();
+            //            if (events.Length != 0)
+            //            {
+            //                var messageId = extract.DownloadId;
+            //                await roadNetworkEventWriter.WriteAsync(entry.Stream, messageId, entry.ExpectedVersion, events, CancellationToken.None);
+            //            }
+            //        }
+            //    }
+            //}
+
+            //load dbf records
             //var attributes = await dbContext.RoadSegmentNumberedRoadAttributes
             //    .Where(x => x.RoadSegmentId == 268119)
             //    .ToArrayAsync();
@@ -59,8 +116,8 @@ public class RoadNetworkSnapshotInspectorTests
     //[Fact]
     public async Task InspectMessage()
     {
-        const int position = 1828076;
-        var connectionString = GetEventsConnectionString(DbEnvironment.DEV);
+        const int position = 1858902;
+        var connectionString = GetEventsConnectionString(DbEnvironment.PRD);
         var messageFilePath = $"message-{position}.json";
 
         await using (var connection = new SqlConnection(connectionString))

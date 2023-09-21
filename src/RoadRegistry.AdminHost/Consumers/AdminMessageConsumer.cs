@@ -11,6 +11,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 
 public class AdminMessageConsumer
 {
@@ -18,17 +19,17 @@ public class AdminMessageConsumer
     private readonly ISqsQueueConsumer _sqsConsumer;
     private readonly SqsOptions _sqsOptions;
     private readonly ILogger _logger;
-    private readonly IMediator _mediator;
+    private readonly ILifetimeScope _container;
 
     public AdminMessageConsumer(
-        IMediator mediator,
+        ILifetimeScope container,
         ILogger<AdminMessageConsumer> logger,
         SqsQueueUrlOptions sqsQueueUrlOptions,
         ISqsQueueConsumer sqsQueueConsumer,
         SqsOptions sqsOptions
      )
     {
-        _mediator = mediator;
+        _container = container;
         _sqsQueueUrlOptions = sqsQueueUrlOptions;
         _sqsConsumer = sqsQueueConsumer;
         _sqsOptions = sqsOptions;
@@ -50,7 +51,10 @@ public class AdminMessageConsumer
                     _logger.LogInformation("Continuing with BackOffice request of type '{Type}'", backOfficeRequest.GetType().FullName);
                 }
 
-                var result = await _mediator.Send(backOfficeRequest ?? message, stoppingToken);
+                await using var lifetimeScope = _container.BeginLifetimeScope();
+                var mediator = lifetimeScope.Resolve<IMediator>();
+
+                var result = await mediator.Send(backOfficeRequest ?? message, stoppingToken);
                 _logger.LogInformation("SQS message result: {Result}", JsonConvert.SerializeObject(result, _sqsOptions.JsonSerializerSettings));
             }, stoppingToken);
 

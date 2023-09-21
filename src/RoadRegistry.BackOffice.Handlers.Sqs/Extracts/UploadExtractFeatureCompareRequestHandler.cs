@@ -27,6 +27,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
     private readonly RoadNetworkFeatureCompareBlobClient _client;
     private readonly ISqsQueuePublisher _sqsQueuePublisher;
     private readonly IZipArchiveBeforeFeatureCompareValidator _validator;
+    private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly IRoadNetworkEventWriter _roadNetworkEventWriter;
     private readonly IRoadRegistryContext _roadRegistryContext;
 
@@ -44,6 +45,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         RoadNetworkFeatureCompareBlobClient client,
         ISqsQueuePublisher sqsQueuePublisher,
         IZipArchiveBeforeFeatureCompareValidator validator,
+        IExtractUploadFailedEmailClient emailClient,
         IRoadNetworkEventWriter roadNetworkEventWriter,
         EditorContext context,
         IRoadRegistryContext roadRegistryContext,
@@ -54,6 +56,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         _client = client;
         _sqsQueuePublisher = sqsQueuePublisher;
         _validator = validator;
+        _emailClient = emailClient;
         _roadNetworkEventWriter = roadNetworkEventWriter;
         _roadRegistryContext = roadRegistryContext;
         _context = context.ThrowIfNull();
@@ -105,10 +108,8 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
-            var problems = upload.ValidateArchiveUsing(archive, _validator);
-
-            var fileProblems = problems.OfType<FileError>();
-            if (fileProblems.Any())
+            var problems = await upload.ValidateArchiveUsing(archive, _validator, _emailClient, cancellationToken);
+            if (problems.HasError())
             {
                 throw new ZipArchiveValidationException(problems);
             }

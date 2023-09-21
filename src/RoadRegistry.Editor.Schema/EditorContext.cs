@@ -1,6 +1,9 @@
 namespace RoadRegistry.Editor.Schema;
 
 using BackOffice;
+using BackOffice.Extracts.Dbase.Organizations;
+using BackOffice.Extracts.Dbase.RoadSegments;
+using BackOffice.Metrics;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Extracts;
 using GradeSeparatedJunctions;
@@ -11,8 +14,6 @@ using RoadSegments;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice.Extracts.Dbase.Organizations;
-using BackOffice.Extracts.Dbase.RoadSegments;
 
 public class EditorContext : RunnerDbContext<EditorContext>
 {
@@ -27,6 +28,10 @@ public class EditorContext : RunnerDbContext<EditorContext>
         : base(options)
     {
     }
+
+    #region Metrics
+    public DbSet<EventProcessorMetricsRecord> EventProcessorMetrics { get; set; }
+    #endregion
 
     public DbSet<ExtractRequestRecord> ExtractRequests { get; set; }
     public DbSet<ExtractDownloadRecord> ExtractDownloads { get; set; }
@@ -50,11 +55,11 @@ public class EditorContext : RunnerDbContext<EditorContext>
     public DbSet<RoadSegmentSurfaceAttributeRecord> RoadSegmentSurfaceAttributes { get; set; }
     public DbSet<RoadSegmentWidthAttributeRecord> RoadSegmentWidthAttributes { get; set; }
 
-    public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken token)
+    public async ValueTask<RoadNetworkInfo> GetRoadNetworkInfo(CancellationToken cancellationToken)
     {
         return _localRoadNetworkInfo ??=
             RoadNetworkInfo.Local.SingleOrDefault() ??
-            await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == BackOffice.RoadNetworkInfo.Identifier, token);
+            await RoadNetworkInfo.SingleAsync(candidate => candidate.Id == BackOffice.RoadNetworkInfo.Identifier, cancellationToken);
     }
 
     protected override void OnConfiguringOptionsBuilder(DbContextOptionsBuilder optionsBuilder)
@@ -67,10 +72,6 @@ public class EditorContext : RunnerDbContext<EditorContext>
     {
         base.OnModelCreating(modelBuilder);
         OnModelQueryTypes(modelBuilder);
-
-        modelBuilder.Entity<RoadNetworkChange>()
-            .Property(x => x.When)
-            .IsRequired(false);
     }
 
     //HACK: Raw sql is not supported when running against in memory - this allows overriding and adjusting behavior

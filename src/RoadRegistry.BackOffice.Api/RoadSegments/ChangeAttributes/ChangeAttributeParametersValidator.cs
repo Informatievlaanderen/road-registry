@@ -63,7 +63,7 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         {
             RuleFor(x => x.Wegsegmentstatus)
                 .Cascade(CascadeMode.Stop)
-                .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value).IsValidForRoadSegmentEdit())
+                .Must(value => RoadSegmentStatus.CanParseUsingDutchName(value) && RoadSegmentStatus.ParseUsingDutchName(value).IsValidForEdit())
                 .WithProblemCode(ProblemCode.RoadSegment.Status.NotValid);
         });
 
@@ -71,7 +71,7 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         {
             RuleFor(x => x.MorfologischeWegklasse)
                 .Cascade(CascadeMode.Stop)
-                .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value).IsValidForRoadSegmentEdit())
+                .Must(value => RoadSegmentMorphology.CanParseUsingDutchName(value) && RoadSegmentMorphology.ParseUsingDutchName(value).IsValidForEdit())
                 .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
         });
 

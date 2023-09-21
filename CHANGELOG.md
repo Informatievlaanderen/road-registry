@@ -1,3 +1,502 @@
+## [3.59.9](https://github.com/informatievlaanderen/road-registry/compare/v3.59.8...v3.59.9) (2023-09-21)
+
+
+### Bug Fixes
+
+* Add shell appsettings to test library ([#1203](https://github.com/informatievlaanderen/road-registry/issues/1203)) ([94ac694](https://github.com/informatievlaanderen/road-registry/commit/94ac6948cb596412edfbe4fa8245900530fe9036))
+* deploy pipeline lambda deploy ([#1201](https://github.com/informatievlaanderen/road-registry/issues/1201)) ([98fda15](https://github.com/informatievlaanderen/road-registry/commit/98fda15c95a60eef1fea4d4f0591ed0558eaa235))
+* let release pipeline finish when TST deploy is completed ([#1204](https://github.com/informatievlaanderen/road-registry/issues/1204)) ([01dd134](https://github.com/informatievlaanderen/road-registry/commit/01dd134e141b1ff9a355471f341fad6e2fded083))
+* Updated lambda email client and appsettings solution wide ([#1202](https://github.com/informatievlaanderen/road-registry/issues/1202)) ([87d5037](https://github.com/informatievlaanderen/road-registry/commit/87d5037467f4b364b1fcf64b0a9d7fc63bd3e54c))
+* WR-830 color theme for tst/stg ([#1205](https://github.com/informatievlaanderen/road-registry/issues/1205)) ([ba15b07](https://github.com/informatievlaanderen/road-registry/commit/ba15b077b0d520f9eea0773e9054ed40184979dd))
+
+## [3.59.8](https://github.com/informatievlaanderen/road-registry/compare/v3.59.7...v3.59.8) (2023-09-20)
+
+
+### Bug Fixes
+
+* bulk update roadsegments for given IDs ([#1200](https://github.com/informatievlaanderen/road-registry/issues/1200)) ([50a36e6](https://github.com/informatievlaanderen/road-registry/commit/50a36e6aaed7e22722b455c0b336aaea2d187caa))
+* lambda deploy to newprd ([#1199](https://github.com/informatievlaanderen/road-registry/issues/1199)) ([e7f79a8](https://github.com/informatievlaanderen/road-registry/commit/e7f79a80ace23578962499d459a40f1dc1090add))
+* pipeline structure ([#1198](https://github.com/informatievlaanderen/road-registry/issues/1198)) ([7a4c26b](https://github.com/informatievlaanderen/road-registry/commit/7a4c26b28cd53961bdc3e644ebbc75241958a0cf))
+* update Be.Vlaanderen.Basisregisters.Aws.DistributedMutex ([#1197](https://github.com/informatievlaanderen/road-registry/issues/1197)) ([eacb284](https://github.com/informatievlaanderen/road-registry/commit/eacb284acfdaf3c1aaa0f191d522359c33556fca))
+
+## [3.59.7](https://github.com/informatievlaanderen/road-registry/compare/v3.59.6...v3.59.7) (2023-09-20)
+
+
+### Bug Fixes
+
+* add MaxStreamVersion to rebuild snapshot ([#1194](https://github.com/informatievlaanderen/road-registry/issues/1194)) ([b78fd4a](https://github.com/informatievlaanderen/road-registry/commit/b78fd4aca047bdb6120be9579939c8af2e84b295))
+* add single servide deploy pipeline ([#1195](https://github.com/informatievlaanderen/road-registry/issues/1195)) ([e78bb40](https://github.com/informatievlaanderen/road-registry/commit/e78bb406e631c47c2fd26f36d55a40093641cfc6))
+* enable UI in manual deploy ([#1192](https://github.com/informatievlaanderen/road-registry/issues/1192)) ([42d20ac](https://github.com/informatievlaanderen/road-registry/commit/42d20ac0976ff9179575f96bb0448c1f490069bf))
+* remove MessagingHost.Sqs from pipelines ([#1193](https://github.com/informatievlaanderen/road-registry/issues/1193)) ([ae7aa1f](https://github.com/informatievlaanderen/road-registry/commit/ae7aa1f243cbb52878f3e75c126badf1185a222a))
+* remove partial deploy ([#1196](https://github.com/informatievlaanderen/road-registry/issues/1196)) ([061cea5](https://github.com/informatievlaanderen/road-registry/commit/061cea57f1dd8bb7ed8bdae2b17ca2eb5013ff12))
+
+## [3.59.6](https://github.com/informatievlaanderen/road-registry/compare/v3.59.5...v3.59.6) (2023-09-19)
+
+
+### Bug Fixes
+
+* WR-689 remove ApiKeyAttribute ([#1191](https://github.com/informatievlaanderen/road-registry/issues/1191)) ([07f36ed](https://github.com/informatievlaanderen/road-registry/commit/07f36edd56690b32e8cc7f57d34a1db739cbb6e0))
+
+## [3.59.5](https://github.com/informatievlaanderen/road-registry/compare/v3.59.4...v3.59.5) (2023-09-18)
+
+
+### Bug Fixes
+
+* WR-689 set policies for apikey auth attributes ([#1190](https://github.com/informatievlaanderen/road-registry/issues/1190)) ([6163784](https://github.com/informatievlaanderen/road-registry/commit/616378425ad4e28d1bd724e74443e20c0d1d1144))
+
+## [3.59.4](https://github.com/informatievlaanderen/road-registry/compare/v3.59.3...v3.59.4) (2023-09-18)
+
+
+### Bug Fixes
+
+* WR-758 performance for missing gradeseparatedjunctions at roadsegment intersections ([#1186](https://github.com/informatievlaanderen/road-registry/issues/1186)) ([2f1ec32](https://github.com/informatievlaanderen/road-registry/commit/2f1ec32ffc97f4fff8f7b264a538a0c3b75cfc3e))
+
+## [3.59.3](https://github.com/informatievlaanderen/road-registry/compare/v3.59.2...v3.59.3) (2023-09-15)
+
+
+### Bug Fixes
+
+* Add configuration and updated application definitions ([#1185](https://github.com/informatievlaanderen/road-registry/issues/1185)) ([f027796](https://github.com/informatievlaanderen/road-registry/commit/f027796456c5984005d14fb4a75660b39b707a57))
+* Send email for RoadNetwork ([#1184](https://github.com/informatievlaanderen/road-registry/issues/1184)) ([b07eabb](https://github.com/informatievlaanderen/road-registry/commit/b07eabb948119400b91b34ceb7aeb02f9a5db4c9))
+
+## [3.59.2](https://github.com/informatievlaanderen/road-registry/compare/v3.59.1...v3.59.2) (2023-09-14)
+
+
+### Bug Fixes
+
+* Remove file listing ([#1182](https://github.com/informatievlaanderen/road-registry/issues/1182)) ([4c15d6b](https://github.com/informatievlaanderen/road-registry/commit/4c15d6bd6544030d760c6ef846a2b8947a9931d0))
+* set Accept header for StreetNameRegistry requests ([#1183](https://github.com/informatievlaanderen/road-registry/issues/1183)) ([1af80b9](https://github.com/informatievlaanderen/road-registry/commit/1af80b946807555427403e30ea1f98e3d99bad91))
+
+## [3.59.1](https://github.com/informatievlaanderen/road-registry/compare/v3.59.0...v3.59.1) (2023-09-14)
+
+
+### Bug Fixes
+
+* add featuretoggle UseValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction ([#1180](https://github.com/informatievlaanderen/road-registry/issues/1180)) ([08f0401](https://github.com/informatievlaanderen/road-registry/commit/08f04019672a527265da80b13fd29c72826d52b2))
+* Add NPM token into pipeline ([#1179](https://github.com/informatievlaanderen/road-registry/issues/1179)) ([85df89c](https://github.com/informatievlaanderen/road-registry/commit/85df89c8c74fe7f1072892e26267074998bba047))
+* Removed double paket install ([#1176](https://github.com/informatievlaanderen/road-registry/issues/1176)) ([d5dda9e](https://github.com/informatievlaanderen/road-registry/commit/d5dda9e459cbbef7171d48ec8dd4cfe0770d4b41))
+* UI pipeline containerize ([#1181](https://github.com/informatievlaanderen/road-registry/issues/1181)) ([7b7d680](https://github.com/informatievlaanderen/road-registry/commit/7b7d6801cbc51fdd369c7207aeb844919043c298))
+* UI pipeline requirement for build.fsx ([#1174](https://github.com/informatievlaanderen/road-registry/issues/1174)) ([5a91891](https://github.com/informatievlaanderen/road-registry/commit/5a91891efb8add4c488b346bd7527d8fbc972472))
+* Unauthenticated npm repo ([#1178](https://github.com/informatievlaanderen/road-registry/issues/1178)) ([38a3bc2](https://github.com/informatievlaanderen/road-registry/commit/38a3bc2277d11cc333c1fd679da563f7aac4106d))
+* Use build.sh publish for UI pipeline ([#1175](https://github.com/informatievlaanderen/road-registry/issues/1175)) ([355e887](https://github.com/informatievlaanderen/road-registry/commit/355e8870638307bf397f6e1d695dfe17dc692c2c))
+* Use containerize from fsx file ([#1173](https://github.com/informatievlaanderen/road-registry/issues/1173)) ([8abc3bb](https://github.com/informatievlaanderen/road-registry/commit/8abc3bbac90423df32d98a6519aa255160952459))
+
+# [3.59.0](https://github.com/informatievlaanderen/road-registry/compare/v3.58.9...v3.59.0) (2023-09-14)
+
+
+### Bug Fixes
+
+* Include UI build ([#1165](https://github.com/informatievlaanderen/road-registry/issues/1165)) ([90da2d3](https://github.com/informatievlaanderen/road-registry/commit/90da2d3bb8bba3a270d9a09f81b2aa6dfe9e9590))
+* UI pipeline ([#1166](https://github.com/informatievlaanderen/road-registry/issues/1166)) ([618d78b](https://github.com/informatievlaanderen/road-registry/commit/618d78bf5299547d8b8fb51b34d3294d148f1935))
+* UI pipeline ([#1167](https://github.com/informatievlaanderen/road-registry/issues/1167)) ([ec1a449](https://github.com/informatievlaanderen/road-registry/commit/ec1a449cd9033e54526b6f28da0f0f033fe71079))
+* UI pipeline ([#1168](https://github.com/informatievlaanderen/road-registry/issues/1168)) ([d166de6](https://github.com/informatievlaanderen/road-registry/commit/d166de63377adbac65494ad9703a4f93a6fdc572))
+* UI pipeline ([#1171](https://github.com/informatievlaanderen/road-registry/issues/1171)) ([1fba20f](https://github.com/informatievlaanderen/road-registry/commit/1fba20f2dcf6de3b0730e382c818de62d976de36))
+* UI pipeline ([#1172](https://github.com/informatievlaanderen/road-registry/issues/1172)) ([ddd7e5b](https://github.com/informatievlaanderen/road-registry/commit/ddd7e5b9b8b1fd66ae29d9f8e1ea57234b0b9698))
+* WR-783 add shape reader/writer using NetTopologySuite ([#1164](https://github.com/informatievlaanderen/road-registry/issues/1164)) ([a324e3f](https://github.com/informatievlaanderen/road-registry/commit/a324e3f16b534eaceaf42cc6b53343b2ced00dd6))
+
+
+### Features
+
+* WR-833 use StreetNameClient instead of kafka cache for write operations ([#1170](https://github.com/informatievlaanderen/road-registry/issues/1170)) ([caec8f1](https://github.com/informatievlaanderen/road-registry/commit/caec8f1344265291ccf8b1a5fc219f8e5532b7dc))
+
+## [3.58.9](https://github.com/informatievlaanderen/road-registry/compare/v3.58.8...v3.58.9) (2023-09-13)
+
+
+### Bug Fixes
+
+* UI pipeline ([#1163](https://github.com/informatievlaanderen/road-registry/issues/1163)) ([448bee9](https://github.com/informatievlaanderen/road-registry/commit/448bee93dea6517d557a74ef86905751c9428eb3))
+
+## [3.58.8](https://github.com/informatievlaanderen/road-registry/compare/v3.58.7...v3.58.8) (2023-09-13)
+
+
+### Bug Fixes
+
+* FC GradeSeparatedJunction validation messages ([#1162](https://github.com/informatievlaanderen/road-registry/issues/1162)) ([647fc2b](https://github.com/informatievlaanderen/road-registry/commit/647fc2b0f61e58ed5e5a8518c1fa1019e47e77de))
+
+## [3.58.7](https://github.com/informatievlaanderen/road-registry/compare/v3.58.6...v3.58.7) (2023-09-13)
+
+
+### Bug Fixes
+
+* Add nodejs pipeline code ([#1156](https://github.com/informatievlaanderen/road-registry/issues/1156)) ([e5ad849](https://github.com/informatievlaanderen/road-registry/commit/e5ad849718d3a035cbb8f2701d97cf8eef9e296d))
+* translation message + add featuretoggle override in API through request ([#1158](https://github.com/informatievlaanderen/road-registry/issues/1158)) ([cb27a27](https://github.com/informatievlaanderen/road-registry/commit/cb27a27229380922d504b1e6981e500b308c7e9e))
+* UI pipeline ([#1159](https://github.com/informatievlaanderen/road-registry/issues/1159)) ([f987492](https://github.com/informatievlaanderen/road-registry/commit/f987492308216e0d7ae097883b14d3741f4629d6))
+* UI pipeline ([#1161](https://github.com/informatievlaanderen/road-registry/issues/1161)) ([1337f71](https://github.com/informatievlaanderen/road-registry/commit/1337f718b58f1accbbcb3c0da1c8b395837b33b5))
+* Update UI pipeline ([#1160](https://github.com/informatievlaanderen/road-registry/issues/1160)) ([acd0631](https://github.com/informatievlaanderen/road-registry/commit/acd06312868b7cb7d602f8e95ef65618199ac3d1))
+
+## [3.58.6](https://github.com/informatievlaanderen/road-registry/compare/v3.58.5...v3.58.6) (2023-09-12)
+
+
+### Bug Fixes
+
+* handle ZipArchiveValidationException with extracts upload endpoint ([#1157](https://github.com/informatievlaanderen/road-registry/issues/1157)) ([e50db26](https://github.com/informatievlaanderen/road-registry/commit/e50db26626756563956cdaa749396eb6c0f6dc17))
+
+## [3.58.5](https://github.com/informatievlaanderen/road-registry/compare/v3.58.4...v3.58.5) (2023-09-11)
+
+
+### Bug Fixes
+
+* prd/newprd lambda environment ([#1154](https://github.com/informatievlaanderen/road-registry/issues/1154)) ([af793a1](https://github.com/informatievlaanderen/road-registry/commit/af793a17eb62e656bf78e3fba834a7e582a3ba4f))
+
+## [3.58.4](https://github.com/informatievlaanderen/road-registry/compare/v3.58.3...v3.58.4) (2023-09-08)
+
+
+### Bug Fixes
+
+* Send mail message after Rejected been applied ([#1152](https://github.com/informatievlaanderen/road-registry/issues/1152)) ([9213409](https://github.com/informatievlaanderen/road-registry/commit/92134091fc4574d0b4ad575820456287fe1d566d))
+* treat empty files during upload always as warning ([#1153](https://github.com/informatievlaanderen/road-registry/issues/1153)) ([532e85f](https://github.com/informatievlaanderen/road-registry/commit/532e85f69e1a41215390d2193f56d5dc4377580f))
+
+## [3.58.3](https://github.com/informatievlaanderen/road-registry/compare/v3.58.2...v3.58.3) (2023-09-08)
+
+
+### Bug Fixes
+
+* WR-752 add featuretoggle UseOvoCodeInChangeRoadNetwork ([#1151](https://github.com/informatievlaanderen/road-registry/issues/1151)) ([f860e8d](https://github.com/informatievlaanderen/road-registry/commit/f860e8d26b8759eccf2f4c2ea9c612516cb66855))
+
+## [3.58.2](https://github.com/informatievlaanderen/road-registry/compare/v3.58.1...v3.58.2) (2023-09-07)
+
+
+### Bug Fixes
+
+* WR-774 exclude intersections of segments and their endnodes ([#1150](https://github.com/informatievlaanderen/road-registry/issues/1150)) ([8a54c23](https://github.com/informatievlaanderen/road-registry/commit/8a54c236a4990a9e396afa7eef088745f3d161ac))
+
+## [3.58.1](https://github.com/informatievlaanderen/road-registry/compare/v3.58.0...v3.58.1) (2023-09-06)
+
+
+### Bug Fixes
+
+* add newprd to release pipeline ([#1149](https://github.com/informatievlaanderen/road-registry/issues/1149)) ([9ef50d6](https://github.com/informatievlaanderen/road-registry/commit/9ef50d6f2cf6edee7cccfa38b665ff4459b63071))
+
+# [3.58.0](https://github.com/informatievlaanderen/road-registry/compare/v3.57.3...v3.58.0) (2023-09-06)
+
+
+### Bug Fixes
+
+* WR-774 new FC, delete roadnodes which are added with the same ID ([#1147](https://github.com/informatievlaanderen/road-registry/issues/1147)) ([4af9fd9](https://github.com/informatievlaanderen/road-registry/commit/4af9fd965164fce46b19ed05fa3bd0c28ee1753c))
+
+
+### Features
+
+* WR-758 WR-710 add GradeSeparatedJunction validations ([#1148](https://github.com/informatievlaanderen/road-registry/issues/1148)) ([134143a](https://github.com/informatievlaanderen/road-registry/commit/134143a39d3aba1b29745e029d0073f446f708c3))
+* WR-813 Add identity information on endpoint requests, SQS requests and commands ([#1143](https://github.com/informatievlaanderen/road-registry/issues/1143)) ([efc9d3a](https://github.com/informatievlaanderen/road-registry/commit/efc9d3ac04509bf3ed72e7988eb627920497b400))
+
+## [3.57.3](https://github.com/informatievlaanderen/road-registry/compare/v3.57.2...v3.57.3) (2023-09-01)
+
+
+### Bug Fixes
+
+* add ProductContext to OrganizationNames correction ([#1145](https://github.com/informatievlaanderen/road-registry/issues/1145)) ([9663185](https://github.com/informatievlaanderen/road-registry/commit/96631856f7eacdf293a6831a40c1d2ee07820616))
+
+## [3.57.2](https://github.com/informatievlaanderen/road-registry/compare/v3.57.1...v3.57.2) (2023-09-01)
+
+
+### Bug Fixes
+
+* add logging to streetnameconsumer ([#1144](https://github.com/informatievlaanderen/road-registry/issues/1144)) ([82e14ed](https://github.com/informatievlaanderen/road-registry/commit/82e14ed20c711e38e5ca6307e6265bc1a4b93c16))
+
+## [3.57.1](https://github.com/informatievlaanderen/road-registry/compare/v3.57.0...v3.57.1) (2023-08-31)
+
+
+### Bug Fixes
+
+* add roadnode id to translated error message ([#1141](https://github.com/informatievlaanderen/road-registry/issues/1141)) ([d05373b](https://github.com/informatievlaanderen/road-registry/commit/d05373b49ecc1363d6e4a17696c8f919365f270d))
+* WR-792 OrganizationConsumer stop trying when ConfigurationErrorsExcepti… ([#1142](https://github.com/informatievlaanderen/road-registry/issues/1142)) ([693fff1](https://github.com/informatievlaanderen/road-registry/commit/693fff19bbb9e4cad124c39a731a9fbd5e82babe))
+
+# [3.57.0](https://github.com/informatievlaanderen/road-registry/compare/v3.56.13...v3.57.0) (2023-08-30)
+
+
+### Bug Fixes
+
+* manual pipeline lambda credentials ([#1138](https://github.com/informatievlaanderen/road-registry/issues/1138)) ([623d988](https://github.com/informatievlaanderen/road-registry/commit/623d988ac8b8b6caa7976a1654ad96b6d5a6a2fd))
+* WR-792 keep long names of organizations during sync + error handling of ZipArchiveValidationException with new FC ([#1140](https://github.com/informatievlaanderen/road-registry/issues/1140)) ([c236735](https://github.com/informatievlaanderen/road-registry/commit/c2367351cb1c557f0b9422d06f38a31f9ec5aa3c))
+
+
+### Features
+
+* add SyncHost with OrganizationConsumer ([#1139](https://github.com/informatievlaanderen/road-registry/issues/1139)) ([a01e691](https://github.com/informatievlaanderen/road-registry/commit/a01e691c30d10fab706799d0002d40a48bf5a19c))
+* WR-752 Capture administrative actions origin provenance ([#1113](https://github.com/informatievlaanderen/road-registry/issues/1113)) ([dae03e6](https://github.com/informatievlaanderen/road-registry/commit/dae03e639cb56f9037d8e9bc381addc5bf3cb940))
+
+## [3.56.13](https://github.com/informatievlaanderen/road-registry/compare/v3.56.12...v3.56.13) (2023-08-24)
+
+
+### Bug Fixes
+
+* ignore validation errors for integration data ([#1135](https://github.com/informatievlaanderen/road-registry/issues/1135)) ([98734d8](https://github.com/informatievlaanderen/road-registry/commit/98734d8945411e5825a8d67961f7b84198ec35fc))
+
+## [3.56.12](https://github.com/informatievlaanderen/road-registry/compare/v3.56.11...v3.56.12) (2023-08-23)
+
+
+### Bug Fixes
+
+* release v2 production steps order ([#1134](https://github.com/informatievlaanderen/road-registry/issues/1134)) ([71c482f](https://github.com/informatievlaanderen/road-registry/commit/71c482f52b0393662e3adbfb431cc879f9bee1f9))
+
+## [3.56.11](https://github.com/informatievlaanderen/road-registry/compare/v3.56.10...v3.56.11) (2023-08-23)
+
+
+### Bug Fixes
+
+* pipeline lambda TST functionnames ([#1133](https://github.com/informatievlaanderen/road-registry/issues/1133)) ([1272abe](https://github.com/informatievlaanderen/road-registry/commit/1272abe4626521c076e44b64a1cf586ab2682f89))
+
+## [3.56.10](https://github.com/informatievlaanderen/road-registry/compare/v3.56.9...v3.56.10) (2023-08-23)
+
+
+### Bug Fixes
+
+* add missing docker network creation to run script ([#1131](https://github.com/informatievlaanderen/road-registry/issues/1131)) ([2424a93](https://github.com/informatievlaanderen/road-registry/commit/2424a93f1ac6b55b1edc5191fcd154300384e4f9))
+* release v2 stg approval ([#1132](https://github.com/informatievlaanderen/road-registry/issues/1132)) ([c672368](https://github.com/informatievlaanderen/road-registry/commit/c6723689ff2fa4329ab7ca5d190e5dd6e358bef8))
+
+## [3.56.9](https://github.com/informatievlaanderen/road-registry/compare/v3.56.8...v3.56.9) (2023-08-23)
+
+
+### Bug Fixes
+
+* release pipeline lambda function names ([#1130](https://github.com/informatievlaanderen/road-registry/issues/1130)) ([fb29724](https://github.com/informatievlaanderen/road-registry/commit/fb29724a118fc3216bc5699df9f62d2adbf0adf9))
+
+## [3.56.8](https://github.com/informatievlaanderen/road-registry/compare/v3.56.7...v3.56.8) (2023-08-18)
+
+
+### Bug Fixes
+
+* upload lambdas in pipeline ([dc1aef7](https://github.com/informatievlaanderen/road-registry/commit/dc1aef7bdac7f9aff0bed37b323ea62d31576285))
+
+## [3.56.7](https://github.com/informatievlaanderen/road-registry/compare/v3.56.6...v3.56.7) (2023-08-18)
+
+
+### Bug Fixes
+
+* push to staging and deploy ([8287985](https://github.com/informatievlaanderen/road-registry/commit/828798580826e5a76d5c5a535bc6da32fb16e73e))
+
+## [3.56.6](https://github.com/informatievlaanderen/road-registry/compare/v3.56.5...v3.56.6) (2023-08-18)
+
+
+### Bug Fixes
+
+* deploy steps pipeline ([9f38d79](https://github.com/informatievlaanderen/road-registry/commit/9f38d792f51195d8be495bfbd03fad50afff1f55))
+
+## [3.56.5](https://github.com/informatievlaanderen/road-registry/compare/v3.56.4...v3.56.5) (2023-08-18)
+
+
+### Bug Fixes
+
+* Pre-init release V2 pipeline ([#1127](https://github.com/informatievlaanderen/road-registry/issues/1127)) ([5b593f4](https://github.com/informatievlaanderen/road-registry/commit/5b593f44927accb222efadba6619c0679ac4764b))
+
+## [3.56.4](https://github.com/informatievlaanderen/road-registry/compare/v3.56.3...v3.56.4) (2023-08-11)
+
+
+### Bug Fixes
+
+* build script add open system.io ([#1119](https://github.com/informatievlaanderen/road-registry/issues/1119)) ([fc964dd](https://github.com/informatievlaanderen/road-registry/commit/fc964dd89d2674bb73ac872b293cd265f371ee91))
+* build script define array syntax ([#1120](https://github.com/informatievlaanderen/road-registry/issues/1120)) ([e06c778](https://github.com/informatievlaanderen/road-registry/commit/e06c7789dae520bcab30d994117516e5cce99fe6))
+* ensure init.sh in docker image is the correct one ([#1117](https://github.com/informatievlaanderen/road-registry/issues/1117)) ([788dabe](https://github.com/informatievlaanderen/road-registry/commit/788dabec7c6cd7247767ae3e27d5858b9a00e67b))
+* only copy init.sh if it exists ([#1118](https://github.com/informatievlaanderen/road-registry/issues/1118)) ([d67264f](https://github.com/informatievlaanderen/road-registry/commit/d67264f73eb1ebb08115d225e887beb872f756f6))
+* WR-622+785 roadsegment organization name cannot be empty + update java version for build ([#1116](https://github.com/informatievlaanderen/road-registry/issues/1116)) ([8d114df](https://github.com/informatievlaanderen/road-registry/commit/8d114df07735a0abbdaef2b85c6ecce75bad1577))
+
+## [3.56.3](https://github.com/informatievlaanderen/road-registry/compare/v3.56.2...v3.56.3) (2023-08-11)
+
+
+### Bug Fixes
+
+* pipeline disable step 'Push Lambda functions to S3 New Production' ([#1115](https://github.com/informatievlaanderen/road-registry/issues/1115)) ([24a1015](https://github.com/informatievlaanderen/road-registry/commit/24a10157e2c3f4ca413c831a16bdb2d88edd8709))
+
+## [3.56.2](https://github.com/informatievlaanderen/road-registry/compare/v3.56.1...v3.56.2) (2023-08-10)
+
+
+### Bug Fixes
+
+* newprd lambda s3 bucket names ([#1114](https://github.com/informatievlaanderen/road-registry/issues/1114)) ([e4e35fa](https://github.com/informatievlaanderen/road-registry/commit/e4e35fa1918d073900a758a882887c64e758781b))
+
+## [3.56.1](https://github.com/informatievlaanderen/road-registry/compare/v3.56.0...v3.56.1) (2023-08-10)
+
+
+### Bug Fixes
+
+* add manual deploy pipeline ([#1106](https://github.com/informatievlaanderen/road-registry/issues/1106)) ([784cdd8](https://github.com/informatievlaanderen/road-registry/commit/784cdd840d5e3d8e769c8a0967ce81b868d29fe9))
+* add newprd to release ([#1110](https://github.com/informatievlaanderen/road-registry/issues/1110)) ([5fa3f5b](https://github.com/informatievlaanderen/road-registry/commit/5fa3f5b308d4b1e16cd13e4c954c681635114158))
+* manual deploy pipeline rename `acc` to `newprd` ([#1109](https://github.com/informatievlaanderen/road-registry/issues/1109)) ([a387581](https://github.com/informatievlaanderen/road-registry/commit/a387581964533cf406587a7934ad88c8b108adf0))
+* manual deployment pipeline ([#1107](https://github.com/informatievlaanderen/road-registry/issues/1107)) ([93774b6](https://github.com/informatievlaanderen/road-registry/commit/93774b6957592c5b003b413fa790af0fdd2785e4))
+* manual pipeline lambda deploy ([#1108](https://github.com/informatievlaanderen/road-registry/issues/1108)) ([b786de9](https://github.com/informatievlaanderen/road-registry/commit/b786de9343a15442850ceb82eaf822ec5fae93b4))
+* remove services matrix for build ([#1112](https://github.com/informatievlaanderen/road-registry/issues/1112)) ([2abd84d](https://github.com/informatievlaanderen/road-registry/commit/2abd84d7ef8fb6469a4fca7699ecac9e193245f5))
+* revert use matrix for nuget packages ([#1111](https://github.com/informatievlaanderen/road-registry/issues/1111)) ([10e5962](https://github.com/informatievlaanderen/road-registry/commit/10e5962a0b9505756310c219008a282d316dcb51))
+
+# [3.56.0](https://github.com/informatievlaanderen/road-registry/compare/v3.55.0...v3.56.0) (2023-08-08)
+
+
+### Features
+
+* WR-753 add endpoint to retrieve organizations ([#1105](https://github.com/informatievlaanderen/road-registry/issues/1105)) ([32fac39](https://github.com/informatievlaanderen/road-registry/commit/32fac39f2bc62693e8f08ec78da7ab89c6c2006c))
+* WR-762 add OVO-code to organization ([#1104](https://github.com/informatievlaanderen/road-registry/issues/1104)) ([c242e73](https://github.com/informatievlaanderen/road-registry/commit/c242e736d47c600f00fceffec69d5b64c67203c8))
+
+# [3.55.0](https://github.com/informatievlaanderen/road-registry/compare/v3.54.14...v3.55.0) (2023-08-04)
+
+
+### Features
+
+* WR-632 consume streetname snapshot kafka topic ([#1098](https://github.com/informatievlaanderen/road-registry/issues/1098)) ([05fa885](https://github.com/informatievlaanderen/road-registry/commit/05fa8858757ec97589aa9082a5010eec93a24b13))
+* WR-754 Add meaningful retry after estimation time ([#1097](https://github.com/informatievlaanderen/road-registry/issues/1097)) ([9ce8197](https://github.com/informatievlaanderen/road-registry/commit/9ce819788af850ffa50b2b77d01f20b198f4bcb2))
+
+## [3.54.14](https://github.com/informatievlaanderen/road-registry/compare/v3.54.13...v3.54.14) (2023-08-03)
+
+
+### Bug Fixes
+
+* release pipeline missing --sse parameter ([#1103](https://github.com/informatievlaanderen/road-registry/issues/1103)) ([7771dfd](https://github.com/informatievlaanderen/road-registry/commit/7771dfd7c8bc3398b64ae2634805ff1d29dce628))
+
+## [3.54.13](https://github.com/informatievlaanderen/road-registry/compare/v3.54.12...v3.54.13) (2023-08-03)
+
+
+### Bug Fixes
+
+* test s3 lambda bucket names ([#1102](https://github.com/informatievlaanderen/road-registry/issues/1102)) ([27d5ec8](https://github.com/informatievlaanderen/road-registry/commit/27d5ec83b48239469a6f32b1ea880eeba16b783a))
+
+## [3.54.12](https://github.com/informatievlaanderen/road-registry/compare/v3.54.11...v3.54.12) (2023-08-03)
+
+
+### Bug Fixes
+
+* WR-756 endpoint auth scopes ([#1099](https://github.com/informatievlaanderen/road-registry/issues/1099)) ([b14a2d3](https://github.com/informatievlaanderen/road-registry/commit/b14a2d399d986781b4dabc94e7627470ea1eae9b))
+
+## [3.54.11](https://github.com/informatievlaanderen/road-registry/compare/v3.54.10...v3.54.11) (2023-08-02)
+
+
+### Bug Fixes
+
+* WR-689 redirect url on logout ([#1096](https://github.com/informatievlaanderen/road-registry/issues/1096)) ([7e8466d](https://github.com/informatievlaanderen/road-registry/commit/7e8466d0c4cd7a612964abf3eb0d6fdb3c160848))
+
+## [3.54.10](https://github.com/informatievlaanderen/road-registry/compare/v3.54.9...v3.54.10) (2023-08-01)
+
+
+### Bug Fixes
+
+* logout with ACM/IDM ([#1095](https://github.com/informatievlaanderen/road-registry/issues/1095)) ([f498cc0](https://github.com/informatievlaanderen/road-registry/commit/f498cc054114dece1953d16e440e3e9798beef93))
+
+## [3.54.9](https://github.com/informatievlaanderen/road-registry/compare/v3.54.8...v3.54.9) (2023-08-01)
+
+
+### Bug Fixes
+
+* WR-689 remove test handler ([#1094](https://github.com/informatievlaanderen/road-registry/issues/1094)) ([c46a9d6](https://github.com/informatievlaanderen/road-registry/commit/c46a9d6fe33d00675852ee9a2d5c28607e8a3e30))
+
+## [3.54.8](https://github.com/informatievlaanderen/road-registry/compare/v3.54.7...v3.54.8) (2023-07-31)
+
+
+### Bug Fixes
+
+* WR-689 add test handler for JwtBearer ([#1093](https://github.com/informatievlaanderen/road-registry/issues/1093)) ([e8105fb](https://github.com/informatievlaanderen/road-registry/commit/e8105fb698312f72893afb8c455220d5fd483707))
+
+## [3.54.7](https://github.com/informatievlaanderen/road-registry/compare/v3.54.6...v3.54.7) (2023-07-28)
+
+
+### Bug Fixes
+
+* remove DOCKER_TMPDIR ([#1092](https://github.com/informatievlaanderen/road-registry/issues/1092)) ([9362eb8](https://github.com/informatievlaanderen/road-registry/commit/9362eb89c185d63873ae357954930b9e62dbef18))
+
+## [3.54.6](https://github.com/informatievlaanderen/road-registry/compare/v3.54.5...v3.54.6) (2023-07-28)
+
+
+### Bug Fixes
+
+* WR-689 use separate auth scheme for JwtBearer ([#1091](https://github.com/informatievlaanderen/road-registry/issues/1091)) ([a092a8c](https://github.com/informatievlaanderen/road-registry/commit/a092a8c2a0aed9648cc7623e8562cec91c6d3a24))
+
+## [3.54.5](https://github.com/informatievlaanderen/road-registry/compare/v3.54.4...v3.54.5) (2023-07-28)
+
+
+### Bug Fixes
+
+* pipeline delete unnecessary folders ([#1089](https://github.com/informatievlaanderen/road-registry/issues/1089)) ([ac0a32b](https://github.com/informatievlaanderen/road-registry/commit/ac0a32b811de31c0d0e215959fd082d84d81702b))
+* pipeline typo ([#1090](https://github.com/informatievlaanderen/road-registry/issues/1090)) ([6c333af](https://github.com/informatievlaanderen/road-registry/commit/6c333af4be0fdaee3484b7b29eb509f8f7570a43))
+
+## [3.54.4](https://github.com/informatievlaanderen/road-registry/compare/v3.54.3...v3.54.4) (2023-07-27)
+
+
+### Bug Fixes
+
+* WR-689 add auth for jwttoken ([#1088](https://github.com/informatievlaanderen/road-registry/issues/1088)) ([e11fdab](https://github.com/informatievlaanderen/road-registry/commit/e11fdabaa9c851e5899cceae0a9d0ab4addea7d0))
+* WR-774 FC validate roadnode ids; correctly use new id when existing is replaced ([#1087](https://github.com/informatievlaanderen/road-registry/issues/1087)) ([c9c2d61](https://github.com/informatievlaanderen/road-registry/commit/c9c2d617c5bf4cdc94168eda743b7f3cec506d12))
+
+## [3.54.3](https://github.com/informatievlaanderen/road-registry/compare/v3.54.2...v3.54.3) (2023-07-26)
+
+
+### Bug Fixes
+
+* add df -h logging to pipeline ([#1086](https://github.com/informatievlaanderen/road-registry/issues/1086)) ([500867c](https://github.com/informatievlaanderen/road-registry/commit/500867ca0a3e15b5071dedcb919433c1973082ad))
+
+## [3.54.2](https://github.com/informatievlaanderen/road-registry/compare/v3.54.1...v3.54.2) (2023-07-26)
+
+
+### Bug Fixes
+
+* version bump ([#1085](https://github.com/informatievlaanderen/road-registry/issues/1085)) ([a988dfc](https://github.com/informatievlaanderen/road-registry/commit/a988dfcfbf5d64fd5f099da960faa123158a37e1))
+
+## [3.54.1](https://github.com/informatievlaanderen/road-registry/compare/v3.54.0...v3.54.1) (2023-07-26)
+
+
+### Bug Fixes
+
+* WR-703 change dynamic attributes examples class ([#1084](https://github.com/informatievlaanderen/road-registry/issues/1084)) ([87589a3](https://github.com/informatievlaanderen/road-registry/commit/87589a35bdbd466d2c3118c4d980f465a6d6e9b7))
+
+# [3.54.0](https://github.com/informatievlaanderen/road-registry/compare/v3.53.4...v3.54.0) (2023-07-25)
+
+
+### Bug Fixes
+
+* Singular exception message for email client ([#1081](https://github.com/informatievlaanderen/road-registry/issues/1081)) ([f8d580c](https://github.com/informatievlaanderen/road-registry/commit/f8d580c219fd38dafe91b94496fd42d97edfb5e2))
+* WR-775 hard delete previously removed surfaces from another roadsegment when adding to a new roadsegment ([#1082](https://github.com/informatievlaanderen/road-registry/issues/1082)) ([90a8151](https://github.com/informatievlaanderen/road-registry/commit/90a8151bbaea1fdd7f688b04c40a15dba52715cf))
+
+
+### Features
+
+* WR-703 change url of latest change roadsegments endpoint ([#1083](https://github.com/informatievlaanderen/road-registry/issues/1083)) ([184edca](https://github.com/informatievlaanderen/road-registry/commit/184edcabe0ff76a8399597a9cb631a85c87f4d6e))
+
+## [3.53.4](https://github.com/informatievlaanderen/road-registry/compare/v3.53.3...v3.53.4) (2023-07-25)
+
+
+### Bug Fixes
+
+* Don't crash when emailer fails ([#1080](https://github.com/informatievlaanderen/road-registry/issues/1080)) ([e8627f9](https://github.com/informatievlaanderen/road-registry/commit/e8627f9b6f7b329ac25afe611037a6600ec58e70))
+* WR-770 remove special rules for roadsegment attributes outlined ([#1079](https://github.com/informatievlaanderen/road-registry/issues/1079)) ([c2c3cd3](https://github.com/informatievlaanderen/road-registry/commit/c2c3cd31d3b3df32c476db665e4eb138210b8a36))
+
+## [3.53.3](https://github.com/informatievlaanderen/road-registry/compare/v3.53.2...v3.53.3) (2023-07-24)
+
+
+### Bug Fixes
+
+* WR-775 re-adding previously removed entities in kafka ([#1073](https://github.com/informatievlaanderen/road-registry/issues/1073)) ([3244ea9](https://github.com/informatievlaanderen/road-registry/commit/3244ea9cf1e8db42c7d8f54cb29c5f261ad370db))
+
+## [3.53.2](https://github.com/informatievlaanderen/road-registry/compare/v3.53.1...v3.53.2) (2023-07-19)
+
+
+### Bug Fixes
+
+* WR-689 read dv_wegenregister claim to determine scopes ([#1072](https://github.com/informatievlaanderen/road-registry/issues/1072)) ([7a4a356](https://github.com/informatievlaanderen/road-registry/commit/7a4a356e77632ecc5ac3843c445e4b86920d19d5))
+
+## [3.53.1](https://github.com/informatievlaanderen/road-registry/compare/v3.53.0...v3.53.1) (2023-07-19)
+
+
+### Bug Fixes
+
+* WR-689 use any DV scope to check if authenticated ([#1071](https://github.com/informatievlaanderen/road-registry/issues/1071)) ([83bb2a4](https://github.com/informatievlaanderen/road-registry/commit/83bb2a41eff1112fe0755459acba987cea2567cb))
+
+# [3.53.0](https://github.com/informatievlaanderen/road-registry/compare/v3.52.11...v3.53.0) (2023-07-18)
+
+
+### Bug Fixes
+
+* Add configuration instead of fixed value email sender ([#1066](https://github.com/informatievlaanderen/road-registry/issues/1066)) ([3e00f40](https://github.com/informatievlaanderen/road-registry/commit/3e00f4014a16eb940211e07a6d23eeaf8133f18b))
+* add integration data to ExtractsZipArchiveBuilder to ensure test always succeeds ([#1067](https://github.com/informatievlaanderen/road-registry/issues/1067)) ([a9c5ae2](https://github.com/informatievlaanderen/road-registry/commit/a9c5ae264c44b3a209e5f94c3304bffc1dcaaaa2))
+* WR-689 add logging ([#1068](https://github.com/informatievlaanderen/road-registry/issues/1068)) ([8bce479](https://github.com/informatievlaanderen/road-registry/commit/8bce479cae7b7636b8aff8b4ab80ff2cc4830d30))
+
+
+### Features
+
+* WR-759 add validations + use FC feature reader for before-FC validation ([#1065](https://github.com/informatievlaanderen/road-registry/issues/1065)) ([8482382](https://github.com/informatievlaanderen/road-registry/commit/848238225b34a42a9f875988164a202938cabbbb))
+
+## [3.52.11](https://github.com/informatievlaanderen/road-registry/compare/v3.52.10...v3.52.11) (2023-07-18)
+
+
+### Bug Fixes
+
+* Attempted release pipeline ([#1064](https://github.com/informatievlaanderen/road-registry/issues/1064)) ([a1c9e34](https://github.com/informatievlaanderen/road-registry/commit/a1c9e3448ae3bb098a19d4e5593136cdbbc09a8d))
+
 ## [3.52.10](https://github.com/informatievlaanderen/road-registry/compare/v3.52.9...v3.52.10) (2023-07-17)
 
 

@@ -51,11 +51,7 @@ export const AuthService = {
   async loginAcmIdm(url: string): Promise<void> {
     await OidcClient.initialize();
 
-    var request = await OidcClient.instance.createSigninRequest({
-      state: {
-        bar: 15,
-      },
-    });
+    var request = await OidcClient.instance.createSigninRequest({});
 
     sessionStorage.setItem(WR_AUTH_OIDC_VERIFIER, request.state.code_verifier as string);
     sessionStorage.setItem(WR_AUTH_REDIRECT_URL, url);
@@ -63,45 +59,31 @@ export const AuthService = {
   },
   async completeAcmIdmLogin(code: string): Promise<void> {
     const verifier = sessionStorage.getItem(WR_AUTH_OIDC_VERIFIER) as string;
-    console.log('verifier', verifier);
     const redirectUri = OidcClient.instance.settings.redirect_uri;
-    console.log('redirectUri', redirectUri);
     const token = await PublicApi.Security.getExchangeCode(code, verifier, redirectUri);
-    console.log('token', token);
     sessionStorage.setItem(WR_AUTH_OIDC_TOKEN, token);
 
     try {
-      console.log('Loading user from token', token);
       await this.loadUserFromToken(token);
-      
+
       const isAuthenticated = await this.checkAuthentication();
       if (!isAuthenticated) {
-        console.error('Login failed, isAuthenticated == false')
-        //throw new Error("Er is een fout gebeurd bij het inloggen.");
+        throw new Error("Er is een fout gebeurd bij het inloggen.");
       }
-      
+
       const url = sessionStorage.getItem(WR_AUTH_REDIRECT_URL) as string;
-      console.log("Login success, redirect to", url || "/");
-      //router.push(url || "/");
+      router.push(url || "/");
     } catch (err) {
       this.reset();
       throw err;
     }
   },
   async logout(): Promise<void> {
-    if (sessionStorage.getItem(WR_AUTH_APIKEY)) {
-      this.reset();
-      router.push({ name: "login" });
-    } else if (sessionStorage.getItem(WR_AUTH_OIDC_VERIFIER)) {
-      this.reset();
-      let request = await OidcClient.instance.createSignoutRequest({
-        state: {
-          bar: 15,
-        },
-      });
-
-      window.location.href = request.url;
+    if (this.getToken()) {
+      await OidcClient.instance.createSignoutRequest();
     }
+    this.reset();
+    router.push({ name: "login" });
   },
   async checkAuthentication(): Promise<boolean> {
     isAuthenticated.state = await PublicApi.Security.userIsAuthenticated();
@@ -110,7 +92,6 @@ export const AuthService = {
   async loadUserFromToken(token: string): Promise<void> {
     try {
       const userToken = UserTokenResult.fromJwt(token);
-      console.log('userToken', userToken);
       if (userToken.isExpired) {
         throw new Error("Token session expired");
       }

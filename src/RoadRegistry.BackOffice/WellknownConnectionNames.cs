@@ -24,6 +24,8 @@ public static class WellknownConnectionNames
     public const string WmsProjectionsAdmin = "WmsProjectionsAdmin";
     public const string WfsProjections = "WfsProjections";
     public const string WfsProjectionsAdmin = "WfsProjectionsAdmin";
-    public const string StreetNameConsumer = "StreetNameConsumer";
-    public const string StreetNameConsumerAdmin = "StreetNameConsumerAdmin";
+    public const string StreetNameConsumerProjections = "StreetNameConsumerProjections";
+    public const string StreetNameConsumerProjectionsAdmin = "StreetNameConsumerProjectionsAdmin";
+    public const string OrganizationConsumerProjections = "OrganizationConsumerProjections";
+    public const string OrganizationConsumerProjectionsAdmin = "OrganizationConsumerProjectionsAdmin";
 }

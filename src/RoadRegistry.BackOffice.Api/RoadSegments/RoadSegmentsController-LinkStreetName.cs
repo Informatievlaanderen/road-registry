@@ -13,7 +13,7 @@ using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
 using Infrastructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +42,7 @@ public partial class RoadSegmentsController
     /// <response code="412">Als de If-Match header niet overeenkomt met de laatste ETag.</response>
     /// <response code="500">Als er een interne fout is opgetreden.</response>
     [HttpPost(LinkStreetNameRoute, Name = nameof(LinkStreetName))]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = PolicyNames.WegenAttribuutWaarden.Beheerder)]
+    [Authorize(AuthenticationSchemes = AuthenticationSchemes.AllBearerSchemes, Policy = PolicyNames.WegenAttribuutWaarden.Beheerder)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
@@ -82,11 +82,7 @@ public partial class RoadSegmentsController
             var request = new LinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
-            var result = await _mediator.Send(Enrich(
-                new LinkStreetNameSqsRequest
-                {
-                    Request = request
-                }), cancellationToken);
+            var result = await _mediator.Send(new LinkStreetNameSqsRequest { Request = request }, cancellationToken);
 
             return Accepted(result);
         }

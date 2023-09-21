@@ -20,12 +20,13 @@ public partial class ExtractsControllerTests : ControllerTests<ExtractsControlle
 
     public ExtractsControllerTests(
         SqlServer sqlServerFixture,
+        ExtractsController controller,
         IMediator mediator,
         IStreamStore streamStore,
         RoadNetworkUploadsBlobClient uploadClient,
         RoadNetworkExtractUploadsBlobClient extractUploadClient,
         RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
-        : base(mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
+        : base(controller, mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
     {
         _sqlServerFixture = sqlServerFixture;
         _fixture = new Fixture();

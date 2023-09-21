@@ -1,6 +1,6 @@
 {
   "name": "road-registry",
-  "version": "3.52.10",
+  "version": "3.59.9",
   "description": "Authentic base registry containing all road nodes and segments of Flanders.",
   "author": "Basisregisters Vlaanderen",
   "license": "EUPL-1.2",
@@ -89,6 +89,10 @@
     },
     "generateNotes": [
       {
+        "path": "@semantic-release/exec",
+        "cmd": "echo ${nextRelease.version} > semver"
+      },
+      {
         "path": "@semantic-release/release-notes-generator",
         "preset": "angular",
         "parserOpts": {
@@ -114,14 +118,6 @@
       {
         "path": "@semantic-release/npm",
         "npmPublish": false
-      },
-      {
-        "path": "@semantic-release/exec",
-        "cmd": "echo ${nextRelease.version} > semver"
-      },
-      {
-        "path": "@semantic-release/exec",
-        "cmd": "CI_BUILD_NUMBER=${nextRelease.version} ./build.sh Containerize"
       },
       {
         "path": "@semantic-release/git",

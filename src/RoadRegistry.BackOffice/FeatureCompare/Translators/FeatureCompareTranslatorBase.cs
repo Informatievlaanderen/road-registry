@@ -9,6 +9,15 @@ using System.Threading.Tasks;
 using Extracts;
 using Uploads;
 
+public static class Feature
+{
+    public static Feature<TAttributes> New<TAttributes>(RecordNumber recordNumber, TAttributes attributes)
+        where TAttributes : class
+    {
+        return new Feature<TAttributes>(recordNumber, attributes);
+    }
+}
+
 public record Feature<TAttributes>(RecordNumber RecordNumber, TAttributes Attributes) where TAttributes : class;
 
 internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEntryFeatureCompareTranslator
@@ -21,22 +30,22 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
 
     protected Encoding Encoding { get; }
     
-    protected abstract List<Feature<TAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName);
+    protected abstract (List<Feature<TAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context);
 
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndChangeFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, ExtractFileName fileName)
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndChangeFeatures(ZipArchive archive, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
-        var extractFeatures = ReadFeatures(entries, FeatureType.Extract, fileName);
-        var changeFeatures = ReadFeatures(entries, FeatureType.Change, fileName);
-        return (extractFeatures, changeFeatures);
+        var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
+        var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
+        return (extractFeatures, changeFeatures, extractFeaturesProblems + changeFeaturesProblems);
     }
 
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>) ReadExtractAndLeveringAndIntegrationFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, ExtractFileName fileName)
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndLeveringAndIntegrationFeatures(ZipArchive archive, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
-        var extractFeatures = ReadFeatures(entries, FeatureType.Extract, fileName);
-        var changeFeatures = ReadFeatures(entries, FeatureType.Change, fileName);
-        var integrationFeatures = ReadFeatures(entries, FeatureType.Integration, fileName);
-        return (extractFeatures, changeFeatures, integrationFeatures);
+        var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
+        var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
+        var (integrationFeatures, _) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
+        return (extractFeatures, changeFeatures, integrationFeatures, extractFeaturesProblems + changeFeaturesProblems);
     }
     
-    public abstract Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);
+    public abstract Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);
 }

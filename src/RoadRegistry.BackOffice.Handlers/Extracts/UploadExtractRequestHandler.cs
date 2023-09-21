@@ -107,7 +107,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
                 UseZipArchiveFeatureCompareTranslator = request.UseZipArchiveFeatureCompareTranslator
             });
 
-        await Dispatcher(message, cancellationToken);
+        await Dispatch(message, cancellationToken);
 
         return new UploadExtractResponse(uploadId);
     }

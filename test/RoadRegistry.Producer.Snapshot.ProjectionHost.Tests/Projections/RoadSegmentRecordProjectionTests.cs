@@ -3,6 +3,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 using System.Globalization;
 using AutoFixture;
 using BackOffice;
+using BackOffice.Abstractions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
@@ -52,18 +53,30 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
         _fixture.CustomizeRoadSegmentRemoved();
     }
 
-    [Fact]
-    public async Task When_adding_road_segment()
+    private static Mock<IKafkaProducer> BuildKafkaProducer()
     {
-        var message = _fixture
-            .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
+        var kafkaProducer = new Mock<IKafkaProducer>();
+        kafkaProducer
+            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
+            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
+        return kafkaProducer;
+    }
 
-        var created = DateTimeOffset.UtcNow;
+    private static Mock<IStreetNameCache> BuildStreetNameCache()
+    {
+        var streetNameCache = new Mock<IStreetNameCache>();
+        streetNameCache
+            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
+            .ReturnsAsync((StreetNameCacheItem)null);
+        return streetNameCache;
+    }
 
-        var expectedRecords = Array.ConvertAll(message.Changes, change =>
+    private static ICollection<object> ConvertToRoadSegmentRecords(RoadNetworkChangesAccepted message, DateTimeOffset created, Action<RoadSegmentRecord> modifier = null)
+    {
+        return Array.ConvertAll(message.Changes, change =>
         {
             var roadSegmentAdded = change.RoadSegmentAdded;
+
             var transactionId = new TransactionId(message.TransactionId);
             var method = RoadSegmentGeometryDrawMethod.Parse(roadSegmentAdded.GeometryDrawMethod);
             var accessRestriction = RoadSegmentAccessRestriction.Parse(roadSegmentAdded.AccessRestriction);
@@ -71,7 +84,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             var morphology = RoadSegmentMorphology.Parse(roadSegmentAdded.Morphology);
             var category = RoadSegmentCategory.Parse(roadSegmentAdded.Category);
 
-            var roadSegmentRecord = new RoadSegmentRecord
+            var record = new RoadSegmentRecord
             {
                 Id = roadSegmentAdded.Id,
                 Version = roadSegmentAdded.Version,
@@ -119,24 +132,14 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 Origin = message.ToOrigin(),
                 LastChangedTimestamp = created
             };
-            return (object)roadSegmentRecord;
+
+            modifier?.Invoke(record);
+            return (object)record;
         });
+    }
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
-
-        var streetNameCache = new Mock<IStreetNameCache>();
-        streetNameCache
-            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync((StreetNameRecord)null);
-
-        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
-            .Scenario()
-            .Given(message)
-            .Expect(created.UtcDateTime, expectedRecords);
-
+    private void KafkaVerify(Mock<IKafkaProducer> kafkaProducer, IEnumerable<object> expectedRecords, Times? times = null)
+    {
         foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
         {
             kafkaProducer.Verify(
@@ -144,8 +147,30 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
                     It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
                     It.IsAny<CancellationToken>()),
-                Times.Once);
+                times ?? Times.Once());
         }
+    }
+
+    [Fact]
+    public async Task When_adding_road_segment()
+    {
+        var message = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
+
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = ConvertToRoadSegmentRecords(message, created);
+
+        var kafkaProducer = BuildKafkaProducer();
+        var streetNameCache = BuildStreetNameCache();
+
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(message)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -226,30 +251,15 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             return (object)roadSegmentRecord;
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
-
-        var streetNameCache = new Mock<IStreetNameCache>();
-        streetNameCache
-            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync((StreetNameRecord)null);
+        var kafkaProducer = BuildKafkaProducer();
+        var streetNameCache = BuildStreetNameCache();
 
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentAttributesModified)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -330,30 +340,15 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             return (object)roadSegmentRecord;
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
-
-        var streetNameCache = new Mock<IStreetNameCache>();
-        streetNameCache
-            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync((StreetNameRecord)null);
+        var kafkaProducer = BuildKafkaProducer();
+        var streetNameCache = BuildStreetNameCache();
 
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentGeometryModified)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -432,30 +427,15 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             return (object)roadSegmentRecord;
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
-
-        var streetNameCache = new Mock<IStreetNameCache>();
-        streetNameCache
-            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync((StreetNameRecord)null);
+        var kafkaProducer = BuildKafkaProducer();
+        var streetNameCache = BuildStreetNameCache();
 
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentModified)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -545,30 +525,15 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             return (object)roadSegmentRecord;
         });
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
-
-        var streetNameCache = new Mock<IStreetNameCache>();
-        streetNameCache
-            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync((StreetNameRecord)null);
+        var kafkaProducer = BuildKafkaProducer();
+        var streetNameCache = BuildStreetNameCache();
 
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved)
             .Expect(created.UtcDateTime, expectedRecords);
 
-        foreach (var expectedRecord in expectedRecords.Cast<RoadSegmentRecord>())
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 
     [Fact]
@@ -645,29 +610,43 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                 };
             }).ToList();
 
-        var kafkaProducer = new Mock<IKafkaProducer>();
-        kafkaProducer
-            .Setup(x => x.Produce(It.IsAny<string>(), It.IsAny<RoadSegmentSnapshot>(), CancellationToken.None))
-            .ReturnsAsync(Result<RoadSegmentSnapshot>.Success(It.IsAny<RoadSegmentSnapshot>()));
-
-        var streetNameCache = new Mock<IStreetNameCache>();
-        streetNameCache
-            .Setup(x => x.GetAsync(It.IsAny<int>(), CancellationToken.None))
-            .ReturnsAsync((StreetNameRecord)null);
+        var kafkaProducer = BuildKafkaProducer();
+        var streetNameCache = BuildStreetNameCache();
 
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(data.Select(d => d.ImportedRoadSegment))
             .Expect(created.UtcDateTime, data.Select(d => d.ExpectedRecord));
 
-        foreach (var expectedRecord in data.AsReadOnly().Select(x => x.ExpectedRecord))
-        {
-            kafkaProducer.Verify(
-                x => x.Produce(
-                    expectedRecord.Id.ToString(CultureInfo.InvariantCulture),
-                    It.Is(expectedRecord.ToContract(), new RoadSegmentSnapshotEqualityComparer()),
-                    It.IsAny<CancellationToken>()),
-                Times.Once);
-        }
+        var expectedRecords = data.AsReadOnly().Select(x => x.ExpectedRecord).ToArray();
+        KafkaVerify(kafkaProducer, expectedRecords);
+    }
+
+    [Fact]
+    public async Task When_adding_road_segments_which_were_previously_removed()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var acceptedRoadSegmentRemoved = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentRemoved>());
+
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = ConvertToRoadSegmentRecords(acceptedRoadSegmentAdded, created);
+
+        var kafkaProducer = BuildKafkaProducer();
+        var streetNameCache = BuildStreetNameCache();
+
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(acceptedRoadSegmentAdded, acceptedRoadSegmentRemoved, acceptedRoadSegmentAdded)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords, Times.Exactly(2));
     }
 }

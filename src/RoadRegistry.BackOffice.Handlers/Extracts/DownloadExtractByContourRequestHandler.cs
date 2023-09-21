@@ -36,7 +36,7 @@ public class DownloadExtractByContourRequestHandler : ExtractRequestHandler<Down
         };
 
         var command = new Command(message);
-        await Dispatcher(command, cancellationToken);
+        await Dispatch(command, cancellationToken);
 
         return new DownloadExtractByContourResponse(downloadId, request.IsInformative);
     }

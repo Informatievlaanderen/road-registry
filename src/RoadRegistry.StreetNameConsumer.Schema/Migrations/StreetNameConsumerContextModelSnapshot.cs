@@ -17,7 +17,7 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.10")
+                .HasAnnotation("ProductVersion", "6.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -95,30 +95,20 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                         .HasColumnType("nvarchar(max)")
                         .HasComputedColumnSql("COALESCE(GermanName + COALESCE('_' + GermanHomonymAddition,''), GermanHomonymAddition) PERSISTED");
 
-                    b.Property<string>("HomonymAddition")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("MunicipalityId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NameWithHomonymAddition")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("nvarchar(max)")
-                        .HasComputedColumnSql("COALESCE(Name + COALESCE('_' + HomonymAddition,''), HomonymAddition) PERSISTED");
+                    b.Property<bool>("IsRemoved")
+                        .HasColumnType("bit");
 
                     b.Property<string>("NisCode")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("PersistentLocalId")
+                    b.Property<long>("Offset")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("PersistentLocalId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StreetNameStatus")
-                        .HasColumnType("int");
+                    b.Property<string>("StreetNameStatus")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("StreetNameId");
 
@@ -127,6 +117,8 @@ namespace RoadRegistry.StreetNameConsumer.Schema.Migrations
                     b.HasIndex("StreetNameId");
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("StreetNameId"), false);
+
+                    b.HasIndex("StreetNameStatus");
 
                     b.ToTable("StreetName", "RoadRegistryStreetNameConsumer");
                 });

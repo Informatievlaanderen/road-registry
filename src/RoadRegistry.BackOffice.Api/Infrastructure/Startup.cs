@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
 using System;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -9,6 +8,7 @@ using Abstractions;
 using Abstractions.Configuration;
 using Amazon;
 using Amazon.DynamoDBv2;
+using Authentication;
 using Authorization;
 using Autofac;
 using BackOffice.Extensions;
@@ -22,17 +22,21 @@ using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
+using Behaviors;
 using Configuration;
 using Controllers.Attributes;
 using Core;
 using Editor.Schema;
+using Extensions;
 using FeatureCompare.Translators;
+using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Handlers.Extensions;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -51,10 +55,8 @@ using Microsoft.OpenApi.Models;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
+using Options;
 using Product.Schema;
-using RoadRegistry.BackOffice.Api.Infrastructure.Authentication;
-using RoadRegistry.BackOffice.Api.Infrastructure.Extensions;
-using RoadRegistry.BackOffice.Api.Infrastructure.Options;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
@@ -161,7 +163,7 @@ public class Startup
                 }
             })
             ;
-        
+
     }
 
     public void ConfigureContainer(ContainerBuilder builder)
@@ -170,8 +172,10 @@ public class Startup
             .RegisterModule(new DataDogModule(_configuration))
             .RegisterModule<BlobClientModule>()
             .RegisterModule<MediatorModule>()
-            .RegisterModule<SnapshotSqsHandlersModule>()
-            ;
+            .RegisterModule<SnapshotSqsHandlersModule>();
+
+        builder
+            .RegisterGeneric(typeof(IdentityPipelineBehavior<,>)).As(typeof(IPipelineBehavior<,>));
 
         builder
             .RegisterModulesFromAssemblyContaining<Startup>()
@@ -182,14 +186,10 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
-        var oAuth2IntrospectionOptions = _configuration
-            .GetSection(nameof(OAuth2IntrospectionOptions))
-            .Get<OAuth2IntrospectionOptions>();
+        var oAuth2IntrospectionOptions = _configuration.GetOptions<OAuth2IntrospectionOptions>(nameof(OAuth2IntrospectionOptions));
+        var openIdConnectOptions = _configuration.GetOptions<OpenIdConnectOptions>();
 
-        var baseUrl = _configuration.GetValue<string>("BaseUrl");
-        var baseUrlForExceptions = baseUrl.EndsWith("/")
-            ? baseUrl.Substring(0, baseUrl.Length - 1)
-            : baseUrl;
+        var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
 
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
@@ -206,7 +206,7 @@ public class Startup
                 },
                 Server =
                 {
-                    BaseUrl = baseUrlForExceptions
+                    BaseUrl = baseUrl
                 },
                 Swagger =
                 {
@@ -257,7 +257,8 @@ public class Startup
                     {
                         options
                             .AddAcmIdmAuthorization()
-                            .AddAcmIdmPolicyVoInfo();
+                            .AddAcmIdmPolicyVoInfo()
+                            ;
                     }
                 }
             })
@@ -306,6 +307,8 @@ public class Startup
                         sp.GetService<ILifetimeScope>(),
                         sp.GetService<IRoadNetworkSnapshotReader>(),
                         sp.GetService<IClock>(),
+                        sp.GetRequiredService<UseOvoCodeInChangeRoadNetworkFeatureToggle>(),
+                        sp.GetService<IExtractUploadFailedEmailClient>(),
                         sp.GetService<ILoggerFactory>()
                     ),
                     new RoadNetworkExtractCommandModule(
@@ -326,20 +329,7 @@ public class Startup
             .AddScoped(sp => new TraceDbConnection<SyndicationContext>(
                 new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections)),
                 sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
-            .AddSingleton<IStreetNameCache, StreetNameCache>()
-            .AddSingleton<Func<SyndicationContext>>(sp =>
-                () =>
-                    new SyndicationContext(
-                        new DbContextOptionsBuilder<SyndicationContext>()
-                            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                            .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                            .UseSqlServer(
-                                _configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
-                                options => options
-                                    .EnableRetryOnFailure()
-                            )
-                            .Options)
-            )
+            .AddStreetNameCache()
             .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
@@ -368,7 +358,7 @@ public class Startup
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .Configure<ResponseOptions>(_configuration)
-            .AddAcmIdmAuth(oAuth2IntrospectionOptions!)
+            .AddAcmIdmAuth(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             ;
 

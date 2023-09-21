@@ -1,5 +1,6 @@
 namespace RoadRegistry.Tests.BackOffice;
 
+using Albedo;
 using AutoFixture;
 using AutoFixture.Idioms;
 using AutoFixture.Kernel;
@@ -14,6 +15,32 @@ public class OperatorNameTests
     {
         _fixture = new Fixture();
         _fixture.CustomizeOperatorName();
+    }
+
+    [Fact]
+    public void AcceptsValueReturnsExpectedResult()
+    {
+        var value = _fixture.Create<OperatorName>().ToString();
+
+        Assert.True(OperatorName.AcceptsValue(value));
+    }
+
+    [Fact]
+    public void AcceptsValueReturnsExpectedResultWhenValueLongerThan64Chars()
+    {
+        const int length = OperatorName.MaxLength + 1;
+
+        var value = new string((char)new Random().Next(97, 123), length);
+
+        Assert.False(OperatorName.AcceptsValue(value));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void AcceptsValueReturnsExpectedResultWhenValueNullOrEmpty(string value)
+    {
+        Assert.False(OperatorName.AcceptsValue(value));
     }
 
     [Fact]
@@ -61,13 +88,6 @@ public class OperatorNameTests
                 )
             ));
         new CompositeIdiomaticAssertion(
-            new GuardClauseAssertion(
-                _fixture,
-                new CompositeBehaviorExpectation(
-                    new NullReferenceBehaviorExpectation(),
-                    new EmptyStringBehaviorExpectation()
-                )
-            ),
             new ImplicitConversionOperatorAssertion<string>(
                 new CompositeSpecimenBuilder(customizedString, _fixture)),
             new EquatableEqualsSelfAssertion(_fixture),
@@ -83,5 +103,13 @@ public class OperatorNameTests
             new EqualsSuccessiveAssertion(_fixture),
             new GetHashCodeSuccessiveAssertion(_fixture)
         ).Verify(typeof(OperatorName));
+
+        new GuardClauseAssertion(
+            _fixture,
+            new CompositeBehaviorExpectation(
+                new NullReferenceBehaviorExpectation(),
+                new EmptyStringBehaviorExpectation()
+            )
+        ).Verify(Constructors.Select(() => new OperatorName(null)));
     }
 }

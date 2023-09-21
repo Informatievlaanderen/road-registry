@@ -20,22 +20,22 @@ internal class RoadSegmentSurfaceFeatureCompareTranslator : RoadSegmentAttribute
                && feature1.Attributes.Type == feature2.Attributes.Type;
     }
 
-    protected override List<Feature<RoadSegmentSurfaceFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    protected override (List<Feature<RoadSegmentSurfaceFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var featureReader = new RoadSegmentSurfaceFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(entries, featureType, fileName);
+        return featureReader.Read(archive, featureType, fileName, context);
     }
 
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)
         {
-            var segmentId = new RoadSegmentId(record.Feature.Attributes.RoadSegmentId!.Value);
+            var segmentId = record.Feature.Attributes.RoadSegmentId;
             var surface = new RoadSegmentSurfaceAttribute(
-                new AttributeId(record.Feature.Attributes.Id!.Value),
-                RoadSegmentSurfaceType.ByIdentifier[record.Feature.Attributes.Type],
-                RoadSegmentPosition.FromDouble(record.Feature.Attributes.FromPosition!.Value),
-                RoadSegmentPosition.FromDouble(record.Feature.Attributes.ToPosition!.Value)
+                record.Feature.Attributes.Id,
+                record.Feature.Attributes.Type,
+                record.Feature.Attributes.FromPosition,
+                record.Feature.Attributes.ToPosition
             );
             if (changes.TryFindRoadSegmentProvisionalChange(segmentId, out var provisionalChange))
             {

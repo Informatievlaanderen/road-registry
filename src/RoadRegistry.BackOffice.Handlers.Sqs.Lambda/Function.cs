@@ -2,7 +2,7 @@
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using Abstractions;
+using System.Reflection;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Infrastructure.Modules;
@@ -13,10 +13,9 @@ using FluentValidation;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
-using Infrastructure.Modules;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Reflection;
+using StreetName;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
@@ -34,7 +33,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
     protected override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         services
-            .AddSingleton<IStreetNameCache, StreetNameCache>()
+            .AddStreetNameCache()
             .AddDistributedStreamStoreLockOptions()
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkEventWriter()
@@ -46,6 +45,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
                 })
             )
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
+            .AddStreetNameClient()
             ;
     }
 
@@ -57,7 +57,6 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .RegisterModule(new EventHandlingModule(typeof(BackOffice.Handlers.DomainAssemblyMarker).Assembly, EventSerializerSettings))
             .RegisterModule<CommandHandlingModule>()
             .RegisterModule<ContextModule>()
-            .RegisterModule<SyndicationModule>()
             .RegisterModule<SqsHandlersModule>()
             ;
 

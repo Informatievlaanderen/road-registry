@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using Product.Schema;
+using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
 using Uploads;
 
@@ -38,6 +39,8 @@ public class Startup : TestStartup
                     sp.GetService<ILifetimeScope>(),
                     sp.GetService<IRoadNetworkSnapshotReader>(),
                     sp.GetService<IClock>(),
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetService<ILoggerFactory>()
                 ),
                 new RoadNetworkExtractCommandModule(

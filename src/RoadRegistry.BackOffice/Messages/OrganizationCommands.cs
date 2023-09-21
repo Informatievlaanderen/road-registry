@@ -8,6 +8,7 @@ public static class OrganizationCommands
     {
         typeof(CreateOrganizationAccepted),
         typeof(DeleteOrganizationAccepted),
-        typeof(RenameOrganizationAccepted)
+        typeof(RenameOrganizationAccepted),
+        typeof(ChangeOrganizationAccepted)
     };
 }

@@ -23,6 +23,7 @@ public partial class DownloadControllerTests : ControllerTests<DownloadControlle
 
     public DownloadControllerTests(
         SqlServer fixture,
+        DownloadController controller,
         EditorContext editorContext,
         ProductContext productContext,
         IMediator mediator,
@@ -30,7 +31,7 @@ public partial class DownloadControllerTests : ControllerTests<DownloadControlle
         RoadNetworkUploadsBlobClient uploadClient,
         RoadNetworkExtractUploadsBlobClient extractUploadClient,
         RoadNetworkFeatureCompareBlobClient featureCompareBlobClient)
-        : base(mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
+        : base(controller, mediator, streamStore, uploadClient, extractUploadClient, featureCompareBlobClient)
     {
         _fixture = fixture ?? throw new ArgumentNullException(nameof(fixture));
         _tokenSource = new CancellationTokenSource();
@@ -58,6 +59,7 @@ public partial class DownloadControllerTests : ControllerTests<DownloadControlle
             Lists.AllLaneDirectionDbaseRecords,
             new[]
             {
+                RecordFrom(RoadSegmentLaneDirection.NotApplicable),
                 RecordFrom(RoadSegmentLaneDirection.Unknown),
                 RecordFrom(RoadSegmentLaneDirection.Forward),
                 RecordFrom(RoadSegmentLaneDirection.Backward),

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using RoadRegistry.BackOffice.Extracts;
+using Extracts;
 using Uploads;
 
 internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslatorBase<TransactionZoneFeatureCompareAttributes>
@@ -16,17 +16,15 @@ internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslato
     {
     }
 
-    protected override List<Feature<TransactionZoneFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    protected override (List<Feature<TransactionZoneFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var featureReader = new TransactionZoneFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(entries, featureType, fileName);
+        return featureReader.Read(archive, featureType, fileName, context);
     }
 
-    public override Task<TranslatedChanges> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
+    public override Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
-        var entries = context.Entries;
-
-        var features = ReadFeatures(entries, FeatureType.Change, ExtractFileName.Transactiezones);
+        var (features, problems) = ReadFeatures(context.Archive, FeatureType.Change, ExtractFileName.Transactiezones, context);
         var feature = features.SingleOrDefault();
         if (feature is not null)
         {
@@ -38,6 +36,6 @@ internal class TransactionZoneFeatureCompareTranslator : FeatureCompareTranslato
                 .WithOrganization(new OrganizationId(feature.Attributes.Organization));
         }
 
-        return Task.FromResult(changes);
+        return Task.FromResult((changes, problems));
     }
 }

@@ -20,10 +20,9 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
     where TEventProcessorPositionStore : IEventProcessorPositionStore
 {
     private const int RecordPositionThreshold = 1;
-    public static readonly EventMapping EventMapping = new EventMapping(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
+    public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
     private static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-    protected ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> Logger { get; }
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
@@ -96,6 +95,8 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
 
+    protected ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> Logger { get; }
+
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         Logger.LogInformation("Starting event processor ...");
@@ -113,6 +114,11 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         _messagePumpCancellation.Dispose();
         await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
         Logger.LogInformation("Stopped event processor.");
+    }
+
+    protected virtual Task BeforeDispatchEvent(Event @event, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
     }
 
     private static bool CanResumeFrom(SubscriptionDropped dropped)
@@ -198,7 +204,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
                 {
                     logger.LogInformation("Processing {MessageType} at {Position}",
                         process.Message.Type, process.Message.Position);
-                    
+
                     var body = JsonConvert.DeserializeObject(
                         await process.Message.GetJsonData(_messagePumpCancellation.Token).ConfigureAwait(false),
                         EventMapping.GetEventType(process.Message.Type),
@@ -265,11 +271,6 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
 
                 break;
         }
-    }
-
-    protected virtual Task BeforeDispatchEvent(Event @event, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
     }
 
     private sealed class ProcessStreamMessage

@@ -4,11 +4,13 @@ public static class WellknownSchemas
 {
     public const string CommandHostSchema = "RoadRegistryBackOfficeCommandHost";
     public const string EditorMetaSchema = "RoadRegistryEditorMeta";
+    public const string EditorMetricsSchema = "RoadRegistryEditorMetrics";
     public const string EditorSchema = "RoadRegistryEditor";
     public const string ExtractHostSchema = "RoadRegistryBackOfficeExtractHost";
     public const string EventHostSchema = "RoadRegistryBackOfficeEventHost";
     public const string EventSchema = "RoadRegistry";
     public const string ProductMetaSchema = "RoadRegistryProductMeta";
+    public const string ProductMetricsSchema = "RoadRegistryProductMetrics";
     public const string ProductSchema = "RoadRegistryProduct";
     public const string SnapshotSchema = "RoadRegistrySnapshot";
     public const string SyndicationMetaSchema = "RoadRegistrySyndicationMeta";
@@ -18,6 +20,7 @@ public static class WellknownSchemas
     public const string WfsMetaSchema = "RoadRegistryWfsMeta";
     public const string WfsSchema = "RoadRegistryWfs";
     public const string StreetNameConsumerSchema = "RoadRegistryStreetNameConsumer";
+    public const string OrganizationConsumerSchema = "RoadRegistryOrganizationConsumer";
 
     public const string RoadNodeProducerSnapshotMetaSchema = "RoadRegistryRoadNodeProducerSnapshotMeta";
     public const string RoadNodeProducerSnapshotSchema = "RoadRegistryRoadNodeProducerSnapshot";
@@ -39,6 +42,7 @@ public static class MigrationTables
     public const string Wms = "__EFMigrationsHistoryWms";
     public const string Wfs = "__EFMigrationsHistoryWfs";
     public const string StreetNameConsumer = "__EFMigrationsHistoryStreetNameConsumer";
+    public const string OrganizationConsumer = "__EFMigrationsHistoryOrganizationConsumer";
 
     public const string RoadNodeProducerSnapshot = "__EFMigrationsHistoryRoadNodeProducerSnapshot";
     public const string RoadSegmentProducerSnapshot = "__EFMigrationsHistoryRoadSegmentProducerSnapshot";

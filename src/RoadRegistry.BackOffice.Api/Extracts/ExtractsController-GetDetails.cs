@@ -28,7 +28,7 @@ public partial class ExtractsController
         {
             if (!DownloadId.CanParse(downloadId)) throw new DownloadExtractNotFoundException();
 
-            var request = new ExtractDetailsRequest(DownloadId.Parse(downloadId));
+            var request = new ExtractDetailsRequest(DownloadId.Parse(downloadId), options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
             var response = await _mediator.Send(request, cancellationToken);
 
             return Ok(new ExtractDetailsResponseBody
@@ -45,12 +45,14 @@ public partial class ExtractsController
         {
             return StatusCode((int)HttpStatusCode.Gone);
         }
-        catch (DownloadExtractNotFoundException)
+        catch (DownloadExtractNotFoundException exception)
         {
+            AddHeaderRetryAfter(exception.RetryAfterSeconds);
             return NotFound();
         }
-        catch (ExtractDownloadNotFoundException)
+        catch (ExtractDownloadNotFoundException exception)
         {
+            AddHeaderRetryAfter(exception.RetryAfterSeconds);
             return NotFound();
         }
     }

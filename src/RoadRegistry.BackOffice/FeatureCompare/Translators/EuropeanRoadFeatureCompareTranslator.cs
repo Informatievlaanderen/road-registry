@@ -14,10 +14,10 @@ internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
     {
     }
 
-    protected override void HandleIdenticalRoadSegment(RoadSegmentRecord wegsegment, List<Feature<EuropeanRoadFeatureCompareAttributes>> changeFeatures, List<Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
+    protected override void HandleIdenticalRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, List<Feature<EuropeanRoadFeatureCompareAttributes>> changeFeatures, List<Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
     {
-        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
-        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
+        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
+        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
 
         foreach (var changeFeature in wegsegmentChangeFeatures)
         {
@@ -52,18 +52,24 @@ internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
         }
     }
 
-    protected override void HandleModifiedRoadSegment(RoadSegmentRecord wegsegment, List<Feature<EuropeanRoadFeatureCompareAttributes>> changeFeatures, List<Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
+    protected override void HandleModifiedRoadSegment(RoadSegmentFeatureCompareRecord wegsegment, List<Feature<EuropeanRoadFeatureCompareAttributes>> changeFeatures, List<Feature<EuropeanRoadFeatureCompareAttributes>> extractFeatures, List<Record> processedRecords)
     {
-        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn);
-        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id);
+        var wegsegmentChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
+        var wegsegmentExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId());
 
         foreach (var changeFeature in wegsegmentChangeFeatures)
         {
-            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.Id
+            var leveringExtractFeatures = extractFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId()
                                                                        && x.Attributes.Number == changeFeature.Attributes.Number);
             if (!leveringExtractFeatures.Any())
             {
-                processedRecords.Add(new Record(changeFeature, RecordType.Added, wegsegment.Id));
+                processedRecords.Add(new Record(changeFeature with
+                {
+                    Attributes = changeFeature.Attributes with
+                    {
+                        RoadSegmentId = wegsegment.GetActualId()
+                    }
+                }, RecordType.Added));
             }
             else
             {
@@ -74,7 +80,7 @@ internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
         foreach (var extractFeature in wegsegmentExtractFeatures)
         {
             {
-                var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId.ToString() == wegsegment.CompareIdn
+                var extractChangeFeatures = changeFeatures.FindAll(x => x.Attributes.RoadSegmentId == wegsegment.GetOriginalId()
                                                                             && x.Attributes.Number == extractFeature.Attributes.Number);
 
                 if (!extractChangeFeatures.Any())
@@ -85,10 +91,10 @@ internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
         }
     }
 
-    protected override List<Feature<EuropeanRoadFeatureCompareAttributes>> ReadFeatures(IReadOnlyCollection<ZipArchiveEntry> entries, FeatureType featureType, ExtractFileName fileName)
+    protected override (List<Feature<EuropeanRoadFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var featureReader = new EuropeanRoadFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(entries, featureType, fileName);
+        return featureReader.Read(archive, featureType, fileName, context);
     }
 
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
@@ -101,9 +107,9 @@ internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
                     changes = changes.AppendChange(
                         new AddRoadSegmentToEuropeanRoad(
                             record.Feature.RecordNumber,
-                            new AttributeId(record.Feature.Attributes.Id),
-                            new RoadSegmentId(record.Feature.Attributes.RoadSegmentId),
-                            EuropeanRoadNumber.Parse(record.Feature.Attributes.Number)
+                            record.Feature.Attributes.Id,
+                            record.Feature.Attributes.RoadSegmentId,
+                            record.Feature.Attributes.Number
                         )
                     );
                     break;
@@ -111,9 +117,9 @@ internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
                     changes = changes.AppendChange(
                         new RemoveRoadSegmentFromEuropeanRoad(
                             record.Feature.RecordNumber,
-                            new AttributeId(record.Feature.Attributes.Id),
-                            new RoadSegmentId(record.Feature.Attributes.RoadSegmentId),
-                            EuropeanRoadNumber.Parse(record.Feature.Attributes.Number)
+                            record.Feature.Attributes.Id,
+                            record.Feature.Attributes.RoadSegmentId,
+                            record.Feature.Attributes.Number
                         )
                     );
                     break;

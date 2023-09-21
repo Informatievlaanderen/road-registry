@@ -1,10 +1,11 @@
 namespace RoadRegistry.BackOffice.DutchTranslations;
 
 using System;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V2.Schema;
+using Core;
+using Uploads;
+using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using FileProblem = Messages.FileProblem;
+using Problem = Messages.Problem;
 
 public static class FileProblemTranslator
 {
@@ -33,11 +34,15 @@ public static class FileProblemTranslator
             nameof(DbaseFileProblems.ToPositionOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige tot positie: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.FromPositionEqualToOrGreaterThanToPosition) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft een van positie ({problem.Parameters[1].Value}) die gelijk aan of groter dan de tot positie ({problem.Parameters[2].Value}) is." },
             nameof(DbaseFileProblems.GradeSeparatedJunctionTypeMismatch) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig type ongelijkgrondse kruising in veld {nameof(GradeSeparatedJunctionChangeDbaseRecord.Schema.TYPE)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
+            nameof(DbaseFileProblems.GradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegment) => translation with { Message = "Het onder- en bovenliggende wegsegment van een ongelijkgrondse kruising moeten van elkaar verschillen." },
+            nameof(DbaseFileProblems.GradeSeparatedJunctionMissing) => translation with { Message = $"De wegsegmenten {problem.GetParameterValue("RoadSegmentId1")} en {problem.GetParameterValue("RoadSegmentId2")} snijden elkaar op de locatie [{problem.GetParameterValue("IntersectionX")} {problem.GetParameterValue("IntersectionY")}], maar er is geen ongelijkgrondse kruising met deze wegsegmenten als onder- en bovenliggend wegsegment." },
+            nameof(DbaseFileProblems.ExpectedGradeSeparatedJunctionsCountDiffersFromActual) => translation with { Message = $"TODO" },
             nameof(DbaseFileProblems.UpperRoadSegmentIdOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft een ongeldige bovenliggende wegsegment identificator in veld {nameof(GradeSeparatedJunctionChangeDbaseRecord.Schema.BO_WS_OIDN)}: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.LowerRoadSegmentIdOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft een ongeldige onderliggende wegsegment identificator in veld {nameof(GradeSeparatedJunctionChangeDbaseRecord.Schema.ON_WS_OIDN)}: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.NumberedRoadOrdinalOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft een ongeldig volgnummer in veld {nameof(NumberedRoadChangeDbaseRecord.Schema.VOLGNUMMER)}: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.NumberedRoadDirectionMismatch) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige richting in veld {nameof(NumberedRoadChangeDbaseRecord.Schema.RICHTING)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.RoadNodeTypeMismatch) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig type wegknoop in veld {nameof(RoadNodeChangeDbaseRecord.Schema.TYPE)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
+            nameof(DbaseFileProblems.RoadNodeGeometryMissing) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} met WK_OIDN ({problem.Parameters[1].Value}) bevat geen geometrie." },
             nameof(DbaseFileProblems.RoadSegmentAccessRestrictionMismatch) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige toegangsbeperking in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.TGBEP)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.RoadSegmentStatusMismatch) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige status in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.STATUS)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.RoadSegmentCategoryMismatch) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige wegcategorie in veld {nameof(RoadSegmentChangeDbaseRecord.Schema.CATEGORIE)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
@@ -51,6 +56,8 @@ public static class FileProblemTranslator
             nameof(DbaseFileProblems.DownloadIdInvalidFormat) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een download id in veld {nameof(TransactionZoneDbaseRecord.Schema.DOWNLOADID)}: {problem.Parameters[1].Value} dat een ongeldig formaat heeft (verwacht formaat: {Guid.Empty:N})" },
             nameof(DbaseFileProblems.DownloadIdDiffersFromMetadata) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een download id in veld {nameof(TransactionZoneDbaseRecord.Schema.DOWNLOADID)}: {problem.Parameters[1].Value} dat niet overeen komt met het download id aangeleverd in de metadata: {problem.Parameters[2].Value}." },
             nameof(DbaseFileProblems.OrganizationIdOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig organisatie identificator in veld {nameof(TransactionZoneDbaseRecord.Schema.ORG)}: {problem.Parameters[1].Value}." },
+            nameof(DbaseFileProblems.ExtractDescriptionOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige extractbeschrijving in veld {nameof(TransactionZoneDbaseRecord.Schema.ORG)}: {problem.Parameters[1].Value}." }, 
+            nameof(DbaseFileProblems.OperatorNameOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige operator in veld {nameof(TransactionZoneDbaseRecord.Schema.ORG)}: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.LaneCountOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig rijstrook aantal in veld {nameof(RoadSegmentLaneChangeDbaseRecord.Schema.AANTAL)}: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.LaneDirectionMismatch) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige rijstrook richting in veld {nameof(RoadSegmentLaneChangeDbaseRecord.Schema.RICHTING)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.SurfaceTypeMismatch) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig type wegverharding in veld {nameof(RoadSegmentSurfaceChangeDbaseRecord.Schema.TYPE)}: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
@@ -58,12 +65,15 @@ public static class FileProblemTranslator
             nameof(DbaseFileProblems.RecordTypeMismatch) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldig record type in veld RECORDTYPE: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.RecordTypeNotSupported) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een niet ondersteund record type in veld RECORDTYPE: {problem.Parameters[2].Value}. Verwachte 1 van volgende waarden: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.RoadSegmentMissing) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} verwijst naar een wegsegment via veld WS_OIDN ({problem.Parameters[1].Value}) dat niet in WEGSEGMENT_ALL.DBF kon worden teruggevonden." },
+            nameof(DbaseFileProblems.RoadSegmentIsAlreadyProcessed) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} verwijst naar een wegsegment via veld WS_OIDN ({problem.Parameters[1].Value}) dat te dicht bij het wegsegment met WS_OIDN ({problem.Parameters[2].Value}) ligt." },
+            nameof(DbaseFileProblems.RoadSegmentGeometryMissing) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} met WS_OIDN ({problem.Parameters[1].Value}) bevat geen geometrie." },
             nameof(DbaseFileProblems.RoadSegmentsWithoutLaneAttributes) => translation with { Message = $"Voor de volgende wegsegmenten uit WEGSEGMENTEN_ALL.DBF werd geen enkel rijstroken attribuut teruggevonden: {problem.Parameters[0].Value}." },
             nameof(DbaseFileProblems.RoadSegmentsWithoutWidthAttributes) => translation with { Message = $"Voor de volgende wegsegmenten uit WEGSEGMENTEN_ALL.DBF werd geen enkel wegbreedte attribuut teruggevonden: {problem.Parameters[0].Value}." },
             nameof(DbaseFileProblems.RoadSegmentsWithoutSurfaceAttributes) => translation with { Message = $"Voor de volgende wegsegmenten uit WEGSEGMENTEN_ALL.DBF werd geen enkel wegverharding attribuut teruggevonden: {problem.Parameters[0].Value}." },
             nameof(ShapeFileProblems.HasNoShapeRecords) => translation with { Message = "Het bestand bevat geen enkele geometrie." },
             nameof(ShapeFileProblems.ShapeHeaderFormatError) => translation with { Message = "De hoofding van het bestand is niet correct geformateerd." },
             nameof(ShapeFileProblems.HasShapeRecordFormatError) => translation with { Message = $"De shape record na record {problem.Parameters[0].Value} is niet correct geformateerd." },
+            nameof(ShapeFileProblems.DbaseRecordMissing) => translation with { Message = $"De shape record {problem.Parameters[0].Value} bevat geen dbase record." },
             nameof(ShapeFileProblems.ShapeRecordShapeTypeMismatch) => translation with { Message = $"De shape record {problem.Parameters[0].Value} bevat geen {problem.Parameters[1].Value} maar een {problem.Parameters[2].Value}." },
             nameof(ShapeFileProblems.ShapeRecordShapeGeometryTypeMismatch) => translation with { Message = $"De shape record {problem.Parameters[0].Value} bevat geen {problem.Parameters[1].Value} maar een {problem.Parameters[2].Value}." },
             nameof(ShapeFileProblems.ShapeRecordGeometryMismatch) => translation with { Message = $"De shape record {problem.Parameters[0].Value} geometrie is ongeldig." },
@@ -71,7 +81,15 @@ public static class FileProblemTranslator
             nameof(ShapeFileProblems.ShapeRecordGeometrySelfOverlaps) => translation with { Message = $"De shape record {problem.Parameters[0].Value} geometrie overlapt zichzelf." },
             nameof(ShapeFileProblems.ShapeRecordGeometrySelfIntersects) => translation with { Message = $"De shape record {problem.Parameters[0].Value} geometrie kruist zichzelf." },
             nameof(ShapeFileProblems.ShapeRecordGeometryHasInvalidMeasureOrdinates) => translation with { Message = $"De shape record {problem.Parameters[0].Value} geometrie bevat ongeldige measure waarden." },
-            _ => translation with { Message = $"'{problem.Reason}' has no translation. Please fix it." }
+            _ => translation with
+            {
+                Message = ProblemTranslator.Dutch(new Problem
+                {
+                    Reason = problem.Reason,
+                    Parameters = problem.Parameters,
+                    Severity = problem.Severity
+                }).Message
+            }
         };
     };
 }

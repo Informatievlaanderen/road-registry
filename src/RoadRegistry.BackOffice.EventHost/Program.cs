@@ -43,6 +43,7 @@ public class Program
             {
                 services
                     .AddHostedService<EventProcessor>()
+                    .AddEmailClient(hostContext.Configuration)
                     .AddTicketing()
                     .AddRoadRegistrySnapshot()
                     .AddRoadNetworkEventWriter()
@@ -58,10 +59,15 @@ public class Program
                         new RoadNetworkChangesArchiveEventModule(
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
-                            new ZipArchiveFeatureCompareTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()),
+                            new ZipArchiveFeatureCompareTranslator(
+                                sp.GetRequiredService<FileEncoding>(),
+                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()
+                            ),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
                             new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()),
+                            sp.GetRequiredService<IRoadNetworkEventWriter>(),
+                            sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
                         ),
                         new RoadNetworkBackOfficeEventModule(

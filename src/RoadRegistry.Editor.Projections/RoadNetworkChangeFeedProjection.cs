@@ -146,7 +146,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
         {
             var content = new RoadNetworkExtractChangesArchiveUploadedEntry
             {
-                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId }
+                Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
             };
 
             await EnrichWithArchiveInformation(envelope.Message.ArchiveId, content.Archive, client, ct);

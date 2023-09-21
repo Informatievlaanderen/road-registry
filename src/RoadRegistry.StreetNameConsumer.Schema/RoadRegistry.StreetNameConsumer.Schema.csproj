@@ -9,12 +9,13 @@
 	  <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\RoadRegistry.Hosts\RoadRegistry.Hosts.csproj" />
-  </ItemGroup>
-
 	<ItemGroup>
 		<Compile Include="..\..\SolutionInfo.cs" Link="Properties\SolutionInfo.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\RoadRegistry.BackOffice\RoadRegistry.BackOffice.csproj" />
+	  <ProjectReference Include="..\RoadRegistry.StreetName\RoadRegistry.StreetName.csproj" />
 	</ItemGroup>
 
   <Import Project="..\..\.paket\Paket.Restore.targets" />

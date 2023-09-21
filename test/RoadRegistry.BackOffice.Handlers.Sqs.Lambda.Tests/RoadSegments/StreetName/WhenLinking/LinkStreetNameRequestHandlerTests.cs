@@ -8,6 +8,7 @@ using BackOffice.Framework;
 using BackOffice.Handlers.RoadSegments;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Core;
+using FeatureToggles;
 using Handlers;
 using Hosts;
 using Messages;
@@ -37,11 +38,16 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
             ticketing,
             idempotentCommandHandler,
             RoadRegistryContext,
-            StreetNameCache,
+            StreetNameClient,
             new ChangeRoadNetworkDispatcher(
                 new RoadNetworkCommandQueue(Store, ApplicationMetadata),
                 idempotentCommandHandler,
-                EntityMapFactory.Resolve<EventSourcedEntityMap>()),
+                EditorContext,
+                RecyclableMemoryStreamManager,
+                FileEncoding,
+                EntityMapFactory.Resolve<EventSourcedEntityMap>(),
+                new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>()),
             new FakeDistributedStreamStoreLockOptions(),
             LoggerFactory.CreateLogger<LinkStreetNameSqsLambdaRequestHandler>()
         );
@@ -284,7 +290,7 @@ public class LinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await HandleRequest(ticketing.Object, new LinkStreetNameRequest(roadSegmentId, StreetNamePuri(99999), null));
 
         //Assert
-        VerifyThatTicketHasError(ticketing, "NotFound", "Dit wegsegment bestaat niet.");
+        VerifyThatTicketHasError(ticketing, "NotFound", $"Het wegsegment met id {roadSegmentId} bestaat niet.");
     }
 
     [Fact]

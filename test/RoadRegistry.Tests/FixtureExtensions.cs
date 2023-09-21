@@ -13,6 +13,7 @@ using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
+using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
 
 public static class Customizations
@@ -226,19 +227,23 @@ public static class Customizations
     {
         var files = new Dictionary<string, Stream>
         {
-            { "IWEGSEGMENT.DBF", roadSegmentDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema) },
             { "IWEGSEGMENT.SHP", roadSegmentShapeIntegrationStream ?? fixture.CreateEmptyRoadSegmentShapeFile() },
-            { "WEGSEGMENT.SHP", roadSegmentShapeChangeStream },
+            { "IWEGSEGMENT.DBF", roadSegmentDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadSegmentDbaseRecord>(RoadSegmentDbaseRecord.Schema) },
+            { "IWEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
             { "EWEGSEGMENT.SHP", roadSegmentShapeExtractStream },
-            { "WEGSEGMENT.DBF", roadSegmentDbaseChangeStream },
             { "EWEGSEGMENT.DBF", roadSegmentDbaseExtractStream },
+            { "EWEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
+            { "WEGSEGMENT.SHP", roadSegmentShapeChangeStream },
+            { "WEGSEGMENT.DBF", roadSegmentDbaseChangeStream },
             { "WEGSEGMENT.PRJ", roadSegmentProjectionFormatStream },
-            { "IWEGKNOOP.DBF", roadNodeDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema) },
             { "IWEGKNOOP.SHP", roadNodeShapeIntegrationStream ?? fixture.CreateEmptyRoadNodeShapeFile() },
-            { "WEGKNOOP.SHP", roadNodeShapeChangeStream },
+            { "IWEGKNOOP.DBF", roadNodeDbaseIntegrationStream ?? fixture.CreateEmptyDbfFile<RoadNodeDbaseRecord>(RoadNodeDbaseRecord.Schema) },
+            { "IWEGKNOOP.PRJ", roadNodeProjectionFormatStream },
             { "EWEGKNOOP.SHP", roadNodeShapeExtractStream },
-            { "WEGKNOOP.DBF", roadNodeDbaseChangeStream },
             { "EWEGKNOOP.DBF", roadNodeDbaseExtractStream },
+            { "EWEGKNOOP.PRJ", roadNodeProjectionFormatStream },
+            { "WEGKNOOP.SHP", roadNodeShapeChangeStream },
+            { "WEGKNOOP.DBF", roadNodeDbaseChangeStream },
             { "WEGKNOOP.PRJ", roadNodeProjectionFormatStream },
             { "ATTEUROPWEG.DBF", europeanRoadChangeStream },
             { "EATTEUROPWEG.DBF", europeanRoadExtractStream },
@@ -277,7 +282,12 @@ public static class Customizations
                 }
                 else
                 {
-                    var extractFileEntry = testData.ZipArchiveWithEmptyFiles.Entries.Single(x => string.Equals(x.Name, file, StringComparison.InvariantCultureIgnoreCase));
+                    var extractFileEntry = testData.ZipArchiveWithEmptyFiles.Entries.SingleOrDefault(x => string.Equals(x.Name, file, StringComparison.InvariantCultureIgnoreCase));
+                    if (extractFileEntry is null)
+                    {
+                        throw new Exception($"No file found in {nameof(testData.ZipArchiveWithEmptyFiles)} with name {file}");
+                    }
+
                     using (var extractFileEntryStream = extractFileEntry.Open())
                     using (var entryStream = createArchive.CreateEntry(file).Open())
                     {
@@ -294,9 +304,25 @@ public static class Customizations
 
     public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, params T[] illegalValues)
     {
+        if (!illegalValues.Any())
+        {
+            throw new ArgumentException(nameof(illegalValues));
+        }
+
         var value = fixture.Create<T>();
 
         while (illegalValues.Any(illegalValue => Equals(value, illegalValue)))
+        {
+            value = fixture.Create<T>();
+        }
+
+        return value;
+    }
+    public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, Func<T, T, bool> comparer, params T[] illegalValues)
+    {
+        var value = fixture.Create<T>();
+
+        while (illegalValues.Any(illegalValue => comparer(value, illegalValue)))
         {
             value = fixture.Create<T>();
         }
@@ -966,5 +992,20 @@ public static class Customizations
         }
 
         return true;
+    }
+
+    public static PointShapeContent ToShapeContent(this Point point)
+    {
+        return new PointShapeContent(Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPoint(point));
+    }
+    public static PolyLineMShapeContent ToShapeContent(this LineString lineString)
+    {
+        return lineString.ToMultiLineString().ToShapeContent();
+    }
+    public static PolyLineMShapeContent ToShapeContent(this MultiLineString lineString)
+    {
+        return new PolyLineMShapeContent(
+            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(lineString)
+        );
     }
 }

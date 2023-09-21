@@ -30,14 +30,6 @@ public partial class ExtractsController
         [FromServices] ExtractUploadsOptions options,
         CancellationToken cancellationToken)
     {
-        void AddHeaderRetryAfter(int retryAfter)
-        {
-            if (retryAfter > 0)
-            {
-                Response.Headers.Add("Retry-After", retryAfter.ToString(CultureInfo.InvariantCulture));
-            }
-        }
-
         try
         {
             var request = new UploadStatusRequest(uploadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);

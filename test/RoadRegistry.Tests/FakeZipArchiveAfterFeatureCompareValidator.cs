@@ -5,7 +5,7 @@ using RoadRegistry.BackOffice.Uploads;
 
 public class FakeZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCompareValidator
 {
-    public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
+    public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveValidatorContext context)
     {
         return archive.GetEntry("error") != null
             ? ZipArchiveProblems.Single(new FileError("error", "reason"))

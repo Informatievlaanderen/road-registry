@@ -58,7 +58,7 @@ public class TransactionZoneDbaseRecordsValidator : IZipArchiveDbaseRecordsValid
             }
             else
             {
-                problems += entry.HasNoDbaseRecords(true);
+                problems += entry.HasNoDbaseRecords();
             }
         }
         catch (Exception exception)

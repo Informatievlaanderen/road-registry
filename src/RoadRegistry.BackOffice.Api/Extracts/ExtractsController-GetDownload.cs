@@ -43,12 +43,14 @@ public partial class ExtractsController
         {
             return StatusCode((int)HttpStatusCode.Gone);
         }
-        catch (DownloadExtractNotFoundException)
+        catch (DownloadExtractNotFoundException exception)
         {
+            AddHeaderRetryAfter(exception.RetryAfterSeconds);
             return NotFound();
         }
-        catch (ExtractDownloadNotFoundException)
+        catch (ExtractDownloadNotFoundException exception)
         {
+            AddHeaderRetryAfter(exception.RetryAfterSeconds);
             return NotFound();
         }
     }

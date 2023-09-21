@@ -23,12 +23,16 @@ public class ExtractsZipArchiveTestData : IDisposable
     {
         "IWEGKNOOP.DBF",
         "IWEGKNOOP.SHP",
+        "IWEGKNOOP.PRJ",
         "EWEGKNOOP.DBF",
         "EWEGKNOOP.SHP",
+        "EWEGKNOOP.PRJ",
         "IWEGSEGMENT.DBF",
         "IWEGSEGMENT.SHP",
+        "IWEGSEGMENT.PRJ",
         "EWEGSEGMENT.DBF",
         "EWEGSEGMENT.SHP",
+        "EWEGSEGMENT.PRJ",
         "EATTRIJSTROKEN.DBF",
         "EATTWEGBREEDTE.DBF",
         "EATTWEGVERHARDING.DBF",
@@ -43,13 +47,13 @@ public class ExtractsZipArchiveTestData : IDisposable
         Fixture = CreateFixture();
 
         EmptyZipArchive = CreateEmptyZipArchive();
-        ZipArchive = CreateZipArchiveWithOneRecord();
         ZipArchiveWithEmptyFiles = CreateZipArchiveWithEmptyFiles();
+        ZipArchive = CreateZipArchiveWithEachFileAtLeastOneRecord();
     }
 
     public ZipArchive EmptyZipArchive { get; }
-    public ZipArchive ZipArchive { get; }
     public ZipArchive ZipArchiveWithEmptyFiles { get; }
+    public ZipArchive ZipArchive { get; }
     public Fixture Fixture { get; }
 
     public void Dispose()
@@ -183,14 +187,16 @@ public class ExtractsZipArchiveTestData : IDisposable
         fixture.Customize<LineString>(customization =>
             customization.FromFactory(generator =>
                 {
-                    var x = generator.Next(5, 100);
+                    var x = generator.Next(15000, 99000);
+                    var y = generator.Next(21000, 99000);
+                    var m = generator.Next(5, 100);
 
                     return new LineString(
                         new CoordinateArraySequence(
                             new Coordinate[]
                             {
-                                new CoordinateM(0.0, 0.0, 0),
-                                new CoordinateM(x, 0.0, x)
+                                new CoordinateM(x, y, 0),
+                                new CoordinateM(x + m, y, m)
                             }),
                         GeometryConfiguration.GeometryFactory
                     );
@@ -204,9 +210,8 @@ public class ExtractsZipArchiveTestData : IDisposable
             ).OmitAutoProperties()
         );
         fixture.Customize<PolyLineMShapeContent>(customization =>
-            customization.FromFactory(_ => new PolyLineMShapeContent(
-                    GeometryTranslator.FromGeometryMultiLineString(fixture.Create<MultiLineString>()))
-                )
+            customization
+                .FromFactory(_ => fixture.Create<LineString>().ToShapeContent())
                 .OmitAutoProperties()
         );
 
@@ -311,21 +316,6 @@ public class ExtractsZipArchiveTestData : IDisposable
         MemoryStream transactionZoneStream
     )
     {
-        roadSegmentShapeChangeStream.Position = 0;
-        roadSegmentProjectionFormatStream.Position = 0;
-        roadSegmentDbaseChangeStream.Position = 0;
-        roadNodeShapeChangeStream.Position = 0;
-        roadNodeProjectionFormatStream.Position = 0;
-        roadNodeDbaseChangeStream.Position = 0;
-        europeanRoadChangeStream.Position = 0;
-        numberedRoadChangeStream.Position = 0;
-        nationalRoadChangeStream.Position = 0;
-        laneChangeStream.Position = 0;
-        widthChangeStream.Position = 0;
-        surfaceChangeStream.Position = 0;
-        gradeSeparatedJunctionChangeStream.Position = 0;
-        transactionZoneStream.Position = 0;
-
         var requiredFiles = new[]
         {
             "TRANSACTIEZONES.DBF",
@@ -335,6 +325,8 @@ public class ExtractsZipArchiveTestData : IDisposable
             "IWEGKNOOP.SHP",
             "EWEGKNOOP.SHP",
             "WEGKNOOP.SHP",
+            "IWEGKNOOP.PRJ",
+            "EWEGKNOOP.PRJ",
             "WEGKNOOP.PRJ",
             "IWEGSEGMENT.DBF",
             "EWEGSEGMENT.DBF",
@@ -342,6 +334,8 @@ public class ExtractsZipArchiveTestData : IDisposable
             "IWEGSEGMENT.SHP",
             "EWEGSEGMENT.SHP",
             "WEGSEGMENT.SHP",
+            "IWEGSEGMENT.PRJ",
+            "EWEGSEGMENT.PRJ",
             "WEGSEGMENT.PRJ",
             "EATTRIJSTROKEN.DBF",
             "ATTRIJSTROKEN.DBF",
@@ -380,6 +374,8 @@ public class ExtractsZipArchiveTestData : IDisposable
                     case "WEGSEGMENT.SHP":
                         CreateEntry(requiredFile, roadSegmentShapeChangeStream);
                         break;
+                    case "IWEGSEGMENT.PRJ":
+                    case "EWEGSEGMENT.PRJ":
                     case "WEGSEGMENT.PRJ":
                         CreateEntry(requiredFile, roadSegmentProjectionFormatStream);
                         break;
@@ -393,6 +389,8 @@ public class ExtractsZipArchiveTestData : IDisposable
                     case "WEGKNOOP.SHP":
                         CreateEntry(requiredFile, roadNodeShapeChangeStream);
                         break;
+                    case "IWEGKNOOP.PRJ":
+                    case "EWEGKNOOP.PRJ":
                     case "WEGKNOOP.PRJ":
                         CreateEntry(requiredFile, roadNodeProjectionFormatStream);
                         break;
@@ -480,12 +478,24 @@ public class ExtractsZipArchiveTestData : IDisposable
         );
     }
 
-    private ZipArchive CreateZipArchiveWithOneRecord()
+    private ZipArchive CreateZipArchiveWithEachFileAtLeastOneRecord()
     {
+        var roadNodeProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
+        var roadNodeShapeChangeStream = Fixture.CreateRoadNodeShapeFile(new[]
+        {
+            Fixture.Create<PointShapeContent>(),
+            Fixture.Create<PointShapeContent>()
+        });
+        var roadNodeDbase1 = Fixture.Create<RoadNodeDbaseRecord>();
+        var roadNodeDbase2 = Fixture.Create<RoadNodeDbaseRecord>();
+        var roadNodeDbaseChangeStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[]{ roadNodeDbase1, roadNodeDbase2 });
+
         var roadSegmentPolyLineMShapeContent = Fixture.Create<PolyLineMShapeContent>();
         var roadSegmentShapeChangeStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
         var roadSegmentProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
         var roadSegmentChangeDbaseRecord = Fixture.Create<RoadSegmentDbaseRecord>();
+        roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbase1.WK_OIDN.Value;
+        roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbase2.WK_OIDN.Value;
         var roadSegmentDbaseChangeStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
 
         var europeanRoadChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
@@ -519,11 +529,6 @@ public class ExtractsZipArchiveTestData : IDisposable
                 record.TOTPOS.Value = roadSegmentPolyLineMShapeContent.Shape.MeasureRange.Max;
             });
 
-        var roadNodeShapeChangeStream = Fixture.CreateRoadNodeShapeFileWithOneRecord();
-        var roadNodeProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
-        var roadNodeDbaseChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadNodeDbaseRecord>(
-            RoadNodeDbaseRecord.Schema);
-
         var gradeSeparatedJunctionDbaseRecord = Fixture.Create<GradeSeparatedJunctionDbaseRecord>();
         gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
         gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
@@ -553,7 +558,7 @@ public class ExtractsZipArchiveTestData : IDisposable
     public void ExtractsZipArchiveTestDataIsValid()
     {
         var sut = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
-        var result = sut.Validate(ZipArchive, ZipArchiveMetadata.Empty);
+        var result = sut.Validate(ZipArchive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
 
         Assert.Equal(ZipArchiveProblems.None, result);
     }

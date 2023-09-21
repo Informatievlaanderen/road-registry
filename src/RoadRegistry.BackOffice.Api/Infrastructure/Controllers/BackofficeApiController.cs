@@ -1,10 +1,10 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using Be.Vlaanderen.Basisregisters.Api;
-using Be.Vlaanderen.Basisregisters.AspNetCore.Mvc.Middleware;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using FeatureToggle;
 using Hosts.Infrastructure.Options;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,28 +29,32 @@ public abstract class BackofficeApiController : ApiController
             .Replace(_ticketingOptions.InternalBaseUrl, _ticketingOptions.PublicBaseUrl));
     }
 
-    private ProvenanceData CreateFakeProvenanceData()
+    protected void AddHeaderRetryAfter(int retryAfter)
     {
-        return new RoadRegistryProvenanceData(Modification.Insert);
-    }
-
-    protected TRequest Enrich<TRequest>(TRequest request)
-        where TRequest : SqsRequest
-    {
-        request.Metadata = GetMetadata();
-        request.ProvenanceData = CreateFakeProvenanceData();
-        return request;
-    }
-
-    private IDictionary<string, object> GetMetadata()
-    {
-        var userId = User.FindFirst("urn:be:vlaanderen:roadregistry:acmid")?.Value;
-        var correlationId = User.FindFirst(AddCorrelationIdMiddleware.UrnBasisregistersVlaanderenCorrelationId)?.Value;
-
-        return new Dictionary<string, object>
+        if (retryAfter > 0)
         {
-            { "UserId", userId },
-            { "CorrelationId", correlationId }
-        };
+            Response.Headers.Add("Retry-After", retryAfter.ToString(CultureInfo.InvariantCulture));
+        }
+    }
+
+    protected bool GetFeatureToggleValue<T>(T featureToggle)
+        where T : IFeatureToggle
+    {
+        var headerKey = $"X-{typeof(T).Name}";
+        if (Request.Headers.TryGetValue(headerKey, out var values))
+        {
+            var value = values.First();
+            if (string.IsNullOrEmpty(value))
+            {
+                value = true.ToString();
+            }
+
+            if (bool.TryParse(value, out var featureEnabled))
+            {
+                return featureEnabled;
+            }
+        }
+
+        return featureToggle.FeatureEnabled;
     }
 }

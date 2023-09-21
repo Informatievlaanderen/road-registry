@@ -11,11 +11,14 @@ using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Threading.Tasks;
+using BackOffice.Abstractions;
 using BackOffice.Core;
 using BackOffice.Extracts;
+using BackOffice.Handlers.Sqs.RoadSegments;
 using BackOffice.Uploads;
 using BackOffice.ZipArchiveWriters.Validation;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Editor.Schema;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -63,17 +66,8 @@ public class Program
                 .AddRoadRegistrySnapshot()
                 .AddRoadNetworkSnapshotStrategyOptions()
                 .AddEditorContext()
-                .AddScoped(sp => new TraceDbConnection<EditorContext>(
-                    new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EditorProjections)),
-                    sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
-                .AddDbContext<EditorContext>((sp, options) => options
-                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                    .UseSqlServer(
-                        sp.GetRequiredService<TraceDbConnection<EditorContext>>(),
-                        sqlOptions => sqlOptions
-                            .UseNetTopologySuite())
-                ))
+                .AddProductContext()
+            )
             .ConfigureContainer((hostContext, builder) =>
             {
                 builder.RegisterModule<MediatorModule>();

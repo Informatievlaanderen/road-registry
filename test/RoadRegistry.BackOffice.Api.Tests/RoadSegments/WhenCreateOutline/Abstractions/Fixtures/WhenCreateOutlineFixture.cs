@@ -28,12 +28,13 @@ public abstract class WhenCreateOutlineFixture : ControllerActionFixture<PostRoa
             Id = 0,
             Code = "TEST",
             SortableCode = "TEST",
+            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
             DbaseRecord = Array.Empty<byte>()
         }, CancellationToken.None);
 
         await _editorContext.SaveChangesAsync(CancellationToken.None);
 
-        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
+        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
         {
             ControllerContext = new ControllerContext
             {

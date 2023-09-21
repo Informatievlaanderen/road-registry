@@ -215,10 +215,10 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
             };
     }
 
-    public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveMetadata metadata)
+    public ZipArchiveProblems Validate(ZipArchive archive, ZipArchiveValidatorContext context)
     {
         ArgumentNullException.ThrowIfNull(archive);
-        ArgumentNullException.ThrowIfNull(metadata);
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = ZipArchiveProblems.None;
 
@@ -252,16 +252,17 @@ public class ZipArchiveAfterFeatureCompareValidator : IZipArchiveAfterFeatureCom
                 )
             );
 
-            var context = ZipArchiveValidationContext.Empty.WithZipArchiveMetadata(metadata);
+            var validationContext = ZipArchiveValidationContext.Empty
+                .WithZipArchiveMetadata(context.ZipArchiveMetadata);
 
             foreach (var file in
                      requiredFiles
                          .OrderBy(file => Array.IndexOf(ValidationOrder, file.ToUpperInvariant())))
                 if (_validators.TryGetValue(file, out var validator))
                 {
-                    var (fileProblems, fileContext) = validator.Validate(archive.GetEntry(file), context);
+                    var (fileProblems, fileContext) = validator.Validate(archive.GetEntry(file), validationContext);
                     problems = problems.AddRange(fileProblems);
-                    context = fileContext;
+                    validationContext = fileContext;
                 }
         }
 

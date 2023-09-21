@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Tests.BackOffice;
+namespace RoadRegistry.Tests.BackOffice;
 
 using AutoFixture;
 using AutoFixture.Idioms;
@@ -22,6 +22,7 @@ public class RoadSegmentLaneDirectionTests
         Assert.Equal(
             new[]
             {
+                RoadSegmentLaneDirection.NotApplicable,
                 RoadSegmentLaneDirection.Unknown,
                 RoadSegmentLaneDirection.Forward,
                 RoadSegmentLaneDirection.Backward,

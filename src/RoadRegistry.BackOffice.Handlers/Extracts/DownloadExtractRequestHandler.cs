@@ -33,7 +33,7 @@ public class DownloadExtractRequestHandler : ExtractRequestHandler<DownloadExtra
         };
 
         var command = new Command(message);
-        await Dispatcher(command, cancellationToken);
+        await Dispatch(command, cancellationToken);
 
         return new DownloadExtractResponse(downloadId, request.IsInformative);
     }

@@ -33,9 +33,11 @@ public partial class ExtractsController
     {
         return PostUpload(archive, async () =>
         {
-            var requestArchive = new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType));
-            var request = new UploadExtractRequest(downloadId, requestArchive);
-            var response = await _mediator.Send(request, cancellationToken);
+            var response = await _mediator.Send(
+                new UploadExtractRequest(
+                    downloadId,
+                    new UploadExtractArchiveRequest(archive.FileName, archive.OpenReadStream(), ContentType.Parse(archive.ContentType))
+                ), cancellationToken);
             return Accepted(new UploadExtractResponseBody(response.UploadId.ToString()));
         });
     }

@@ -1,45 +1,32 @@
 namespace RoadRegistry.BackOffice.FeatureCompare;
 
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using RoadRegistry.BackOffice.FeatureCompare.Translators;
-using RoadRegistry.BackOffice.Uploads;
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Linq;
+using Uploads;
 
-public class ZipArchiveEntryFeatureCompareTranslateContext
+public class ZipArchiveEntryFeatureCompareTranslateContext: ZipArchiveFeatureReaderContext
 {
-    public IReadOnlyCollection<ZipArchiveEntry> Entries { get; }
-    public List<RoadSegmentRecord> RoadSegments { get; }
+    public ZipArchive Archive { get; }
+    public List<RoadNodeFeatureCompareRecord> RoadNodeRecords { get; }
+    public List<RoadSegmentFeatureCompareRecord> RoadSegmentRecords { get; }
 
-    public ZipArchiveEntryFeatureCompareTranslateContext(IReadOnlyCollection<ZipArchiveEntry> entries, List<RoadSegmentRecord> roadSegments)
+    public ZipArchiveEntryFeatureCompareTranslateContext(ZipArchive archive, ZipArchiveMetadata metadata)
+        : base(metadata)
     {
-        Entries = entries;
-        RoadSegments = roadSegments;
-    }
-}
-
-public class RoadSegmentRecord
-{
-    public RoadSegmentRecord(RecordNumber recordNumber, RoadSegmentFeatureCompareAttributes attributes, RecordType recordType)
-    {
-        RecordNumber = recordNumber;
-        Attributes = attributes;
-        RecordType = recordType;
+        Archive = archive;
+        RoadNodeRecords = new List<RoadNodeFeatureCompareRecord>();
+        RoadSegmentRecords = new List<RoadSegmentFeatureCompareRecord>();
     }
 
-    public int Id => Attributes.Id;
-
-    public RecordNumber RecordNumber { get; }
-    public RoadSegmentFeatureCompareAttributes Attributes { get; }
-    public RecordType RecordType { get; }
-
-    public bool GeometryChanged { get; init; }
-    public string CompareIdn { get; init; }
-    public int? TempId { get; set; }
-    public FeatureType? FeatureType { get; init; }
-
-    public int GetNewOrOriginalId()
+    public RoadNodeFeatureCompareRecord FindNotRemovedRoadNode(RoadNodeId id)
     {
-        return TempId ?? Id;
+        return RoadNodeRecords.SingleOrDefault(x => x.Id == id && x.RecordType != RecordType.Removed)
+            ?? RoadNodeRecords.SingleOrDefault(x => x.Attributes.Id == id && x.RecordType != RecordType.Removed);
+    }
+
+    public IEnumerable<RoadSegmentFeatureCompareRecord> GetNonRemovedRoadSegmentRecords()
+    {
+        return RoadSegmentRecords.Where(x => x.RecordType != RecordType.Removed);
     }
 }

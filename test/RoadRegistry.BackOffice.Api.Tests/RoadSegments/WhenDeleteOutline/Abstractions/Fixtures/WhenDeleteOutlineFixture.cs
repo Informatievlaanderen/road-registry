@@ -42,7 +42,7 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
 
     protected override async Task<IActionResult> GetResultAsync(int roadSegmentId)
     {
-        var controller = new RoadSegmentsController(new TicketingOptions { InternalBaseUrl = "http://internal/tickets", PublicBaseUrl = "http://public/tickets" }, _mediator)
+        var controller = new RoadSegmentsController(new FakeTicketingOptions(), _mediator)
         {
             ControllerContext = new ControllerContext
             {
@@ -64,6 +64,7 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
         {
             Code = TestData.ChangedByOrganization,
             SortableCode = TestData.ChangedByOrganization,
+            DbaseSchemaVersion = WellKnownDbaseSchemaVersions.V2,
             DbaseRecord = Array.Empty<byte>()
         }, CancellationToken.None);
 

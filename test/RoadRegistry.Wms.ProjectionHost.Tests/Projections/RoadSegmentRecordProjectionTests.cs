@@ -239,12 +239,12 @@ public class RoadSegmentRecordProjectionTests
                 LeftSideMunicipalityId = null,
                 LeftSideMunicipalityNisCode = streetNameRecord.NisCode,
                 LeftSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
-                LeftSideStreetName = streetNameRecord.DutchNameWithHomonymAddition,
+                LeftSideStreetName = streetNameRecord.DutchName,
 
                 RightSideMunicipalityId = null,
                 RightSideMunicipalityNisCode = streetNameRecord.NisCode,
                 RightSideStreetNameId = expectedRoadSegment.linksStraatnaamID,
-                RightSideStreetName = streetNameRecord.DutchNameWithHomonymAddition,
+                RightSideStreetName = streetNameRecord.DutchName,
 
                 RoadSegmentVersion = expectedRoadSegment.wegsegmentversie,
                 BeginRoadNodeId = expectedRoadSegment.beginWegknoopID,

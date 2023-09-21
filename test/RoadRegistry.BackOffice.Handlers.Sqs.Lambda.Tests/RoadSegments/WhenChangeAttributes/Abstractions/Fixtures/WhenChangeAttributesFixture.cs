@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
 using Requests;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice;
 using Sqs.RoadSegments;
 
@@ -24,9 +25,9 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
         : base(configuration, customRetryPolicy, clock, options)
     {
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
-        ObjectProvider.CustomizeRoadSegmentOutlineSurfaceType();
-        ObjectProvider.CustomizeRoadSegmentOutlineWidth();
-        ObjectProvider.CustomizeRoadSegmentOutlineLaneCount();
+        ObjectProvider.CustomizeRoadSegmentSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentWidth();
+        ObjectProvider.CustomizeRoadSegmentLaneCount();
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
 
         Organisation = ObjectProvider.Create<Organisation>();
@@ -65,6 +66,8 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
                     LifetimeScope,
                     new FakeRoadNetworkSnapshotReader(),
                     Clock,
+                    new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+                    new FakeExtractUploadFailedEmailClient(),
                     LoggerFactory
                 )
             }), ApplicationMetadata);

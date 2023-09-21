@@ -1,17 +1,17 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using Authorization;
-using Extensions;
-using IdentityModel.Client;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Swashbuckle.AspNetCore.Annotations;
-using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Authentication;
+using Be.Vlaanderen.Basisregisters.AcmIdm;
+using IdentityModel.Client;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 public partial class RoadRegistrySecurityController
 {
@@ -51,9 +51,25 @@ public partial class RoadRegistrySecurityController
         var identity = new ClaimsIdentity();
         identity.AddClaims(token.Claims);
 
+        AddRoadRegistryScopes(identity, token.Claims);
+
         var tokenBuilder = new RoadRegistryTokenBuilder(_openIdConnectOptions);
         var jwtToken = tokenBuilder.BuildJwt(identity);
         
         return Ok(jwtToken);
+    }
+
+    private void AddRoadRegistryScopes(ClaimsIdentity identity, IEnumerable<Claim> claims)
+    {
+        var scopes = claims
+            .Select(RoadRegistryClaim.ReadFrom)
+            .Where(claim => claim is not null)
+            .SelectMany(claim => RoadRegistryRoles.GetScopes(claim.Role))
+            .Distinct()
+            .ToArray();
+        foreach (var scope in scopes)
+        {
+            identity.AddClaim(new Claim(AcmIdmClaimTypes.Scope, scope));
+        }
     }
 }

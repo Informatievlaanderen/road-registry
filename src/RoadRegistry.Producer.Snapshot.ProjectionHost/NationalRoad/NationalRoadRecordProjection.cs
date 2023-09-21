@@ -10,6 +10,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
+    using Microsoft.EntityFrameworkCore;
     using Projections;
 
     public class NationalRoadRecordProjection : ConnectedProjection<NationalRoadProducerSnapshotContext>
@@ -72,6 +73,13 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad
             RoadSegmentAddedToNationalRoad nationalRoadAdded,
             CancellationToken token)
         {
+            var removedRecord = context.NationalRoads.Local.SingleOrDefault(x => x.Id == nationalRoadAdded.AttributeId && x.IsRemoved)
+                ?? await context.NationalRoads.SingleOrDefaultAsync(x => x.Id == nationalRoadAdded.AttributeId && x.IsRemoved, token);
+            if (removedRecord is not null)
+            {
+                context.NationalRoads.Remove(removedRecord);
+            }
+
             var nationalRoad = await context.NationalRoads.AddAsync(new NationalRoadRecord(
                 nationalRoadAdded.AttributeId,
                 nationalRoadAdded.SegmentId,

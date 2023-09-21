@@ -9,12 +9,14 @@
       </div>
     </header>
 
-    <header class="vl-functional-header" :style="getStyle">
+    <header class="vl-functional-header" :style="headerStyle">
       <div class="vl-layout">
         <div class="vl-functional-header__row">
           <div class="vl-functional-header__content">
             <h1 class="vl-title">
-              <a class="vl-functional-header__title" href="/">{{ getTitle }}</a>
+              <a class="vl-functional-header__title" href="/">{{ headerTitle }}
+                <span :style="headerEnvironmentLabelStyle">{{ headerEnvironmentLabel }}</span>
+              </a>
             </h1>
           </div>
           <div class="vl-functional-header__content" v-vl-positioning:float-right>
@@ -64,24 +66,34 @@ export default Vue.extend({
     userFullName() {
       return `${user.state.firstName ?? ''} ${user.state.lastName ?? ''}`.trim();
     },
-    getStyle() {
+    headerStyle() {
       const style: any = {};
       const env = environment.WR_ENV;
       if (env === "staging") {
-        style["backgroundColor"] = "#32cd32";
+        style["backgroundColor"] = "#3cb371";
       }
-      if (env === "test") {
-        style["backgroundColor"] = "#ffff00";
+      if (env === "test" || env === "development") {
+        style["backgroundColor"] = "#ffa500";
       }
       return style;
     },
-    getTitle(): string {
-      const title = "Wegenregister";
+    headerEnvironmentLabelStyle() {
+      const style: any = {};
       const env = environment.WR_ENV;
-      if (env === "production") {
-        return title;
+      if (env !== "production") {
+        style["color"] = "#ffffff";
       }
-      return `${title} ${env}`;
+      return style;
+    },
+    headerEnvironmentLabel(): string {
+      const env = environment.WR_ENV;
+      if (env !== "production") {
+        return env;
+      }
+      return '';
+    },
+    headerTitle(): string {
+      return "Wegenregister";
     },
   },
   methods: {

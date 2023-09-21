@@ -1,4 +1,9 @@
 namespace RoadRegistry.Hosts;
+using System;
+using System.IO;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
@@ -18,14 +23,6 @@ using NodaTime;
 using RoadRegistry.BackOffice.Configuration;
 using Serilog;
 using Serilog.Debugging;
-using Serilog.Events;
-using Serilog.Sinks.Slack;
-using Serilog.Sinks.Slack.Models;
-using System;
-using System.IO;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {

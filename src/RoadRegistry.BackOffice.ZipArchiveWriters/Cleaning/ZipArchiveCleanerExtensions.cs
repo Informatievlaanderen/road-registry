@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
 using FeatureCompare;
 using FeatureCompare.Translators;
+using Uploads;
 
 public static class ZipArchiveCleanerExtensions
 {
@@ -18,7 +19,7 @@ public static class ZipArchiveCleanerExtensions
         Func<TDbaseRecord, double?> getToPosition = null,
         Action<TDbaseRecord, double> setToPosition = null
     )
-        where TDbaseRecord: DbaseRecord, new()
+        where TDbaseRecord : DbaseRecord, new()
     {
         ArgumentNullException.ThrowIfNull(archive);
         ArgumentNullException.ThrowIfNull(dbfRecords);
@@ -31,10 +32,12 @@ public static class ZipArchiveCleanerExtensions
 
         var dataChanged = false;
 
-        var roadSegmentFeatures = new RoadSegmentFeatureCompareFeatureReader(encoding)
-            .Read(archive.Entries, FeatureType.Change, ExtractFileName.Wegsegment);
+        var (roadSegmentFeatures, problems) = new RoadSegmentFeatureCompareFeatureReader(encoding)
+            .Read(archive, FeatureType.Change, ExtractFileName.Wegsegment, new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty));
 
-        var featuresGroupedByRoadSegment = dbfRecords
+        if (!problems.HasError())
+        {
+            var featuresGroupedByRoadSegment = dbfRecords
             .Select(record => new
             {
                 RoadSegmentId = getRoadSegmentId(record),
@@ -44,31 +47,32 @@ public static class ZipArchiveCleanerExtensions
             .GroupBy(x => x.RoadSegmentId.Value, x => x.Record)
             .ToDictionary(x => x.Key, x => x.ToArray());
 
-        foreach (var group in featuresGroupedByRoadSegment)
-        {
-            var nullFromPosition = group.Value
-                .Where(x => getFromPosition(x) is null || getFromPosition(x) == 0)
-                .ToArray();
-            var nullToPosition = group.Value
-                .Where(x => getToPosition(x) is null)
-                .ToArray();
-
-            if (nullFromPosition.Length == 1 && getFromPosition(nullFromPosition.Single()) is null)
+            foreach (var group in featuresGroupedByRoadSegment)
             {
-                setFromPosition(nullFromPosition.Single(), 0);
-                dataChanged = true;
-            }
-
-            if (nullToPosition.Length == 1 && getToPosition(nullToPosition.Single()) is null)
-            {
-                var roadSegmentGeometries = roadSegmentFeatures
-                    .Where(x => x.Attributes.Id == group.Key)
-                    .Select(x => x.Attributes.Geometry)
+                var nullFromPosition = group.Value
+                    .Where(x => getFromPosition(x) is null || getFromPosition(x) == 0)
                     .ToArray();
-                if (roadSegmentGeometries.Length == 1)
+                var nullToPosition = group.Value
+                    .Where(x => getToPosition(x) is null)
+                    .ToArray();
+
+                if (nullFromPosition.Length == 1 && getFromPosition(nullFromPosition.Single()) is null)
                 {
-                    setToPosition(nullToPosition.Single(), roadSegmentGeometries.Single().Length);
+                    setFromPosition(nullFromPosition.Single(), 0);
                     dataChanged = true;
+                }
+
+                if (nullToPosition.Length == 1 && getToPosition(nullToPosition.Single()) is null)
+                {
+                    var roadSegmentGeometries = roadSegmentFeatures
+                        .Where(x => x.Attributes.Id == group.Key)
+                        .Select(x => x.Attributes.Geometry)
+                        .ToArray();
+                    if (roadSegmentGeometries.Length == 1)
+                    {
+                        setToPosition(nullToPosition.Single(), roadSegmentGeometries.Single().Length);
+                        dataChanged = true;
+                    }
                 }
             }
         }

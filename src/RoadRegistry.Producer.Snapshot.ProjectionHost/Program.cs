@@ -1,14 +1,19 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost
 {
+    using System;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
     using BackOffice;
+    using BackOffice.Abstractions;
     using Be.Vlaanderen.Basisregisters.EventHandling;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
     using Extensions;
     using GradeSeparatedJunction;
     using Hosts;
+    using Hosts.Infrastructure.Extensions;
     using Hosts.Metadata;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging;
@@ -17,11 +22,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
     using RoadNode;
     using RoadSegment;
     using RoadSegmentSurface;
-    using Syndication.Schema;
-    using System;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     public class Program
     {
@@ -34,21 +34,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
             var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
                 .ConfigureServices((hostContext, services) => services
                     .AddSingleton(provider => provider.GetRequiredService<IConfiguration>().GetSection(MetadataConfiguration.Section).Get<MetadataConfiguration>())
-                    .AddSingleton<IStreetNameCache, StreetNameCache>()
+                    .AddStreetNameCache()
                     .AddSingleton(new EnvelopeFactory(
                         RoadNodeEventProcessor.EventMapping,
                         new EventDeserializer((eventData, eventType) =>
                             JsonConvert.DeserializeObject(eventData, eventType, RoadNodeEventProcessor.SerializerSettings)))
-                    )
-                    .AddSingleton(
-                        () =>
-                            new SyndicationContext(
-                                new DbContextOptionsBuilder<SyndicationContext>()
-                                    .UseSqlServer(
-                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.SyndicationProjections),
-                                        options => options
-                                            .EnableRetryOnFailure()
-                                    ).Options)
                     )
                     .AddSnapshotProducer<RoadNodeProducerSnapshotContext, RoadNodeRecordProjection, RoadNodeEventProcessor>(
                         "RoadNode",

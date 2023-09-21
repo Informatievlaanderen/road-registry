@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure.Controllers;
 
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Abstractions.RoadNodes;
@@ -27,11 +25,6 @@ public partial class RoadRegistrySystemController
     {
         await Mediator.Send(new CorrectRoadNodeVersionsSqsRequest
         {
-            ProvenanceData = new RoadRegistryProvenanceData(),
-            Metadata = new Dictionary<string, object>
-            {
-                { "CorrelationId", Guid.NewGuid() }
-            },
             Request = new CorrectRoadNodeVersionsRequest()
         }, cancellationToken);
         return Accepted();
