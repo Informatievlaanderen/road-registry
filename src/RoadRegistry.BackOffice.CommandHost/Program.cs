@@ -36,7 +36,7 @@ public class Program
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
                 .AddTicketing()
-                .AddEmailClient()
+                .AddEmailClient(hostContext.Configuration)
                 .AddRoadRegistrySnapshot()
                 .AddRoadNetworkEventWriter()
                 .AddScoped(_ => new EventSourcedEntityMap())

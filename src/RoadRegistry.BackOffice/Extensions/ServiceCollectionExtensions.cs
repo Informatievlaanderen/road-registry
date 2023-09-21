@@ -21,16 +21,19 @@ using SqlStreamStore;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddEmailClient(this IServiceCollection services)
+    public static IServiceCollection AddEmailClient(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton(new AmazonSimpleEmailServiceV2Client());
+        var emailClientOptions = configuration.GetOptions<EmailClientOptions>();
 
-        services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<EmailClientOptions>());
-
-        services.AddSingleton<IExtractUploadFailedEmailClient>(sp => new ExtractUploadFailedEmailClient(
-            sp.GetService<AmazonSimpleEmailServiceV2Client>(),
-            sp.GetService<EmailClientOptions>(),
-            sp.GetService<ILogger<ExtractUploadFailedEmailClient>>()));
+        if (emailClientOptions is not null && emailClientOptions.FromEmailAddress is not null)
+        {
+            services.AddSingleton(emailClientOptions);
+            services.AddSingleton(new AmazonSimpleEmailServiceV2Client());
+            services.AddSingleton<IExtractUploadFailedEmailClient>(sp => new ExtractUploadFailedEmailClient(
+                sp.GetService<AmazonSimpleEmailServiceV2Client>(),
+                sp.GetService<EmailClientOptions>(),
+                sp.GetService<ILogger<ExtractUploadFailedEmailClient>>()));
+        }
 
         return services;
     }

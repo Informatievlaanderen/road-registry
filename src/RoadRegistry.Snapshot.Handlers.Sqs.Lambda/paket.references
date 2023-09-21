@@ -7,3 +7,5 @@ Amazon.Lambda.Serialization.Json
 Autofac.Extensions.DependencyInjection
 AWSSDK.Core
 Microsoft.Extensions.DependencyInjection.Abstractions
+
+Serilog.Sinks.Slack
