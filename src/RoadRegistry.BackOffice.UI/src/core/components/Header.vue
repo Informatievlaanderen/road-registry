@@ -14,7 +14,9 @@
         <div class="vl-functional-header__row">
           <div class="vl-functional-header__content">
             <h1 class="vl-title">
-              <a class="vl-functional-header__title" href="/">{{ headerTitle }}</a>
+              <a class="vl-functional-header__title" href="/">{{ headerTitle }}
+                <span :style="headerEnvironmentLabelStyle">{{ headerEnvironmentLabel }}</span>
+              </a>
             </h1>
           </div>
           <div class="vl-functional-header__content" v-vl-positioning:float-right>
@@ -30,12 +32,12 @@
               <div data-vl-tabs data-vl-tabs-responsive-label="Navigatie">
                 <div class="vl-tabs__wrapper">
                   <div class="vl-tabs" data-vl-tabs-list role="tablist">
-                    <router-link :style="headerStyle" :to="`/activiteit`" class="vl-tab" role="tab">Activiteit</router-link>
-                    <router-link :style="headerStyle" :to="`/informatie`" class="vl-tab" role="tab">Informatie</router-link>
-                    <router-link :style="headerStyle" :to="`/download-extract`" class="vl-tab" role="tab">Download Extract</router-link>
-                    <router-link :style="headerStyle" :to="`/download-product`" class="vl-tab" role="tab">Download Product</router-link>
-                    <router-link :style="headerStyle" :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
-                    <router-link :style="headerStyle" v-if="featureToggles.useTransactionZonesTab" :to="`/transaction-zones`" class="vl-tab" role="tab">Bijwerkingszones</router-link>
+                    <router-link :to="`/activiteit`" class="vl-tab" role="tab">Activiteit</router-link>
+                    <router-link :to="`/informatie`" class="vl-tab" role="tab">Informatie</router-link>
+                    <router-link :to="`/download-extract`" class="vl-tab" role="tab">Download Extract</router-link>
+                    <router-link :to="`/download-product`" class="vl-tab" role="tab">Download Product</router-link>
+                    <router-link :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
+                    <router-link v-if="featureToggles.useTransactionZonesTab" :to="`/transaction-zones`" class="vl-tab" role="tab">Bijwerkingszones</router-link>
                   </div>
                 </div>
               </div>
@@ -69,21 +71,29 @@ export default Vue.extend({
       const env = environment.WR_ENV;
       if (env === "staging") {
         style["backgroundColor"] = "#3cb371";
-        style["color"] = "#ffffff";
       }
       if (env === "test" || env === "development") {
         style["backgroundColor"] = "#ffa500";
+      }
+      return style;
+    },
+    headerEnvironmentLabelStyle() {
+      const style: any = {};
+      const env = environment.WR_ENV;
+      if (env !== "production") {
         style["color"] = "#ffffff";
       }
       return style;
     },
-    headerTitle(): string {
-      const title = "Wegenregister";
+    headerEnvironmentLabel(): string {
       const env = environment.WR_ENV;
-      if (env === "production") {
-        return title;
+      if (env !== "production") {
+        return env;
       }
-      return `${title} ${env}`;
+      return '';
+    },
+    headerTitle(): string {
+      return "Wegenregister";
     },
   },
   methods: {
