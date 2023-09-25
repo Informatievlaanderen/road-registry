@@ -35,7 +35,7 @@ public class RoadSegmentStatusTests
     [Fact]
     public void BuildingPermitGrantedReturnsExpectedResult()
     {
-        Assert.Equal("PermitGranted", RoadSegmentStatus.PermitGranted);
+        Assert.Equal("BuildingPermitGranted", RoadSegmentStatus.PermitGranted);
     }
 
     [Fact]
