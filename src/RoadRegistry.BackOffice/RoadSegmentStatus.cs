@@ -6,16 +6,6 @@ using System.Linq;
 
 public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToString
 {
-    public static readonly RoadSegmentStatus BuildingPermitGranted =
-        new(
-            nameof(BuildingPermitGranted),
-            new DutchTranslation(
-                2,
-                "bouwvergunning verleend",
-                "Geometrie komt voor op goedgekeurd, niet vervallen bouwdossier."
-            )
-        );
-
     public static readonly RoadSegmentStatus InUse =
         new(
             nameof(InUse),
@@ -38,11 +28,21 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
 
     public static readonly RoadSegmentStatus PermitRequested =
         new(
-            nameof(PermitRequested),
+            "PermitRequested",
             new DutchTranslation(
                 1,
                 "vergunning aangevraagd",
                 "Geometrie komt voor op officieel document in behandeling."
+            )
+        );
+
+    public static readonly RoadSegmentStatus PermitGranted =
+        new(
+            "BuildingPermitGranted",
+            new DutchTranslation(
+                2,
+                "vergunning verleend",
+                "Geometrie komt voor op goedgekeurd, niet vervallen bouwdossier."
             )
         );
 
@@ -68,7 +68,7 @@ public sealed class RoadSegmentStatus : IEquatable<RoadSegmentStatus>, IDutchToS
 
     public static readonly RoadSegmentStatus[] All =
     {
-        Unknown, PermitRequested, BuildingPermitGranted, UnderConstruction, InUse, OutOfUse
+        Unknown, PermitRequested, PermitGranted, UnderConstruction, InUse, OutOfUse
     };
 
     public sealed record Edit

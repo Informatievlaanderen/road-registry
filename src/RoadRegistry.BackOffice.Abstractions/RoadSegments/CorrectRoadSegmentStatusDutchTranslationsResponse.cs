@@ -1,0 +1,3 @@
+namespace RoadRegistry.BackOffice.Abstractions.RoadSegments;
+
+public sealed record CorrectRoadSegmentStatusDutchTranslationsResponse(int InvalidRoadSegmentsCount);
