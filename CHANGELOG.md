@@ -1,3 +1,11 @@
+## [3.59.10](https://github.com/informatievlaanderen/road-registry/compare/v3.59.9...v3.59.10) (2023-09-26)
+
+
+### Bug Fixes
+
+* Recreate label for roadsegment status ([#1207](https://github.com/informatievlaanderen/road-registry/issues/1207)) ([1935f65](https://github.com/informatievlaanderen/road-registry/commit/1935f65f29eafda394d44c8da1e4082bbe9459d6))
+* Remove null webhook URL from the appsettings files ([#1208](https://github.com/informatievlaanderen/road-registry/issues/1208)) ([23e0e23](https://github.com/informatievlaanderen/road-registry/commit/23e0e23c360276c447c56038776b1231e4cb0f56))
+
 ## [3.59.9](https://github.com/informatievlaanderen/road-registry/compare/v3.59.8...v3.59.9) (2023-09-21)
 
 
