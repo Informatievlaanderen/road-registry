@@ -6,7 +6,6 @@ Be.Vlaanderen.Basisregisters.GrAr.Legacy
 Be.Vlaanderen.Basisregisters.GrAr.Provenance
 Be.Vlaanderen.Basisregisters.Shaperon
 
-AspNetCore.HealthChecks.SqlServer
 AWSSDK.Core
 MediatR
 

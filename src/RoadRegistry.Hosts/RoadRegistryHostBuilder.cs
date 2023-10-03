@@ -21,12 +21,14 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using RoadRegistry.BackOffice.Configuration;
+using RoadRegistry.Hosts.Infrastructure.HealthChecks;
 using Serilog;
 using Serilog.Debugging;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
     private readonly string[] _args;
+    private readonly bool _isDevelopment;
     private Func<IServiceProvider, Task> _runCommandDelegate;
 
     private RoadRegistryHostBuilder()
@@ -36,6 +38,8 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
         AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
             Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
+
+        _isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
 
         ConfigureDefaultHostConfiguration()
             .ConfigureDefaultAppConfiguration()
@@ -107,6 +111,16 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
     {
         base.ConfigureServices(configureDelegate);
+        return this;
+    }
+
+    public RoadRegistryHostBuilder<T> ConfigureHealthChecks(Action<HealthCheckInitializer> configureDelegate)
+    {
+        base.ConfigureServices((hostContext, services) =>
+        {
+            var builder = services.AddHealthChecks();
+            configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder, hostContext.Configuration, _isDevelopment));
+        });
         return this;
     }
 

@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
 using Abstractions;
 using Abstractions.Configuration;
 using Amazon;
@@ -33,7 +29,9 @@ using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Handlers.Extensions;
+using HealthChecks.UI.Client;
 using Hosts.Infrastructure.Extensions;
+using Hosts.Infrastructure.HealthChecks;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
 using MediatR;
@@ -61,6 +59,11 @@ using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using Syndication.Schema;
+using System;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using ZipArchiveWriters.Validation;
 using DomainAssemblyMarker = Handlers.Sqs.DomainAssemblyMarker;
 using MediatorModule = Snapshot.Handlers.MediatorModule;
@@ -152,18 +155,19 @@ public class Startup
                         x.UseMiddleware<AddNoCacheHeadersMiddleware>();
                         x.UseHealthChecks(new PathString("/health"), Program.HostingPort, new HealthCheckOptions
                         {
+                            AllowCachingResponses = false,
+                            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
                             ResultStatusCodes =
                             {
                                 [HealthStatus.Healthy] = StatusCodes.Status200OK,
                                 [HealthStatus.Degraded] = StatusCodes.Status200OK,
                                 [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
-                            }
+                            },
                         });
                     }
                 }
             })
             ;
-
     }
 
     public void ConfigureContainer(ContainerBuilder builder)
@@ -234,20 +238,26 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
-                    AfterHealthChecks = health =>
-                    {
-                        var connectionStrings = _configuration
-                            .GetSection("ConnectionStrings")
-                            .GetChildren();
-
-                        foreach (var connectionString in connectionStrings)
-                        {
-                            health.AddSqlServer(
-                                connectionString.Value,
-                                name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
-                                tags: new[] { DatabaseTag, "sql", "sqlserver" });
-                        }
-                    },
+                    AfterHealthChecks = builder => HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment.IsDevelopment())
+                        .AddSqlServer()
+                        .AddS3(x => x
+                            .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read, Permission.Write)
+                            .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read)
+                            .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Write)
+                            .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                        )
+                        .AddSqs(x => x
+                            .CheckPermission(WellknownQueues.AdminQueue, Permission.Write)
+                            .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
+                            .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
+                        )
+                        .AddLambda(x => x
+                            .Check("lam-vbr-test-basisregisters-rr-sqsbackofficefunction")
+                            .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
+                        )
+                        .AddTicketing()
+                        .AddAcmIdm()
+                    ,
                     FluentValidation = _ =>
                     {
                         // Do not remove this handler!
@@ -382,5 +392,21 @@ public class Startup
     private static string GetApiLeadingText(ApiVersionDescription description)
     {
         return $"Momenteel leest u de documentatie voor versie {description.ApiVersion} van de Basisregisters Vlaanderen Road Registry API{string.Format(description.IsDeprecated ? ", **deze API versie is niet meer ondersteund * *." : ".")}";
+    }
+}
+
+public class SqlServerHealthCheck : IHealthCheck
+{
+    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+    {
+        try
+        {
+            return HealthCheckResult.Healthy();
+        }
+        catch (Exception ex)
+        {
+            return new HealthCheckResult(HealthStatus.Unhealthy, "dfd", ex);
+        }
+        throw new NotImplementedException();
     }
 }

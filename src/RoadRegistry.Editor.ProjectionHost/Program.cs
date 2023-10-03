@@ -111,6 +111,12 @@ public class Program
                 new ExtractUploadRecordProjection()
             })
         )
+        .ConfigureHealthChecks(builder => builder
+            .AddSqlServer()
+            .AddS3(x => x
+                .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+            )
+        )
         .ConfigureContainer((context, builder) =>
         {
             builder

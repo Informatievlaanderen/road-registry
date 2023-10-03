@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.EventHost;
 
+using System;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
@@ -90,6 +91,18 @@ public class Program
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
             })
+            .ConfigureHealthChecks(builder => builder
+                .AddSqlServer()
+                .AddS3(x => x
+                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+                )
+                .AddSqs(x => x
+                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
+                )
+                .AddTicketing()
+            )
             .ConfigureContainer((context, builder) =>
             {
                 builder

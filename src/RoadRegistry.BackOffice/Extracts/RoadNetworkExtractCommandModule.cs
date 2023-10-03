@@ -30,7 +30,6 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(beforeFeatureCompareValidator);
         ArgumentNullException.ThrowIfNull(afterFeatureCompareValidator);
-        ArgumentNullException.ThrowIfNull(extractUploadFailedEmailClient);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
@@ -149,7 +148,10 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                 }
                 catch (Exception ex)
                 {
-                    await extractUploadFailedEmailClient.SendAsync(extract.Description, ex, ct);
+                    if (extractUploadFailedEmailClient is not null)
+                    {
+                        await extractUploadFailedEmailClient.SendAsync(extract.Description, ex, ct);
+                    }
                     throw;
                 }
 
