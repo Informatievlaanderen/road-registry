@@ -83,5 +83,12 @@ public class Program
                 .ToArray())
             )
             .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<ProductContext>[]>(), ProductContextEventProcessor.EventMapping))
-        );
+        )
+        .ConfigureHealthChecks(builder => builder
+            .AddSqlServer()
+            .AddS3(x => x
+                .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+            )
+        )
+    ;
 }

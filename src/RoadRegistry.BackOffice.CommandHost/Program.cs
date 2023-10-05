@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.CommandHost;
 
+using System;
 using Abstractions;
 using Autofac;
 using Core;
@@ -47,6 +48,18 @@ public class Program
                         ),
                         WellknownSchemas.CommandHostSchema))
                 .AddDistributedStreamStoreLockOptions())
+            .ConfigureHealthChecks(builder => builder
+                .AddSqlServer()
+                .AddS3(x => x
+                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+                )
+                .AddSqs(x => x
+                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
+                )
+                .AddTicketing()
+            )
             .ConfigureCommandDispatcher(sp => Resolve.WhenEqualToMessage(new CommandHandlerModule[] {
                 new RoadNetworkChangesArchiveCommandModule(
                     sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),

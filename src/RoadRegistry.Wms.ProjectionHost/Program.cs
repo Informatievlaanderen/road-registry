@@ -66,6 +66,9 @@ public class Program
                         , WmsContextEventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WmsContextMigrationFactory())
                 .AddHostedService<WmsContextEventProcessor>())
+            .ConfigureHealthChecks(builder => builder
+                .AddSqlServer()
+            )
             .Build();
 
         await roadRegistryHost

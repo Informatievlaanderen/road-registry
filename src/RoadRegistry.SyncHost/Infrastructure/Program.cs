@@ -43,6 +43,10 @@ public class Program
                     .AddHostedService<StreetNameConsumer>()
                     ;
             })
+            .ConfigureHealthChecks(builder => builder
+                .AddSqlServer()
+                .AddKafka()
+            )
             .ConfigureContainer((hostContext, builder) =>
                 {
                     builder

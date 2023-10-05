@@ -3,29 +3,21 @@ namespace RoadRegistry.AdminHost.Infrastructure;
 using Autofac;
 using BackOffice;
 using BackOffice.Configuration;
+using BackOffice.Core;
 using BackOffice.Extensions;
+using BackOffice.Extracts;
 using BackOffice.Framework;
 using BackOffice.Handlers.Sqs;
+using BackOffice.Uploads;
+using BackOffice.ZipArchiveWriters.Validation;
 using Consumers;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
-using BackOffice.Abstractions;
-using BackOffice.Core;
-using BackOffice.Extracts;
-using BackOffice.Handlers.Sqs.RoadSegments;
-using BackOffice.Uploads;
-using BackOffice.ZipArchiveWriters.Validation;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Be.Vlaanderen.Basisregisters.Sqs.Requests;
-using Editor.Schema;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
+using System.Threading.Tasks;
 
 public class Program
 {
@@ -68,6 +60,7 @@ public class Program
                 .AddEditorContext()
                 .AddProductContext()
             )
+            .ConfigureHealthChecks(builder => { })
             .ConfigureContainer((hostContext, builder) =>
             {
                 builder.RegisterModule<MediatorModule>();

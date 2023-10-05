@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Infrastructure.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
@@ -17,16 +18,18 @@ public class RoadRegistryHost<T>
     public IConfiguration Configuration { get; }
 
     private readonly IHost _host;
+    private readonly IHealthCheck[] _healthChecks;
     private readonly ILogger<T> _logger;
     private readonly IStreamStore _streamStore;
     private readonly List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
     private readonly List<string> _wellKnownConnectionNames = new();
     private readonly Func<IServiceProvider, Task> _runCommandDelegate;
 
-    public RoadRegistryHost(IHost host, Func<IServiceProvider, Task> runCommandDelegate)
+    public RoadRegistryHost(IHost host, Func<IServiceProvider, Task> runCommandDelegate, params IHealthCheck[] healthChecks)
     {
         Configuration = host.Services.GetRequiredService<IConfiguration>();
         _host = host;
+        _healthChecks = healthChecks;
         _streamStore = host.Services.GetRequiredService<IStreamStore>();
         _logger = host.Services.GetRequiredService<ILogger<T>>();
         _runCommandDelegate = runCommandDelegate ?? ((sp) => _host.RunAsync());

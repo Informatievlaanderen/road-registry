@@ -72,7 +72,10 @@ public class RoadNetworkExtractUpload
 
             Apply(@event);
 
-            await emailClient.SendAsync(_extractDescription, new ValidationException(JsonConvert.SerializeObject(@event, Formatting.Indented)), cancellationToken);
+            if (emailClient is not null)
+            {
+                await emailClient.SendAsync(_extractDescription, new ValidationException(JsonConvert.SerializeObject(@event, Formatting.Indented)), cancellationToken);
+            }
         }
 
         return problems;

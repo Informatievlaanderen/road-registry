@@ -70,6 +70,10 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                         .Where(x => !x.IsAbstract && typeof(IRunnerDbContextMigratorFactory).IsAssignableFrom(x))
                         .Select(type => (IRunnerDbContextMigratorFactory)Activator.CreateInstance(type))
                         .ToArray()))
+                .ConfigureHealthChecks(builder => builder
+                    .AddSqlServer()
+                    .AddKafka()
+                )
                 .Build();
 
             await roadRegistryHost

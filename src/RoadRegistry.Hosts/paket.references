@@ -24,6 +24,7 @@ Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.FileProviders.Abstractions
 Microsoft.Extensions.FileProviders.Physical
 Microsoft.Extensions.Logging.Abstractions
+Microsoft.Extensions.Diagnostics.HealthChecks
 Microsoft.Extensions.Hosting
 Microsoft.Extensions.Hosting.Abstractions
 Microsoft.Extensions.Http
@@ -32,6 +33,13 @@ Microsoft.IdentityModel.Abstractions
 Microsoft.IdentityModel.JsonWebTokens
 Microsoft.IdentityModel.Logging
 Microsoft.IdentityModel.Tokens
+
+AspNetCore.HealthChecks.Aws.S3
+AspNetCore.HealthChecks.Aws.Sqs
+AspNetCore.HealthChecks.DynamoDb
+AspNetCore.HealthChecks.Network
+AspNetCore.HealthChecks.SqlServer
+AspNetCore.HealthChecks.UI.Client
 
 Serilog
 Serilog.Enrichers.Environment

@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Infrastructure.Extensions;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
@@ -21,12 +23,14 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using RoadRegistry.BackOffice.Configuration;
+using RoadRegistry.Hosts.Infrastructure.HealthChecks;
 using Serilog;
 using Serilog.Debugging;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
     private readonly string[] _args;
+    private readonly bool _isDevelopment;
     private Func<IServiceProvider, Task> _runCommandDelegate;
 
     private RoadRegistryHostBuilder()
@@ -36,6 +40,8 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
         AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
             Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
+
+        _isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
 
         ConfigureDefaultHostConfiguration()
             .ConfigureDefaultAppConfiguration()
@@ -54,7 +60,14 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         UseServiceProviderFactory(new AutofacServiceProviderFactory());
         var internalHost = base.Build();
 
-        return new RoadRegistryHost<T>(internalHost, _runCommandDelegate);
+        var healthChecks = Array.Empty<IHealthCheck>();
+
+        var host = new RoadRegistryHost<T>(internalHost, _runCommandDelegate, healthChecks);
+
+        //TODO : Attach host and health checks for this host running or not here
+
+
+        return host;
     }
 
     public new RoadRegistryHostBuilder<T> ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
@@ -107,6 +120,16 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     public new RoadRegistryHostBuilder<T> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
     {
         base.ConfigureServices(configureDelegate);
+        return this;
+    }
+
+    public RoadRegistryHostBuilder<T> ConfigureHealthChecks(Action<HealthCheckInitializer> configureDelegate)
+    {
+        base.ConfigureServices((hostContext, services) =>
+        {
+            var builder = services.AddHealthChecks();
+            configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder, hostContext.Configuration, _isDevelopment));
+        });
         return this;
     }
 

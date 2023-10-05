@@ -95,6 +95,19 @@ public class Program
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
             })
+            .ConfigureHealthChecks(builder => builder
+                .AddSqlServer()
+                .AddS3(x => x
+                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
+                    .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read, Permission.Delete)
+                )
+                .AddSqs(x => x
+                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
+                )
+                .AddTicketing()
+            )
             .Build();
 
         await roadRegistryHost

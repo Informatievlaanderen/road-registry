@@ -26,6 +26,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Infrastructure.HealthChecks;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
@@ -81,6 +82,9 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         ConfigureDefaultServices(context, services);
         ConfigureServices(context, services);
 
+        var healthCheckBuilder = services.AddHealthChecks();
+        ConfigureHealthChecks(HealthCheckInitializer.Configure(healthCheckBuilder, context.Configuration, context.HostingEnvironment.IsDevelopment()));
+
         var builder = new ContainerBuilder();
         builder.RegisterConfiguration(configuration);
         builder.Populate(services);
@@ -98,6 +102,11 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
     protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
     }
+
+    protected virtual void ConfigureHealthChecks(HealthCheckInitializer builder)
+    {
+    }
+
     protected virtual void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
     }
