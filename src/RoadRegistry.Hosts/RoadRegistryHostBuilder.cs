@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using Infrastructure.Extensions;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
@@ -58,7 +60,14 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         UseServiceProviderFactory(new AutofacServiceProviderFactory());
         var internalHost = base.Build();
 
-        return new RoadRegistryHost<T>(internalHost, _runCommandDelegate);
+        var healthChecks = Array.Empty<IHealthCheck>();
+
+        var host = new RoadRegistryHost<T>(internalHost, _runCommandDelegate, healthChecks);
+
+        //TODO : Attach host and health checks for this host running or not here
+
+
+        return host;
     }
 
     public new RoadRegistryHostBuilder<T> ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)

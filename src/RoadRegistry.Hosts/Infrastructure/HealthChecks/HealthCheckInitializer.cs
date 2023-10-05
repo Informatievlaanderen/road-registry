@@ -66,7 +66,7 @@ public class HealthCheckInitializer
         if (optionsBuilder.IsValid)
         {
             var s3BlobClientOptions = _configuration.GetOptions<S3BlobClientOptions>();
-            if (s3BlobClientOptions is not null)
+            if (s3BlobClientOptions?.Buckets is not null)
             {
                 var s3Options = _isDevelopment
                     ? _configuration.GetOptions<DevelopmentS3Options>()
