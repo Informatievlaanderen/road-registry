@@ -31,6 +31,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(clock);
+        ArgumentNullException.ThrowIfNull(emailClient);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         _store = store;
