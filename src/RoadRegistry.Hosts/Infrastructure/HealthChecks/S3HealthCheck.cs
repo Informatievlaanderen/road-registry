@@ -44,7 +44,7 @@ internal class S3HealthCheck : IHealthCheck
                         {
                             Key = ObjectKey,
                             BucketName = _bucketName,
-                            FilePath = "./paket.dependencies"
+                            FilePath = "./paket.references"
                         };
                         var putObjectResponse = await client.PutObjectAsync(putObjectRequest, cancellationToken);
                         var getObjectResponse = await client.GetObjectAsync(_bucketName, ObjectKey, cancellationToken);

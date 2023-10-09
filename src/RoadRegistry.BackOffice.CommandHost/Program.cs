@@ -21,6 +21,7 @@ using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Threading.Tasks;
 using FeatureToggles;
+using Microsoft.AspNetCore.Builder;
 using Uploads;
 using ZipArchiveWriters.Validation;
 
@@ -32,6 +33,16 @@ public class Program
 
     public static async Task Main(string[] args)
     {
+        //var builder = WebApplication.CreateBuilder(args);
+
+        //var app = builder.Build();
+        //builder.Services.AddHealthChecks();
+
+        //app
+        //    .MapHealthChecks("/health")
+        //    .RequireHost("*:10003");
+        //await app.RunAsync();
+
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
                 .AddHostedService<RoadNetworkCommandProcessor>()

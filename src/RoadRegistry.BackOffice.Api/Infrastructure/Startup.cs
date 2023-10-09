@@ -251,12 +251,12 @@ public class Startup
                             .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
                             .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
                         )
-                        .AddLambda(x => x
-                            .Check("lam-vbr-test-basisregisters-rr-sqsbackofficefunction")
-                            .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
-                        )
+                        //.AddLambda(x => x
+                        //    .Check("lam-vbr-test-basisregisters-rr-sqsbackofficefunction")
+                        //    .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
+                        //)
                         .AddTicketing()
-                        .AddAcmIdm()
+                        //.AddAcmIdm()
                     ,
                     FluentValidation = _ =>
                     {
