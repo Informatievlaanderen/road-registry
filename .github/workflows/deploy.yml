@@ -103,11 +103,13 @@ jobs:
     - name: Prepare Lambda(s)
       shell: bash
       run: |
-        aws s3 cp $S3_BASEURL-sqsbackoffice/$VERSION/lambda.zip $S3_BASEURL-sqsbackoffice/lambda.zip --copy-props none
-        aws s3 cp $S3_BASEURL-sqssnapshot/$VERSION/lambda.zip $S3_BASEURL-sqssnapshot/lambda.zip --copy-props none
+        aws s3 cp $S3_BASEURL-$FUNCTION_BACKOFFICE/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_BACKOFFICE/lambda.zip --copy-props none
+        aws s3 cp $S3_BASEURL-$FUNCTION_SNAPSHOT/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_SNAPSHOT/lambda.zip --copy-props none
       env:
         VERSION: ${{ needs.release.outputs.version }}
-        S3_BASEURL: ${{ github.event.inputs.environment == 'tst' && 's3://196194905350-vbr-test-lam-rr' || github.event.inputs.environment == 'stg' && 's3://s3-vbr-stg-basisregisters-lam-wr' || github.event.inputs.environment == 'prd' && 's3://s3-vbr-prd-basisregisters-lam-wr' || github.event.inputs.environment == 'newprd' && 's3://077849980894-vbr-prd-lam-rr' || '' }}
+        S3_BASEURL: ${{ github.event.inputs.environment == 'tst' && 's3://196194905350-vbr-test-lam' || github.event.inputs.environment == 'stg' && 's3://s3-vbr-stg-basisregisters-lam' || github.event.inputs.environment == 'prd' && 's3://s3-vbr-prd-basisregisters-lam' || github.event.inputs.environment == 'newprd' && 's3://077849980894-vbr-prd-lam' || '' }}
+        FUNCTION_BACKOFFICE: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'newprd') && 'rr-sqsbackoffice' || 'wr-sqsbackofficehandlerfunction' }}
+        FUNCTION_SNAPSHOT: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'newprd') && 'rr-sqssnapshot' || 'wr-sqssnapshothandlerfunction' }}
         
     - name: Promote Lambda(s)
       shell: bash
