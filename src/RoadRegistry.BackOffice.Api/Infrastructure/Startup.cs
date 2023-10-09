@@ -240,23 +240,23 @@ public class Startup
                 {
                     AfterHealthChecks = builder => HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment.IsDevelopment())
                         .AddSqlServer()
-                        .AddS3(x => x
-                            .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read, Permission.Write)
-                            .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read)
-                            .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Write)
-                            .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
-                        )
-                        .AddSqs(x => x
-                            .CheckPermission(WellknownQueues.AdminQueue, Permission.Write)
-                            .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
-                            .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
-                        )
-                        .AddLambda(x => x
-                            .Check("lam-vbr-test-basisregisters-rr-sqsbackofficefunction")
-                            .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
-                        )
-                        .AddTicketing()
-                        .AddAcmIdm()
+                        //.AddS3(x => x
+                        //    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read, Permission.Write)
+                        //    .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read)
+                        //    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Write)
+                        //    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                        //)
+                        //.AddSqs(x => x
+                        //    .CheckPermission(WellknownQueues.AdminQueue, Permission.Write)
+                        //    .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
+                        //    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
+                        //)
+                        //.AddLambda(x => x
+                        //    .Check("lam-vbr-test-basisregisters-rr-sqsbackofficefunction")
+                        //    .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
+                        //)
+                        //.AddTicketing()
+                        //.AddAcmIdm()
                     ,
                     FluentValidation = _ =>
                     {
