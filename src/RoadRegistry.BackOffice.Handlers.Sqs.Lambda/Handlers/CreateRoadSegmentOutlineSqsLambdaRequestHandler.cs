@@ -57,7 +57,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
 
                 var fromPosition = new RoadSegmentPosition(0);
                 var toPosition = new RoadSegmentPosition((decimal)geometry.Length);
-
+                //TODO-rik #797 use orgreader to find OrgId
                 translatedChanges = translatedChanges.AppendChange(
                     new AddRoadSegment(
                             recordNumber,

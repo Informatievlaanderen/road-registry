@@ -59,7 +59,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                 }
 
                 var geometryDrawMethod = roadSegment.AttributeHash.GeometryDrawMethod;
-                
+                //TODO-rik #797 use orgreader to find OrgId
                 translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
                 {
                     MaintenanceAuthority = change.MaintenanceAuthority,

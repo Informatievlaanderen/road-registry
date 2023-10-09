@@ -31,6 +31,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
         foreach (var changeFeature in changeFeatures)
         {
+            //TODO-rik #797 use orgreader to find OrgId for MaintenanceAuthority
             cancellationToken.ThrowIfCancellationRequested();
 
             var bufferedGeometry = changeFeature.Attributes.Geometry.Buffer(context.Tolerances.IntersectionBuffer);
