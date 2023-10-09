@@ -58,11 +58,11 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     public new RoadRegistryHost<T> Build()
     {
         UseServiceProviderFactory(new AutofacServiceProviderFactory());
-        var internalHost = base.Build();
+        var app = base.Build();
 
         var healthChecks = Array.Empty<IHealthCheck>();
 
-        var host = new RoadRegistryHost<T>(internalHost, _runCommandDelegate, healthChecks);
+        var host = new RoadRegistryHost<T>(app, _runCommandDelegate, healthChecks);
 
         //TODO : Attach host and health checks for this host running or not here
 

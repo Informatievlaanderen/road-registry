@@ -5,6 +5,7 @@ using BackOffice.Uploads;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Hosts.Infrastructure;
 using MediatR;
 using Requests;
 using RoadSegments;
@@ -29,8 +30,11 @@ public sealed class MessageHandler : BlobMessageHandler
         await using var lifetimeScope = _container.BeginLifetimeScope();
         var mediator = lifetimeScope.Resolve<IMediator>();
 
-        var sqsLambdaRequest = ConvertToLambdaRequest(sqsRequest, messageMetadata.MessageGroupId!);
-        await mediator.Send(sqsLambdaRequest, cancellationToken);
+        if (sqsRequest is not HealthCheckSqsRequest)
+        {
+            var sqsLambdaRequest = ConvertToLambdaRequest(sqsRequest, messageMetadata.MessageGroupId!);
+            await mediator.Send(sqsLambdaRequest, cancellationToken);
+        }
     }
 
     private static SqsLambdaRequest ConvertToLambdaRequest(SqsRequest sqsRequest, string groupId)

@@ -6,6 +6,7 @@ using Autofac;
 using Be.Vlaanderen.Basisregisters.Aws.Lambda;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
+using Infrastructure;
 using MediatR;
 
 public abstract class RoadRegistryMessageHandler : IMessageHandler
@@ -30,8 +31,11 @@ public abstract class RoadRegistryMessageHandler : IMessageHandler
         await using var lifetimeScope = _container.BeginLifetimeScope();
         var mediator = lifetimeScope.Resolve<IMediator>();
 
-        var sqsLambdaRequest = ConvertToLambdaRequest(sqsRequest, messageMetadata.MessageGroupId!);
-        await mediator.Send(sqsLambdaRequest, cancellationToken);
+        if (sqsRequest is not HealthCheckSqsRequest)
+        {
+            var sqsLambdaRequest = ConvertToLambdaRequest(sqsRequest, messageMetadata.MessageGroupId!);
+            await mediator.Send(sqsLambdaRequest, cancellationToken);
+        }
     }
 
     protected abstract SqsLambdaRequest ConvertToLambdaRequest(SqsRequest sqsRequest, string groupId);

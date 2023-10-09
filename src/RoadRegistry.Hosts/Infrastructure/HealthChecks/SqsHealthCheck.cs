@@ -1,4 +1,4 @@
-﻿namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
+namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
 
 using System;
 using System.Threading;
@@ -39,13 +39,14 @@ internal class SqsHealthCheck : IHealthCheck
                         var receiveMessageResponse = await client.ReceiveMessageAsync(_sqsOptions.QueueUrl, cancellationToken);
                         break;
                     case Permission.Write:
-                        var sqsJsonMessage = SqsJsonMessage.Create(new HealthCheckSqsMessage(), serializer);
+                        var sqsRequest = new HealthCheckSqsRequest();
+                        var sqsJsonMessage = SqsJsonMessage.Create(sqsRequest, serializer);
                         var messageBody = serializer.Serialize(sqsJsonMessage);
                         var sendMessageRequest = new SendMessageRequest
                         {
                             QueueUrl = _sqsOptions.QueueUrl,
                             MessageBody = messageBody,
-                            MessageGroupId = "HealthCheck"
+                            MessageGroupId = sqsRequest.MessageGroupId
                         };
                         var sendMessageResponse = await client.SendMessageAsync(sendMessageRequest, cancellationToken);
                         break;
@@ -82,9 +83,4 @@ internal class SqsHealthCheck : IHealthCheck
             (true, true, true) => new AmazonSQSClient(_sqsOptions.Credentials, new AmazonSQSConfig { ServiceURL = _sqsOptions.ServiceUrl, RegionEndpoint = _sqsOptions.RegionEndpoint })
         };
     }
-}
-
-internal class HealthCheckSqsMessage : SQSEvent.SQSMessage
-{
-    public string MessageGroupId => "HealthCheck";
 }
