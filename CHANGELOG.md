@@ -1,3 +1,10 @@
+## [3.59.11](https://github.com/informatievlaanderen/road-registry/compare/v3.59.10...v3.59.11) (2023-10-09)
+
+
+### Bug Fixes
+
+* WR-859 casting parameter type from CustomState ([#1214](https://github.com/informatievlaanderen/road-registry/issues/1214)) ([5495be0](https://github.com/informatievlaanderen/road-registry/commit/5495be0f0e59fc35b2114510a3e1c4c95a12ef21))
+
 ## [3.59.10](https://github.com/informatievlaanderen/road-registry/compare/v3.59.9...v3.59.10) (2023-09-26)
 
 
