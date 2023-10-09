@@ -1,3 +1,11 @@
+## [3.59.13](https://github.com/informatievlaanderen/road-registry/compare/v3.59.12...v3.59.13) (2023-10-09)
+
+
+### Bug Fixes
+
+* add step Prepare Lambda to deployment pipeline ([#1219](https://github.com/informatievlaanderen/road-registry/issues/1219)) ([c2f3b5c](https://github.com/informatievlaanderen/road-registry/commit/c2f3b5c1aa670df4776988741298e594c5ec5048))
+* disable newly added healthchecks for API ([#1220](https://github.com/informatievlaanderen/road-registry/issues/1220)) ([e05722c](https://github.com/informatievlaanderen/road-registry/commit/e05722c24c7abe834e7fa5c999e5bc55228c334e))
+
 ## [3.59.12](https://github.com/informatievlaanderen/road-registry/compare/v3.59.11...v3.59.12) (2023-10-09)
 
 
