@@ -59,7 +59,7 @@ public static class ValidationExtensions
                 {
                     Severity = ProblemSeverity.Error,
                     Reason = x.ErrorCode,
-                    Parameters = ParseCustomState(x.CustomState) ?? Array.Empty<Messages.ProblemParameter>()
+                    Parameters = ParseCustomState(x.CustomState)
                 }
             })
             .Select(x =>
@@ -97,7 +97,7 @@ public static class ValidationExtensions
     {
         if (customState is null)
         {
-            return null;
+            return Array.Empty<Messages.ProblemParameter>();
         }
 
         if (customState is Messages.ProblemParameter[] problemParameters)
