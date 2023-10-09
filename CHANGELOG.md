@@ -1,3 +1,11 @@
+## [3.59.12](https://github.com/informatievlaanderen/road-registry/compare/v3.59.11...v3.59.12) (2023-10-09)
+
+
+### Bug Fixes
+
+* disable newly added healthchecks on API ([#1215](https://github.com/informatievlaanderen/road-registry/issues/1215)) ([a589788](https://github.com/informatievlaanderen/road-registry/commit/a589788cab2ee516d6854994ed2d1e33eec502e1))
+* Healthchecks pass ([#1216](https://github.com/informatievlaanderen/road-registry/issues/1216)) ([391a97e](https://github.com/informatievlaanderen/road-registry/commit/391a97e37f092bb24d131cbfd13626e260afeb42))
+
 ## [3.59.11](https://github.com/informatievlaanderen/road-registry/compare/v3.59.10...v3.59.11) (2023-10-09)
 
 
