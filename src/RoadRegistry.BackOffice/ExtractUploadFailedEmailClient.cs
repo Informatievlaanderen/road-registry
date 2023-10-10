@@ -116,7 +116,7 @@ public class NotConfiguredExtractUploadFailedEmailClient : IExtractUploadFailedE
 
     public Task SendAsync(string extractDescription, Exception ex, CancellationToken cancellationToken)
     {
-        _logger.LogError("Received email request, but client is not configured!");
+        _logger.LogInformation("Received email request, but client is not configured so not doing anything");
 
         return Task.CompletedTask;
     }

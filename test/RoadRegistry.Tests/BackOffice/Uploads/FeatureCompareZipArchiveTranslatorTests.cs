@@ -33,6 +33,29 @@ public class FeatureCompareZipArchiveTranslatorTests
         Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
     }
 
+    [Fact(Skip = "For debugging purposes, local feature compare testing")]
+    //[Fact]
+    public async Task RunZipArchiveFeatureCompareTranslator()
+    {
+        var pathArchive = @"upload.zip";
+
+        try
+        {
+            using (var archiveStream = File.OpenRead(pathArchive))
+            using (var archive = new ZipArchive(archiveStream))
+            {
+                var sw = Stopwatch.StartNew();
+                _outputHelper.WriteLine("Started translate Before-FC");
+                await _sut.Translate(archive, CancellationToken.None);
+                _outputHelper.WriteLine($"Finished translate Before-FC at {sw.Elapsed}");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
     [Fact(Skip = "For debugging purposes, local feature compare testing only due to big archive files")]
     //[Fact]
     public async Task TranslateWithRecordsReturnsExpectedResult()
