@@ -23,17 +23,17 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddEmailClient(this IServiceCollection services, IConfiguration configuration)
     {
-        var emailClientOptions = configuration.GetOptions<EmailClientOptions>();
+        var emailClientOptions = configuration.GetOptions<EmailClientOptions>() ?? new EmailClientOptions();
 
-        if (emailClientOptions is not null && emailClientOptions.FromEmailAddress is not null)
-        {
-            services.AddSingleton(emailClientOptions);
-            services.AddSingleton(new AmazonSimpleEmailServiceV2Client());
-            services.AddSingleton<IExtractUploadFailedEmailClient>(sp => new ExtractUploadFailedEmailClient(
+        services.AddSingleton(emailClientOptions);
+        services.AddSingleton(new AmazonSimpleEmailServiceV2Client());
+
+        services.AddSingleton<IExtractUploadFailedEmailClient>(sp => emailClientOptions.FromEmailAddress is not null ?
+            new ExtractUploadFailedEmailClient(
                 sp.GetService<AmazonSimpleEmailServiceV2Client>(),
                 sp.GetService<EmailClientOptions>(),
-                sp.GetService<ILogger<ExtractUploadFailedEmailClient>>()));
-        }
+                sp.GetService<ILogger<ExtractUploadFailedEmailClient>>())
+            : new NotConfiguredExtractUploadFailedEmailClient(sp.GetService<ILogger<NotConfiguredExtractUploadFailedEmailClient>>()));
 
         return services;
     }
