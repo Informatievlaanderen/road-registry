@@ -1,3 +1,10 @@
+## [3.59.16](https://github.com/informatievlaanderen/road-registry/compare/v3.59.15...v3.59.16) (2023-10-10)
+
+
+### Bug Fixes
+
+* WR-856 only try to fill in TOTPOS when geometry is present ([#1225](https://github.com/informatievlaanderen/road-registry/issues/1225)) ([455071b](https://github.com/informatievlaanderen/road-registry/commit/455071b50856ba61850e71bf4e4d5d1890f939c7))
+
 ## [3.59.15](https://github.com/informatievlaanderen/road-registry/compare/v3.59.14...v3.59.15) (2023-10-10)
 
 
