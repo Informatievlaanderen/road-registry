@@ -1,3 +1,10 @@
+## [3.59.14](https://github.com/informatievlaanderen/road-registry/compare/v3.59.13...v3.59.14) (2023-10-09)
+
+
+### Bug Fixes
+
+* deploy lambda pipeline ([#1221](https://github.com/informatievlaanderen/road-registry/issues/1221)) ([5cde2e7](https://github.com/informatievlaanderen/road-registry/commit/5cde2e73d93d0d91c90f363cb24fbe7d901117ae))
+
 ## [3.59.13](https://github.com/informatievlaanderen/road-registry/compare/v3.59.12...v3.59.13) (2023-10-09)
 
 
