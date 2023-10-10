@@ -1,3 +1,12 @@
+## [3.59.15](https://github.com/informatievlaanderen/road-registry/compare/v3.59.14...v3.59.15) (2023-10-10)
+
+
+### Bug Fixes
+
+* always register an IExtractUploadFailedEmailClient implementation ([#1223](https://github.com/informatievlaanderen/road-registry/issues/1223)) ([c72720c](https://github.com/informatievlaanderen/road-registry/commit/c72720ce8e171b7789b71b097db7f4de57356a1c))
+* only resolve AmazonSimpleEmailServiceV2Client when it's needed ([#1224](https://github.com/informatievlaanderen/road-registry/issues/1224)) ([24ee5df](https://github.com/informatievlaanderen/road-registry/commit/24ee5dfa641726eb0c59519dcf9366ce079523c3))
+* set correct version in lambda deploy pipeline ([#1222](https://github.com/informatievlaanderen/road-registry/issues/1222)) ([62d6729](https://github.com/informatievlaanderen/road-registry/commit/62d6729029c3f90c90e1dc4916a8c45bccffdc13))
+
 ## [3.59.14](https://github.com/informatievlaanderen/road-registry/compare/v3.59.13...v3.59.14) (2023-10-09)
 
 
