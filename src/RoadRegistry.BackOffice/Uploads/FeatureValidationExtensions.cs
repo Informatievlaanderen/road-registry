@@ -172,7 +172,8 @@ namespace RoadRegistry.BackOffice.Uploads
                     var feature = nullToPosition.Single();
                     if (feature.Attributes.ToPosition == RoadSegmentPosition.Zero)
                     {
-                        if (context.KnownRoadSegments.TryGetValue(roadSegmentId, out var roadSegmentFeature))
+                        if (context.KnownRoadSegments.TryGetValue(roadSegmentId, out var roadSegmentFeature)
+                            && roadSegmentFeature.Attributes.Geometry is not null)
                         {
                             features[features.IndexOf(feature)] = feature with
                             {
