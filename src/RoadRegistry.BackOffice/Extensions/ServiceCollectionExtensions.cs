@@ -26,10 +26,9 @@ public static class ServiceCollectionExtensions
         var emailClientOptions = configuration.GetOptions<EmailClientOptions>() ?? new EmailClientOptions();
 
         services.AddSingleton(emailClientOptions);
-        services.AddSingleton(new AmazonSimpleEmailServiceV2Client());
-
-        services.AddSingleton<IExtractUploadFailedEmailClient>(sp => emailClientOptions.FromEmailAddress is not null ?
-            new ExtractUploadFailedEmailClient(
+        services.AddSingleton(_ => new AmazonSimpleEmailServiceV2Client());
+        services.AddSingleton<IExtractUploadFailedEmailClient>(sp => !string.IsNullOrEmpty(emailClientOptions.FromEmailAddress)
+            ? new ExtractUploadFailedEmailClient(
                 sp.GetService<AmazonSimpleEmailServiceV2Client>(),
                 sp.GetService<EmailClientOptions>(),
                 sp.GetService<ILogger<ExtractUploadFailedEmailClient>>())
