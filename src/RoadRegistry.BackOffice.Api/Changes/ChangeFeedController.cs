@@ -26,7 +26,25 @@ public partial class ChangeFeedController : ApiController
     }
 }
 
-public record ChangeFeedEntry(long Id, string Title, string Type, string Day, string Month, string TimeOfDay);
+public record ChangeFeedEntry
+{
+    public ChangeFeedEntry(long id, string title, string type, string day, string month, string timeOfDay)
+    {
+        Id = id;
+        Title = title;
+        Type = type;
+        Day = day;
+        Month = month?.Length > 3 ? month.Substring(0, 3) : month;
+        TimeOfDay = timeOfDay;
+    }
+
+    public long Id { get; set; }
+    public string Title { get; set; }
+    public string Type { get; set; }
+    public string Day { get; set; }
+    public string Month { get; set; }
+    public string TimeOfDay { get; set; }
+};
 
 public record ChangeFeedEntryContent(long Id, string Type, object Content);
 

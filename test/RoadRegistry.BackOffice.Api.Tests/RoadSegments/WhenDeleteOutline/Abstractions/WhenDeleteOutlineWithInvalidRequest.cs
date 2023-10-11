@@ -39,8 +39,7 @@ public abstract class WhenDeleteOutlineWithInvalidRequest<TFixture> : IClassFixt
         Assert.StartsWith(ExpectedErrorMessagePrefix, errMessage);
     }
 
-    [Fact]
-    public IEnumerable<ValidationFailure> ItShouldHaveValidationException()
+    private IEnumerable<ValidationFailure> ItShouldHaveValidationException()
     {
         var ex = Assert.IsType<ValidationException>(Fixture.Exception);
         var err = Assert.IsAssignableFrom<IEnumerable<ValidationFailure>>(ex.Errors);
