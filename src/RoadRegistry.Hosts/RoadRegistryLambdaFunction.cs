@@ -10,6 +10,7 @@ using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
 using Infrastructure.Extensions;
+using Infrastructure.HealthChecks;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,7 +27,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Infrastructure.HealthChecks;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
@@ -41,7 +41,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         : base(messageAssemblies, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())
     {
     }
-    
+
     protected virtual IConfiguration BuildConfiguration(IHostEnvironment hostEnvironment)
     {
         var configurationBuilder = new ConfigurationBuilder()
@@ -111,7 +111,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
     {
     }
 
-    private void ConfigureDefaultServices(HostBuilderContext context, IServiceCollection services)
+    private void ConfigureDefaultServices(HostBuilderContext hostContext, IServiceCollection services)
     {
         services
             .AddTicketing()
@@ -120,10 +120,14 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddEditorContext()
             .AddStreamStore()
-            .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })
+            .AddLogging(builder =>
+            {
+                builder.AddRoadRegistryLambdaLogger();
+                builder.AddSerilog<TMessageHandler>(hostContext.Configuration);
+            })
             .AddSqsLambdaHandlerOptions()
             .AddRoadRegistrySnapshot()
-            .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
+            .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration)
             ;
     }
 

@@ -173,19 +173,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     {
         return ConfigureLogging((hostContext, builder) =>
         {
-            SelfLog.Enable(Console.WriteLine);
-
-            var loggerConfiguration = new LoggerConfiguration()
-                .ReadFrom.Configuration(hostContext.Configuration)
-                .Enrich.FromLogContext()
-                .Enrich.WithMachineName()
-                .Enrich.WithThreadId()
-                .Enrich.WithEnvironmentUserName()
-                .AddSlackSink<T>(hostContext.Configuration);
-
-            Log.Logger = loggerConfiguration.CreateLogger();
-
-            builder.AddSerilog(Log.Logger);
+            builder.AddSerilog<T>(hostContext.Configuration);
         });
     }
 
