@@ -1,7 +1,6 @@
 framework: net6.0
 source https://api.nuget.org/v3/index.json
 references: strict
-strategy: max
 
 // PRODUCTION STUFF
 nuget Amazon.Lambda.Core 2.1.0
@@ -30,7 +29,7 @@ nuget AWSSDK.SQS 3.7.102.2
 nuget AWSSDK.Lambda 3.7.109.6
 nuget Confluent.Kafka 1.8.2
 nuget CompareNETObjects 4.79.0
-nuget CsvHelper 30.0.1
+nuget CsvHelper 29.0.0
 nuget Docker.DotNet 3.125.14
 nuget DotSpatial.Projections 4.0.656
 nuget FeatureToggle.Common 4.0.2
@@ -40,7 +39,7 @@ nuget FluentValidation.AspNetCore 11.3.0
 nuget IdentityModel 6.1.0
 nuget MediatR 12.0.1
 nuget MediatR.Contracts 2.0.1
-nuget MessagePack 2.5.108
+nuget MessagePack 2.4.35
 nuget Moq 4.18.2
 nuget NetTopologySuite 2.5.0
 nuget NetTopologySuite.IO.GeoJSON 2.0.4
@@ -182,15 +181,19 @@ nuget Microsoft.Extensions.Logging.Abstractions 7.0.0
 nuget Microsoft.Extensions.Options.ConfigurationExtensions 7.0.0
 nuget Microsoft.Extensions.Primitives 7.0.0
 nuget Microsoft.IO.RecyclableMemoryStream 2.2.1
-nuget Microsoft.Identity.Client 4.53.0
+nuget Microsoft.Identity.Client 4.56.0
 nuget Microsoft.Identity.Client.Extensions.Msal 2.29.0
+nuget Microsoft.IdentityModel.Abstractions 6.24.0
+nuget Microsoft.IdentityModel.Tokens 6.24.0
+nuget Microsoft.IdentityModel.JsonWebTokens 6.24.0
+nuget Microsoft.IdentityModel.Logging 6.24.0
 nuget Microsoft.IdentityModel.Protocols 6.24.0
 nuget Microsoft.IdentityModel.Protocols.OpenIdConnect 6.24.0
 nuget Microsoft.Net.Http.Headers 2.2.8
-nuget Microsoft.NET.StringTools 17.5.0
-nuget Microsoft.NET.Test.Sdk 17.5.0
+nuget Microsoft.NET.StringTools 17.3.2
+nuget Microsoft.TestPlatform.TestHost 17.3.2
+nuget Microsoft.NET.Test.Sdk 17.3.2
 nuget Microsoft.NETCore.Platforms 6.0.6
 nuget Microsoft.OpenApi 1.6.4
 nuget Microsoft.Win32.SystemEvents 6.0.1
 nuget NETStandard.Library 2.0.3
-
