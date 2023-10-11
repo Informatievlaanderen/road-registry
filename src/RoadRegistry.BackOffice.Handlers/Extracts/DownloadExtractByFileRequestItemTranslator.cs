@@ -69,7 +69,6 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
                                     {
                                         problems.Add(new ShapeFileInvalidPolygonShellOrientation());
                                     }
-
                                     break;
 
                                 default:
@@ -81,7 +80,10 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
                     if (polygons.Any())
                     {
                         var srids = polygons.Select(x => x.SRID).Distinct().ToArray();
-                        if (srids.Length > 1) problems.Add(new ShapeFileGeometrySridMustBeEqual());
+                        if (srids.Length > 1)
+                        {
+                            problems.Add(new ShapeFileGeometrySridMustBeEqual());
+                        }
                     }
                     else
                     {
@@ -103,8 +105,9 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
                         return new ValidationFailure
                         {
                             PropertyName = nameof(DownloadExtractByFileRequest.ShpFile),
-                            ErrorMessage = problem.TranslateToDutch().Message,
-                            ErrorCode = problemTranslation.Code
+                            ErrorMessage = problemTranslation.Message,
+                            ErrorCode = problemTranslation.Code,
+                            CustomState = problem.Parameters.ToArray()
                         };
                     }));
             }
@@ -114,6 +117,7 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
         }
     }
 }
+
 
 public class DownloadExtractByFileRequestItemTranslatorNetTopologySuite : IDownloadExtractByFileRequestItemTranslator
 {
