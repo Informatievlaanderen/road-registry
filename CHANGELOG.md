@@ -1,3 +1,13 @@
+## [3.59.17](https://github.com/informatievlaanderen/road-registry/compare/v3.59.16...v3.59.17) (2023-10-11)
+
+
+### Bug Fixes
+
+* build solution, tests & package versions ([#1226](https://github.com/informatievlaanderen/road-registry/issues/1226)) ([c2d81b4](https://github.com/informatievlaanderen/road-registry/commit/c2d81b4be42b82d26590e7d29d37d3dc43ec1dd0))
+* reduce conversions from double to decimal ([#1227](https://github.com/informatievlaanderen/road-registry/issues/1227)) ([57d34a1](https://github.com/informatievlaanderen/road-registry/commit/57d34a1fab9cf6e8b6c17434438337ea349c473b))
+* WR-621 add missing lanes/surfaces/widths when correcting roadsegment status dutch translations ([#1229](https://github.com/informatievlaanderen/road-registry/issues/1229)) ([6c6c7fb](https://github.com/informatievlaanderen/road-registry/commit/6c6c7fbbdde82fd457df045a81527b4bcf13514a))
+* WR-710 add featureflag to toggle GradeSeparatedJunction validation ([#1228](https://github.com/informatievlaanderen/road-registry/issues/1228)) ([8b845b0](https://github.com/informatievlaanderen/road-registry/commit/8b845b0ebe05258fa392803908e5d0c8d594bd08))
+
 ## [3.59.16](https://github.com/informatievlaanderen/road-registry/compare/v3.59.15...v3.59.16) (2023-10-10)
 
 
