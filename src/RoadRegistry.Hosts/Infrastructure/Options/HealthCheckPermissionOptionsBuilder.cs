@@ -15,10 +15,8 @@ public abstract class HealthCheckPermissionOptionsBuilder<TOptions> : HealthChec
         return this;
     }
 
-    public IEnumerable<Permission> GetPermissions(string wellKnownTarget)
+    public IEnumerable<(string, Permission[])> GetPermissions()
     {
-        return _permissions.TryGetValue(wellKnownTarget, out var permissions)
-            ? permissions.AsEnumerable()
-            : Enumerable.Empty<Permission>();
+        return _permissions.Select(x => (x.Key, x.Value));
     }
 }

@@ -66,25 +66,27 @@ public class HealthCheckInitializer
 
         if (optionsBuilder.IsValid)
         {
-            var s3BlobClientOptions = _configuration.GetOptions<S3BlobClientOptions>();
-            if (s3BlobClientOptions?.Buckets is not null)
-            {
-                var s3Options = _isDevelopment
-                    ? _configuration.GetOptions<DevelopmentS3Options>()
-                    : _configuration.GetOptions<S3Options>();
+            var s3BlobClientOptions = _configuration.GetOptions<S3BlobClientOptions>()
+                                      ?? new S3BlobClientOptions();
+            var s3Options = _isDevelopment
+                ? _configuration.GetOptions<DevelopmentS3Options>()
+                : _configuration.GetOptions<S3Options>();
 
-                foreach (var bucketName in s3BlobClientOptions.Buckets)
+            foreach (var bucketPermissions in optionsBuilder.GetPermissions())
+            {
+                var bucketKey = bucketPermissions.Item1;
+                var permissions = bucketPermissions.Item2;
+
+                var bucketName = s3BlobClientOptions.FindBucketName(bucketKey) ?? bucketKey;
+
+                foreach (var permission in permissions)
                 {
-                    var permissions = optionsBuilder.GetPermissions(bucketName.Key);
-                    foreach (var permission in permissions)
-                    {
-                        _builder.Add(new HealthCheckRegistration(
-                            $"s3-{bucketName.Key}-{permission.ToString()}".ToLowerInvariant(),
-                            sp => new S3HealthCheck(s3Options, bucketName.Value, permission),
-                            default,
-                            new[] { "aws", "s3" },
-                            default));
-                    }
+                    _builder.Add(new HealthCheckRegistration(
+                        $"s3-{bucketKey}-{permission}".ToLowerInvariant(),
+                        sp => new S3HealthCheck(s3Options, bucketName, permission),
+                        default,
+                        new[] { "aws", "s3" },
+                        default));
                 }
             }
         }
@@ -115,34 +117,32 @@ public class HealthCheckInitializer
 
         if (optionsBuilder.IsValid)
         {
-            var sqsOptions = _configuration.GetOptions<SqsConfiguration>();
-            var sqsQueueUrlOptions = _configuration.GetOptions<SqsQueueUrlOptions>();
+            var sqsOptions = _configuration.GetOptions<SqsConfiguration>()
+                ?? new SqsConfiguration();
+            var sqsQueueUrlOptions = _configuration.GetOptions<SqsQueueUrlOptions>()
+                ?? new SqsQueueUrlOptions();
 
-            if (sqsQueueUrlOptions is not null)
+            foreach (var bucketPermissions in optionsBuilder.GetPermissions())
             {
-                var sqsQueueUrlOptionsType = sqsQueueUrlOptions.GetType();
-                var sqsQueueUrlOptionsProps = sqsQueueUrlOptionsType.GetProperties();
+                var queueName = bucketPermissions.Item1;
+                var permissions = bucketPermissions.Item2;
 
-                foreach (var propertyInfo in sqsQueueUrlOptionsProps)
+                var healthCheckOptions = new SqsHealthCheckOptions
                 {
-                    var healthCheckOptions = new SqsHealthCheckOptions
-                    {
-                        //RegionEndpoint = RegionEndpoint.EUWest1,
-                        ServiceUrl = sqsOptions?.ServiceUrl,
-                        Credentials = _isDevelopment ? new BasicAWSCredentials("dummy", "dummy") : null,
-                        QueueUrl = sqsQueueUrlOptions.TryGetPropertyValue<string>(propertyInfo.Name)
-                    };
+                    //RegionEndpoint = RegionEndpoint.EUWest1,
+                    ServiceUrl = sqsOptions.ServiceUrl,
+                    Credentials = _isDevelopment ? new BasicAWSCredentials("dummy", "dummy") : null,
+                    QueueUrl = sqsQueueUrlOptions.TryGetPropertyValue<string>(queueName) ?? queueName
+                };
 
-                    var permissions = optionsBuilder.GetPermissions(propertyInfo.Name);
-                    foreach (var permission in permissions)
-                    {
-                        _builder.Add(new HealthCheckRegistration(
-                            $"sqs-{propertyInfo.Name}-{permission}".ToLowerInvariant(),
-                            sp => new SqsHealthCheck(healthCheckOptions, permission),
-                            default,
-                            new[] { "aws", "sqs" },
-                            default));
-                    }
+                foreach (var permission in permissions)
+                {
+                    _builder.Add(new HealthCheckRegistration(
+                        $"sqs-{queueName}-{permission}".ToLowerInvariant(),
+                        sp => new SqsHealthCheck(healthCheckOptions, permission),
+                        default,
+                        new[] { "aws", "sqs" },
+                        default));
                 }
             }
         }

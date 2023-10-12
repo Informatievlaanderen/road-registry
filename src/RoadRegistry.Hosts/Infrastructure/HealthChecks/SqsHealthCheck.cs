@@ -1,9 +1,5 @@
 namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Amazon.Lambda.SQSEvents;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using BackOffice;
@@ -12,6 +8,9 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Newtonsoft.Json;
 using Options;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 internal class SqsHealthCheck : IHealthCheck
 {
@@ -20,8 +19,8 @@ internal class SqsHealthCheck : IHealthCheck
 
     public SqsHealthCheck(SqsHealthCheckOptions sqsOptions, Permission permission)
     {
-        _sqsOptions = sqsOptions ?? throw new ArgumentNullException(nameof(SqsHealthCheckOptions));
-        _permission = permission;
+        _sqsOptions = sqsOptions.ThrowIfNull();
+        _permission = permission.ThrowIfNull();
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -36,7 +35,7 @@ internal class SqsHealthCheck : IHealthCheck
                 switch (_permission)
                 {
                     case Permission.Read:
-                        var receiveMessageResponse = await client.ReceiveMessageAsync(_sqsOptions.QueueUrl, cancellationToken);
+                        await client.ReceiveMessageAsync(_sqsOptions.QueueUrl, cancellationToken);
                         break;
                     case Permission.Write:
                         var sqsRequest = new HealthCheckSqsRequest();
@@ -48,7 +47,7 @@ internal class SqsHealthCheck : IHealthCheck
                             MessageBody = messageBody,
                             MessageGroupId = sqsRequest.MessageGroupId
                         };
-                        var sendMessageResponse = await client.SendMessageAsync(sendMessageRequest, cancellationToken);
+                        await client.SendMessageAsync(sendMessageRequest, cancellationToken);
                         break;
                     case Permission.Delete:
                         break;
