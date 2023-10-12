@@ -11,7 +11,14 @@ public abstract class HealthCheckPermissionOptionsBuilder<TOptions> : HealthChec
 
     public HealthCheckPermissionOptionsBuilder<TOptions> CheckPermission(string wellKnownTarget, params Permission[] permissions)
     {
-        _permissions.Add(wellKnownTarget, permissions);
+        if (_permissions.ContainsKey(wellKnownTarget))
+        {
+            _permissions[wellKnownTarget] = permissions.Union(_permissions[wellKnownTarget]).ToArray();
+        }
+        else
+        {
+            _permissions.Add(wellKnownTarget, permissions);
+        }
         return this;
     }
 

@@ -21,12 +21,11 @@ internal class TicketingHealthCheck : IHealthCheck
     {
         try
         {
-            var createTicketResponse = await _ticketingOptions.TicketingService.CreateTicket(new Dictionary<string, string>(), cancellationToken);
-            // var getAllResponse = await _ticketingOptions.TicketingService.GetAll(cancellationToken);
-            var getResponse = await _ticketingOptions.TicketingService.Get(createTicketResponse, cancellationToken);
-            await _ticketingOptions.TicketingService.Pending(createTicketResponse, cancellationToken);
-            await _ticketingOptions.TicketingService.Error(createTicketResponse, new TicketError("HealthCheck error call", ""), cancellationToken);
-            await _ticketingOptions.TicketingService.Complete(createTicketResponse, new TicketResult(), cancellationToken);
+            var ticketId = await _ticketingOptions.TicketingService.CreateTicket(new Dictionary<string, string>(), cancellationToken);
+            await _ticketingOptions.TicketingService.Get(ticketId, cancellationToken);
+            await _ticketingOptions.TicketingService.Pending(ticketId, cancellationToken);
+            await _ticketingOptions.TicketingService.Error(ticketId, new TicketError("HealthCheck error call", ""), cancellationToken);
+            await _ticketingOptions.TicketingService.Complete(ticketId, new TicketResult(), cancellationToken);
             return HealthCheckResult.Healthy();
         }
         catch (Exception ex)

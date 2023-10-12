@@ -243,7 +243,7 @@ public class Startup
                 {
                     AfterHealthChecks = builder =>
                     {
-                        var healthCheckInitializer = HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment.IsDevelopment())
+                        var healthCheckInitializer = HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment)
                             .AddSqlServer();
 
                         if (useHealthChecksFeatureToggle.FeatureEnabled)

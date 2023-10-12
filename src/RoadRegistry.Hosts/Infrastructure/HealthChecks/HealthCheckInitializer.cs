@@ -16,13 +16,13 @@ public class HealthCheckInitializer
 {
     private readonly IHealthChecksBuilder _builder;
     private readonly IConfiguration _configuration;
-    private readonly bool _isDevelopment;
+    private readonly IHostEnvironment _hostEnvironment;
 
-    private HealthCheckInitializer(IHealthChecksBuilder builder, IConfiguration configuration, bool isDevelopment)
+    private HealthCheckInitializer(IHealthChecksBuilder builder, IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
         _builder = builder;
         _configuration = configuration;
-        _isDevelopment = isDevelopment;
+        _hostEnvironment = hostEnvironment;
     }
 
     public HealthCheckInitializer AddAcmIdm()
@@ -68,7 +68,7 @@ public class HealthCheckInitializer
         {
             var s3BlobClientOptions = _configuration.GetOptions<S3BlobClientOptions>()
                                       ?? new S3BlobClientOptions();
-            var s3Options = _isDevelopment
+            var s3Options = _hostEnvironment.IsDevelopment()
                 ? _configuration.GetOptions<DevelopmentS3Options>()
                 : _configuration.GetOptions<S3Options>();
 
@@ -83,7 +83,7 @@ public class HealthCheckInitializer
                 {
                     _builder.Add(new HealthCheckRegistration(
                         $"s3-{bucketKey}-{permission}".ToLowerInvariant(),
-                        sp => new S3HealthCheck(s3Options, bucketName, permission),
+                        sp => new S3HealthCheck(s3Options, bucketName, permission, _hostEnvironment.ApplicationName),
                         default,
                         new[] { "aws", "s3" },
                         default));
@@ -131,7 +131,7 @@ public class HealthCheckInitializer
                 {
                     //RegionEndpoint = RegionEndpoint.EUWest1,
                     ServiceUrl = sqsOptions.ServiceUrl,
-                    Credentials = _isDevelopment ? new BasicAWSCredentials("dummy", "dummy") : null,
+                    Credentials = _hostEnvironment.IsDevelopment() ? new BasicAWSCredentials("dummy", "dummy") : null,
                     QueueUrl = sqsQueueUrlOptions.TryGetPropertyValue<string>(queueName) ?? queueName
                 };
 
@@ -170,8 +170,8 @@ public class HealthCheckInitializer
         return this;
     }
 
-    public static HealthCheckInitializer Configure(IHealthChecksBuilder builder, IConfiguration configuration, bool isDevelopment)
+    public static HealthCheckInitializer Configure(IHealthChecksBuilder builder, IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
-        return new HealthCheckInitializer(builder, configuration, isDevelopment);
+        return new HealthCheckInitializer(builder, configuration, hostEnvironment);
     }
 }

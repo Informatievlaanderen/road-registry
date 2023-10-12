@@ -16,11 +16,13 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using RoadRegistry.BackOffice.Configuration;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Hosts.Infrastructure.HealthChecks;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -115,6 +117,15 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
     public RoadRegistryHostBuilder<T> ConfigureHealthChecks(Action<HealthCheckInitializer> configureDelegate)
     {
+        //base.ConfigureServices((hostContext, services) =>
+        //{
+        //    var useHealthChecksFeatureToggle = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
+        //    if (useHealthChecksFeatureToggle.FeatureEnabled)
+        //    {
+        //        var builder = services.AddHealthChecks();
+        //        configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder, hostContext.Configuration, hostContext.HostingEnvironment));
+        //    }
+        //});
         _configureHealthCheckActions.Add(configureDelegate);
         return this;
     }

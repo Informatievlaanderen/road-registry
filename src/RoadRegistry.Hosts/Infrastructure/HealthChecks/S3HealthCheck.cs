@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
 
 using System;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,16 +12,18 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 internal class S3HealthCheck : IHealthCheck
 {
-    private const string ObjectKey = "healthcheck.dummy.bin";
+    private readonly string _objectKey;
+
     private readonly string _bucketName;
     private readonly S3Options _options;
     private readonly Permission _permission;
 
-    public S3HealthCheck(S3Options options, string bucketName, Permission permission)
+    public S3HealthCheck(S3Options options, string bucketName, Permission permission, string applicationName)
     {
         _options = options;
         _bucketName = bucketName;
         _permission = permission;
+        _objectKey = $"healthcheck.{applicationName}.bin";
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -28,7 +31,7 @@ internal class S3HealthCheck : IHealthCheck
         try
         {
             var client = _options.CreateS3Client();
-
+            
             using (client)
             {
                 switch (_permission)
@@ -40,21 +43,37 @@ internal class S3HealthCheck : IHealthCheck
                             : HealthCheckResult.Unhealthy();
 
                     case Permission.Write:
+                        var dummyFilePath = "./healthcheck.bin";
+                        if (!File.Exists(dummyFilePath))
+                        {
+                            await File.WriteAllTextAsync(dummyFilePath, string.Empty, cancellationToken);
+                        }
+                        
                         var putObjectRequest = new PutObjectRequest
                         {
-                            Key = ObjectKey,
+                            Key = _objectKey,
                             BucketName = _bucketName,
-                            FilePath = "./paket.references"
+                            FilePath = dummyFilePath
                         };
                         var putObjectResponse = await client.PutObjectAsync(putObjectRequest, cancellationToken);
-                        var getObjectResponse = await client.GetObjectAsync(_bucketName, ObjectKey, cancellationToken);
-                        var deleteObjectResponse = await client.DeleteObjectAsync(_bucketName, ObjectKey, cancellationToken);
+                        if (putObjectResponse.HttpStatusCode != HttpStatusCode.OK)
+                        {
+                            return HealthCheckResult.Unhealthy();
+                        }
 
-                        return putObjectResponse.HttpStatusCode == HttpStatusCode.OK &&
-                               getObjectResponse.HttpStatusCode == HttpStatusCode.OK &&
-                               deleteObjectResponse.HttpStatusCode == HttpStatusCode.NoContent
-                            ? HealthCheckResult.Healthy()
-                            : HealthCheckResult.Unhealthy();
+                        var getObjectResponse = await client.GetObjectAsync(_bucketName, _objectKey, cancellationToken);
+                        if (getObjectResponse.HttpStatusCode != HttpStatusCode.OK)
+                        {
+                            return HealthCheckResult.Unhealthy();
+                        }
+
+                        var deleteObjectResponse = await client.DeleteObjectAsync(_bucketName, _objectKey, cancellationToken);
+                        if (deleteObjectResponse.HttpStatusCode != HttpStatusCode.NoContent)
+                        {
+                            return HealthCheckResult.Unhealthy();
+                        }
+
+                        return HealthCheckResult.Healthy();
                     default:
                         return HealthCheckResult.Degraded();
                 }

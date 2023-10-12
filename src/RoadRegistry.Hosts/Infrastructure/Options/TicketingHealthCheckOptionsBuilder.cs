@@ -9,7 +9,7 @@ public class TicketingHealthCheckOptionsBuilder : HealthCheckOptionsBuilder<Tick
 
     public override TicketingHealthCheckOptions Build()
     {
-        return new TicketingHealthCheckOptions()
+        return new TicketingHealthCheckOptions
         {
             TicketingService = _ticketingService
         };

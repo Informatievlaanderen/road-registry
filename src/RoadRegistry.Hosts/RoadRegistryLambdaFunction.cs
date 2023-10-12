@@ -88,7 +88,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         if (useHealthChecksFeatureToggle.FeatureEnabled)
         {
             var healthCheckBuilder = services.AddHealthChecks();
-            ConfigureHealthChecks(HealthCheckInitializer.Configure(healthCheckBuilder, context.Configuration, context.HostingEnvironment.IsDevelopment()));
+            ConfigureHealthChecks(HealthCheckInitializer.Configure(healthCheckBuilder, context.Configuration, context.HostingEnvironment));
         }
 
         var builder = new ContainerBuilder();

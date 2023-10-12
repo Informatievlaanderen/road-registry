@@ -37,7 +37,8 @@ public static class EventSourceLoggerFactoryExtensions
             .Enrich.FromLogContext()
             .Enrich.WithMachineName()
             .Enrich.WithThreadId()
-            .Enrich.WithEnvironmentUserName()
+            .Enrich.WithEnvironmentUserName().Filter
+            .ByExcluding(logEvent => logEvent.Exception is OperationCanceledException)
             .AddSlackSink<T>(configuration);
 
         Log.Logger = loggerConfiguration.CreateLogger();

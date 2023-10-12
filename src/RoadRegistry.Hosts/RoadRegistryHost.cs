@@ -121,9 +121,6 @@ public class RoadRegistryHost<T>
 
     private async Task RunHealthChecksWebApp()
     {
-        var environment = _host.Services.GetRequiredService<IHostEnvironment>();
-        var isDevelopment = environment.IsDevelopment();
-
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
             ApplicationName = ApplicationName
@@ -139,7 +136,7 @@ public class RoadRegistryHost<T>
                 var useHealthChecksFeatureToggle = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
                 if (useHealthChecksFeatureToggle.FeatureEnabled)
                 {
-                    var healthCheckInitializer = HealthCheckInitializer.Configure(healthChecksBuilder, hostContext.Configuration, isDevelopment);
+                    var healthCheckInitializer = HealthCheckInitializer.Configure(healthChecksBuilder, hostContext.Configuration, hostContext.HostingEnvironment);
 
                     foreach (var configureHealthCheckAction in _configureHealthCheckActions)
                     {
@@ -147,6 +144,8 @@ public class RoadRegistryHost<T>
                     }
                 }
             });
+
+        //builder.Host.UseServiceProviderFactory(_ => new ServiceProviderFactory(_host.Services));
 
         var webApp = builder.Build();
         webApp
@@ -157,5 +156,40 @@ public class RoadRegistryHost<T>
             });
 
         await webApp.RunAsync();
+    }
+
+    private class ServiceProviderFactory : IServiceProviderFactory<IServiceCollection>
+    {
+        private readonly IServiceProvider _serviceProvider;
+
+        public ServiceProviderFactory(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
+        public IServiceCollection CreateBuilder(IServiceCollection services)
+        {
+            return services;
+        }
+
+        public IServiceProvider CreateServiceProvider(IServiceCollection containerBuilder)
+        {
+            return new ServiceProvider(_serviceProvider);
+        }
+    }
+
+    private class ServiceProvider : IServiceProvider
+    {
+        private readonly IServiceProvider _serviceProvider;
+
+        public ServiceProvider(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
+        public object GetService(Type serviceType)
+        {
+            return _serviceProvider.GetService(serviceType);
+        }
     }
 }
