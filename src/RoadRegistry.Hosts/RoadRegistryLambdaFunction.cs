@@ -23,10 +23,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice.FeatureToggles;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
@@ -82,8 +84,12 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         ConfigureDefaultServices(context, services);
         ConfigureServices(context, services);
 
-        var healthCheckBuilder = services.AddHealthChecks();
-        ConfigureHealthChecks(HealthCheckInitializer.Configure(healthCheckBuilder, context.Configuration, context.HostingEnvironment.IsDevelopment()));
+        var useHealthChecksFeatureToggle = configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
+        if (useHealthChecksFeatureToggle.FeatureEnabled)
+        {
+            var healthCheckBuilder = services.AddHealthChecks();
+            ConfigureHealthChecks(HealthCheckInitializer.Configure(healthCheckBuilder, context.Configuration, context.HostingEnvironment.IsDevelopment()));
+        }
 
         var builder = new ContainerBuilder();
         builder.RegisterConfiguration(configuration);

@@ -195,6 +195,9 @@ public class Startup
 
         var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
 
+        var featureToggles = _configuration.GetFeatureToggles<ApplicationFeatureToggle>();
+        var useHealthChecksFeatureToggle = featureToggles.OfType<UseHealthChecksFeatureToggle>().Single();
+
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
             {
@@ -238,26 +241,34 @@ public class Startup
                 },
                 MiddlewareHooks =
                 {
-                    AfterHealthChecks = builder => HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment.IsDevelopment())
-                        .AddSqlServer()
-                        //.AddS3(x => x
-                        //    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read, Permission.Write)
-                        //    .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read)
-                        //    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Write)
-                        //    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
-                        //)
-                        //.AddSqs(x => x
-                        //    .CheckPermission(WellknownQueues.AdminQueue, Permission.Write)
-                        //    .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
-                        //    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
-                        //)
-                        ////.AddLambda(x => x
-                        ////    .Check("lam-vbr-test-basisregisters-rr-sqsbackofficefunction")
-                        ////    .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
-                        ////)
-                        //.AddTicketing()
-                        ////.AddAcmIdm()
-                    ,
+                    AfterHealthChecks = builder =>
+                    {
+                        var healthCheckInitializer = HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment.IsDevelopment())
+                            .AddSqlServer();
+
+                        if (useHealthChecksFeatureToggle.FeatureEnabled)
+                        {
+                            healthCheckInitializer
+                                .AddS3(x => x
+                                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read, Permission.Write)
+                                    .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read)
+                                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Write)
+                                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                                )
+                                .AddSqs(x => x
+                                    .CheckPermission(WellknownQueues.AdminQueue, Permission.Write)
+                                    .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
+                                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
+                                )
+                                //.AddLambda(x => x
+                                //    .Check("lam-vbr-test-basisregisters-rr-sqsbackofficefunction")
+                                //    .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
+                                //)
+                                .AddTicketing()
+                                //.AddAcmIdm()
+                                ;
+                        }
+                    },
                     FluentValidation = _ =>
                     {
                         // Do not remove this handler!
@@ -361,7 +372,7 @@ public class Startup
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
-            .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
+            .AddFeatureToggles(featureToggles)
             .AddTicketing()
             .AddRoadRegistrySnapshot()
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))

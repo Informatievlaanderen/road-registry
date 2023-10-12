@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
 
 using System;
+using System.Linq;
 using Amazon.Runtime;
 using BackOffice.Configuration;
 using Microsoft.Extensions.Configuration;
@@ -95,10 +96,10 @@ public class HealthCheckInitializer
         var connectionStrings = _configuration.GetSection("ConnectionStrings").GetChildren();
         if (connectionStrings is not null)
         {
-            foreach (var connectionString in connectionStrings)
+            foreach (var connectionString in connectionStrings.Where(x => x.Value is not null))
             {
                 _builder.AddSqlServer(
-                    connectionString.Value,
+                    connectionString.Value!,
                     name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
                     tags: new[] { "db", "sql", "sqlserver" });
             }
@@ -136,7 +137,7 @@ public class HealthCheckInitializer
                     foreach (var permission in permissions)
                     {
                         _builder.Add(new HealthCheckRegistration(
-                            $"sqs-{propertyInfo.Name}-{permission.ToString()}".ToLowerInvariant(),
+                            $"sqs-{propertyInfo.Name}-{permission}".ToLowerInvariant(),
                             sp => new SqsHealthCheck(healthCheckOptions, permission),
                             default,
                             new[] { "aws", "sqs" },

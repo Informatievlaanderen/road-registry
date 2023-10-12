@@ -23,6 +23,7 @@ using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
 using RoadRegistry.BackOffice.Configuration;
+using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Hosts.Infrastructure.HealthChecks;
 using Serilog;
 using Serilog.Debugging;
@@ -127,8 +128,12 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     {
         base.ConfigureServices((hostContext, services) =>
         {
-            var builder = services.AddHealthChecks();
-            configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder, hostContext.Configuration, _isDevelopment));
+            var useHealthChecksFeatureToggle = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
+            if (useHealthChecksFeatureToggle.FeatureEnabled)
+            {
+                var builder = services.AddHealthChecks();
+                configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder, hostContext.Configuration, _isDevelopment));
+            }
         });
         return this;
     }
