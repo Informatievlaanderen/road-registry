@@ -2,6 +2,7 @@ namespace RoadRegistry.Hosts;
 
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Infrastructure.Extensions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -10,29 +11,36 @@ using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice;
+using BackOffice.Extensions;
+using BackOffice.FeatureToggles;
+using Be.Vlaanderen.Basisregisters.Api;
+using Infrastructure.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 public class RoadRegistryHost<T>
 {
     public IConfiguration Configuration { get; }
 
     private readonly IHost _host;
-    private readonly IHealthCheck[] _healthChecks;
+    private readonly List<Action<HealthCheckInitializer>> _configureHealthCheckActions;
     private readonly ILogger<T> _logger;
     private readonly IStreamStore _streamStore;
     private readonly List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
     private readonly List<string> _wellKnownConnectionNames = new();
     private readonly Func<IServiceProvider, Task> _runCommandDelegate;
 
-    public RoadRegistryHost(IHost host, Func<IServiceProvider, Task> runCommandDelegate, params IHealthCheck[] healthChecks)
+    public RoadRegistryHost(IHost host, Func<IServiceProvider, Task> runCommandDelegate, List<Action<HealthCheckInitializer>> configureHealthCheckActions)
     {
         Configuration = host.Services.GetRequiredService<IConfiguration>();
         _host = host;
-        _healthChecks = healthChecks;
+        _configureHealthCheckActions = configureHealthCheckActions;
         _streamStore = host.Services.GetRequiredService<IStreamStore>();
         _logger = host.Services.GetRequiredService<ILogger<T>>();
-        _runCommandDelegate = runCommandDelegate ?? ((sp) => _host.RunAsync());
+        _runCommandDelegate = runCommandDelegate ?? (_ => _host.RunAsync());
     }
 
     public string ApplicationName => typeof(T).Namespace;
@@ -84,7 +92,18 @@ public class RoadRegistryHost<T>
                     await distributedLockCallback(_host.Services, _host, Configuration);
 
                     Console.WriteLine($"Started {ApplicationName}");
-                    await _runCommandDelegate(_host.Services).ConfigureAwait(false);
+
+                    var runTasks = new List<Task>
+                    {
+                        _runCommandDelegate(_host.Services)
+                    };
+
+                    if (_configureHealthCheckActions.Any())
+                    {
+                        runTasks.Add(RunHealthChecksWebApp());
+                    }
+                    
+                    Task.WaitAll(runTasks.ToArray());
                 },
                 DistributedLockOptions.LoadFromConfiguration(Configuration), _logger);
         }
@@ -98,5 +117,45 @@ public class RoadRegistryHost<T>
         }
 
         _logger.LogInformation($"Stopped {ApplicationName}");
+    }
+
+    private async Task RunHealthChecksWebApp()
+    {
+        var environment = _host.Services.GetRequiredService<IHostEnvironment>();
+        var isDevelopment = environment.IsDevelopment();
+
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            ApplicationName = ApplicationName
+        });
+
+        builder.Configuration.AddConfiguration(_host.Services.GetRequiredService<IConfiguration>());
+
+        var healthChecksBuilder = builder.Services
+            .AddHealthChecks();
+
+        builder.WebHost.ConfigureServices((hostContext, _) =>
+            {
+                var useHealthChecksFeatureToggle = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
+                if (useHealthChecksFeatureToggle.FeatureEnabled)
+                {
+                    var healthCheckInitializer = HealthCheckInitializer.Configure(healthChecksBuilder, hostContext.Configuration, isDevelopment);
+
+                    foreach (var configureHealthCheckAction in _configureHealthCheckActions)
+                    {
+                        configureHealthCheckAction?.Invoke(healthCheckInitializer);
+                    }
+                }
+            });
+
+        var webApp = builder.Build();
+        webApp
+            .UseRouting()
+            .UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/health");
+            });
+
+        await webApp.RunAsync();
     }
 }
