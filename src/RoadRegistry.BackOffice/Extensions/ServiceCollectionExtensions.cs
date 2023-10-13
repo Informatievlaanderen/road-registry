@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Extensions;
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Amazon.SimpleEmailV2;
@@ -37,13 +38,15 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddFeatureToggles<TFeatureToggle>(this IServiceCollection services, IConfiguration configuration)
+    public static ICollection<TFeatureToggle> GetFeatureToggles<TFeatureToggle>(this IConfiguration configuration)
         where TFeatureToggle : IFeatureToggle
     {
+        ArgumentNullException.ThrowIfNull(configuration);
+
         var featureTogglesConfiguration = configuration.GetSection("FeatureToggles");
 
         var applicationFeatureToggleType = typeof(TFeatureToggle);
-        var featureToggles = applicationFeatureToggleType.Assembly
+        return applicationFeatureToggleType.Assembly
             .GetTypes()
             .Where(type => !type.IsAbstract && applicationFeatureToggleType.IsAssignableFrom(type))
             .Select(type =>
@@ -55,10 +58,23 @@ public static class ServiceCollectionExtensions
                 }
 
                 var featureEnabled = featureTogglesConfiguration.GetValue<bool>(configurationKey);
-                var featureToggle = Activator.CreateInstance(type, new object[] { featureEnabled });
+                var featureToggle = (TFeatureToggle)Activator.CreateInstance(type, new object[] { featureEnabled });
                 return featureToggle;
             })
             .ToList();
+    }
+
+    public static IServiceCollection AddFeatureToggles<TFeatureToggle>(this IServiceCollection services, IConfiguration configuration)
+        where TFeatureToggle : IFeatureToggle
+    {
+        return services.AddFeatureToggles(configuration.GetFeatureToggles<TFeatureToggle>());
+    }
+
+    public static IServiceCollection AddFeatureToggles<TFeatureToggle>(this IServiceCollection services, IEnumerable<TFeatureToggle> featureToggles)
+        where TFeatureToggle : IFeatureToggle
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(featureToggles);
 
         foreach (var featureToggle in featureToggles)
         {

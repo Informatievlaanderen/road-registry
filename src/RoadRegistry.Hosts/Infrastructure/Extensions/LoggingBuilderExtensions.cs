@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
 using Serilog;
 using Serilog.Debugging;
+using Serilog.Filters;
 
 /// <summary>
 ///     Extension methods for the <see cref="ILoggerFactory" /> class.
@@ -38,12 +39,24 @@ public static class EventSourceLoggerFactoryExtensions
             .Enrich.WithMachineName()
             .Enrich.WithThreadId()
             .Enrich.WithEnvironmentUserName()
-            .AddSlackSink<T>(configuration);
+            .AddSlackSink<T>(configuration)
+            .ExcludeCommonErrors()
+            ;
 
         Log.Logger = loggerConfiguration.CreateLogger();
 
         builder.AddSerilog(Log.Logger);
 
         return builder;
+    }
+
+    public static LoggerConfiguration ExcludeCommonErrors(this LoggerConfiguration loggerConfiguration)
+    {
+        return loggerConfiguration
+            .Filter.ByExcluding(logEvent => logEvent.Exception is OperationCanceledException)
+            .Filter.ByExcluding(
+                Matching.WithProperty<string>("SourceContext", value =>
+                    "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware".Equals(value, StringComparison.OrdinalIgnoreCase)))
+            ;
     }
 }

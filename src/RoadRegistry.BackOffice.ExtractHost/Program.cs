@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.ExtractHost;
 
-using System;
-using System.Threading.Tasks;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
@@ -21,11 +19,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
+using System;
+using System.Threading.Tasks;
 using Uploads;
 using ZipArchiveWriters.ExtractHost;
 
 public class Program
 {
+    public const int HostingPort = 10011;
+
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 
     protected Program()
@@ -96,7 +98,7 @@ public class Program
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
             })
-            .ConfigureHealthChecks(builder => builder
+            .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
                 .AddS3(x => x
                     .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)

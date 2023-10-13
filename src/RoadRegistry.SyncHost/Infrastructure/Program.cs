@@ -17,6 +17,8 @@ using System.Threading.Tasks;
 
 public class Program
 {
+    public const int HostingPort = 10017;
+
     protected Program()
     {
     }
@@ -43,7 +45,7 @@ public class Program
                     .AddHostedService<StreetNameConsumer>()
                     ;
             })
-            .ConfigureHealthChecks(builder => builder
+            .ConfigureHealthChecks(HostingPort,builder => builder
                 .AddSqlServer()
                 .AddKafka()
             )

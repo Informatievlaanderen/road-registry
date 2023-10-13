@@ -26,10 +26,17 @@ public partial class InformationController
     [SwaggerOperation(OperationId = nameof(ValidateWKT), Description = "")]
     public async Task<ValidateWktContourResponse> ValidateWKT([FromBody] ValidateWktContourRequestBody model, CancellationToken cancellationToken)
     {
-        var request = new ValidateWktContourRequest(model.Contour ?? "");
-        var response = await _mediator.Send(request, cancellationToken);
+        try
+        {
+            var request = new ValidateWktContourRequest(model.Contour ?? string.Empty);
+            var response = await _mediator.Send(request, cancellationToken);
 
-        return response;
+            return response;
+        }
+        catch
+        {
+            return new ValidateWktContourResponse { IsValid = false };
+        }
     }
 }
 

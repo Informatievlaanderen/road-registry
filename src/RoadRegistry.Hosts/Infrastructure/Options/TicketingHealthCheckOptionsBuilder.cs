@@ -5,11 +5,11 @@ public class TicketingHealthCheckOptionsBuilder : HealthCheckOptionsBuilder<Tick
 {
     private ITicketing _ticketingService;
 
-    public override bool IsValid => _ticketingService is not null;
+    public override bool IsValid => true;
 
     public override TicketingHealthCheckOptions Build()
     {
-        return new TicketingHealthCheckOptions()
+        return new TicketingHealthCheckOptions
         {
             TicketingService = _ticketingService
         };

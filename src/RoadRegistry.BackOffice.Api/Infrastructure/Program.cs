@@ -1,11 +1,7 @@
 namespace RoadRegistry.BackOffice.Api.Infrastructure;
 
-using System;
-using System.Net;
-using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using Be.Vlaanderen.Basisregisters.Api;
-using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Hosting;
@@ -14,9 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Events;
 using Serilog.Filters;
 using SqlStreamStore;
+using System;
+using System.Threading.Tasks;
 
 public class Program
 {
@@ -50,14 +47,9 @@ public class Program
                             },
                             MiddlewareHooks =
                             {
-                                ConfigureSerilog = (context, loggerConfiguration) =>
-                                {
-                                    loggerConfiguration.AddSlackSink<Program>(context.Configuration);
-                                    
-                                    loggerConfiguration.Filter.ByExcluding(
-                                        Matching.WithProperty<string>("SourceContext", value =>
-                                            "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware".Equals(value, StringComparison.OrdinalIgnoreCase)));
-                                }
+                                ConfigureSerilog = (context, loggerConfiguration) => loggerConfiguration
+                                    .AddSlackSink<Program>(context.Configuration)
+                                    .ExcludeCommonErrors()
                             }
                         })
                     .UseKestrel((context, builder) =>
@@ -98,7 +90,7 @@ public class Program
         }
         finally
         {
-            Log.CloseAndFlush();
+            await Log.CloseAndFlushAsync();
         }
     }
 }

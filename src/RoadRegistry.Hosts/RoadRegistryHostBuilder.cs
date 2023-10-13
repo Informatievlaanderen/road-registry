@@ -1,38 +1,37 @@
 namespace RoadRegistry.Hosts;
-using System;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using BackOffice;
+using BackOffice.Configuration;
 using BackOffice.Extensions;
+using BackOffice.FeatureToggles;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Infrastructure.Extensions;
 using Infrastructure.Modules;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using NodaTime;
-using RoadRegistry.BackOffice.Configuration;
 using RoadRegistry.Hosts.Infrastructure.HealthChecks;
 using Serilog;
-using Serilog.Debugging;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 {
     private readonly string[] _args;
-    private readonly bool _isDevelopment;
     private Func<IServiceProvider, Task> _runCommandDelegate;
-
+    
     private RoadRegistryHostBuilder()
     {
         AppDomain.CurrentDomain.FirstChanceException += (sender, eventArgs) =>
@@ -40,8 +39,6 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
 
         AppDomain.CurrentDomain.UnhandledException += (sender, eventArgs) =>
             Log.Fatal((Exception)eventArgs.ExceptionObject, "Encountered a fatal exception, exiting program.");
-
-        _isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development";
 
         ConfigureDefaultHostConfiguration()
             .ConfigureDefaultAppConfiguration()
@@ -60,13 +57,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         UseServiceProviderFactory(new AutofacServiceProviderFactory());
         var app = base.Build();
 
-        var healthChecks = Array.Empty<IHealthCheck>();
-
-        var host = new RoadRegistryHost<T>(app, _runCommandDelegate, healthChecks);
-
-        //TODO : Attach host and health checks for this host running or not here
-
-
+        var host = new RoadRegistryHost<T>(app, _runCommandDelegate);
         return host;
     }
 
@@ -123,13 +114,31 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
         return this;
     }
 
-    public RoadRegistryHostBuilder<T> ConfigureHealthChecks(Action<HealthCheckInitializer> configureDelegate)
+    public RoadRegistryHostBuilder<T> ConfigureHealthChecks(int hostingPort, Action<HealthCheckInitializer> configureDelegate)
     {
         base.ConfigureServices((hostContext, services) =>
         {
             var builder = services.AddHealthChecks();
-            configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder, hostContext.Configuration, _isDevelopment));
+
+            var useHealthChecksFeatureToggle = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
+            if (useHealthChecksFeatureToggle.FeatureEnabled)
+            {
+                configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder, hostContext.Configuration, hostContext.HostingEnvironment));
+            }
         });
+
+        this.ConfigureWebHostDefaults(webHostBuilder =>
+            webHostBuilder
+                .UseStartup<RoadRegistryHostStartup>()
+                .UseKestrel((context, builder) =>
+                {
+                    if (context.HostingEnvironment.IsDevelopment())
+                    {
+                        builder.ListenLocalhost(hostingPort);
+                    }
+                })
+        );
+
         return this;
     }
 

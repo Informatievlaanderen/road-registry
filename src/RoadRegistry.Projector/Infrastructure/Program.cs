@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Hosting;
 
 public class Program
 {
+    public const int HostingPort = 10006;
+
     protected Program()
     { }
 
@@ -15,7 +17,7 @@ public class Program
         {
             Hosting =
             {
-                HttpPort = 10006
+                HttpPort = HostingPort
             },
             Logging =
             {

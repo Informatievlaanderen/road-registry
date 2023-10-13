@@ -25,6 +25,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
 
     public class Program
     {
+        public const int HostingPort = 10015;
+
         protected Program()
         {
         }
@@ -70,7 +72,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                         .Where(x => !x.IsAbstract && typeof(IRunnerDbContextMigratorFactory).IsAssignableFrom(x))
                         .Select(type => (IRunnerDbContextMigratorFactory)Activator.CreateInstance(type))
                         .ToArray()))
-                .ConfigureHealthChecks(builder => builder
+                .ConfigureHealthChecks(HostingPort, builder => builder
                     .AddSqlServer()
                     .AddKafka()
                 )

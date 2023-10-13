@@ -18,4 +18,14 @@ public class S3BlobClientOptions: IHasConfigurationKey
     {
         return "S3BlobClientOptions";
     }
+
+    public string FindBucketName(string key)
+    {
+        if (Buckets is not null && Buckets.TryGetValue(key, out var name))
+        {
+            return name;
+        }
+
+        return null;
+    }
 }
