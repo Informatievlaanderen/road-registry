@@ -7,10 +7,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 public class RoadRegistryHostStartup
 {
-    public void ConfigureServices(IServiceCollection services)
-    {
-    }
-
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (app.ApplicationServices.GetService<HealthCheckService>() is not null)
