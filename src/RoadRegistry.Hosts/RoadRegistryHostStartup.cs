@@ -13,7 +13,7 @@ public class RoadRegistryHostStartup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-        if (app.ApplicationServices.GetService(typeof(HealthCheckService)) is not null)
+        if (app.ApplicationServices.GetService<HealthCheckService>() is not null)
         {
             app.UseHealthChecks();
         }

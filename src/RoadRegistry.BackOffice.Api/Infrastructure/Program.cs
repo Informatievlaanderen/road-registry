@@ -47,14 +47,9 @@ public class Program
                             },
                             MiddlewareHooks =
                             {
-                                ConfigureSerilog = (context, loggerConfiguration) =>
-                                {
-                                    loggerConfiguration.AddSlackSink<Program>(context.Configuration);
-                                    
-                                    loggerConfiguration.Filter.ByExcluding(
-                                        Matching.WithProperty<string>("SourceContext", value =>
-                                            "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware".Equals(value, StringComparison.OrdinalIgnoreCase)));
-                                }
+                                ConfigureSerilog = (context, loggerConfiguration) => loggerConfiguration
+                                    .AddSlackSink<Program>(context.Configuration)
+                                    .ExcludeCommonErrors()
                             }
                         })
                     .UseKestrel((context, builder) =>

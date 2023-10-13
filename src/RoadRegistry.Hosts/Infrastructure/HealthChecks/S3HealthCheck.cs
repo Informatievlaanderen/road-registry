@@ -11,14 +11,14 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 internal class S3HealthCheck : IHealthCheck
 {
+    public const string DummyFilePath = "./healthcheck.bin";
+
     private readonly string _objectKey;
 
     private readonly string _bucketName;
     private readonly S3Options _options;
     private readonly Permission _permission;
-
-    public const string DummyFilePath = "./healthcheck.bin";
-
+    
     public S3HealthCheck(S3Options options, string bucketName, Permission permission, string applicationName)
     {
         _options = options;
