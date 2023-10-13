@@ -2,42 +2,31 @@ namespace RoadRegistry.Hosts;
 
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Infrastructure.Extensions;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SqlStreamStore;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice;
-using BackOffice.Extensions;
-using BackOffice.FeatureToggles;
-using Be.Vlaanderen.Basisregisters.Api;
-using Infrastructure.HealthChecks;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 public class RoadRegistryHost<T>
 {
     public IConfiguration Configuration { get; }
 
     private readonly IHost _host;
-    private readonly List<Action<HealthCheckInitializer>> _configureHealthCheckActions;
     private readonly ILogger<T> _logger;
     private readonly IStreamStore _streamStore;
     private readonly List<Action<IServiceProvider, ILogger<T>>> _configureLoggingActions = new();
     private readonly List<string> _wellKnownConnectionNames = new();
     private readonly Func<IServiceProvider, Task> _runCommandDelegate;
 
-    public RoadRegistryHost(IHost host, Func<IServiceProvider, Task> runCommandDelegate, List<Action<HealthCheckInitializer>> configureHealthCheckActions)
+    public RoadRegistryHost(IHost host, Func<IServiceProvider, Task> runCommandDelegate)
     {
         Configuration = host.Services.GetRequiredService<IConfiguration>();
         _host = host;
-        _configureHealthCheckActions = configureHealthCheckActions;
         _streamStore = host.Services.GetRequiredService<IStreamStore>();
         _logger = host.Services.GetRequiredService<ILogger<T>>();
         _runCommandDelegate = runCommandDelegate ?? (_ => _host.RunAsync());
@@ -93,17 +82,7 @@ public class RoadRegistryHost<T>
 
                     Console.WriteLine($"Started {ApplicationName}");
 
-                    var runTasks = new List<Task>
-                    {
-                        _runCommandDelegate(_host.Services)
-                    };
-
-                    if (_configureHealthCheckActions.Any())
-                    {
-                        runTasks.Add(RunHealthChecksWebApp());
-                    }
-                    
-                    Task.WaitAll(runTasks.ToArray());
+                    await _runCommandDelegate(_host.Services).ConfigureAwait(false);
                 },
                 DistributedLockOptions.LoadFromConfiguration(Configuration), _logger);
         }
@@ -117,79 +96,5 @@ public class RoadRegistryHost<T>
         }
 
         _logger.LogInformation($"Stopped {ApplicationName}");
-    }
-
-    private async Task RunHealthChecksWebApp()
-    {
-        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-        {
-            ApplicationName = ApplicationName
-        });
-
-        builder.Configuration.AddConfiguration(_host.Services.GetRequiredService<IConfiguration>());
-
-        var healthChecksBuilder = builder.Services
-            .AddHealthChecks();
-
-        builder.WebHost.ConfigureServices((hostContext, _) =>
-            {
-                var useHealthChecksFeatureToggle = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
-                if (useHealthChecksFeatureToggle.FeatureEnabled)
-                {
-                    var healthCheckInitializer = HealthCheckInitializer.Configure(healthChecksBuilder, hostContext.Configuration, hostContext.HostingEnvironment);
-
-                    foreach (var configureHealthCheckAction in _configureHealthCheckActions)
-                    {
-                        configureHealthCheckAction?.Invoke(healthCheckInitializer);
-                    }
-                }
-            });
-
-        //builder.Host.UseServiceProviderFactory(_ => new ServiceProviderFactory(_host.Services));
-
-        var webApp = builder.Build();
-        webApp
-            .UseRouting()
-            .UseEndpoints(endpoints =>
-            {
-                endpoints.MapHealthChecks("/health");
-            });
-
-        await webApp.RunAsync();
-    }
-
-    private class ServiceProviderFactory : IServiceProviderFactory<IServiceCollection>
-    {
-        private readonly IServiceProvider _serviceProvider;
-
-        public ServiceProviderFactory(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
-        public IServiceCollection CreateBuilder(IServiceCollection services)
-        {
-            return services;
-        }
-
-        public IServiceProvider CreateServiceProvider(IServiceCollection containerBuilder)
-        {
-            return new ServiceProvider(_serviceProvider);
-        }
-    }
-
-    private class ServiceProvider : IServiceProvider
-    {
-        private readonly IServiceProvider _serviceProvider;
-
-        public ServiceProvider(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
-
-        public object GetService(Type serviceType)
-        {
-            return _serviceProvider.GetService(serviceType);
-        }
     }
 }

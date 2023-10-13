@@ -60,7 +60,6 @@ public class Program
                 .AddEditorContext()
                 .AddProductContext()
             )
-            .ConfigureHealthChecks(builder => { })
             .ConfigureContainer((hostContext, builder) =>
             {
                 builder.RegisterModule<MediatorModule>();

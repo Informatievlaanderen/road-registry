@@ -153,17 +153,18 @@ public class Startup
                     AfterMiddleware = x =>
                     {
                         x.UseMiddleware<AddNoCacheHeadersMiddleware>();
-                        x.UseHealthChecks(new PathString("/health"), Program.HostingPort, new HealthCheckOptions
-                        {
-                            AllowCachingResponses = false,
-                            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
-                            ResultStatusCodes =
-                            {
-                                [HealthStatus.Healthy] = StatusCodes.Status200OK,
-                                [HealthStatus.Degraded] = StatusCodes.Status200OK,
-                                [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
-                            },
-                        });
+                        x.UseHealthChecks();
+                        //x.UseHealthChecks(new PathString("/health"), Program.HostingPort, new HealthCheckOptions
+                        //{
+                        //    AllowCachingResponses = false,
+                        //    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+                        //    ResultStatusCodes =
+                        //    {
+                        //        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+                        //        [HealthStatus.Degraded] = StatusCodes.Status200OK,
+                        //        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+                        //    },
+                        //});
                     }
                 }
             })

@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
 
 using System;
+using System.IO;
 using System.Linq;
 using Amazon.Runtime;
 using BackOffice.Configuration;
@@ -66,6 +67,11 @@ public class HealthCheckInitializer
 
         if (optionsBuilder.IsValid)
         {
+            if (!File.Exists(S3HealthCheck.DummyFilePath))
+            {
+                File.WriteAllText(S3HealthCheck.DummyFilePath, string.Empty);
+            }
+
             var s3BlobClientOptions = _configuration.GetOptions<S3BlobClientOptions>()
                                       ?? new S3BlobClientOptions();
             var s3Options = _hostEnvironment.IsDevelopment()
@@ -157,7 +163,7 @@ public class HealthCheckInitializer
         {
             _builder.Add(new HealthCheckRegistration(
                 "ticketing-service".ToLowerInvariant(),
-                sp => new TicketingHealthCheck(optionsBuilder.With(sp.GetService<ITicketing>()).Build()),
+                sp => new TicketingHealthCheck(optionsBuilder.With(sp.GetRequiredService<ITicketing>()).Build()),
                 default,
                 new[] { "ticketing" },
                 default));

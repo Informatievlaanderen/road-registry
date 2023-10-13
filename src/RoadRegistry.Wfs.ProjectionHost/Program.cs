@@ -23,6 +23,8 @@ using Schema;
 
 public class Program
 {
+    public const int HostingPort = 10018;
+
     protected Program()
     {
     }
@@ -66,7 +68,7 @@ public class Program
                         , WfsContextEventProcessor.EventMapping))
                 .AddSingleton<IRunnerDbContextMigratorFactory>(new WfsContextMigrationFactory())
                 .AddHostedService<WfsContextEventProcessor>())
-            .ConfigureHealthChecks(builder => builder
+            .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
             )
             .Build();

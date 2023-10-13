@@ -1,7 +1,6 @@
 namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
 
 using System;
-using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +16,8 @@ internal class S3HealthCheck : IHealthCheck
     private readonly string _bucketName;
     private readonly S3Options _options;
     private readonly Permission _permission;
+
+    public const string DummyFilePath = "./healthcheck.bin";
 
     public S3HealthCheck(S3Options options, string bucketName, Permission permission, string applicationName)
     {
@@ -43,17 +44,11 @@ internal class S3HealthCheck : IHealthCheck
                             : HealthCheckResult.Unhealthy();
 
                     case Permission.Write:
-                        var dummyFilePath = "./healthcheck.bin";
-                        if (!File.Exists(dummyFilePath))
-                        {
-                            await File.WriteAllTextAsync(dummyFilePath, string.Empty, cancellationToken);
-                        }
-                        
                         var putObjectRequest = new PutObjectRequest
                         {
                             Key = _objectKey,
                             BucketName = _bucketName,
-                            FilePath = dummyFilePath
+                            FilePath = DummyFilePath
                         };
                         var putObjectResponse = await client.PutObjectAsync(putObjectRequest, cancellationToken);
                         if (putObjectResponse.HttpStatusCode != HttpStatusCode.OK)

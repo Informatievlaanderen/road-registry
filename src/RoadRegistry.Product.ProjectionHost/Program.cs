@@ -20,6 +20,8 @@ using Schema;
 
 public class Program
 {
+    public const int HostingPort = 10016;
+
     protected Program()
     {
     }
@@ -84,7 +86,7 @@ public class Program
             )
             .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<ConnectedProjection<ProductContext>[]>(), ProductContextEventProcessor.EventMapping))
         )
-        .ConfigureHealthChecks(builder => builder
+        .ConfigureHealthChecks(HostingPort, builder => builder
             .AddSqlServer()
             .AddS3(x => x
                 .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)

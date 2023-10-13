@@ -25,6 +25,8 @@ using ZipArchiveWriters.Validation;
 
 public class Program
 {
+    public const int HostingPort = 10010;
+
     protected Program()
     {
     }
@@ -47,7 +49,7 @@ public class Program
                         ),
                         WellknownSchemas.CommandHostSchema))
                 .AddDistributedStreamStoreLockOptions())
-            .ConfigureHealthChecks(builder => builder
+            .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
                 .AddS3(x => x
                     .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
