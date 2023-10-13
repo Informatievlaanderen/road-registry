@@ -118,10 +118,11 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
     {
         base.ConfigureServices((hostContext, services) =>
         {
+            var builder = services.AddHealthChecks();
+
             var useHealthChecksFeatureToggle = hostContext.Configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
             if (useHealthChecksFeatureToggle.FeatureEnabled)
             {
-                var builder = services.AddHealthChecks();
                 configureDelegate?.Invoke(HealthCheckInitializer.Configure(builder, hostContext.Configuration, hostContext.HostingEnvironment));
             }
         });
