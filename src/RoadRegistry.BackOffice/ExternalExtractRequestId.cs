@@ -48,11 +48,6 @@ public readonly struct ExternalExtractRequestId : IEquatable<ExternalExtractRequ
         return instance.ToString();
     }
 
-    public static implicit operator ExternalExtractRequestId(string instance)
-    {
-        return new ExternalExtractRequestId(instance);
-    }
-
     public static bool operator ==(ExternalExtractRequestId left, ExternalExtractRequestId right)
     {
         return left.Equals(right);

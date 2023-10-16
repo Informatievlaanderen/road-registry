@@ -6,6 +6,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using NodaTime.Text;
+using RoadRegistry.BackOffice;
 using Schema;
 using Schema.Extracts;
 
@@ -55,11 +56,13 @@ public class ExtractDownloadRecordProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractClosed>>(async (context, envelope, ct) =>
         {
+            var downloadIds = envelope.Message.DownloadIds.Select(x => DownloadId.Parse(x).ToGuid()).ToArray();
+
             var records = context.ExtractDownloads.Local
-                    .Where(record => record.ExternalRequestId == envelope.Message.ExternalRequestId)
+                    .Where(record => downloadIds.Contains(record.DownloadId))
                     .ToList()
                     .Concat(await context.ExtractDownloads
-                        .Where(record => record.ExternalRequestId == envelope.Message.ExternalRequestId)
+                        .Where(record => downloadIds.Contains(record.DownloadId))
                         .ToListAsync(ct))
                     .ToList();
 

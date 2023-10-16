@@ -55,7 +55,7 @@ public class DownloadFileContentRequestHandler : EndpointRetryableRequestHandler
             var command = new Command(new DownloadRoadNetworkExtract
             {
                 DownloadId = new DownloadId(parsedDownloadId),
-                ExternalRequestId = record.ExternalRequestId
+                ExternalRequestId = new ExternalExtractRequestId(record.ExternalRequestId)
             });
             await Dispatch(command, cancellationToken);
 
