@@ -86,9 +86,9 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
 
                 var extractRequestId = ExtractRequestId.FromExternalRequestId(message.Body.ExternalRequestId);
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
-
-                extract.Close(message.Body.Reason);
-
+                
+                extract.Close(message.Body.Reason, message.Body.DownloadId);
+                
                 logger.LogInformation("Command handler finished for {Command}", nameof(CloseRoadNetworkExtract));
             });
 

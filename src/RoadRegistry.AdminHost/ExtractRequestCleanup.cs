@@ -29,16 +29,17 @@ namespace RoadRegistry.AdminHost
             var extractRequests = await _editorContext.ExtractRequests
                 .Where(extractRequest =>
                     !extractRequest.IsInformative &&
-                    extractRequest.RequestedOn <= DateTimeOffset.UtcNow.AddDays(-7) &&
+                    extractRequest.RequestedOn.Date <= DateTimeOffset.Now.Date.AddDays(-7) &&
                     extractRequest.DownloadedOn == null)
                 .ToListAsync(cancellationToken);
-
+            
             foreach (var extractRequest in extractRequests)
             {
                 var message = new CloseRoadNetworkExtract
                 {
-                    ExternalRequestId = extractRequest.ExternalRequestId,
-                    Reason = RoadNetworkExtractCloseReason.NoDownloadReceived
+                    ExternalRequestId = new ExternalExtractRequestId(extractRequest.ExternalRequestId),
+                    Reason = RoadNetworkExtractCloseReason.NoDownloadReceived,
+                    DownloadId = new DownloadId(extractRequest.DownloadId)
                 };
                 var command = new Command(message);
                 await _dispatcher(command, cancellationToken);

@@ -24,25 +24,23 @@ public partial class ExtractsController
     {
         try
         {
-            if (!DownloadId.CanParse(downloadId))
+            if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
             {
                 throw new DownloadExtractNotFoundException();
             }
 
-            if (Enum.TryParse<RoadNetworkExtractCloseReason>(requestBody.Reason, true, out var reason))
-            {
-                var request = new CloseRoadNetworkExtractRequest(DownloadId.Parse(downloadId), reason);
-                await _mediator.Send(request, cancellationToken);
-
-                return Accepted();
-            }
-            else
+            if (!Enum.TryParse<RoadNetworkExtractCloseReason>(requestBody.Reason, true, out var reason))
             {
                 throw new ValidationException("OngeldigeReden", new[]
                 {
                     new ValidationFailure(nameof(requestBody.Reason), "Opgegeven reden is niet geldig.")
                 });
             }
+
+            var request = new CloseRoadNetworkExtractRequest(parsedDownloadId, reason);
+            await _mediator.Send(request, cancellationToken);
+
+            return Accepted();
         }
         catch (UploadExtractNotFoundException)
         {

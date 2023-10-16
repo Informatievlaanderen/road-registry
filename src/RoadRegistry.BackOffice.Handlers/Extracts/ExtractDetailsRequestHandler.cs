@@ -36,7 +36,7 @@ public class ExtractDetailsRequestHandler : EndpointRetryableRequestHandler<Extr
             DownloadId = new DownloadId(record.DownloadId),
             Description = record.Description,
             Contour = record.Contour.ToMultiPolygon(),
-            ExtractRequestId = ExtractRequestId.FromExternalRequestId(record.ExternalRequestId),
+            ExtractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(record.ExternalRequestId)),
             RequestedOn = record.RequestedOn,
             IsInformative = record.IsInformative
         };
