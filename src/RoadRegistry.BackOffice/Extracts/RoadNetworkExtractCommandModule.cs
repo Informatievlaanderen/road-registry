@@ -10,6 +10,7 @@ using NodaTime;
 using SqlStreamStore;
 using System;
 using System.IO.Compression;
+using Exceptions;
 using Uploads;
 
 public class RoadNetworkExtractCommandModule : CommandHandlerModule
@@ -86,9 +87,9 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
 
                 var extractRequestId = ExtractRequestId.FromExternalRequestId(message.Body.ExternalRequestId);
                 var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
-                
+
                 extract.Close(message.Body.Reason, message.Body.DownloadId);
-                
+
                 logger.LogInformation("Command handler finished for {Command}", nameof(CloseRoadNetworkExtract));
             });
 
@@ -127,12 +128,12 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
             {
                 logger.LogInformation("Command handler started for {Command}", nameof(UploadRoadNetworkExtractChangesArchive));
 
-                    var downloadId = new DownloadId(command.Body.DownloadId);
-                    var archiveId = new ArchiveId(command.Body.ArchiveId);
-                    var uploadId = new UploadId(command.Body.UploadId);
+                var downloadId = new DownloadId(command.Body.DownloadId);
+                var archiveId = new ArchiveId(command.Body.ArchiveId);
+                var uploadId = new UploadId(command.Body.UploadId);
 
-                    var extractRequestId = ExtractRequestId.FromString(command.Body.RequestId);
-                    var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
+                var extractRequestId = ExtractRequestId.FromString(command.Body.RequestId);
+                var extract = await context.RoadNetworkExtracts.Get(extractRequestId, ct);
 
                 try
                 {
@@ -143,7 +144,11 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {
                         IZipArchiveValidator validator = command.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
-                        await upload.ValidateArchiveUsing(archive, validator, extractUploadFailedEmailClient, ct, command.Body.UseZipArchiveFeatureCompareTranslator);
+                        var problems = await upload.ValidateArchiveUsing(archive, validator, extractUploadFailedEmailClient, ct, command.Body.UseZipArchiveFeatureCompareTranslator);
+                        if (problems.HasError())
+                        {
+                            throw new ZipArchiveValidationException(problems);
+                        }
                     }
                 }
                 catch (Exception ex)
