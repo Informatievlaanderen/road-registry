@@ -1,3 +1,16 @@
+# [3.60.0](https://github.com/informatievlaanderen/road-registry/compare/v3.59.17...v3.60.0) (2023-10-16)
+
+
+### Bug Fixes
+
+* return 400 when extract upload validation fails ([#1238](https://github.com/informatievlaanderen/road-registry/issues/1238)) ([f847939](https://github.com/informatievlaanderen/road-registry/commit/f84793956e3040da16c94b0186db3133096bfe88))
+* WR-865 only close expired extract downloads, not the entire extract ([#1231](https://github.com/informatievlaanderen/road-registry/issues/1231)) ([a9c696b](https://github.com/informatievlaanderen/road-registry/commit/a9c696bd8409eaa748b13c99204dd0309db008ec))
+
+
+### Features
+
+* WR-863 add healthchecks endpoint to backoffice hosts ([#1230](https://github.com/informatievlaanderen/road-registry/issues/1230)) ([0e4110e](https://github.com/informatievlaanderen/road-registry/commit/0e4110ef8b4e63e320346c26830f744ba515879f))
+
 ## [3.59.17](https://github.com/informatievlaanderen/road-registry/compare/v3.59.16...v3.59.17) (2023-10-11)
 
 
