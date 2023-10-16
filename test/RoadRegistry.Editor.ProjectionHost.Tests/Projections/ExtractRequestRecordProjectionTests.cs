@@ -186,7 +186,7 @@ public class ExtractRequestRecordProjectionTests
                 {
                     RequestId = knownRequested.@event.RequestId,
                     ExternalRequestId = knownRequested.@event.ExternalRequestId,
-                    DownloadIds = new [] { knownRequested.@event.DownloadId.ToString() },
+                    DownloadIds = new [] { knownRequested.@event.DownloadId.ToString("N") },
                     DateRequested = DateTime.UtcNow,
                     Reason = _fixture.Create<RoadNetworkExtractCloseReason>(),
                     When = knownRequested.@event.When
