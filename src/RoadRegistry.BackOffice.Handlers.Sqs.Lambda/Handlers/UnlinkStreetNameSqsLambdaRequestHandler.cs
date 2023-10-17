@@ -13,6 +13,9 @@ using Microsoft.Extensions.Logging;
 using Requests;
 using TicketingService.Abstractions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
+using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<UnlinkStreetNameSqsLambdaRequest>
 {
@@ -58,6 +61,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                 }
 
                 var recordNumber = RecordNumber.Initial;
+                var attributeId = AttributeId.Initial;
 
                 var leftStreetNameId = request.Request.LinkerstraatnaamId.GetIdentifierFromPuri();
                 var rightStreetNameId = request.Request.RechterstraatnaamId.GetIdentifierFromPuri();
@@ -80,7 +84,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                         }
                     }
 
-                    translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
+                    var modifyRoadSegment = new ModifyRoadSegment(
                         recordNumber,
                         roadSegment.Id,
                         roadSegment.Start,
@@ -93,7 +97,25 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
                         roadSegment.AttributeHash.AccessRestriction,
                         leftStreetNameId > 0 ? CrabStreetnameId.NotApplicable : roadSegment.AttributeHash.LeftStreetNameId,
                         rightStreetNameId > 0 ? CrabStreetnameId.NotApplicable : roadSegment.AttributeHash.RightStreetNameId
-                    ).WithGeometry(roadSegment.Geometry));
+                    ).WithGeometry(roadSegment.Geometry);
+
+                    foreach (var lane in roadSegment.AttributeHash.Lanes)
+                    {
+                        modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
+                        attributeId = attributeId.Next();
+                    }
+                    foreach (var surface in roadSegment.AttributeHash.Surfaces)
+                    {
+                        modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
+                        attributeId = attributeId.Next();
+                    }
+                    foreach (var width in roadSegment.AttributeHash.Widths)
+                    {
+                        modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
+                        attributeId = attributeId.Next();
+                    }
+
+                    translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
                 }
 
                 if (problems.Any())
