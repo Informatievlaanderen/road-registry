@@ -1,3 +1,10 @@
+## [3.60.3](https://github.com/informatievlaanderen/road-registry/compare/v3.60.2...v3.60.3) (2023-10-17)
+
+
+### Bug Fixes
+
+* enable webhost for backoffice hosts healthchecks ([#1243](https://github.com/informatievlaanderen/road-registry/issues/1243)) ([6928914](https://github.com/informatievlaanderen/road-registry/commit/6928914feafdf1274dd3a06cdac47308399f2276))
+
 ## [3.60.2](https://github.com/informatievlaanderen/road-registry/compare/v3.60.1...v3.60.2) (2023-10-17)
 
 
