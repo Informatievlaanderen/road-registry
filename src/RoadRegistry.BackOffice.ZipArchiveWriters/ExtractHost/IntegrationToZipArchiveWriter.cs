@@ -64,7 +64,7 @@ public class IntegrationToZipArchiveWriter : IZipArchiveWriter<EditorContext>
 
         if (integrationBufferedSegmentsGeometries.Any())
         {
-            var integrationBufferedContourGeometry = GeometryConfiguration.GeometryFactory
+            var integrationBufferedContourGeometry = WellKnownGeometryFactories.Default
                 .BuildGeometry(integrationBufferedSegmentsGeometries)
                 .ConvexHull();
 
