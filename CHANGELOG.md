@@ -1,3 +1,10 @@
+## [3.60.2](https://github.com/informatievlaanderen/road-registry/compare/v3.60.1...v3.60.2) (2023-10-17)
+
+
+### Bug Fixes
+
+* environment header in UI + round coordinates when adding to problem + projector health check ([#1242](https://github.com/informatievlaanderen/road-registry/issues/1242)) ([d63347f](https://github.com/informatievlaanderen/road-registry/commit/d63347f7a83dda356ea9397b97f77844249d4c84))
+
 ## [3.60.1](https://github.com/informatievlaanderen/road-registry/compare/v3.60.0...v3.60.1) (2023-10-17)
 
 
