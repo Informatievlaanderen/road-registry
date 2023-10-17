@@ -1,10 +1,8 @@
 namespace RoadRegistry.Projector.Infrastructure;
 
-using System;
-using System.Linq;
-using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using BackOffice;
 using Be.Vlaanderen.Basisregisters.Api;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Configuration;
@@ -22,7 +20,16 @@ using Microsoft.OpenApi.Models;
 using Modules;
 using Options;
 using Product.Schema;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.GradeSeparatedJunction;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.NationalRoad;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadNode;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment;
+using RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface;
+using RoadRegistry.Projector.Infrastructure.Extensions;
 using Syndication.Schema;
+using System;
+using System.Linq;
+using System.Reflection;
 using Wfs.Schema;
 using Wms.Schema;
 
@@ -110,11 +117,8 @@ public class Startup
     /// <param name="services">The collection of services to configure the application with.</param>
     public IServiceProvider ConfigureServices(IServiceCollection services)
     {
-        var baseUrl = _configuration.GetValue<string>("BaseUrl");
-        var baseUrlForExceptions = baseUrl.EndsWith("/")
-            ? baseUrl.Substring(0, baseUrl.Length - 1)
-            : baseUrl;
-
+        var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
+        
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
             {
@@ -128,7 +132,7 @@ public class Startup
                 },
                 Server =
                 {
-                    BaseUrl = baseUrlForExceptions
+                    BaseUrl = baseUrl
                 },
                 Swagger =
                 {
@@ -163,14 +167,14 @@ public class Startup
                                 tags: new[] { DatabaseTag, "sql", "sqlserver" });
                         }
 
-                        if (projectionOptions.Product.Enabled)
-                        {
-                            health.AddDbContextCheck<ProductContext>();
-                        }
-
                         if (projectionOptions.Editor.Enabled)
                         {
                             health.AddDbContextCheck<EditorContext>();
+                        }
+
+                        if (projectionOptions.Product.Enabled)
+                        {
+                            health.AddDbContextCheck<ProductContext>();
                         }
 
                         if (projectionOptions.Syndication.Enabled)
@@ -178,30 +182,40 @@ public class Startup
                             health.AddDbContextCheck<SyndicationContext>();
                         }
 
-                        if (projectionOptions.Wms.Enabled)
-                        {
-                            health.AddDbContextCheck<WmsContext>();
-                        }
-
                         if (projectionOptions.Wfs.Enabled)
                         {
                             health.AddDbContextCheck<WfsContext>();
                         }
 
-                        if (projectionOptions.ProducerSnapshot.Enabled)
+                        if (projectionOptions.Wms.Enabled)
                         {
-                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadNode.RoadNodeProducerSnapshotContext>();
-                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadSegment.RoadSegmentProducerSnapshotContext>();
-                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.RoadSegmentSurface.RoadSegmentSurfaceProducerSnapshotContext>();
-                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.GradeSeparatedJunction.GradeSeparatedJunctionProducerSnapshotContext>();
-                            health.AddDbContextCheck<Producer.Snapshot.ProjectionHost.NationalRoad.NationalRoadProducerSnapshotContext>();
-
+                            health.AddDbContextCheck<WmsContext>();
                         }
 
+                        if (projectionOptions.ProducerSnapshot.Enabled)
+                        {
+                            health.AddDbContextCheck<RoadNodeProducerSnapshotContext>();
+                            health.AddDbContextCheck<RoadSegmentProducerSnapshotContext>();
+                            health.AddDbContextCheck<RoadSegmentSurfaceProducerSnapshotContext>();
+                            health.AddDbContextCheck<GradeSeparatedJunctionProducerSnapshotContext>();
+                            health.AddDbContextCheck<NationalRoadProducerSnapshotContext>();
+                        }
                     }
                 }
             })
-            .AddValidatorsFromAssemblyContaining<Startup>();
+            .AddValidatorsFromAssemblyContaining<Startup>()
+
+            .AddDbContext<EditorContext>(WellknownConnectionNames.EditorProjections)
+            .AddDbContext<ProductContext>(WellknownConnectionNames.ProductProjections)
+            .AddDbContext<SyndicationContext>(WellknownConnectionNames.SyndicationProjections)
+            .AddDbContext<WfsContext>(WellknownConnectionNames.WfsProjections)
+            .AddDbContext<WmsContext>(WellknownConnectionNames.WmsProjections)
+            .AddDbContext<RoadNodeProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<RoadSegmentProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<NationalRoadProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<GradeSeparatedJunctionProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
+            .AddDbContext<RoadSegmentSurfaceProducerSnapshotContext>(WellknownConnectionNames.ProducerSnapshotProjections)
+            ;
 
         var containerBuilder = new ContainerBuilder();
         containerBuilder.RegisterModule(new LoggingModule(_configuration, services));

@@ -8,23 +8,21 @@
         </a>
       </div>
     </header>
-
-    <header class="vl-functional-header" :style="headerStyle">
+    <header v-if="headerEnvironmentLabel" class="vl-functional-header environment-header" :style="environmentHeaderStyle">
+      <span>{{ headerEnvironmentLabel }}</span>
+    </header>
+    <header class="vl-functional-header">
       <div class="vl-layout">
         <div class="vl-functional-header__row">
           <div class="vl-functional-header__content">
             <h1 class="vl-title">
-              <a class="vl-functional-header__title" href="/">{{ headerTitle }}
-                <span :style="headerEnvironmentLabelStyle">{{ headerEnvironmentLabel }}</span>
-              </a>
+              <a class="vl-functional-header__title" href="/">{{ headerTitle }}</a>
             </h1>
           </div>
           <div class="vl-functional-header__content" v-vl-positioning:float-right>
             <span class="user-fullname" v-if="userFullName">{{ userFullName }}</span>
-            <vl-button v-if="isAuthenticated" mod-secondary @click="logout">
-              Logout
-            </vl-button>
-          </div>          
+            <vl-button v-if="isAuthenticated" mod-secondary @click="logout"> Logout </vl-button>
+          </div>
         </div>
         <div class="vl-functional-header__sub">
           <div class="vl-grid">
@@ -37,7 +35,13 @@
                     <router-link :to="`/download-extract`" class="vl-tab" role="tab">Download Extract</router-link>
                     <router-link :to="`/download-product`" class="vl-tab" role="tab">Download Product</router-link>
                     <router-link :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
-                    <router-link v-if="featureToggles.useTransactionZonesTab" :to="`/transaction-zones`" class="vl-tab" role="tab">Bijwerkingszones</router-link>
+                    <router-link
+                      v-if="featureToggles.useTransactionZonesTab"
+                      :to="`/transaction-zones`"
+                      class="vl-tab"
+                      role="tab"
+                      >Bijwerkingszones</router-link
+                    >
                   </div>
                 </div>
               </div>
@@ -64,9 +68,9 @@ export default Vue.extend({
       return HasAuth.state;
     },
     userFullName() {
-      return `${user.state.firstName ?? ''} ${user.state.lastName ?? ''}`.trim();
+      return `${user.state.firstName ?? ""} ${user.state.lastName ?? ""}`.trim();
     },
-    headerStyle() {
+    environmentHeaderStyle() {
       const style: any = {};
       const env = environment.WR_ENV;
       if (env === "staging") {
@@ -77,20 +81,12 @@ export default Vue.extend({
       }
       return style;
     },
-    headerEnvironmentLabelStyle() {
-      const style: any = {};
-      const env = environment.WR_ENV;
-      if (env !== "production") {
-        style["color"] = "#ffffff";
-      }
-      return style;
-    },
     headerEnvironmentLabel(): string {
       const env = environment.WR_ENV;
       if (env !== "production") {
-        return env;
+        return `${env} ${environment.API_VERSION}`;
       }
-      return '';
+      return "";
     },
     headerTitle(): string {
       return "Wegenregister";
@@ -109,7 +105,7 @@ export default Vue.extend({
   padding: 1rem 1rem;
 }
 
-.user-fullname{
+.user-fullname {
   margin-right: 1rem;
 }
 
@@ -186,5 +182,19 @@ export default Vue.extend({
   #vlaanderen-top {
     display: none !important;
   }
+}
+
+.environment-header {
+  padding: 0;
+  min-height: 0;
+  margin: 0;
+}
+
+.environment-header span {
+  padding: 5px 10px;
+  color: #fff;
+  font-weight: 500;
+  display: flex;
+  font-size: 1.5rem;
 }
 </style>
