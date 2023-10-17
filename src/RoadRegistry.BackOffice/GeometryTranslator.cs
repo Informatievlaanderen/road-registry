@@ -18,8 +18,6 @@ using ShaperonGeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometr
 
 public static class GeometryTranslator
 {
-    private static readonly GeometryFactory NoSridGeometryFactory = new(GeometryConfiguration.GeometryFactory.PrecisionModel, 0, GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory);
-
     private static Geometry ApplyBuffer(IPolygonal geometry, double buffer)
     {
         switch (geometry)
@@ -67,7 +65,7 @@ public static class GeometryTranslator
         }
 
         return geometry
-            .ToMultiLineString(NoSridGeometryFactory)
+            .ToMultiLineString(WellKnownGeometryFactories.WithoutSrid)
             .WithMeasureOrdinates();
     }
 
@@ -108,7 +106,7 @@ public static class GeometryTranslator
 
     private static Geometry ParseGml(string gml)
     {
-        var gmlReader = new GMLReader(NoSridGeometryFactory);
+        var gmlReader = new GMLReader(WellKnownGeometryFactories.WithoutSrid);
         return gmlReader.Read(gml);
     }
 
@@ -185,12 +183,12 @@ public static class GeometryTranslator
             toLineStrings.Add(
                 new LineString(
                     new CoordinateArraySequence(toPoints.ToArray()),
-                    GeometryConfiguration.GeometryFactory)
+                    WellKnownGeometryFactories.Default)
                     .WithSrid(geometry.SpatialReferenceSystemIdentifier)
             );
         }
 
-        return new MultiLineString(toLineStrings.ToArray(), GeometryConfiguration.GeometryFactory)
+        return new MultiLineString(toLineStrings.ToArray(), WellKnownGeometryFactories.Default)
             .WithSrid(geometry.SpatialReferenceSystemIdentifier)
             .WithMeasureOrdinates();
     }
@@ -236,22 +234,24 @@ public static class GeometryTranslator
         return new MultiPolygon(
             Array.ConvertAll(geometry.MultiPolygon, polygon => new NetTopologySuite.Geometries.Polygon(
                 new LinearRing(
-                    GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(Array.ConvertAll(polygon.Shell.Points, point => new Coordinate(point.X, point.Y)))
-                    , GeometryConfiguration.GeometryFactory),
+                    WellKnownGeometryFactories.Default.CoordinateSequenceFactory.Create(Array.ConvertAll(polygon.Shell.Points, point => new Coordinate(point.X, point.Y)))
+                    , WellKnownGeometryFactories.Default),
                 Array.ConvertAll(polygon.Holes, hole => new LinearRing(
-                    GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(Array.ConvertAll(hole.Points, point => new Coordinate(point.X, point.Y)))
-                    , GeometryConfiguration.GeometryFactory))
-                , GeometryConfiguration.GeometryFactory))
-            , GeometryConfiguration.GeometryFactory);
+                    WellKnownGeometryFactories.Default.CoordinateSequenceFactory.Create(Array.ConvertAll(hole.Points, point => new Coordinate(point.X, point.Y)))
+                    , WellKnownGeometryFactories.Default))
+                , WellKnownGeometryFactories.Default))
+            , WellKnownGeometryFactories.Default);
     }
 
     public static IPolygonal Translate(RoadNetworkExtractGeometry geometry)
     {
-        if (geometry == null) throw new ArgumentNullException(nameof(geometry));
+        ArgumentNullException.ThrowIfNull(geometry);
+
+        var geometryFactory = WellKnownGeometryFactories.WithoutMAndZ;
 
         if (geometry.WKT != null)
         {
-            var geometryServices = new NtsGeometryServices(GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory, GeometryConfiguration.GeometryFactory.PrecisionModel, GeometryConfiguration.GeometryFactory.SRID);
+            var geometryServices = new NtsGeometryServices(geometryFactory.CoordinateSequenceFactory, geometryFactory.PrecisionModel, geometryFactory.SRID);
             return (IPolygonal)new WKTReader(geometryServices).Read(geometry.WKT);
         }
 
@@ -262,30 +262,30 @@ public static class GeometryTranslator
                     Array.ConvertAll(multiPolygon, polygon =>
                         new NetTopologySuite.Geometries.Polygon(
                             new LinearRing(
-                                GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
+                                geometryFactory.CoordinateSequenceFactory.Create(
                                     Array.ConvertAll(polygon.Shell.Points,
                                         point => new Coordinate(point.X, point.Y)))
-                                , GeometryConfiguration.GeometryFactory),
+                                , geometryFactory),
                             Array.ConvertAll(polygon.Holes, hole => new LinearRing(
-                                GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
+                                geometryFactory.CoordinateSequenceFactory.Create(
                                     Array.ConvertAll(hole.Points,
                                         point => new Coordinate(point.X, point.Y)))
-                                , GeometryConfiguration.GeometryFactory))
-                            , GeometryConfiguration.GeometryFactory))
-                    , GeometryConfiguration.GeometryFactory);
+                                , geometryFactory))
+                            , geometryFactory))
+                    , geometryFactory);
             case Messages.Polygon polygon:
                 return new NetTopologySuite.Geometries.Polygon(
                     new LinearRing(
-                        GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
+                        geometryFactory.CoordinateSequenceFactory.Create(
                             Array.ConvertAll(polygon.Shell.Points,
                                 point => new Coordinate(point.X, point.Y)))
-                        , GeometryConfiguration.GeometryFactory),
+                        , geometryFactory),
                     Array.ConvertAll(geometry.Polygon.Holes, hole => new LinearRing(
-                        GeometryConfiguration.GeometryFactory.CoordinateSequenceFactory.Create(
+                        geometryFactory.CoordinateSequenceFactory.Create(
                             Array.ConvertAll(hole.Points,
                                 point => new Coordinate(point.X, point.Y)))
-                        , GeometryConfiguration.GeometryFactory))
-                    , GeometryConfiguration.GeometryFactory);
+                        , geometryFactory))
+                    , geometryFactory);
             default:
                 throw new InvalidOperationException(
                     "The road network extract geometry must have either its Polygon or MultiPolygon property set (but not both) to be able to translate it to a road network extract geometry.");

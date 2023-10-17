@@ -7,6 +7,7 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
+using RoadRegistry.BackOffice;
 using LineString = NetTopologySuite.Geometries.LineString;
 
 public static class WfsGeometryTranslator
@@ -31,7 +32,7 @@ public static class WfsGeometryTranslator
 
         return new LineString(
             new CoordinateArraySequence(toPoints.ToArray()),
-            GeometryConfiguration.GeometryFactory)
+            WellKnownGeometryFactories.Default)
         {
             SRID = geometry.SpatialReferenceSystemIdentifier
         };

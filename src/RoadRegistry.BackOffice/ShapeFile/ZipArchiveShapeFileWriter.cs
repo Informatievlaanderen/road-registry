@@ -1,14 +1,14 @@
 namespace RoadRegistry.BackOffice.ShapeFile;
 
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
+using NetTopologySuite.IO.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
-using NetTopologySuite.Features;
-using NetTopologySuite.IO;
-using NetTopologySuite.IO.Streams;
 
 public class ZipArchiveShapeFileWriter
 {
@@ -19,7 +19,7 @@ public class ZipArchiveShapeFileWriter
         _encoding = encoding.ThrowIfNull();
     }
 
-    public void Write(Stream shpStream, Stream shxStream, IEnumerable<IFeature> features)
+    public void Write(Stream shpStream, Stream shxStream, IEnumerable<IFeature> features, GeometryFactory geometryFactory)
     {
         ArgumentNullException.ThrowIfNull(shpStream);
         ArgumentNullException.ThrowIfNull(shxStream);
@@ -33,8 +33,8 @@ public class ZipArchiveShapeFileWriter
         var dbfStreamProvider = new ExternallyManagedStreamProvider(StreamTypes.Data, dbfStream);
         var shxStreamProvider = new ExternallyManagedStreamProvider(StreamTypes.Index, shxStream);
         var streamProviderRegistry = new ShapefileStreamProviderRegistry(shpStreamProvider, dbfStreamProvider, shxStreamProvider);
-
-        var writer = new ShapefileDataWriter(streamProviderRegistry, GeometryConfiguration.GeometryFactory, _encoding);
+        
+        var writer = new ShapefileDataWriter(streamProviderRegistry, geometryFactory, _encoding);
 
         var dbaseFileHeader = featuresList.Any()
             ? ShapefileDataWriter.GetHeader(featuresList[0], featuresList.Count)

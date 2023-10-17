@@ -137,7 +137,7 @@ public class TransactionZoneToZipArchiveWriterNetTopologySuite : IZipArchiveWrit
             new Feature((Geometry)request.Contour, new AttributesTable())
         };
 
-        await archive.CreateShapeEntry(ExtractFileName, _encoding, features, cancellationToken);
+        await archive.CreateShapeEntry(ExtractFileName, _encoding, features, WellKnownGeometryFactories.WithoutMAndZ, cancellationToken);
         await archive.CreateCpgEntry(ExtractFileName, _encoding, cancellationToken);
     }
 

@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using Extracts;
 using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using ShapeFile;
 
 internal static class ZipArchiveExtensions
@@ -27,13 +28,13 @@ internal static class ZipArchiveExtensions
         return archive;
     }
 
-    public static async Task<ZipArchive> CreateShapeEntry(this ZipArchive archive, ExtractFileName fileName, Encoding encoding, IEnumerable<IFeature> features, CancellationToken cancellationToken)
+    public static async Task<ZipArchive> CreateShapeEntry(this ZipArchive archive, ExtractFileName fileName, Encoding encoding, IEnumerable<IFeature> features, GeometryFactory geometryFactory, CancellationToken cancellationToken)
     {
         var shpStream = new MemoryStream();
         var shxStream = new MemoryStream();
 
         var writer = new ZipArchiveShapeFileWriter(encoding);
-        writer.Write(shpStream, shxStream, features);
+        writer.Write(shpStream, shxStream, features, geometryFactory);
 
         await CopyToEntry(shpStream, archive.CreateEntry(fileName.ToShapeFileName()), cancellationToken);
         await CopyToEntry(shxStream, archive.CreateEntry(fileName.ToShapeIndexFileName()), cancellationToken);
