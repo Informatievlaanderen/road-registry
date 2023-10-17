@@ -147,7 +147,6 @@ public class ApiModule : Module
 
     private void RegisterEditorProjections()
     {
-
         RegisterProjection<EditorContext>(new ProjectionDetail
         {
             Id = "roadregistry-editor-projectionhost",
@@ -218,5 +217,4 @@ public class ApiModule : Module
 
         _listOfProjections.Add(projectionDetail, ctxFactory);
     }
-
 }
