@@ -127,17 +127,25 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
             }
         });
 
-        //this.ConfigureWebHostDefaults(webHostBuilder =>
-        //    webHostBuilder
-        //        .UseStartup<RoadRegistryHostStartup>()
-        //        .UseKestrel((context, builder) =>
-        //        {
-        //            if (context.HostingEnvironment.IsDevelopment())
-        //            {
-        //                builder.ListenLocalhost(hostingPort);
-        //            }
-        //        })
-        //);
+        this.ConfigureWebHostDefaults(webHostBuilder =>
+            webHostBuilder
+                .UseStartup<RoadRegistryHostStartup>()
+                .UseKestrel((context, builder) =>
+                {
+                    if (context.HostingEnvironment.IsDevelopment())
+                    {
+                        builder.ListenLocalhost(hostingPort);
+                    }
+                    else
+                    {
+                        var url = context.Configuration.GetValue<string>("Kestrel:Endpoints:Https:Url");
+                        if (string.IsNullOrEmpty(url))
+                        {
+                            builder.ListenLocalhost(5000);
+                        }
+                    }
+                })
+        );
 
         return this;
     }
