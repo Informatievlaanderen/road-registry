@@ -65,31 +65,28 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
 
             var recordNumber = RecordNumber.Initial;
 
-            var lane = roadSegment.AttributeHash.Lanes.Single();
-            var surface = roadSegment.AttributeHash.Surfaces.Single();
-            var width = roadSegment.AttributeHash.Widths.Single();
-
             var geometry = GeometryTranslator.Translate(request.Request.Geometry);
             var fromPosition = RoadSegmentPosition.Zero;
             var toPosition = RoadSegmentPosition.FromDouble(geometry.Length);
+
+            var lanes = roadSegment.AttributeHash.Lanes
+                .Select(lane => new RoadSegmentLaneAttribute(network.ProvidesNextRoadSegmentLaneAttributeId()(roadSegmentId)(), lane.Count, lane.Direction, fromPosition, toPosition))
+                .ToList();
+            var surfaces = roadSegment.AttributeHash.Surfaces
+                .Select(surface => new RoadSegmentSurfaceAttribute(network.ProvidesNextRoadSegmentSurfaceAttributeId()(roadSegmentId)(), surface.Type, fromPosition, toPosition))
+                .ToList();
+            var widths = roadSegment.AttributeHash.Widths
+                .Select(width => new RoadSegmentWidthAttribute(network.ProvidesNextRoadSegmentWidthAttributeId()(roadSegmentId)(), width.Width, fromPosition, toPosition))
+                .ToList();
             
             return translatedChanges.AppendChange(new ModifyRoadSegmentGeometry(
                 recordNumber,
                 roadSegmentId,
                 roadSegment.AttributeHash.GeometryDrawMethod,
                 request.Request.Geometry,
-                new[]
-                {
-                    new RoadSegmentLaneAttribute(network.ProvidesNextRoadSegmentLaneAttributeId()(roadSegmentId)(), lane.Count, lane.Direction, fromPosition, toPosition)
-                },
-                new[]
-                {
-                    new RoadSegmentSurfaceAttribute(network.ProvidesNextRoadSegmentSurfaceAttributeId()(roadSegmentId)(), surface.Type, fromPosition, toPosition)
-                },
-                new[]
-                {
-                    new RoadSegmentWidthAttribute(network.ProvidesNextRoadSegmentWidthAttributeId()(roadSegmentId)(), width.Width, fromPosition, toPosition)
-                }
+                lanes,
+                surfaces,
+                widths
             ));
         }, cancellationToken);
 
