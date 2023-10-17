@@ -1,3 +1,11 @@
+## [3.60.1](https://github.com/informatievlaanderen/road-registry/compare/v3.60.0...v3.60.1) (2023-10-17)
+
+
+### Bug Fixes
+
+* lambda create change outline geometry deal with no lanes ([#1241](https://github.com/informatievlaanderen/road-registry/issues/1241)) ([e3d98ba](https://github.com/informatievlaanderen/road-registry/commit/e3d98bae5cb5cde893a570d0b91483925291dba1))
+* WR-863 temp disable webhost for backoffice hosts ([#1240](https://github.com/informatievlaanderen/road-registry/issues/1240)) ([8db9506](https://github.com/informatievlaanderen/road-registry/commit/8db95065f89aa4f3199a126c9ca4db479d7a766d))
+
 # [3.60.0](https://github.com/informatievlaanderen/road-registry/compare/v3.59.17...v3.60.0) (2023-10-16)
 
 
