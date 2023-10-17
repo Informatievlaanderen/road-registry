@@ -7,12 +7,15 @@ using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Extensions;
 using Schema;
 using Schema.RoadSegments;
 using System;
+using System.Drawing.Text;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,6 +106,17 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         await RemoveRoadSegment(manager, encoding, context, roadSegmentRemoved, envelope, token);
                         break;
                 }
+        });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            //TODO-rik RenameOrganizationAccepted and ChangeOrganizationAccepted to all relevant projections: editor, product, kafka,...?
+            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
         });
     }
 
@@ -349,5 +363,43 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         record.BEGINORG.Value = envelope.Message.OrganizationId;
         record.LBLBGNORG.Value = envelope.Message.Organization;
         return record;
+    }
+
+    private async Task RenameOrganization(RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        OrganizationId organizationId,
+        OrganizationName organizationName,
+        CancellationToken cancellationToken)
+    {
+        const int pageSize = 5000;
+        var pageIndex = 0;
+
+        while (true)
+        {
+            var roadSegments = await context.RoadSegments
+                .OrderBy(x => x.Id)
+                .Skip(pageIndex * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+            if (!roadSegments.Any())
+            {
+                break;
+            }
+
+            foreach (var roadSegment in roadSegments)
+            {
+                var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegment.DbaseRecord, manager, encoding);
+
+                if (dbaseRecord.BEHEER.Value == organizationId)
+                {
+                    dbaseRecord.LBLBEHEER.Value = organizationName;
+                }
+                if (dbaseRecord.BEGINORG.Value == organizationId)
+                {
+                    dbaseRecord.LBLBGNORG.Value = organizationName;
+                }
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using System.Collections.Generic;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,8 +44,19 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
     {
         var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
         var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
-        var (integrationFeatures, _) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
-        return (extractFeatures, changeFeatures, integrationFeatures, extractFeaturesProblems + changeFeaturesProblems);
+        var (integrationFeatures, integrationFeaturesProblems) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
+
+        var problems = extractFeaturesProblems + changeFeaturesProblems;
+        //TODO-rik test of missing integration files worden tegengehouden
+        var allowedIntegrationProblemReasons = new[]
+        {
+            nameof(ZipArchiveProblems.RequiredFileMissing),
+            nameof(DbaseFileProblems.HasDbaseHeaderFormatError),
+            nameof(DbaseFileProblems.HasDbaseSchemaMismatch)
+        };
+        problems.AddRange(integrationFeaturesProblems.Where(x => allowedIntegrationProblemReasons.Contains(x.Reason)));
+
+        return (extractFeatures, changeFeatures, integrationFeatures, problems);
     }
     
     public abstract Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);

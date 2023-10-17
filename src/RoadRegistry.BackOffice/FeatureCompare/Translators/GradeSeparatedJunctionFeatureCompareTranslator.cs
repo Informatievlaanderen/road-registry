@@ -64,8 +64,26 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
                 }
             }
 
-            var boWegsegmentFeature = context.GetNonRemovedRoadSegmentRecords().SingleOrDefault(x => x.GetOriginalId() == changeFeature.Attributes.UpperRoadSegmentId);
-            var onWegsegmentFeature = context.GetNonRemovedRoadSegmentRecords().SingleOrDefault(x => x.GetOriginalId() == changeFeature.Attributes.LowerRoadSegmentId);
+            var boWegsegmentFeatures = context
+                .GetNonRemovedRoadSegmentRecords()
+                .Where(x => x.GetOriginalId() == changeFeature.Attributes.UpperRoadSegmentId)
+                .ToList();
+            var onWegsegmentFeatures = context
+                .GetNonRemovedRoadSegmentRecords()
+                .Where(x => x.GetOriginalId() == changeFeature.Attributes.LowerRoadSegmentId)
+                .ToList();
+
+            if (boWegsegmentFeatures.Count > 1)
+            {
+                //TODO-rik add problem
+            }
+            if (onWegsegmentFeatures.Count > 1)
+            {
+                //TODO-rik add problem
+            }
+
+            var boWegsegmentFeature = boWegsegmentFeatures.SingleOrDefault();
+            var onWegsegmentFeature = onWegsegmentFeatures.SingleOrDefault();
 
             if (boWegsegmentFeature is null || onWegsegmentFeature is null)
             {
