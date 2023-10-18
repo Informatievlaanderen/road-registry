@@ -49,9 +49,15 @@ public abstract class AddRoadSegmentValidatorBase : AbstractValidator<Messages.A
             .WithProblemCode(ProblemCode.RoadSegment.Category.NotValid)
             .When(c => c.Category != null, ApplyConditionTo.CurrentValidator);
 
-        RuleFor(c => c.Lanes).NotNull();
-        RuleFor(c => c.Widths).NotNull();
-        RuleFor(c => c.Surfaces).NotNull();
+        RuleFor(c => c.Lanes)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero);
+        RuleFor(c => c.Widths)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero);
+        RuleFor(c => c.Surfaces)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero);
     }
 }
 
@@ -83,9 +89,18 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
             .GreaterThanOrEqualTo(0)
             .NotEqual(c => c.StartNodeId);
 
-        RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentLaneAttributeValidator());
-        RuleForEach(c => c.Widths).NotNull().SetValidator(new RequestedRoadSegmentWidthAttributeValidator());
-        RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RequestedRoadSegmentSurfaceAttributeValidator());
+        RuleForEach(c => c.Lanes)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero)
+            .SetValidator(new RequestedRoadSegmentLaneAttributeValidator());
+        RuleForEach(c => c.Widths)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero)
+            .SetValidator(new RequestedRoadSegmentWidthAttributeValidator());
+        RuleForEach(c => c.Surfaces)
+            .NotEmpty()
+            .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero)
+            .SetValidator(new RequestedRoadSegmentSurfaceAttributeValidator());
     }
 
     private sealed class AddRoadSegmentOutlinedValidator : AddRoadSegmentValidatorBase
@@ -109,9 +124,18 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
                 .When(c => c.Morphology != null, ApplyConditionTo.CurrentValidator)
                 .WithProblemCode(ProblemCode.RoadSegment.Morphology.NotValid);
 
-            RuleForEach(c => c.Lanes).NotNull().SetValidator(new RequestedRoadSegmentOutlinedLaneAttributeValidator());
-            RuleForEach(c => c.Widths).NotNull().SetValidator(new RequestedRoadSegmentOutlinedWidthAttributeValidator());
-            RuleForEach(c => c.Surfaces).NotNull().SetValidator(new RequestedRoadSegmentOutlinedSurfaceAttributeValidator());
+            RuleForEach(c => c.Lanes)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.RoadSegment.Lanes.HasCountOfZero)
+                .SetValidator(new RequestedRoadSegmentOutlinedLaneAttributeValidator());
+            RuleForEach(c => c.Widths)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.RoadSegment.Widths.HasCountOfZero)
+                .SetValidator(new RequestedRoadSegmentOutlinedWidthAttributeValidator());
+            RuleForEach(c => c.Surfaces)
+                .NotEmpty()
+                .WithProblemCode(ProblemCode.RoadSegment.Surfaces.HasCountOfZero)
+                .SetValidator(new RequestedRoadSegmentOutlinedSurfaceAttributeValidator());
         }
     }
 }
