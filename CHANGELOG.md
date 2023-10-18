@@ -1,3 +1,10 @@
+## [3.60.5](https://github.com/informatievlaanderen/road-registry/compare/v3.60.4...v3.60.5) (2023-10-18)
+
+
+### Bug Fixes
+
+* write TransactionZone shape only with XY ordinates (without ZM) ([#1245](https://github.com/informatievlaanderen/road-registry/issues/1245)) ([fb90471](https://github.com/informatievlaanderen/road-registry/commit/fb9047154a4f100c9be82a6b728d91ddf4e34c05))
+
 ## [3.60.4](https://github.com/informatievlaanderen/road-registry/compare/v3.60.3...v3.60.4) (2023-10-17)
 
 
