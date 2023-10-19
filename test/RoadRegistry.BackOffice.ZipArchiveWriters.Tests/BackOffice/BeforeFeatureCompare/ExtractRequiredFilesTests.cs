@@ -52,7 +52,7 @@ public class ExtractRequiredFilesTests : FeatureCompareTranslatorScenariosBase
             { "ATTGENUMWEG.DBF", true },
             { "EATTGENUMWEG.DBF", true },
             { "RLTOGKRUISING.DBF", true },
-            { "ERLTOGKRUISING.DBF",true}
+            { "ERLTOGKRUISING.DBF", true }
         };
 
         Assert.Equal(new ExtractsZipArchiveTestData().ZipArchiveWithEmptyFiles.Entries.Count, requiredFiles.Count);
