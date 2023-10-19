@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Hosts.Infrastructure;
 
 public class AdminMessageConsumer
 {
@@ -51,10 +52,17 @@ public class AdminMessageConsumer
                     _logger.LogInformation("Continuing with BackOffice request of type '{Type}'", backOfficeRequest.GetType().FullName);
                 }
 
+                var request = backOfficeRequest ?? message;
+
+                if (request is HealthCheckSqsRequest)
+                {
+                    return;
+                }
+
                 await using var lifetimeScope = _container.BeginLifetimeScope();
                 var mediator = lifetimeScope.Resolve<IMediator>();
 
-                var result = await mediator.Send(backOfficeRequest ?? message, stoppingToken);
+                var result = await mediator.Send(request, stoppingToken);
                 _logger.LogInformation("SQS message result: {Result}", JsonConvert.SerializeObject(result, _sqsOptions.JsonSerializerSettings));
             }, stoppingToken);
 
