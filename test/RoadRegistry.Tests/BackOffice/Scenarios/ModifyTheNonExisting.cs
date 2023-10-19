@@ -35,12 +35,18 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
         ObjectProvider.CustomizeRoadSegmentMorphology();
         ObjectProvider.CustomizeRoadSegmentStatus();
         ObjectProvider.CustomizeRoadSegmentAccessRestriction();
+        ObjectProvider.CustomizeRoadSegmentLaneAttribute();
+        ObjectProvider.CustomizeRoadSegmentLaneAttributes();
         ObjectProvider.CustomizeRoadSegmentLaneCount();
         ObjectProvider.CustomizeRoadSegmentLaneDirection();
         ObjectProvider.CustomizeRoadSegmentNumberedRoadDirection();
         ObjectProvider.CustomizeRoadSegmentGeometryDrawMethod();
         ObjectProvider.CustomizeRoadSegmentNumberedRoadOrdinal();
+        ObjectProvider.CustomizeRoadSegmentSurfaceAttribute();
+        ObjectProvider.CustomizeRoadSegmentSurfaceAttributes();
         ObjectProvider.CustomizeRoadSegmentSurfaceType();
+        ObjectProvider.CustomizeRoadSegmentWidthAttribute();
+        ObjectProvider.CustomizeRoadSegmentWidthAttributes();
         ObjectProvider.CustomizeRoadSegmentWidth();
         ObjectProvider.CustomizeEuropeanRoadNumber();
         ObjectProvider.CustomizeNationalRoadNumber();
@@ -75,34 +81,6 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
                 instance.Number = ObjectProvider.Create<NumberedRoadNumber>();
                 instance.Direction = ObjectProvider.Create<RoadSegmentNumberedRoadDirection>();
                 instance.Ordinal = ObjectProvider.Create<RoadSegmentNumberedRoadOrdinal>();
-            }).OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentLaneAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
-                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Count = ObjectProvider.Create<RoadSegmentLaneCount>();
-                instance.Direction = ObjectProvider.Create<RoadSegmentLaneDirection>();
-            }).OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentWidthAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
-                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Width = ObjectProvider.Create<RoadSegmentWidth>();
-            }).OmitAutoProperties());
-        ObjectProvider.Customize<RequestedRoadSegmentSurfaceAttribute>(composer =>
-            composer.Do(instance =>
-            {
-                var positionGenerator = new Generator<RoadSegmentPosition>(ObjectProvider);
-                instance.AttributeId = ObjectProvider.Create<AttributeId>();
-                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
-                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
-                instance.Type = ObjectProvider.Create<RoadSegmentSurfaceType>();
             }).OmitAutoProperties());
 
         ArchiveId = ObjectProvider.Create<ArchiveId>();
@@ -699,6 +677,10 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
             var roadSegmentMorphology = ObjectProvider.Create<RoadSegmentMorphology>();
             var roadSegmentStatus = ObjectProvider.Create<RoadSegmentStatus>();
             var maintenanceAuthority = ObjectProvider.Create<OrganizationId>();
+            var lanes = new[]{ ObjectProvider.CreateRequestedRoadSegmentLaneAttribute(GeometryTranslator.Translate(roadSegmentGeometry).Length) };
+            var widths = new[] { ObjectProvider.CreateRequestedRoadSegmentWidthAttribute(GeometryTranslator.Translate(roadSegmentGeometry).Length) };
+            var surfaces = new[] { ObjectProvider.CreateRequestedRoadSegmentSurfaceAttribute(GeometryTranslator.Translate(roadSegmentGeometry).Length) };
+
             return scenario
                 .Given(Organizations.ToStreamName(ChangedByOrganization),
                     new ImportedOrganization
@@ -751,9 +733,9 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
                                 GeometryDrawMethod = roadSegmentGeometryDrawMethod,
                                 Morphology = roadSegmentMorphology,
                                 Status = roadSegmentStatus,
-                                Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>(),
-                                Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>(),
-                                Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>(),
+                                Lanes = lanes,
+                                Widths = widths,
+                                Surfaces = surfaces,
                                 LeftSideStreetNameId = 0,
                                 RightSideStreetNameId = 0,
                                 MaintenanceAuthority = maintenanceAuthority
@@ -778,9 +760,9 @@ public class ModifyTheNonExisting : RoadRegistryTestBase
                                 Category = roadSegmentCategory,
                                 GeometryDrawMethod = roadSegmentGeometryDrawMethod,
                                 Morphology = roadSegmentMorphology,
-                                Lanes = Array.Empty<RequestedRoadSegmentLaneAttribute>(),
-                                Widths = Array.Empty<RequestedRoadSegmentWidthAttribute>(),
-                                Surfaces = Array.Empty<RequestedRoadSegmentSurfaceAttribute>(),
+                                Lanes = lanes,
+                                Widths = widths,
+                                Surfaces = surfaces,
                                 Status = roadSegmentStatus,
                                 LeftSideStreetNameId = 0,
                                 RightSideStreetNameId = 0,

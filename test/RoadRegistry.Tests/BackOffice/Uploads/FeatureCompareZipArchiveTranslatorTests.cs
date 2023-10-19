@@ -37,7 +37,7 @@ public class FeatureCompareZipArchiveTranslatorTests
     //[Fact]
     public async Task RunZipArchiveFeatureCompareTranslator()
     {
-        var pathArchive = @"upload.zip";
+        var pathArchive = @"C:\Users\RikDePeuter\Downloads\b22b43ed26f248e588a3cb590b72cd90.zip";
 
         try
         {

@@ -800,6 +800,35 @@ public static class Customizations
                 )
                 .OmitAutoProperties()
         );
+
+        fixture.Customize<RequestedRoadSegmentLaneAttribute>(composer =>
+            composer.Do(instance =>
+            {
+                var positionGenerator = new Generator<RoadSegmentPosition>(fixture);
+                instance.AttributeId = fixture.Create<AttributeId>();
+                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
+                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                instance.Count = fixture.Create<RoadSegmentLaneCount>();
+                instance.Direction = fixture.Create<RoadSegmentLaneDirection>();
+            }).OmitAutoProperties());
+    }
+    public static RoadSegmentLaneAttributes CreateRoadSegmentLaneAttribute(this IFixture fixture, double roadSegmentGeometryLength)
+    {
+        var lane = fixture.Create<RoadSegmentLaneAttributes>();
+        lane.FromPosition = 0;
+        lane.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        return lane;
+    }
+    public static RequestedRoadSegmentLaneAttribute CreateRequestedRoadSegmentLaneAttribute(this IFixture fixture, double roadSegmentGeometryLength, int? attributeId = null)
+    {
+        var lane = fixture.Create<RequestedRoadSegmentLaneAttribute>();
+        lane.FromPosition = 0;
+        lane.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        if (attributeId is not null)
+        {
+            lane.AttributeId = attributeId.Value;
+        }
+        return lane;
     }
 
     public static void CustomizeRoadSegmentModified(this IFixture fixture)
@@ -932,6 +961,34 @@ public static class Customizations
                 )
                 .OmitAutoProperties()
         );
+
+        fixture.Customize<RequestedRoadSegmentSurfaceAttribute>(composer =>
+            composer.Do(instance =>
+            {
+                var positionGenerator = new Generator<RoadSegmentPosition>(fixture);
+                instance.AttributeId = fixture.Create<AttributeId>();
+                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
+                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                instance.Type = fixture.Create<RoadSegmentSurfaceType>();
+            }).OmitAutoProperties());
+    }
+    public static RoadSegmentSurfaceAttributes CreateRoadSegmentSurfaceAttribute(this IFixture fixture, double roadSegmentGeometryLength)
+    {
+        var surface = fixture.Create<RoadSegmentSurfaceAttributes>();
+        surface.FromPosition = 0;
+        surface.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        return surface;
+    }
+    public static RequestedRoadSegmentSurfaceAttribute CreateRequestedRoadSegmentSurfaceAttribute(this IFixture fixture, double roadSegmentGeometryLength, int? attributeId = null)
+    {
+        var surface = fixture.Create<RequestedRoadSegmentSurfaceAttribute>();
+        surface.FromPosition = 0;
+        surface.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        if (attributeId is not null)
+        {
+            surface.AttributeId = attributeId.Value;
+        }
+        return surface;
     }
 
     public static void CustomizeRoadSegmentWidthAttributes(this IFixture fixture)
@@ -950,6 +1007,34 @@ public static class Customizations
                 )
                 .OmitAutoProperties()
         );
+
+        fixture.Customize<RequestedRoadSegmentWidthAttribute>(composer =>
+            composer.Do(instance =>
+            {
+                var positionGenerator = new Generator<RoadSegmentPosition>(fixture);
+                instance.AttributeId = fixture.Create<AttributeId>();
+                instance.FromPosition = positionGenerator.First(candidate => candidate >= 0.0m);
+                instance.ToPosition = positionGenerator.First(candidate => candidate > instance.FromPosition);
+                instance.Width = fixture.Create<RoadSegmentWidth>();
+            }).OmitAutoProperties());
+    }
+    public static RoadSegmentWidthAttributes CreateRoadSegmentWidthAttribute(this IFixture fixture, double roadSegmentGeometryLength)
+    {
+        var width = fixture.Create<RoadSegmentWidthAttributes>();
+        width.FromPosition = 0;
+        width.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        return width;
+    }
+    public static RequestedRoadSegmentWidthAttribute CreateRequestedRoadSegmentWidthAttribute(this IFixture fixture, double roadSegmentGeometryLength, int? attributeId = null)
+    {
+        var width = fixture.Create<RequestedRoadSegmentWidthAttribute>();
+        width.FromPosition = 0;
+        width.ToPosition = RoadSegmentPosition.FromDouble(roadSegmentGeometryLength);
+        if (attributeId is not null)
+        {
+            width.AttributeId = attributeId.Value;
+        }
+        return width;
     }
 
     public static bool EqualsCollection<T>(this IEnumerable<T> enumerable1, IEnumerable<T> enumerable2)

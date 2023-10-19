@@ -24,7 +24,7 @@ public class Program
     protected Program()
     {
     }
-    
+    //TODO-rik zie error logs voor fout on startup, healthcheck?
     public static async Task Main(string[] args)
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
