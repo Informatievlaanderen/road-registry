@@ -69,13 +69,13 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var fromPosition = RoadSegmentPosition.Zero;
             var toPosition = RoadSegmentPosition.FromDouble(geometry.Length);
 
-            var lanes = roadSegment.AttributeHash.Lanes
+            var lanes = roadSegment.Lanes
                 .Select(lane => new RoadSegmentLaneAttribute(network.ProvidesNextRoadSegmentLaneAttributeId()(roadSegmentId)(), lane.Count, lane.Direction, fromPosition, toPosition))
                 .ToList();
-            var surfaces = roadSegment.AttributeHash.Surfaces
+            var surfaces = roadSegment.Surfaces
                 .Select(surface => new RoadSegmentSurfaceAttribute(network.ProvidesNextRoadSegmentSurfaceAttributeId()(roadSegmentId)(), surface.Type, fromPosition, toPosition))
                 .ToList();
-            var widths = roadSegment.AttributeHash.Widths
+            var widths = roadSegment.Widths
                 .Select(width => new RoadSegmentWidthAttribute(network.ProvidesNextRoadSegmentWidthAttributeId()(roadSegmentId)(), width.Width, fromPosition, toPosition))
                 .ToList();
             

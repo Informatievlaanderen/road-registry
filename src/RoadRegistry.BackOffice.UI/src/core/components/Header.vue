@@ -83,8 +83,8 @@ export default Vue.extend({
     },
     headerEnvironmentLabel(): string {
       const env = environment.WR_ENV;
-      if (env !== "production") {
-        return `${env} ${environment.API_VERSION}`;
+      if (env !== "production" && env) {
+        return `${env.substring(0, 1).toUpperCase()}${env.substring(1).toLowerCase()} ${environment.API_VERSION}`;
       }
       return "";
     },

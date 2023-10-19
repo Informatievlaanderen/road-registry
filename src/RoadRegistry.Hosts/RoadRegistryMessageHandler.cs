@@ -28,14 +28,16 @@ public abstract class RoadRegistryMessageHandler : IMessageHandler
             return;
         }
 
+        if (sqsRequest is HealthCheckSqsRequest)
+        {
+            return;
+        }
+
         await using var lifetimeScope = _container.BeginLifetimeScope();
         var mediator = lifetimeScope.Resolve<IMediator>();
 
-        if (sqsRequest is not HealthCheckSqsRequest)
-        {
-            var sqsLambdaRequest = ConvertToLambdaRequest(sqsRequest, messageMetadata.MessageGroupId!);
-            await mediator.Send(sqsLambdaRequest, cancellationToken);
-        }
+        var sqsLambdaRequest = ConvertToLambdaRequest(sqsRequest, messageMetadata.MessageGroupId!);
+        await mediator.Send(sqsLambdaRequest, cancellationToken);
     }
 
     protected abstract SqsLambdaRequest ConvertToLambdaRequest(SqsRequest sqsRequest, string groupId);
