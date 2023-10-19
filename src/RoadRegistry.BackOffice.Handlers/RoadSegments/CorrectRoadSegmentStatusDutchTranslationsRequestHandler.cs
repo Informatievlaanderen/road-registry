@@ -87,17 +87,17 @@ public sealed class CorrectRoadSegmentStatusDutchTranslationsRequestHandler : IR
                 roadSegment.AttributeHash.RightStreetNameId
             ).WithGeometry(roadSegment.Geometry);
 
-            foreach (var lane in roadSegment.AttributeHash.Lanes)
+            foreach (var lane in roadSegment.Lanes)
             {
                 modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
                 attributeId = attributeId.Next();
             }
-            foreach (var surface in roadSegment.AttributeHash.Surfaces)
+            foreach (var surface in roadSegment.Surfaces)
             {
                 modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
                 attributeId = attributeId.Next();
             }
-            foreach (var width in roadSegment.AttributeHash.Widths)
+            foreach (var width in roadSegment.Widths)
             {
                 modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
                 attributeId = attributeId.Next();

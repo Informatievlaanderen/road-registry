@@ -86,11 +86,13 @@ public class RoadNode
                 var segment1 = segments[0];
                 var segment2 = segments[1];
                 if (segment1.AttributeHash.Equals(segment2.AttributeHash))
+                {
                     problems = problems.Add(new FakeRoadNodeConnectedSegmentsDoNotDiffer(
                         translator.TranslateToTemporaryOrId(Id),
                         translator.TranslateToTemporaryOrId(segment1.Id),
                         translator.TranslateToTemporaryOrId(segment2.Id)
                     ));
+                }
             }
         }
         else if (Segments.Count > 2 && !Type.IsAnyOf(RoadNodeType.RealNode, RoadNodeType.MiniRoundabout))

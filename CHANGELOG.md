@@ -1,3 +1,17 @@
+## [3.60.5](https://github.com/informatievlaanderen/road-registry/compare/v3.60.4...v3.60.5) (2023-10-18)
+
+
+### Bug Fixes
+
+* write TransactionZone shape only with XY ordinates (without ZM) ([#1245](https://github.com/informatievlaanderen/road-registry/issues/1245)) ([fb90471](https://github.com/informatievlaanderen/road-registry/commit/fb9047154a4f100c9be82a6b728d91ddf4e34c05))
+
+## [3.60.4](https://github.com/informatievlaanderen/road-registry/compare/v3.60.3...v3.60.4) (2023-10-17)
+
+
+### Bug Fixes
+
+* missing lanes/surfaces/widths when link/unlinking streetname from roadsegment ([#1244](https://github.com/informatievlaanderen/road-registry/issues/1244)) ([e757d57](https://github.com/informatievlaanderen/road-registry/commit/e757d57b88056d7843cb1fd81db67385c95447c7))
+
 ## [3.60.3](https://github.com/informatievlaanderen/road-registry/compare/v3.60.2...v3.60.3) (2023-10-17)
 
 

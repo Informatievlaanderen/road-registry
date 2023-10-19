@@ -21,7 +21,6 @@ jobs:
   deploy_start_slack:
     if: github.repository_owner == 'Informatievlaanderen'
     name: Deploy started
-    environment: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'newprd' && 'acc' || github.event.inputs.environment }}
     runs-on: ubuntu-latest
 
     steps:

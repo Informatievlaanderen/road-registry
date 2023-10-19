@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.ShapeFile;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.Streams;
 using System.Collections.Generic;
@@ -10,7 +9,7 @@ using System.IO.Compression;
 
 public class ZipArchiveShapeFileReader
 {
-    public IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry)
+    public IEnumerable<(Geometry, RecordNumber)> Read(ZipArchiveEntry entry, GeometryFactory geometryFactory = null)
     {
         var recordNumber = RecordNumber.Initial;
 
@@ -24,7 +23,7 @@ public class ZipArchiveShapeFileReader
         var streamProviderRegistry = new ShapefileStreamProviderRegistry(streamProvider, null);
         var shpReader = new NetTopologySuite.IO.ShapeFile.Extended.ShapeReader(streamProviderRegistry);
 
-        foreach (var geometry in shpReader.ReadAllShapes(GeometryConfiguration.GeometryFactory))
+        foreach (var geometry in shpReader.ReadAllShapes(geometryFactory ?? WellKnownGeometryFactories.Default))
         {
             yield return (geometry, recordNumber);
             recordNumber = recordNumber.Next();
