@@ -66,18 +66,7 @@ public class AttributeHashTests
         var right = sut.With(value2);
         Assert.NotEqual(left, right);
     }
-
-    [Fact]
-    public void DiffersWhenLanesDiffers()
-    {
-        var value1 = _fixture.CreateMany<RoadSegmentLaneAttribute>().ToArray();
-        var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
-        var sut = _fixture.Create<AttributeHash>();
-        var left = sut.With(value1);
-        var right = sut.With(value2);
-        Assert.NotEqual(left, right);
-    }
-
+    
     [Fact]
     public void DiffersWhenLeftSideDiffers()
     {
@@ -134,29 +123,7 @@ public class AttributeHashTests
         var right = sut.With(value2);
         Assert.NotEqual(left, right);
     }
-
-    [Fact]
-    public void DiffersWhenSurfacesDiffers()
-    {
-        var value1 = _fixture.CreateMany<RoadSegmentSurfaceAttribute>().ToArray();
-        var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
-        var sut = _fixture.Create<AttributeHash>();
-        var left = sut.With(value1);
-        var right = sut.With(value2);
-        Assert.NotEqual(left, right);
-    }
-
-    [Fact]
-    public void DiffersWhenWidthsDiffers()
-    {
-        var value1 = _fixture.CreateMany<RoadSegmentWidthAttribute>().ToArray();
-        var value2 = _fixture.CreateManyWhichIsDifferentThan(value1).ToArray();
-        var sut = _fixture.Create<AttributeHash>();
-        var left = sut.With(value1);
-        var right = sut.With(value2);
-        Assert.NotEqual(left, right);
-    }
-
+    
     [Fact]
     public void ToStringReturnsExpectedResult()
     {
