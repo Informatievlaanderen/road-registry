@@ -582,6 +582,8 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
             "IWEGSEGMENT.PRJ"
         };
 
+        var hasNoDbaseRecordsAsErrorFiles = new[] { "TRANSACTIEZONES.DBF" };
+
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
@@ -602,7 +604,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                         case ".SHP":
                             return entry.HasNoShapeRecords();
                         case ".DBF":
-                            return entry.HasNoDbaseRecords();
+                            return entry.HasNoDbaseRecords(hasNoDbaseRecordsAsErrorFiles.Contains(entry.Name));
                         case ".PRJ":
                             return entry.ProjectionFormatInvalid();
                     }

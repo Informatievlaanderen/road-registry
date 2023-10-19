@@ -321,4 +321,17 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
         var problem = Assert.Single(ex.Problems);
         Assert.Equal(nameof(DbaseFileProblems.RoadSegmentIsAlreadyProcessed), problem.Reason);
     }
+
+    [Fact]
+    public async Task MissingIntegrationProjectionFileShouldNotFail()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .ExcludeFileNames("IWEGSEGMENT.PRJ")
+            .Build();
+
+        var hasFile = zipArchive.Entries.Any(x => string.Equals(x.Name, "IWEGSEGMENT.PRJ", StringComparison.InvariantCultureIgnoreCase));
+        Assert.False(hasFile);
+
+        await TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty);
+    }
 }

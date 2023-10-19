@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 using Uploads;
 
 internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTranslatorBase<GradeSeparatedJunctionFeatureCompareAttributes>
@@ -34,6 +35,8 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, FileName, context);
+
+        problems.ThrowIfError();
 
         var processedRecords = new List<Record>();
 
@@ -140,8 +143,19 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
 
         problems += await ValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction(context, processedRecords);
 
-        foreach (var record in processedRecords)
+        problems.ThrowIfError();
+
+        changes = TranslateProcessedRecords(changes, processedRecords, cancellationToken);
+
+        return (changes, problems);
+    }
+
+    private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records, CancellationToken cancellationToken)
+    {
+        foreach (var record in records)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             switch (record.RecordType.Translation.Identifier)
             {
                 case RecordType.AddedIdentifier:
@@ -166,7 +180,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
             }
         }
 
-        return (changes, problems);
+        return changes;
     }
 
     private async Task<ZipArchiveProblems> ValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction(ZipArchiveEntryFeatureCompareTranslateContext context, List<Record> processedRecords)

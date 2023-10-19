@@ -29,6 +29,8 @@ namespace RoadRegistry.Tests.BackOffice
         private ZipArchiveDataSetStreams _extractStreams;
         private ZipArchiveDataSetStreams _changeStreams;
 
+        private readonly List<string> _excludeFileNames = new();
+
         private readonly ExtractsZipArchiveTestData _testData;
 
         public ExtractsZipArchiveBuilder(Action<Fixture> customize = null)
@@ -72,6 +74,12 @@ namespace RoadRegistry.Tests.BackOffice
             _change.ConfigureChange(configure);
             _changeStreams = _change.Build();
 
+            return this;
+        }
+
+        public ExtractsZipArchiveBuilder ExcludeFileNames(params string[] fileNames)
+        {
+            _excludeFileNames.AddRange(fileNames);
             return this;
         }
 
@@ -166,7 +174,8 @@ namespace RoadRegistry.Tests.BackOffice
                 gradeSeparatedJunctionChangeStream: _changeStreams.GradeSeparatedJunctionDbaseRecords,
 
                 transactionZoneStream: _changeStreams.TransactionZoneDbaseRecords,
-                archiveStream: archiveStream
+                archiveStream: archiveStream,
+                excludeFileNames: _excludeFileNames
             );
         }
 

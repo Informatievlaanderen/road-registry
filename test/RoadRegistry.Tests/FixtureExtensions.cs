@@ -2,6 +2,7 @@ namespace RoadRegistry.Tests;
 
 using System.IO.Compression;
 using System.Text;
+using Amazon.Runtime;
 using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -222,7 +223,8 @@ public static class Customizations
         MemoryStream roadSegmentDbaseIntegrationStream = null,
         MemoryStream roadNodeShapeIntegrationStream = null,
         MemoryStream roadNodeDbaseIntegrationStream = null,
-        MemoryStream archiveStream = null
+        MemoryStream archiveStream = null,
+        ICollection<string> excludeFileNames = null
     )
     {
         var files = new Dictionary<string, Stream>
@@ -263,7 +265,12 @@ public static class Customizations
         };
 
         var random = new Random(fixture.Create<int>());
-        var writeOrder = files.Keys.OrderBy(_ => random.Next()).ToArray();
+        var fileNames = files.Keys.ToList();
+        if (excludeFileNames is not null && excludeFileNames.Any())
+        {
+            fileNames = fileNames.Where(fileName => !excludeFileNames.Contains(fileName, StringComparer.InvariantCultureIgnoreCase)).ToList();
+        }
+        var writeOrder = fileNames.OrderBy(_ => random.Next()).ToArray();
 
         archiveStream ??= new MemoryStream();
 
