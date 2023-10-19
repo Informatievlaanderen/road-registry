@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Framework;
 using RoadRegistry.BackOffice.Messages;
 using Serilog.Enrichers;
@@ -19,12 +20,14 @@ using SqlStreamStore;
 
 public class RoadNetworkSnapshotInspectorTests
 {
-    public RoadNetworkSnapshotInspectorTests(IConfiguration configuration)
+    public RoadNetworkSnapshotInspectorTests(IConfiguration configuration, ITestOutputHelper testOutputHelper)
     {
         Configuration = configuration;
+        TestOutputHelper = testOutputHelper;
     }
 
     protected IConfiguration Configuration { get; }
+    protected ITestOutputHelper TestOutputHelper { get; }
 
     private string GetEventsConnectionString(DbEnvironment environment)
     {
@@ -146,12 +149,69 @@ public class RoadNetworkSnapshotInspectorTests
     //[Fact]
     public async Task InspectSnapshot()
     {
-        const string tempFilePath = @"1828050.bin";
+        const string tempFilePath = @"snapshot";
 
         var snapshotBytes = await File.ReadAllBytesAsync(tempFilePath);
         var snapshot = S3CacheSerializer.Serializer.DeserializeObject<RoadNetworkSnapshot>(snapshotBytes, true).Value;
 
-        
+        //FindIdenticalRoadSegmentsForFakeNodeConnections(snapshot);
+    }
+
+    private void FindIdenticalRoadSegmentsForFakeNodeConnections(RoadNetworkSnapshot snapshot)
+    {
+        var fakeRoadNodes = snapshot.Nodes
+            .Where(x => x.Type == RoadNodeType.FakeNode)
+            .ToArray();
+        var fakeRoadNodeIds = fakeRoadNodes.Select(x => x.Id).ToArray();
+        var roadSegments = snapshot.Segments
+            .Where(x => fakeRoadNodeIds.Contains(x.StartNodeId) || fakeRoadNodeIds.Contains(x.EndNodeId))
+            .ToArray();
+
+        var counter = 0;
+
+        TestOutputHelper.WriteLine("RoadNodeId;Segment1;Segment2;LocationX;LocationY");
+        foreach (var roadNode in fakeRoadNodes)
+        {
+            var roadNodeId = roadNode.Id;
+            var nodeSegments = roadSegments
+                .Where(x => x.StartNodeId == roadNodeId || x.EndNodeId == roadNodeId)
+                .ToArray();
+
+            if (nodeSegments.Length != 2)
+            {
+                continue;
+            }
+
+            var segment1 = nodeSegments[0];
+            var segment2 = nodeSegments[1];
+
+            var attributeHash1 = new AttributeHash(
+                RoadSegmentAccessRestriction.Parse(segment1.AttributeHash.AccessRestriction),
+                RoadSegmentCategory.Parse(segment1.AttributeHash.Category),
+                RoadSegmentMorphology.Parse(segment1.AttributeHash.Morphology),
+                RoadSegmentStatus.Parse(segment1.AttributeHash.Status),
+                CrabStreetnameId.FromValue(segment1.AttributeHash.LeftSideStreetNameId),
+                CrabStreetnameId.FromValue(segment1.AttributeHash.RightSideStreetNameId),
+                new OrganizationId(segment1.AttributeHash.OrganizationId),
+                RoadSegmentGeometryDrawMethod.Parse(segment1.AttributeHash.GeometryDrawMethod)
+            );
+            var attributeHash2 = new AttributeHash(
+                RoadSegmentAccessRestriction.Parse(segment2.AttributeHash.AccessRestriction),
+                RoadSegmentCategory.Parse(segment2.AttributeHash.Category),
+                RoadSegmentMorphology.Parse(segment2.AttributeHash.Morphology),
+                RoadSegmentStatus.Parse(segment2.AttributeHash.Status),
+                CrabStreetnameId.FromValue(segment2.AttributeHash.LeftSideStreetNameId),
+                CrabStreetnameId.FromValue(segment2.AttributeHash.RightSideStreetNameId),
+                new OrganizationId(segment2.AttributeHash.OrganizationId),
+                RoadSegmentGeometryDrawMethod.Parse(segment2.AttributeHash.GeometryDrawMethod)
+            );
+            var segmentsEqualAttributes = attributeHash1.Equals(attributeHash2);
+            if (segmentsEqualAttributes)
+            {
+                TestOutputHelper.WriteLine($"{roadNode.Id};{segment1.Id};{segment2.Id};{roadNode.Geometry.Point.X};{roadNode.Geometry.Point.Y}");
+                counter++;
+            }
+        }
     }
 
     [Fact(Skip = "Updates the jsondata of a message. Useful for debugging purposes")]
