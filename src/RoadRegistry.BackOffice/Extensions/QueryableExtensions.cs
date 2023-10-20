@@ -15,12 +15,22 @@ public static class QueryableExtensions
         while (true)
         {
             var batchItems = new List<T>();
-            await foreach (var element in ((IAsyncEnumerable<T>)query
-                               .Skip(pageIndex * batchSize)
-                               .Take(batchSize))
-                           .WithCancellation(cancellationToken))
+            if (query is IAsyncEnumerable<T>)
             {
-                batchItems.Add(element);
+                await foreach (var element in ((IAsyncEnumerable<T>)query
+                                   .Skip(pageIndex * batchSize)
+                                   .Take(batchSize))
+                               .WithCancellation(cancellationToken))
+                {
+                    batchItems.Add(element);
+                }
+            }
+            else
+            {
+                batchItems.AddRange(query
+                    .Skip(pageIndex * batchSize)
+                    .Take(batchSize)
+                );
             }
 
             if (!batchItems.Any())

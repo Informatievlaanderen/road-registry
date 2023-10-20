@@ -373,7 +373,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         CancellationToken cancellationToken)
     {
         await context.RoadSegments
-            .ForEachBatchAsync(5000, dbRecords =>
+            .ForEachBatchAsync(q => q, 5000, dbRecords =>
             {
                 foreach (var dbRecord in dbRecords)
                 {

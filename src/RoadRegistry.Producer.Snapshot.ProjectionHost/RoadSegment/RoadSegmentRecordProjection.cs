@@ -414,8 +414,8 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             CancellationToken cancellationToken)
         {
             await context.RoadSegments
-                .Where(x => x.MaintainerId == organizationId)
-                .ForEachBatchAsync(5000, async dbRecords =>
+                .ForEachBatchAsync(q => q
+                    .Where(x => x.MaintainerId == organizationId), 5000, async dbRecords =>
                 {
                     foreach (var dbRecord in dbRecords)
                     {

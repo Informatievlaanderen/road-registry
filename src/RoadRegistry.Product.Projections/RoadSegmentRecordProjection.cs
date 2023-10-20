@@ -12,11 +12,9 @@ using Microsoft.IO;
 using Schema;
 using Schema.RoadSegments;
 using System;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
@@ -349,7 +347,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         CancellationToken cancellationToken)
     {
         await context.RoadSegments
-            .ForEachBatchAsync(5000, dbRecords =>
+            .ForEachBatchAsync(q => q, 5000, dbRecords =>
             {
                 foreach (var dbRecord in dbRecords)
                 {

@@ -1,12 +1,12 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.Tests.Projections;
 
-using System.Globalization;
 using AutoFixture;
 using BackOffice;
 using BackOffice.Abstractions;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
 using Be.Vlaanderen.Basisregisters.MessageHandling.Kafka.Simple;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Moq;
 using ProjectionHost.Projections;
@@ -14,7 +14,7 @@ using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using RoadRegistry.Tests.Framework.Projections;
 using RoadSegment;
-using Syndication.Schema;
+using System.Globalization;
 
 public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServices>
 {
@@ -648,5 +648,51 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
             .Expect(created.UtcDateTime, expectedRecords);
 
         KafkaVerify(kafkaProducer, expectedRecords, Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task When_organization_is_renamed()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+        _fixture.Freeze<OrganizationId>();
+
+        var importedOrganization = new ImportedOrganization
+        {
+            Code = _fixture.Create<OrganizationId>(),
+            Name = _fixture.Create<OrganizationName>()
+        };
+        var renameOrganizationAccepted = new RenameOrganizationAccepted
+        {
+            Code = importedOrganization.Code,
+            Name = _fixture.CreateWhichIsDifferentThan(new OrganizationName(importedOrganization.Name))
+        };
+
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
+
+        var messages = new object[]
+        {
+            importedOrganization,
+            acceptedRoadSegmentAdded,
+            renameOrganizationAccepted
+        };
+        
+        var created = DateTimeOffset.UtcNow;
+
+        var expectedRecords = ConvertToRoadSegmentRecords(acceptedRoadSegmentAdded, created, record =>
+        {
+            record.MaintainerName = renameOrganizationAccepted.Name;
+        });
+
+        var kafkaProducer = BuildKafkaProducer();
+        var streetNameCache = BuildStreetNameCache();
+        //TODO-rik fix test, dan check in PR of alle nieuwe projecties een test hebben
+        await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
+            .Scenario()
+            .Given(messages)
+            .Expect(created.UtcDateTime, expectedRecords);
+
+        KafkaVerify(kafkaProducer, expectedRecords);
     }
 }

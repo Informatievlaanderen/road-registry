@@ -319,8 +319,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         CancellationToken cancellationToken)
     {
         await context.RoadSegments
-            .Where(x => x.MaintainerId == organizationId)
-            .ForEachBatchAsync(5000, dbRecords =>
+            .ForEachBatchAsync(q => q
+                .Where(x => x.MaintainerId == organizationId), 5000, dbRecords =>
             {
                 foreach (var dbRecord in dbRecords)
                 {
