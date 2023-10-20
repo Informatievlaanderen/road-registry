@@ -15,6 +15,7 @@ using System.IO.Compression;
 using System.Text;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
+using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public static class Customizations
 {
@@ -93,6 +94,11 @@ public static class Customizations
         return CreateRoadSegmentShapeFile(fixture, Array.Empty<PolyLineMShapeContent>());
     }
 
+    public static MemoryStream CreateEmptyTransactionZoneShapeFile(this IFixture fixture)
+    {
+        return CreateTransactionZoneShapeFile(fixture, Array.Empty<PolygonShapeContent>());
+    }
+
     public static IEnumerable<T> CreateManyWhichIsDifferentThan<T>(this IFixture fixture, IEnumerable<T> illegalValue)
     {
         var value = fixture.CreateMany<T>();
@@ -132,6 +138,11 @@ public static class Customizations
     public static MemoryStream CreateRoadSegmentShapeFile(this IFixture fixture, ICollection<PolyLineMShapeContent> shapes)
     {
         return CreateShapeFile(fixture, ShapeType.PolyLineM, shapes, shape => shape.Shape.NumberOfPoints > 0 ? BoundingBox3D.FromGeometry(shape.Shape) : BoundingBox3D.Empty);
+    }
+
+    public static MemoryStream CreateTransactionZoneShapeFile(this IFixture fixture, ICollection<PolygonShapeContent> shapes)
+    {
+        return CreateShapeFile(fixture, ShapeType.Polygon, shapes, shape => shape.Shape.NumberOfPoints > 0 ? BoundingBox3D.FromGeometry(shape.Shape) : BoundingBox3D.Empty);
     }
 
     public static MemoryStream CreateRoadSegmentShapeFileWithOneRecord(this IFixture fixture, PolyLineMShapeContent polyLineMShapeContent = null)
@@ -1097,6 +1108,12 @@ public static class Customizations
     {
         return new PolyLineMShapeContent(
             Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(lineString)
+        );
+    }
+    public static PolygonShapeContent ToShapeContent(this Polygon polygon)
+    {
+        return new PolygonShapeContent(
+            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPolygon(polygon)
         );
     }
 }

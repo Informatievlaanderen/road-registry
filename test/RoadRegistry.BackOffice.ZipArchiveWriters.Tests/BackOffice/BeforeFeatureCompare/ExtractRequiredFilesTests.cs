@@ -21,6 +21,8 @@ public class ExtractRequiredFilesTests : FeatureCompareTranslatorScenariosBase
         var requiredFiles = new Dictionary<string, bool>
         {
             { "TRANSACTIEZONES.DBF", true },
+            { "TRANSACTIEZONES.SHP", false },
+            { "TRANSACTIEZONES.PRJ", false },
             { "WEGKNOOP.DBF", true },
             { "EWEGKNOOP.DBF", true },
             { "IWEGKNOOP.DBF", false },
