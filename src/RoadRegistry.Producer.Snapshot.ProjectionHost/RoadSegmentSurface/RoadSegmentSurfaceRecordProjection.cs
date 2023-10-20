@@ -1,13 +1,6 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using BackOffice;
-    using BackOffice.Extensions;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -15,6 +8,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
     using Extensions;
     using Microsoft.EntityFrameworkCore;
     using Projections;
+    using System;
+    using System.Globalization;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public class RoadSegmentSurfaceRecordProjection : ConnectedProjection<RoadSegmentSurfaceProducerSnapshotContext>
     {
