@@ -224,7 +224,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var organizationId = new OrganizationId(command.Body.Code);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
-
+        
         if (organization != null)
         {
             organization.Change(

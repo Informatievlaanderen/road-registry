@@ -414,17 +414,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             CancellationToken cancellationToken)
         {
             await context.RoadSegments
-                .Where(x => x.MaintainerId == organizationId) //TODO-rik ook filteren op origin.organizationId (bestaat nog niet in origin)
+                .Where(x => x.MaintainerId == organizationId)
                 .ForEachBatchAsync(5000, async dbRecords =>
                 {
                     foreach (var dbRecord in dbRecords)
                     {
-                        //TODO-rik veld setten wanneer OrganizationId in origin bestaat
-                        //if (dbRecord.Origin.OrganizationId == organizationId)
-                        //{
-                        //    dbRecord.Origin.Organization = organizationName;
-                        //}
-
                         if (dbRecord.MaintainerId == organizationId)
                         {
                             dbRecord.MaintainerName = organizationName;

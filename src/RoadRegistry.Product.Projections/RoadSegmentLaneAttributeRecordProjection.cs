@@ -83,19 +83,6 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Prod
                         break;
                 }
         });
-
-        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
-        {
-            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
-        });
-
-        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
-        {
-            if (envelope.Message.NameChanged)
-            {
-                await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
-            }
-        });
     }
 
     private static async Task AddRoadSegment(RecyclableMemoryStreamManager manager,
@@ -240,37 +227,5 @@ public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<Prod
             context.RoadSegmentLaneAttributes.Synchronize(currentSet, nextSet,
                 (current, next) => { current.DbaseRecord = next.DbaseRecord; });
         }
-    }
-
-    private async Task RenameOrganization(
-        RecyclableMemoryStreamManager manager,
-        Encoding encoding,
-        ProductContext context,
-        OrganizationId organizationId,
-        OrganizationName organizationName,
-        CancellationToken cancellationToken)
-    {
-        await context.RoadSegmentLaneAttributes
-            .ForEachBatchAsync(10000, dbRecords =>
-            {
-                foreach (var dbRecord in dbRecords)
-                {
-                    var dbaseRecord = new RoadSegmentLaneAttributeDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
-                    var dataChanged = false;
-
-                    if (dbaseRecord.BEGINORG.Value == organizationId)
-                    {
-                        dbaseRecord.LBLBGNORG.Value = organizationName;
-                        dataChanged = true;
-                    }
-
-                    if (dataChanged)
-                    {
-                        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
-                    }
-                }
-
-                return Task.CompletedTask;
-            }, cancellationToken);
     }
 }

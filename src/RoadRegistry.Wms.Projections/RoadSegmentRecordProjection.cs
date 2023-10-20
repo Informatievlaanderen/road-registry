@@ -416,16 +416,11 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
         CancellationToken cancellationToken)
     {
         await context.RoadSegments
-            .Where(x => x.BeginOrganizationId == organizationId || x.MaintainerId == organizationId)
+            .Where(x => x.MaintainerId == organizationId)
             .ForEachBatchAsync(5000, dbRecords =>
             {
                 foreach (var dbRecord in dbRecords)
                 {
-                    if (dbRecord.BeginOrganizationId == organizationId)
-                    {
-                        dbRecord.BeginOrganizationName = organizationName;
-                    }
-
                     if (dbRecord.MaintainerId == organizationId)
                     {
                         dbRecord.MaintainerName = organizationName;

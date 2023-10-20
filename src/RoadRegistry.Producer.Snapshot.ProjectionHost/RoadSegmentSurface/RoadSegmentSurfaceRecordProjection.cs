@@ -26,8 +26,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 
             When<Envelope<ImportedRoadSegment>>(ImportedRoadSegment);
             When<Envelope<RoadNetworkChangesAccepted>>(RoadNetworkChangesAccepted);
-            When<Envelope<RenameOrganizationAccepted>>(RenameOrganizationAccepted);
-            When<Envelope<ChangeOrganizationAccepted>>(ChangeOrganizationAccepted);
         }
 
         private async Task ImportedRoadSegment(RoadSegmentSurfaceProducerSnapshotContext context, Envelope<ImportedRoadSegment> envelope, CancellationToken token)
@@ -88,20 +86,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                 }
             }
         }
-
-        private async Task RenameOrganizationAccepted(RoadSegmentSurfaceProducerSnapshotContext context, Envelope<RenameOrganizationAccepted> envelope, CancellationToken token)
-        {
-            await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
-        }
-
-        private async Task ChangeOrganizationAccepted(RoadSegmentSurfaceProducerSnapshotContext context, Envelope<ChangeOrganizationAccepted> envelope, CancellationToken token)
-        {
-            if (envelope.Message.NameChanged)
-            {
-                await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
-            }
-        }
-
+        
         private async Task RoadSegmentAdded(RoadSegmentSurfaceProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentAdded roadSegmentAdded,
             CancellationToken token)
@@ -305,29 +290,6 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                 .ToArray();
 
             context.RoadSegmentSurfaces.RemoveRange(removedRecords);
-        }
-
-        private async Task RenameOrganization(
-            RoadSegmentSurfaceProducerSnapshotContext context,
-            OrganizationId organizationId,
-            OrganizationName organizationName,
-            CancellationToken cancellationToken)
-        {
-            await context.RoadSegmentSurfaces
-                //TODO-rik ook filteren op origin.organizationId (bestaat nog niet in origin)
-                .ForEachBatchAsync(10000, async dbRecords =>
-                {
-                    foreach (var dbRecord in dbRecords)
-                    {
-                        //TODO-rik veld setten wanneer OrganizationId in origin bestaat
-                        //if (dbRecord.Origin.OrganizationId == organizationId)
-                        //{
-                        //    dbRecord.Origin.Organization = organizationName;
-                        //}
-
-                        await Produce(dbRecord.Id, dbRecord.ToContract(), cancellationToken);
-                    }
-                }, cancellationToken);
         }
 
         private async Task Produce(int roadSegmentSurfaceId, RoadSegmentSurfaceSnapshot snapshot, CancellationToken cancellationToken)

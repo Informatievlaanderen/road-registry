@@ -385,11 +385,6 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         dbaseRecord.LBLBEHEER.Value = organizationName;
                         dataChanged = true;
                     }
-                    if (dbaseRecord.BEGINORG.Value == organizationId)
-                    {
-                        dbaseRecord.LBLBGNORG.Value = organizationName;
-                        dataChanged = true;
-                    }
 
                     if (dataChanged)
                     {
