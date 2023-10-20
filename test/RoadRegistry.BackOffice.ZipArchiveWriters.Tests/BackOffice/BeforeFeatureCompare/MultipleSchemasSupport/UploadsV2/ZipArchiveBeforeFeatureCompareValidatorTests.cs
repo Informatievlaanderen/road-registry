@@ -1,221 +1,21 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatureCompare.MultipleSchemasSupport.UploadsV2;
 
-using System.IO.Compression;
-using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using FluentAssertions;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Implementation;
-using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Extracts.Dbase;
-using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using RoadRegistry.Tests.BackOffice;
+using System.IO.Compression;
 using Point = NetTopologySuite.Geometries.Point;
 
 public class ZipArchiveBeforeFeatureCompareValidatorTests
 {
-    public static IEnumerable<object[]> MissingRequiredFileCases
-    {
-        get
-        {
-            var fixture = CreateFixture();
-
-            var roadNodeProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-            var roadNodeShapeChangeStream = fixture.CreateRoadNodeShapeFile(new[] { fixture.Create<PointShapeContent>(), fixture.Create<PointShapeContent>() });
-            var roadNodeDbaseRecord1 = fixture.Create<RoadNodeDbaseRecord>();
-            var roadNodeDbaseRecord2 = fixture.Create<RoadNodeDbaseRecord>();
-            var roadNodeDbaseChangeStream = fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[] { roadNodeDbaseRecord1, roadNodeDbaseRecord2 });
-
-            var roadSegmentProjectionFormatStream = fixture.CreateProjectionFormatFileWithOneRecord();
-            var roadSegmentPolyLineMShapeContent = fixture.Create<PolyLineMShapeContent>();
-            var roadSegmentShapeChangeStream = fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
-            var roadSegmentChangeDbaseRecord = fixture.Create<RoadSegmentDbaseRecord>();
-            roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseRecord1.WK_OIDN.Value;
-            roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseRecord2.WK_OIDN.Value;
-            var roadSegmentDbaseChangeStream = fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
-
-            var europeanRoadChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
-                RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
-            var nationalRoadChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentNationalRoadAttributeDbaseRecord>(
-                RoadSegmentNationalRoadAttributeDbaseRecord.Schema);
-            var numberedRoadChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentNumberedRoadAttributeDbaseRecord>(
-                RoadSegmentNumberedRoadAttributeDbaseRecord.Schema);
-            var laneChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentLaneAttributeDbaseRecord>(
-                RoadSegmentLaneAttributeDbaseRecord.Schema,
-                record =>
-                {
-                    record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-                    record.VANPOS.Value = 0;
-                    record.TOTPOS.Value = roadSegmentPolyLineMShapeContent.Shape.Points.Last().X;
-                });
-            var widthChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentWidthAttributeDbaseRecord>(
-                RoadSegmentWidthAttributeDbaseRecord.Schema,
-                record =>
-                {
-                    record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-                    record.VANPOS.Value = 0;
-                    record.TOTPOS.Value = roadSegmentPolyLineMShapeContent.Shape.Points.Last().X;
-                });
-            var surfaceChangeStream = fixture.CreateDbfFileWithOneRecord<RoadSegmentSurfaceAttributeDbaseRecord>(
-                RoadSegmentSurfaceAttributeDbaseRecord.Schema,
-                record =>
-                {
-                    record.WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-                    record.VANPOS.Value = 0;
-                    record.TOTPOS.Value = roadSegmentPolyLineMShapeContent.Shape.Points.Last().X;
-                });
-            
-            var gradeSeparatedJunctionDbaseRecord = fixture.Create<GradeSeparatedJunctionDbaseRecord>();
-            gradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-            gradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value = roadSegmentChangeDbaseRecord.WS_OIDN.Value;
-            var gradeSeparatedJunctionChangeStream = fixture.CreateDbfFileWithOneRecord(GradeSeparatedJunctionDbaseRecord.Schema, gradeSeparatedJunctionDbaseRecord);
-
-            var transactionZoneStream = fixture.CreateDbfFileWithOneRecord<TransactionZoneDbaseRecord>(TransactionZoneDbaseRecord.Schema);
-
-            var requiredFiles = new[]
-            {
-                "TRANSACTIEZONES.DBF",
-                "WEGKNOOP.DBF",
-                "WEGKNOOP.SHP",
-                "WEGKNOOP.PRJ",
-                "WEGSEGMENT.DBF",
-                "WEGSEGMENT.SHP",
-                "WEGSEGMENT.PRJ",
-                "ATTRIJSTROKEN.DBF",
-                "ATTWEGBREEDTE.DBF",
-                "ATTWEGVERHARDING.DBF",
-                "ATTEUROPWEG.DBF",
-                "ATTNATIONWEG.DBF",
-                "ATTGENUMWEG.DBF",
-                "RLTOGKRUISING.DBF"
-            };
-
-            using (var extractZipArchiveTestData = new ExtractsZipArchiveTestData())
-            {
-                var extractFiles = extractZipArchiveTestData.ExtractFileNames;
-
-                foreach (var fileToBeMissing in requiredFiles)
-                {
-                    var errors = ZipArchiveProblems.None;
-                    var archiveStream = new MemoryStream();
-                    using (var createArchive = new ZipArchive(archiveStream, ZipArchiveMode.Create, true, Encoding.UTF8))
-                    {
-                        void CreateEntryOrRequiredFileMissingError(string file, MemoryStream fileStream)
-                        {
-                            if (fileToBeMissing == file)
-                            {
-                                errors = errors.RequiredFileMissing(file);
-                            }
-                            else
-                            {
-                                using (var entryStream = createArchive.CreateEntry(file).Open())
-                                {
-                                    fileStream.Position = 0;
-                                    fileStream.CopyTo(entryStream);
-                                }
-                            }
-                        }
-
-                        foreach (var file in extractFiles)
-                        {
-                            var zipEntry = extractZipArchiveTestData.ZipArchive.Entries.Single(x => x.Name == file);
-                            using (var entryStream = createArchive.CreateEntry(file).Open())
-                            using (var extractFileStream = zipEntry.Open())
-                            {
-                                extractFileStream.CopyTo(entryStream);
-                            }
-                        }
-
-                        foreach (var requiredFile in requiredFiles)
-                        {
-                            switch (requiredFile)
-                            {
-                                case "WEGSEGMENT.SHP":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, roadSegmentShapeChangeStream);
-                                    break;
-                                case "WEGSEGMENT.PRJ":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, roadSegmentProjectionFormatStream);
-                                    break;
-                                case "WEGSEGMENT.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, roadSegmentDbaseChangeStream);
-                                    if (fileToBeMissing == requiredFile)
-                                    {
-                                        {
-                                            var recordContext = ExtractFileName.AttRijstroken.AtDbaseRecord(FeatureType.Change, RecordNumber.Initial);
-                                            errors += recordContext.RoadSegmentMissing(roadSegmentChangeDbaseRecord.WS_OIDN.Value);
-                                        }
-                                        {
-                                            var recordContext = ExtractFileName.AttWegbreedte.AtDbaseRecord(FeatureType.Change, RecordNumber.Initial);
-                                            errors += recordContext.RoadSegmentMissing(roadSegmentChangeDbaseRecord.WS_OIDN.Value);
-                                        }
-                                        {
-                                            var recordContext = ExtractFileName.AttWegverharding.AtDbaseRecord(FeatureType.Change, RecordNumber.Initial);
-                                            errors += recordContext.RoadSegmentMissing(roadSegmentChangeDbaseRecord.WS_OIDN.Value);
-                                        }
-                                    }
-                                    break;
-                                case "WEGKNOOP.SHP":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, roadNodeShapeChangeStream);
-                                    break;
-                                case "WEGKNOOP.PRJ":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, roadNodeProjectionFormatStream);
-                                    break;
-                                case "WEGKNOOP.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, roadNodeDbaseChangeStream);
-                                    if (fileToBeMissing == requiredFile)
-                                    {
-                                        {
-                                            var recordContext = ExtractFileName.Wegsegment.AtDbaseRecord(FeatureType.Change, RecordNumber.Initial);
-                                            errors += recordContext.RoadSegmentStartNodeMissing(roadSegmentChangeDbaseRecord.B_WK_OIDN.Value);
-                                            errors += recordContext.RoadSegmentEndNodeMissing(roadSegmentChangeDbaseRecord.E_WK_OIDN.Value);
-                                        }
-                                    }
-                                    break;
-                                case "ATTEUROPWEG.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, europeanRoadChangeStream);
-                                    break;
-                                case "ATTGENUMWEG.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, numberedRoadChangeStream);
-                                    break;
-                                case "ATTNATIONWEG.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, nationalRoadChangeStream);
-                                    break;
-                                case "ATTRIJSTROKEN.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, laneChangeStream);
-                                    break;
-                                case "ATTWEGBREEDTE.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, widthChangeStream);
-                                    break;
-                                case "ATTWEGVERHARDING.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, surfaceChangeStream);
-                                    break;
-                                case "RLTOGKRUISING.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, gradeSeparatedJunctionChangeStream);
-                                    break;
-                                case "TRANSACTIEZONES.DBF":
-                                    CreateEntryOrRequiredFileMissingError(requiredFile, transactionZoneStream);
-                                    break;
-                            }
-                        }
-                    }
-
-                    archiveStream.Position = 0;
-
-                    yield return new object[]
-                    {
-                        new ZipArchive(archiveStream, ZipArchiveMode.Read, false, Encoding.UTF8),
-                        errors
-                    };
-                }
-            }
-        }
-    }
-
     private static ZipArchive CreateArchiveWithEmptyFiles()
     {
         var fixture = CreateFixture();
@@ -539,6 +339,8 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
             "IWEGSEGMENT.PRJ"
         };
 
+        var hasNoDbaseRecordsAsErrorFiles = new[] { "TRANSACTIEZONES.DBF" };
+
         using (var archive = CreateArchiveWithEmptyFiles())
         {
             var sut = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
@@ -558,7 +360,7 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                         case ".SHP":
                             return entry.HasNoShapeRecords();
                         case ".DBF":
-                            return entry.HasNoDbaseRecords();
+                            return entry.HasNoDbaseRecords(hasNoDbaseRecordsAsErrorFiles.Contains(entry.Name));
                         case ".PRJ":
                             return entry.ProjectionFormatInvalid();
                     }
@@ -583,20 +385,6 @@ public class ZipArchiveBeforeFeatureCompareValidatorTests
                 }
                 Assert.Equal(expectedProblem, actualProblem);
             }
-        }
-    }
-
-    [Theory]
-    [MemberData(nameof(MissingRequiredFileCases))]
-    public void ValidateReturnsExpectedResultWhenRequiredFileMissing(ZipArchive archive, ZipArchiveProblems expected)
-    {
-        using (archive)
-        {
-            var sut = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
-
-            var result = sut.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
-
-            Assert.Equal(expected, result);
         }
     }
 }

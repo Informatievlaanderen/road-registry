@@ -60,10 +60,7 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
             _logger.LogInformation("{Type} started...", translator.GetType().Name);
             
             (changes, var problems) = await translator.TranslateAsync(context, changes, cancellationToken);
-            if (problems.HasError())
-            {
-                throw new ZipArchiveValidationException(problems);
-            }
+            problems.ThrowIfError();
 
             _logger.LogInformation("{Type} completed in {Elapsed}", translator.GetType().Name, sw.Elapsed);
         }

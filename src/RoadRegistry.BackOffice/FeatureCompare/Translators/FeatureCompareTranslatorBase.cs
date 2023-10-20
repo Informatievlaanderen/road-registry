@@ -1,13 +1,12 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts;
 using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Extracts;
 using Uploads;
 
 public static class Feature
@@ -46,15 +45,7 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
         var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
         var (integrationFeatures, integrationFeaturesProblems) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
 
-        var problems = extractFeaturesProblems + changeFeaturesProblems;
-        //TODO-rik test of missing integration files worden tegengehouden
-        var allowedIntegrationProblemReasons = new[]
-        {
-            nameof(ZipArchiveProblems.RequiredFileMissing),
-            nameof(DbaseFileProblems.HasDbaseHeaderFormatError),
-            nameof(DbaseFileProblems.HasDbaseSchemaMismatch)
-        };
-        problems.AddRange(integrationFeaturesProblems.Where(x => allowedIntegrationProblemReasons.Contains(x.Reason)));
+        var problems = extractFeaturesProblems + changeFeaturesProblems + integrationFeaturesProblems;
 
         return (extractFeatures, changeFeatures, integrationFeatures, problems);
     }

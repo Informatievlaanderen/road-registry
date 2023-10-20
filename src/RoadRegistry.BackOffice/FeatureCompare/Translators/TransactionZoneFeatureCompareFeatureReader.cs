@@ -1,12 +1,12 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using Extracts.Dbase;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Text;
 using Uploads;
 
 public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
@@ -15,11 +15,11 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
         : base(new ExtractsFeatureReader(encoding))
     {
     }
-    
+
     private sealed class ExtractsFeatureReader : ZipArchiveDbaseFeatureReader<TransactionZoneDbaseRecord, Feature<TransactionZoneFeatureCompareAttributes>>
     {
         public ExtractsFeatureReader(Encoding encoding)
-            : base(encoding, TransactionZoneDbaseRecord.Schema)
+            : base(encoding, TransactionZoneDbaseRecord.Schema, treatHasNoDbaseRecordsAsError: true)
         {
         }
 
@@ -37,7 +37,7 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
         protected override (List<Feature<TransactionZoneFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(FeatureType featureType, ExtractFileName fileName, ZipArchiveEntry entry, IDbaseRecordEnumerator<TransactionZoneDbaseRecord> records, ZipArchiveFeatureReaderContext context)
         {
             var (features, problems) = base.ReadFeatures(featureType, fileName, entry, records, context);
-            
+
             if (features.Count > 1)
             {
                 problems += entry.HasTooManyDbaseRecords(1, features.Count);
@@ -136,7 +136,7 @@ public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFea
 
                 return OrganizationId.Unknown;
             }
-            
+
             var feature = Feature.New(recordNumber, new TransactionZoneFeatureCompareAttributes
             {
                 Description = ReadDescription(),

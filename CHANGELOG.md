@@ -1,3 +1,11 @@
+## [3.60.6](https://github.com/informatievlaanderen/road-registry/compare/v3.60.5...v3.60.6) (2023-10-19)
+
+
+### Bug Fixes
+
+* remove environment approval check for deploy pipelines ([#1246](https://github.com/informatievlaanderen/road-registry/issues/1246)) ([55154fe](https://github.com/informatievlaanderen/road-registry/commit/55154fe03da09702a27b4981f05695e6a4ae8869))
+* roadsegments must always have a lane/surface/width attribute ([#1247](https://github.com/informatievlaanderen/road-registry/issues/1247)) ([1f82e41](https://github.com/informatievlaanderen/road-registry/commit/1f82e417c8eb67a9782f0c06df8a397f7011b9f7))
+
 ## [3.60.5](https://github.com/informatievlaanderen/road-registry/compare/v3.60.4...v3.60.5) (2023-10-18)
 
 

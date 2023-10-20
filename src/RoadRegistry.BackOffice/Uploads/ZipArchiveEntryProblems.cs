@@ -49,9 +49,9 @@ public static class ZipArchiveEntryProblems
 
     // dbase
 
-    public static FileProblem HasNoDbaseRecords(this ZipArchiveEntry entry)
+    public static FileProblem HasNoDbaseRecords(this ZipArchiveEntry entry, bool treatAsError = false)
     {
-        return new FileProblemBuilder(entry.Name).HasNoDbaseRecords();
+        return new FileProblemBuilder(entry.Name).HasNoDbaseRecords(treatAsError);
     }
 
     // shape

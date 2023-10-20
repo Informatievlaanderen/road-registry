@@ -10,7 +10,6 @@ using NodaTime;
 using SqlStreamStore;
 using System;
 using System.IO.Compression;
-using Exceptions;
 using Uploads;
 
 public class RoadNetworkExtractCommandModule : CommandHandlerModule
@@ -145,10 +144,7 @@ public class RoadNetworkExtractCommandModule : CommandHandlerModule
                     {
                         IZipArchiveValidator validator = command.Body.UseZipArchiveFeatureCompareTranslator ? beforeFeatureCompareValidator : afterFeatureCompareValidator;
                         var problems = await upload.ValidateArchiveUsing(archive, validator, extractUploadFailedEmailClient, ct, command.Body.UseZipArchiveFeatureCompareTranslator);
-                        if (problems.HasError())
-                        {
-                            throw new ZipArchiveValidationException(problems);
-                        }
+                        problems.ThrowIfError();
                     }
                 }
                 catch (Exception ex)

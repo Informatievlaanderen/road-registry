@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
+using Extracts;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
@@ -7,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Extracts;
 using Uploads;
 
 internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadNodeFeatureCompareAttributes>
@@ -71,6 +71,8 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
     {
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, ExtractFileName.Wegknoop, context);
 
+        problems.ThrowIfError();
+
         var batchCount = Debugger.IsAttached ? 1 : 2;
 
         var processedLeveringRecords = await Task.WhenAll(
@@ -91,7 +93,16 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
             }
         }
 
-        foreach (var record in context.RoadNodeRecords)
+        problems.ThrowIfError();
+
+        changes = TranslateProcessedRecords(changes, context.RoadNodeRecords, cancellationToken);
+
+        return (changes, problems);
+    }
+
+    private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<RoadNodeFeatureCompareRecord> records, CancellationToken cancellationToken)
+    {
+        foreach (var record in records)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -126,6 +137,6 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
             }
         }
 
-        return (changes, problems);
+        return changes;
     }
 }

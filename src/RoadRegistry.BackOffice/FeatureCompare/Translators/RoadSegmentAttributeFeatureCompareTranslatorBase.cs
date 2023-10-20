@@ -25,6 +25,8 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
     {
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, _fileName, context);
 
+        problems.ThrowIfError();
+
         var wegsegmentenAdd = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Added).ToList();
         var wegsegmentenIdentical = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Identical).ToList();
         var wegsegmentenUpdate = context.RoadSegmentRecords.Where(x => x.RecordType == RecordType.Modified).ToList();
@@ -152,6 +154,8 @@ internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttrib
                 }
             }
         }
+
+        problems.ThrowIfError();
 
         return Task.FromResult((TranslateProcessedRecords(changes, processedRecords), problems));
     }

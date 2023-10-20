@@ -7,11 +7,13 @@ using System.Text;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using Xunit.Sdk;
 
 public class FeatureCompareZipArchiveTranslatorTests
@@ -37,13 +39,16 @@ public class FeatureCompareZipArchiveTranslatorTests
     //[Fact]
     public async Task RunZipArchiveFeatureCompareTranslator()
     {
-        var pathArchive = @"C:\Users\RikDePeuter\Downloads\b22b43ed26f248e588a3cb590b72cd90.zip";
+        var pathArchive = @"upload.zip";
 
         try
         {
             using (var archiveStream = File.OpenRead(pathArchive))
             using (var archive = new ZipArchive(archiveStream))
             {
+                var archiveValidationProblems = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8)
+                    .Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+
                 var sw = Stopwatch.StartNew();
                 _outputHelper.WriteLine("Started translate Before-FC");
                 await _sut.Translate(archive, CancellationToken.None);
