@@ -1,10 +1,6 @@
 namespace RoadRegistry.Editor.Projections;
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using BackOffice;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -12,6 +8,12 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using BackOffice.Extensions;
 
 public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<EditorContext>
 {
@@ -74,6 +76,19 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Edi
                         await RemoveRoadSegment(context, segment, token);
                         break;
                 }
+        });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            if (envelope.Message.NameChanged)
+            {
+                await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
         });
     }
 
@@ -206,5 +221,37 @@ public class RoadSegmentWidthAttributeRecordProjection : ConnectedProjection<Edi
             context.RoadSegmentWidthAttributes.Synchronize(currentSet, nextSet,
                 (current, next) => { current.DbaseRecord = next.DbaseRecord; });
         }
+    }
+
+    private async Task RenameOrganization(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        OrganizationId organizationId,
+        OrganizationName organizationName,
+        CancellationToken cancellationToken)
+    {
+        await context.RoadSegmentWidthAttributes
+            .ForEachBatchAsync(10000, dbRecords =>
+            {
+                foreach (var dbRecord in dbRecords)
+                {
+                    var dbaseRecord = new RoadSegmentWidthAttributeDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+                    var dataChanged = false;
+
+                    if (dbaseRecord.BEGINORG.Value == organizationId)
+                    {
+                        dbaseRecord.LBLBGNORG.Value = organizationName;
+                        dataChanged = true;
+                    }
+
+                    if (dataChanged)
+                    {
+                        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+                    }
+                }
+
+                return Task.CompletedTask;
+            }, cancellationToken);
     }
 }

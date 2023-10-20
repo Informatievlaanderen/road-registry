@@ -8,6 +8,8 @@ public class ChangeOrganizationAccepted : IMessage
 {
     public string Code { get; set; }
     public string Name { get; set; }
+    public bool NameChanged { get; set; } = true; // default true for backwards compatibility
     public string OvoCode { get; set; }
+    public bool OvoCodeChanged { get; set; } = true; // default true for backwards compatibility
     public string When { get; set; }
 }

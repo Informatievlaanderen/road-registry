@@ -1,20 +1,22 @@
 namespace RoadRegistry.Product.Projections;
 
-using System;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Core;
+using BackOffice.Extensions;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Extensions;
 using Schema;
 using Schema.RoadSegments;
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
@@ -102,6 +104,19 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
                         break;
                 }
         });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            if (envelope.Message.NameChanged)
+            {
+                await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
+        });
     }
 
     private static async Task AddRoadSegment(RecyclableMemoryStreamManager manager,
@@ -179,7 +194,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         {
             throw new InvalidOperationException($"RoadSegmentRecord with id {roadSegmentModified.Id} is not found");
         }
-        
+
         roadSegmentRecord.Id = roadSegmentModified.Id;
         roadSegmentRecord.ShapeRecordContent = polyLineMShapeContent.ToBytes(manager, encoding);
         roadSegmentRecord.ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32();
@@ -323,5 +338,42 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         {
             context.RoadSegments.Remove(roadSegmentRecord);
         }
+    }
+
+    private async Task RenameOrganization(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        ProductContext context,
+        OrganizationId organizationId,
+        OrganizationName organizationName,
+        CancellationToken cancellationToken)
+    {
+        await context.RoadSegments
+            .ForEachBatchAsync(5000, dbRecords =>
+            {
+                foreach (var dbRecord in dbRecords)
+                {
+                    var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+                    var dataChanged = false;
+
+                    if (dbaseRecord.BEHEER.Value == organizationId)
+                    {
+                        dbaseRecord.LBLBEHEER.Value = organizationName;
+                        dataChanged = true;
+                    }
+                    if (dbaseRecord.BEGINORG.Value == organizationId)
+                    {
+                        dbaseRecord.LBLBGNORG.Value = organizationName;
+                        dataChanged = true;
+                    }
+
+                    if (dataChanged)
+                    {
+                        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+                    }
+                }
+
+                return Task.CompletedTask;
+            }, cancellationToken);
     }
 }

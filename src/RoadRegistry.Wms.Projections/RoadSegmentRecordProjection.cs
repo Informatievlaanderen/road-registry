@@ -11,6 +11,7 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.BackOffice.Extensions;
 using Schema;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
@@ -138,6 +139,19 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                         await RemoveRoadSegment(roadSegmentRemoved, context, envelope, useRoadSegmentSoftDeleteFeatureToggle.FeatureEnabled, token);
                         break;
                 }
+        });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            if (envelope.Message.NameChanged)
+            {
+                await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
         });
     }
 
@@ -393,6 +407,33 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
                 context.RoadSegments.Remove(roadSegmentRecord);
             }
         }
+    }
+
+    private async Task RenameOrganization(
+        WmsContext context,
+        OrganizationId organizationId,
+        OrganizationName organizationName,
+        CancellationToken cancellationToken)
+    {
+        await context.RoadSegments
+            .Where(x => x.BeginOrganizationId == organizationId || x.MaintainerId == organizationId)
+            .ForEachBatchAsync(5000, dbRecords =>
+            {
+                foreach (var dbRecord in dbRecords)
+                {
+                    if (dbRecord.BeginOrganizationId == organizationId)
+                    {
+                        dbRecord.BeginOrganizationName = organizationName;
+                    }
+
+                    if (dbRecord.MaintainerId == organizationId)
+                    {
+                        dbRecord.MaintainerName = organizationName;
+                    }
+                }
+
+                return Task.CompletedTask;
+            }, cancellationToken);
     }
 
     private static async Task<StreetNameCacheItem> TryGetFromCache(

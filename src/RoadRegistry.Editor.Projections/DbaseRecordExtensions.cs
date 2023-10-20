@@ -8,7 +8,7 @@ using Microsoft.IO;
 public static class DbaseRecordExtensions
 {
     public static T FromBytes<T>(this T record, byte[] bytes, RecyclableMemoryStreamManager manager, Encoding encoding)
-        where T: DbaseRecord
+        where T : DbaseRecord
     {
         using (var input = manager.GetStream(bytes))
         using (var reader = new BinaryReader(input, encoding))

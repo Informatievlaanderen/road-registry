@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Extensions;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -80,6 +81,19 @@ public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<E
                         await RemoveRoadSegment(context, segment, token);
                         break;
                 }
+        });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            if (envelope.Message.NameChanged)
+            {
+                await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
         });
     }
 
@@ -223,5 +237,37 @@ public class RoadSegmentSurfaceAttributeRecordProjection : ConnectedProjection<E
             context.RoadSegmentSurfaceAttributes.Synchronize(currentSet, nextSet,
                 (current, next) => { current.DbaseRecord = next.DbaseRecord; });
         }
+    }
+
+    private async Task RenameOrganization(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        OrganizationId organizationId,
+        OrganizationName organizationName,
+        CancellationToken cancellationToken)
+    {
+        await context.RoadSegmentSurfaceAttributes
+            .ForEachBatchAsync(10000, dbRecords =>
+            {
+                foreach (var dbRecord in dbRecords)
+                {
+                    var dbaseRecord = new RoadSegmentSurfaceAttributeDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+                    var dataChanged = false;
+
+                    if (dbaseRecord.BEGINORG.Value == organizationId)
+                    {
+                        dbaseRecord.LBLBGNORG.Value = organizationName;
+                        dataChanged = true;
+                    }
+
+                    if (dataChanged)
+                    {
+                        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+                    }
+                }
+
+                return Task.CompletedTask;
+            }, cancellationToken);
     }
 }

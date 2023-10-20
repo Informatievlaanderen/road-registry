@@ -1,21 +1,18 @@
 namespace RoadRegistry.Editor.Projections;
 
 using BackOffice;
+using BackOffice.Core;
+using BackOffice.Extensions;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Extensions;
 using Schema;
 using Schema.RoadSegments;
 using System;
-using System.Drawing.Text;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -110,13 +107,15 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
 
         When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            //TODO-rik RenameOrganizationAccepted and ChangeOrganizationAccepted to all relevant projections: editor, product, kafka,...?
             await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
         });
 
         When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            if (envelope.Message.NameChanged)
+            {
+                await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
         });
     }
 
@@ -338,7 +337,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         CancellationToken token)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
-        
+
         if (roadSegmentRecord is not null && !roadSegmentRecord.IsRemoved)
         {
             var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
@@ -365,41 +364,40 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         return record;
     }
 
-    private async Task RenameOrganization(RecyclableMemoryStreamManager manager,
+    private async Task RenameOrganization(
+        RecyclableMemoryStreamManager manager,
         Encoding encoding,
         EditorContext context,
         OrganizationId organizationId,
         OrganizationName organizationName,
         CancellationToken cancellationToken)
     {
-        const int pageSize = 5000;
-        var pageIndex = 0;
-
-        while (true)
-        {
-            var roadSegments = await context.RoadSegments
-                .OrderBy(x => x.Id)
-                .Skip(pageIndex * pageSize)
-                .Take(pageSize)
-                .ToListAsync(cancellationToken);
-            if (!roadSegments.Any())
+        await context.RoadSegments
+            .ForEachBatchAsync(5000, dbRecords =>
             {
-                break;
-            }
-
-            foreach (var roadSegment in roadSegments)
-            {
-                var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegment.DbaseRecord, manager, encoding);
-
-                if (dbaseRecord.BEHEER.Value == organizationId)
+                foreach (var dbRecord in dbRecords)
                 {
-                    dbaseRecord.LBLBEHEER.Value = organizationName;
+                    var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+                    var dataChanged = false;
+
+                    if (dbaseRecord.BEHEER.Value == organizationId)
+                    {
+                        dbaseRecord.LBLBEHEER.Value = organizationName;
+                        dataChanged = true;
+                    }
+                    if (dbaseRecord.BEGINORG.Value == organizationId)
+                    {
+                        dbaseRecord.LBLBGNORG.Value = organizationName;
+                        dataChanged = true;
+                    }
+
+                    if (dataChanged)
+                    {
+                        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+                    }
                 }
-                if (dbaseRecord.BEGINORG.Value == organizationId)
-                {
-                    dbaseRecord.LBLBGNORG.Value = organizationName;
-                }
-            }
-        }
+
+                return Task.CompletedTask;
+            }, cancellationToken);
     }
 }
