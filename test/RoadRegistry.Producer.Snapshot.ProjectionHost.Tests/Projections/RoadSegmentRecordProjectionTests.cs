@@ -655,25 +655,19 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
     {
         _fixture.Freeze<RoadSegmentId>();
         _fixture.Freeze<OrganizationId>();
-
-        var importedOrganization = new ImportedOrganization
-        {
-            Code = _fixture.Create<OrganizationId>(),
-            Name = _fixture.Create<OrganizationName>()
-        };
-        var renameOrganizationAccepted = new RenameOrganizationAccepted
-        {
-            Code = importedOrganization.Code,
-            Name = _fixture.CreateWhichIsDifferentThan(new OrganizationName(importedOrganization.Name))
-        };
-
+        
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
-            .WithAcceptedChanges(_fixture.CreateMany<RoadSegmentAdded>());
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+        
+        var renameOrganizationAccepted = new RenameOrganizationAccepted
+        {
+            Code = _fixture.Create<OrganizationId>(),
+            Name = _fixture.CreateWhichIsDifferentThan(new OrganizationName(acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded.MaintenanceAuthority.Name))
+        };
 
         var messages = new object[]
         {
-            importedOrganization,
             acceptedRoadSegmentAdded,
             renameOrganizationAccepted
         };
@@ -687,7 +681,7 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
 
         var kafkaProducer = BuildKafkaProducer();
         var streetNameCache = BuildStreetNameCache();
-        //TODO-rik fix test, dan check in PR of alle nieuwe projecties een test hebben
+        
         await new RoadSegmentRecordProjection(kafkaProducer.Object, streetNameCache.Object)
             .Scenario()
             .Given(messages)

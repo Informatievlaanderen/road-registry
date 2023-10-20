@@ -486,25 +486,19 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
     {
         _fixture.Freeze<RoadSegmentId>();
         _fixture.Freeze<OrganizationId>();
-
-        var importedOrganization = new ImportedOrganization
-        {
-            Code = _fixture.Create<OrganizationId>(),
-            Name = _fixture.Create<OrganizationName>()
-        };
-        var renameOrganizationAccepted = new RenameOrganizationAccepted
-        {
-            Code = importedOrganization.Code,
-            Name = _fixture.CreateWhichIsDifferentThan(new OrganizationName(importedOrganization.Name))
-        };
-
+        
         var acceptedRoadSegmentAdded = _fixture
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
 
+        var renameOrganizationAccepted = new RenameOrganizationAccepted
+        {
+            Code = _fixture.Create<OrganizationId>(),
+            Name = _fixture.CreateWhichIsDifferentThan(new OrganizationName(acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded.MaintenanceAuthority.Name))
+        };
+
         var messages = new object[]
         {
-            importedOrganization,
             acceptedRoadSegmentAdded,
             renameOrganizationAccepted
         };
