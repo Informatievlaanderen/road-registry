@@ -34,9 +34,16 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         problems += ReadShapeFile(features, archive, featureType, fileName);
         problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
 
-        if (featureType == FeatureType.Change)
+        switch (featureType)
         {
-            AddToContext(features, featureType, context);
+            case FeatureType.Change:
+                AddToContext(features, featureType, context);
+                break;
+            case FeatureType.Integration:
+                problems = ZipArchiveProblems.None + problems
+                    .GetMissingOrInvalidFileProblems()
+                    .Where(x => !x.File.Equals(featureType.GetProjectionFileName(fileName), StringComparison.InvariantCultureIgnoreCase));
+                break;
         }
 
         return (features, problems);

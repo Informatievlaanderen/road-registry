@@ -115,10 +115,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             IZipArchiveValidator validator = request.UseZipArchiveFeatureCompareTranslator ? _beforeFeatureCompareValidator : _afterFeatureCompareValidator;
             var problems = entity.ValidateArchiveUsing(archive, validator);
 
-            if (problems.HasError())
-            {
-                throw new ZipArchiveValidationException(problems);
-            }
+            problems.ThrowIfError();
 
             var readerContext = new ZipArchiveFeatureReaderContext(ZipArchiveMetadata.Empty);
             var features = _transactionZoneFeatureReader.Read(archive, FeatureType.Change, ExtractFileName.Transactiezones, readerContext).Item1;

@@ -1,7 +1,5 @@
 namespace RoadRegistry.Tests;
 
-using System.IO.Compression;
-using System.Text;
 using AutoFixture;
 using BackOffice;
 using Be.Vlaanderen.Basisregisters.Shaperon;
@@ -13,8 +11,11 @@ using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
 using RoadRegistry.BackOffice.Messages;
+using System.IO.Compression;
+using System.Text;
 using LineString = NetTopologySuite.Geometries.LineString;
 using Point = NetTopologySuite.Geometries.Point;
+using Polygon = NetTopologySuite.Geometries.Polygon;
 
 public static class Customizations
 {
@@ -93,6 +94,11 @@ public static class Customizations
         return CreateRoadSegmentShapeFile(fixture, Array.Empty<PolyLineMShapeContent>());
     }
 
+    public static MemoryStream CreateEmptyTransactionZoneShapeFile(this IFixture fixture)
+    {
+        return CreateTransactionZoneShapeFile(fixture, Array.Empty<PolygonShapeContent>());
+    }
+
     public static IEnumerable<T> CreateManyWhichIsDifferentThan<T>(this IFixture fixture, IEnumerable<T> illegalValue)
     {
         var value = fixture.CreateMany<T>();
@@ -132,6 +138,11 @@ public static class Customizations
     public static MemoryStream CreateRoadSegmentShapeFile(this IFixture fixture, ICollection<PolyLineMShapeContent> shapes)
     {
         return CreateShapeFile(fixture, ShapeType.PolyLineM, shapes, shape => shape.Shape.NumberOfPoints > 0 ? BoundingBox3D.FromGeometry(shape.Shape) : BoundingBox3D.Empty);
+    }
+
+    public static MemoryStream CreateTransactionZoneShapeFile(this IFixture fixture, ICollection<PolygonShapeContent> shapes)
+    {
+        return CreateShapeFile(fixture, ShapeType.Polygon, shapes, shape => shape.Shape.NumberOfPoints > 0 ? BoundingBox3D.FromGeometry(shape.Shape) : BoundingBox3D.Empty);
     }
 
     public static MemoryStream CreateRoadSegmentShapeFileWithOneRecord(this IFixture fixture, PolyLineMShapeContent polyLineMShapeContent = null)
@@ -222,7 +233,8 @@ public static class Customizations
         MemoryStream roadSegmentDbaseIntegrationStream = null,
         MemoryStream roadNodeShapeIntegrationStream = null,
         MemoryStream roadNodeDbaseIntegrationStream = null,
-        MemoryStream archiveStream = null
+        MemoryStream archiveStream = null,
+        ICollection<string> excludeFileNames = null
     )
     {
         var files = new Dictionary<string, Stream>
@@ -263,7 +275,12 @@ public static class Customizations
         };
 
         var random = new Random(fixture.Create<int>());
-        var writeOrder = files.Keys.OrderBy(_ => random.Next()).ToArray();
+        var fileNames = files.Keys.ToList();
+        if (excludeFileNames is not null && excludeFileNames.Any())
+        {
+            fileNames = fileNames.Where(fileName => !excludeFileNames.Contains(fileName, StringComparer.InvariantCultureIgnoreCase)).ToList();
+        }
+        var writeOrder = fileNames.OrderBy(_ => random.Next()).ToArray();
 
         archiveStream ??= new MemoryStream();
 
@@ -1091,6 +1108,12 @@ public static class Customizations
     {
         return new PolyLineMShapeContent(
             Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryMultiLineString(lineString)
+        );
+    }
+    public static PolygonShapeContent ToShapeContent(this Polygon polygon)
+    {
+        return new PolygonShapeContent(
+            Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator.FromGeometryPolygon(polygon)
         );
     }
 }

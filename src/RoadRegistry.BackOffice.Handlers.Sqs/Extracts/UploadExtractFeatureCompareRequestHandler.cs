@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Extracts;
 
-using System.IO.Compression;
 using Abstractions.Configuration;
 using Abstractions.Exceptions;
 using Abstractions.Extracts;
@@ -16,6 +15,7 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.Abstractions;
 using SqlStreamStore.Streams;
+using System.IO.Compression;
 using UploadExtractFeatureCompareRequest = Abstractions.Extracts.UploadExtractFeatureCompareRequest;
 
 /// <summary>
@@ -109,10 +109,7 @@ public class UploadExtractFeatureCompareRequestHandler : EndpointRequestHandler<
         using (var archive = new ZipArchive(readStream, ZipArchiveMode.Read, false))
         {
             var problems = await upload.ValidateArchiveUsing(archive, _validator, _emailClient, cancellationToken);
-            if (problems.HasError())
-            {
-                throw new ZipArchiveValidationException(problems);
-            }
+            problems.ThrowIfError();
 
             readStream.Position = 0;
             await _client.CreateBlobAsync(

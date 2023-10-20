@@ -1,5 +1,7 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
+using Extracts;
+using NetTopologySuite.Geometries;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
@@ -7,8 +9,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Extracts;
-using NetTopologySuite.Geometries;
 using Uploads;
 using AddRoadSegment = Uploads.AddRoadSegment;
 using ModifyRoadSegment = Uploads.ModifyRoadSegment;
@@ -132,6 +132,8 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
     {
         var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndLeveringAndIntegrationFeatures(context.Archive, FileName, context);
 
+        problems.ThrowIfError();
+
         context.RoadSegmentRecords.AddRange(integrationFeatures.Select(feature =>
             new RoadSegmentFeatureCompareRecord(FeatureType.Integration, feature.RecordNumber, feature.Attributes, feature.Attributes.Id, RecordType.Identical)
         ));
@@ -196,7 +198,16 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
         AddRemovedRecordsToContext(extractFeatures, context, cancellationToken);
 
-        foreach (var record in context.RoadSegmentRecords.Where(x => x.FeatureType != FeatureType.Integration))
+        problems.ThrowIfError();
+
+        changes = TranslateProcessedRecords(changes, context.RoadSegmentRecords, cancellationToken);
+
+        return (changes, problems);
+    }
+
+    private TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<RoadSegmentFeatureCompareRecord> records, CancellationToken cancellationToken)
+    {
+        foreach (var record in records.Where(x => x.FeatureType != FeatureType.Integration))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -268,7 +279,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
             }
         }
 
-        return (changes, problems);
+        return changes;
     }
 
     private void MigrateRoadNodeIds(RoadSegmentFeatureCompareRecord record, ZipArchiveEntryFeatureCompareTranslateContext context)

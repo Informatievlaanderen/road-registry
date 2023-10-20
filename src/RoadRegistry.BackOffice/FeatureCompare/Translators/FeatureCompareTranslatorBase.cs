@@ -1,12 +1,12 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Extracts;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Extracts;
 using Uploads;
 
 public static class Feature
@@ -43,8 +43,11 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
     {
         var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
         var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);
-        var (integrationFeatures, _) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
-        return (extractFeatures, changeFeatures, integrationFeatures, extractFeaturesProblems + changeFeaturesProblems);
+        var (integrationFeatures, integrationFeaturesProblems) = ReadFeatures(archive, FeatureType.Integration, fileName, context);
+
+        var problems = extractFeaturesProblems + changeFeaturesProblems + integrationFeaturesProblems;
+
+        return (extractFeatures, changeFeatures, integrationFeatures, problems);
     }
     
     public abstract Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken);
