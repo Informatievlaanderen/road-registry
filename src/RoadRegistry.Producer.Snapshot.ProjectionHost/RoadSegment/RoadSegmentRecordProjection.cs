@@ -127,7 +127,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
 
             When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
             {
-                if (envelope.Message.NameChanged)
+                if (envelope.Message.NameModified)
                 {
                     await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
                 }

@@ -110,7 +110,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
 
         When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
         {
-            if (envelope.Message.NameChanged)
+            if (envelope.Message.NameModified)
             {
                 await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
             }
