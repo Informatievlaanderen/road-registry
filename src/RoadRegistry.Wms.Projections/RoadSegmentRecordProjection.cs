@@ -421,10 +421,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WmsContext>
             {
                 foreach (var dbRecord in dbRecords)
                 {
-                    if (dbRecord.MaintainerId == organizationId)
-                    {
-                        dbRecord.MaintainerName = organizationName;
-                    }
+                    dbRecord.MaintainerName = organizationName;
                 }
 
                 return Task.CompletedTask;
