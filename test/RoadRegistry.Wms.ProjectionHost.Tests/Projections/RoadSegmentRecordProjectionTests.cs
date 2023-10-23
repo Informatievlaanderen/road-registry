@@ -4,11 +4,13 @@ using AutoFixture;
 using BackOffice;
 using BackOffice.FeatureToggles;
 using BackOffice.Messages;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Framework;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;
 using Schema;
 using Syndication.Schema;
+using System.Text;
 using Wms.Projections;
 
 public class RoadSegmentRecordProjectionTests
@@ -509,7 +511,7 @@ public class RoadSegmentRecordProjectionTests
             .Create<RoadNetworkChangesAccepted>()
             .WithAcceptedChanges(_fixture.Create<RoadSegmentRemoved>());
 
-        var messages = new[]
+        var messages = new object[]
         {
             acceptedRoadSegmentAdded,
             acceptedRoadSegmentRemoved
@@ -566,6 +568,86 @@ public class RoadSegmentRecordProjectionTests
                 StreetNameCachePosition = -1L,
 
                 IsRemoved = true
+            };
+        });
+
+        return new RoadSegmentRecordProjection(new StreetNameCacheStub(), new UseRoadSegmentSoftDeleteFeatureToggle(true))
+            .Scenario()
+            .Given(messages)
+            .Expect(expectedRecords);
+    }
+
+    [Fact]
+    public Task When_organization_is_renamed()
+    {
+        _fixture.Freeze<RoadSegmentId>();
+        _fixture.Freeze<OrganizationId>();
+        
+        var acceptedRoadSegmentAdded = _fixture
+            .Create<RoadNetworkChangesAccepted>()
+            .WithAcceptedChanges(_fixture.Create<RoadSegmentAdded>());
+
+        var renameOrganizationAccepted = new RenameOrganizationAccepted
+        {
+            Code = _fixture.Create<OrganizationId>(),
+            Name = _fixture.CreateWhichIsDifferentThan(new OrganizationName(acceptedRoadSegmentAdded.Changes[0].RoadSegmentAdded.MaintenanceAuthority.Name))
+        };
+
+        var messages = new object[]
+        {
+            acceptedRoadSegmentAdded,
+            renameOrganizationAccepted
+        };
+
+        var expectedRecords = Array.ConvertAll(acceptedRoadSegmentAdded.Changes, change =>
+        {
+            var segment = change.RoadSegmentAdded;
+            return (object)new RoadSegmentRecord
+            {
+                Id = segment.Id,
+                BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+                BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
+                BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+                BeginApplication = null,
+
+                MaintainerId = segment.MaintenanceAuthority.Code,
+                MaintainerName = renameOrganizationAccepted.Name,
+
+                MethodId = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Identifier,
+                MethodDutchName = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Name,
+
+                CategoryId = RoadSegmentCategory.Parse(segment.Category).Translation.Identifier,
+                CategoryDutchName = RoadSegmentCategory.Parse(segment.Category).Translation.Name,
+
+                Geometry2D = WmsGeometryTranslator.Translate2D(segment.Geometry),
+                GeometryVersion = segment.GeometryVersion,
+
+                MorphologyId = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Identifier,
+                MorphologyDutchName = RoadSegmentMorphology.Parse(segment.Morphology).Translation.Name,
+
+                StatusId = RoadSegmentStatus.Parse(segment.Status).Translation.Identifier,
+                StatusDutchName = RoadSegmentStatus.Parse(segment.Status).Translation.Name,
+
+                AccessRestrictionId = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier,
+                AccessRestrictionDutchName = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name,
+
+                RecordingDate = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When),
+
+                TransactionId = acceptedRoadSegmentAdded.TransactionId,
+
+                LeftSideMunicipalityId = null,
+                LeftSideStreetNameId = segment.LeftSide.StreetNameId,
+                LeftSideStreetName = null,
+
+                RightSideMunicipalityId = null,
+                RightSideStreetNameId = segment.RightSide.StreetNameId,
+                RightSideStreetName = null,
+
+                RoadSegmentVersion = segment.Version,
+                BeginRoadNodeId = segment.StartNodeId,
+                EndRoadNodeId = segment.EndNodeId,
+
+                StreetNameCachePosition = -1L
             };
         });
 

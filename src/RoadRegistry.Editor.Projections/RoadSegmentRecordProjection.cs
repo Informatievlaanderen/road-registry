@@ -1,6 +1,8 @@
 namespace RoadRegistry.Editor.Projections;
 
 using BackOffice;
+using BackOffice.Core;
+using BackOffice.Extensions;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.GrAr.Common;
@@ -8,8 +10,6 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.Core;
-using RoadRegistry.BackOffice.Extensions;
 using Schema;
 using Schema.RoadSegments;
 using System;
@@ -103,6 +103,19 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                         await RemoveRoadSegment(manager, encoding, context, roadSegmentRemoved, envelope, token);
                         break;
                 }
+        });
+
+        When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+        });
+
+        When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+        {
+            if (envelope.Message.NameModified)
+            {
+                await RenameOrganization(manager, encoding, context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            }
         });
     }
 
@@ -324,7 +337,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         CancellationToken token)
     {
         var roadSegmentRecord = await context.RoadSegments.FindAsync(roadSegmentRemoved.Id, cancellationToken: token).ConfigureAwait(false);
-        
+
         if (roadSegmentRecord is not null && !roadSegmentRecord.IsRemoved)
         {
             var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
@@ -349,5 +362,37 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         record.BEGINORG.Value = envelope.Message.OrganizationId;
         record.LBLBGNORG.Value = envelope.Message.Organization;
         return record;
+    }
+
+    private async Task RenameOrganization(
+        RecyclableMemoryStreamManager manager,
+        Encoding encoding,
+        EditorContext context,
+        OrganizationId organizationId,
+        OrganizationName organizationName,
+        CancellationToken cancellationToken)
+    {
+        await context.RoadSegments
+            .ForEachBatchAsync(q => q, 5000, dbRecords =>
+            {
+                foreach (var dbRecord in dbRecords)
+                {
+                    var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(dbRecord.DbaseRecord, manager, encoding);
+                    var dataChanged = false;
+
+                    if (dbaseRecord.BEHEER.Value == organizationId)
+                    {
+                        dbaseRecord.LBLBEHEER.Value = organizationName;
+                        dataChanged = true;
+                    }
+
+                    if (dataChanged)
+                    {
+                        dbRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
+                    }
+                }
+
+                return Task.CompletedTask;
+            }, cancellationToken);
     }
 }
