@@ -1,3 +1,13 @@
+## [3.60.7](https://github.com/informatievlaanderen/road-registry/compare/v3.60.6...v3.60.7) (2023-10-23)
+
+
+### Bug Fixes
+
+* WR-868 add handlers for organization renamings to projections ([#1249](https://github.com/informatievlaanderen/road-registry/issues/1249)) ([35442f2](https://github.com/informatievlaanderen/road-registry/commit/35442f295dfedba9c8a9e314f48bcdfe3bd78dcd))
+* WR-868 remove default true for NameModified/OvoCodeModified ([#1250](https://github.com/informatievlaanderen/road-registry/issues/1250)) ([eec91cd](https://github.com/informatievlaanderen/road-registry/commit/eec91cdcad84eb46430013fe5cc8604aea38dabe))
+* WR-873 validate missing integration roadsegment files on upload + ensure transactionzone upload always has exactly 1 record ([#1248](https://github.com/informatievlaanderen/road-registry/issues/1248)) ([a3db886](https://github.com/informatievlaanderen/road-registry/commit/a3db886312fc3a44069104f4f30623fe6c06ed3f))
+* WR-875 missing descriptions in Swagger ([#1251](https://github.com/informatievlaanderen/road-registry/issues/1251)) ([9108443](https://github.com/informatievlaanderen/road-registry/commit/910844356668adb05857f8776cd6f11b6e5bd05e))
+
 ## [3.60.6](https://github.com/informatievlaanderen/road-registry/compare/v3.60.5...v3.60.6) (2023-10-19)
 
 
