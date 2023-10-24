@@ -110,7 +110,6 @@ public class Program
                 .AddSqs(x => x
                     .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
                 )
-                .AddTicketing()
             )
             .Build();
 

@@ -174,7 +174,6 @@ public class HealthCheckInitializer
 
     public HealthCheckInitializer AddHostedServicesStatus(Action<HostedServicesStatusHealthCheckOptionsBuilder> setup = null)
     {
-        //TODO-rik test bij elke host (vergeet niet featureflag aan te zetten in dev!)
         var optionsBuilder = new HostedServicesStatusHealthCheckOptionsBuilder();
         setup?.Invoke(optionsBuilder);
 
