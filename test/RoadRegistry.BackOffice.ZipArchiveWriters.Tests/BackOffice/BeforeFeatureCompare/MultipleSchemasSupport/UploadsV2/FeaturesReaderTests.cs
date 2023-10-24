@@ -146,12 +146,14 @@ public class FeaturesReaderTests
                 new AddRoadNode(
                     new RecordNumber(3),
                     new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
+                    new RoadNodeId(roadNodeDbaseRecord3.WK_OIDN.Value),
                     RoadNodeType.ByIdentifier[roadNodeDbaseRecord3.TYPE.Value]
                 ).WithGeometry(GeometryTranslator.ToPoint(roadNodeShapeContent3.Shape))
             )
             .AppendChange(
                 new AddRoadNode(
                     new RecordNumber(4),
+                    new RoadNodeId(roadNodeDbaseRecord4.WK_OIDN.Value),
                     new RoadNodeId(roadNodeDbaseRecord4.WK_OIDN.Value),
                     RoadNodeType.ByIdentifier[roadNodeDbaseRecord4.TYPE.Value]
                 ).WithGeometry(GeometryTranslator.ToPoint(roadNodeShapeContent4.Shape))

@@ -1,9 +1,11 @@
 namespace RoadRegistry.Tests.BackOffice.Uploads;
 
 using System.Diagnostics;
+using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
+using Amazon.SimpleEmailV2.Model;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -35,11 +37,11 @@ public class FeatureCompareZipArchiveTranslatorTests
         Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
     }
 
-    [Fact(Skip = "For debugging purposes, local feature compare testing")]
-    //[Fact]
+    //[Fact(Skip = "For debugging purposes, local feature compare testing")]
+    [Fact]
     public async Task RunZipArchiveFeatureCompareTranslator()
     {
-        var pathArchive = @"upload.zip";
+        var pathArchive = @"C:\Users\RikDePeuter\Downloads\5193fedd09da452b8c3b244db63e2f17\upload.zip";
 
         try
         {
@@ -51,8 +53,10 @@ public class FeatureCompareZipArchiveTranslatorTests
 
                 var sw = Stopwatch.StartNew();
                 _outputHelper.WriteLine("Started translate Before-FC");
-                await _sut.Translate(archive, CancellationToken.None);
+                var changes = await _sut.Translate(archive, CancellationToken.None);
                 _outputHelper.WriteLine($"Finished translate Before-FC at {sw.Elapsed}");
+
+                await File.WriteAllTextAsync(pathArchive + "-changes.json", changes.Describe());
             }
         }
         catch (Exception ex)
