@@ -7,20 +7,17 @@ using Point = NetTopologySuite.Geometries.Point;
 
 public class AddRoadNode : IRequestedChange
 {
-    public AddRoadNode(RoadNodeId id, RoadNodeId temporaryId,
-        RoadNodeId? originalId, RoadNodeType type, Point geometry)
+    public AddRoadNode(RoadNodeId id, RoadNodeId temporaryId, RoadNodeType type, Point geometry)
     {
         Id = id;
         TemporaryId = temporaryId;
-        OriginalId = originalId;
-        Type = type.ThrowIfNull();
-        Geometry = geometry.ThrowIfNull();
+        Type = type ?? throw new ArgumentNullException(nameof(type));
+        Geometry = geometry ?? throw new ArgumentNullException(nameof(geometry));
     }
 
     public Point Geometry { get; }
     public RoadNodeId Id { get; }
     public RoadNodeId TemporaryId { get; }
-    public RoadNodeId? OriginalId { get; }
     public RoadNodeType Type { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
@@ -32,8 +29,7 @@ public class AddRoadNode : IRequestedChange
             Id = Id,
             Version = RoadNodeVersion.Initial,
             TemporaryId = TemporaryId,
-            OriginalId = OriginalId,
-            Type = Type,
+            Type = Type.ToString(),
             Geometry = new RoadNodeGeometry
             {
                 SpatialReferenceSystemIdentifier = Geometry.SRID,
@@ -48,20 +44,19 @@ public class AddRoadNode : IRequestedChange
 
     public void TranslateTo(Messages.RejectedChange message)
     {
-        ArgumentNullException.ThrowIfNull(message);
+        if (message == null) throw new ArgumentNullException(nameof(message));
 
         message.AddRoadNode = new Messages.AddRoadNode
         {
             TemporaryId = TemporaryId,
-            OriginalId = OriginalId,
-            Type = Type,
+            Type = Type.ToString(),
             Geometry = GeometryTranslator.Translate(Geometry)
         };
     }
 
     public Problems VerifyAfter(AfterVerificationContext context)
     {
-        ArgumentNullException.ThrowIfNull(context);
+        if (context == null) throw new ArgumentNullException(nameof(context));
 
         var problems = Problems.None;
 

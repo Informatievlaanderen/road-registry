@@ -10,7 +10,7 @@ public static class AcceptedChange
         {
             string translation = change.Flatten() switch
             {
-                RoadNodeAdded m => $"Wegknoop {m.OriginalId ?? m.TemporaryId} toegevoegd met id {m.Id}.",
+                RoadNodeAdded m => $"Wegknoop {m.TemporaryId} toegevoegd met id {m.Id}.",
                 RoadNodeModified m => $"Wegknoop {m.Id} gewijzigd.",
                 RoadNodeRemoved m => $"Wegknoop {m.Id} verwijderd.",
                 RoadSegmentAdded m => $"Wegsegment {m.OriginalId ?? m.TemporaryId} toegevoegd met id {m.Id}.",

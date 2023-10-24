@@ -117,8 +117,8 @@ public class ZipArchiveShapeEntryTranslatorTests
     public void TranslateReturnsExpectedResultWhenShapeRecordTranslatorReturnsChanges()
     {
         var changes = TranslatedChanges.Empty
-            .AppendChange(new AddRoadNode(new RecordNumber(1), new RoadNodeId(1), new RoadNodeId(1), RoadNodeType.RealNode))
-            .AppendChange(new AddRoadNode(new RecordNumber(1), new RoadNodeId(1), new RoadNodeId(1), RoadNodeType.RealNode));
+            .AppendChange(new AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.RealNode))
+            .AppendChange(new AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.RealNode));
         var sut = new ZipArchiveShapeEntryTranslator(
             Encoding.UTF8,
             new FakeShapeRecordTranslator(ignored => changes));

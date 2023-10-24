@@ -113,7 +113,6 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
                         new AddRoadNode(
                             record.RecordNumber,
                             record.Id,
-                            record.Attributes.Id,
                             record.Attributes.Type
                         ).WithGeometry(record.Attributes.Geometry)
                     );

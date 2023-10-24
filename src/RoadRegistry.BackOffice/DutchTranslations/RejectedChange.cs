@@ -7,10 +7,10 @@ public static class RejectedChange
 {
     public static readonly Converter<BackOffice.Messages.RejectedChange, string> Translator = change => change.Flatten() switch
     {
-        AddRoadNode m => $"Voeg wegknoop {m.OriginalId ?? m.TemporaryId} toe.",
+        AddRoadNode m => $"Voeg wegknoop {m.TemporaryId} toe.",
         ModifyRoadNode m => $"Wijzig wegknoop {m.Id}.",
         RemoveRoadNode m => $"Verwijder wegknoop {m.Id}.",
-        AddRoadSegment m => $"Voeg wegsegment {m.OriginalId ?? m.TemporaryId} toe.",
+        AddRoadSegment m => $"Voeg wegsegment {m.TemporaryId} toe.",
         ModifyRoadSegment m => $"Wijzig wegsegment {m.Id}.",
         RemoveRoadSegment m => $"Verwijder wegsegment {m.Id}.",
         AddRoadSegmentToEuropeanRoad m => $"Voeg wegsegment {m.SegmentId} toe aan europese weg {m.Number}.",
