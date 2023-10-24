@@ -1,3 +1,10 @@
+## [3.60.8](https://github.com/informatievlaanderen/road-registry/compare/v3.60.7...v3.60.8) (2023-10-24)
+
+
+### Bug Fixes
+
+* WR-877 report original ID in activity feed when added roadnode/roadsegment is rejected ([#1255](https://github.com/informatievlaanderen/road-registry/issues/1255)) ([065ed27](https://github.com/informatievlaanderen/road-registry/commit/065ed27ca7ce86ef05c32826cdea20174c9a34c7))
+
 ## [3.60.7](https://github.com/informatievlaanderen/road-registry/compare/v3.60.6...v3.60.7) (2023-10-23)
 
 
