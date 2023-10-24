@@ -9,8 +9,8 @@ using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Editor.Schema;
 using Extensions;
+using Hosts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Newtonsoft.Json;
@@ -22,7 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Organization = Models.Organization;
 
-public class OrganizationConsumer: BackgroundService
+public class OrganizationConsumer : RoadRegistryBackgroundService
 {
     private static readonly EventMapping EventMapping =
         new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
@@ -34,7 +34,6 @@ public class OrganizationConsumer: BackgroundService
 
     private readonly ILifetimeScope _container;
     private readonly OrganizationConsumerOptions _options;
-    private readonly ILogger _logger;
     private readonly IOrganizationReader _organizationReader;
     private readonly OrganizationDbaseRecordReader _organizationRecordReader;
     private readonly IRoadNetworkCommandQueue _roadNetworkCommandQueue;
@@ -49,6 +48,7 @@ public class OrganizationConsumer: BackgroundService
         FileEncoding fileEncoding,
         IRoadNetworkCommandQueue roadNetworkCommandQueue,
         ILoggerFactory loggerFactory)
+        : base(loggerFactory.CreateLogger<OrganizationConsumer>())
     {
         _container = container.ThrowIfNull();
         _options = options.ThrowIfNull();
@@ -57,95 +57,86 @@ public class OrganizationConsumer: BackgroundService
         _roadNetworkCommandQueue = roadNetworkCommandQueue.ThrowIfNull();
 
         _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
-        _logger = loggerFactory.CreateLogger<OrganizationConsumer>();
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecutingAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Consuming organizations started...");
-        try
+        while (!cancellationToken.IsCancellationRequested)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            ILookup<OrganizationOvoCode, OrganizationId>? orgIdMapping = null;
+
+            await using var scope = _container.BeginLifetimeScope();
+            await using var context = scope.Resolve<OrganizationConsumerContext>();
+
+            var projectionState = await context.InitializeProjectionState(ProjectionStateName, cancellationToken);
+            projectionState.ErrorMessage = null;
+
+            try
             {
-                ILookup<OrganizationOvoCode, OrganizationId>? orgIdMapping = null;
+                var map = _container.Resolve<EventSourcedEntityMap>();
+                var organizationsContext = new Organizations(map, _store, SerializerSettings, EventMapping);
 
-                await using var scope = _container.BeginLifetimeScope();
-                await using var context = scope.Resolve<OrganizationConsumerContext>();
+                var processedCount = 0;
 
-                var projectionState = await context.InitializeProjectionState(ProjectionStateName, stoppingToken);
-                projectionState.ErrorMessage = null;
-
-                try
+                await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
                 {
-                    var map = _container.Resolve<EventSourcedEntityMap>();
-                    var organizationsContext = new Organizations(map, _store, SerializerSettings, EventMapping);
+                    Logger.LogInformation("Processing organization {OvoNumber}", organization.OvoNumber);
 
-                    var processedCount = 0;
-
-                    await _organizationReader.ReadAsync(projectionState.Position + 1, async organization =>
+                    if (processedCount > 0 && organization.ChangeId != projectionState.Position)
                     {
-                        _logger.LogInformation("Processing organization {OvoNumber}", organization.OvoNumber);
-
-                        if (processedCount > 0 && organization.ChangeId != projectionState.Position)
-                        {
-                            await context.SaveChangesAsync(stoppingToken);
-                        }
-
-                        if (orgIdMapping is null)
-                        {
-                            await using var editorContext = scope.Resolve<EditorContext>();
-
-                            _logger.LogInformation("Fetching all organizations...");
-                            var organizationRecords = await editorContext.Organizations.ToListAsync(stoppingToken);
-                            if (!organizationRecords.Any())
-                            {
-                                organizationRecords = editorContext.Organizations.Local.ToList();
-                            }
-
-                            orgIdMapping = organizationRecords
-                                .Select(x => _organizationRecordReader.Read(x.DbaseRecord, x.DbaseSchemaVersion))
-                                .Where(x => x.OvoCode is not null)
-                                .ToLookup(x => x.OvoCode!.Value, x => x.Code);
-                            _logger.LogInformation("{Count} organizations have an OVO-code", orgIdMapping.Count);
-                        }
-
-                        await CreateOrUpdateOrganizationWithOvoCode(organizationsContext, organization, stoppingToken);
-                        await UpdateOrganizationsWithOldOrganizationId(orgIdMapping, organization, stoppingToken);
-
-                        projectionState.Position = organization.ChangeId;
-                        processedCount++;
-
-                        _logger.LogInformation("Processed organization {OvoNumber}", organization.OvoNumber);
-                    }, stoppingToken);
-
-                    if (processedCount > 0)
-                    {
-                        await context.SaveChangesAsync(stoppingToken);
+                        await context.SaveChangesAsync(cancellationToken);
                     }
-                }
-                catch (ConfigurationErrorsException ex)
-                {
-                    _logger.LogError(ex.Message);
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogCritical(ex, "Error consuming organizations, trying again in {seconds} seconds", _options.ConsumerDelaySeconds);
-                    projectionState.ErrorMessage = ex.Message;
-                    await context.SaveChangesAsync(stoppingToken);
-                }
 
-                if (_options.ConsumerDelaySeconds == -1)
-                {
-                    break;
-                }
+                    if (orgIdMapping is null)
+                    {
+                        await using var editorContext = scope.Resolve<EditorContext>();
 
-                await Task.Delay(_options.ConsumerDelaySeconds * 1000, stoppingToken);
+                        Logger.LogInformation("Fetching all organizations...");
+                        var organizationRecords = await editorContext.Organizations.ToListAsync(cancellationToken);
+                        if (!organizationRecords.Any())
+                        {
+                            organizationRecords = editorContext.Organizations.Local.ToList();
+                        }
+
+                        orgIdMapping = organizationRecords
+                            .Select(x => _organizationRecordReader.Read(x.DbaseRecord, x.DbaseSchemaVersion))
+                            .Where(x => x.OvoCode is not null)
+                            .ToLookup(x => x.OvoCode!.Value, x => x.Code);
+                        Logger.LogInformation("{Count} organizations have an OVO-code", orgIdMapping.Count);
+                    }
+
+                    await CreateOrUpdateOrganizationWithOvoCode(organizationsContext, organization, cancellationToken);
+                    await UpdateOrganizationsWithOldOrganizationId(orgIdMapping, organization, cancellationToken);
+
+                    projectionState.Position = organization.ChangeId;
+                    processedCount++;
+
+                    Logger.LogInformation("Processed organization {OvoNumber}", organization.OvoNumber);
+                }, cancellationToken);
+
+                if (processedCount > 0)
+                {
+                    await context.SaveChangesAsync(cancellationToken);
+                }
             }
-        }
-        finally
-        {
-            _logger.LogInformation("Consuming organizations stopped.");
+            catch (ConfigurationErrorsException ex)
+            {
+                Logger.LogError(ex.Message);
+                return;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogCritical(ex, "Error consuming organizations, trying again in {seconds} seconds", _options.ConsumerDelaySeconds);
+                projectionState.ErrorMessage = ex.Message;
+                await context.SaveChangesAsync(cancellationToken);
+            }
+
+            if (_options.ConsumerDelaySeconds == -1)
+            {
+                break;
+            }
+
+            await Task.Delay(_options.ConsumerDelaySeconds * 1000, cancellationToken);
         }
     }
 
@@ -158,7 +149,7 @@ public class OrganizationConsumer: BackgroundService
         var existingOrganization = await organizationsContext.FindAsync(new OrganizationId(ovoCode), cancellationToken);
         if (existingOrganization is null)
         {
-            _logger.LogInformation("Creating new organization {OvoNumber}", organization.OvoNumber);
+            Logger.LogInformation("Creating new organization {OvoNumber}", organization.OvoNumber);
             var command = new CreateOrganization
             {
                 Code = ovoCode,
@@ -170,7 +161,7 @@ public class OrganizationConsumer: BackgroundService
         }
         else
         {
-            _logger.LogInformation("Changing organization {OvoNumber}", organization.OvoNumber);
+            Logger.LogInformation("Changing organization {OvoNumber}", organization.OvoNumber);
             var command = new ChangeOrganization
             {
                 Code = ovoCode,
@@ -190,7 +181,7 @@ public class OrganizationConsumer: BackgroundService
 
         foreach (var organizationId in orgIdMapping[ovoCode])
         {
-            _logger.LogInformation("Changing organization {OrganizationId} to map to {OvoCode}", organizationId, ovoCode);
+            Logger.LogInformation("Changing organization {OrganizationId} to map to {OvoCode}", organizationId, ovoCode);
             var command = new ChangeOrganization
             {
                 Code = organizationId,

@@ -70,6 +70,7 @@ public class Program
                 .AddHostedService<WmsContextEventProcessor>())
             .ConfigureHealthChecks(HostingPort,builder => builder
                 .AddSqlServer()
+                .AddHostedServicesStatus()
             )
             .Build();
 

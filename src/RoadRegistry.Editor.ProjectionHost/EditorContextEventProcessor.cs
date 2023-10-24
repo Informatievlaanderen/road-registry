@@ -1,20 +1,17 @@
 namespace RoadRegistry.Editor.ProjectionHost;
 
-using System;
-using System.Data;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice.Metrics;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Hosts;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Schema;
 using Schema.Extensions;
 using SqlStreamStore;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext>
 {
