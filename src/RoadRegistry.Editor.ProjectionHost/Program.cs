@@ -22,7 +22,6 @@ using Projections;
 using Schema;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 
 public class Program
 {
@@ -116,6 +115,7 @@ public class Program
         )
         .ConfigureHealthChecks(HostingPort, builder => builder
             .AddSqlServer()
+            .AddHostedServicesStatus()
             .AddS3(x => x
                 .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
             )

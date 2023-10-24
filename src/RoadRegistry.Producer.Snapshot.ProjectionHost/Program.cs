@@ -74,6 +74,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
                         .ToArray()))
                 .ConfigureHealthChecks(HostingPort, builder => builder
                     .AddSqlServer()
+                    .AddHostedServicesStatus()
                     .AddKafka()
                 )
                 .Build();

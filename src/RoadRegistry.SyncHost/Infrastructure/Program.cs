@@ -47,6 +47,7 @@ public class Program
             })
             .ConfigureHealthChecks(HostingPort,builder => builder
                 .AddSqlServer()
+                .AddHostedServicesStatus()
                 .AddKafka()
             )
             .ConfigureContainer((hostContext, builder) =>

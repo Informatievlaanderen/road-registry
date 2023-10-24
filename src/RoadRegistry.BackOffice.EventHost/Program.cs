@@ -94,6 +94,7 @@ public class Program
             })
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
+                .AddHostedServicesStatus()
                 .AddS3(x => x
                     .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
                     .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)

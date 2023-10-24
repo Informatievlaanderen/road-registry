@@ -1,22 +1,21 @@
 namespace RoadRegistry.Hosts;
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 using BackOffice.Framework;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using SqlStreamStore.Subscriptions;
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 
-public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> : IHostedService
+public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> : RoadRegistryHostedService
     where TEventProcessorPositionStore : IEventProcessorPositionStore
 {
     private const int RecordPositionThreshold = 1;
@@ -36,6 +35,7 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
         EventHandlerDispatcher dispatcher,
         Scheduler scheduler,
         ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> logger)
+        : base(logger)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
         ArgumentNullException.ThrowIfNull(positionStore);
@@ -97,23 +97,19 @@ public abstract class PositionStoreEventProcessor<TEventProcessorPositionStore> 
 
     protected ILogger<PositionStoreEventProcessor<TEventProcessorPositionStore>> Logger { get; }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    protected override async Task StartingAsync(CancellationToken cancellationToken)
     {
-        Logger.LogInformation("Starting event processor ...");
         await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
         await _messageChannel.Writer.WriteAsync(new Subscribe(), cancellationToken).ConfigureAwait(false);
-        Logger.LogInformation("Started event processor.");
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken)
+    protected override async Task StoppingAsync(CancellationToken cancellationToken)
     {
-        Logger.LogInformation("Stopping event processor ...");
         _messageChannel.Writer.Complete();
         _messagePumpCancellation.Cancel();
         await _messagePump.ConfigureAwait(false);
         _messagePumpCancellation.Dispose();
         await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
-        Logger.LogInformation("Stopped event processor.");
     }
 
     protected virtual Task BeforeDispatchEvent(Event @event, CancellationToken cancellationToken)

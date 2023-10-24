@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Amazon.Runtime;
@@ -166,6 +167,24 @@ public class HealthCheckInitializer
                 sp => new TicketingHealthCheck(optionsBuilder.With(sp.GetRequiredService<ITicketing>()).Build()),
                 default,
                 new[] { "ticketing" },
+                default));
+        }
+        return this;
+    }
+
+    public HealthCheckInitializer AddHostedServicesStatus(Action<HostedServicesStatusHealthCheckOptionsBuilder> setup = null)
+    {
+        var optionsBuilder = new HostedServicesStatusHealthCheckOptionsBuilder();
+        setup?.Invoke(optionsBuilder);
+
+        if (optionsBuilder.IsValid)
+        {
+            _builder.Add(new HealthCheckRegistration(
+                "hosted-services-status".ToLowerInvariant(),
+                sp => new HostedServicesStatusHealthCheck(optionsBuilder.With(sp.GetService<IEnumerable<IHostedService>>()
+                ).Build()),
+                default,
+                new[] { "hosts" },
                 default));
         }
         return this;
