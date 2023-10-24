@@ -27,6 +27,7 @@ public class RoadNodeChangeDbaseRecordsTranslator : IZipArchiveDbaseRecordsTrans
                             new AddRoadNode(
                                 recordNumber,
                                 new RoadNodeId(record.WEGKNOOPID.Value),
+                                new RoadNodeId(record.WEGKNOOPID.Value),
                                 RoadNodeType.ByIdentifier[record.TYPE.Value]
                             )
                         );
