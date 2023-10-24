@@ -130,11 +130,14 @@ internal class RequestedChangeTranslator
     private AddRoadNode Translate(Messages.AddRoadNode command)
     {
         var permanent = _nextRoadNodeId();
-        var temporary = new RoadNodeId(command.TemporaryId);
+        var temporaryId = new RoadNodeId(command.TemporaryId);
+        var originalId = RoadNodeId.FromValue(command.OriginalId);
+
         return new AddRoadNode
         (
             permanent,
-            temporary,
+            temporaryId,
+            originalId,
             RoadNodeType.Parse(command.Type),
             GeometryTranslator.Translate(command.Geometry)
         );

@@ -121,6 +121,7 @@ public class RoadNodeChangeDbaseRecordsTranslatorTests : IDisposable
                             new AddRoadNode(
                                 new RecordNumber(Array.IndexOf(records, current) + 1),
                                 new RoadNodeId(current.WEGKNOOPID.Value),
+                                new RoadNodeId(current.WEGKNOOPID.Value),
                                 RoadNodeType.ByIdentifier[current.TYPE.Value]
                             )
                         );
