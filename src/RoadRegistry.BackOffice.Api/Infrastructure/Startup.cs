@@ -255,7 +255,7 @@ public class Startup
                                 //    .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
                                 //)
                                 .AddTicketing()
-                                //.AddAcmIdm()
+                                .AddAcmIdm()
                                 ;
                         }
                     },
@@ -369,7 +369,7 @@ public class Startup
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .Configure<ResponseOptions>(_configuration)
-            .AddAcmIdmAuth(oAuth2IntrospectionOptions, openIdConnectOptions)
+            .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             ;
 
