@@ -1,3 +1,16 @@
+# [3.61.0](https://github.com/informatievlaanderen/road-registry/compare/v3.60.8...v3.61.0) (2023-10-25)
+
+
+### Bug Fixes
+
+* move CustomSchemaIds out of AddRoadRegistrySchemaFilters ([#1258](https://github.com/informatievlaanderen/road-registry/issues/1258)) ([3afd97e](https://github.com/informatievlaanderen/road-registry/commit/3afd97e20d01ab258097a909a09cc482d6864bf4))
+* set AdminHost to AlwaysRunning for Development ([#1257](https://github.com/informatievlaanderen/road-registry/issues/1257)) ([eb512a5](https://github.com/informatievlaanderen/road-registry/commit/eb512a5aae72ae4d1380c101dc07d28d7c6010cb))
+
+
+### Features
+
+* WR-845 add healthcheck for hosted services their running status ([#1256](https://github.com/informatievlaanderen/road-registry/issues/1256)) ([fcd90d7](https://github.com/informatievlaanderen/road-registry/commit/fcd90d7e3b3c154fcb8c6437685dd30327e770a5))
+
 ## [3.60.8](https://github.com/informatievlaanderen/road-registry/compare/v3.60.7...v3.60.8) (2023-10-24)
 
 
