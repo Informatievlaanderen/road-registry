@@ -20,7 +20,7 @@ namespace RoadRegistry.Hosts.Infrastructure.Extensions
                     MinimumLogEventLevel = LogEventLevel.Error
                 };
                 slackSinkConfiguation.Bind(sinkOptions);
-                if (sinkOptions.WebHookUrl is not null)
+                if (!string.IsNullOrEmpty(sinkOptions.WebHookUrl))
                 {
                     loggerConfiguration.WriteTo.Slack(sinkOptions);
                 }
