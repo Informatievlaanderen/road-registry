@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
 using System;
+using System.Configuration;
 using Amazon;
 using BackOffice;
 using BackOffice.FeatureToggles;
@@ -67,13 +68,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDistributedStreamStoreLockOptions(this IServiceCollection services)
     {
         services.AddSingleton<DistributedStreamStoreLockOptionsValidator>();
-
+        
         return services.AddSingleton(sp =>
         {
             var configuration = sp.GetRequiredService<IConfiguration>();
-
-            var config = new DistributedStreamStoreLockConfiguration();
-            configuration.GetSection(DistributedStreamStoreLockConfiguration.SectionName).Bind(config);
+            var config = configuration.GetOptions<DistributedStreamStoreLockConfiguration>();
 
             return new DistributedStreamStoreLockOptions
             {
@@ -86,7 +85,8 @@ public static class ServiceCollectionExtensions
                 TerminateApplicationOnFailedRenew = config.TerminateApplicationOnFailedRenew,
                 ThrowOnFailedAcquire = config.ThrowOnFailedAcquire,
                 TerminateApplicationOnFailedAcquire = config.TerminateApplicationOnFailedAcquire,
-                Enabled = config.Enabled
+                Enabled = config.Enabled,
+                AcquireLockRetryDelaySeconds = config.AcquireLockRetryDelaySeconds
             };
         });
     }

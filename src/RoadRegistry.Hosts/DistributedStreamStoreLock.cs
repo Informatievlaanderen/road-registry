@@ -3,6 +3,7 @@ namespace RoadRegistry.Hosts;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using BackOffice;
 using BackOffice.Framework;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
 using Microsoft.Extensions.Logging;
@@ -51,9 +52,14 @@ public class DistributedStreamStoreLock : DistributedLock<IStreamStore>
     }
 }
 
-public class DistributedStreamStoreLockConfiguration : DistributedLockConfiguration
+public class DistributedStreamStoreLockConfiguration : DistributedLockConfiguration, IHasConfigurationKey
 {
-    public new const string SectionName = "DistributedStreamStoreLock";
+    public int AcquireLockRetryDelaySeconds { get; set; }
+
+    public string GetConfigurationKey()
+    {
+        return "DistributedStreamStoreLock";
+    }
 }
 
 public class DistributedStreamStoreLockOptions : DistributedLockOptions

@@ -14,7 +14,7 @@ public class CreateRoadSegmentOutlineSqsRequestHandler : SqsHandler<CreateRoadSe
 
     protected override string WithAggregateId(CreateRoadSegmentOutlineSqsRequest request)
     {
-        return Guid.NewGuid().ToString();
+        return RoadNetwork.Identifier.ToString();
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, CreateRoadSegmentOutlineSqsRequest sqsRequest)
