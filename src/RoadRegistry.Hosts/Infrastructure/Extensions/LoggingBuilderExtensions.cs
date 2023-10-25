@@ -57,6 +57,9 @@ public static class EventSourceLoggerFactoryExtensions
             .Filter.ByExcluding(
                 Matching.WithProperty<string>("SourceContext", value =>
                     "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware".Equals(value, StringComparison.OrdinalIgnoreCase)))
+            .Filter.ByExcluding(
+                Matching.WithProperty<string>("SourceContext", value =>
+                    "Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac.DataDogModule".Equals(value, StringComparison.OrdinalIgnoreCase)))
             ;
     }
 }

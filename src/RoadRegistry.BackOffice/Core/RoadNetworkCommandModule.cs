@@ -228,7 +228,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         if (organization != null)
         {
             organization.Change(
-                command.Body.Name is not null ? new OrganizationName(command.Body.Name) : null,
+                command.Body.Name is not null ? OrganizationName.WithoutExcessLength(command.Body.Name) : null,
                 OrganizationOvoCode.FromValue(command.Body.OvoCode)
             );
         }
