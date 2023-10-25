@@ -1,3 +1,10 @@
+## [3.61.1](https://github.com/informatievlaanderen/road-registry/compare/v3.61.0...v3.61.1) (2023-10-25)
+
+
+### Bug Fixes
+
+* lambda config binding of AcquireLockRetryDelaySeconds + change lambda AggregateIds ([#1259](https://github.com/informatievlaanderen/road-registry/issues/1259)) ([f4b7cef](https://github.com/informatievlaanderen/road-registry/commit/f4b7cefc2646d7eeb89f0094edbefe400205488b))
+
 # [3.61.0](https://github.com/informatievlaanderen/road-registry/compare/v3.60.8...v3.61.0) (2023-10-25)
 
 
