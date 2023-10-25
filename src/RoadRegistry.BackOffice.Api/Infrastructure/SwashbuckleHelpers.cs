@@ -2,6 +2,8 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
 {
     using System;
     using System.Linq;
+    using System.Reflection;
+    using Attributes;
 
     public static class SwashbuckleHelpers
     {
@@ -17,6 +19,11 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure
                 .Aggregate((previous, current) => previous + current);
 
             return prefix + modelType.Name.Split('`').First();
+        }
+
+        public static string GetCustomSchemaId(Type modelType)
+        {
+            return modelType.GetCustomAttributes<CustomSwaggerSchemaIdAttribute>().SingleOrDefault()?.SchemaId;
         }
     }
 }

@@ -226,6 +226,7 @@ public class Startup
                         AfterSwaggerGen = options =>
                         {
                             options.AddRoadRegistrySchemaFilters();
+                            options.CustomSchemaIds(t => SwashbuckleHelpers.GetCustomSchemaId(t) ?? SwashbuckleHelpers.DefaultSchemaIdSelector(t));
                         }
                     }
                 },
