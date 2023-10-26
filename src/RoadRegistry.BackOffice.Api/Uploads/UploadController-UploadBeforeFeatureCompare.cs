@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.Uploads;
 
-using System.Linq;
 using Abstractions.Uploads;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.BlobStore;
@@ -13,7 +12,6 @@ using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Threading;
 using System.Threading.Tasks;
-using FeatureToggle;
 
 public partial class UploadController
 {

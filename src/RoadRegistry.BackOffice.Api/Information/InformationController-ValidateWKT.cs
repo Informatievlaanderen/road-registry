@@ -1,14 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.Information;
 
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Information;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Infrastructure.Authentication;
-using Infrastructure.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class InformationController
 {

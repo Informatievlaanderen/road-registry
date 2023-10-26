@@ -29,7 +29,6 @@ nuget AWSSDK.SQS 3.7.102.2
 nuget AWSSDK.Lambda 3.7.109.6
 nuget Confluent.Kafka 1.8.2
 nuget CompareNETObjects 4.79.0
-nuget CsvHelper 29.0.0
 nuget Docker.DotNet 3.125.14
 nuget DotSpatial.Projections 4.0.656
 nuget FeatureToggle.Common 4.0.2
@@ -74,7 +73,7 @@ nuget System.Diagnostics.DiagnosticSource 7.0.0
 nuget System.Diagnostics.EventLog 7.0.0
 nuget System.Drawing.Common 6.0.0
 nuget System.Formats.Asn1 6.0.0
-nuget System.IO.Pipelines 6.0.0
+nuget System.IO.Pipelines 6.0.3
 nuget System.IdentityModel.Tokens.Jwt 6.24.0
 nuget System.Memory.Data 6.0.0
 nuget System.Runtime.Caching 6.0.0
@@ -115,9 +114,11 @@ nuget Be.Vlaanderen.Basisregisters.CommandHandling.SqlStreamStore 8.0.0
 nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.AspNetCore 5.0.3
 nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac 5.0.3
 nuget Be.Vlaanderen.Basisregisters.DataDog.Tracing.SqlStreamStore 5.0.3
+nuget Be.Vlaanderen.Basisregisters.DockerUtilities 1.0.1
 nuget Be.Vlaanderen.Basisregisters.EventHandling 4.2.3
 nuget Be.Vlaanderen.Basisregisters.EventHandling.Autofac 4.2.3
 nuget Be.Vlaanderen.Basisregisters.GrAr.Contracts 19.1.0
+nuget Be.Vlaanderen.Basisregisters.GrAr.Import 19.1.0
 nuget Be.Vlaanderen.Basisregisters.GrAr.Legacy 19.1.0
 nuget Be.Vlaanderen.Basisregisters.GrAr.Provenance 19.1.0
 nuget Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple 4.9.1
@@ -143,7 +144,9 @@ nuget Be.Vlaanderen.Basisregisters.TicketingService.Proxy.HttpProxy 1.16.2
 // MICROSOFT STUFF
 nuget Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore 6.0.10
 nuget Microsoft.AspNetCore.JsonPatch 6.0.10
+nuget Microsoft.AspNetCore.TestHost 6.0.10
 nuget Microsoft.AspNetCore.Mvc.NewtonsoftJson 6.0.10
+nuget Microsoft.AspNetCore.Mvc.Testing 6.0.10
 nuget Microsoft.Data.SqlClient 5.1.1
 nuget Microsoft.EntityFrameworkCore 6.0.16
 nuget Microsoft.EntityFrameworkCore.Abstractions 6.0.16
