@@ -1,3 +1,10 @@
+## [3.61.2](https://github.com/informatievlaanderen/road-registry/compare/v3.61.1...v3.61.2) (2023-10-26)
+
+
+### Bug Fixes
+
+* remove acmidm healthcheck + add pipeline failure notification ([#1261](https://github.com/informatievlaanderen/road-registry/issues/1261)) ([e69018c](https://github.com/informatievlaanderen/road-registry/commit/e69018cbd35b7e3af22824367a2cab3afbbf0f4d))
+
 ## [3.61.1](https://github.com/informatievlaanderen/road-registry/compare/v3.61.0...v3.61.1) (2023-10-25)
 
 
