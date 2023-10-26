@@ -100,7 +100,7 @@ jobs:
         dotnet build --nologo --no-restore --configuration Debug RoadRegistry.sln
 
     # - name: Build BackOffice UI
-    #   uses: ./.github/actions/build-image-nodejs.yml
+    #   uses: ./.github/actions/build-image-nodejs
     #   if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.set-release-version.outputs.version != 'none') }}
     #   with:
     #     registry: road-registry
