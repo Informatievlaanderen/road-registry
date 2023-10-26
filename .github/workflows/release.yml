@@ -929,7 +929,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.23.0
       with:
         channel-id: '#team-wegenregister-dev'
-        slack-message: Deployment of road-registry ${{ needs.release.outputs.version }} to test has finished.
+        slack-message: ":white_check_mark: Deployment of road-registry ${{ needs.release.outputs.version }} to test has finished."
       env:
         SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
         SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1136,7 +1136,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: '#team-wegenregister-dev'
-          slack-message: ":thumbsdown: Release of road-registry ${{ needs.release.outputs.version }} has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          slack-message: ":x: Release of road-registry ${{ needs.release.outputs.version }} has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
@@ -1152,7 +1152,7 @@ jobs:
         uses: slackapi/slack-github-action@v1.23.0
         with:
           channel-id: '#team-wegenregister-dev'
-          slack-message: ":thumbsdown: Deployment of road-registry ${{ needs.release.outputs.version }} to test has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          slack-message: ":x: Deployment of road-registry ${{ needs.release.outputs.version }} to test has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
