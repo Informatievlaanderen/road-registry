@@ -226,7 +226,8 @@ public class Startup
                         AfterSwaggerGen = options =>
                         {
                             options.AddRoadRegistrySchemaFilters();
-                            options.CustomSchemaIds(t => SwashbuckleHelpers.GetCustomSchemaId(t) ?? SwashbuckleHelpers.DefaultSchemaIdSelector(t));
+                            options.CustomSchemaIds(t => SwashbuckleHelpers.GetCustomSchemaId(t)
+                                                         ?? SwashbuckleHelpers.PublicApiDefaultSchemaIdSelector(t));
                         }
                     }
                 },
@@ -256,7 +257,6 @@ public class Startup
                                 //    .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
                                 //)
                                 .AddTicketing()
-                                //.AddAcmIdm()
                                 ;
                         }
                     },
@@ -370,7 +370,7 @@ public class Startup
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .Configure<ResponseOptions>(_configuration)
-            .AddAcmIdmAuth(oAuth2IntrospectionOptions, openIdConnectOptions)
+            .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             ;
 

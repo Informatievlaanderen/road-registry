@@ -27,21 +27,6 @@ public class HealthCheckInitializer
         _hostEnvironment = hostEnvironment;
     }
 
-    public HealthCheckInitializer AddAcmIdm()
-    {
-        var optionsBuilder = new AcmIdmHealthCheckOptionsBuilder();
-        if (optionsBuilder.IsValid)
-        {
-            _builder.Add(new HealthCheckRegistration(
-                "auth-acm-idm".ToLowerInvariant(),
-                sp => new AcmIdmHealthCheck(optionsBuilder.Build()),
-                default,
-                new[] { "auth", "acm", "idm" },
-                default));
-        }
-        return this;
-    }
-
     public HealthCheckInitializer AddLambda(Action<LambdaHealthCheckOptionsBuilder> setup)
     {
         var optionsBuilder = new LambdaHealthCheckOptionsBuilder();
