@@ -257,7 +257,6 @@ public class Startup
                                 //    .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
                                 //)
                                 .AddTicketing()
-                                .AddAcmIdm()
                                 ;
                         }
                     },

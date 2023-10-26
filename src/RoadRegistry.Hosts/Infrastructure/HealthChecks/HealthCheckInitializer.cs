@@ -26,41 +26,7 @@ public class HealthCheckInitializer
         _configuration = configuration;
         _hostEnvironment = hostEnvironment;
     }
-
-    public HealthCheckInitializer AddAcmIdm()
-    {
-        var optionsBuilder = new AcmIdmHealthCheckOptionsBuilder();
-        if (optionsBuilder.IsValid)
-        {
-            _builder.Add(new HealthCheckRegistration(
-                "auth-acm-idm".ToLowerInvariant(),
-                sp => new AcmIdmHealthCheck(optionsBuilder.Build()),
-                default,
-                new[] { "auth", "acm", "idm" },
-                default));
-        }
-        return this;
-    }
-
-    public HealthCheckInitializer AddLambda(Action<LambdaHealthCheckOptionsBuilder> setup)
-    {
-        var optionsBuilder = new LambdaHealthCheckOptionsBuilder();
-        setup?.Invoke(optionsBuilder);
-
-        if (optionsBuilder.IsValid)
-        {
-            var options = optionsBuilder.Build();
-
-            _builder.Add(new HealthCheckRegistration(
-                $"lambda-healthcheck".ToLowerInvariant(),
-                sp => new LambdaHealthCheck(options),
-                default,
-                new[] { "aws", "lamda" },
-                default));
-        }
-        return this;
-    }
-
+    
     public HealthCheckInitializer AddS3(Action<S3HealthCheckOptionsBuilder> setup)
     {
         var optionsBuilder = new S3HealthCheckOptionsBuilder(_configuration);

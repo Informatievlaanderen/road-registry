@@ -1124,3 +1124,35 @@ jobs:
           IMAGE: ${{ matrix.image }}
           SEMVER: ${{ needs.release.outputs.version }}
           WORKSPACE: ${{ github.workspace }}
+
+  release_notify_failure:
+    if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() }}
+    name: Notify release failed
+    runs-on: ubuntu-latest
+    needs: [ release ]
+    steps:
+      - name: Notify release failed
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: '#team-wegenregister-dev'
+          slack-message: ":thumbsdown: Release of road-registry ${{ needs.release.outputs.version }} has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+
+  deployment_test_notify_failure:
+    if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() }}
+    name: Notify deployment failed
+    runs-on: ubuntu-latest
+    needs: [ deploy_to_test, release ]
+    steps:
+      - name: Notify deployment failed
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        with:
+          channel-id: '#team-wegenregister-dev'
+          slack-message: ":thumbsdown: Deployment of road-registry ${{ needs.release.outputs.version }} to test has failed. View run at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
