@@ -1,3 +1,10 @@
+## [3.61.5](https://github.com/informatievlaanderen/road-registry/compare/v3.61.4...v3.61.5) (2023-10-26)
+
+
+### Bug Fixes
+
+* fail release when release is skipped ([#1268](https://github.com/informatievlaanderen/road-registry/issues/1268)) ([b155e3b](https://github.com/informatievlaanderen/road-registry/commit/b155e3b046daa6123f5b1bdaeecf05cba29522e5))
+
 ## [3.61.4](https://github.com/informatievlaanderen/road-registry/compare/v3.61.3...v3.61.4) (2023-10-26)
 
 
