@@ -1,3 +1,10 @@
+## [3.61.4](https://github.com/informatievlaanderen/road-registry/compare/v3.61.3...v3.61.4) (2023-10-26)
+
+
+### Bug Fixes
+
+* pipeline notification when release is skipped ([#1267](https://github.com/informatievlaanderen/road-registry/issues/1267)) ([4804c44](https://github.com/informatievlaanderen/road-registry/commit/4804c4447d45843eeb900c8ebf964de6be4622fb))
+
 ## [3.61.3](https://github.com/informatievlaanderen/road-registry/compare/v3.61.2...v3.61.3) (2023-10-26)
 
 
