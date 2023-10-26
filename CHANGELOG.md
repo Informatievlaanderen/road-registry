@@ -1,3 +1,14 @@
+## [3.61.3](https://github.com/informatievlaanderen/road-registry/compare/v3.61.2...v3.61.3) (2023-10-26)
+
+
+### Bug Fixes
+
+* move reusable workflow steps to actions folder ([#1263](https://github.com/informatievlaanderen/road-registry/issues/1263)) ([ed7cbf9](https://github.com/informatievlaanderen/road-registry/commit/ed7cbf93b13fd3421d7db97626acfb2944e12193))
+* move reusable workflow steps to actions folder ([#1264](https://github.com/informatievlaanderen/road-registry/issues/1264)) ([ad01cc3](https://github.com/informatievlaanderen/road-registry/commit/ad01cc3d63e7a9855dbccd419d78e21ef7bf63b8))
+* pipeline failure notifications ([#1262](https://github.com/informatievlaanderen/road-registry/issues/1262)) ([951fc03](https://github.com/informatievlaanderen/road-registry/commit/951fc0343f71a81e5aa0f1d68036ba9ce667cd8e))
+* pipeline move actions back to workflows ([#1266](https://github.com/informatievlaanderen/road-registry/issues/1266)) ([d9e32e4](https://github.com/informatievlaanderen/road-registry/commit/d9e32e44664323677d40cd7d48fac9c2996cf6d9))
+* release pipeline add notification when release is skipped ([#1265](https://github.com/informatievlaanderen/road-registry/issues/1265)) ([b42669e](https://github.com/informatievlaanderen/road-registry/commit/b42669e3f6b086044a8d79a94afdc28c2d1621ef))
+
 ## [3.61.2](https://github.com/informatievlaanderen/road-registry/compare/v3.61.1...v3.61.2) (2023-10-26)
 
 
