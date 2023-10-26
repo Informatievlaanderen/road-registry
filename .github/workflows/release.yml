@@ -1140,6 +1140,8 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+      - name: Fail release
+        run: exit 1
 
   release_notify_skipped:
     if: ${{ (github.repository_owner == 'Informatievlaanderen') && (needs.release.outputs.version == 'none') }}
@@ -1156,6 +1158,8 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.VBR_SLACK_BOT_TOKEN }}
           SLACK_CHANNEL: ${{ secrets.VBR_NOTIFIER_CHANNEL_NAME }}
+      - name: Fail release
+        run: exit 1
 
   release_notify_failure:
     if: ${{ github.repository_owner == 'Informatievlaanderen' && failure() }}
