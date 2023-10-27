@@ -1,3 +1,15 @@
+# [3.62.0](https://github.com/informatievlaanderen/road-registry/compare/v3.61.5...v3.62.0) (2023-10-27)
+
+
+### Bug Fixes
+
+* WR-752 do not update BEGINORG/LBLBEGINORG on modification/removal ([#1270](https://github.com/informatievlaanderen/road-registry/issues/1270)) ([83c3c16](https://github.com/informatievlaanderen/road-registry/commit/83c3c162b827318f77b318bc7487842d2baf954f))
+
+
+### Features
+
+* WR-844 add integration tests for ACM/IDM ([#1269](https://github.com/informatievlaanderen/road-registry/issues/1269)) ([43d4017](https://github.com/informatievlaanderen/road-registry/commit/43d4017d6b7262155ffec69fbd0b44b374fa640a))
+
 ## [3.61.5](https://github.com/informatievlaanderen/road-registry/compare/v3.61.4...v3.61.5) (2023-10-26)
 
 
