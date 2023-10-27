@@ -218,10 +218,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
         dbaseRecord.LBLBEHEER.Value = roadSegmentModified.MaintenanceAuthority.Name.NullIfEmpty() ?? Organization.PredefinedTranslations.Unknown.Name;
         dbaseRecord.METHODE.Value = geometryDrawMethodTranslation.Identifier;
         dbaseRecord.LBLMETHOD.Value = geometryDrawMethodTranslation.Name;
-        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
+        // dbaseRecord.OPNDATUM.Value; //remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
-        dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization;
+        // dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId; //remains unchanged upon modification
+        // dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization; //remains unchanged upon modification
         dbaseRecord.TGBEP.Value = accessRestrictionTranslation.Identifier;
         dbaseRecord.LBLTGBEP.Value = accessRestrictionTranslation.Name;
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
@@ -285,10 +285,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
 
         // dbaseRecord.WS_OIDN.Value remains unchanged upon modification (it's the key)
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentAttributesModified.Id, roadSegmentAttributesModified.Version);
-        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
+        // dbaseRecord.OPNDATUM.Value; //remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
-        dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization;
+        // dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId; //remains unchanged upon modification
+        // dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization; //remains unchanged upon modification
 
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
     }
@@ -321,10 +321,10 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
 
         // dbaseRecord.WS_OIDN.Value remains unchanged upon modification (it's the key)
         dbaseRecord.WS_UIDN.Value = new UIDN(segment.Id, segment.Version);
-        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
+        // dbaseRecord.OPNDATUM.Value; //remains unchanged upon modification
         dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId;
-        dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization;
+        // dbaseRecord.BEGINORG.Value = envelope.Message.OrganizationId; //remains unchanged upon modification
+        // dbaseRecord.LBLBGNORG.Value = envelope.Message.Organization; //remains unchanged upon modification
 
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
     }
@@ -337,7 +337,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<ProductContext>
             context.RoadSegments.Remove(roadSegmentRecord);
         }
     }
-
+    
     private async Task RenameOrganization(
         RecyclableMemoryStreamManager manager,
         Encoding encoding,
