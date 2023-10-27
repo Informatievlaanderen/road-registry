@@ -98,7 +98,7 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
         var command = new Command(new UploadRoadNetworkChangesArchive
         {
-            ArchiveId = archiveId.ToString(),
+            ArchiveId = archiveId,
             UseZipArchiveFeatureCompareTranslator = request.UseZipArchiveFeatureCompareTranslator
         });
         await Queue(command, cancellationToken);

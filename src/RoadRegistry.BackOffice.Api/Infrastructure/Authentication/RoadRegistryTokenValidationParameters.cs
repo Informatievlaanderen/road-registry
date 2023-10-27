@@ -17,7 +17,7 @@ namespace RoadRegistry.BackOffice.Api.Infrastructure.Authentication
         public RoadRegistryTokenValidationParameters(OpenIdConnectOptions auth)
         {
             var secretKey = auth.JwtSharedSigningKey;
-            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+            var signingKey = secretKey is not null ? new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) : null;
 
             // The signing key must match!
             ValidateIssuerSigningKey = true;
