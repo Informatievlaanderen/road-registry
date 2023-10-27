@@ -22,6 +22,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
     {
         private string _clientId;
         private string _clientSecret;
+        private string _createTokenEndpoint;
         private readonly IDictionary<string, AccessToken> _accessTokens = new Dictionary<string, AccessToken>();
 
         public TestServer TestServer { get; private set; }
@@ -38,7 +39,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
                 () => new HttpClient(),
                 new TokenClientOptions
                 {
-                    Address = "https://authenticatie-ti.vlaanderen.be/op/v1/token",
+                    Address = _createTokenEndpoint,
                     ClientId = _clientId,
                     ClientSecret = _clientSecret,
                     Parameters = new Parameters(new[] { new KeyValuePair<string, string>("scope", requiredScopes) })
@@ -62,6 +63,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests
 
             _clientId = configuration.GetRequiredValue<string>("ClientId");
             _clientSecret = configuration.GetRequiredValue<string>("ClientSecret");
+            _createTokenEndpoint = configuration.GetRequiredValue<string>("CreateTokenEndpoint");
 
             using var _ = DockerComposer.Compose("sqlserver.yml", "road-integration-tests");
             await WaitForSqlServerToBecomeAvailable();

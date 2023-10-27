@@ -142,8 +142,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
         public async Task ReturnsForbidden(HttpMethod method, string endpoint, string[] requiredScopes)
         {
             var client = _fixture.TestServer.CreateClient();
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken());
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken());
 
             var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
             
