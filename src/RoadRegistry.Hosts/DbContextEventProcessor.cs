@@ -284,6 +284,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                 {
                                     logger.LogInformation("{EventProcessor} Processing {MessageType} at {Position}",
                                         GetType().Name, process.Message.Type, process.Message.Position);
+                                    sw.Restart();
 
                                     var envelope = envelopeFactory.Create(process.Message);
                                     var handlers = resolver(envelope);
@@ -303,8 +304,7 @@ public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedSe
                                             process.Message.Position,
                                             _messagePumpCancellation.Token).ConfigureAwait(false);
                                         await UpdateEventProcessorMetricsAsync(processContext, process.Message.Position, process.Message.Position, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
-                                        sw.Restart();
-
+                                        
                                         processContext.ChangeTracker.DetectChanges();
                                         await processContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                     }
