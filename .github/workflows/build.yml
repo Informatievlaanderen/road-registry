@@ -77,7 +77,12 @@ jobs:
         path: ./.sonar/scanner
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
-        
+
+    - name: Install DotCover
+      shell: bash
+      run: |
+        dotnet tool install --global JetBrains.dotCover.GlobalTool
+
     - name: Install SonarCloud scanner
       if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
       shell: bash
@@ -92,7 +97,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.VBR_SONAR_TOKEN }}
       shell: bash
       run: |
-        ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.login="${{ secrets.VBR_SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" > /dev/null 2>&1
+        ./.sonar/scanner/dotnet-sonarscanner begin /k:"Informatievlaanderen_road-registry" /o:"informatievlaanderen" /d:sonar.login="${{ secrets.VBR_SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html > /dev/null 2>&1
 
     - name: Build
       shell: bash
