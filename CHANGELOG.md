@@ -1,3 +1,11 @@
+## [3.62.1](https://github.com/informatievlaanderen/road-registry/compare/v3.62.0...v3.62.1) (2023-10-27)
+
+
+### Bug Fixes
+
+* release failure notification ([#1272](https://github.com/informatievlaanderen/road-registry/issues/1272)) ([87b46ee](https://github.com/informatievlaanderen/road-registry/commit/87b46eef9966780c3fd8951f83b0c96fa03db623))
+* WR-754 restart timer before processing record ([#1271](https://github.com/informatievlaanderen/road-registry/issues/1271)) ([903e87a](https://github.com/informatievlaanderen/road-registry/commit/903e87acf09d196128c36e84bc298015209c62c5))
+
 # [3.62.0](https://github.com/informatievlaanderen/road-registry/compare/v3.61.5...v3.62.0) (2023-10-27)
 
 
