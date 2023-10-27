@@ -1,5 +1,6 @@
 namespace RoadRegistry.Wms.ProjectionHost.Tests.Projections.Framework;
 
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
 using Newtonsoft.Json;
@@ -36,11 +37,8 @@ public class TestDataHelper
 
     public ExpectedWegsegmentRecord ExpectedRoadSegment(int number)
     {
-        using (var streamReader = new StreamReader($"Projections/TestData/expected.{number}.csv"))
-        using (var csv = new CsvTestDataReader(streamReader))
-        {
-            return csv.GetRecords<ExpectedWegsegmentRecord>().Single();
-        }
+        var records = JsonConvert.DeserializeObject<ExpectedWegsegmentRecord[]>(File.ReadAllText($"Projections/TestData/expected.{number}.json"));
+        return records.Single();
     }
 
     private static byte[] StringToByteArray(string hex)

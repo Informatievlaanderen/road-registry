@@ -89,15 +89,17 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
         {
             var apiExplorer = _fixture.TestServer.Services.GetRequiredService<IApiDescriptionGroupCollectionProvider>();
 
-            foreach (var apiDescription in apiExplorer.ApiDescriptionGroups.Items.SelectMany(apiDescriptionGroup => apiDescriptionGroup.Items))
+            var apiDescriptions = apiExplorer.ApiDescriptionGroups.Items.SelectMany(apiDescriptionGroup => apiDescriptionGroup.Items).ToList();
+            Assert.NotEmpty(apiDescriptions);
+
+            foreach (var apiDescription in apiDescriptions)
             {
                 var testEndpoint = Endpoints.SingleOrDefault(x => x.Method.ToString().Equals(apiDescription.HttpMethod, StringComparison.InvariantCultureIgnoreCase)
                                                                   && x.Uri.Equals(apiDescription.RelativePath, StringComparison.InvariantCultureIgnoreCase));
                 if (testEndpoint is null)
                 {
-                    _testOutputHelper.WriteLine($"Endpoint '{apiDescription.HttpMethod} {apiDescription.RelativePath}' has no matching test");
+                    Assert.Fail($"Endpoint '{apiDescription.HttpMethod} {apiDescription.RelativePath}' has no matching test");
                 }
-                Assert.NotNull(testEndpoint);
             }
         }
 
