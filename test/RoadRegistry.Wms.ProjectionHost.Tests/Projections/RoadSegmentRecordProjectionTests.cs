@@ -277,8 +277,8 @@ public class RoadSegmentRecordProjectionTests
             return (object)new RoadSegmentRecord
             {
                 Id = segment.Id,
-                BeginOrganizationId = acceptedRoadSegmentAttributesModified.OrganizationId,
-                BeginOrganizationName = acceptedRoadSegmentAttributesModified.Organization,
+                BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+                BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
                 BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAttributesModified.When),
                 BeginApplication = null,
 
@@ -350,8 +350,8 @@ public class RoadSegmentRecordProjectionTests
             return (object)new RoadSegmentRecord
             {
                 Id = segment.Id,
-                BeginOrganizationId = acceptedRoadSegmentGeometryModified.OrganizationId,
-                BeginOrganizationName = acceptedRoadSegmentGeometryModified.Organization,
+                BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+                BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
                 BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentGeometryModified.When),
                 BeginApplication = null,
 
@@ -421,8 +421,8 @@ public class RoadSegmentRecordProjectionTests
             return (object)new RoadSegmentRecord
             {
                 Id = segment.Id,
-                BeginOrganizationId = acceptedRoadSegmentModified.OrganizationId,
-                BeginOrganizationName = acceptedRoadSegmentModified.Organization,
+                BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+                BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
                 BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When),
                 BeginApplication = null,
 
@@ -523,8 +523,8 @@ public class RoadSegmentRecordProjectionTests
             return (object)new RoadSegmentRecord
             {
                 Id = segment.Id,
-                BeginOrganizationId = acceptedRoadSegmentRemoved.OrganizationId,
-                BeginOrganizationName = acceptedRoadSegmentRemoved.Organization,
+                BeginOrganizationId = acceptedRoadSegmentAdded.OrganizationId,
+                BeginOrganizationName = acceptedRoadSegmentAdded.Organization,
                 BeginTime = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentRemoved.When),
                 BeginApplication = null,
 

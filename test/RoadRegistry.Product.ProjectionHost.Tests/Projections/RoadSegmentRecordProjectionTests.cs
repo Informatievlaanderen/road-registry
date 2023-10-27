@@ -168,8 +168,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLMETHOD = { Value = RoadSegmentGeometryDrawMethod.Parse(segmentAdded.GeometryDrawMethod).Translation.Name },
                     OPNDATUM = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When) },
                     BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAttributesModified.When) },
-                    BEGINORG = { Value = acceptedRoadSegmentAttributesModified.OrganizationId },
-                    LBLBGNORG = { Value = acceptedRoadSegmentAttributesModified.Organization },
+                    BEGINORG = { Value = acceptedRoadSegmentAdded.OrganizationId },
+                    LBLBGNORG = { Value = acceptedRoadSegmentAdded.Organization },
                     TGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier },
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
@@ -232,8 +232,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLMETHOD = { Value = RoadSegmentGeometryDrawMethod.Parse(segmentAdded.GeometryDrawMethod).Translation.Name },
                     OPNDATUM = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When) },
                     BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAttributesModified.When) },
-                    BEGINORG = { Value = acceptedRoadSegmentAttributesModified.OrganizationId },
-                    LBLBGNORG = { Value = acceptedRoadSegmentAttributesModified.Organization },
+                    BEGINORG = { Value = acceptedRoadSegmentAdded.OrganizationId },
+                    LBLBGNORG = { Value = acceptedRoadSegmentAdded.Organization },
                     TGBEP = { Value = RoadSegmentAccessRestriction.Parse(segmentAdded.AccessRestriction).Translation.Identifier },
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segmentAdded.AccessRestriction).Translation.Name }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)
@@ -294,8 +294,8 @@ public class RoadSegmentRecordProjectionTests : IClassFixture<ProjectionTestServ
                     LBLMETHOD = { Value = RoadSegmentGeometryDrawMethod.Parse(segment.GeometryDrawMethod).Translation.Name },
                     OPNDATUM = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentAdded.When) },
                     BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(acceptedRoadSegmentModified.When) },
-                    BEGINORG = { Value = acceptedRoadSegmentModified.OrganizationId },
-                    LBLBGNORG = { Value = acceptedRoadSegmentModified.Organization },
+                    BEGINORG = { Value = acceptedRoadSegmentAdded.OrganizationId },
+                    LBLBGNORG = { Value = acceptedRoadSegmentAdded.Organization },
                     TGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Identifier },
                     LBLTGBEP = { Value = RoadSegmentAccessRestriction.Parse(segment.AccessRestriction).Translation.Name }
                 }.ToBytes(_services.MemoryStreamManager, Encoding.UTF8)

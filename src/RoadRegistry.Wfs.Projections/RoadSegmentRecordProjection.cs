@@ -147,7 +147,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         var leftSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.LeftSide.StreetNameId, token);
         var rightSideStreetNameRecord = await TryGetFromCache(streetNameCache, roadSegmentAdded.RightSide.StreetNameId, token);
 
-        await context.RoadSegments.AddAsync(UpdateBeginFields(new RoadSegmentRecord
+        await context.RoadSegments.AddAsync(UpdateBeginTime(new RoadSegmentRecord
         {
             Id = roadSegmentAdded.Id,
             MaintainerId = roadSegmentAdded.MaintenanceAuthority.Code,
@@ -213,7 +213,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         roadSegmentRecord.BeginRoadNodeId = roadSegmentModified.StartNodeId;
         roadSegmentRecord.EndRoadNodeId = roadSegmentModified.EndNodeId;
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
-        UpdateBeginFields(roadSegmentRecord, envelope);
+        UpdateBeginTime(roadSegmentRecord, envelope);
     }
 
     private static async Task ModifyRoadSegmentAttributes(IStreetNameCache streetNameCache,
@@ -262,7 +262,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
             roadSegmentRecord.MaintainerName = roadSegmentAttributesModified.MaintenanceAuthority.Name;
         }
 
-        UpdateBeginFields(roadSegmentRecord, envelope);
+        UpdateBeginTime(roadSegmentRecord, envelope);
 
         var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
@@ -282,7 +282,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
 
         roadSegmentRecord.Geometry2D = WfsGeometryTranslator.Translate2D(segment.Geometry);
 
-        UpdateBeginFields(roadSegmentRecord, envelope);
+        UpdateBeginTime(roadSegmentRecord, envelope);
 
         var streetNameCachePosition = await streetNameCache.GetMaxPositionAsync(token);
         roadSegmentRecord.StreetNameCachePosition = streetNameCachePosition;
@@ -301,7 +301,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
             {
                 if (!roadSegmentRecord.IsRemoved)
                 {
-                    UpdateBeginFields(roadSegmentRecord, envelope);
+                    UpdateBeginTime(roadSegmentRecord, envelope);
                     roadSegmentRecord.IsRemoved = true;
                 }
             }
@@ -339,7 +339,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<WfsContext>
         return streetNameId.HasValue ? await streetNameCache.GetAsync(streetNameId.Value, token).ConfigureAwait(false) : null;
     }
 
-    private static RoadSegmentRecord UpdateBeginFields(RoadSegmentRecord record, Envelope<RoadNetworkChangesAccepted> envelope)
+    private static RoadSegmentRecord UpdateBeginTime(RoadSegmentRecord record, Envelope<RoadNetworkChangesAccepted> envelope)
     {
         record.BeginTime = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
         return record;

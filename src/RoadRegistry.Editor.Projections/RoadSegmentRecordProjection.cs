@@ -144,8 +144,11 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                 ShapeRecordContentLength = polyLineMShapeContent.ContentLength.ToInt32(),
                 BoundingBox = RoadSegmentBoundingBox.From(polyLineMShapeContent.Shape),
                 Geometry = BackOffice.GeometryTranslator.Translate(segment.Geometry),
-                DbaseRecord = UpdateBeginFields(new RoadSegmentDbaseRecord
+                DbaseRecord = new RoadSegmentDbaseRecord
                 {
+                    BEGINTIJD = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
+                    BEGINORG = { Value = envelope.Message.OrganizationId },
+                    LBLBGNORG = { Value = envelope.Message.Organization },
                     WS_OIDN = { Value = segment.Id },
                     WS_UIDN = { Value = $"{segment.Id}_{segment.Version}" },
                     WS_GIDN = { Value = $"{segment.Id}_{segment.GeometryVersion}" },
@@ -168,7 +171,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
                     OPNDATUM = { Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When) },
                     TGBEP = { Value = accessRestrictionTranslation.Identifier },
                     LBLTGBEP = { Value = accessRestrictionTranslation.Name }
-                }, envelope).ToBytes(manager, encoding)
+                }.ToBytes(manager, encoding)
             }, segment),
             token);
     }
@@ -223,10 +226,9 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         dbaseRecord.LBLBEHEER.Value = roadSegmentModified.MaintenanceAuthority.Name.NullIfEmpty() ?? Organization.PredefinedTranslations.Unknown.Name;
         dbaseRecord.METHODE.Value = geometryDrawMethodTranslation.Identifier;
         dbaseRecord.LBLMETHOD.Value = geometryDrawMethodTranslation.Name;
-        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
         dbaseRecord.TGBEP.Value = accessRestrictionTranslation.Identifier;
         dbaseRecord.LBLTGBEP.Value = accessRestrictionTranslation.Name;
-        UpdateBeginFields(dbaseRecord, envelope);
+        dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
 
@@ -287,8 +289,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         }
 
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentAttributesModified.Id, roadSegmentAttributesModified.Version);
-        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
-        UpdateBeginFields(dbaseRecord, envelope);
+        dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
 
@@ -321,8 +322,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         dbaseRecord.WS_GIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.GeometryVersion);
 
         dbaseRecord.WS_UIDN.Value = new UIDN(roadSegmentGeometryModified.Id, roadSegmentGeometryModified.Version);
-        // dbaseRecord.OPNDATUM.Value remains unchanged upon modification
-        UpdateBeginFields(dbaseRecord, envelope);
+        dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
         roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
 
@@ -341,8 +341,8 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         if (roadSegmentRecord is not null && !roadSegmentRecord.IsRemoved)
         {
             var dbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegmentRecord.DbaseRecord, manager, encoding);
+            dbaseRecord.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
 
-            UpdateBeginFields(dbaseRecord, envelope);
             roadSegmentRecord.DbaseRecord = dbaseRecord.ToBytes(manager, encoding);
             roadSegmentRecord.IsRemoved = true;
 
@@ -355,15 +355,7 @@ public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>
         entity.LastEventHash = message.GetHash();
         return entity;
     }
-
-    private static RoadSegmentDbaseRecord UpdateBeginFields(RoadSegmentDbaseRecord record, Envelope<RoadNetworkChangesAccepted> envelope)
-    {
-        record.BEGINTIJD.Value = LocalDateTimeTranslator.TranslateFromWhen(envelope.Message.When);
-        record.BEGINORG.Value = envelope.Message.OrganizationId;
-        record.LBLBGNORG.Value = envelope.Message.Organization;
-        return record;
-    }
-
+    
     private async Task RenameOrganization(
         RecyclableMemoryStreamManager manager,
         Encoding encoding,

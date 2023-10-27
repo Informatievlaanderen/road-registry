@@ -13,3 +13,4 @@ xunit.runner.visualstudio
 Amazon.Lambda.Serialization.SystemTextJson
 Amazon.Lambda.SQSEvents
 Amazon.Lambda.TestUtilities
+System.IO.Pipelines
