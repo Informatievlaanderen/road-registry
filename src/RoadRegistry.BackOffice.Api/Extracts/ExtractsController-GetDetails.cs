@@ -12,6 +12,7 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Messages;
 
 public partial class ExtractsController
 {
@@ -26,14 +27,17 @@ public partial class ExtractsController
     {
         try
         {
-            if (!DownloadId.CanParse(downloadId)) throw new DownloadExtractNotFoundException();
+            if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
+            {
+                throw new InvalidGuidValidationException("DownloadId");
+            }
 
-            var request = new ExtractDetailsRequest(DownloadId.Parse(downloadId), options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
+            var request = new ExtractDetailsRequest(parsedDownloadId, options.DefaultRetryAfter, options.RetryAfterAverageWindowInDays);
             var response = await _mediator.Send(request, cancellationToken);
 
             return Ok(new ExtractDetailsResponseBody
             {
-                DownloadId = response.DownloadId.ToString(),
+                DownloadId = response.DownloadId,
                 Description = response.Description,
                 Contour = response.Contour.ToGeoJson(),
                 ExtractRequestId = response.ExtractRequestId,
@@ -58,7 +62,7 @@ public partial class ExtractsController
     }
 }
 
-internal record ExtractDetailsResponseBody()
+internal record ExtractDetailsResponseBody
 {
     public string DownloadId { get; set; }
     public string Description { get; set; }

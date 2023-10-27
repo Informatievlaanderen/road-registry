@@ -26,7 +26,7 @@ public partial class ExtractsController
         {
             if (!DownloadId.TryParse(downloadId, out var parsedDownloadId))
             {
-                throw new DownloadExtractNotFoundException();
+                throw new InvalidGuidValidationException("DownloadId");
             }
 
             if (!Enum.TryParse<RoadNetworkExtractCloseReason>(requestBody.Reason, true, out var reason))
