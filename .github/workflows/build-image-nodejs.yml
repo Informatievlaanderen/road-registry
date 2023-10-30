@@ -55,7 +55,7 @@ jobs:
         shell: bash
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3.5.1
+        uses: actions/setup-node@v4
 
       - name: Node version
         shell: bash
