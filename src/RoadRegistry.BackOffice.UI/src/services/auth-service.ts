@@ -122,7 +122,7 @@ export const AuthService = {
     user.state = userToken;
   },
   userHasAnyContext(contexts: string[]): boolean {
-    if (!contexts || contexts.length === 0 || this.getApiKey()) {
+    if (!contexts || contexts.length === 0) {
       return true;
     }
 

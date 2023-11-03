@@ -6,8 +6,7 @@ import { DownloadExtractRoutes } from "./modules/download-extract";
 import { DownloadProductRoutes } from "./modules/download-product";
 import { UploadRoutes } from "./modules/uploads";
 import { TransactionZonesRoutes } from "./modules/transaction-zones";
-import { AuthRoutes, AuthService, isAuthenticated, user } from "./auth";
-import { has } from "lodash";
+import { AuthRoutes, AuthService, isAuthenticated } from "./auth";
 
 Vue.use(Router);
 
