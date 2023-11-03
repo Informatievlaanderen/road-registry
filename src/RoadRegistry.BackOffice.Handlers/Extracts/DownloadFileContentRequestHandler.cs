@@ -42,7 +42,7 @@ public class DownloadFileContentRequestHandler : EndpointRetryableRequestHandler
             throw new InvalidGuidValidationException(nameof(request.DownloadId));
         }
 
-        var record = await _context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
+        var record = await Context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
 
         if (record is null || record is not { Available: true })
         {

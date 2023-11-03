@@ -23,7 +23,7 @@ public class ExtractDetailsRequestHandler : EndpointRetryableRequestHandler<Extr
 
     public override async Task<ExtractDetailsResponse> HandleAsync(ExtractDetailsRequest request, CancellationToken cancellationToken)
     {
-        var record = await _context.ExtractRequests.FindAsync(new object[] { request.DownloadId.ToGuid() }, cancellationToken);
+        var record = await Context.ExtractRequests.FindAsync(new object[] { request.DownloadId.ToGuid() }, cancellationToken);
 
         if (record is null)
         {
