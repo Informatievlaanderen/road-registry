@@ -1,3 +1,10 @@
+## [3.62.2](https://github.com/informatievlaanderen/road-registry/compare/v3.62.1...v3.62.2) (2023-11-03)
+
+
+### Bug Fixes
+
+* WR-881 UI hide actions when user does not have rights ([#1279](https://github.com/informatievlaanderen/road-registry/issues/1279)) ([f2023c6](https://github.com/informatievlaanderen/road-registry/commit/f2023c6bd3bce26ba2e7555c257e120f3cdb4fde))
+
 ## [3.62.1](https://github.com/informatievlaanderen/road-registry/compare/v3.62.0...v3.62.1) (2023-10-27)
 
 
