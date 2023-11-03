@@ -19,7 +19,7 @@
       <div class="vl-form-col--12-12">
         <vl-action-group>
           <vl-button v-if="isLoginInProgress" mod-loader mod-disabled>Aanmelden</vl-button>
-          <vl-button v-else v-on:click="login">Aanmelden</vl-button>
+          <vl-button v-else v-on:click="loginApiKey">Aanmelden</vl-button>
           <vl-button v-if="useAcmIdm" @click="loginAcmIdm">Aanmelden met ACM/IDM</vl-button>
         </vl-action-group>
       </div>
@@ -62,10 +62,10 @@ export default Vue.extend({
     },
   },
   methods: {
-    async login() {
+    async loginApiKey() {
       this.isLoginInProgress = true;
       try {
-        let isLoggedIn = await AuthService.login(this.apiKey, this.$route.query.redirect?.toString());
+        let isLoggedIn = await AuthService.loginApiKey(this.apiKey, this.$route.query.redirect?.toString());
         if (!isLoggedIn) {
           this.loginFailed = true;
         }

@@ -18,4 +18,9 @@ public sealed record RoadRegistryClaim(string Role)
         var role = claim.Value.Replace(ClaimValuePrefix, string.Empty).Split(':').First();
         return new RoadRegistryClaim(role);
     }
+
+    public static string ConvertRoleToClaimValue(string role)
+    {
+        return $"{ClaimValuePrefix}{role}";
+    }
 }

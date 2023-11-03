@@ -6,58 +6,73 @@ import { DownloadExtractRoutes } from "./modules/download-extract";
 import { DownloadProductRoutes } from "./modules/download-product";
 import { UploadRoutes } from "./modules/uploads";
 import { TransactionZonesRoutes } from "./modules/transaction-zones";
-import { AuthRoutes, AuthService, isAuthenticated } from "./auth";
+import { AuthRoutes, AuthService, isAuthenticated, user } from "./auth";
+import { has } from "lodash";
 
 Vue.use(Router);
 
 const routes: RouteConfig[] = [
-    {
-        path: "/",
-        redirect: { name: "activiteit" }
-    },
-    ...AuthRoutes,
-    ...ActivityRoutes,
-    ...InformationRoutes,
-    ...DownloadExtractRoutes,
-    ...DownloadProductRoutes,
-    ...UploadRoutes,
-    ...TransactionZonesRoutes
+  {
+    path: "/",
+    redirect: { name: "activiteit" },
+  },
+  ...AuthRoutes,
+  ...ActivityRoutes,
+  ...InformationRoutes,
+  ...DownloadExtractRoutes,
+  ...DownloadProductRoutes,
+  ...UploadRoutes,
+  ...TransactionZonesRoutes,
 ];
 
 function ensureRouteMetaValue(route: Route, predicate: (meta: any) => boolean) {
-    return route.matched.some(m => predicate(m.meta));
+  return route.matched.some((m) => predicate(m.meta));
 }
 
 routes.push({
-    path: "*",
-    redirect: "/",
+  path: "*",
+  redirect: "/",
 });
 
 export const router = new Router({
-    mode: "history",
-    base: process.env.BASE_URL,
-    scrollBehavior(to, from, savedPosition) {
-        if (savedPosition) {
-            return savedPosition;
-        } else {
-            return { x: 0, y: 0 };
-        }
-    },
-    routes,
-});
-router.beforeEach((to, from, next) => {
-    if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (!isAuthenticated.state) {
-            next({
-                name: 'login',
-                query: { redirect: to.fullPath }
-            })
-        } else {
-            next()
-        }
+  mode: "history",
+  base: process.env.BASE_URL,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
     } else {
-        next()
+      return { x: 0, y: 0 };
     }
-})
+  },
+  routes,
+});
+
+const userHasAccessToRoute = (to: Route): boolean => {
+  let routeWithAuth = to.matched.find((record) => record.meta.requiresAuth);
+  if (!routeWithAuth) {
+    return true;
+  }
+
+  if (!isAuthenticated.state) {
+    return false;
+  }
+
+  if (routeWithAuth.meta.requiresContexts?.length > 0) {
+    return AuthService.userHasAnyContext(routeWithAuth.meta.requiresContexts);
+  }
+
+  return true;
+};
+
+router.beforeEach((to, from, next) => {
+  if (userHasAccessToRoute(to)) {
+    next();
+  } else {
+    next({
+      name: "login",
+      query: { redirect: to.fullPath },
+    });
+  }
+});
 
 export default router;
