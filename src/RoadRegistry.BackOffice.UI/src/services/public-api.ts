@@ -142,21 +142,17 @@ export const PublicApi = {
       const response = await apiClient.get(path);
       return response.data;
     },
-    userIsAuthenticated: async (): Promise<boolean> => {
+    getAuthenticatedUser: async (): Promise<RoadRegistry.UserInfo> => {
       if (useBackOfficeApi) {
-        return BackOfficeApi.Security.userIsAuthenticated();
+        return BackOfficeApi.Security.getAuthenticatedUser();
       }
 
       const apiClient = new AxiosHttpApiClient({
         noRedirectOnUnauthorized: true,
       });
       const path = `${apiEndpoint}/v1/wegen/security/user`;
-      try {
-        await apiClient.get<void>(path);
-        return true;
-      } catch (err) {
-        return false;
-      }
+      const response = await apiClient.get<RoadRegistry.UserInfo>(path);
+      return response.data;
     },
   },
   Municipalities: {

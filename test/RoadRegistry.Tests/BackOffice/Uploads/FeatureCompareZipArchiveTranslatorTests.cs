@@ -5,9 +5,11 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.FeatureToggles;
@@ -51,14 +53,38 @@ public class FeatureCompareZipArchiveTranslatorTests
 
                 var sw = Stopwatch.StartNew();
                 _outputHelper.WriteLine("Started translate Before-FC");
-                await _sut.Translate(archive, CancellationToken.None);
+                var translatedChanges = await _sut.Translate(archive, CancellationToken.None);
                 _outputHelper.WriteLine($"Finished translate Before-FC at {sw.Elapsed}");
+
+                await ValidateTranslatedChanges(translatedChanges);
             }
         }
         catch (Exception ex)
         {
             throw;
         }
+    }
+
+    private async Task ValidateTranslatedChanges(TranslatedChanges translatedChanges)
+    {
+        var requestedChanges = new List<RequestedChange>();
+        foreach (var change in translatedChanges)
+        {
+            var requestedChange = new RequestedChange();
+            change.TranslateTo(requestedChange);
+            requestedChanges.Add(requestedChange);
+        }
+
+        var changeRoadNetwork = new ChangeRoadNetwork
+        {
+            RequestId = ChangeRequestId.FromUploadId(new UploadId(Guid.NewGuid())),
+            DownloadId = new DownloadId(),
+            Changes = requestedChanges.ToArray(),
+            Reason = translatedChanges.Reason,
+            Operator = translatedChanges.Operator,
+            OrganizationId = translatedChanges.Organization
+        };
+        await new ChangeRoadNetworkValidator().ValidateAndThrowAsync(changeRoadNetwork, CancellationToken.None);
     }
 
     [Fact(Skip = "For debugging purposes, local feature compare testing only due to big archive files")]

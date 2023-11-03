@@ -96,5 +96,20 @@ export namespace RoadRegistry {
         clientId: string;
         postLogoutRedirectUri: string;
     }
+
+    export interface UserInfo {
+        claims: UserClaim[];
+    }
+
+    export interface UserClaim {
+        type: string;
+        value: string;
+    }
+
+    export enum UserContext {
+        Lezer = "lezer",
+        Editeerder = "editeerder",
+        Admin = "admin",
+    }
 }
 export default RoadRegistry;

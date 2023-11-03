@@ -8,7 +8,11 @@
         </a>
       </div>
     </header>
-    <header v-if="headerEnvironmentLabel" class="vl-functional-header environment-header" :style="environmentHeaderStyle">
+    <header
+      v-if="headerEnvironmentLabel"
+      class="vl-functional-header environment-header"
+      :style="environmentHeaderStyle"
+    >
       <span>{{ headerEnvironmentLabel }}</span>
     </header>
     <header class="vl-functional-header">
@@ -32,9 +36,11 @@
                   <div class="vl-tabs" data-vl-tabs-list role="tablist">
                     <router-link :to="`/activiteit`" class="vl-tab" role="tab">Activiteit</router-link>
                     <router-link :to="`/informatie`" class="vl-tab" role="tab">Informatie</router-link>
-                    <router-link :to="`/download-extract`" class="vl-tab" role="tab">Download Extract</router-link>
+                    <router-link v-if="userCanEdit" :to="`/download-extract`" class="vl-tab" role="tab"
+                      >Download Extract</router-link
+                    >
                     <router-link :to="`/download-product`" class="vl-tab" role="tab">Download Product</router-link>
-                    <router-link :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
+                    <router-link v-if="userCanEdit" :to="`/uploads`" class="vl-tab" role="tab">Uploads</router-link>
                     <router-link
                       v-if="featureToggles.useTransactionZonesTab"
                       :to="`/transaction-zones`"
@@ -57,6 +63,7 @@
 import Vue from "vue";
 import { AuthService, isAuthenticated as HasAuth, user } from "@/auth";
 import * as environment from "@/environment";
+import RoadRegistry from "@/types/road-registry";
 
 export default Vue.extend({
   name: "Header",
@@ -69,6 +76,9 @@ export default Vue.extend({
     },
     userFullName() {
       return `${user.state.firstName ?? ""} ${user.state.lastName ?? ""}`.trim();
+    },
+    userCanEdit() {
+      return AuthService.userHasAnyContext([RoadRegistry.UserContext.Editeerder, RoadRegistry.UserContext.Admin]);
     },
     environmentHeaderStyle() {
       const style: any = {};
