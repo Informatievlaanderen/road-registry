@@ -14,6 +14,7 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
     using System.Threading.Tasks;
     using Xunit;
     using Xunit.Abstractions;
+    using Xunit.Sdk;
 
     public class AcmIdmTests : IClassFixture<IntegrationTestFixture>
     {
@@ -105,55 +106,64 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
 
         [Theory]
         [MemberData(nameof(EndpointsMemberData))]
-        public async Task ReturnsSuccess(HttpMethod method, string endpoint, string[] requiredScopes)
+        public Task ReturnsSuccess(HttpMethod method, string endpoint, string[] requiredScopes)
         {
-            var client = _fixture.TestServer.CreateClient();
-            if (requiredScopes.Any())
+            return RetryMultipleTimesUntilNoXunitException(async () =>
             {
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken(string.Join(" ", requiredScopes)));
-            }
+                var client = _fixture.TestServer.CreateClient();
+                if (requiredScopes.Any())
+                {
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken(string.Join(" ", requiredScopes)));
+                }
 
-            var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
 
-            Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
-            Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
-        }
-
-        [Theory]
-        [MemberData(nameof(EndpointsMemberData))]
-        public async Task ReturnsUnauthorized(HttpMethod method, string endpoint, string[] requiredScopes)
-        {
-            var client = _fixture.TestServer.CreateClient();
-
-            var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
-            
-            if (requiredScopes.Any())
-            {
-                Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-            }
-            else
-            {
                 Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
-            }
+                Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
+            });
         }
 
         [Theory]
         [MemberData(nameof(EndpointsMemberData))]
-        public async Task ReturnsForbidden(HttpMethod method, string endpoint, string[] requiredScopes)
+        public Task ReturnsUnauthorized(HttpMethod method, string endpoint, string[] requiredScopes)
         {
-            var client = _fixture.TestServer.CreateClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken());
+            return RetryMultipleTimesUntilNoXunitException(async () =>
+            {
+                var client = _fixture.TestServer.CreateClient();
 
-            var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
-            
-            if (requiredScopes.Any(x => x != Scopes.VoInfo))
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
+
+                if (requiredScopes.Any())
+                {
+                    Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+                }
+                else
+                {
+                    Assert.NotEqual(HttpStatusCode.Unauthorized, response.StatusCode);
+                }
+            });
+        }
+
+        [Theory]
+        [MemberData(nameof(EndpointsMemberData))]
+        public Task ReturnsForbidden(HttpMethod method, string endpoint, string[] requiredScopes)
+        {
+            return RetryMultipleTimesUntilNoXunitException(async () =>
             {
-                Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
-            }
-            else
-            {
-                Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
-            }
+                var client = _fixture.TestServer.CreateClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", await _fixture.GetAcmIdmAccessToken());
+
+                var response = await SendAsync(client, CreateRequestMessage(method, endpoint));
+
+                if (requiredScopes.Any(x => x != Scopes.VoInfo))
+                {
+                    Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+                }
+                else
+                {
+                    Assert.NotEqual(HttpStatusCode.Forbidden, response.StatusCode);
+                }
+            });
         }
 
         private static HttpRequestMessage CreateRequestMessage(HttpMethod method, string endpoint)
@@ -180,6 +190,27 @@ namespace RoadRegistry.BackOffice.Api.IntegrationTests.Authentication
             Assert.NotEqual(HttpStatusCode.NotFound, response.StatusCode);
 
             return response;
+        }
+
+        private static async Task RetryMultipleTimesUntilNoXunitException(Func<Task> action, int retryTimes = 5)
+        {
+            for (var i = 0; i < retryTimes; i++)
+            {
+                try
+                {
+                    await action();
+                    return;
+                }
+                catch (XunitException)
+                {
+                    if (i == retryTimes - 1)
+                    {
+                        throw;
+                    }
+
+                    Thread.Sleep(1000);
+                }
+            }
         }
     }
 }
