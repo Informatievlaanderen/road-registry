@@ -1,3 +1,18 @@
+## [3.62.3](https://github.com/informatievlaanderen/road-registry/compare/v3.62.2...v3.62.3) (2023-11-06)
+
+
+### Bug Fixes
+
+* hard coded tag for deployment script + integration tests failure notification ([#1280](https://github.com/informatievlaanderen/road-registry/issues/1280)) ([1504cc9](https://github.com/informatievlaanderen/road-registry/commit/1504cc934ab76b15f584333759aad470bd96ef86))
+* hard coded tag of deployment script ([#1281](https://github.com/informatievlaanderen/road-registry/issues/1281)) ([27e0506](https://github.com/informatievlaanderen/road-registry/commit/27e050650772db0f1f00c207f8aef451c8faee43))
+
+## [3.62.2](https://github.com/informatievlaanderen/road-registry/compare/v3.62.1...v3.62.2) (2023-11-03)
+
+
+### Bug Fixes
+
+* WR-881 UI hide actions when user does not have rights ([#1279](https://github.com/informatievlaanderen/road-registry/issues/1279)) ([f2023c6](https://github.com/informatievlaanderen/road-registry/commit/f2023c6bd3bce26ba2e7555c257e120f3cdb4fde))
+
 ## [3.62.1](https://github.com/informatievlaanderen/road-registry/compare/v3.62.0...v3.62.1) (2023-10-27)
 
 
