@@ -11,7 +11,6 @@ on:
         - tst
         - stg
         - prd
-        - newprd
         required: true
       version:
         description: Version
@@ -69,7 +68,7 @@ jobs:
         STATUS_URL: ${{ secrets.VBR_AWS_BUILD_STATUS_API }}/${{matrix.services}}
       uses: informatievlaanderen/awscurl-polling-action/polling-action@v1.0.1
       with:
-        environment: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'newprd' && 'acc' || github.event.inputs.environment }}
+        environment: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'prd' && 'acc' || github.event.inputs.environment }}
         version: ${{ github.event.inputs.version }}
         status-url: $STATUS_URL
         deploy-url: $BUILD_URL
@@ -95,8 +94,8 @@ jobs:
     - name: CD Lambda(s) Configure credentials
       uses: aws-actions/configure-aws-credentials@v1.7.0
       with:
-        aws-access-key-id: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_ACCESS_KEY_ID_TST || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_ACCESS_KEY_ID || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_ACCESS_KEY_ID_PRD || github.event.inputs.environment == 'newprd' && secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD || ''}}
-        aws-secret-access-key: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_SECRET_ACCESS_KEY_TST || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_SECRET_ACCESS_KEY || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_SECRET_ACCESS_KEY_PRD || github.event.inputs.environment == 'newprd' && secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD || ''}}
+        aws-access-key-id: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_ACCESS_KEY_ID_TST || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_ACCESS_KEY_ID || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_ACCESS_KEY_ID_NEWPRD || ''}}
+        aws-secret-access-key: ${{ github.event.inputs.environment == 'tst' && secrets.VBR_AWS_SECRET_ACCESS_KEY_TST || github.event.inputs.environment == 'stg' && secrets.VBR_AWS_SECRET_ACCESS_KEY || github.event.inputs.environment == 'prd' && secrets.VBR_AWS_SECRET_ACCESS_KEY_NEWPRD || ''}}
         aws-region: ${{ secrets.VBR_AWS_REGION_PRD }}
 
     - name: Prepare Lambda(s)
@@ -106,9 +105,9 @@ jobs:
         aws s3 cp $S3_BASEURL-$FUNCTION_SNAPSHOT/$VERSION/lambda.zip $S3_BASEURL-$FUNCTION_SNAPSHOT/lambda.zip --copy-props none
       env:
         VERSION: ${{ github.event.inputs.version }}
-        S3_BASEURL: ${{ github.event.inputs.environment == 'tst' && 's3://196194905350-vbr-test-lam' || github.event.inputs.environment == 'stg' && 's3://s3-vbr-stg-basisregisters-lam' || github.event.inputs.environment == 'prd' && 's3://s3-vbr-prd-basisregisters-lam' || github.event.inputs.environment == 'newprd' && 's3://077849980894-vbr-prd-lam' || '' }}
-        FUNCTION_BACKOFFICE: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'newprd') && 'rr-sqsbackoffice' || 'wr-sqsbackofficehandlerfunction' }}
-        FUNCTION_SNAPSHOT: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'newprd') && 'rr-sqssnapshot' || 'wr-sqssnapshothandlerfunction' }}
+        S3_BASEURL: ${{ github.event.inputs.environment == 'tst' && 's3://196194905350-vbr-test-lam' || github.event.inputs.environment == 'stg' && 's3://s3-vbr-stg-basisregisters-lam' || github.event.inputs.environment == 'prd' && 's3://077849980894-vbr-prd-lam' || '' }}
+        FUNCTION_BACKOFFICE: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'prd') && 'rr-sqsbackoffice' || 'wr-sqsbackofficehandlerfunction' }}
+        FUNCTION_SNAPSHOT: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'prd') && 'rr-sqssnapshot' || 'wr-sqssnapshothandlerfunction' }}
         
     - name: Promote Lambda(s)
       shell: bash
@@ -120,11 +119,11 @@ jobs:
       env:
         ACCESS_KEY_ID: ${{ secrets.VBR_AWS_ACCESS_KEY_ID_TST }}
         SECRET_ACCESS_KEY_ID: ${{ secrets.VBR_AWS_SECRET_ACCESS_KEY_TST }}
-        ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'newprd' && 'acc' || github.event.inputs.environment }}
+        ENVIRONMENT: ${{ github.event.inputs.environment == 'tst' && 'test' || github.event.inputs.environment == 'prd' && 'acc' || github.event.inputs.environment }}
         REGION: ${{ secrets.VBR_AWS_REGION_PRD }}
         PROMOTEURL: ${{ secrets.VBR_AWS_PROMOTE_LAMBDA_BASEURL }}
-        FUNCTION_BACKOFFICE: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'newprd') && 'rr-sqsbackofficefunction' || 'wr-sqsbackofficehandlerfunction' }}
-        FUNCTION_SNAPSHOT: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'newprd') && 'rr-sqssnapshotfunction' || 'wr-sqssnapshothandlerfunction' }}
+        FUNCTION_BACKOFFICE: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'prd') && 'rr-sqsbackofficefunction' || 'wr-sqsbackofficehandlerfunction' }}
+        FUNCTION_SNAPSHOT: ${{ (github.event.inputs.environment == 'tst' || github.event.inputs.environment == 'prd') && 'rr-sqssnapshotfunction' || 'wr-sqssnapshothandlerfunction' }}
 
   deploy_finish_slack:
     if: github.repository_owner == 'Informatievlaanderen'
