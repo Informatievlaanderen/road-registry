@@ -130,7 +130,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
-        var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndLeveringAndIntegrationFeatures(context.Archive, FileName, context);
+        var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndChangeAndIntegrationFeatures(context.Archive, FileName, context);
 
         problems.ThrowIfError();
 

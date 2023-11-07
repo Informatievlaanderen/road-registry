@@ -45,6 +45,15 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
                 problems = ZipArchiveProblems.None + problems
                     .GetMissingOrInvalidFileProblems()
                     .Where(x => !x.File.Equals(featureType.GetProjectionFileName(fileName), StringComparison.InvariantCultureIgnoreCase));
+
+                foreach (var feature in features)
+                {
+                    if (context.ChangedRoadSegments.TryGetValue(feature.Attributes.Id, out var knownRoadSegment))
+                    {
+                        var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                        problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.Id, knownRoadSegment.RecordNumber);
+                    }
+                }
                 break;
         }
 
@@ -163,12 +172,12 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 
         foreach (var feature in features)
         {
-            if (context.KnownRoadSegments.ContainsKey(feature.Attributes.Id))
+            if (context.ChangedRoadSegments.ContainsKey(feature.Attributes.Id))
             {
                 continue;
             }
 
-            context.KnownRoadSegments.Add(feature.Attributes.Id, feature);
+            context.ChangedRoadSegments.Add(feature.Attributes.Id, feature);
         }
     }
 

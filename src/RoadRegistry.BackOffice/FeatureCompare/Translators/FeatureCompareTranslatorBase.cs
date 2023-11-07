@@ -39,7 +39,7 @@ internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveE
         return (extractFeatures, changeFeatures, extractFeaturesProblems + changeFeaturesProblems);
     }
 
-    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndLeveringAndIntegrationFeatures(ZipArchive archive, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndChangeAndIntegrationFeatures(ZipArchive archive, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {
         var (extractFeatures, extractFeaturesProblems) = ReadFeatures(archive, FeatureType.Extract, fileName, context);
         var (changeFeatures, changeFeaturesProblems) = ReadFeatures(archive, FeatureType.Change, fileName, context);

@@ -313,9 +313,13 @@ public class ExtractsZipArchiveTestData : IDisposable
         MemoryStream roadSegmentShapeChangeStream,
         MemoryStream roadSegmentProjectionFormatStream,
         MemoryStream roadSegmentDbaseChangeStream,
+        MemoryStream roadSegmentShapeIntegrationStream,
+        MemoryStream roadSegmentDbaseIntegrationStream,
         MemoryStream roadNodeShapeChangeStream,
         MemoryStream roadNodeProjectionFormatStream,
         MemoryStream roadNodeDbaseChangeStream,
+        MemoryStream roadNodeShapeIntegrationStream,
+        MemoryStream roadNodeDbaseIntegrationStream,
         MemoryStream europeanRoadChangeStream,
         MemoryStream numberedRoadChangeStream,
         MemoryStream nationalRoadChangeStream,
@@ -383,35 +387,43 @@ public class ExtractsZipArchiveTestData : IDisposable
             {
                 switch (requiredFile)
                 {
-                    case "IWEGSEGMENT.SHP":
                     case "EWEGSEGMENT.SHP":
                     case "WEGSEGMENT.SHP":
                         CreateEntry(requiredFile, roadSegmentShapeChangeStream);
+                        break;
+                    case "IWEGSEGMENT.SHP":
+                        CreateEntry(requiredFile, roadSegmentShapeIntegrationStream);
                         break;
                     case "IWEGSEGMENT.PRJ":
                     case "EWEGSEGMENT.PRJ":
                     case "WEGSEGMENT.PRJ":
                         CreateEntry(requiredFile, roadSegmentProjectionFormatStream);
                         break;
-                    case "IWEGSEGMENT.DBF":
                     case "EWEGSEGMENT.DBF":
                     case "WEGSEGMENT.DBF":
                         CreateEntry(requiredFile, roadSegmentDbaseChangeStream);
                         break;
-                    case "IWEGKNOOP.SHP":
+                    case "IWEGSEGMENT.DBF":
+                        CreateEntry(requiredFile, roadSegmentDbaseIntegrationStream);
+                        break;
                     case "EWEGKNOOP.SHP":
                     case "WEGKNOOP.SHP":
                         CreateEntry(requiredFile, roadNodeShapeChangeStream);
+                        break;
+                    case "IWEGKNOOP.SHP":
+                        CreateEntry(requiredFile, roadNodeShapeIntegrationStream);
                         break;
                     case "IWEGKNOOP.PRJ":
                     case "EWEGKNOOP.PRJ":
                     case "WEGKNOOP.PRJ":
                         CreateEntry(requiredFile, roadNodeProjectionFormatStream);
                         break;
-                    case "IWEGKNOOP.DBF":
                     case "EWEGKNOOP.DBF":
                     case "WEGKNOOP.DBF":
                         CreateEntry(requiredFile, roadNodeDbaseChangeStream);
+                        break;
+                    case "IWEGKNOOP.DBF":
+                        CreateEntry(requiredFile, roadNodeDbaseIntegrationStream);
                         break;
                     case "EATTEUROPWEG.DBF":
                     case "ATTEUROPWEG.DBF":
@@ -486,8 +498,12 @@ public class ExtractsZipArchiveTestData : IDisposable
             roadSegmentShapeChangeStream,
             roadSegmentProjectionFormatStream,
             roadSegmentDbaseChangeStream,
+            roadSegmentShapeChangeStream,
+            roadSegmentDbaseChangeStream,
             roadNodeShapeChangeStream,
             roadNodeProjectionFormatStream,
+            roadNodeDbaseChangeStream,
+            roadNodeShapeChangeStream,
             roadNodeDbaseChangeStream,
             europeanRoadChangeStream,
             numberedRoadChangeStream,
@@ -510,17 +526,31 @@ public class ExtractsZipArchiveTestData : IDisposable
             Fixture.Create<PointShapeContent>(),
             Fixture.Create<PointShapeContent>()
         });
-        var roadNodeDbase1 = Fixture.Create<RoadNodeDbaseRecord>();
-        var roadNodeDbase2 = Fixture.Create<RoadNodeDbaseRecord>();
-        var roadNodeDbaseChangeStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[]{ roadNodeDbase1, roadNodeDbase2 });
+        var roadNodeShapeIntegrationStream = Fixture.CreateRoadNodeShapeFile(new[]
+        {
+            Fixture.Create<PointShapeContent>(),
+            Fixture.Create<PointShapeContent>()
+        });
+        var roadNodeDbaseChange1 = Fixture.Create<RoadNodeDbaseRecord>();
+        var roadNodeDbaseChange2 = Fixture.Create<RoadNodeDbaseRecord>();
+        var roadNodeDbaseChangeStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[]{ roadNodeDbaseChange1, roadNodeDbaseChange2 });
+
+        var roadNodeDbaseIntegration1 = Fixture.CreateWhichIsDifferentThan<RoadNodeDbaseRecord>((x1, x2) => x1.WK_OIDN.Value == x2.WK_OIDN.Value);
+        var roadNodeDbaseIntegration2 = Fixture.CreateWhichIsDifferentThan<RoadNodeDbaseRecord>((x1, x2) => x1.WK_OIDN.Value == x2.WK_OIDN.Value);
+        var roadNodeDbaseIntegrationStream = Fixture.CreateDbfFile(RoadNodeDbaseRecord.Schema, new[]{ roadNodeDbaseIntegration1, roadNodeDbaseIntegration2 });
 
         var roadSegmentPolyLineMShapeContent = Fixture.Create<PolyLineMShapeContent>();
         var roadSegmentShapeChangeStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
+        var roadSegmentShapeIntegrationStream = Fixture.CreateRoadSegmentShapeFileWithOneRecord(roadSegmentPolyLineMShapeContent);
         var roadSegmentProjectionFormatStream = Fixture.CreateProjectionFormatFileWithOneRecord();
         var roadSegmentChangeDbaseRecord = Fixture.Create<RoadSegmentDbaseRecord>();
-        roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbase1.WK_OIDN.Value;
-        roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbase2.WK_OIDN.Value;
+        roadSegmentChangeDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseChange1.WK_OIDN.Value;
+        roadSegmentChangeDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseChange2.WK_OIDN.Value;
         var roadSegmentDbaseChangeStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentChangeDbaseRecord);
+        var roadSegmentIntegrationDbaseRecord = Fixture.CreateWhichIsDifferentThan<RoadSegmentDbaseRecord>((x1, x2) => x1.WS_OIDN.Value == x2.WS_OIDN.Value);
+        roadSegmentIntegrationDbaseRecord.B_WK_OIDN.Value = roadNodeDbaseIntegration1.WK_OIDN.Value;
+        roadSegmentIntegrationDbaseRecord.E_WK_OIDN.Value = roadNodeDbaseIntegration2.WK_OIDN.Value;
+        var roadSegmentDbaseIntegrationStream = Fixture.CreateDbfFileWithOneRecord(RoadSegmentDbaseRecord.Schema, roadSegmentIntegrationDbaseRecord);
 
         var europeanRoadChangeStream = Fixture.CreateDbfFileWithOneRecord<RoadSegmentEuropeanRoadAttributeDbaseRecord>(
             RoadSegmentEuropeanRoadAttributeDbaseRecord.Schema);
@@ -569,9 +599,13 @@ public class ExtractsZipArchiveTestData : IDisposable
             roadSegmentShapeChangeStream,
             roadSegmentProjectionFormatStream,
             roadSegmentDbaseChangeStream,
+            roadSegmentShapeIntegrationStream,
+            roadSegmentDbaseIntegrationStream,
             roadNodeShapeChangeStream,
             roadNodeProjectionFormatStream,
             roadNodeDbaseChangeStream,
+            roadNodeShapeIntegrationStream,
+            roadNodeDbaseIntegrationStream,
             europeanRoadChangeStream,
             numberedRoadChangeStream,
             nationalRoadChangeStream,

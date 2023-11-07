@@ -70,7 +70,7 @@ namespace RoadRegistry.Tests.BackOffice
                 WithExtract((_, _) => { });
             }
             
-            _change ??= new ExtractsZipArchiveChangeDataSetBuilder(Fixture, _extract);
+            _change ??= new ExtractsZipArchiveChangeDataSetBuilder(Fixture, _extract, _integration);
             _change.ConfigureChange(configure);
             _changeStreams = _change.Build();
 
@@ -520,11 +520,13 @@ namespace RoadRegistry.Tests.BackOffice
     public class ExtractsZipArchiveChangeDataSetBuilder : ExtractsZipArchiveExtractDataSetBuilder
     {
         private readonly ExtractsZipArchiveExtractDataSetBuilder _extractBuilder;
+        private readonly ExtractsZipArchiveIntegrationDataSetBuilder _integrationBuilder;
 
-        public ExtractsZipArchiveChangeDataSetBuilder(Fixture fixture, ExtractsZipArchiveExtractDataSetBuilder extractBuilder)
+        public ExtractsZipArchiveChangeDataSetBuilder(Fixture fixture, ExtractsZipArchiveExtractDataSetBuilder extractBuilder, ExtractsZipArchiveIntegrationDataSetBuilder integrationBuilder)
             : base(fixture)
         {
             _extractBuilder = extractBuilder;
+            _integrationBuilder = integrationBuilder;
 
             var manager = new RecyclableMemoryStreamManager();
             var encoding = Encoding.UTF8;
@@ -569,7 +571,7 @@ namespace RoadRegistry.Tests.BackOffice
         {
             ConfigureExtract((_, context) =>
             {
-                configure(this, new ExtractsZipArchiveChangeDataSetBuilderContext(context, _extractBuilder));
+                configure(this, new ExtractsZipArchiveChangeDataSetBuilderContext(context, _extractBuilder, _integrationBuilder));
             });
 
             return this;
@@ -588,11 +590,15 @@ namespace RoadRegistry.Tests.BackOffice
     public class ExtractsZipArchiveChangeDataSetBuilderContext : ExtractsZipArchiveDataSetBuilderContext
     {
         public ExtractsZipArchiveExtractDataSetBuilder Extract { get; }
+        public ExtractsZipArchiveIntegrationDataSetBuilder Integration { get; }
 
-        public ExtractsZipArchiveChangeDataSetBuilderContext(ExtractsZipArchiveDataSetBuilderContext context, ExtractsZipArchiveExtractDataSetBuilder extractsBuilder)
+        public ExtractsZipArchiveChangeDataSetBuilderContext(ExtractsZipArchiveDataSetBuilderContext context,
+            ExtractsZipArchiveExtractDataSetBuilder extractsBuilder,
+            ExtractsZipArchiveIntegrationDataSetBuilder integrationBuilder)
             : base(context.Fixture)
         {
             Extract = extractsBuilder;
+            Integration = integrationBuilder;
         }
     }
 
