@@ -2,12 +2,12 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 
 using Exceptions;
 using FeatureCompare;
+using FeatureToggles;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using System.IO.Compression;
-using System.Text;
 using Uploads;
+using Validation;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -15,7 +15,7 @@ public abstract class FeatureCompareTranslatorScenariosBase
 {
     protected ITestOutputHelper TestOutputHelper { get; }
     protected ILogger<ZipArchiveFeatureCompareTranslator> Logger { get; }
-    protected readonly Encoding Encoding = Encoding.UTF8;
+    protected readonly FileEncoding Encoding = FileEncoding.UTF8;
 
     protected FeatureCompareTranslatorScenariosBase(ITestOutputHelper testOutputHelper, ILogger<ZipArchiveFeatureCompareTranslator> logger)
     {
@@ -27,10 +27,14 @@ public abstract class FeatureCompareTranslatorScenariosBase
     {
         using (archive)
         {
+            var validator = new ZipArchiveBeforeFeatureCompareValidator(Encoding);
             var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger, new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true));
 
             try
             {
+                var problems = validator.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+                problems.ThrowIfError();
+
                 return await sut.Translate(archive, CancellationToken.None);
             }
             catch (ZipArchiveValidationException ex)

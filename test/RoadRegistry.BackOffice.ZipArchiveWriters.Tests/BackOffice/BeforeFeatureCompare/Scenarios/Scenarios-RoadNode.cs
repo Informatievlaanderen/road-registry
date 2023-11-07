@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using FeatureCompare;
 using Microsoft.Extensions.Logging;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
 using Xunit.Abstractions;
@@ -158,5 +159,23 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 )));
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+
+    [Fact]
+    public async Task IdsShouldBeUniqueAcrossChangeAndIntegrationData()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                var integrationRoadNode = context.Integration.DataSet.RoadNodeDbaseRecords.First();
+
+                builder.TestData.RoadNode1DbaseRecord.WK_OIDN.Value = integrationRoadNode.WK_OIDN.Value;
+                builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = builder.TestData.RoadNode1DbaseRecord.WK_OIDN.Value;
+            })
+            .Build();
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
+        var problem = Assert.Single(ex.Problems);
+        Assert.Equal(nameof(DbaseFileProblems.RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange), problem.Reason);
     }
 }

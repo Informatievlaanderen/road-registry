@@ -234,6 +234,18 @@ public static class DbaseFileProblems
         return IdentifierNotUnique(builder, identifier.ToString(), takenByRecordNumber);
     }
 
+    public static FileError RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange(this IDbaseFileRecordProblemBuilder builder,
+        RoadNodeId roadNodeId,
+        RecordNumber takenByRecordNumber)
+    {
+        return builder
+            .Error(nameof(RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange))
+            .WithParameters(
+                new ProblemParameter("Identifier", roadNodeId.ToString()),
+                new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
+            .Build();
+    }
+
     // road segment
 
     public static FileError IdentifierNotUnique(this IDbaseFileRecordProblemBuilder builder,
@@ -257,6 +269,18 @@ public static class DbaseFileProblems
                 new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()),
                 new ProblemParameter("TakenByRecordType", takenByRecordType.ToString())
             )
+            .Build();
+    }
+
+    public static FileError RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(this IDbaseFileRecordProblemBuilder builder,
+        RoadSegmentId roadSegmentId,
+        RecordNumber takenByRecordNumber)
+    {
+        return builder
+            .Error(nameof(RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange))
+            .WithParameters(
+                new ProblemParameter("Identifier", roadSegmentId.ToString()),
+                new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
             .Build();
     }
 

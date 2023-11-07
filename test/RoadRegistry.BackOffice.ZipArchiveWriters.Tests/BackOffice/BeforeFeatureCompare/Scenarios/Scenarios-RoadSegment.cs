@@ -334,4 +334,24 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         await TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty);
     }
+
+    [Fact]
+    public async Task IdsShouldBeUniqueAcrossChangeAndIntegrationData()
+    {
+        var zipArchive = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                var integrationRoadSegment = context.Integration.DataSet.RoadSegmentDbaseRecords.First();
+
+                builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value = integrationRoadSegment.WS_OIDN.Value;
+                builder.TestData.RoadSegment1LaneDbaseRecord.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+                builder.TestData.RoadSegment1SurfaceDbaseRecord.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+                builder.TestData.RoadSegment1WidthDbaseRecord.WS_OIDN.Value = builder.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            })
+            .Build();
+
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateReturnsExpectedResult(zipArchive, TranslatedChanges.Empty));
+        var problem = Assert.Single(ex.Problems);
+        Assert.Equal(nameof(DbaseFileProblems.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange), problem.Reason);
+    }
 }
