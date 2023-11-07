@@ -42,12 +42,12 @@ public class DownloadFileContentRequestHandler : EndpointRetryableRequestHandler
             throw new InvalidGuidValidationException(nameof(request.DownloadId));
         }
 
-        var record = await _context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
+        var record = await Context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
 
         if (record is null || record is not { Available: true })
         {
-            var retryAfterSeconds = await CalculateRetryAfterAsync(request, cancellationToken);
-            throw new DownloadExtractNotFoundException(retryAfterSeconds);
+            var retryAfter = await CalculateRetryAfterAsync(request, cancellationToken);
+            throw new DownloadExtractNotFoundException(Convert.ToInt32(retryAfter.TotalSeconds));
         }
 
         var blobName = new BlobName(record.ArchiveId);

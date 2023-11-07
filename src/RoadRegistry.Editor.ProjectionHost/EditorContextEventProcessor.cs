@@ -25,12 +25,11 @@ public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext
 
     protected override async Task OutputEstimatedTimeRemainingAsync(EditorContext context, ILogger logger, long currentPosition, long lastPosition, CancellationToken cancellationToken)
     {
-        var eventProcessorMetrics = await context.EventProcessorMetrics.GetMetricsAsync(GetType().Name, cancellationToken);
+        var eventProcessorMetrics = await context.EventProcessorMetrics.GetMetricsAsync(GetType().Name, currentPosition, cancellationToken);
 
         if (eventProcessorMetrics is not null)
         {
-            var averageTimePerEvent = eventProcessorMetrics.ElapsedMilliseconds / eventProcessorMetrics.ToPosition;
-            var estimatedTimeRemaining = averageTimePerEvent * (lastPosition - currentPosition);
+            var estimatedTimeRemaining = eventProcessorMetrics.ElapsedMilliseconds;
 
             logger.LogInformation("{EventProcessor} Estimated time remaining between {CurrentPosition} and {LastPosition} is about {EstimatedTimeRemaining} milliseconds.", GetType().Name, currentPosition, lastPosition, estimatedTimeRemaining);
         }
@@ -38,7 +37,7 @@ public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext
 
     protected override async Task UpdateEventProcessorMetricsAsync(EditorContext context, long fromPosition, long toPosition, long elapsedMilliseconds, CancellationToken cancellationToken)
     {
-        var eventProcessorMetrics = await context.EventProcessorMetrics.GetMetricsAsync(GetType().Name, cancellationToken);
+        var eventProcessorMetrics = await context.EventProcessorMetrics.GetMetricsAsync(GetType().Name, toPosition, cancellationToken);
         
         if (eventProcessorMetrics is null)
         {

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 public static class EventProcessorExtensions
 {
-    public static async Task<EventProcessorMetricsRecord> GetMetricsAsync(this DbSet<EventProcessorMetricsRecord> dbSet, string eventProcessorId, CancellationToken cancellationToken)
+    public static async Task<EventProcessorMetricsRecord> GetMetricsAsync(this DbSet<EventProcessorMetricsRecord> dbSet, string eventProcessorId, long minPosition, CancellationToken cancellationToken)
     {
         var eventProcessorMetrics = await dbSet
             .FromSqlRaw(@"
@@ -26,12 +26,14 @@ public static class EventProcessorExtensions
                 WHERE	1=1
 		                AND EventProcessorId = @EventProcessorId
 		                AND DbContext = @DbContextName
+		                AND ToPosition > @MinPosition
                 GROUP BY EventProcessorId, DbContext
                 ",
                 new SqlParameter("@DummyId", SqlDbType.UniqueIdentifier) { Value = Guid.Empty },
                 new SqlParameter("@EventProcessorId", SqlDbType.NVarChar) { Value = eventProcessorId },
-                new SqlParameter("@DbContextName", SqlDbType.NVarChar) { Value = nameof(EditorContext) }
-            ).SingleOrDefaultAsync();
+                new SqlParameter("@DbContextName", SqlDbType.NVarChar) { Value = nameof(EditorContext) },
+                new SqlParameter("@MinPosition", SqlDbType.BigInt) { Value = minPosition }
+            ).SingleOrDefaultAsync(cancellationToken);
         return eventProcessorMetrics;
     }
 
