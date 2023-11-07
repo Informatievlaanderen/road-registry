@@ -46,8 +46,8 @@ public class DownloadFileContentRequestHandler : EndpointRetryableRequestHandler
 
         if (record is null || record is not { Available: true })
         {
-            var retryAfterSeconds = await CalculateRetryAfterAsync(request, cancellationToken);
-            throw new DownloadExtractNotFoundException(retryAfterSeconds);
+            var retryAfter = await CalculateRetryAfterAsync(request, cancellationToken);
+            throw new DownloadExtractNotFoundException(Convert.ToInt32(retryAfter.TotalSeconds));
         }
 
         var blobName = new BlobName(record.ArchiveId);

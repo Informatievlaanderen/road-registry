@@ -29,8 +29,7 @@ public class EditorContextEventProcessor : DbContextEventProcessor<EditorContext
 
         if (eventProcessorMetrics is not null)
         {
-            var averageTimePerEvent = eventProcessorMetrics.ElapsedMilliseconds / eventProcessorMetrics.ToPosition;
-            var estimatedTimeRemaining = averageTimePerEvent * (lastPosition - currentPosition);
+            var estimatedTimeRemaining = eventProcessorMetrics.ElapsedMilliseconds;
 
             logger.LogInformation("{EventProcessor} Estimated time remaining between {CurrentPosition} and {LastPosition} is about {EstimatedTimeRemaining} milliseconds.", GetType().Name, currentPosition, lastPosition, estimatedTimeRemaining);
         }

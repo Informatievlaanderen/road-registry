@@ -31,8 +31,8 @@ public class UploadStatusRequestHandler : EndpointRetryableRequestHandler<Upload
         var record = await Context.ExtractUploads.FindAsync(new object[] { parsedUploadId }, cancellationToken);
         if (record is null)
         {
-            var retryAfterSeconds = await CalculateRetryAfterAsync(request, cancellationToken);
-            throw new UploadExtractNotFoundException(retryAfterSeconds);
+            var retryAfter = await CalculateRetryAfterAsync(request, cancellationToken);
+            throw new UploadExtractNotFoundException(Convert.ToInt32(retryAfter.TotalSeconds));
         }
 
         return new UploadStatusResponse(
@@ -46,11 +46,11 @@ public class UploadStatusRequestHandler : EndpointRetryableRequestHandler<Upload
                 ExtractUploadStatus.NoChanges => "No Changes",
                 _ => "Unknown"
             },
-            record.Status switch
+            Convert.ToInt32(record.Status switch
             {
-                ExtractUploadStatus.Received => await CalculateRetryAfterAsync(request, cancellationToken),
-                ExtractUploadStatus.UploadAccepted => await CalculateRetryAfterAsync(request, cancellationToken),
+                ExtractUploadStatus.Received => (await CalculateRetryAfterAsync(request, cancellationToken)).TotalSeconds,
+                ExtractUploadStatus.UploadAccepted => (await CalculateRetryAfterAsync(request, cancellationToken)).TotalSeconds,
                 _ => 0
-            });
+            }));
     }
 }

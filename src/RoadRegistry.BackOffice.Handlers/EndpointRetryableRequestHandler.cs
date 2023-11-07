@@ -25,7 +25,7 @@ public abstract class EndpointRetryableRequestHandler<TRequest, TResponse> : End
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
     }
 
-    protected async Task<int> CalculateRetryAfterAsync(IEndpointRetryableRequest request, CancellationToken cancellationToken)
+    protected async Task<TimeSpan> CalculateRetryAfterAsync(IEndpointRetryableRequest request, CancellationToken cancellationToken)
     {
         var projectionStateItem = await Context.ProjectionStates.SingleOrDefaultAsync(s => s.Name.Equals(WellKnownProjectionStateNames.RoadRegistryEditorRoadNetworkProjectionHost), cancellationToken);
 
@@ -39,9 +39,8 @@ public abstract class EndpointRetryableRequestHandler<TRequest, TResponse> : End
                 var eventProcessorMetrics = await Context.EventProcessorMetrics.GetMetricsAsync(WellKnownEventProcessorNames.RoadNetwork, currentPosition, cancellationToken);
                 if (eventProcessorMetrics is not null)
                 {
-                    var averageTimePerEvent = eventProcessorMetrics.ElapsedMilliseconds / eventProcessorMetrics.ToPosition;
-                    var estimatedTimeRemaining = averageTimePerEvent * (maxPosition - currentPosition);
-                    return Convert.ToInt32(estimatedTimeRemaining) + 5 * 60 * 1000; // Added 5 minute buffer
+                    var estimatedTimeRemaining = eventProcessorMetrics.ElapsedMilliseconds / 1000;
+                    return new TimeSpan(0, 0, Convert.ToInt32(estimatedTimeRemaining) + 5 * 60); // Added 5 minute buffer
                 }
             }
         }
@@ -49,6 +48,6 @@ public abstract class EndpointRetryableRequestHandler<TRequest, TResponse> : End
         return await Context.ExtractUploads
             .TookAverageProcessDuration(_clock
                 .GetCurrentInstant()
-                .Minus(Duration.FromDays(request.RetryAfterAverageWindowInDays)), request.DefaultRetryAfter);
+                .Minus(Duration.FromDays(request.RetryAfterAverageWindowInDays)), new TimeSpan(0, 0, request.DefaultRetryAfter));
     }
 }

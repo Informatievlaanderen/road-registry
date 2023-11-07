@@ -27,8 +27,8 @@ public class ExtractDetailsRequestHandler : EndpointRetryableRequestHandler<Extr
 
         if (record is null)
         {
-            var retryAfterSeconds = await CalculateRetryAfterAsync(request, cancellationToken);
-            throw new ExtractRequestNotFoundException(request.DownloadId, retryAfterSeconds);
+            var retryAfter = await CalculateRetryAfterAsync(request, cancellationToken);
+            throw new ExtractRequestNotFoundException(request.DownloadId, Convert.ToInt32(retryAfter.TotalSeconds));
         }
 
         return new ExtractDetailsResponse
