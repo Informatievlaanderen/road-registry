@@ -53,19 +53,19 @@ internal class S3HealthCheck : IHealthCheck
                         var putObjectResponse = await client.PutObjectAsync(putObjectRequest, cancellationToken);
                         if (putObjectResponse.HttpStatusCode != HttpStatusCode.OK)
                         {
-                            return HealthCheckResult.Unhealthy();
+                            return HealthCheckResult.Unhealthy(description: $"Received status code {putObjectResponse.HttpStatusCode} when putting the file");
                         }
 
                         var getObjectResponse = await client.GetObjectAsync(_bucketName, _objectKey, cancellationToken);
                         if (getObjectResponse.HttpStatusCode != HttpStatusCode.OK)
                         {
-                            return HealthCheckResult.Unhealthy();
+                            return HealthCheckResult.Unhealthy(description: $"Received status code {getObjectResponse.HttpStatusCode} when getting the file");
                         }
 
                         var deleteObjectResponse = await client.DeleteObjectAsync(_bucketName, _objectKey, cancellationToken);
                         if (deleteObjectResponse.HttpStatusCode != HttpStatusCode.NoContent)
                         {
-                            return HealthCheckResult.Unhealthy();
+                            return HealthCheckResult.Unhealthy(description: $"Received status code {deleteObjectResponse.HttpStatusCode} when deleting the file");
                         }
 
                         return HealthCheckResult.Healthy();
