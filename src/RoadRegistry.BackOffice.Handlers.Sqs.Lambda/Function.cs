@@ -2,7 +2,6 @@
 
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda;
 
-using System.Reflection;
 using Autofac;
 using BackOffice.Extensions;
 using BackOffice.Infrastructure.Modules;
@@ -13,10 +12,10 @@ using FluentValidation;
 using Framework;
 using Hosts;
 using Hosts.Infrastructure.Extensions;
-using Hosts.Infrastructure.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using StreetName;
+using System.Reflection;
 
 public class Function : RoadRegistryLambdaFunction<MessageHandler>
 {
@@ -49,15 +48,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddStreetNameClient()
             ;
     }
-
-    protected override void ConfigureHealthChecks(HealthCheckInitializer builder) => builder
-        .AddS3(x => x
-            .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
-            .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read, Permission.Write)
-        )
-        .AddTicketing()
-    ;
-
+    
     protected override void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
         builder

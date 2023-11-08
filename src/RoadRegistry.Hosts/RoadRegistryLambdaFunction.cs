@@ -10,7 +10,6 @@ using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore.Autofac;
 using Infrastructure.Extensions;
-using Infrastructure.HealthChecks;
 using Infrastructure.Modules;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,12 +22,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BackOffice.FeatureToggles;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
@@ -83,14 +80,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
 
         ConfigureDefaultServices(context, services);
         ConfigureServices(context, services);
-
-        var useHealthChecksFeatureToggle = configuration.GetFeatureToggles<ApplicationFeatureToggle>().OfType<UseHealthChecksFeatureToggle>().Single();
-        if (useHealthChecksFeatureToggle.FeatureEnabled)
-        {
-            var healthCheckBuilder = services.AddHealthChecks();
-            ConfigureHealthChecks(HealthCheckInitializer.Configure(healthCheckBuilder, context.Configuration, context.HostingEnvironment));
-        }
-
+        
         var builder = new ContainerBuilder();
         builder.RegisterConfiguration(configuration);
         builder.Populate(services);
@@ -106,10 +96,6 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
     }
 
     protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-    {
-    }
-
-    protected virtual void ConfigureHealthChecks(HealthCheckInitializer builder)
     {
     }
 
