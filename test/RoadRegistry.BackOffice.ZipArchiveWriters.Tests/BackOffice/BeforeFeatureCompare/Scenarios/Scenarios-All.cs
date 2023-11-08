@@ -1,29 +1,11 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatureCompare.Scenarios;
 
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Core;
 using FeatureCompare;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
 using Xunit.Abstractions;
-using AddGradeSeparatedJunction = Uploads.AddGradeSeparatedJunction;
-using AddRoadNode = Uploads.AddRoadNode;
-using AddRoadSegment = Uploads.AddRoadSegment;
-using AddRoadSegmentToEuropeanRoad = Uploads.AddRoadSegmentToEuropeanRoad;
-using AddRoadSegmentToNationalRoad = Uploads.AddRoadSegmentToNationalRoad;
-using AddRoadSegmentToNumberedRoad = Uploads.AddRoadSegmentToNumberedRoad;
-using ModifyRoadNode = Uploads.ModifyRoadNode;
-using ModifyRoadSegment = Uploads.ModifyRoadSegment;
-using RemoveGradeSeparatedJunction = Uploads.RemoveGradeSeparatedJunction;
-using RemoveRoadNode = Uploads.RemoveRoadNode;
-using RemoveRoadSegment = Uploads.RemoveRoadSegment;
-using RemoveRoadSegmentFromEuropeanRoad = Uploads.RemoveRoadSegmentFromEuropeanRoad;
-using RemoveRoadSegmentFromNationalRoad = Uploads.RemoveRoadSegmentFromNationalRoad;
-using RemoveRoadSegmentFromNumberedRoad = Uploads.RemoveRoadSegmentFromNumberedRoad;
-using RoadSegmentLaneAttribute = Uploads.RoadSegmentLaneAttribute;
-using RoadSegmentSurfaceAttribute = Uploads.RoadSegmentSurfaceAttribute;
-using RoadSegmentWidthAttribute = Uploads.RoadSegmentWidthAttribute;
 
 public class AllScenarios : FeatureCompareTranslatorScenariosBase
 {
