@@ -1,3 +1,12 @@
+## [3.62.5](https://github.com/informatievlaanderen/road-registry/compare/v3.62.4...v3.62.5) (2023-11-08)
+
+
+### Bug Fixes
+
+* extra healthcheck info when failing ([#1291](https://github.com/informatievlaanderen/road-registry/issues/1291)) ([27f0c0b](https://github.com/informatievlaanderen/road-registry/commit/27f0c0b7f4e18ab0a31287d222fc483bb90dfb75))
+* remove healthchecks from lambda ([#1289](https://github.com/informatievlaanderen/road-registry/issues/1289)) ([e7b3cf6](https://github.com/informatievlaanderen/road-registry/commit/e7b3cf68a00beef7f5bab127d3a2945e983732e5))
+* ticketing healthcheck delete ticket at the end ([#1290](https://github.com/informatievlaanderen/road-registry/issues/1290)) ([d038d1b](https://github.com/informatievlaanderen/road-registry/commit/d038d1b7a195b1e84c8f1f1f1b721b8fade7a085))
+
 ## [3.62.4](https://github.com/informatievlaanderen/road-registry/compare/v3.62.3...v3.62.4) (2023-11-08)
 
 
