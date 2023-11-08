@@ -1,6 +1,7 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
 using System;
+using BackOffice.Exceptions;
 using BackOffice.Framework;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,6 +55,7 @@ public static class EventSourceLoggerFactoryExtensions
     {
         return loggerConfiguration
             .Filter.ByExcluding(logEvent => logEvent.Exception is OperationCanceledException)
+            .Filter.ByExcluding(logEvent => logEvent.Exception is RoadRegistryProblemsException)
             .Filter.ByExcluding(
                 Matching.WithProperty<string>("SourceContext", value =>
                     "Microsoft.AspNetCore.Diagnostics.ExceptionHandlerMiddleware".Equals(value, StringComparison.OrdinalIgnoreCase)))

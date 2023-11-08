@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
+using Extensions;
 
 public static class DbaseFileProblems
 {
@@ -126,8 +127,8 @@ public static class DbaseFileProblems
             .Error(nameof(GradeSeparatedJunctionMissing))
             .WithParameter(new ProblemParameter("RoadSegmentId1", roadSegmentId1.ToString()))
             .WithParameter(new ProblemParameter("RoadSegmentId2", roadSegmentId2.ToString()))
-            .WithParameter(new ProblemParameter("IntersectionX", Math.Round(intersectionX, Precisions.MeasurementPrecision).ToString(Provider)))
-            .WithParameter(new ProblemParameter("IntersectionY", Math.Round(intersectionY, Precisions.MeasurementPrecision).ToString(Provider)))
+        .WithParameter(new ProblemParameter("IntersectionX", intersectionX.ToRoundedMeasurementString()))
+            .WithParameter(new ProblemParameter("IntersectionY", intersectionY.ToRoundedMeasurementString()))
             .Build();
     }
 

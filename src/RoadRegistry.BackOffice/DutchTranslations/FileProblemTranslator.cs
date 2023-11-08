@@ -1,8 +1,7 @@
 namespace RoadRegistry.BackOffice.DutchTranslations;
 
-using System;
-using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
+using System;
 using Uploads;
 using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using FileProblem = Messages.FileProblem;
