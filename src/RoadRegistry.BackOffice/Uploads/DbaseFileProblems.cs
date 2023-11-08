@@ -342,11 +342,24 @@ public static class DbaseFileProblems
 
     public static FileError NotEuropeanRoadNumber(this IDbaseFileRecordProblemBuilder builder, string number)
     {
-        if (number == null) throw new ArgumentNullException(nameof(number));
+        ArgumentNullException.ThrowIfNull(number);
 
         return builder
             .Error(nameof(NotEuropeanRoadNumber))
             .WithParameter(new ProblemParameter("Number", number.ToUpperInvariant()))
+            .Build();
+    }
+    public static FileError EuropeanRoadNotUnique(this IDbaseFileRecordProblemBuilder builder, AttributeId attributeId, RecordNumber takenByRecordNumber, AttributeId takenByAttributeId)
+    {
+        ArgumentNullException.ThrowIfNull(attributeId);
+        ArgumentNullException.ThrowIfNull(takenByRecordNumber);
+        ArgumentNullException.ThrowIfNull(takenByAttributeId);
+
+        return builder
+            .Error(nameof(EuropeanRoadNotUnique))
+            .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))
+            .WithParameter(new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
+            .WithParameter(new ProblemParameter("TakenByAttributeId", takenByAttributeId.ToString()))
             .Build();
     }
 
@@ -354,11 +367,24 @@ public static class DbaseFileProblems
 
     public static FileError NotNationalRoadNumber(this IDbaseFileRecordProblemBuilder builder, string number)
     {
-        if (number == null) throw new ArgumentNullException(nameof(number));
+        ArgumentNullException.ThrowIfNull(number);
 
         return builder
             .Error(nameof(NotNationalRoadNumber))
             .WithParameter(new ProblemParameter("Number", number.ToUpperInvariant()))
+            .Build();
+    }
+    public static FileError NationalRoadNotUnique(this IDbaseFileRecordProblemBuilder builder, AttributeId attributeId, RecordNumber takenByRecordNumber, AttributeId takenByAttributeId)
+    {
+        ArgumentNullException.ThrowIfNull(attributeId);
+        ArgumentNullException.ThrowIfNull(takenByRecordNumber);
+        ArgumentNullException.ThrowIfNull(takenByAttributeId);
+
+        return builder
+            .Error(nameof(NationalRoadNotUnique))
+            .WithParameter(new ProblemParameter("AttributeId", attributeId.ToString()))
+            .WithParameter(new ProblemParameter("TakenByRecordNumber", takenByRecordNumber.ToString()))
+            .WithParameter(new ProblemParameter("TakenByAttributeId", takenByAttributeId.ToString()))
             .Build();
     }
 
@@ -366,7 +392,7 @@ public static class DbaseFileProblems
 
     public static FileError NotNumberedRoadNumber(this IDbaseFileRecordProblemBuilder builder, string number)
     {
-        if (number == null) throw new ArgumentNullException(nameof(number));
+        ArgumentNullException.ThrowIfNull(number);
 
         return builder
             .Error(nameof(NotNumberedRoadNumber))

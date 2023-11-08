@@ -24,6 +24,13 @@ public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatur
 
         problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
 
+        switch (featureType)
+        {
+            case FeatureType.Change:
+                problems += archive.ValidateUniqueNationalRoads(features, featureType, fileName);
+                break;
+        }
+
         return (features, problems);
     }
 

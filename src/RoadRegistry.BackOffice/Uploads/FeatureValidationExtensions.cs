@@ -52,6 +52,63 @@ namespace RoadRegistry.BackOffice.Uploads
             return problems;
         }
 
+        public static ZipArchiveProblems ValidateUniqueEuropeanRoads(this ZipArchive archive, List<Feature<EuropeanRoadFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
+        {
+            return ValidateUniqueRecords(features,
+                (item1, item2) => item1.RoadSegmentId == item2.RoadSegmentId && item1.Number == item2.Number,
+                (feature, duplicateFeature) =>
+                {
+                    var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                    return recordContext.EuropeanRoadNotUnique(feature.Attributes.Id, duplicateFeature.RecordNumber, duplicateFeature.Attributes.Id);
+                });
+        }
+
+        public static ZipArchiveProblems ValidateUniqueNationalRoads(this ZipArchive archive, List<Feature<NationalRoadFeatureCompareAttributes>> features, FeatureType featureType, ExtractFileName fileName)
+        {
+            return ValidateUniqueRecords(features,
+                (item1, item2) => item1.RoadSegmentId == item2.RoadSegmentId && item1.Number == item2.Number,
+                (feature, duplicateFeature) =>
+            {
+                var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                return recordContext.NationalRoadNotUnique(feature.Attributes.Id, duplicateFeature.RecordNumber, duplicateFeature.Attributes.Id);
+            });
+        }
+        private static ZipArchiveProblems ValidateUniqueRecords<TAttribute>(List<Feature<TAttribute>> features,
+            Func<TAttribute, TAttribute, bool> equalityComparer,
+            Func<Feature<TAttribute>, Feature<TAttribute>, FileProblem> problemBuilder)
+            where TAttribute : class
+        {
+            var problems = ZipArchiveProblems.None;
+            
+            var knownDuplicateRecordNumbers = new List<RecordNumber>();
+
+            foreach (var feature in features)
+            {
+                var duplicateFeatures = features
+                    .Where(x => !x.RecordNumber.Equals(feature.RecordNumber) && equalityComparer(x.Attributes, feature.Attributes))
+                    .ToList();
+
+                if (duplicateFeatures.Any())
+                {
+                    knownDuplicateRecordNumbers.Add(feature.RecordNumber);
+
+                    foreach (var duplicateFeature in duplicateFeatures)
+                    {
+                        if (knownDuplicateRecordNumbers.Contains(duplicateFeature.RecordNumber))
+                        {
+                            continue;
+                        }
+
+                        problems += problemBuilder(feature, duplicateFeature);
+
+                        knownDuplicateRecordNumbers.Add(duplicateFeature.RecordNumber);
+                    }
+                }
+            }
+
+            return problems;
+        }
+
         public static ZipArchiveProblems ValidateMissingRoadSegments<T>(this ZipArchive archive, List<Feature<T>> features, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
             where T: RoadSegmentAttributeFeatureCompareAttributes
         {
