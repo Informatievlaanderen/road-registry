@@ -873,7 +873,7 @@ public class RoadNetworkTestData
                         new ProblemParameter
                         {
                             Name = "Length",
-                            Value = "141.4213562373095"
+                            Value = "141.421"
                         }
                     }
                 }
@@ -1002,7 +1002,7 @@ public class RoadNetworkTestData
                         new ProblemParameter
                         {
                             Name = "Length",
-                            Value = "141.4213562373095"
+                            Value = "141.421"
                         }
                     }
                 }
@@ -1131,7 +1131,7 @@ public class RoadNetworkTestData
                         new ProblemParameter
                         {
                             Name = "Length",
-                            Value = "141.4213562373095"
+                            Value = "141.421"
                         }
                     }
                 }
