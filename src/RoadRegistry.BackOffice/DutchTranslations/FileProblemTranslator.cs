@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.DutchTranslations;
 
 using System;
+using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
 using Uploads;
 using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
@@ -31,7 +32,9 @@ public static class FileProblemTranslator
             nameof(DbaseFileProblems.RoadNodeIdOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft een ongeldige wegknoop identificator: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.NotNumberedRoadNumber) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een nummer {problem.Parameters[1].Value} dat geen genummerd wegnummer is." },
             nameof(DbaseFileProblems.NotEuropeanRoadNumber) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een nummer {problem.Parameters[1].Value} dat geen europees wegnummer is." },
+            nameof(DbaseFileProblems.EuropeanRoadNotUnique) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} met EU_OIDN {problem.Parameters[1].Value} heeft hetzelfde WS_OIDN en EUNUMMER als de dbase record {problem.Parameters[2].Value} met EU_OIDN {problem.Parameters[3].Value}." },
             nameof(DbaseFileProblems.NotNationalRoadNumber) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een nummer {problem.Parameters[1].Value} dat geen nationaal wegnummer is." },
+            nameof(DbaseFileProblems.NationalRoadNotUnique) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} met NW_OIDN {problem.Parameters[1].Value} heeft hetzelfde WS_OIDN en IDENT2 als de dbase record {problem.Parameters[2].Value} met NW_OIDN {problem.Parameters[3].Value}." },
             nameof(DbaseFileProblems.FromPositionOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige van positie: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.ToPositionOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige tot positie: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.FromPositionEqualToOrGreaterThanToPosition) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft een van positie ({problem.Parameters[1].Value}) die gelijk aan of groter dan de tot positie ({problem.Parameters[2].Value}) is." },

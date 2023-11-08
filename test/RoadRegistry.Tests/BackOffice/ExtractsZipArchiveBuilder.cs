@@ -376,15 +376,24 @@ namespace RoadRegistry.Tests.BackOffice
             TestData.RoadNode4ShapeRecord = CreateRoadNodeShapeRecord(roadSegment2LineString.EndPoint);
             TestData.RoadSegment2ShapeRecord = CreateRoadSegmentShapeRecord(roadSegment2LineString);
         
-            TestData.RoadSegment1EuropeanRoadDbaseRecord = CreateRoadSegmentEuropeanRoadDbaseRecord();
-            TestData.RoadSegment1EuropeanRoadDbaseRecord.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-         
-            TestData.RoadSegment1NationalRoadDbaseRecord = CreateRoadSegmentNationalRoadDbaseRecord();
-            TestData.RoadSegment1NationalRoadDbaseRecord.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-          
-            TestData.RoadSegment1NumberedRoadDbaseRecord = CreateRoadSegmentNumberedRoadDbaseRecord();
-            TestData.RoadSegment1NumberedRoadDbaseRecord.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
-          
+            TestData.RoadSegment1EuropeanRoadDbaseRecord1 = CreateRoadSegmentEuropeanRoadDbaseRecord();
+            TestData.RoadSegment1EuropeanRoadDbaseRecord1.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1EuropeanRoadDbaseRecord2 = CreateRoadSegmentEuropeanRoadDbaseRecord();
+            TestData.RoadSegment1EuropeanRoadDbaseRecord2.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1EuropeanRoadDbaseRecord2.EUNUMMER.Value = fixture.CreateWhichIsDifferentThan(EuropeanRoadNumber.Parse(TestData.RoadSegment1EuropeanRoadDbaseRecord1.EUNUMMER.Value));
+            
+            TestData.RoadSegment1NationalRoadDbaseRecord1 = CreateRoadSegmentNationalRoadDbaseRecord();
+            TestData.RoadSegment1NationalRoadDbaseRecord1.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1NationalRoadDbaseRecord2 = CreateRoadSegmentNationalRoadDbaseRecord();
+            TestData.RoadSegment1NationalRoadDbaseRecord2.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1NationalRoadDbaseRecord2.IDENT2.Value = fixture.CreateWhichIsDifferentThan(NationalRoadNumber.Parse(TestData.RoadSegment1NationalRoadDbaseRecord1.IDENT2.Value));
+
+            TestData.RoadSegment1NumberedRoadDbaseRecord1 = CreateRoadSegmentNumberedRoadDbaseRecord();
+            TestData.RoadSegment1NumberedRoadDbaseRecord1.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1NumberedRoadDbaseRecord2 = CreateRoadSegmentNumberedRoadDbaseRecord();
+            TestData.RoadSegment1NumberedRoadDbaseRecord2.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
+            TestData.RoadSegment1NumberedRoadDbaseRecord2.IDENT8.Value = fixture.CreateWhichIsDifferentThan(NumberedRoadNumber.Parse(TestData.RoadSegment1NumberedRoadDbaseRecord1.IDENT8.Value));
+
             TestData.RoadSegment1LaneDbaseRecord = CreateRoadSegmentLaneDbaseRecord();
             TestData.RoadSegment1LaneDbaseRecord.WS_OIDN.Value = TestData.RoadSegment1DbaseRecord.WS_OIDN.Value;
             TestData.RoadSegment1LaneDbaseRecord.VANPOS.Value = 0;
@@ -497,9 +506,9 @@ namespace RoadRegistry.Tests.BackOffice
                 RoadNodeShapeRecords = new[] { TestData.RoadNode1ShapeRecord, TestData.RoadNode2ShapeRecord, TestData.RoadNode3ShapeRecord, TestData.RoadNode4ShapeRecord }.ToList(),
                 RoadSegmentDbaseRecords = new[] { TestData.RoadSegment1DbaseRecord, TestData.RoadSegment2DbaseRecord }.ToList(),
                 RoadSegmentShapeRecords = new[] { TestData.RoadSegment1ShapeRecord, TestData.RoadSegment2ShapeRecord }.ToList(),
-                EuropeanRoadDbaseRecords = new[] { TestData.RoadSegment1EuropeanRoadDbaseRecord }.ToList(),
-                NationalRoadDbaseRecords = new[] { TestData.RoadSegment1NationalRoadDbaseRecord }.ToList(),
-                NumberedRoadDbaseRecords = new[] { TestData.RoadSegment1NumberedRoadDbaseRecord }.ToList(),
+                EuropeanRoadDbaseRecords = new[] { TestData.RoadSegment1EuropeanRoadDbaseRecord1, TestData.RoadSegment1EuropeanRoadDbaseRecord2 }.ToList(),
+                NationalRoadDbaseRecords = new[] { TestData.RoadSegment1NationalRoadDbaseRecord1, TestData.RoadSegment1NationalRoadDbaseRecord2 }.ToList(),
+                NumberedRoadDbaseRecords = new[] { TestData.RoadSegment1NumberedRoadDbaseRecord1, TestData.RoadSegment1NumberedRoadDbaseRecord2 }.ToList(),
                 LaneDbaseRecords = new[] { TestData.RoadSegment1LaneDbaseRecord, TestData.RoadSegment2LaneDbaseRecord }.ToList(),
                 SurfaceDbaseRecords = new[] { TestData.RoadSegment1SurfaceDbaseRecord, TestData.RoadSegment2SurfaceDbaseRecord }.ToList(),
                 WidthDbaseRecords = new[] { TestData.RoadSegment1WidthDbaseRecord, TestData.RoadSegment2WidthDbaseRecord }.ToList(),
@@ -550,9 +559,12 @@ namespace RoadRegistry.Tests.BackOffice
             TestData.RoadSegment2DbaseRecord = testData.RoadSegment2DbaseRecord.Clone(manager, encoding);
             TestData.RoadSegment2ShapeRecord = testData.RoadSegment2ShapeRecord.Clone();
 
-            TestData.RoadSegment1EuropeanRoadDbaseRecord = testData.RoadSegment1EuropeanRoadDbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment1NationalRoadDbaseRecord = testData.RoadSegment1NationalRoadDbaseRecord.Clone(manager, encoding);
-            TestData.RoadSegment1NumberedRoadDbaseRecord = testData.RoadSegment1NumberedRoadDbaseRecord.Clone(manager, encoding);
+            TestData.RoadSegment1EuropeanRoadDbaseRecord1 = testData.RoadSegment1EuropeanRoadDbaseRecord1.Clone(manager, encoding);
+            TestData.RoadSegment1EuropeanRoadDbaseRecord2 = testData.RoadSegment1EuropeanRoadDbaseRecord2.Clone(manager, encoding);
+            TestData.RoadSegment1NationalRoadDbaseRecord1 = testData.RoadSegment1NationalRoadDbaseRecord1.Clone(manager, encoding);
+            TestData.RoadSegment1NationalRoadDbaseRecord2 = testData.RoadSegment1NationalRoadDbaseRecord2.Clone(manager, encoding);
+            TestData.RoadSegment1NumberedRoadDbaseRecord1 = testData.RoadSegment1NumberedRoadDbaseRecord1.Clone(manager, encoding);
+            TestData.RoadSegment1NumberedRoadDbaseRecord2 = testData.RoadSegment1NumberedRoadDbaseRecord2.Clone(manager, encoding);
 
             TestData.RoadSegment1LaneDbaseRecord = testData.RoadSegment1LaneDbaseRecord.Clone(manager, encoding);
             TestData.RoadSegment2LaneDbaseRecord = testData.RoadSegment2LaneDbaseRecord.Clone(manager, encoding);
@@ -643,9 +655,12 @@ namespace RoadRegistry.Tests.BackOffice
         public RoadSegmentDbaseRecord RoadSegment2DbaseRecord { get; set; }
         public RoadSegmentShapeRecord RoadSegment2ShapeRecord { get; set; }
 
-        public RoadSegmentEuropeanRoadAttributeDbaseRecord RoadSegment1EuropeanRoadDbaseRecord { get; set; }
-        public RoadSegmentNationalRoadAttributeDbaseRecord RoadSegment1NationalRoadDbaseRecord { get; set; }
-        public RoadSegmentNumberedRoadAttributeDbaseRecord RoadSegment1NumberedRoadDbaseRecord { get; set; }
+        public RoadSegmentEuropeanRoadAttributeDbaseRecord RoadSegment1EuropeanRoadDbaseRecord1 { get; set; }
+        public RoadSegmentEuropeanRoadAttributeDbaseRecord RoadSegment1EuropeanRoadDbaseRecord2 { get; set; }
+        public RoadSegmentNationalRoadAttributeDbaseRecord RoadSegment1NationalRoadDbaseRecord1 { get; set; }
+        public RoadSegmentNationalRoadAttributeDbaseRecord RoadSegment1NationalRoadDbaseRecord2 { get; set; }
+        public RoadSegmentNumberedRoadAttributeDbaseRecord RoadSegment1NumberedRoadDbaseRecord1 { get; set; }
+        public RoadSegmentNumberedRoadAttributeDbaseRecord RoadSegment1NumberedRoadDbaseRecord2 { get; set; }
         public RoadSegmentLaneAttributeDbaseRecord RoadSegment1LaneDbaseRecord { get; set; }
         public RoadSegmentLaneAttributeDbaseRecord RoadSegment2LaneDbaseRecord { get; set; }
         public RoadSegmentSurfaceAttributeDbaseRecord RoadSegment1SurfaceDbaseRecord { get; set; }
