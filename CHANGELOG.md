@@ -1,3 +1,15 @@
+## [3.62.4](https://github.com/informatievlaanderen/road-registry/compare/v3.62.3...v3.62.4) (2023-11-08)
+
+
+### Bug Fixes
+
+* pipeline change newprd env to prd ([#1285](https://github.com/informatievlaanderen/road-registry/issues/1285)) ([edf2bac](https://github.com/informatievlaanderen/road-registry/commit/edf2bacaa9c8f8ce3988fda60e29da073d5c28a4))
+* random integration test failures ([#1282](https://github.com/informatievlaanderen/road-registry/issues/1282)) ([705d42b](https://github.com/informatievlaanderen/road-registry/commit/705d42bee393180a5544eda59082435b506edb77))
+* WR-754 retry-after calculation ([#1284](https://github.com/informatievlaanderen/road-registry/issues/1284)) ([f101a3f](https://github.com/informatievlaanderen/road-registry/commit/f101a3f50fe02b90ccc4f5e3ce006bd53b050821))
+* WR-872 validate roadsegment/roadnode ids uniqueness across change and integration files ([#1286](https://github.com/informatievlaanderen/road-registry/issues/1286)) ([7f67494](https://github.com/informatievlaanderen/road-registry/commit/7f674948dfc19b969b8675c97c88dabdcd844c87))
+* WR-884 validate national/european road records to be unique ([#1287](https://github.com/informatievlaanderen/road-registry/issues/1287)) ([5482105](https://github.com/informatievlaanderen/road-registry/commit/5482105f5414ddee01dd0f6bf7c4187c00848ce5))
+* WR-885 format coordinates + don't show validation errors in Slack ([#1288](https://github.com/informatievlaanderen/road-registry/issues/1288)) ([0fd2f1f](https://github.com/informatievlaanderen/road-registry/commit/0fd2f1f6257a7fc3996ff044388be21c26a62fc9))
+
 ## [3.62.3](https://github.com/informatievlaanderen/road-registry/compare/v3.62.2...v3.62.3) (2023-11-06)
 
 
