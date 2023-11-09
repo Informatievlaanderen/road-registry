@@ -1,3 +1,10 @@
+## [3.62.6](https://github.com/informatievlaanderen/road-registry/compare/v3.62.5...v3.62.6) (2023-11-09)
+
+
+### Bug Fixes
+
+* use timestamped filename for s3 healthcheck ([#1292](https://github.com/informatievlaanderen/road-registry/issues/1292)) ([d52743c](https://github.com/informatievlaanderen/road-registry/commit/d52743c8f86f6a2d27f04bb4d4bbd5f700d0ff5b))
+
 ## [3.62.5](https://github.com/informatievlaanderen/road-registry/compare/v3.62.4...v3.62.5) (2023-11-08)
 
 
