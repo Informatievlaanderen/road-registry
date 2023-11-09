@@ -50,7 +50,7 @@ export default class UserTokenResult {
   parseContexts(): string[] {
     let dvWegenregister = this.token.dv_wegenregister ?? [];
     let dvWegenregisterClaims = (Array.isArray(dvWegenregister) ? dvWegenregister : [dvWegenregister]).filter(
-      (x: string) => x.startsWith("DVWegenregister-") && x.endsWith(`:${this.token.vo_orgcode}`)
+      (x: string) => x.startsWith("DVWegenregister-")
     );
     return dvWegenregisterClaims.map((x: string) => x.split("-")[1].split(":")[0]);
   }
