@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -87,8 +88,10 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var @operator = new OperatorName(command.Body.Operator);
         var reason = new Reason(command.Body.Reason);
 
+        var sw = Stopwatch.StartNew();
         var organizationId = new OrganizationId(command.Body.OrganizationId);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
+        _logger.LogInformation("TIMETRACKING changeroadnetwork: finding organization took {Elapsed}", sw.Elapsed);
 
         Organization.DutchTranslation translation;
         if (organization is null)
@@ -105,7 +108,10 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             translation = organization.Translation;
         }
 
+        sw.Restart();
         var network = await context.RoadNetworks.Get(cancellationToken);
+        _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork took {Elapsed}", sw.Elapsed);
+
         var translator = new RequestedChangeTranslator(
             network.ProvidesNextTransactionId(),
             network.ProvidesNextRoadNodeId(),
@@ -121,9 +127,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             network.ProvidesNextRoadSegmentWidthAttributeId(),
             network.ProvidesNextRoadSegmentSurfaceAttributeId()
         );
+        sw.Restart();
         var requestedChanges = await translator.Translate(command.Body.Changes, context.Organizations, cancellationToken);
+        _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
+        sw.Restart();
         await network.Change(request, downloadId, reason, @operator, translation, requestedChanges, _emailClient, cancellationToken);
+        _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }
