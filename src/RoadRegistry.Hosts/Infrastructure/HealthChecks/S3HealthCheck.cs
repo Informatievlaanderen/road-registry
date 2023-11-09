@@ -13,18 +13,17 @@ internal class S3HealthCheck : IHealthCheck
 {
     public const string DummyFilePath = "./healthcheck.bin";
 
-    private readonly string _objectKey;
-
     private readonly string _bucketName;
     private readonly S3Options _options;
     private readonly Permission _permission;
-    
+    private readonly string _applicationName;
+
     public S3HealthCheck(S3Options options, string bucketName, Permission permission, string applicationName)
     {
         _options = options;
         _bucketName = bucketName;
         _permission = permission;
-        _objectKey = $"healthcheck.{applicationName}.bin";
+        _applicationName = applicationName;
     }
 
     public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -44,9 +43,10 @@ internal class S3HealthCheck : IHealthCheck
                             : HealthCheckResult.Unhealthy();
 
                     case Permission.Write:
+                        var objectKey = $"healthcheck.{_applicationName}.{DateTime.Now:yyyyMMdd-HHmmssfff}.bin";
                         var putObjectRequest = new PutObjectRequest
                         {
-                            Key = _objectKey,
+                            Key = objectKey,
                             BucketName = _bucketName,
                             FilePath = DummyFilePath
                         };
@@ -56,13 +56,20 @@ internal class S3HealthCheck : IHealthCheck
                             return HealthCheckResult.Unhealthy(description: $"Received status code {putObjectResponse.HttpStatusCode} when putting the file");
                         }
 
-                        var getObjectResponse = await client.GetObjectAsync(_bucketName, _objectKey, cancellationToken);
-                        if (getObjectResponse.HttpStatusCode != HttpStatusCode.OK)
+                        DeleteObjectResponse deleteObjectResponse;
+                        try
                         {
-                            return HealthCheckResult.Unhealthy(description: $"Received status code {getObjectResponse.HttpStatusCode} when getting the file");
+                            var getObjectResponse = await client.GetObjectAsync(_bucketName, objectKey, cancellationToken);
+                            if (getObjectResponse.HttpStatusCode != HttpStatusCode.OK)
+                            {
+                                return HealthCheckResult.Unhealthy(description: $"Received status code {getObjectResponse.HttpStatusCode} when getting the file");
+                            }
+                        }
+                        finally
+                        {
+                            deleteObjectResponse = await client.DeleteObjectAsync(_bucketName, objectKey, cancellationToken);
                         }
 
-                        var deleteObjectResponse = await client.DeleteObjectAsync(_bucketName, _objectKey, cancellationToken);
                         if (deleteObjectResponse.HttpStatusCode != HttpStatusCode.NoContent)
                         {
                             return HealthCheckResult.Unhealthy(description: $"Received status code {deleteObjectResponse.HttpStatusCode} when deleting the file");
