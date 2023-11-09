@@ -1,3 +1,10 @@
+## [3.62.7](https://github.com/informatievlaanderen/road-registry/compare/v3.62.6...v3.62.7) (2023-11-09)
+
+
+### Bug Fixes
+
+* WR-886 add logging to track timing of actions ([#1293](https://github.com/informatievlaanderen/road-registry/issues/1293)) ([4e17dcd](https://github.com/informatievlaanderen/road-registry/commit/4e17dcdb2a7c0d45943ac4e843a728ae19a131c4))
+
 ## [3.62.6](https://github.com/informatievlaanderen/road-registry/compare/v3.62.5...v3.62.6) (2023-11-09)
 
 
