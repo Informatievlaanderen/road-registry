@@ -9,7 +9,7 @@
     "url": "git@github.com:informatievlaanderen/road-registry.git"
   },
   "devDependencies": {
-    "@commitlint/cli": "16.2.4",
+    "@commitlint/cli": "18.4.1",
     "@commitlint/config-conventional": "16.2.4",
     "@commitlint/prompt": "16.2.4",
     "@semantic-release/changelog": "6.0.2",
