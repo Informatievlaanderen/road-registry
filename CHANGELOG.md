@@ -1,3 +1,10 @@
+## [3.62.8](https://github.com/informatievlaanderen/road-registry/compare/v3.62.7...v3.62.8) (2023-11-17)
+
+
+### Bug Fixes
+
+* exclude invalid path requests error notifications for docs ([#1298](https://github.com/informatievlaanderen/road-registry/issues/1298)) ([1ffccf0](https://github.com/informatievlaanderen/road-registry/commit/1ffccf070833a52e619c80e73f3d2ec334c24330))
+
 ## [3.62.7](https://github.com/informatievlaanderen/road-registry/compare/v3.62.6...v3.62.7) (2023-11-09)
 
 
