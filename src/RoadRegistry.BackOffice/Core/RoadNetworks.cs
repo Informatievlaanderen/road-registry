@@ -14,7 +14,7 @@ using SqlStreamStore;
 using SqlStreamStore.Streams;
 
 public delegate bool ProcessMessageHandler(int messageStreamVersion, int pageLastStreamVersion);
-
+//TODO-rik maak stream customizable
 public class RoadNetworks : IRoadNetworks
 {
     private const int StreamPageSize = 100;

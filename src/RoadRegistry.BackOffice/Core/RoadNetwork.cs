@@ -143,29 +143,9 @@ public class RoadNetwork : EventSourcedEntity
             .ToList();
     }
 
-    public Func<AttributeId> ProvidesNextEuropeanRoadAttributeId()
+    public IRoadNetworkIdProvider CreateIdProvider(IRoadNetworkIdGenerator idGenerator)
     {
-        return new NextAttributeIdProvider(_view.MaximumEuropeanRoadAttributeId).Next;
-    }
-
-    public Func<GradeSeparatedJunctionId> ProvidesNextGradeSeparatedJunctionId()
-    {
-        return new NextGradeSeparatedJunctionIdProvider(_view.MaximumGradeSeparatedJunctionId).Next;
-    }
-
-    public Func<AttributeId> ProvidesNextNationalRoadAttributeId()
-    {
-        return new NextAttributeIdProvider(_view.MaximumNationalRoadAttributeId).Next;
-    }
-
-    public Func<AttributeId> ProvidesNextNumberedRoadAttributeId()
-    {
-        return new NextAttributeIdProvider(_view.MaximumNumberedRoadAttributeId).Next;
-    }
-
-    public Func<RoadNodeId> ProvidesNextRoadNodeId()
-    {
-        return new NextRoadNodeIdProvider(_view.MaximumNodeId).Next;
+        return new RoadNetworkIdProvider(idGenerator, _view);
     }
 
     public Func<RoadNodeId, RoadNodeVersion> ProvidesNextRoadNodeVersion()
@@ -198,42 +178,7 @@ public class RoadNetwork : EventSourcedEntity
             return new NextRoadSegmentGeometryVersionProvider().Next();
         };
     }
-
-    public Func<RoadSegmentId> ProvidesNextRoadSegmentId()
-    {
-        return new NextRoadSegmentIdProvider(_view.MaximumSegmentId).Next;
-    }
-
-    public Func<RoadSegmentId, Func<AttributeId>> ProvidesNextRoadSegmentLaneAttributeId()
-    {
-        var provider = new NextAttributeIdProvider(_view.MaximumLaneAttributeId);
-        return id =>
-        {
-            if (_view.SegmentReusableLaneAttributeIdentifiers.TryGetValue(id, out var reusableAttributeIdentifiers)
-                && reusableAttributeIdentifiers.Count != 0)
-            {
-                return new NextReusableAttributeIdProvider(provider, reusableAttributeIdentifiers).Next;
-            }
-
-            return provider.Next;
-        };
-    }
-
-    public Func<RoadSegmentId, Func<AttributeId>> ProvidesNextRoadSegmentSurfaceAttributeId()
-    {
-        var provider = new NextAttributeIdProvider(_view.MaximumSurfaceAttributeId);
-        return id =>
-        {
-            if (_view.SegmentReusableSurfaceAttributeIdentifiers.TryGetValue(id, out var reusableAttributeIdentifiers)
-                && reusableAttributeIdentifiers.Count != 0)
-            {
-                return new NextReusableAttributeIdProvider(provider, reusableAttributeIdentifiers).Next;
-            }
-
-            return provider.Next;
-        };
-    }
-
+    
     public Func<RoadSegmentId, RoadSegmentVersion> ProvidesNextRoadSegmentVersion()
     {
         return id =>
@@ -245,27 +190,7 @@ public class RoadNetwork : EventSourcedEntity
             return new NextRoadSegmentVersionProvider().Next();
         };
     }
-
-    public Func<RoadSegmentId, Func<AttributeId>> ProvidesNextRoadSegmentWidthAttributeId()
-    {
-        var provider = new NextAttributeIdProvider(_view.MaximumWidthAttributeId);
-        return id =>
-        {
-            if (_view.SegmentReusableWidthAttributeIdentifiers.TryGetValue(id, out var reusableAttributeIdentifiers)
-                && reusableAttributeIdentifiers.Count != 0)
-            {
-                return new NextReusableAttributeIdProvider(provider, reusableAttributeIdentifiers).Next;
-            }
-
-            return provider.Next;
-        };
-    }
-
-    public Func<TransactionId> ProvidesNextTransactionId()
-    {
-        return new NextTransactionIdProvider(_view.MaximumTransactionId).Next;
-    }
-
+    
     public void RestoreFromSnapshot(RoadNetworkSnapshot snapshot)
     {
         if (snapshot == null)
@@ -340,110 +265,6 @@ public class RoadNetwork : EventSourcedEntity
         }
 
         public GeometryVersion Next()
-        {
-            var next = _current.Next();
-            _current = next;
-            return next;
-        }
-    }
-
-    private sealed class NextAttributeIdProvider
-    {
-        private AttributeId _current;
-
-        public NextAttributeIdProvider(AttributeId current)
-        {
-            _current = current;
-        }
-
-        public AttributeId Next()
-        {
-            var next = _current.Next();
-            _current = next;
-            return next;
-        }
-    }
-
-    private sealed class NextGradeSeparatedJunctionIdProvider
-    {
-        private GradeSeparatedJunctionId _current;
-
-        public NextGradeSeparatedJunctionIdProvider(GradeSeparatedJunctionId current)
-        {
-            _current = current;
-        }
-
-        public GradeSeparatedJunctionId Next()
-        {
-            var next = _current.Next();
-            _current = next;
-            return next;
-        }
-    }
-
-    private sealed class NextReusableAttributeIdProvider
-    {
-        private readonly NextAttributeIdProvider _provider;
-        private readonly IReadOnlyList<AttributeId> _reusableAttributeIdentifiers;
-        private int _index;
-
-        public NextReusableAttributeIdProvider(NextAttributeIdProvider provider, IReadOnlyList<AttributeId> reusableAttributeIdentifiers)
-        {
-            _provider = provider;
-            _index = 0;
-            _reusableAttributeIdentifiers = reusableAttributeIdentifiers;
-        }
-
-        public AttributeId Next()
-        {
-            return _index < _reusableAttributeIdentifiers.Count ? _reusableAttributeIdentifiers[_index++] : _provider.Next();
-        }
-    }
-
-    private sealed class NextRoadNodeIdProvider
-    {
-        private RoadNodeId _current;
-
-        public NextRoadNodeIdProvider(RoadNodeId current)
-        {
-            _current = current;
-        }
-
-        public RoadNodeId Next()
-        {
-            var next = _current.Next();
-            _current = next;
-            return next;
-        }
-    }
-
-    private sealed class NextRoadSegmentIdProvider
-    {
-        private RoadSegmentId _current;
-
-        public NextRoadSegmentIdProvider(RoadSegmentId current)
-        {
-            _current = current;
-        }
-
-        public RoadSegmentId Next()
-        {
-            var next = _current.Next();
-            _current = next;
-            return next;
-        }
-    }
-
-    private sealed class NextTransactionIdProvider
-    {
-        private TransactionId _current;
-
-        public NextTransactionIdProvider(TransactionId current)
-        {
-            _current = current;
-        }
-
-        public TransactionId Next()
         {
             var next = _current.Next();
             _current = next;

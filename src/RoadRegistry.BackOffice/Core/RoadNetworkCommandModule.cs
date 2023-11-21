@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using Autofac;
+using Autofac.Core.Lifetime;
 using FeatureToggles;
 using Framework;
 using Messages;
@@ -9,12 +10,14 @@ using NodaTime;
 using SqlStreamStore;
 using System;
 using System.Diagnostics;
+using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
 
 public class RoadNetworkCommandModule : CommandHandlerModule
 {
     private readonly IStreamStore _store;
+    private readonly ILifetimeScope _lifetimeScope;
     private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
     private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly ILogger _logger;
@@ -30,17 +33,19 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         ILoggerFactory loggerFactory)
     {
         ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(lifetimeScope);
         ArgumentNullException.ThrowIfNull(snapshotReader);
         ArgumentNullException.ThrowIfNull(clock);
         ArgumentNullException.ThrowIfNull(emailClient);
         ArgumentNullException.ThrowIfNull(loggerFactory);
 
         _store = store;
+        _lifetimeScope = lifetimeScope;
         _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
         _emailClient = emailClient;
         _logger = loggerFactory.CreateLogger<RoadNetworkCommandModule>();
         _enricher = EnrichEvent.WithTime(clock);
-        
+
         For<ChangeRoadNetwork>()
             .UseValidator(new ChangeRoadNetworkValidator())
             .UseRoadRegistryContext(store, lifetimeScope, snapshotReader, loggerFactory, _enricher)
@@ -99,7 +104,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             translation = organizationId == OrganizationId.Other
                 ? Organization.PredefinedTranslations.Other
                 : Organization.PredefinedTranslations.Unknown;
-        } else if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
+        }
+        else if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
         {
             translation = new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
         }
@@ -112,28 +118,24 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var network = await context.RoadNetworks.Get(cancellationToken);
         _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork took {Elapsed}", sw.Elapsed);
 
-        var translator = new RequestedChangeTranslator(
-            network.ProvidesNextTransactionId(),
-            network.ProvidesNextRoadNodeId(),
-            network.ProvidesNextRoadNodeVersion(),
-            network.ProvidesNextRoadSegmentId(),
-            network.ProvidesNextGradeSeparatedJunctionId(),
-            network.ProvidesNextEuropeanRoadAttributeId(),
-            network.ProvidesNextNationalRoadAttributeId(),
-            network.ProvidesNextNumberedRoadAttributeId(),
-            network.ProvidesNextRoadSegmentVersion(),
-            network.ProvidesNextRoadSegmentGeometryVersion(),
-            network.ProvidesNextRoadSegmentLaneAttributeId(),
-            network.ProvidesNextRoadSegmentWidthAttributeId(),
-            network.ProvidesNextRoadSegmentSurfaceAttributeId()
-        );
-        sw.Restart();
-        var requestedChanges = await translator.Translate(command.Body.Changes, context.Organizations, cancellationToken);
-        _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
+        using (var container = _lifetimeScope.BeginLifetimeScope())
+        {
+            var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
+            
+            var translator = new RequestedChangeTranslator(
+                network.CreateIdProvider(idGenerator),
+                network.ProvidesNextRoadNodeVersion(),
+                network.ProvidesNextRoadSegmentVersion(),
+                network.ProvidesNextRoadSegmentGeometryVersion()
+            );
+            sw.Restart();
+            var requestedChanges = await translator.Translate(command.Body.Changes, context.Organizations, cancellationToken);
+            _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
-        sw.Restart();
-        await network.Change(request, downloadId, reason, @operator, translation, requestedChanges, _emailClient, cancellationToken);
-        _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
+            sw.Restart();
+            await network.Change(request, downloadId, reason, @operator, translation, requestedChanges, _emailClient, cancellationToken);
+            _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
+        }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }
@@ -234,7 +236,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         var organizationId = new OrganizationId(command.Body.Code);
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
-        
+
         if (organization != null)
         {
             organization.Change(
