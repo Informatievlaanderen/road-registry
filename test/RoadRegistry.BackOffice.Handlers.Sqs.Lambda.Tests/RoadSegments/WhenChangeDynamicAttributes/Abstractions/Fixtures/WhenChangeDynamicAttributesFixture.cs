@@ -5,6 +5,7 @@ using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.IO;
 using NodaTime;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Core;
@@ -14,6 +15,7 @@ using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Requests;
 using RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.Framework;
 using RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
+using RoadRegistry.Editor.Schema;
 using RoadRegistry.Hosts;
 using RoadRegistry.Tests.BackOffice;
 
@@ -56,6 +58,9 @@ public abstract class WhenChangeDynamicAttributesFixture : SqsLambdaHandlerFixtu
         IdempotentCommandHandler,
         RoadRegistryContext,
         ChangeRoadNetworkDispatcher,
+        new FakeEditorContext(),
+        new RecyclableMemoryStreamManager(),
+        FileEncoding.UTF8,
         new FakeDistributedStreamStoreLockOptions(),
         new NullLogger<ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler>()
     );

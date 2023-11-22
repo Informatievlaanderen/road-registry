@@ -250,8 +250,6 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     );
                     break;
                 case RecordType.AddedIdentifier:
-                    //TODO-rik als de segment een outlined is dan ook een nieuwe permanent ID genereren en doorgeven
-                    //dit eventueel pas na de FC opvullen? zodat het pas gebeurd wanneer de FC geen fouten heeft gegeven
                     changes = changes.AppendChange(
                         new AddRoadSegment(
                             record.RecordNumber,
@@ -271,7 +269,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     );
                     break;
                 case RecordType.RemovedIdentifier:
-                    //TODO-rik test dat bij een delete outline de geometrydrawmethod nog beschikbaar is
+                    //TODO-rik test dat bij een delete outline de geometrydrawmethod nog ingevuld is
                     changes = changes.AppendChange(
                         new RemoveRoadSegment(
                             record.RecordNumber,

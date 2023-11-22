@@ -118,17 +118,19 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         sw.Restart();
 
-        var outlineRoadSegmentChanges = ConvertToChangesPerOutlinedRoadSegment(command.Body.Changes);
-
-        foreach (var outlineRoadSegment in outlineRoadSegmentChanges)
+        using (var container = _lifetimeScope.BeginLifetimeScope())
         {
-            var streamName = RoadNetworkStreamNameProvider.Get(outlineRoadSegment.Key, outlineRoadSegment.Key is not null ? RoadSegmentGeometryDrawMethod.Outlined : null);
-            var network = await context.RoadNetworks.Get(streamName, cancellationToken);
-            _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork for RoadSegmentId [{RoadSegmentId}] took {Elapsed}", outlineRoadSegment.Key, sw.Elapsed);
+            var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
 
-            using (var container = _lifetimeScope.BeginLifetimeScope())
+            await FillMissingPermanentIdsForAddedOutlineRoadSegments(idGenerator, command.Body.Changes);
+
+            var outlineRoadSegmentChanges = ConvertToChangesPerOutlinedRoadSegment(command.Body.Changes);
+
+            foreach (var outlineRoadSegment in outlineRoadSegmentChanges)
             {
-                var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
+                var streamName = RoadNetworkStreamNameProvider.Get(outlineRoadSegment.Key, outlineRoadSegment.Key is not null ? RoadSegmentGeometryDrawMethod.Outlined : null);
+                var network = await context.RoadNetworks.Get(streamName, cancellationToken);
+                _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork for RoadSegmentId [{RoadSegmentId}] took {Elapsed}", outlineRoadSegment.Key, sw.Elapsed);
 
                 var translator = new RequestedChangeTranslator(
                     network.CreateIdProvider(idGenerator),
@@ -273,6 +275,15 @@ public class RoadNetworkCommandModule : CommandHandlerModule
     private Task Ignore<TCommand>(Command<TCommand> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    private async Task FillMissingPermanentIdsForAddedOutlineRoadSegments(IRoadNetworkIdGenerator idGenerator, RequestedChange[] changes)
+    {
+        foreach (var change in changes.Where(x => x.AddRoadSegment?.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
+                 && x.AddRoadSegment.PermanentId is null))
+        {
+            change.AddRoadSegment.PermanentId = await idGenerator.NewRoadSegmentId();
+        }
     }
 
     //TODO-rik create unit test to confirm of bij een mixed upload de outlined roadsegments naar de juiste stream gestuurt worden

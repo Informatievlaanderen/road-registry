@@ -20,6 +20,7 @@ using RoadRegistry.Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Threading.Tasks;
+using RoadNetwork.Schema;
 using Uploads;
 using ZipArchiveWriters.Validation;
 
@@ -48,7 +49,9 @@ public class Program
                             sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.CommandHost)
                         ),
                         WellknownSchemas.CommandHostSchema))
-                .AddDistributedStreamStoreLockOptions())
+                .AddDistributedStreamStoreLockOptions()
+                .AddDbContext<RoadNetworkDbContext>()
+            )
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
                 .AddHostedServicesStatus()
