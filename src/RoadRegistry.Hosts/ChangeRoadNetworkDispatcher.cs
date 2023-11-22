@@ -1,14 +1,9 @@
 namespace RoadRegistry.Hosts;
 
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice;
-using BackOffice.Abstractions.Exceptions;
 using BackOffice.Abstractions.Organizations;
 using BackOffice.Core;
+using BackOffice.FeatureToggles;
 using BackOffice.Framework;
 using BackOffice.Messages;
 using BackOffice.Uploads;
@@ -23,7 +18,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
-using RoadRegistry.BackOffice.FeatureToggles;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Reason = BackOffice.Reason;
 
 public interface IChangeRoadNetworkDispatcher
@@ -120,8 +119,12 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
 
         var entityMap = _eventSourcedEntityMap;
 
-        var roadNetwork = entityMap.Entries.Single(x => x.Stream == RoadNetworks.Stream);
-        foreach (var @event in roadNetwork.Entity.TakeEvents())
+        var roadNetworkEvents = entityMap.Entries
+            .Select(x => x.Entity)
+            .Where(x => x is RoadNetwork)
+            .SelectMany(x => x.TakeEvents())
+            .ToList();
+        foreach (var @event in roadNetworkEvents)
         {
             switch (@event)
             {

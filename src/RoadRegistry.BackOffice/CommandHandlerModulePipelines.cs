@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice;
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Core;
@@ -13,6 +9,9 @@ using Messages;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 public static class CommandHandlerModulePipelines
 {

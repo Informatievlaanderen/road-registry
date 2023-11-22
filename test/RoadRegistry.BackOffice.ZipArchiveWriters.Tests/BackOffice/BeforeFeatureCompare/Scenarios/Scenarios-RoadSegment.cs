@@ -155,7 +155,8 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                         ))
                     .AppendChange(new RemoveRoadSegment(
                         new RecordNumber(1),
-                        new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value)
+                        new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                        RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value]
                     ))
                     .AppendChange(new AddRoadSegmentToEuropeanRoad(
                         new RecordNumber(1),

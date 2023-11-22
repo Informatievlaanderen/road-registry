@@ -20,7 +20,7 @@ using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<UnlinkStreetNameSqsLambdaRequest>
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
-    private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
+    private readonly DistributedStreamStoreLockOptions _distributedStreamStoreLockOptions;
 
     public UnlinkStreetNameSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -40,19 +40,23 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
             logger)
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
-        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
+        _distributedStreamStoreLockOptions = distributedStreamStoreLockOptions;
     }
 
     protected override async Task<object> InnerHandle(UnlinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+        var roadSegmentId = new RoadSegmentId(request.Request.WegsegmentId);
+        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(request.Request.Methode);
+        var streamName = RoadNetworkStreamNameProvider.Get(roadSegmentId, geometryDrawMethod);
+        var distributedStreamStoreLock = new DistributedStreamStoreLock(_distributedStreamStoreLockOptions, streamName, Logger);
+
+        await distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
             await _changeRoadNetworkDispatcher.DispatchAsync(request, "Straatnaam ontkoppelen", async translatedChanges =>
             {
                 var problems = Problems.None;
 
-                var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
-                var roadSegmentId = new RoadSegmentId(request.Request.WegsegmentId);
+                var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(streamName, cancellationToken);
                 var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
                 if (roadSegment == null)
                 {
@@ -127,8 +131,7 @@ public sealed class UnlinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<U
             }, cancellationToken);
         }, cancellationToken);
 
-        var roadSegmentId = request.Request.WegsegmentId;
-        var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
+        var lastHash = await GetRoadSegmentHash(roadSegmentId, cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
     }
 

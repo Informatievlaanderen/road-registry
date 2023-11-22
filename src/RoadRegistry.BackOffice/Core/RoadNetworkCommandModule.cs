@@ -9,7 +9,9 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection.Emit;
 using System.Threading;
 using System.Threading.Tasks;
@@ -115,26 +117,33 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         }
 
         sw.Restart();
-        var network = await context.RoadNetworks.Get(cancellationToken);
-        _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork took {Elapsed}", sw.Elapsed);
 
-        using (var container = _lifetimeScope.BeginLifetimeScope())
+        var outlineRoadSegmentChanges = ConvertToChangesPerOutlinedRoadSegment(command.Body.Changes);
+
+        foreach (var outlineRoadSegment in outlineRoadSegmentChanges)
         {
-            var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
-            
-            var translator = new RequestedChangeTranslator(
-                network.CreateIdProvider(idGenerator),
-                network.ProvidesNextRoadNodeVersion(),
-                network.ProvidesNextRoadSegmentVersion(),
-                network.ProvidesNextRoadSegmentGeometryVersion()
-            );
-            sw.Restart();
-            var requestedChanges = await translator.Translate(command.Body.Changes, context.Organizations, cancellationToken);
-            _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
+            var streamName = RoadNetworkStreamNameProvider.Get(outlineRoadSegment.Key, outlineRoadSegment.Key is not null ? RoadSegmentGeometryDrawMethod.Outlined : null);
+            var network = await context.RoadNetworks.Get(streamName, cancellationToken);
+            _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork for RoadSegmentId [{RoadSegmentId}] took {Elapsed}", outlineRoadSegment.Key, sw.Elapsed);
 
-            sw.Restart();
-            await network.Change(request, downloadId, reason, @operator, translation, requestedChanges, _emailClient, cancellationToken);
-            _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
+            using (var container = _lifetimeScope.BeginLifetimeScope())
+            {
+                var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
+
+                var translator = new RequestedChangeTranslator(
+                    network.CreateIdProvider(idGenerator),
+                    network.ProvidesNextRoadNodeVersion(),
+                    network.ProvidesNextRoadSegmentVersion(),
+                    network.ProvidesNextRoadSegmentGeometryVersion()
+                );
+                sw.Restart();
+                var requestedChanges = await translator.Translate(command.Body.Changes, context.Organizations, cancellationToken);
+                _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
+
+                sw.Restart();
+                await network.Change(request, downloadId, reason, @operator, translation, requestedChanges, _emailClient, cancellationToken);
+                _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
+            }
         }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
@@ -264,5 +273,41 @@ public class RoadNetworkCommandModule : CommandHandlerModule
     private Task Ignore<TCommand>(Command<TCommand> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+
+    //TODO-rik create unit test to confirm of bij een mixed upload de outlined roadsegments naar de juiste stream gestuurt worden
+    private Dictionary<RoadSegmentId?, RequestedChange[]> ConvertToChangesPerOutlinedRoadSegment(RequestedChange[] changes)
+    {
+        var q = changes
+            .Select(change => new
+            {
+                RoadSegmentId = change.AddRoadSegment?.PermanentId
+                                ?? change.ModifyRoadSegment?.Id
+                                ?? change.RemoveRoadSegment?.Id
+                                ?? change.ModifyRoadSegmentAttributes?.Id,
+                GeometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
+                                     ?? change.ModifyRoadSegment?.GeometryDrawMethod
+                                     ?? change.RemoveRoadSegment?.GeometryDrawMethod
+                                     ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod,
+                Change = change
+            })
+            .ToList();
+
+        var outlinedRoadSegmentChanges = q.Where(x => x.RoadSegmentId is not null && x.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined).ToList();
+        var roadNetworkChanges = q.Except(outlinedRoadSegmentChanges).ToList();
+
+        var roadSegmentChanges = new Dictionary<RoadSegmentId?, RequestedChange[]>();
+
+        if (roadNetworkChanges.Any())
+        {
+            roadSegmentChanges.Add(null, roadNetworkChanges.Select(x => x.Change).ToArray());
+        }
+
+        foreach (var roadSegmentGroup in outlinedRoadSegmentChanges.GroupBy(x => x.RoadSegmentId!.Value, x => x.Change))
+        {
+            roadSegmentChanges.Add(new RoadSegmentId(roadSegmentGroup.Key), roadSegmentGroup.ToArray());
+        }
+
+        return roadSegmentChanges;
     }
 }

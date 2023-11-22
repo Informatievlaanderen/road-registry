@@ -19,5 +19,6 @@ public class AddRoadSegment : IMessage
     public RequestedRoadSegmentSurfaceAttribute[] Surfaces { get; set; }
     public int TemporaryId { get; set; }
     public int? OriginalId { get; set; }
+    public int? PermanentId { get; set; }
     public RequestedRoadSegmentWidthAttribute[] Widths { get; set; }
 }

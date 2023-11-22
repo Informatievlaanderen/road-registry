@@ -11,6 +11,7 @@ using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using System.Linq;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentGeometry = BackOffice.Uploads.ModifyRoadSegmentGeometry;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
@@ -42,13 +43,11 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
 
     protected override async Task<object> InnerHandle(ChangeRoadSegmentOutlineGeometrySqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        // Do NOT lock the stream store for stream RoadNetworks.Stream
-
         var roadSegmentId = request.Request.RoadSegmentId;
 
         await _changeRoadNetworkDispatcher.DispatchAsync(request, "Wijzig geometrie van ingeschetst wegsegment", async translatedChanges =>
         {
-            var network = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
+            var network = await RoadRegistryContext.RoadNetworks.ForOutlinedRoadSegment(roadSegmentId, cancellationToken);
 
             var problems = Problems.None;
 
@@ -69,14 +68,21 @@ public sealed class ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler : Sq
             var fromPosition = RoadSegmentPosition.Zero;
             var toPosition = RoadSegmentPosition.FromDouble(geometry.Length);
 
+            var attributeId = AttributeId.Initial;
+            AttributeId GetNextAttributeId()
+            {
+                attributeId = attributeId.Next();
+                return attributeId;
+            }
+
             var lanes = roadSegment.Lanes
-                .Select(lane => new RoadSegmentLaneAttribute(network.ProvidesNextRoadSegmentLaneAttributeId()(roadSegmentId)(), lane.Count, lane.Direction, fromPosition, toPosition))
+                .Select(lane => new RoadSegmentLaneAttribute(GetNextAttributeId(), lane.Count, lane.Direction, fromPosition, toPosition))
                 .ToList();
             var surfaces = roadSegment.Surfaces
-                .Select(surface => new RoadSegmentSurfaceAttribute(network.ProvidesNextRoadSegmentSurfaceAttributeId()(roadSegmentId)(), surface.Type, fromPosition, toPosition))
+                .Select(surface => new RoadSegmentSurfaceAttribute(GetNextAttributeId(), surface.Type, fromPosition, toPosition))
                 .ToList();
             var widths = roadSegment.Widths
-                .Select(width => new RoadSegmentWidthAttribute(network.ProvidesNextRoadSegmentWidthAttributeId()(roadSegmentId)(), width.Width, fromPosition, toPosition))
+                .Select(width => new RoadSegmentWidthAttribute(GetNextAttributeId(), width.Width, fromPosition, toPosition))
                 .ToList();
             
             return translatedChanges.AppendChange(new ModifyRoadSegmentGeometry(

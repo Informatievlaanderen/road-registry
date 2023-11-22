@@ -14,11 +14,11 @@ using SqlStreamStore;
 using SqlStreamStore.Streams;
 
 public delegate bool ProcessMessageHandler(int messageStreamVersion, int pageLastStreamVersion);
-//TODO-rik maak stream customizable
+
 public class RoadNetworks : IRoadNetworks
 {
     private const int StreamPageSize = 100;
-    public static readonly StreamName Stream = new("roadnetwork");
+    public static readonly StreamName Stream = RoadNetworkStreamNameProvider.Default();
     private readonly EventSourcedEntityMap _map;
     private readonly EventMapping _mapping;
     private readonly JsonSerializerSettings _settings;
@@ -64,10 +64,15 @@ public class RoadNetworks : IRoadNetworks
             Version = version;
         }
     }
-
+    
     public async Task<RoadNetwork> Get(CancellationToken cancellationToken)
     {
         var (roadNetwork, _) = await GetWithVersion(cancellationToken);
+        return roadNetwork;
+    }
+    public async Task<RoadNetwork> Get(StreamName streamName, CancellationToken cancellationToken)
+    {
+        var (roadNetwork, _) = await GetWithVersion(streamName, true, null, cancellationToken);
         return roadNetwork;
     }
     public async Task<RoadNetwork> Get(bool restoreSnapshot, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
@@ -81,41 +86,55 @@ public class RoadNetworks : IRoadNetworks
         return GetWithVersion(true, null, cancellationToken);
     }
 
-    public async Task<(RoadNetwork, int)> GetWithVersion(bool restoreSnapshot, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
+    public Task<(RoadNetwork, int)> GetWithVersion(bool restoreSnapshot, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
     {
-        if (_map.TryGet(Stream, out var entry)) return ((RoadNetwork)entry.Entity, entry.ExpectedVersion);
+        return GetWithVersion(Stream, restoreSnapshot, cancelMessageProcessing, cancellationToken);
+    }
+
+    public async Task<RoadNetwork> ForOutlinedRoadSegment(RoadSegmentId roadSegmentId, CancellationToken cancellationToken)
+    {
+        var (roadNetwork, _) = await GetWithVersion(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(roadSegmentId), false, null, cancellationToken);
+        return roadNetwork;
+    }
+
+    private async Task<(RoadNetwork, int)> GetWithVersion(StreamName streamName, bool restoreSnapshot, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
+    {
+        if (_map.TryGet(streamName, out var entry))
+        {
+            return ((RoadNetwork)entry.Entity, entry.ExpectedVersion);
+        }
 
         var (view, version) = await BuildInitialRoadNetworkView(restoreSnapshot, cancellationToken);
 
         var sw = Stopwatch.StartNew();
 
         var readStreamFromVersion = version == StreamVersion.Start ? version : version + 1;
-        _logger.LogInformation("Read stream forward started with {Stream}, version {SnapshotVersion} and page size {StreamPageSize}", Stream, readStreamFromVersion, StreamPageSize);
-        var page = await _store.ReadStreamForwards(Stream, readStreamFromVersion, StreamPageSize, prefetchJsonData: false, cancellationToken);
-        _logger.LogInformation("Read stream forward finished with {Stream}, version {SnapshotVersion} and page size {StreamPageSize} in {StopwatchElapsedMilliseconds}ms", Stream, readStreamFromVersion, StreamPageSize, sw.ElapsedMilliseconds);
+        _logger.LogInformation("Read stream forward started with {Stream}, version {SnapshotVersion} and page size {StreamPageSize}", streamName, readStreamFromVersion, StreamPageSize);
+        var page = await _store.ReadStreamForwards(streamName, readStreamFromVersion, StreamPageSize, prefetchJsonData: false, cancellationToken);
+        _logger.LogInformation("Read stream forward finished with {Stream}, version {SnapshotVersion} and page size {StreamPageSize} in {StopwatchElapsedMilliseconds}ms", streamName, readStreamFromVersion, StreamPageSize, sw.ElapsedMilliseconds);
 
         if (page.Status == PageReadStatus.StreamNotFound)
         {
-            return EmptyRoadNetwork();
+            return EmptyRoadNetwork(streamName);
         }
 
         var snapshotContext = new ProcessSnapshotContext(version);
-        view = await ProcessPages(view, snapshotContext, page, cancelMessageProcessing, cancellationToken);
-        
+        view = await ProcessPages(streamName, view, snapshotContext, page, cancelMessageProcessing, cancellationToken);
+
         var roadNetwork = RoadNetwork.Factory(view.ToImmutable());
-        _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, Stream, ExpectedVersion.Any));
-        
+        _map.Attach(new EventSourcedEntityMapEntry(roadNetwork, streamName, ExpectedVersion.Any));
+
         return (roadNetwork, snapshotContext.Version.Value);
     }
 
-    private (RoadNetwork, int) EmptyRoadNetwork()
+    private (RoadNetwork, int) EmptyRoadNetwork(StreamName streamName)
     {
         var initial = RoadNetwork.Factory(ImmutableRoadNetworkView.Empty);
-        _map.Attach(new EventSourcedEntityMapEntry(initial, Stream, ExpectedVersion.NoStream));
+        _map.Attach(new EventSourcedEntityMapEntry(initial, streamName, ExpectedVersion.NoStream));
         return (initial, ExpectedVersion.NoStream);
     }
 
-    private async Task<IRoadNetworkView> ProcessPages(IRoadNetworkView view, ProcessSnapshotContext snapshotContext, ReadStreamPage page, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
+    private async Task<IRoadNetworkView> ProcessPages(StreamName streamName, IRoadNetworkView view, ProcessSnapshotContext snapshotContext, ReadStreamPage page, ProcessMessageHandler cancelMessageProcessing, CancellationToken cancellationToken)
     {
         view = await ProcessPage(view, snapshotContext, page, cancelMessageProcessing, cancellationToken);
         
@@ -123,9 +142,9 @@ public class RoadNetworks : IRoadNetworks
         while (!page.IsEnd && !snapshotContext.ProcessingCancelled)
         {
             sw.Restart();
-            _logger.LogInformation("Next page read started with {Stream}, from version {FromStreamVersion} until {LastStreamVersion} and page size {StreamPageSize}", Stream, page.FromStreamVersion, page.LastStreamVersion, StreamPageSize);
+            _logger.LogInformation("Next page read started with {Stream}, from version {FromStreamVersion} until {LastStreamVersion} and page size {StreamPageSize}", streamName, page.FromStreamVersion, page.LastStreamVersion, StreamPageSize);
             page = await page.ReadNext(cancellationToken);
-            _logger.LogInformation("Next page read finished with {Stream}, from version {FromStreamVersion} until {LastStreamVersion} and page size {StreamPageSize} in {StopwatchElapsedMilliseconds}ms", Stream, page.FromStreamVersion, page.LastStreamVersion, StreamPageSize, sw.ElapsedMilliseconds);
+            _logger.LogInformation("Next page read finished with {Stream}, from version {FromStreamVersion} until {LastStreamVersion} and page size {StreamPageSize} in {StopwatchElapsedMilliseconds}ms", streamName, page.FromStreamVersion, page.LastStreamVersion, StreamPageSize, sw.ElapsedMilliseconds);
 
             if (page.Status == PageReadStatus.StreamNotFound)
             {
@@ -213,5 +232,28 @@ public class RoadNetworks : IRoadNetworks
         }
 
         return (view, version);
+    }
+}
+
+public class RoadNetworkStreamNameProvider
+{
+    public static StreamName ForOutlinedRoadSegment(RoadSegmentId roadSegmentId)
+    {
+        return new StreamName($"roadsegment-outline-{roadSegmentId}");
+    }
+
+    public static StreamName Default()
+    {
+        return new StreamName("roadnetwork");
+    }
+
+    public static StreamName Get(RoadSegmentId? roadSegmentId, RoadSegmentGeometryDrawMethod geometryDrawMethod)
+    {
+        if (roadSegmentId is not null && geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+        {
+            return ForOutlinedRoadSegment(roadSegmentId.Value);
+        }
+
+        return Default();
     }
 }

@@ -14,7 +14,7 @@ public class DeleteRoadSegmentOutlineSqsRequestHandler : SqsHandler<DeleteRoadSe
 
     protected override string WithAggregateId(DeleteRoadSegmentOutlineSqsRequest request)
     {
-        return RoadNetwork.Identifier.ToString();
+        return RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(request.Request.WegsegmentId));
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, DeleteRoadSegmentOutlineSqsRequest sqsRequest)

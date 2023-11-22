@@ -105,6 +105,7 @@ public class AddRoadSegmentValidator : AddRoadSegmentValidatorBase
 
     private sealed class AddRoadSegmentOutlinedValidator : AddRoadSegmentValidatorBase
     {
+        //TODO-rik validate dat permanentid is ingevuld bij een addroadsegment outlined
         public AddRoadSegmentOutlinedValidator()
         {
             RuleFor(c => c.StartNodeId)

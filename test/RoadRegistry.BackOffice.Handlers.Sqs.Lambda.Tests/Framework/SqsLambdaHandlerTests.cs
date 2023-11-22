@@ -76,7 +76,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             new NullLogger<FakeLambdaHandler>());
 
         // Act
-        await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetwork.Identifier.ToString(), new LinkStreetNameSqsRequest
+        await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetworkStreamNameProvider.Default(), new LinkStreetNameSqsRequest
         {
             IfMatchHeaderValue = "Outdated",
             Request = new LinkStreetNameRequest(roadSegmentId, null, null),

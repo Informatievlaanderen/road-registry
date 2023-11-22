@@ -33,7 +33,7 @@ public class RoadRegistryContext : IRoadRegistryContext, IDisposable
     public IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
     public IRoadNetworkExtracts RoadNetworkExtracts { get; }
     public IRoadNetworks RoadNetworks { get; }
-
+    
     public void Dispose()
     {
         _map.Dispose();

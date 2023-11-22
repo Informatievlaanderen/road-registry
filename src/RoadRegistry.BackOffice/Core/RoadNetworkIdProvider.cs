@@ -9,7 +9,6 @@ namespace RoadRegistry.BackOffice.Core
     //TODO-rik hier een DBcontext variant van maken, wie moet deze kennen? commandhost al zeker en commandhost moet de dbmigrations uitvoeren
     //de lambdas ook
 
-    //TODO-rik is het een probleem dat bij geweigerde uploads de ID counter wel omhoog is gegaan voor de volgende upload?
     public interface IRoadNetworkIdGenerator
     {
         Task<AttributeId> NewEuropeanRoadAttributeId();

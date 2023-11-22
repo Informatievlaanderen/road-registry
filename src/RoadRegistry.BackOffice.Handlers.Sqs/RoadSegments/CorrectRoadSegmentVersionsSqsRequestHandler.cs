@@ -14,7 +14,7 @@ public class CorrectRoadSegmentVersionsSqsRequestHandler : SqsHandler<CorrectRoa
 
     protected override string WithAggregateId(CorrectRoadSegmentVersionsSqsRequest request)
     {
-        return RoadNetwork.Identifier.ToString();
+        return RoadNetworkStreamNameProvider.Default();
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, CorrectRoadSegmentVersionsSqsRequest sqsRequest)

@@ -148,9 +148,11 @@ internal class RequestedChangeTranslator
 
         var attributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentLaneAttributeIdProvider(roadSegmentId);
 
-        //TODO-rik mag geen WhenAll zijn als er IDs worden hergebruikt, moet een loop worden
-        return await Task.WhenAll(
-            attributes.Select(async item => new RoadSegmentLaneAttribute(
+        var result = new List<RoadSegmentLaneAttribute>();
+
+        foreach (var item in attributes)
+        {
+            result.Add(new RoadSegmentLaneAttribute(
                 await attributeIdProvider(),
                 new AttributeId(item.AttributeId),
                 new RoadSegmentLaneCount(item.Count),
@@ -158,9 +160,12 @@ internal class RequestedChangeTranslator
                 new RoadSegmentPosition(item.FromPosition),
                 new RoadSegmentPosition(item.ToPosition),
                 new GeometryVersion(0)
-            ))
-        );
+            ));
+        }
+
+        return result.ToArray();
     }
+
     private async Task<RoadSegmentWidthAttribute[]> Translate(RequestedRoadSegmentWidthAttribute[] attributes, RoadSegmentId roadSegmentId)
     {
         if (attributes is null)
@@ -170,16 +175,21 @@ internal class RequestedChangeTranslator
 
         var attributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentWidthAttributeIdProvider(roadSegmentId);
 
-        return await Task.WhenAll(
-            attributes.Select(async item => new RoadSegmentWidthAttribute(
+        var result = new List<RoadSegmentWidthAttribute>();
+
+        foreach (var item in attributes)
+        {
+            result.Add(new RoadSegmentWidthAttribute(
                 await attributeIdProvider(),
                 new AttributeId(item.AttributeId),
                 new RoadSegmentWidth(item.Width),
                 new RoadSegmentPosition(item.FromPosition),
                 new RoadSegmentPosition(item.ToPosition),
                 new GeometryVersion(0)
-            ))
-        );
+            ));
+        }
+
+        return result.ToArray();
     }
     private async Task<RoadSegmentSurfaceAttribute[]> Translate(RequestedRoadSegmentSurfaceAttribute[] attributes, RoadSegmentId roadSegmentId)
     {
@@ -190,21 +200,26 @@ internal class RequestedChangeTranslator
 
         var attributeIdProvider = _roadNetworkIdProvider.NextRoadSegmentSurfaceAttributeIdProvider(roadSegmentId);
 
-        return await Task.WhenAll(
-            attributes.Select(async item => new RoadSegmentSurfaceAttribute(
+        var result = new List<RoadSegmentSurfaceAttribute>();
+
+        foreach (var item in attributes)
+        {
+            result.Add(new RoadSegmentSurfaceAttribute(
                 await attributeIdProvider(),
                 new AttributeId(item.AttributeId),
                 RoadSegmentSurfaceType.Parse(item.Type),
                 new RoadSegmentPosition(item.FromPosition),
                 new RoadSegmentPosition(item.ToPosition),
                 new GeometryVersion(0)
-            ))
-        );
+            ));
+        }
+
+        return result.ToArray();
     }
 
     private async Task<AddRoadSegment> Translate(Messages.AddRoadSegment command, IRequestedChangeIdentityTranslator translator, IOrganizations organizations, CancellationToken ct)
     {
-        var permanent = await _roadNetworkIdProvider.NextRoadSegmentId();
+        var permanent = RoadSegmentId.FromValue(command.PermanentId) ?? await _roadNetworkIdProvider.NextRoadSegmentId();
         var temporaryId = new RoadSegmentId(command.TemporaryId);
         var originalId = RoadSegmentId.FromValue(command.OriginalId);
         
@@ -419,7 +434,10 @@ internal class RequestedChangeTranslator
         var permanent = new RoadSegmentId(command.Id);
         return new RemoveRoadSegment
         (
-            permanent
+            permanent,
+            command.GeometryDrawMethod is not null
+                ? RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod)
+                : null
         );
     }
 
