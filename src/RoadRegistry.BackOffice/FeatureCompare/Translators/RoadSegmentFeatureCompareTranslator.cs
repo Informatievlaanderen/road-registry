@@ -269,7 +269,6 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     );
                     break;
                 case RecordType.RemovedIdentifier:
-                    //TODO-rik test dat bij een delete outline de geometrydrawmethod nog ingevuld is
                     changes = changes.AppendChange(
                         new RemoveRoadSegment(
                             record.RecordNumber,
