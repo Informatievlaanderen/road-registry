@@ -82,6 +82,9 @@ public partial class RoadSegmentsController
 
         try
         {
+            //TODO-rik LARA (Dennis) heeft het probleem dat wanneer ze een straatnaam koppelen aan een pas aangemaakt wegsegment, ze hier een 404 krijgen
+            //dat komt omdat de projectie zijn werk nog niet heeft gedaan
+            //dit zouden we eventueel kunnen omzeilen dankzij de nieuwe storestreams voor outlinedroadsegments
             await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
 
             if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, new RoadSegmentId(id), cancellationToken))

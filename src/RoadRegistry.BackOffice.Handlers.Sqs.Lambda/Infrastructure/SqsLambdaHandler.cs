@@ -30,9 +30,11 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
 
     protected async Task<string> GetRoadSegmentHash(
         RoadSegmentId roadSegmentId,
+        RoadSegmentGeometryDrawMethod geometryDrawMethod,
         CancellationToken cancellationToken)
     {
-        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
+        var streamName = RoadNetworkStreamNameProvider.Get(roadSegmentId, geometryDrawMethod);
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(streamName, cancellationToken);
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
         if (roadSegment == null)
         {
@@ -60,7 +62,8 @@ public abstract class SqsLambdaHandler<TSqsLambdaRequest> : RoadRegistrySqsLambd
         }
 
         var latestEventHash = await GetRoadSegmentHash(
-            new RoadSegmentId(id.RoadSegmentId),
+            id.RoadSegmentId,
+            id.GeometryDrawMethod,
             cancellationToken);
 
         var lastHashTag = new ETag(ETagType.Strong, latestEventHash);

@@ -1,8 +1,8 @@
 namespace RoadRegistry.BackOffice.CommandHost;
 
-using System.Threading;
 using Abstractions;
 using Autofac;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.MigrationExtensions;
 using Core;
 using Extensions;
 using Extracts;
@@ -12,21 +12,21 @@ using Handlers.Sqs;
 using Hosts;
 using MediatR;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using RoadNetwork.Schema;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
+using System.Threading;
 using System.Threading.Tasks;
-using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
-using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.MigrationExtensions;
-using Microsoft.EntityFrameworkCore;
-using RoadNetwork.Schema;
 using Uploads;
 using ZipArchiveWriters.Validation;
+
 public class Program
 {
     public const int HostingPort = 10010;
@@ -53,19 +53,7 @@ public class Program
                         ),
                         WellknownSchemas.CommandHostSchema))
                 .AddDistributedStreamStoreLockOptions()
-                .AddSingleton(sp => new TraceDbConnection<RoadNetworkDbContext>(
-                    new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.Events)),//TODO-rik separate connectionstring?
-                    sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
-                .AddDbContext<RoadNetworkDbContext>((sp, options) => options
-                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                    .UseSqlServer(
-                        sp.GetRequiredService<TraceDbConnection<RoadNetworkDbContext>>(),
-                        sqlOptions => sqlOptions
-                            .UseNetTopologySuite()
-                            .MigrationsHistoryTable("__EFMigrationsHistory", RoadNetworkDbContext.Schema)
-                        )
-                )
+                .AddRoadNetworkDbIdGenerator()
             )
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()

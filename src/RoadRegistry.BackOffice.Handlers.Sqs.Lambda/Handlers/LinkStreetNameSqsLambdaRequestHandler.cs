@@ -153,7 +153,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
             }, cancellationToken);
         }, cancellationToken);
 
-        var lastHash = await GetRoadSegmentHash(roadSegmentId, cancellationToken);
+        var lastHash = await GetRoadSegmentHash(roadSegmentId, geometryDrawMethod, cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
     }
 

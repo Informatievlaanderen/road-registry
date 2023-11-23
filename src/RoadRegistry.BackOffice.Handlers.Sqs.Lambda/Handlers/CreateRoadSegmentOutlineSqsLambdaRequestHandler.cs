@@ -19,7 +19,6 @@ using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaHandler<CreateRoadSegmentOutlineSqsLambdaRequest>
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
-    //private readonly IRoadNetworkIdGenerator _roadNetworkIdGenerator;
 
     public CreateRoadSegmentOutlineSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -28,7 +27,6 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
-        //IRoadNetworkIdGenerator roadNetworkIdGenerator,
         ILogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -39,7 +37,6 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             logger)
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
-        //_roadNetworkIdGenerator = roadNetworkIdGenerator;
     }
 
     protected override async Task<object> InnerHandle(CreateRoadSegmentOutlineSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -53,7 +50,6 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
 
             Logger.LogInformation("TIMETRACKING handler: loading RoadNetwork took {Elapsed}", sw.Elapsed);
             sw.Restart();
-            //var roadSegmentId = await _roadNetworkIdGenerator.NewRoadSegmentId();
 
             var r = request.Request;
             var recordNumber = RecordNumber.Initial;
@@ -74,9 +70,6 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                         r.Status,
                         RoadSegmentCategory.Unknown,
                         r.AccessRestriction)
-                    {
-                        //PermanentId = roadSegmentId //TODO-rik deze zou weg mogen aangezien de onderliggende commandmodule het nu opvult
-                    }
                     .WithGeometry(geometry)
                     .WithSurface(new RoadSegmentSurfaceAttribute(AttributeId.Initial, r.SurfaceType, fromPosition, toPosition))
                     .WithWidth(new RoadSegmentWidthAttribute(AttributeId.Initial, r.Width, fromPosition, toPosition))
@@ -90,7 +83,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         sw.Restart();
         var roadSegmentId = new RoadSegmentId(changeRoadNetworkCommand.Changes.Single().AddRoadSegment.PermanentId.Value);
         Logger.LogInformation("Created road segment {RoadSegmentId}", roadSegmentId);
-        var lastHash = await GetRoadSegmentHash(roadSegmentId, cancellationToken);
+        var lastHash = await GetRoadSegmentHash(roadSegmentId, RoadSegmentGeometryDrawMethod.Outlined, cancellationToken);
         Logger.LogInformation("TIMETRACKING handler: getting RoadSegment hash took {Elapsed}", sw.Elapsed);
 
         Logger.LogInformation("TIMETRACKING handler: entire handler took {Elapsed}", startSw.Elapsed);

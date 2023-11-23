@@ -104,7 +104,7 @@ public class RoadNetworks : IRoadNetworks
             return ((RoadNetwork)entry.Entity, entry.ExpectedVersion);
         }
 
-        var (view, version) = await BuildInitialRoadNetworkView(restoreSnapshot, cancellationToken);
+        var (view, version) = await BuildInitialRoadNetworkView(streamName, restoreSnapshot, cancellationToken);
 
         var sw = Stopwatch.StartNew();
 
@@ -197,15 +197,15 @@ public class RoadNetworks : IRoadNetworks
         return view;
     }
 
-    private async Task<(IRoadNetworkView, int)> BuildInitialRoadNetworkView(bool restoreSnapshot, CancellationToken cancellationToken)
+    private async Task<(IRoadNetworkView, int)> BuildInitialRoadNetworkView(StreamName streamName, bool restoreSnapshot, CancellationToken cancellationToken)
     {
         var view = ImmutableRoadNetworkView.Empty.ToBuilder();
 
         var sw = Stopwatch.StartNew();
 
         int version;
-
-        if (restoreSnapshot)
+        
+        if (restoreSnapshot && StreamNameSupportsRestoreSnapshot(streamName))
         {
             _logger.LogInformation("Read started for RoadNetwork snapshot");
             var (snapshot, snapshotVersion) = await _snapshotReader.ReadSnapshotAsync(cancellationToken);
@@ -232,6 +232,11 @@ public class RoadNetworks : IRoadNetworks
         }
 
         return (view, version);
+    }
+
+    private static bool StreamNameSupportsRestoreSnapshot(StreamName streamName)
+    {
+        return streamName == RoadNetworkStreamNameProvider.Default();
     }
 }
 

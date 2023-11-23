@@ -44,5 +44,14 @@ namespace RoadRegistry.RoadNetwork.Schema
             modelBuilder.HasSequence<int>(WellKnownDbSequences.RoadSegmentWidthAttributeId, Schema);
             modelBuilder.HasSequence<int>(WellKnownDbSequences.TransactionId, Schema);
         }
+
+        public async Task<int> GetNextSequenceValueAsync(string name)
+        {
+            await Database.OpenConnectionAsync();
+            var cmd = Database.GetDbConnection().CreateCommand();
+            cmd.CommandText = $"SELECT NEXT VALUE FOR {Schema}.{name};";
+            var result = await cmd.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
+        }
     }
 }

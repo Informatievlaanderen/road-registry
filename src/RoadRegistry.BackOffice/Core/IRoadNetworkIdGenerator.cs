@@ -2,8 +2,6 @@ namespace RoadRegistry.BackOffice.Core;
 
 using System.Threading.Tasks;
 
-//TODO-rik hier een DBcontext variant van maken, wie moet deze kennen? commandhost al zeker en commandhost moet de dbmigrations uitvoeren
-//de lambdas ook
 public interface IRoadNetworkIdGenerator
 {
     Task<AttributeId> NewEuropeanRoadAttributeId();

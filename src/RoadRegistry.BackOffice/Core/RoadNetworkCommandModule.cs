@@ -86,6 +86,23 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .Handle(Ignore);
     }
 
+    private Organization.DutchTranslation ToDutchTranslation(Organization organization, OrganizationId organizationId)
+    {
+        if (organization is null)
+        {
+            return organizationId == OrganizationId.Other
+                ? Organization.PredefinedTranslations.Other
+                : Organization.PredefinedTranslations.Unknown;
+        }
+        if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
+        {
+            return new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
+        }
+
+        return organization.Translation
+                    ?? ToDutchTranslation(null, organizationId);
+    }
+
     private async Task ChangeRoadNetwork(IRoadRegistryContext context, Command<ChangeRoadNetwork> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
@@ -100,21 +117,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         var organization = await context.Organizations.FindAsync(organizationId, cancellationToken);
         _logger.LogInformation("TIMETRACKING changeroadnetwork: finding organization took {Elapsed}", sw.Elapsed);
 
-        Organization.DutchTranslation translation;
-        if (organization is null)
-        {
-            translation = organizationId == OrganizationId.Other
-                ? Organization.PredefinedTranslations.Other
-                : Organization.PredefinedTranslations.Unknown;
-        }
-        else if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
-        {
-            translation = new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
-        }
-        else
-        {
-            translation = organization.Translation;
-        }
+        var organizationTranslation = ToDutchTranslation(organization, organizationId);
 
         sw.Restart();
 
@@ -143,7 +146,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
                 sw.Restart();
-                await network.Change(request, downloadId, reason, @operator, translation, requestedChanges, _emailClient, cancellationToken);
+                await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, _emailClient, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
             }
         }
