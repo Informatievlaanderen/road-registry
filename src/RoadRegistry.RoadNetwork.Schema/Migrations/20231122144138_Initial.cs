@@ -51,7 +51,6 @@ namespace RoadRegistry.RoadNetwork.Schema.Migrations
                 name: "TransactionId",
                 schema: "RoadNetwork");
 
-            //TODO-rik add sql to set initial sequence values
             var sequenceDataSources = new Dictionary<string, string>
             {
                 {"RoadSegmentId", "SELECT MAX(Id) FROM [road-registry].[RoadRegistryEditor].[RoadSegment]"},
@@ -70,8 +69,8 @@ namespace RoadRegistry.RoadNetwork.Schema.Migrations
             {
                 migrationBuilder.Sql($@"
 DECLARE @sth bigint;
-SET @sth = SELECT COALESCE(({sequenceDataSource.Value}), 0) + 1;
 DECLARE @sql nvarchar(max);
+SET @sth = (SELECT COALESCE(({sequenceDataSource.Value}), 0) + 1);
 SET @sql = N'ALTER SEQUENCE [RoadNetwork].{sequenceDataSource.Key} RESTART WITH ' + cast(@sth as nvarchar(20)) + ';';
 EXEC SP_EXECUTESQL @sql;
 ");

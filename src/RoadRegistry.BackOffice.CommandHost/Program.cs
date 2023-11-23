@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.CommandHost;
 
+using System.Threading;
 using Abstractions;
 using Autofac;
 using Core;
@@ -20,10 +21,12 @@ using RoadRegistry.Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.MigrationExtensions;
+using Microsoft.EntityFrameworkCore;
 using RoadNetwork.Schema;
 using Uploads;
 using ZipArchiveWriters.Validation;
-
 public class Program
 {
     public const int HostingPort = 10010;
@@ -50,7 +53,19 @@ public class Program
                         ),
                         WellknownSchemas.CommandHostSchema))
                 .AddDistributedStreamStoreLockOptions()
-                .AddDbContext<RoadNetworkDbContext>()
+                .AddSingleton(sp => new TraceDbConnection<RoadNetworkDbContext>(
+                    new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.Events)),//TODO-rik separate connectionstring?
+                    sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+                .AddDbContext<RoadNetworkDbContext>((sp, options) => options
+                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                    .UseSqlServer(
+                        sp.GetRequiredService<TraceDbConnection<RoadNetworkDbContext>>(),
+                        sqlOptions => sqlOptions
+                            .UseNetTopologySuite()
+                            .MigrationsHistoryTable("__EFMigrationsHistory", RoadNetworkDbContext.Schema)
+                        )
+                )
             )
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
@@ -130,6 +145,11 @@ public class Program
                         new SqlConnectionStringBuilder(
                             configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
                     ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema).ConfigureAwait(false);
+
+                using (var dbContext = sp.GetRequiredService<RoadNetworkDbContext>())
+                {
+                    await dbContext.MigrateAsync(CancellationToken.None);
+                }
             });
     }
 }

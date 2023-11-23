@@ -5,7 +5,7 @@ namespace RoadRegistry.RoadNetwork.Schema
 
     public class RoadNetworkDbContext: DbContext
     {
-        protected const string Schema = "RoadNetwork";
+        public const string Schema = "RoadNetwork";
 
         public RoadNetworkDbContext()
         {
