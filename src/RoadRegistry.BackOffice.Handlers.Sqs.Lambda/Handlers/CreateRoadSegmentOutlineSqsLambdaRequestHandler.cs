@@ -88,12 +88,6 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
 
         Logger.LogInformation("TIMETRACKING handler: entire handler took {Elapsed}", startSw.Elapsed);
 
-		//TODO-rik temp, response not serializing correctly in ticket complete result?
-        var response = new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
-        return new
-        {
-            response.Location,
-            response.ETag
-        };
+        return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
     }
 }
