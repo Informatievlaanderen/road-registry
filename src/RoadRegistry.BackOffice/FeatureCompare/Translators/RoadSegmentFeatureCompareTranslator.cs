@@ -70,6 +70,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                         }
                         else
                         {
+                            //TODO-rik als het van ingeschetst naar ingementen gaat, dan moet het een delete+add zijn
                             //update because geometries differ (slightly)
                             processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                                 FeatureType.Change,
@@ -86,7 +87,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     {
                         //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
                         var identicalGeometries = overlappingGeometries.FindAll(f => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances.ClusterTolerance));
-
+                        //TODO-rik als het van ingeschetst naar ingementen gaat, dan moet het een delete+add zijn
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,

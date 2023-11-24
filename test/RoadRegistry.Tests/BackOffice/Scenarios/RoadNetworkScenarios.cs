@@ -2059,6 +2059,96 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
     }
 
     [Fact]
+    public Task when_adding_a_measured_and_outlined_segment_simultaneously()
+    {
+        //TODO-rik create unit test to confirm of bij een mixed upload de outlined roadsegments naar de juiste stream gestuurt worden
+        TestData.AddSegment2.GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined;
+        TestData.AddSegment2.Status = RoadSegmentStatus.InUse;
+        TestData.AddSegment2.StartNodeId = 0;
+        TestData.AddSegment2.EndNodeId = 0;
+        TestData.Segment2Added.GeometryDrawMethod = TestData.AddSegment2.GeometryDrawMethod;
+        TestData.Segment2Added.Status = TestData.AddSegment2.Status;
+        TestData.Segment2Added.StartNodeId = 0;
+        TestData.Segment2Added.EndNodeId = 0;
+
+        return Run(scenario => scenario
+            .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
+                new ImportedOrganization
+                {
+                    Code = TestData.ChangedByOrganization,
+                    Name = TestData.ChangedByOrganizationName,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                }
+            )
+            .When(TheOperator.ChangesTheRoadNetwork(
+                TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
+                new RequestedChange
+                {
+                    AddRoadNode = TestData.AddStartNode1
+                },
+                new RequestedChange
+                {
+                    AddRoadNode = TestData.AddEndNode1
+                },
+                new RequestedChange
+                {
+                    AddRoadSegment = TestData.AddSegment1
+                },
+                new RequestedChange
+                {
+                    AddRoadSegment = TestData.AddSegment2
+                }
+            ))
+            .Then(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.StartNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadNodeAdded = TestData.EndNode1Added,
+                        Problems = Array.Empty<Problem>()
+                    },
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = TestData.Segment1Added,
+                        Problems = Array.Empty<Problem>()
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+            .Then(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(TestData.Segment2Added.Id)), new RoadNetworkChangesAccepted
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                TransactionId = new TransactionId(1),
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = TestData.Segment2Added,
+                        Problems = Array.Empty<Problem>()
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
+        );
+    }
+
+    [Fact]
     public Task when_adding_a_start_and_end_node_and_segment_to_an_existing_segment()
     {
         var nextWidthsAttributeId = TestData.AddSegment1.Widths.Length + 1;

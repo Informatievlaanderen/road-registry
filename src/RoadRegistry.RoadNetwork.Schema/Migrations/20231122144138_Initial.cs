@@ -8,48 +8,48 @@ namespace RoadRegistry.RoadNetwork.Schema.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(
-                name: "RoadNetwork");
+        //    migrationBuilder.EnsureSchema(
+        //        name: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "EuropeanRoadAttributeId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "EuropeanRoadAttributeId",
+        //        schema: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "GradeSeparatedJunctionId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "GradeSeparatedJunctionId",
+        //        schema: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "NationalRoadAttributeId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "NationalRoadAttributeId",
+        //        schema: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "NumberedRoadAttributeId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "NumberedRoadAttributeId",
+        //        schema: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "RoadNodeId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "RoadNodeId",
+        //        schema: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "RoadSegmentId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "RoadSegmentId",
+        //        schema: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "RoadSegmentLaneAttributeId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "RoadSegmentLaneAttributeId",
+        //        schema: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "RoadSegmentSurfaceAttributeId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "RoadSegmentSurfaceAttributeId",
+        //        schema: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "RoadSegmentWidthAttributeId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "RoadSegmentWidthAttributeId",
+        //        schema: "RoadNetwork");
 
-            migrationBuilder.CreateSequence<int>(
-                name: "TransactionId",
-                schema: "RoadNetwork");
+        //    migrationBuilder.CreateSequence<int>(
+        //        name: "TransactionId",
+        //        schema: "RoadNetwork");
 
             var sequenceDataSources = new Dictionary<string, string>
             {

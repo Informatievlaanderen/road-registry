@@ -4,7 +4,7 @@ using Be.Vlaanderen.Basisregisters.EventHandling;
 
 [EventName("RoadNetworkChangesRejected")]
 [EventDescription("Indicates the road network changes were rejected.")]
-public class RoadNetworkChangesRejected : IMessage
+public class RoadNetworkChangesRejected : IMessage, IHaveTransactionId
 {
     public RejectedChange[] Changes { get; set; }
     public string Operator { get; set; }

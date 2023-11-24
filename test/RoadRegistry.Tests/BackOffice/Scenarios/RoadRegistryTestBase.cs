@@ -42,6 +42,7 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
     {
         var containerBuilder = new ContainerBuilder();
         containerBuilder.RegisterInstance(new EventSourcedEntityMap());
+        containerBuilder.RegisterInstance(new FakeRoadNetworkIdGenerator()).As<IRoadNetworkIdGenerator>();
         var container = containerBuilder.Build();
         EntityMapFactory = container.BeginLifetimeScope();
 
@@ -126,7 +127,15 @@ public abstract class RoadRegistryTestBase : AutofacBasedTestBase, IDisposable
             throw new ArgumentNullException(nameof(builder));
         }
 
-        return builder(new Scenario()).AssertAsync(_runner);
+        var scenarioBuilder = builder(new Scenario());
+        
+        var idGenerator = (FakeRoadNetworkIdGenerator)EntityMapFactory.Resolve<IRoadNetworkIdGenerator>();
+        idGenerator.SeedEvents(scenarioBuilder.Build()
+            .Givens
+            .Select(x => x.Event)
+            .ToList());
+
+        return scenarioBuilder.AssertAsync(_runner);
     }
 
     public RoadRegistryTestBase WithStore(IStreamStore store, ComparisonConfig comparisonConfig = null)
