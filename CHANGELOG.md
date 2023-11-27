@@ -1,3 +1,10 @@
+## [3.62.10](https://github.com/informatievlaanderen/road-registry/compare/v3.62.9...v3.62.10) (2023-11-27)
+
+
+### Bug Fixes
+
+* extract failed upload should never return 400 ([#1310](https://github.com/informatievlaanderen/road-registry/issues/1310)) ([97592eb](https://github.com/informatievlaanderen/road-registry/commit/97592ebe3569667e88525e0d415c497c0d96fc6a))
+
 ## [3.62.9](https://github.com/informatievlaanderen/road-registry/compare/v3.62.8...v3.62.9) (2023-11-24)
 
 
