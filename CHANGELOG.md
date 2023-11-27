@@ -1,3 +1,10 @@
+## [3.62.9](https://github.com/informatievlaanderen/road-registry/compare/v3.62.8...v3.62.9) (2023-11-24)
+
+
+### Bug Fixes
+
+* let lambda continue when sqs-messages blob is not found ([#1306](https://github.com/informatievlaanderen/road-registry/issues/1306)) ([c64979f](https://github.com/informatievlaanderen/road-registry/commit/c64979fc9c8d5c2675e99def6547957c3ee0ccff))
+
 ## [3.62.8](https://github.com/informatievlaanderen/road-registry/compare/v3.62.7...v3.62.8) (2023-11-17)
 
 
