@@ -496,7 +496,37 @@ public class ExtractScenarios : RoadRegistryTestBase
                 When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
             })
             .When(TheExternalSystem.UploadsRoadNetworkExtractChangesArchive(extractRequestId, downloadId, uploadId, archiveId))
-            .Throws(new ZipArchiveValidationException(ZipArchiveProblems.Single(new FileError("file", "reason"))))
+            .Then(RoadNetworkExtracts.ToStreamName(extractRequestId),
+                new RoadNetworkExtractChangesArchiveUploaded
+                {
+                    Description = extractDescription,
+                    RequestId = extractRequestId,
+                    ExternalRequestId = externalExtractRequestId,
+                    DownloadId = downloadId,
+                    UploadId = uploadId,
+                    ArchiveId = archiveId,
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                },
+                new RoadNetworkExtractChangesArchiveRejected
+                {
+                    Description = extractDescription,
+                    RequestId = extractRequestId,
+                    ExternalRequestId = externalExtractRequestId,
+                    DownloadId = downloadId,
+                    UploadId = uploadId,
+                    ArchiveId = archiveId,
+                    Problems = new[]
+                    {
+                        new FileProblem
+                        {
+                            File = "error",
+                            Severity = ProblemSeverity.Error,
+                            Reason = "reason",
+                            Parameters = Array.Empty<ProblemParameter>()
+                        }
+                    },
+                    When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+                })
         );
     }
 }
