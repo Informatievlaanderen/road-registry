@@ -12,6 +12,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.IO;
 using Schema;
+using Schema.Extensions;
 using Schema.RoadNodes;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 

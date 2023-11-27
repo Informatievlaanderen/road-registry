@@ -8,6 +8,7 @@ using Core;
 using Core.ProblemCodes;
 using Editor.Projections;
 using Editor.Schema;
+using Editor.Schema.Extensions;
 using Extensions;
 using FluentValidation;
 using Hosts.Infrastructure.Options;

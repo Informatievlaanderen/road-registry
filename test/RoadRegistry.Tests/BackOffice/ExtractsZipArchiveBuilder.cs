@@ -8,6 +8,7 @@ namespace RoadRegistry.Tests.BackOffice
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Editor.Projections;
+    using Editor.Schema.Extensions;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
     using RoadRegistry.BackOffice;

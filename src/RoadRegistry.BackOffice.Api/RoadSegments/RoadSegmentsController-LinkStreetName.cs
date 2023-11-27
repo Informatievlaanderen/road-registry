@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Editor.Projections;
+using Editor.Schema.Extensions;
 using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;

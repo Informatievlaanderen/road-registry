@@ -1,4 +1,4 @@
-namespace RoadRegistry.Editor.Projections;
+namespace RoadRegistry.Editor.Schema.Extensions;
 
 using System.IO;
 using System.Text;

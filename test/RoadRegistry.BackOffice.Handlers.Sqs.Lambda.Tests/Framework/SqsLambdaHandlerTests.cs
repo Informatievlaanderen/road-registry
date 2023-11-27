@@ -79,7 +79,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
         await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetworkStreamNameProvider.Default(), new LinkStreetNameSqsRequest
         {
             IfMatchHeaderValue = "Outdated",
-            Request = new LinkStreetNameRequest(roadSegmentId, null, null, null),
+            Request = new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()

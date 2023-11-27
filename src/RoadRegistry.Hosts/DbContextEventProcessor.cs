@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedService
     where TDbContext : RunnerDbContext<TDbContext>
 {
-    private const int CatchUpBatchSize = 1; //500; //TODO-rik temp
+    private const int CatchUpBatchSize = 500;
     private const int CatchUpThreshold = 1000;
     private const int RecordPositionThreshold = 1;
     public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));

@@ -6,6 +6,7 @@ using BackOffice;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
 using Editor.Projections;
+using Editor.Schema.Extensions;
 using Microsoft.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.Framework.Projections;

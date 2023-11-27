@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
+using BackOffice.Extensions;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
@@ -7,6 +8,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
 using Editor.Projections;
 using Editor.Schema;
+using Editor.Schema.Extensions;
 using Exceptions;
 using Hosts;
 using Infrastructure;
@@ -62,7 +64,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
             {
                 var roadSegmentId = new RoadSegmentId(change.Id);
 
-                var editorRoadSegment = await _editorContext.RoadSegments.FindAsync(new object[] { change.Id }, cancellationToken);
+                var editorRoadSegment = await _editorContext.RoadSegments.SingleOrDefaultIncludingLocalAsync(x => x.Id == change.Id, cancellationToken);
                 if (editorRoadSegment is null)
                 {
                     problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));

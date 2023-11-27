@@ -297,11 +297,13 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 RoadSegmentId = change.AddRoadSegment?.PermanentId
                                 ?? change.ModifyRoadSegment?.Id
                                 ?? change.RemoveRoadSegment?.Id
-                                ?? change.ModifyRoadSegmentAttributes?.Id,
+                                ?? change.ModifyRoadSegmentAttributes?.Id
+                                ?? change.ModifyRoadSegmentGeometry?.Id,
                 GeometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
                                      ?? change.ModifyRoadSegment?.GeometryDrawMethod
                                      ?? change.RemoveRoadSegment?.GeometryDrawMethod
-                                     ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod,
+                                     ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod
+                                     ?? change.ModifyRoadSegmentGeometry?.GeometryDrawMethod,
                 Change = change
             })
             .ToList();

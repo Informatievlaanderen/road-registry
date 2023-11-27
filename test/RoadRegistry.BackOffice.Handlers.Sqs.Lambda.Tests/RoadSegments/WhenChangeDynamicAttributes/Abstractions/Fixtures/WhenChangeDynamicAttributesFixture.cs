@@ -58,7 +58,7 @@ public abstract class WhenChangeDynamicAttributesFixture : SqsLambdaHandlerFixtu
         IdempotentCommandHandler,
         RoadRegistryContext,
         ChangeRoadNetworkDispatcher,
-        new FakeEditorContext(),
+        EditorContext,
         new RecyclableMemoryStreamManager(),
         FileEncoding.UTF8,
         new FakeDistributedStreamStoreLockOptions(),

@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
 using Editor.Projections;
 using Editor.Schema;
+using Editor.Schema.Extensions;
 using Exceptions;
 using Hosts;
 using Infrastructure;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
@@ -72,7 +74,7 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
                 {
                     var roadSegmentId = new RoadSegmentId(change.Id);
 
-                    var editorRoadSegment = await _editorContext.RoadSegments.FindAsync(new object[] { change.Id }, cancellationToken);
+                    var editorRoadSegment = await _editorContext.RoadSegments.SingleOrDefaultIncludingLocalAsync(x => x.Id == change.Id, cancellationToken);
                     if (editorRoadSegment is null)
                     {
                         problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));

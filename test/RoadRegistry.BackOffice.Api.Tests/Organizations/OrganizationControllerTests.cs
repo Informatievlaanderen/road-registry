@@ -6,6 +6,7 @@ using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Uploads;
 using Editor.Projections;
 using Editor.Schema;
+using Editor.Schema.Extensions;
 using Infrastructure;
 using MediatR;
 using Microsoft.IO;

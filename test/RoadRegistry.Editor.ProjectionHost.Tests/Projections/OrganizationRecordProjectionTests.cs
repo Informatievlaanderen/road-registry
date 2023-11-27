@@ -7,6 +7,7 @@ using BackOffice.Extracts.Dbase.Organizations;
 using BackOffice.Extracts.Dbase.Organizations.V2;
 using BackOffice.Messages;
 using Editor.Projections;
+using Editor.Schema.Extensions;
 using Microsoft.IO;
 using RoadRegistry.Tests;
 using RoadRegistry.Tests.BackOffice;

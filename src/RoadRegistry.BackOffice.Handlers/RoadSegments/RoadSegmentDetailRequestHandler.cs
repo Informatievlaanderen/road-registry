@@ -6,6 +6,7 @@ using Abstractions.RoadSegments;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using Editor.Projections;
 using Editor.Schema;
+using Editor.Schema.Extensions;
 using Framework;
 using Messages;
 using Microsoft.EntityFrameworkCore;

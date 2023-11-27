@@ -56,7 +56,7 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
         IdempotentCommandHandler,
         RoadRegistryContext,
         ChangeRoadNetworkDispatcher,
-        new FakeEditorContext(),
+        EditorContext,
         new RecyclableMemoryStreamManager(),
         FileEncoding.UTF8,
         new NullLogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler>()

@@ -10,8 +10,10 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
+using Core;
 using Editor.Projections;
 using Editor.Schema;
+using Editor.Schema.Extensions;
 using FeatureToggles;
 using Hosts;
 using Infrastructure;
@@ -70,6 +72,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
             .Register(_ => new EventSourcedEntityMap())
             .AsSelf()
             .SingleInstance();
+        containerBuilder.RegisterInstance(new FakeRoadNetworkIdGenerator()).As<IRoadNetworkIdGenerator>();
         var container = containerBuilder.Build();
         LifetimeScope = container.BeginLifetimeScope();
 
@@ -108,9 +111,9 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
     public bool Result { get; private set; }
     public Exception? Exception { get; private set; }
 
-    public EditorContext EditorContext { get; private set; }
-    public RecyclableMemoryStreamManager RecyclableMemoryStreamManager { get; private set; }
-    public FileEncoding FileEncoding { get; private set; }
+    public EditorContext EditorContext { get; }
+    public RecyclableMemoryStreamManager RecyclableMemoryStreamManager { get; }
+    public FileEncoding FileEncoding { get; }
 
 
     public async Task InitializeAsync()
@@ -191,7 +194,7 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
 
     protected async Task<bool> VerifyThatTicketHasCompleted(RoadSegmentId roadSegmentId)
     {
-        var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
+        var roadNetwork = await RoadRegistryContext.RoadNetworks.ForOutlinedRoadSegment(roadSegmentId, CancellationToken.None);
         var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
 
         return VerifyThatTicketHasCompleted(string.Format(ConfigurationDetailUrl, roadSegmentId), roadSegment?.LastEventHash ?? string.Empty);

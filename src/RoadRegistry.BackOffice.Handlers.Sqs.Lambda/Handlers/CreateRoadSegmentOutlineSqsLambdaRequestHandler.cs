@@ -1,15 +1,14 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
-using System.Diagnostics;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
-using Core;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
+using System.Diagnostics;
 using TicketingService.Abstractions;
 using AddRoadSegment = BackOffice.Uploads.AddRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
