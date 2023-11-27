@@ -70,24 +70,34 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                         }
                         else
                         {
-                            //TODO-rik als het van ingeschetst naar ingementen gaat, dan moet het een delete+add zijn
                             //update because geometries differ (slightly)
-                            processedRecords.Add(new RoadSegmentFeatureCompareRecord(
-                                FeatureType.Change,
-                                changeFeature.RecordNumber,
-                                changeFeature.Attributes,
-                                nonCriticalAttributesUnchanged.First().Attributes.Id,
-                                RecordType.Modified)
+                            var extractFeature = nonCriticalAttributesUnchanged.First();
+
+                            if (extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
+                                && changeFeature.Attributes.Method != extractFeature.Attributes.Method)
                             {
-                                GeometryChanged = true
-                            });
+
+                                //TODO-rik als het van ingeschetst naar ingemeten gaat, dan moet het een delete+add zijn
+                            }
+                            else
+                            {
+                                processedRecords.Add(new RoadSegmentFeatureCompareRecord(
+                                    FeatureType.Change,
+                                    changeFeature.RecordNumber,
+                                    changeFeature.Attributes,
+                                    extractFeature.Attributes.Id,
+                                    RecordType.Modified)
+                                {
+                                    GeometryChanged = true
+                                });
+                            }
                         }
                     }
                     else
                     {
                         //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
                         var identicalGeometries = overlappingGeometries.FindAll(f => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances.ClusterTolerance));
-                        //TODO-rik als het van ingeschetst naar ingementen gaat, dan moet het een delete+add zijn
+                        //TODO-rik als het van ingeschetst naar ingemeten gaat, dan moet het een delete+add zijn
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,
