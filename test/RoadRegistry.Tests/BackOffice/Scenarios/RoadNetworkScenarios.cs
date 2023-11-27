@@ -2061,7 +2061,6 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
     [Fact]
     public Task when_adding_a_measured_and_outlined_segment_simultaneously()
     {
-        //TODO-rik deze test op repeat uitvoeren geeft random volgorde in commandhandlerpipelines
         TestData.AddSegment1.PermanentId = 1;
 
         TestData.AddSegment2.PermanentId = 2;

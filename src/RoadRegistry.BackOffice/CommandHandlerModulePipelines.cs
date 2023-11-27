@@ -75,7 +75,7 @@ public static class CommandHandlerModulePipelines
             await next(context);
 
             IRoadNetworkEventWriter roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
-            //TODO-rik probleem is dat map.Entries volgorde veranderd seemingly random
+            
             foreach (var entry in map.Entries)
             {
                 var events = entry.Entity.TakeEvents();
