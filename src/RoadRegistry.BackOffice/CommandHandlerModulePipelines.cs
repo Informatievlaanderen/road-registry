@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -75,7 +76,7 @@ public static class CommandHandlerModulePipelines
 
             IRoadNetworkEventWriter roadNetworkEventWriter = new RoadNetworkEventWriter(store, enricher);
 
-            foreach (var entry in map.Entries)
+            foreach (var entry in map.Entries.OrderBy(x => x.Stream))
             {
                 var events = entry.Entity.TakeEvents();
                 if (events.Length != 0)

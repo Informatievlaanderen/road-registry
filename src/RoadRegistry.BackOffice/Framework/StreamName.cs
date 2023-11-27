@@ -4,7 +4,7 @@ using System;
 using System.Diagnostics.Contracts;
 using SqlStreamStore.Streams;
 
-public struct StreamName : IEquatable<StreamName>
+public struct StreamName : IEquatable<StreamName>, IComparable<StreamName>
 {
     private readonly string _value;
 
@@ -54,6 +54,11 @@ public struct StreamName : IEquatable<StreamName>
     public bool Equals(StreamName other)
     {
         return string.Equals(_value, other._value, StringComparison.Ordinal);
+    }
+
+    public int CompareTo(StreamName other)
+    {
+        return _value.CompareTo(other._value);
     }
 
     public override bool Equals(object obj)

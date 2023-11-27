@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using Autofac;
-using Autofac.Core.Lifetime;
 using FeatureToggles;
 using Framework;
 using Messages;
@@ -124,15 +123,15 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         {
             var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
 
-            await FillMissingPermanentIdsForAddedOutlineRoadSegments(idGenerator, command.Body.Changes);
+            var roadNetworkStreamChanges = await SplitChangesByRoadNetworkStream(idGenerator, command.Body.Changes);
 
-            var outlineRoadSegmentChanges = ConvertToChangesPerOutlinedRoadSegment(command.Body.Changes);
-
-            foreach (var outlineRoadSegment in outlineRoadSegmentChanges)
+            foreach (var roadNetworkStreamChange in roadNetworkStreamChanges)
             {
-                var streamName = RoadNetworkStreamNameProvider.Get(outlineRoadSegment.Key, outlineRoadSegment.Key > 0 ? RoadSegmentGeometryDrawMethod.Outlined : null);
+                var streamName = roadNetworkStreamChange.Key;
+                var changes = roadNetworkStreamChange.Value;
+
                 var network = await context.RoadNetworks.Get(streamName, cancellationToken);
-                _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork for RoadSegmentId [{RoadSegmentId}] took {Elapsed}", outlineRoadSegment.Key, sw.Elapsed);
+                _logger.LogInformation("TIMETRACKING changeroadnetwork: loading RoadNetwork [{StreamName}] took {Elapsed}", streamName, sw.Elapsed);
 
                 var translator = new RequestedChangeTranslator(
                     network.CreateIdProvider(idGenerator),
@@ -141,7 +140,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                     network.ProvidesNextRoadSegmentGeometryVersion()
                 );
                 sw.Restart();
-                var requestedChanges = await translator.Translate(command.Body.Changes, context.Organizations, cancellationToken);
+                var requestedChanges = await translator.Translate(changes, context.Organizations, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
                 sw.Restart();
@@ -289,10 +288,12 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         }
     }
 
-    private Dictionary<RoadSegmentId, RequestedChange[]> ConvertToChangesPerOutlinedRoadSegment(RequestedChange[] changes)
+    private async Task<Dictionary<StreamName, RequestedChange[]>> SplitChangesByRoadNetworkStream(IRoadNetworkIdGenerator idGenerator, RequestedChange[] changes)
     {
+        await FillMissingPermanentIdsForAddedOutlineRoadSegments(idGenerator, changes);
+
         var q = changes
-            .Select(change => new
+        .Select(change => new
             {
                 RoadSegmentId = change.AddRoadSegment?.PermanentId
                                 ?? change.ModifyRoadSegment?.Id
@@ -308,28 +309,19 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             })
             .ToList();
 
-        var outlinedRoadSegmentChanges = q
-            .Where(x => x.RoadSegmentId is not null && x.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
-            .ToList();
-        var roadNetworkChanges = q.Except(outlinedRoadSegmentChanges).ToList();
-
-        var roadSegmentChanges = new Dictionary<RoadSegmentId, RequestedChange[]>();
-
-        if (roadNetworkChanges.Any())
-        {
-            roadSegmentChanges.Add(new RoadSegmentId(), roadNetworkChanges.Select(x => x.Change).ToArray());
-        }
-
-        foreach (var roadSegmentGroup in outlinedRoadSegmentChanges.GroupBy(x => x.RoadSegmentId!.Value, x => x.Change))
-        {
-            roadSegmentChanges.Add(new RoadSegmentId(roadSegmentGroup.Key), roadSegmentGroup.ToArray());
-        }
-
+        var roadSegmentChanges = q.GroupBy(x =>
+                x.RoadSegmentId is not null && x.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
+                    ? x.RoadSegmentId.Value
+                    : 0, x => x.Change)
+            .OrderBy(x => x.Key)
+            .ToDictionary(x => new RoadSegmentId(x.Key), x => x.ToArray());
+        
         if (!roadSegmentChanges.Any())
         {
             roadSegmentChanges.Add(new RoadSegmentId(), changes);
         }
 
-        return roadSegmentChanges;
+        return roadSegmentChanges
+            .ToDictionary(x => RoadNetworkStreamNameProvider.Get(x.Key, x.Key > 0 ? RoadSegmentGeometryDrawMethod.Outlined : null), x => x.Value);
     }
 }
