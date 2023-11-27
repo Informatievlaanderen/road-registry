@@ -10,6 +10,8 @@ public class EventSourcedEntityMap: IDisposable
 
     public EventSourcedEntityMap()
     {
+        var queue = new ConcurrentQueue<EventSourcedEntityMapEntry>();
+        //TODO-rik fill up queue and return in `Entries` to keep order
         _entries = new ConcurrentDictionary<StreamName, EventSourcedEntityMapEntry>();
     }
 

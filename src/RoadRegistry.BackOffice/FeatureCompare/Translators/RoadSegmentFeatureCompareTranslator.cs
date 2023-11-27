@@ -76,8 +76,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                             if (extractFeature.Attributes.Method == RoadSegmentGeometryDrawMethod.Outlined
                                 && changeFeature.Attributes.Method != extractFeature.Attributes.Method)
                             {
-
-                                //TODO-rik als het van ingeschetst naar ingemeten gaat, dan moet het een delete+add zijn
+                                //TODO-rik als het van ingeschetst naar ingemeten gaat, dan dit bijhouden in de event
                             }
                             else
                             {
@@ -97,7 +96,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     {
                         //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
                         var identicalGeometries = overlappingGeometries.FindAll(f => changeFeature.Attributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances.ClusterTolerance));
-                        //TODO-rik als het van ingeschetst naar ingemeten gaat, dan moet het een delete+add zijn
+                        //TODO-rik als het van ingeschetst naar ingemeten gaat, dan dit bijhouden in de event
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
                             FeatureType.Change,
                             changeFeature.RecordNumber,

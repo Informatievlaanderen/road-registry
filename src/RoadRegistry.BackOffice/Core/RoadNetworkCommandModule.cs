@@ -321,6 +321,8 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             roadSegmentChanges.Add(new RoadSegmentId(), changes);
         }
 
+        //TODO-rik wanneer er modifyroadsegment events zijn dat een conversie zijn van outlined->measured, dan een aparte nieuwe event toevoegen om deze expliciet te verwijderen uit de outlineroadnetwork
+
         return roadSegmentChanges
             .ToDictionary(x => RoadNetworkStreamNameProvider.Get(x.Key, x.Key > 0 ? RoadSegmentGeometryDrawMethod.Outlined : null), x => x.Value);
     }
