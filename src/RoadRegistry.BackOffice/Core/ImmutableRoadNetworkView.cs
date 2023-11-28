@@ -550,6 +550,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 case RoadSegmentRemoved roadSegmentRemoved:
                     result = result.Given(roadSegmentRemoved);
                     break;
+                case OutlinedRoadSegmentRemoved roadSegmentOutlinedRemoved:
+                    result = result.Given(roadSegmentOutlinedRemoved);
+                    break;
                 case RoadSegmentAddedToEuropeanRoad roadSegmentAddedToEuropeanRoad:
                     result = result.Given(roadSegmentAddedToEuropeanRoad);
                     break;
@@ -879,6 +882,21 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     .TryReplace(segment.End, node => node.DisconnectFrom(id))
                 : _nodes,
             _segments.Remove(id),
+            _gradeSeparatedJunctions,
+            SegmentReusableLaneAttributeIdentifiers,
+            SegmentReusableWidthAttributeIdentifiers,
+            SegmentReusableSurfaceAttributeIdentifiers
+        );
+    }
+
+    private ImmutableRoadNetworkView Given(OutlinedRoadSegmentRemoved @event)
+    {
+        var id = new RoadSegmentId(@event.Id);
+        return new ImmutableRoadNetworkView(
+            _nodes,
+            _segments.TryGetValue(id, out var segment) && segment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
+                ? _segments.Remove(id)
+                : _segments,
             _gradeSeparatedJunctions,
             SegmentReusableLaneAttributeIdentifiers,
             SegmentReusableWidthAttributeIdentifiers,
@@ -2049,6 +2067,9 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                     case RoadSegmentRemoved roadSegmentRemoved:
                         Given(roadSegmentRemoved);
                         break;
+                    case OutlinedRoadSegmentRemoved outlinedRoadSegmentRemoved:
+                        Given(outlinedRoadSegmentRemoved);
+                        break;
                     case RoadSegmentAddedToEuropeanRoad roadSegmentAddedToEuropeanRoad:
                         Given(roadSegmentAddedToEuropeanRoad);
                         break;
@@ -2391,6 +2412,15 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             }
 
             _segments.Remove(id);
+        }
+
+        private void Given(OutlinedRoadSegmentRemoved @event)
+        {
+            var id = new RoadSegmentId(@event.Id);
+            if (_segments.TryGetValue(id, out var segment) && segment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
+            {
+                _segments.Remove(id);
+            }
         }
 
         private void Given(GradeSeparatedJunctionAdded @event)

@@ -291,39 +291,35 @@ public class RoadNetworkCommandModule : CommandHandlerModule
     private async Task<Dictionary<StreamName, RequestedChange[]>> SplitChangesByRoadNetworkStream(IRoadNetworkIdGenerator idGenerator, RequestedChange[] changes)
     {
         await FillMissingPermanentIdsForAddedOutlineRoadSegments(idGenerator, changes);
-
-        var q = changes
-        .Select(change => new
+        
+        var roadNetworkStreamChanges = changes
+            .Select(change => new
             {
                 RoadSegmentId = change.AddRoadSegment?.PermanentId
                                 ?? change.ModifyRoadSegment?.Id
                                 ?? change.RemoveRoadSegment?.Id
                                 ?? change.ModifyRoadSegmentAttributes?.Id
-                                ?? change.ModifyRoadSegmentGeometry?.Id,
+                                ?? change.ModifyRoadSegmentGeometry?.Id
+                                ?? change.RemoveOutlinedRoadSegment?.Id,
                 GeometryDrawMethod = change.AddRoadSegment?.GeometryDrawMethod
                                      ?? change.ModifyRoadSegment?.GeometryDrawMethod
                                      ?? change.RemoveRoadSegment?.GeometryDrawMethod
                                      ?? change.ModifyRoadSegmentAttributes?.GeometryDrawMethod
-                                     ?? change.ModifyRoadSegmentGeometry?.GeometryDrawMethod,
+                                     ?? change.ModifyRoadSegmentGeometry?.GeometryDrawMethod
+                                     ?? (change.RemoveOutlinedRoadSegment is not null ? RoadSegmentGeometryDrawMethod.Outlined : null),
                 Change = change
             })
-            .ToList();
-
-        var roadSegmentChanges = q.GroupBy(x =>
+            .GroupBy(x =>
                 x.RoadSegmentId is not null && x.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
-                    ? x.RoadSegmentId.Value
-                    : 0, x => x.Change)
-            .OrderBy(x => x.Key)
-            .ToDictionary(x => new RoadSegmentId(x.Key), x => x.ToArray());
-        
-        if (!roadSegmentChanges.Any())
+                    ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(x.RoadSegmentId.Value))
+                    : RoadNetworkStreamNameProvider.Default(), x => x.Change)
+            .ToDictionary(x => x.Key, x => x.ToArray());
+
+        if (!roadNetworkStreamChanges.Any())
         {
-            roadSegmentChanges.Add(new RoadSegmentId(), changes);
+            roadNetworkStreamChanges.Add(RoadNetworkStreamNameProvider.Default(), changes);
         }
 
-        //TODO-rik wanneer er modifyroadsegment events zijn dat een conversie zijn van outlined->measured, dan een aparte nieuwe event toevoegen om deze expliciet te verwijderen uit de outlineroadnetwork
-
-        return roadSegmentChanges
-            .ToDictionary(x => RoadNetworkStreamNameProvider.Get(x.Key, x.Key > 0 ? RoadSegmentGeometryDrawMethod.Outlined : null), x => x.Value);
+        return roadNetworkStreamChanges;
     }
 }

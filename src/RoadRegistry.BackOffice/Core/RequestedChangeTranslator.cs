@@ -64,6 +64,9 @@ internal class RequestedChangeTranslator
                 case Messages.RemoveRoadSegment command:
                     translated = translated.Append(Translate(command));
                     break;
+                case Messages.RemoveOutlinedRoadSegment command:
+                    translated = translated.Append(Translate(command));
+                    break;
                 case Messages.AddRoadSegmentToEuropeanRoad command:
                     translated = translated.Append(await Translate(command, translated));
                     break;
@@ -318,7 +321,7 @@ internal class RequestedChangeTranslator
         var version = _nextRoadSegmentVersion(permanent);
         var geometry = GeometryTranslator.Translate(command.Geometry);
         var geometryVersion = _nextRoadSegmentGeometryVersion(permanent, geometry);
-
+        
         var maintainerId = new OrganizationId(command.MaintenanceAuthority);
         var maintainer = await organizations.FindAsync(maintainerId, ct);
         var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod);
@@ -438,6 +441,15 @@ internal class RequestedChangeTranslator
             command.GeometryDrawMethod is not null
                 ? RoadSegmentGeometryDrawMethod.Parse(command.GeometryDrawMethod)
                 : null
+        );
+    }
+
+    private RemoveOutlinedRoadSegment Translate(Messages.RemoveOutlinedRoadSegment command)
+    {
+        var permanent = new RoadSegmentId(command.Id);
+        return new RemoveOutlinedRoadSegment
+        (
+            permanent
         );
     }
 

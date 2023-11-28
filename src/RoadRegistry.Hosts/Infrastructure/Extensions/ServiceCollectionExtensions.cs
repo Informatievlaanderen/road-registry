@@ -161,7 +161,7 @@ public static class ServiceCollectionExtensions
     {
         return services
             .AddSingleton(sp => new TraceDbConnection<RoadNetworkDbContext>(
-                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.Events)), //TODO-rik separate connectionstring?
+                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.Events)),
                 sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
             .AddDbContext<RoadNetworkDbContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
