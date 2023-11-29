@@ -326,20 +326,19 @@ public static class Customizations
             throw new ArgumentException(nameof(illegalValues));
         }
 
-        var value = fixture.Create<T>();
-
-        while (illegalValues.Any(illegalValue => Equals(value, illegalValue)))
-        {
-            value = fixture.Create<T>();
-        }
-
-        return value;
+        return CreateUntil<T>(fixture, value => illegalValues.All(illegalValue => !Equals(value, illegalValue)));
     }
+
     public static T CreateWhichIsDifferentThan<T>(this IFixture fixture, Func<T, T, bool> comparer, params T[] illegalValues)
+    {
+        return CreateUntil<T>(fixture, value => illegalValues.All(illegalValue => !comparer(value, illegalValue)));
+    }
+
+    public static T CreateUntil<T>(this IFixture fixture, Predicate<T> predicate)
     {
         var value = fixture.Create<T>();
 
-        while (illegalValues.Any(illegalValue => comparer(value, illegalValue)))
+        while (!predicate(value))
         {
             value = fixture.Create<T>();
         }

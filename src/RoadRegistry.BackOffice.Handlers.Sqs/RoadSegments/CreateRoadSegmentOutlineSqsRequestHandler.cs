@@ -1,7 +1,6 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
-using Core;
 using TicketingService.Abstractions;
 
 public class CreateRoadSegmentOutlineSqsRequestHandler : SqsHandler<CreateRoadSegmentOutlineSqsRequest>
@@ -14,7 +13,7 @@ public class CreateRoadSegmentOutlineSqsRequestHandler : SqsHandler<CreateRoadSe
 
     protected override string WithAggregateId(CreateRoadSegmentOutlineSqsRequest request)
     {
-        return RoadNetwork.Identifier.ToString();
+        return Guid.NewGuid().ToString();
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, CreateRoadSegmentOutlineSqsRequest sqsRequest)

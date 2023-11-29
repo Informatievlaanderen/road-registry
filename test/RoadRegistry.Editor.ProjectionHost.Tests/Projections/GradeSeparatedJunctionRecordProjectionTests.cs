@@ -6,6 +6,7 @@ using BackOffice;
 using BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
 using BackOffice.Messages;
 using Editor.Projections;
+using Editor.Schema.Extensions;
 using Editor.Schema.GradeSeparatedJunctions;
 using Microsoft.IO;
 using RoadRegistry.Tests.BackOffice;

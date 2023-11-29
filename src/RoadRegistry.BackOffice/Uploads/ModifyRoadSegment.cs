@@ -22,23 +22,25 @@ public class ModifyRoadSegment : ITranslatedChange
         RoadSegmentAccessRestriction accessRestriction,
         CrabStreetnameId? leftSideStreetNameId,
         CrabStreetnameId? rightSideStreetNameId)
+        : this(
+            recordNumber,
+            id,
+            startNodeId,
+            endNodeId,
+            null,
+            maintenanceAuthority,
+            geometryDrawMethod.ThrowIfNull(),
+            morphology.ThrowIfNull(),
+            status.ThrowIfNull(),
+            category.ThrowIfNull(),
+            accessRestriction.ThrowIfNull(),
+            leftSideStreetNameId,
+            rightSideStreetNameId,
+            Array.Empty<RoadSegmentLaneAttribute>(),
+            Array.Empty<RoadSegmentWidthAttribute>(),
+            Array.Empty<RoadSegmentSurfaceAttribute>()
+        )
     {
-        RecordNumber = recordNumber;
-        Id = id;
-        StartNodeId = startNodeId;
-        EndNodeId = endNodeId;
-        Geometry = null;
-        MaintenanceAuthority = maintenanceAuthority;
-        GeometryDrawMethod = geometryDrawMethod ?? throw new ArgumentNullException(nameof(geometryDrawMethod));
-        Morphology = morphology ?? throw new ArgumentNullException(nameof(morphology));
-        Status = status ?? throw new ArgumentNullException(nameof(status));
-        Category = category ?? throw new ArgumentNullException(nameof(category));
-        AccessRestriction = accessRestriction ?? throw new ArgumentNullException(nameof(accessRestriction));
-        LeftSideStreetNameId = leftSideStreetNameId;
-        RightSideStreetNameId = rightSideStreetNameId;
-        Lanes = Array.Empty<RoadSegmentLaneAttribute>();
-        Widths = Array.Empty<RoadSegmentWidthAttribute>();
-        Surfaces = Array.Empty<RoadSegmentSurfaceAttribute>();
     }
 
     private ModifyRoadSegment(
@@ -151,7 +153,7 @@ public class ModifyRoadSegment : ITranslatedChange
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces);
     }
-
+    
     public ModifyRoadSegment WithLane(RoadSegmentLaneAttribute lane)
     {
         var lanes = new List<RoadSegmentLaneAttribute>(Lanes) { lane };

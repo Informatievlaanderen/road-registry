@@ -10,6 +10,7 @@ using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.Hosts;
+using RoadRegistry.Tests.BackOffice.Extracts;
 using AcceptedChange = Messages.AcceptedChange;
 
 public class WhenChangeDynamicAttributesWithValidRequestFixture : WhenChangeDynamicAttributesFixture
@@ -84,6 +85,9 @@ public class WhenChangeDynamicAttributesWithValidRequestFixture : WhenChangeDyna
             },
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
+        
+        await EditorContext.RoadSegments.AddAsync(TestData.Segment1Added.ToRoadSegmentRecord(TestData.ChangedByOrganization, Clock));
+        await EditorContext.SaveChangesAsync();
     }
 
     protected override async Task<bool> VerifyTicketAsync()

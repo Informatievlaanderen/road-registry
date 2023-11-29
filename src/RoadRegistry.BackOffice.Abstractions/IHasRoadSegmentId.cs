@@ -2,5 +2,6 @@ namespace RoadRegistry.BackOffice.Abstractions;
 
 public interface IHasRoadSegmentId
 {
-    public int RoadSegmentId { get; }
+    public RoadSegmentId RoadSegmentId { get; }
+    public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 }

@@ -1,8 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Extensions;
 using Abstractions.RoadSegments;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
@@ -18,8 +15,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {
@@ -32,6 +33,7 @@ public partial class RoadSegmentsController
     /// <param name="ifMatchHeaderValidator"></param>
     /// <param name="idValidator"></param>
     /// <param name="validator"></param>
+    /// <param name="roadSegmentRepository"></param>
     /// <param name="parameters"></param>
     /// <param name="id">Identificator van het wegsegment.</param>
     /// <param name="ifMatchHeaderValue"></param>
@@ -60,6 +62,7 @@ public partial class RoadSegmentsController
         [FromServices] IIfMatchHeaderValidator ifMatchHeaderValidator,
         [FromServices] RoadSegmentIdValidator idValidator,
         [FromServices] IValidator<LinkStreetNameRequest> validator,
+        [FromServices] IRoadSegmentRepository roadSegmentRepository,
         [FromBody] PostLinkStreetNameParameters parameters,
         [FromRoute] int id,
         [FromHeader(Name = "If-Match")] string? ifMatchHeaderValue,
@@ -74,12 +77,18 @@ public partial class RoadSegmentsController
         {
             await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
 
-            if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, new RoadSegmentId(id), cancellationToken))
+            var roadSegment = await roadSegmentRepository.Find(new RoadSegmentId(id), cancellationToken);
+            if (roadSegment is null)
+            {
+                throw new RoadSegmentNotFoundException();
+            }
+
+            if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, roadSegment, cancellationToken))
             {
                 return new PreconditionFailedResult();
             }
 
-            var request = new LinkStreetNameRequest(id, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
+            var request = new LinkStreetNameRequest(id, roadSegment.GeometryDrawMethod, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var result = await _mediator.Send(new LinkStreetNameSqsRequest { Request = request }, cancellationToken);

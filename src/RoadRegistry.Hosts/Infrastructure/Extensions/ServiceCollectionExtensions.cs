@@ -4,6 +4,7 @@ using System;
 using System.Configuration;
 using Amazon;
 using BackOffice;
+using BackOffice.Core;
 using BackOffice.FeatureToggles;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Editor.Schema;
@@ -12,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.RoadNetwork.Schema;
 using SqlStreamStore;
 using StreetNameConsumer.Schema;
 using Syndication.Schema;
@@ -153,6 +155,25 @@ public static class ServiceCollectionExtensions
             ;
 
         return services;
+    }
+
+    public static IServiceCollection AddRoadNetworkDbIdGenerator(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton(sp => new TraceDbConnection<RoadNetworkDbContext>(
+                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.Events)),
+                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddDbContext<RoadNetworkDbContext>((sp, options) => options
+                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .UseSqlServer(
+                    sp.GetRequiredService<TraceDbConnection<RoadNetworkDbContext>>(),
+                    sqlOptions => sqlOptions
+                        .UseNetTopologySuite()
+                        .MigrationsHistoryTable("__EFMigrationsHistory", RoadNetworkDbContext.Schema)
+                )
+            )
+            .AddScoped<IRoadNetworkIdGenerator, RoadNetworkDbIdGenerator>();
     }
 }
 

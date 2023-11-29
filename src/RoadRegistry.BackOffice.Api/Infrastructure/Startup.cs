@@ -52,6 +52,7 @@ using NetTopologySuite.IO;
 using NodaTime;
 using Options;
 using Product.Schema;
+using RoadRegistry.BackOffice.Api.RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
@@ -352,6 +353,7 @@ public class Startup
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
                     sp.GetRequiredService<TraceDbConnection<ProductContext>>()))
+            .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()

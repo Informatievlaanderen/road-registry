@@ -9,6 +9,7 @@ using Be.Vlaanderen.Basisregisters.MessageHandling.AwsSqs.Simple;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Editor.Projections;
+using Editor.Schema.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Moq;

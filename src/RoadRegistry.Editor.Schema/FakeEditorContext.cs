@@ -8,7 +8,8 @@ public sealed class FakeEditorContext : EditorContext
     {
     }
 
-    public FakeEditorContext(DbContextOptions<EditorContext> options) : base(options)
+    public FakeEditorContext(DbContextOptions<EditorContext> options)
+        : base(options)
     {
     }
 }

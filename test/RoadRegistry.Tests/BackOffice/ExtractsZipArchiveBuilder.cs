@@ -8,6 +8,7 @@ namespace RoadRegistry.Tests.BackOffice
     using AutoFixture;
     using Be.Vlaanderen.Basisregisters.Shaperon;
     using Editor.Projections;
+    using Editor.Schema.Extensions;
     using Microsoft.IO;
     using NetTopologySuite.Geometries;
     using RoadRegistry.BackOffice;
@@ -678,6 +679,14 @@ namespace RoadRegistry.Tests.BackOffice
         public List<RoadNodeShapeRecord> RoadNodeShapeRecords { get; set; }
         public List<RoadSegmentDbaseRecord> RoadSegmentDbaseRecords { get; set; }
         public List<RoadSegmentShapeRecord> RoadSegmentShapeRecords { get; set; }
+
+        public virtual void Clear()
+        {
+            RoadNodeDbaseRecords.Clear();
+            RoadNodeShapeRecords.Clear();
+            RoadSegmentDbaseRecords.Clear();
+            RoadSegmentShapeRecords.Clear();
+        }
     }
 
     public class ZipArchiveDataSet: ZipArchiveIntegrationDataSet
@@ -690,6 +699,19 @@ namespace RoadRegistry.Tests.BackOffice
         public List<RoadSegmentWidthAttributeDbaseRecord> WidthDbaseRecords { get; set; }
         public List<GradeSeparatedJunctionDbaseRecord> GradeSeparatedJunctionDbaseRecords { get; set; }
         public List<TransactionZoneDbaseRecord> TransactionZoneDbaseRecords { get; set; }
+
+        public override void Clear()
+        {
+            base.Clear();
+
+            EuropeanRoadDbaseRecords.Clear();
+            NationalRoadDbaseRecords.Clear();
+            NumberedRoadDbaseRecords.Clear();
+            LaneDbaseRecords.Clear();
+            SurfaceDbaseRecords.Clear();
+            WidthDbaseRecords.Clear();
+            GradeSeparatedJunctionDbaseRecords.Clear();
+        }
     }
 
     public class ZipArchiveIntegrationDataSetStreams

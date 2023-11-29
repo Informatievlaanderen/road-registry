@@ -5,12 +5,14 @@ using Messages;
 
 public class RemoveRoadSegment : IRequestedChange
 {
-    public RemoveRoadSegment(RoadSegmentId id)
+    public RemoveRoadSegment(RoadSegmentId id, RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
         Id = id;
+        GeometryDrawMethod = geometryDrawMethod;
     }
 
     public RoadSegmentId Id { get; }
+    public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -18,7 +20,8 @@ public class RemoveRoadSegment : IRequestedChange
 
         message.RoadSegmentRemoved = new RoadSegmentRemoved
         {
-            Id = Id
+            Id = Id,
+            GeometryDrawMethod = GeometryDrawMethod
         };
     }
 
@@ -28,7 +31,8 @@ public class RemoveRoadSegment : IRequestedChange
 
         message.RemoveRoadSegment = new Messages.RemoveRoadSegment
         {
-            Id = Id
+            Id = Id,
+            GeometryDrawMethod = GeometryDrawMethod
         };
     }
 

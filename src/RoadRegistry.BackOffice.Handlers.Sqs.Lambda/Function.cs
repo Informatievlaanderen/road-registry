@@ -38,6 +38,7 @@ public class Function : RoadRegistryLambdaFunction<MessageHandler>
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkEventWriter()
             .AddChangeRoadNetworkDispatcher()
+            .AddRoadNetworkDbIdGenerator()
             .AddCommandHandlerDispatcher(sp => Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {

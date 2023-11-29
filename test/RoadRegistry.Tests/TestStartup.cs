@@ -94,6 +94,7 @@ public abstract class TestStartup
                         ResponseQueueUrl = "response.fifo"
                     })
                     .AddSingleton(new FileEncoding(Encoding.UTF8))
+                    .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                     .AddTransient<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)

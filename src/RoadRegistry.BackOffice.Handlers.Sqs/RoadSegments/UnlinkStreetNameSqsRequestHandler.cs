@@ -14,7 +14,7 @@ public class UnlinkStreetNameSqsRequestHandler : SqsHandler<UnlinkStreetNameSqsR
 
     protected override string WithAggregateId(UnlinkStreetNameSqsRequest request)
     {
-        return RoadNetwork.Identifier.ToString();
+        return RoadNetworkStreamNameProvider.Get(new RoadSegmentId(request.Request.WegsegmentId), RoadSegmentGeometryDrawMethod.Parse(request.Request.Methode));
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, UnlinkStreetNameSqsRequest sqsRequest)

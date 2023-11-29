@@ -17,6 +17,7 @@ using RoadRegistry.Editor.Schema;
 using System.Diagnostics;
 using Abstractions.Extracts;
 using BackOffice.Extensions;
+using Editor.Schema.Extensions;
 using Product.Schema;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = Reason;

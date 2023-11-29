@@ -39,7 +39,7 @@ public class WhenDeleteOutlineWithValidRequestFixture : WhenDeleteOutlineFixture
         TestData.Segment1Added.StartNodeId = 0;
         TestData.Segment1Added.EndNodeId = 0;
 
-        await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+        await Given(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(TestData.Segment1Added.Id)), new RoadNetworkChangesAccepted
         {
             RequestId = TestData.RequestId,
             Reason = TestData.ReasonForChange,

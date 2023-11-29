@@ -9,6 +9,7 @@ namespace RoadRegistry.SyncHost.Tests.Organization
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.ProjectionStates;
     using Editor.Projections;
     using Editor.Schema;
+    using Editor.Schema.Extensions;
     using Extensions;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
