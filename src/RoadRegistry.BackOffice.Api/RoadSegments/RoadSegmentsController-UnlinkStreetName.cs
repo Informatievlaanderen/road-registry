@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice.Abstractions.Exceptions;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
 using System.Runtime.Serialization;
@@ -79,7 +80,7 @@ public partial class RoadSegmentsController
             var roadSegment = await roadSegmentRepository.Find(new RoadSegmentId(id), cancellationToken);
             if (roadSegment is null)
             {
-                return NotFound();
+                throw new RoadSegmentNotFoundException();
             }
 
             if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, roadSegment, cancellationToken))

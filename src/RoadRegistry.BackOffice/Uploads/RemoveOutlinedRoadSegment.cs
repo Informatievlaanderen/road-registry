@@ -17,7 +17,7 @@ public class RemoveOutlinedRoadSegment : ITranslatedChange
 
     public void TranslateTo(RequestedChange message)
     {
-        if (message == null) throw new ArgumentNullException(nameof(message));
+        ArgumentNullException.ThrowIfNull(message);
 
         message.RemoveOutlinedRoadSegment = new Messages.RemoveOutlinedRoadSegment
         {

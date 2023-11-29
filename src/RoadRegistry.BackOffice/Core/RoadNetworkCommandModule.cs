@@ -84,23 +84,6 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .Handle(Ignore);
     }
 
-    private Organization.DutchTranslation ToDutchTranslation(Organization organization, OrganizationId organizationId)
-    {
-        if (organization is null)
-        {
-            return organizationId == OrganizationId.Other
-                ? Organization.PredefinedTranslations.Other
-                : Organization.PredefinedTranslations.Unknown;
-        }
-        if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
-        {
-            return new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
-        }
-
-        return organization.Translation
-                    ?? ToDutchTranslation(null, organizationId);
-    }
-
     private async Task ChangeRoadNetwork(IRoadRegistryContext context, Command<ChangeRoadNetwork> command, ApplicationMetadata commandMetadata, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Command handler started for {CommandName}", command.Body.GetType().Name);
@@ -321,5 +304,22 @@ public class RoadNetworkCommandModule : CommandHandlerModule
         }
 
         return roadNetworkStreamChanges;
+    }
+    
+    private Organization.DutchTranslation ToDutchTranslation(Organization organization, OrganizationId organizationId)
+    {
+        if (organization is null)
+        {
+            return organizationId == OrganizationId.Other
+                ? Organization.PredefinedTranslations.Other
+                : Organization.PredefinedTranslations.Unknown;
+        }
+        if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
+        {
+            return new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
+        }
+
+        return organization.Translation
+               ?? ToDutchTranslation(null, organizationId);
     }
 }

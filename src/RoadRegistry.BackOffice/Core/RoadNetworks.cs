@@ -205,7 +205,7 @@ public class RoadNetworks : IRoadNetworks
 
         int version;
         
-        if (restoreSnapshot && StreamNameSupportsRestoreSnapshot(streamName))
+        if (restoreSnapshot && streamName.SnapshotEnabled)
         {
             _logger.LogInformation("Read started for RoadNetwork snapshot");
             var (snapshot, snapshotVersion) = await _snapshotReader.ReadSnapshotAsync(cancellationToken);
@@ -233,11 +233,6 @@ public class RoadNetworks : IRoadNetworks
 
         return (view, version);
     }
-
-    private static bool StreamNameSupportsRestoreSnapshot(StreamName streamName)
-    {
-        return streamName == RoadNetworkStreamNameProvider.Default();
-    }
 }
 
 public class RoadNetworkStreamNameProvider
@@ -249,7 +244,7 @@ public class RoadNetworkStreamNameProvider
 
     public static StreamName Default()
     {
-        return new StreamName("roadnetwork");
+        return new StreamName("roadnetwork") { SnapshotEnabled = true };
     }
 
     public static StreamName Get(RoadSegmentId? roadSegmentId, RoadSegmentGeometryDrawMethod geometryDrawMethod)
