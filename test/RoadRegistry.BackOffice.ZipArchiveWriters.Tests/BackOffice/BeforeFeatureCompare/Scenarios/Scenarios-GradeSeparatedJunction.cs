@@ -234,4 +234,34 @@ public class GradeSeparatedJunctionScenarios : FeatureCompareTranslatorScenarios
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
+
+    [Fact]
+    public async Task RemovingDuplicateRecordsShouldReturnExpectedResult()
+    {
+        var zipArchiveBuilder = new ExtractsZipArchiveBuilder();
+
+        var duplicateGradeSeparatedJunction = zipArchiveBuilder.Records.CreateGradeSeparatedJunctionDbaseRecord();
+
+        var (zipArchive, expected) = zipArchiveBuilder
+            .WithExtract((builder, context) =>
+            {
+                duplicateGradeSeparatedJunction.BO_WS_OIDN.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.BO_WS_OIDN.Value;
+                duplicateGradeSeparatedJunction.ON_WS_OIDN.Value = builder.TestData.GradeSeparatedJunctionDbaseRecord.ON_WS_OIDN.Value;
+
+                builder.DataSet.GradeSeparatedJunctionDbaseRecords.Add(duplicateGradeSeparatedJunction);
+            })
+            .BuildWithResult(context =>
+            {
+                return TranslatedChanges.Empty
+                    .AppendChange(
+                        new RemoveGradeSeparatedJunction
+                        (
+                            new RecordNumber(2),
+                            new GradeSeparatedJunctionId(duplicateGradeSeparatedJunction.OK_OIDN.Value)
+                        )
+                    );
+            });
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
 }

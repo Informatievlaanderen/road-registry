@@ -42,18 +42,27 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
         List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> GetFeaturesToRemove()
         {
             var featuresToRemove = new List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>();
+            var usedProcessedRecords = new List<Record>();
 
             foreach (var extractFeature in extractFeatures)
             {
-                var isProcessed = processedRecords.Any(x => x.Feature.Attributes.UpperRoadSegmentId == extractFeature.Attributes.UpperRoadSegmentId
-                                           && x.Feature.Attributes.LowerRoadSegmentId == extractFeature.Attributes.LowerRoadSegmentId);
-            }
-            //TODO-rik determine which features to remove which do not have a link, but also take doubles into account
+                var matchingProcessedRecords = processedRecords
+                    .Where(x => x.Feature.Attributes.UpperRoadSegmentId == extractFeature.Attributes.UpperRoadSegmentId
+                                && x.Feature.Attributes.LowerRoadSegmentId == extractFeature.Attributes.LowerRoadSegmentId
+                                && !usedProcessedRecords.Contains(x))
+                    .ToList();
 
-            //var extractFeaturesWithoutChangeFeatures = extractFeatures.FindAll(extractFeature =>
-            //    !processedRecords.Any(x => x.Feature.Attributes.UpperRoadSegmentId == extractFeature.Attributes.UpperRoadSegmentId
-            //                               && x.Feature.Attributes.LowerRoadSegmentId == extractFeature.Attributes.LowerRoadSegmentId)
-            //);
+                if (!matchingProcessedRecords.Any())
+                {
+                    featuresToRemove.Add(extractFeature);
+                }
+                else
+                {
+                    usedProcessedRecords.AddRange(matchingProcessedRecords);
+                }
+            }
+
+            return featuresToRemove;
         }
 
         void RemoveFeatures(ICollection<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> features)
