@@ -205,7 +205,7 @@ public class RoadNetworks : IRoadNetworks
 
         int version;
         
-        if (restoreSnapshot && streamName.SnapshotEnabled)
+        if (restoreSnapshot && streamName.SupportsSnapshot)
         {
             _logger.LogInformation("Read started for RoadNetwork snapshot");
             var (snapshot, snapshotVersion) = await _snapshotReader.ReadSnapshotAsync(cancellationToken);
@@ -244,7 +244,7 @@ public class RoadNetworkStreamNameProvider
 
     public static StreamName Default()
     {
-        return new StreamName("roadnetwork") { SnapshotEnabled = true };
+        return new StreamName("roadnetwork") { SupportsSnapshot = true };
     }
 
     public static StreamName Get(RoadSegmentId? roadSegmentId, RoadSegmentGeometryDrawMethod geometryDrawMethod)

@@ -8,11 +8,12 @@ public struct StreamName : IEquatable<StreamName>, IComparable<StreamName>
 {
     private readonly string _value;
 
-    public bool SnapshotEnabled { get; init; }
+    public bool SupportsSnapshot { get; init; }
 
     public StreamName(string value)
     {
         _value = value ?? throw new ArgumentNullException(nameof(value));
+        SupportsSnapshot = false;
     }
 
     [Pure]
