@@ -1,3 +1,10 @@
+## [3.62.11](https://github.com/informatievlaanderen/road-registry/compare/v3.62.10...v3.62.11) (2023-11-29)
+
+
+### Bug Fixes
+
+* WR-899 removing of duplicate GradeSeparatedJunctions ([#1313](https://github.com/informatievlaanderen/road-registry/issues/1313)) ([c9f8b6b](https://github.com/informatievlaanderen/road-registry/commit/c9f8b6be8f8bbeeb07b423142de9e3e0155e5921))
+
 ## [3.62.10](https://github.com/informatievlaanderen/road-registry/compare/v3.62.9...v3.62.10) (2023-11-27)
 
 
