@@ -44,11 +44,11 @@ public class RemoveOutlinedRoadSegment : IRequestedChange
         ArgumentNullException.ThrowIfNull(context);
 
         var problems = Problems.None;
-        //TODO-rik validatie weglaten? want anders zou dit problemen geven voor bestaande data in de roadnetwork aggregate
-        //if (!context.BeforeView.View.Segments.ContainsKey(Id))
-        //{
-        //    problems = problems.Add(new RoadSegmentNotFound());
-        //}
+        
+        if (!context.BeforeView.View.Segments.ContainsKey(Id))
+        {
+            problems = problems.Add(new RoadSegmentNotFound());
+        }
 
         return problems;
     }

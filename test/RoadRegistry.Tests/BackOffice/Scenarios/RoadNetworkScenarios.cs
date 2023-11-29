@@ -2179,6 +2179,12 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
     [Fact]
     public Task when_removing_an_outlined_segment()
     {
+        TestData.Segment1Added.GeometryDrawMethod = RoadSegmentGeometryDrawMethod.Outlined;
+        TestData.Segment1Added.Status = ObjectProvider.CreateUntil<RoadSegmentStatus>(x => x.IsValidForEdit());
+        TestData.Segment1Added.Morphology = ObjectProvider.CreateUntil<RoadSegmentMorphology>(x => x.IsValidForEdit());
+        TestData.Segment1Added.StartNodeId = 0;
+        TestData.Segment1Added.EndNodeId = 0;
+
         return Run(scenario => scenario
             .Given(Organizations.ToStreamName(TestData.ChangedByOrganization),
                 new ImportedOrganization
@@ -2188,6 +2194,22 @@ public class RoadNetworkScenarios : RoadNetworkTestBase
                     When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
                 }
             )
+            .Given(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(TestData.Segment1Added.Id)), new RoadNetworkChangesAccepted
+            {
+                RequestId = TestData.RequestId,
+                Reason = TestData.ReasonForChange,
+                Operator = TestData.ChangedByOperator,
+                OrganizationId = TestData.ChangedByOrganization,
+                Organization = TestData.ChangedByOrganizationName,
+                Changes = new[]
+                {
+                    new AcceptedChange
+                    {
+                        RoadSegmentAdded = TestData.Segment1Added
+                    }
+                },
+                When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
+            })
             .When(TheOperator.ChangesTheRoadNetwork(
                 TestData.RequestId, TestData.ReasonForChange, TestData.ChangedByOperator, TestData.ChangedByOrganization,
                 new RequestedChange
