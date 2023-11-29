@@ -1,23 +1,15 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenDeleteOutline.Abstractions.Fixtures;
 
-using System.Text;
 using Api.RoadSegments;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
-using BackOffice.Extracts.Dbase.RoadSegments;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Projections;
 using Editor.Schema;
-using Editor.Schema.Extensions;
-using Editor.Schema.RoadSegments;
 using FeatureToggles;
-using Hosts.Infrastructure.Options;
 using Infrastructure;
 using MediatR;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
@@ -26,11 +18,13 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
 {
     private readonly EditorContext _editorContext;
     private readonly IMediator _mediator;
+    private readonly IRoadSegmentRepository _roadSegmentRepository;
 
-    protected WhenDeleteOutlineFixture(IMediator mediator, EditorContext editorContext)
+    protected WhenDeleteOutlineFixture(IMediator mediator, EditorContext editorContext, IRoadSegmentRepository roadSegmentRepository)
     {
         _mediator = mediator;
         _editorContext = editorContext;
+        _roadSegmentRepository = roadSegmentRepository;
 
         TestData = new RoadNetworkTestData(fixture => { fixture.CustomizeRoadSegmentOutlineGeometryDrawMethod(); }).CopyCustomizationsTo(ObjectProvider);
     }
@@ -54,7 +48,8 @@ public abstract class WhenDeleteOutlineFixture : ControllerActionFixture<int>
 
         return await controller.DeleteOutline(
             new UseRoadSegmentOutlineDeleteFeatureToggle(true),
-            new RoadSegmentOutlinedIdValidator(_editorContext, new RecyclableMemoryStreamManager(), FileEncoding.UTF8),
+            new RoadSegmentIdValidator(),
+            _roadSegmentRepository,
             roadSegmentId,
             CancellationToken.None
         );

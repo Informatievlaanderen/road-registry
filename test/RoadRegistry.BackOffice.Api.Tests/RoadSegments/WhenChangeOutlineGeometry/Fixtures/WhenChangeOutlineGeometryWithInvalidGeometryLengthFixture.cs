@@ -6,7 +6,8 @@ using MediatR;
 
 public class WhenChangeOutlineGeometryWithInvalidGeometryLengthFixture : WhenChangeOutlineGeometryWithValidRequestFixture
 {
-    public WhenChangeOutlineGeometryWithInvalidGeometryLengthFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
+    public WhenChangeOutlineGeometryWithInvalidGeometryLengthFixture(IMediator mediator, EditorContext editorContext, IRoadSegmentRepository roadSegmentRepository)
+        : base(mediator, editorContext, roadSegmentRepository)
     {
     }
 

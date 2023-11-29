@@ -1,22 +1,14 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeOutlineGeometry.Abstractions.Fixtures;
 
-using System.Text;
 using Api.RoadSegments;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
-using BackOffice.Extracts.Dbase.RoadSegments;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Projections;
 using Editor.Schema;
-using Editor.Schema.Extensions;
-using Editor.Schema.RoadSegments;
-using Hosts.Infrastructure.Options;
 using Infrastructure;
 using MediatR;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
@@ -25,11 +17,13 @@ public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture
 {
     private readonly EditorContext _editorContext;
     private readonly IMediator _mediator;
+    private readonly IRoadSegmentRepository _roadSegmentRepository;
 
-    protected WhenChangeOutlineGeometryFixture(IMediator mediator, EditorContext editorContext)
+    protected WhenChangeOutlineGeometryFixture(IMediator mediator, EditorContext editorContext, IRoadSegmentRepository roadSegmentRepository)
     {
         _mediator = mediator;
         _editorContext = editorContext;
+        _roadSegmentRepository = roadSegmentRepository;
 
         TestData = new RoadNetworkTestData(fixture => { fixture.CustomizeRoadSegmentOutlineGeometryDrawMethod(); }).CopyCustomizationsTo(ObjectProvider);
     }
@@ -46,9 +40,9 @@ public abstract class WhenChangeOutlineGeometryFixture : ControllerActionFixture
             }
         };
 
-        var idValidator = new RoadSegmentOutlinedIdValidator(_editorContext, new RecyclableMemoryStreamManager(), FileEncoding.UTF8);
+        var idValidator = new RoadSegmentIdValidator();
         var validator = new PostChangeOutlineGeometryParametersValidator();
-        return await controller.ChangeOutlineGeometry(idValidator, validator, request, TestData.Segment1Added.Id, CancellationToken.None);
+        return await controller.ChangeOutlineGeometry(idValidator, validator, _roadSegmentRepository, request, TestData.Segment1Added.Id, CancellationToken.None);
     }
 
     protected override async Task SetupAsync()

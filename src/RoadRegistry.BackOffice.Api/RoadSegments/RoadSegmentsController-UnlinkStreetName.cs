@@ -1,18 +1,11 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Extensions;
 using Abstractions.RoadSegments;
-using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.ETag;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
-using Editor.Projections;
-using Editor.Schema;
-using Editor.Schema.Extensions;
 using FeatureToggles;
 using FluentValidation;
 using Handlers.Sqs.RoadSegments;
@@ -21,10 +14,12 @@ using Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IO;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {
@@ -35,14 +30,12 @@ public partial class RoadSegmentsController
     /// </summary>
     /// <param name="featureToggle"></param>
     /// <param name="ifMatchHeaderValidator"></param>
+    /// <param name="idValidator"></param>
+    /// <param name="validator"></param>
+    /// <param name="roadSegmentRepository"></param>
     /// <param name="parameters"></param>
     /// <param name="id">Identificator van het wegsegment.</param>
     /// <param name="ifMatchHeaderValue"></param>
-    /// <param name="idValidator"></param>
-    /// <param name="validator"></param>
-    /// <param name="editorContext"></param>
-    /// <param name="manager"></param>
-    /// <param name="fileEncoding"></param>
     /// <param name="cancellationToken"></param>
     /// <response code="202">Als het wegsegment gevonden is.</response>
     /// <response code="400">Als uw verzoek foutieve data bevat.</response>
@@ -68,9 +61,7 @@ public partial class RoadSegmentsController
         [FromServices] IIfMatchHeaderValidator ifMatchHeaderValidator,
         [FromServices] RoadSegmentIdValidator idValidator,
         [FromServices] IValidator<UnlinkStreetNameRequest> validator,
-        [FromServices] EditorContext editorContext,
-        [FromServices] RecyclableMemoryStreamManager manager,
-        [FromServices] FileEncoding fileEncoding,
+        [FromServices] IRoadSegmentRepository roadSegmentRepository,
         [FromBody] PostUnlinkStreetNameParameters parameters,
         [FromRoute] int id,
         [FromHeader(Name = "If-Match")] string? ifMatchHeaderValue,
@@ -85,16 +76,18 @@ public partial class RoadSegmentsController
         {
             await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
 
-            if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, new RoadSegmentId(id), cancellationToken))
+            var roadSegment = await roadSegmentRepository.Find(new RoadSegmentId(id), cancellationToken);
+            if (roadSegment is null)
+            {
+                return NotFound();
+            }
+
+            if (!await ifMatchHeaderValidator.IsValid(ifMatchHeaderValue, roadSegment, cancellationToken))
             {
                 return new PreconditionFailedResult();
             }
 
-            var roadSegment = await editorContext.RoadSegments.FindAsync(new object[] { id }, cancellationToken);
-            var roadSegmentDbaseRecord = new RoadSegmentDbaseRecord().FromBytes(roadSegment!.DbaseRecord, manager, fileEncoding);
-            var geometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord.METHODE.Value];
-
-            var request = new UnlinkStreetNameRequest(id, geometryDrawMethod, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
+            var request = new UnlinkStreetNameRequest(id, roadSegment.GeometryDrawMethod, parameters?.LinkerstraatnaamId, parameters?.RechterstraatnaamId);
             await validator.ValidateAndThrowAsync(request, cancellationToken);
 
             var result = await _mediator.Send(new UnlinkStreetNameSqsRequest { Request = request }, cancellationToken);
