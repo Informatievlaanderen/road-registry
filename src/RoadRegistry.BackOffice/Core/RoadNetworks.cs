@@ -234,26 +234,3 @@ public class RoadNetworks : IRoadNetworks
         return (view, version);
     }
 }
-
-public class RoadNetworkStreamNameProvider
-{
-    public static StreamName ForOutlinedRoadSegment(RoadSegmentId roadSegmentId)
-    {
-        return new StreamName($"roadsegment-outline-{roadSegmentId}");
-    }
-
-    public static StreamName Default()
-    {
-        return new StreamName("roadnetwork") { SupportsSnapshot = true };
-    }
-
-    public static StreamName Get(RoadSegmentId? roadSegmentId, RoadSegmentGeometryDrawMethod geometryDrawMethod)
-    {
-        if (roadSegmentId is not null && geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
-        {
-            return ForOutlinedRoadSegment(roadSegmentId.Value);
-        }
-
-        return Default();
-    }
-}

@@ -1487,16 +1487,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             _segmentReusableWidthAttributeIdentifiers;
 
         private readonly ImmutableDictionary<RoadSegmentId, RoadSegment>.Builder _segments;
-        private AttributeId _maximumEuropeanRoadAttributeId;
-        private GradeSeparatedJunctionId _maximumGradeSeparatedJunctionId;
-        private AttributeId _maximumLaneAttributeId;
-        private AttributeId _maximumNationalRoadAttributeId;
-        private RoadNodeId _maximumNodeId;
-        private AttributeId _maximumNumberedRoadAttributeId;
-        private RoadSegmentId _maximumSegmentId;
-        private AttributeId _maximumSurfaceAttributeId;
-        private TransactionId _maximumTransactionId;
-        private AttributeId _maximumWidthAttributeId;
 
         public Builder(
             ImmutableDictionary<RoadNodeId, RoadNode>.Builder nodes,
@@ -1518,16 +1508,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         }
 
         public IReadOnlyDictionary<GradeSeparatedJunctionId, GradeSeparatedJunction> GradeSeparatedJunctions => _gradeSeparatedJunctions.ToImmutable();
-        public AttributeId MaximumEuropeanRoadAttributeId => _maximumEuropeanRoadAttributeId;
-        public GradeSeparatedJunctionId MaximumGradeSeparatedJunctionId => _maximumGradeSeparatedJunctionId;
-        public AttributeId MaximumLaneAttributeId => _maximumLaneAttributeId;
-        public AttributeId MaximumNationalRoadAttributeId => _maximumNationalRoadAttributeId;
-        public RoadNodeId MaximumNodeId => _maximumNodeId;
-        public AttributeId MaximumNumberedRoadAttributeId => _maximumNumberedRoadAttributeId;
-        public RoadSegmentId MaximumSegmentId => _maximumSegmentId;
-        public AttributeId MaximumSurfaceAttributeId => _maximumSurfaceAttributeId;
-        public TransactionId MaximumTransactionId => _maximumTransactionId;
-        public AttributeId MaximumWidthAttributeId => _maximumWidthAttributeId;
         public IReadOnlyDictionary<RoadNodeId, RoadNode> Nodes => _nodes.ToImmutable();
 
         public ImmutableDictionary<RoadSegmentId, IReadOnlyList<AttributeId>>
@@ -1898,9 +1878,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             var type = RoadNodeType.Parse(@event.Type);
             var node = new RoadNode(id, version, type, GeometryTranslator.Translate(@event.Geometry));
             _nodes.Add(id, node);
-            _maximumTransactionId =
-                TransactionId.Max(new TransactionId(@event.Origin.TransactionId), _maximumTransactionId);
-            _maximumNodeId = RoadNodeId.Max(id, _maximumNodeId);
         }
 
         private void Given(ImportedRoadSegment @event)
@@ -1973,39 +1950,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 .TryReplace(start, node => node.ConnectWith(id))
                 .TryReplace(end, node => node.ConnectWith(id));
             _segments.Add(id, segment);
-            _maximumTransactionId =
-                TransactionId.Max(new TransactionId(@event.Origin.TransactionId), _maximumTransactionId);
-            _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
-            _maximumEuropeanRoadAttributeId = @event.PartOfEuropeanRoads.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.PartOfEuropeanRoads.Max(x => x.AttributeId)),
-                    _maximumEuropeanRoadAttributeId)
-                : _maximumEuropeanRoadAttributeId;
-            _maximumNationalRoadAttributeId = @event.PartOfNationalRoads.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.PartOfNationalRoads.Max(x => x.AttributeId)),
-                    _maximumNationalRoadAttributeId)
-                : _maximumNationalRoadAttributeId;
-            _maximumNumberedRoadAttributeId = @event.PartOfNumberedRoads.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.PartOfNumberedRoads.Max(x => x.AttributeId)),
-                    _maximumNumberedRoadAttributeId)
-                : _maximumNumberedRoadAttributeId;
-            _maximumLaneAttributeId = @event.Lanes.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.Lanes.Max(x => x.AttributeId)),
-                    _maximumLaneAttributeId)
-                : _maximumLaneAttributeId;
-            _maximumWidthAttributeId = @event.Widths.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.Widths.Max(x => x.AttributeId)),
-                    _maximumWidthAttributeId)
-                : _maximumWidthAttributeId;
-            _maximumSurfaceAttributeId = @event.Surfaces.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.Surfaces.Max(x => x.AttributeId)),
-                    _maximumSurfaceAttributeId)
-                : _maximumSurfaceAttributeId;
             _segmentReusableLaneAttributeIdentifiers.Merge(id,
                 @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)));
             _segmentReusableWidthAttributeIdentifiers.Merge(id,
@@ -2019,9 +1963,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             ArgumentNullException.ThrowIfNull(@event);
 
             var id = new GradeSeparatedJunctionId(@event.Id);
-            _maximumTransactionId =
-                TransactionId.Max(new TransactionId(@event.Origin.TransactionId), _maximumTransactionId);
-            _maximumGradeSeparatedJunctionId = GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId);
             _gradeSeparatedJunctions.Add(
                 id,
                 new GradeSeparatedJunction(
@@ -2036,9 +1977,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         private void Given(RoadNetworkChangesAccepted @event)
         {
             ArgumentNullException.ThrowIfNull(@event);
-
-            _maximumTransactionId =
-                TransactionId.Max(new TransactionId(@event.TransactionId), _maximumTransactionId);
 
             foreach (var change in @event.Changes.Flatten())
                 switch (change)
@@ -2110,7 +2048,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             var type = RoadNodeType.Parse(@event.Type);
             var node = new RoadNode(id, version, type, GeometryTranslator.Translate(@event.Geometry));
             _nodes.Add(id, node);
-            _maximumNodeId = RoadNodeId.Max(id, _maximumNodeId);
         }
 
         private void Given(RoadNodeModified @event)
@@ -2178,23 +2115,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 .TryReplace(start, node => node.ConnectWith(id))
                 .TryReplace(end, node => node.ConnectWith(id));
             _segments.Add(id, segment);
-            _maximumSegmentId = RoadSegmentId.Max(id, _maximumSegmentId);
-            _maximumLaneAttributeId =
-                @event.Lanes.Length != 0
-                    ? AttributeId.Max(
-                        new AttributeId(@event.Lanes.Max(x => x.AttributeId)),
-                        _maximumLaneAttributeId)
-                    : _maximumLaneAttributeId;
-            _maximumWidthAttributeId = @event.Widths.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.Widths.Max(x => x.AttributeId)),
-                    _maximumWidthAttributeId)
-                : _maximumWidthAttributeId;
-            _maximumSurfaceAttributeId = @event.Surfaces.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.Surfaces.Max(x => x.AttributeId)),
-                    _maximumSurfaceAttributeId)
-                : _maximumSurfaceAttributeId;
             _segmentReusableLaneAttributeIdentifiers.Merge(id,
                 @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)));
             _segmentReusableWidthAttributeIdentifiers.Merge(id,
@@ -2253,22 +2173,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         new GeometryVersion(width.AsOfGeometryVersion))).ToArray())
                     .WithLastEventHash(@event.GetHash())
                 );
-            _maximumLaneAttributeId =
-                @event.Lanes.Length != 0
-                    ? AttributeId.Max(
-                        new AttributeId(@event.Lanes.Max(x => x.AttributeId)),
-                        _maximumLaneAttributeId)
-                    : _maximumLaneAttributeId;
-            _maximumWidthAttributeId = @event.Widths.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.Widths.Max(x => x.AttributeId)),
-                    _maximumWidthAttributeId)
-                : _maximumWidthAttributeId;
-            _maximumSurfaceAttributeId = @event.Surfaces.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.Surfaces.Max(x => x.AttributeId)),
-                    _maximumSurfaceAttributeId)
-                : _maximumSurfaceAttributeId;
             _segmentReusableLaneAttributeIdentifiers.Merge(id,
                 @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)));
             _segmentReusableWidthAttributeIdentifiers.Merge(id,
@@ -2378,22 +2282,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         new GeometryVersion(width.AsOfGeometryVersion))).ToArray())
                     .WithLastEventHash(@event.GetHash())
                 );
-            _maximumLaneAttributeId =
-                @event.Lanes.Length != 0
-                    ? AttributeId.Max(
-                        new AttributeId(@event.Lanes.Max(x => x.AttributeId)),
-                        _maximumLaneAttributeId)
-                    : _maximumLaneAttributeId;
-            _maximumWidthAttributeId = @event.Widths.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.Widths.Max(x => x.AttributeId)),
-                    _maximumWidthAttributeId)
-                : _maximumWidthAttributeId;
-            _maximumSurfaceAttributeId = @event.Surfaces.Length != 0
-                ? AttributeId.Max(
-                    new AttributeId(@event.Surfaces.Max(x => x.AttributeId)),
-                    _maximumSurfaceAttributeId)
-                : _maximumSurfaceAttributeId;
             _segmentReusableLaneAttributeIdentifiers.Merge(id,
                 @event.Lanes.Select(lane => new AttributeId(lane.AttributeId)));
             _segmentReusableWidthAttributeIdentifiers.Merge(id,
@@ -2426,7 +2314,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
         private void Given(GradeSeparatedJunctionAdded @event)
         {
             var id = new GradeSeparatedJunctionId(@event.Id);
-            _maximumGradeSeparatedJunctionId = GradeSeparatedJunctionId.Max(id, _maximumGradeSeparatedJunctionId);
             _gradeSeparatedJunctions.Add(
                 id,
                 new GradeSeparatedJunction(
@@ -2465,7 +2352,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
             var attribute = new RoadSegmentEuropeanRoadAttribute(attributeId, europeanRoadNumber);
 
-            _maximumEuropeanRoadAttributeId = AttributeId.Max(attributeId, _maximumEuropeanRoadAttributeId);
             _segments.TryReplace(roadSegmentId, segment => segment.PartOfEuropeanRoad(attribute));
         }
 
@@ -2484,7 +2370,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
             var attribute = new RoadSegmentNationalRoadAttribute(attributeId, nationalRoadNumber);
 
-            _maximumNationalRoadAttributeId = AttributeId.Max(attributeId, _maximumNationalRoadAttributeId);
             _segments.TryReplace(roadSegmentId, segment => segment.PartOfNationalRoad(attribute));
         }
 
@@ -2508,7 +2393,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 new RoadSegmentNumberedRoadOrdinal(@event.Ordinal)
             );
 
-            _maximumNumberedRoadAttributeId = AttributeId.Max(attributeId, _maximumNumberedRoadAttributeId);
             _segments.TryReplace(roadSegmentId, segment => segment.PartOfNumberedRoad(attribute));
         }
 
@@ -2529,7 +2413,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             var version = RoadNodeVersion.Initial;
             var node = new RoadNode(command.Id, version, command.Type, command.Geometry);
             _nodes.Add(command.Id, node);
-            _maximumNodeId = RoadNodeId.Max(command.Id, _maximumNodeId);
         }
 
         private void With(ModifyRoadNode command)
@@ -2580,7 +2463,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         width.To,
                         width.Width,
                         width.AsOfGeometryVersion)).ToArray(), command.GetHash()));
-            _maximumSegmentId = RoadSegmentId.Max(command.Id, _maximumSegmentId);
             _segmentReusableLaneAttributeIdentifiers.Merge(command.Id,
                 command.Lanes.Select(lane => new AttributeId(lane.Id)));
             _segmentReusableWidthAttributeIdentifiers.Merge(command.Id,
@@ -2633,7 +2515,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                         width.AsOfGeometryVersion)).ToArray())
                     .WithLastEventHash(command.GetHash())
                 );
-            _maximumSegmentId = RoadSegmentId.Max(command.Id, _maximumSegmentId);
             _segmentReusableLaneAttributeIdentifiers.Merge(command.Id,
                 command.Lanes.Select(lane => new AttributeId(lane.Id)));
             _segmentReusableWidthAttributeIdentifiers.Merge(command.Id,
@@ -2752,7 +2633,6 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
         private void With(AddGradeSeparatedJunction command)
         {
-            _maximumGradeSeparatedJunctionId = GradeSeparatedJunctionId.Max(command.Id, _maximumGradeSeparatedJunctionId);
             _gradeSeparatedJunctions.Add(
                 command.Id,
                 new GradeSeparatedJunction(command.Id, command.Type, command.UpperSegmentId, command.LowerSegmentId));
@@ -2776,7 +2656,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
         private void With(AddRoadSegmentToEuropeanRoad command)
         {
-            _maximumEuropeanRoadAttributeId = AttributeId.Max(command.AttributeId, _maximumEuropeanRoadAttributeId);
+            // not supported/no action required
         }
 
         private void With(RemoveRoadSegmentFromEuropeanRoad command)
@@ -2786,7 +2666,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
         private void With(AddRoadSegmentToNationalRoad command)
         {
-            _maximumNationalRoadAttributeId = AttributeId.Max(command.AttributeId, _maximumNationalRoadAttributeId);
+            // not supported/no action required
         }
 
         private void With(RemoveRoadSegmentFromNationalRoad command)
@@ -2796,7 +2676,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
 
         private void With(AddRoadSegmentToNumberedRoad command)
         {
-            _maximumNumberedRoadAttributeId = AttributeId.Max(command.AttributeId, _maximumNumberedRoadAttributeId);
+            // not supported/no action required
         }
 
         private void With(ModifyRoadSegmentOnNumberedRoad command)
