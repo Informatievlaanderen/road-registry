@@ -53,12 +53,12 @@ public struct StreamName : IEquatable<StreamName>
         if (EndsWith(suffix)) return new StreamName(_value.Substring(0, _value.Length - suffix.Length));
         return this;
     }
-    
-    public int CompareTo(StreamName other)
-    {
-        return _value.CompareTo(other._value);
-    }
 
+    public bool Equals(StreamName other)
+    {
+        return string.Equals(_value, other._value, StringComparison.Ordinal);
+    }
+    
     public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;
