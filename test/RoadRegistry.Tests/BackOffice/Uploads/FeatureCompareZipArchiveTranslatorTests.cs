@@ -37,11 +37,11 @@ public class FeatureCompareZipArchiveTranslatorTests
         Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
     }
 
-    [Fact(Skip = "For debugging purposes, local feature compare testing")]
-    //[Fact]
+    //[Fact(Skip = "For debugging purposes, local feature compare testing")]
+    [Fact]
     public async Task RunZipArchiveFeatureCompareTranslator()
     {
-        var pathArchive = @"upload.zip";
+        var pathArchive = @"C:\Users\RikDePeuter\Downloads\d905d04d41264db59365d29151b7c912.zip";
 
         try
         {

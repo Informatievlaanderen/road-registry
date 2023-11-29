@@ -39,6 +39,23 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
 
         var processedRecords = new List<Record>();
 
+        List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> GetFeaturesToRemove()
+        {
+            var featuresToRemove = new List<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>();
+
+            foreach (var extractFeature in extractFeatures)
+            {
+                var isProcessed = processedRecords.Any(x => x.Feature.Attributes.UpperRoadSegmentId == extractFeature.Attributes.UpperRoadSegmentId
+                                           && x.Feature.Attributes.LowerRoadSegmentId == extractFeature.Attributes.LowerRoadSegmentId);
+            }
+            //TODO-rik determine which features to remove which do not have a link, but also take doubles into account
+
+            //var extractFeaturesWithoutChangeFeatures = extractFeatures.FindAll(extractFeature =>
+            //    !processedRecords.Any(x => x.Feature.Attributes.UpperRoadSegmentId == extractFeature.Attributes.UpperRoadSegmentId
+            //                               && x.Feature.Attributes.LowerRoadSegmentId == extractFeature.Attributes.LowerRoadSegmentId)
+            //);
+        }
+
         void RemoveFeatures(ICollection<Feature<GradeSeparatedJunctionFeatureCompareAttributes>> features)
         {
             foreach (var feature in features)
@@ -131,14 +148,7 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
             processedRecords.Add(new Record(matchingExtractFeature, RecordType.Removed));
         }
 
-        {
-            var extractFeaturesWithoutChangeFeatures = extractFeatures.FindAll(extractFeature =>
-                !processedRecords.Any(x => x.Feature.Attributes.UpperRoadSegmentId == extractFeature.Attributes.UpperRoadSegmentId
-                                           && x.Feature.Attributes.LowerRoadSegmentId == extractFeature.Attributes.LowerRoadSegmentId)
-            );
-
-            RemoveFeatures(extractFeaturesWithoutChangeFeatures);
-        }
+        RemoveFeatures(GetFeaturesToRemove());
 
         problems += await ValidateRoadSegmentIntersectionsWithMissingGradeSeparatedJunction(context, processedRecords);
 
