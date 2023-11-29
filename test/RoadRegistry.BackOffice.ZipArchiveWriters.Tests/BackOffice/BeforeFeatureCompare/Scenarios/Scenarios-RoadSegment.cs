@@ -453,6 +453,112 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
 
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
+    
+    [Fact]
+    public async Task MultipleOutlinedRoadSegmentsWithIdenticalGeometriesShouldNotBeAProblem()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithExtract((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.METHODE.Value = RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = RoadSegmentStatus.InUse.Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.MORF.Value = RoadSegmentMorphology.Ferry.Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = 0;
+                builder.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = 0;
+
+                builder.TestData.RoadSegment2DbaseRecord.METHODE.Value = RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier;
+                builder.TestData.RoadSegment2DbaseRecord.STATUS.Value = RoadSegmentStatus.InUse.Translation.Identifier;
+                builder.TestData.RoadSegment2DbaseRecord.MORF.Value = RoadSegmentMorphology.Ferry.Translation.Identifier;
+                builder.TestData.RoadSegment2DbaseRecord.B_WK_OIDN.Value = 0;
+                builder.TestData.RoadSegment2DbaseRecord.E_WK_OIDN.Value = 0;
+                builder.TestData.RoadSegment2ShapeRecord.Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry;
+
+                builder.DataSet.Clear();
+
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment1DbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment1ShapeRecord);
+
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment2DbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment2ShapeRecord);
+            })
+            .WithChange((builder, context) =>
+            {
+                builder.DataSet.Clear();
+
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment1DbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment1ShapeRecord);
+
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment2DbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment2ShapeRecord);
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
+    
+    [Fact]
+    public async Task MultipleOutlinedRoadSegmentsWithOverlappingGeometriesButChangedGeometriesShouldReturnExpectedResult()
+    {
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithExtract((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.METHODE.Value = RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.STATUS.Value = RoadSegmentStatus.InUse.Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.MORF.Value = RoadSegmentMorphology.Ferry.Translation.Identifier;
+                builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = 0;
+                builder.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value = 0;
+
+                builder.TestData.RoadSegment2DbaseRecord.METHODE.Value = RoadSegmentGeometryDrawMethod.Outlined.Translation.Identifier;
+                builder.TestData.RoadSegment2DbaseRecord.STATUS.Value = RoadSegmentStatus.InUse.Translation.Identifier;
+                builder.TestData.RoadSegment2DbaseRecord.MORF.Value = RoadSegmentMorphology.Ferry.Translation.Identifier;
+                builder.TestData.RoadSegment2DbaseRecord.B_WK_OIDN.Value = 0;
+                builder.TestData.RoadSegment2DbaseRecord.E_WK_OIDN.Value = 0;
+                builder.TestData.RoadSegment2ShapeRecord.Geometry = builder.TestData.RoadSegment1ShapeRecord.Geometry;
+
+                builder.DataSet.Clear();
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment1DbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment1ShapeRecord);
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment2DbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment2ShapeRecord);
+            })
+            .WithChange((builder, context) =>
+            {
+                var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
+                lineString = new LineString(new[]
+                {
+                    lineString.Coordinates[0],
+                    new CoordinateM(lineString.Coordinates[1].X + 1, lineString.Coordinates[1].Y, lineString.Coordinates[1].M + 1)
+                });
+                builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
+                
+                builder.DataSet.Clear();
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment1DbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment1ShapeRecord);
+                builder.DataSet.RoadSegmentDbaseRecords.Add(builder.TestData.RoadSegment2DbaseRecord);
+                builder.DataSet.RoadSegmentShapeRecords.Add(builder.TestData.RoadSegment2ShapeRecord);
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty
+                .AppendChange(
+                    new ModifyRoadSegment(
+                            new RecordNumber(1),
+                            new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
+                            new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value),
+                            new RoadNodeId(context.Change.TestData.RoadSegment1DbaseRecord.E_WK_OIDN.Value),
+                            new OrganizationId(context.Change.TestData.RoadSegment1DbaseRecord.BEHEERDER.Value),
+                            RoadSegmentGeometryDrawMethod.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.METHODE.Value],
+                            RoadSegmentMorphology.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.MORFOLOGIE.Value],
+                            RoadSegmentStatus.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.STATUS.Value],
+                            RoadSegmentCategory.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.CATEGORIE.Value],
+                            RoadSegmentAccessRestriction.ByIdentifier[context.Change.TestData.RoadSegment1DbaseRecord.TGBEP.Value],
+                            CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.LSTRNMID.Value),
+                            CrabStreetnameId.FromValue(context.Change.TestData.RoadSegment1DbaseRecord.RSTRNMID.Value)
+                        )
+                        .WithGeometry(context.Change.TestData.RoadSegment1ShapeRecord.Geometry)
+                )
+            );
+
+        await TranslateReturnsExpectedResult(zipArchive, expected);
+    }
 
     [Fact]
     public async Task MissingIntegrationProjectionFileShouldNotFail()
