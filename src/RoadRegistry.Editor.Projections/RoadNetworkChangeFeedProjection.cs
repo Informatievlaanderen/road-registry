@@ -422,9 +422,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
     private static bool MessageIsFromDefaultRoadNetwork<T>(Envelope<T> envelope)
         where T : IMessage
     {
-        return true;
-        //TODO-rik enkel verwerken indien stream `roadnetwork is
-        //return envelope.StreamId == RoadNetworkStreamNameProvider.Default;
+        return envelope.StreamId == RoadNetworkStreamNameProvider.Default;
     }
 
     private static async Task EnrichWithArchiveInformation(string archiveId, ArchiveInfo archiveInfo, IBlobClient client, CancellationToken ct)
