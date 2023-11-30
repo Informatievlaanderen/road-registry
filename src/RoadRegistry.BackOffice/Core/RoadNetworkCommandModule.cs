@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Core;
 
 using Autofac;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using FeatureToggles;
 using Framework;
 using Messages;
@@ -102,6 +103,9 @@ public class RoadNetworkCommandModule : CommandHandlerModule
 
         sw.Restart();
 
+        var successChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
+        var failedChangedMessages = new Dictionary<IEventSourcedEntity, List<IMessage>>();
+
         using (var container = _lifetimeScope.BeginLifetimeScope())
         {
             var idGenerator = container.Resolve<IRoadNetworkIdGenerator>();
@@ -127,18 +131,30 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
                 sw.Restart();
-                var changeResult = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, _emailClient, cancellationToken);
+                var changedMessage = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, _emailClient, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
 
-                if (changeResult is RoadNetworkChangesRejected)
+                if (changedMessage is RoadNetworkChangesRejected)
                 {
-                    //TODO-rik alle andere changes moeten nu gestopt worden, of toch niet registreren
-                    //-> events van meerdere RoadNetwork instanties moeten allemaal van hetzelfde type zijn
+                    failedChangedMessages.TryAdd(network, new List<IMessage>());
+                    failedChangedMessages[network].Add(changedMessage);
+                }
+                else
+                {
+                    successChangedMessages.TryAdd(network, new List<IMessage>());
+                    successChangedMessages[network].Add(changedMessage);
                 }
             }
         }
-
-        //TODO-rik als 1 change wordt gereject, dan moeten ze allemaal gereject worden
+        
+        if (failedChangedMessages.Any() && successChangedMessages.Any())
+        {
+            foreach (var item in successChangedMessages)
+            foreach (var @event in item.Value)
+            {
+                context.EventFilter.Exclude(item.Key, @event);
+            }
+        }
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }

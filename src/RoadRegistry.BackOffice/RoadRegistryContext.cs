@@ -1,6 +1,5 @@
 namespace RoadRegistry.BackOffice;
 
-using System;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Core;
 using Extracts;
@@ -8,6 +7,7 @@ using Framework;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
+using System;
 using Uploads;
 
 public class RoadRegistryContext : IRoadRegistryContext, IDisposable
@@ -27,12 +27,14 @@ public class RoadRegistryContext : IRoadRegistryContext, IDisposable
         RoadNetworkExtracts = new RoadNetworkExtracts(map, store, settings, mapping);
         RoadNetworkChangesArchives = new RoadNetworkChangesArchives(map, store, settings, mapping);
         Organizations = new Organizations(map, store, settings, mapping);
+        EventFilter = new RoadRegistryEventFilter();
     }
 
     public IOrganizations Organizations { get; }
     public IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
     public IRoadNetworkExtracts RoadNetworkExtracts { get; }
     public IRoadNetworks RoadNetworks { get; }
+    public IRoadRegistryEventFilter EventFilter { get; }
     
     public void Dispose()
     {

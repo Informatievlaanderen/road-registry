@@ -10,4 +10,5 @@ public interface IRoadRegistryContext
     IRoadNetworkChangesArchives RoadNetworkChangesArchives { get; }
     IRoadNetworkExtracts RoadNetworkExtracts { get; }
     IRoadNetworks RoadNetworks { get; }
+    IRoadRegistryEventFilter EventFilter { get; }
 }

@@ -1179,6 +1179,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
                 command.Id,
                 command.Id,
                 command.Id,
+                command.Id,
                 command.StartNodeId,
                 command.EndNodeId,
                 command.EndNodeId,
@@ -2560,6 +2561,7 @@ public class ImmutableRoadNetworkView : IRoadNetworkView
             if (command.ConvertedFromOutlined && !_segments.ContainsKey(command.Id))
             {
                 With(new AddRoadSegment(
+                    command.Id,
                     command.Id,
                     command.Id,
                     command.Id,

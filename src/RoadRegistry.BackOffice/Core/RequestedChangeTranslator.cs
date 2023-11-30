@@ -222,7 +222,9 @@ internal class RequestedChangeTranslator
 
     private async Task<AddRoadSegment> Translate(Messages.AddRoadSegment command, IRequestedChangeIdentityTranslator translator, IOrganizations organizations, CancellationToken ct)
     {
-        var permanent = RoadSegmentId.FromValue(command.PermanentId) ?? await _roadNetworkIdProvider.NextRoadSegmentId();
+        var commandPermanentId = RoadSegmentId.FromValue(command.PermanentId);
+
+        var permanent = commandPermanentId ?? await _roadNetworkIdProvider.NextRoadSegmentId();
         var temporaryId = new RoadSegmentId(command.TemporaryId);
         var originalId = RoadSegmentId.FromValue(command.OriginalId);
         
@@ -270,6 +272,7 @@ internal class RequestedChangeTranslator
             permanent,
             temporaryId,
             originalId,
+            commandPermanentId,
             startNodeId,
             temporaryStartNodeId,
             endNodeId,
