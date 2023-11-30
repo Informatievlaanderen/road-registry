@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using FluentValidation;
 using Framework;
 using Messages;
@@ -31,7 +32,7 @@ public class RoadNetwork : EventSourcedEntity
         On<RoadNetworkChangesAccepted>(e => { _view = _view.RestoreFromEvent(e); });
     }
 
-    public async Task Change(
+    public async Task<IMessage> Change(
         ChangeRequestId requestId,
         DownloadId? downloadId,
         Reason reason,
@@ -77,6 +78,7 @@ public class RoadNetwork : EventSourcedEntity
                 TransactionId = requestedChanges.TransactionId
             };
             Apply(@event);
+            return @event;
         }
         else if (verifiedChanges.OfType<RejectedChange>().Any())
         {
@@ -96,6 +98,7 @@ public class RoadNetwork : EventSourcedEntity
             Apply(@event);
 
             await emailClient.SendAsync(@event.Reason, new ValidationException(JsonConvert.SerializeObject(@event, Formatting.Indented)), cancellationToken);
+            return @event;
         }
         else
         {
@@ -114,6 +117,7 @@ public class RoadNetwork : EventSourcedEntity
                     .ToArray()
             };
             Apply(@event);
+            return @event;
         }
     }
 

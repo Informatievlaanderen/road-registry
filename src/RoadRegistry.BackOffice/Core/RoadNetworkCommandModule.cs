@@ -127,10 +127,18 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: translating command changes to RequestedChanges took {Elapsed}", sw.Elapsed);
 
                 sw.Restart();
-                await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, _emailClient, cancellationToken);
+                var changeResult = await network.Change(request, downloadId, reason, @operator, organizationTranslation, requestedChanges, _emailClient, cancellationToken);
                 _logger.LogInformation("TIMETRACKING changeroadnetwork: applying RequestedChanges to RoadNetwork took {Elapsed}", sw.Elapsed);
+
+                if (changeResult is RoadNetworkChangesRejected)
+                {
+                    //TODO-rik alle andere changes moeten nu gestopt worden, of toch niet registreren
+                    //-> events van meerdere RoadNetwork instanties moeten allemaal van hetzelfde type zijn
+                }
             }
         }
+
+        //TODO-rik als 1 change wordt gereject, dan moeten ze allemaal gereject worden
 
         _logger.LogInformation("Command handler finished for {Command}", command.Body.GetType().Name);
     }

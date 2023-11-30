@@ -216,7 +216,6 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
                 context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
             ));
 
-
         if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
         {
             problems = problems.Add(new RoadSegmentStartNodeMissing());

@@ -38,7 +38,8 @@ public class ModifyRoadSegment : ITranslatedChange
             rightSideStreetNameId,
             Array.Empty<RoadSegmentLaneAttribute>(),
             Array.Empty<RoadSegmentWidthAttribute>(),
-            Array.Empty<RoadSegmentSurfaceAttribute>()
+            Array.Empty<RoadSegmentSurfaceAttribute>(),
+            false
         )
     {
     }
@@ -59,7 +60,8 @@ public class ModifyRoadSegment : ITranslatedChange
         CrabStreetnameId? rightSideStreetNameId,
         IReadOnlyList<RoadSegmentLaneAttribute> lanes,
         IReadOnlyList<RoadSegmentWidthAttribute> widths,
-        IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces)
+        IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces,
+        bool convertedFromOutlined)
     {
         RecordNumber = recordNumber;
         Id = id;
@@ -77,6 +79,7 @@ public class ModifyRoadSegment : ITranslatedChange
         Lanes = lanes;
         Widths = widths;
         Surfaces = surfaces;
+        ConvertedFromOutlined = convertedFromOutlined;
     }
 
     public RoadSegmentAccessRestriction AccessRestriction { get; }
@@ -95,6 +98,7 @@ public class ModifyRoadSegment : ITranslatedChange
     public RoadSegmentStatus Status { get; }
     public IReadOnlyList<RoadSegmentSurfaceAttribute> Surfaces { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
+    public bool ConvertedFromOutlined { get; }
 
     public void TranslateTo(RequestedChange message)
     {
@@ -141,7 +145,8 @@ public class ModifyRoadSegment : ITranslatedChange
                     FromPosition = item.From,
                     ToPosition = item.To
                 })
-                .ToArray()
+                .ToArray(),
+            ConvertedFromOutlined = ConvertedFromOutlined
         };
     }
 
@@ -151,7 +156,15 @@ public class ModifyRoadSegment : ITranslatedChange
         return new ModifyRoadSegment(
             RecordNumber, Id, StartNodeId, EndNodeId, geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
-            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces);
+            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, ConvertedFromOutlined);
+    }
+
+    public ModifyRoadSegment WithConvertedFromOutlined(bool convertedFromOutlined)
+    {
+        return new ModifyRoadSegment(
+            RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
+            MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
+            LeftSideStreetNameId, RightSideStreetNameId, Lanes, Widths, Surfaces, convertedFromOutlined);
     }
     
     public ModifyRoadSegment WithLane(RoadSegmentLaneAttribute lane)
@@ -162,7 +175,7 @@ public class ModifyRoadSegment : ITranslatedChange
             RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
-            lanes, Widths, Surfaces);
+            lanes, Widths, Surfaces, ConvertedFromOutlined);
     }
 
     public ModifyRoadSegment WithSurface(RoadSegmentSurfaceAttribute surface)
@@ -173,7 +186,7 @@ public class ModifyRoadSegment : ITranslatedChange
             RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
-            Lanes, Widths, surfaces);
+            Lanes, Widths, surfaces, ConvertedFromOutlined);
     }
 
     public ModifyRoadSegment WithWidth(RoadSegmentWidthAttribute width)
@@ -184,6 +197,6 @@ public class ModifyRoadSegment : ITranslatedChange
             RecordNumber, Id, StartNodeId, EndNodeId, Geometry,
             MaintenanceAuthority, GeometryDrawMethod, Morphology, Status, Category, AccessRestriction,
             LeftSideStreetNameId, RightSideStreetNameId,
-            Lanes, widths, Surfaces);
+            Lanes, widths, Surfaces, ConvertedFromOutlined);
     }
 }

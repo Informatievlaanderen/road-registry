@@ -254,6 +254,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                             record.Attributes.RightStreetNameId
                         )
                         .WithGeometry(record.Attributes.Geometry)
+                        .WithConvertedFromOutlined(record.ConvertedFromOutlined)
                     );
 
                     if (record.ConvertedFromOutlined)

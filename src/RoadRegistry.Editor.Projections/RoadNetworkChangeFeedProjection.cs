@@ -258,6 +258,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                                       .ToArray())
                           ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(ChangeRequestId
                               .FromString(envelope.Message.RequestId).ToBytes().ToArray());
+            
             var content = new RoadNetworkChangesBasedOnArchiveAcceptedEntry
             {
                 Archive = new ArchiveInfo { Id = request?.ArchiveId },
@@ -285,6 +286,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
             var description = envelope.Message.Reason;
             var changeRequestId = envelope.Message.RequestId;
+            //TODO-rik indien er meerdere events (accepted/rejected) zijn per changeRequestId, dan deze groeperen zodat in de feed het maar 1 keer zichtbaar is?
 
             await context.RoadNetworkChanges.AddAsync(
                 new RoadNetworkChange

@@ -319,6 +319,10 @@ internal class RequestedChangeTranslator
         }
 
         var version = _nextRoadSegmentVersion(permanent);
+        if (command.ConvertedFromOutlined && version == RoadSegmentVersion.Initial)
+        {
+            version = version.Next();
+        }
         var geometry = GeometryTranslator.Translate(command.Geometry);
         var geometryVersion = _nextRoadSegmentGeometryVersion(permanent, geometry);
         
@@ -357,7 +361,8 @@ internal class RequestedChangeTranslator
             rightSideStreetNameId,
             laneAttributes,
             widthAttributes,
-            surfaceAttributes
+            surfaceAttributes,
+            command.ConvertedFromOutlined
         );
     }
 

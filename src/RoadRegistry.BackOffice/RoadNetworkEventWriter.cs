@@ -45,7 +45,6 @@ public class RoadNetworkEventWriter : IRoadNetworkEventWriter
 
     public Task WriteAsync(StreamName streamName, IRoadRegistryMessage message, int expectedVersion, object[] events, CancellationToken cancellationToken)
     {
-
         return Write(streamName, message.MessageId, expectedVersion, events, message.Principal, message.ProvenanceData, cancellationToken);
     }
 
