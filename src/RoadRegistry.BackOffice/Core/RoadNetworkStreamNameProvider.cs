@@ -4,16 +4,13 @@ using Framework;
 
 public static class RoadNetworkStreamNameProvider
 {
+    public static readonly StreamName Default = new("roadnetwork") { SupportsSnapshot = true };
+
     public static StreamName ForOutlinedRoadSegment(RoadSegmentId roadSegmentId)
     {
         return new StreamName($"roadsegment-outline-{roadSegmentId}");
     }
-
-    public static StreamName Default()
-    {
-        return new StreamName("roadnetwork") { SupportsSnapshot = true };
-    }
-
+    
     public static StreamName Get(RoadSegmentId? roadSegmentId, RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
         if (roadSegmentId is not null && geometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
@@ -21,6 +18,6 @@ public static class RoadNetworkStreamNameProvider
             return ForOutlinedRoadSegment(roadSegmentId.Value);
         }
 
-        return Default();
+        return Default;
     }
 }

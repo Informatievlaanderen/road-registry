@@ -15,7 +15,7 @@ public class RebuildRoadNetworkSnapshotSqsRequestHandler : SqsHandler<RebuildRoa
 
     protected override string WithAggregateId(RebuildRoadNetworkSnapshotSqsRequest request)
     {
-        return RoadNetworkStreamNameProvider.Default();
+        return RoadNetworkStreamNameProvider.Default;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, RebuildRoadNetworkSnapshotSqsRequest sqsRequest)

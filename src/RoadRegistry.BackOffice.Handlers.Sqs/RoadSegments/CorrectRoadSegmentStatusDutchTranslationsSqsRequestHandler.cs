@@ -14,7 +14,7 @@ public class CorrectRoadSegmentStatusDutchTranslationsSqsRequestHandler : SqsHan
 
     protected override string WithAggregateId(CorrectRoadSegmentStatusDutchTranslationsSqsRequest request)
     {
-        return RoadNetworkStreamNameProvider.Default();
+        return RoadNetworkStreamNameProvider.Default;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, CorrectRoadSegmentStatusDutchTranslationsSqsRequest sqsRequest)

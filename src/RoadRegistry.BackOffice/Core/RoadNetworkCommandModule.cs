@@ -319,12 +319,12 @@ public class RoadNetworkCommandModule : CommandHandlerModule
             .GroupBy(x =>
                 x.RoadSegmentId is not null && x.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined
                     ? RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(x.RoadSegmentId.Value))
-                    : RoadNetworkStreamNameProvider.Default(), x => x.Change)
+                    : RoadNetworkStreamNameProvider.Default, x => x.Change)
             .ToDictionary(x => x.Key, x => x.ToArray());
 
         if (!roadNetworkStreamChanges.Any())
         {
-            roadNetworkStreamChanges.Add(RoadNetworkStreamNameProvider.Default(), changes);
+            roadNetworkStreamChanges.Add(RoadNetworkStreamNameProvider.Default, changes);
         }
 
         return roadNetworkStreamChanges;

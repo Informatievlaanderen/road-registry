@@ -18,7 +18,7 @@ public delegate bool ProcessMessageHandler(int messageStreamVersion, int pageLas
 public class RoadNetworks : IRoadNetworks
 {
     private const int StreamPageSize = 100;
-    public static readonly StreamName Stream = RoadNetworkStreamNameProvider.Default();
+    public static readonly StreamName Stream = RoadNetworkStreamNameProvider.Default;
     private readonly EventSourcedEntityMap _map;
     private readonly EventMapping _mapping;
     private readonly JsonSerializerSettings _settings;
