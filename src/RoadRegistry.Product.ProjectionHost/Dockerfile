@@ -17,6 +17,9 @@ RUN apt-get update && \
     apt-get install curl jq -y && \
     chmod +x ./init.sh
 
+EXPOSE 10005/tcp
+ENV ASPNETCORE_URLS http://*:10005
+
 # switch to created user
 USER app
 
