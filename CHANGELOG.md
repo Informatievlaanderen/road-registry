@@ -1,3 +1,11 @@
+## [3.63.1](https://github.com/informatievlaanderen/road-registry/compare/v3.63.0...v3.63.1) (2023-12-01)
+
+
+### Bug Fixes
+
+* expose ports for backoffice hosts ([#1316](https://github.com/informatievlaanderen/road-registry/issues/1316)) ([5c5055d](https://github.com/informatievlaanderen/road-registry/commit/5c5055de43e65002bf3d96a55fba331049fb1f6f))
+* WR-896 keep menu items in UI when refreshing ([#1315](https://github.com/informatievlaanderen/road-registry/issues/1315)) ([fb7ca04](https://github.com/informatievlaanderen/road-registry/commit/fb7ca041f718eb7b20aef28069c75eefe8cc3dae))
+
 # [3.63.0](https://github.com/informatievlaanderen/road-registry/compare/v3.62.11...v3.63.0) (2023-12-01)
 
 
