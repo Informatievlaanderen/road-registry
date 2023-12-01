@@ -16,6 +16,7 @@ using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Schema.Extensions;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
 
 public class RoadSegmentRecordProjection : ConnectedProjection<EditorContext>

@@ -3,6 +3,7 @@ namespace RoadRegistry.Tests.BackOffice.Uploads.V1;
 using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
+using Polly;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.AfterFeatureCompare.V1.Schema;
@@ -228,7 +229,8 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
                         nextChanges = previousChanges.AppendChange(
                             new RemoveRoadSegment(
                                 new RecordNumber(Array.IndexOf(records, current) + 1),
-                                new RoadSegmentId(current.WS_OIDN.Value)
+                                new RoadSegmentId(current.WS_OIDN.Value),
+                                RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value]
                             )
                         );
                         break;

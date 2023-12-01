@@ -16,6 +16,7 @@ using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Editor.Projections;
 using RoadRegistry.Editor.Schema;
 using System.Diagnostics;
+using Editor.Schema.Extensions;
 using ModifyRoadNode = BackOffice.Uploads.ModifyRoadNode;
 using Reason = BackOffice.Reason;
 

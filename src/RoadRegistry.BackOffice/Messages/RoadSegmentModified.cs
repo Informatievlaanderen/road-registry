@@ -23,6 +23,7 @@ public class RoadSegmentModified: IHaveHash
     public RoadSegmentSurfaceAttributes[] Surfaces { get; set; }
     public int Version { get; set; }
     public RoadSegmentWidthAttributes[] Widths { get; set; }
+    public bool ConvertedFromOutlined { get; set; }
 
     public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
     public string GetHash() => this.ToEventHash(EventName);

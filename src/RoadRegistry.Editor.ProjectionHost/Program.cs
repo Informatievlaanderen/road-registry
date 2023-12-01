@@ -22,6 +22,7 @@ using Projections;
 using Schema;
 using System.Threading;
 using System.Threading.Tasks;
+using Hosts.Infrastructure.Extensions;
 
 public class Program
 {

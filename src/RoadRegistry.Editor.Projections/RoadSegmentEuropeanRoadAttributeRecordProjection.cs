@@ -11,6 +11,7 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
+using Schema.Extensions;
 
 public class RoadSegmentEuropeanRoadAttributeRecordProjection : ConnectedProjection<EditorContext>
 {

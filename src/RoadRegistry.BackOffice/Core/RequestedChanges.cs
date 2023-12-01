@@ -178,6 +178,11 @@ public class RequestedChanges : IReadOnlyCollection<IRequestedChange>, IRequeste
         return AppendChange(change);
     }
 
+    public RequestedChanges Append(RemoveOutlinedRoadSegment change)
+    {
+        return AppendChange(change);
+    }
+
     public RequestedChanges Append(AddRoadSegmentToEuropeanRoad change)
     {
         return AppendChange(change);

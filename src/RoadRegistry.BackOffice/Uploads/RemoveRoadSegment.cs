@@ -6,13 +6,15 @@ using Messages;
 
 public class RemoveRoadSegment : ITranslatedChange
 {
-    public RemoveRoadSegment(RecordNumber recordNumber, RoadSegmentId id)
+    public RemoveRoadSegment(RecordNumber recordNumber, RoadSegmentId id, RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
         RecordNumber = recordNumber;
         Id = id;
+        GeometryDrawMethod = geometryDrawMethod;
     }
 
     public RoadSegmentId Id { get; }
+    public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
     public RecordNumber RecordNumber { get; }
 
     public void TranslateTo(RequestedChange message)
@@ -21,7 +23,8 @@ public class RemoveRoadSegment : ITranslatedChange
 
         message.RemoveRoadSegment = new Messages.RemoveRoadSegment
         {
-            Id = Id
+            Id = Id,
+            GeometryDrawMethod = GeometryDrawMethod
         };
     }
 }

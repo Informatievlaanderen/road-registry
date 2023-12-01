@@ -20,9 +20,9 @@ using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<LinkStreetNameSqsLambdaRequest>
 {
-    private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
     private readonly IStreetNameClient _streetNameClient;
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
+    private readonly DistributedStreamStoreLockOptions _distributedStreamStoreLockOptions;
 
     private static readonly string[] ProposedOrCurrentStreetNameStatuses = new[]
     {
@@ -52,19 +52,23 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
     {
         _streetNameClient = streetNameClient;
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
-        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
+        _distributedStreamStoreLockOptions = distributedStreamStoreLockOptions;
     }
 
     protected override async Task<object> InnerHandle(LinkStreetNameSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+        var roadSegmentId = new RoadSegmentId(request.Request.WegsegmentId);
+        var geometryDrawMethod = RoadSegmentGeometryDrawMethod.Parse(request.Request.Methode);
+        var streamName = RoadNetworkStreamNameProvider.Get(roadSegmentId, geometryDrawMethod);
+        var distributedStreamStoreLock = new DistributedStreamStoreLock(_distributedStreamStoreLockOptions, streamName, Logger);
+
+        await distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
             await _changeRoadNetworkDispatcher.DispatchAsync(request, "Straatnaam koppelen", async translatedChanges =>
             {
                 var problems = Problems.None;
-
-                var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
-                var roadSegmentId = new RoadSegmentId(request.Request.WegsegmentId);
+                
+                var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(streamName, cancellationToken);
                 var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
                 if (roadSegment == null)
                 {
@@ -74,6 +78,11 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
 
                 var recordNumber = RecordNumber.Initial;
                 var attributeId = AttributeId.Initial;
+                AttributeId GetNextAttributeId()
+                {
+                    attributeId = attributeId.Next();
+                    return attributeId;
+                }
 
                 var leftStreetNameId = request.Request.LinkerstraatnaamId.GetIdentifierFromPuri();
                 var rightStreetNameId = request.Request.RechterstraatnaamId.GetIdentifierFromPuri();
@@ -121,18 +130,15 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
 
                     foreach (var lane in roadSegment.Lanes)
                     {
-                        modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
-                        attributeId = attributeId.Next();
+                        modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(GetNextAttributeId(), lane.Count, lane.Direction, lane.From, lane.To));
                     }
                     foreach (var surface in roadSegment.Surfaces)
                     {
-                        modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
-                        attributeId = attributeId.Next();
+                        modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(GetNextAttributeId(), surface.Type, surface.From, surface.To));
                     }
                     foreach (var width in roadSegment.Widths)
                     {
-                        modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
-                        attributeId = attributeId.Next();
+                        modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(GetNextAttributeId(), width.Width, width.From, width.To));
                     }
 
                     translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
@@ -147,8 +153,7 @@ public sealed class LinkStreetNameSqsLambdaRequestHandler : SqsLambdaHandler<Lin
             }, cancellationToken);
         }, cancellationToken);
 
-        var roadSegmentId = request.Request.WegsegmentId;
-        var lastHash = await GetRoadSegmentHash(new RoadSegmentId(roadSegmentId), cancellationToken);
+        var lastHash = await GetRoadSegmentHash(roadSegmentId, geometryDrawMethod, cancellationToken);
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
     }
 

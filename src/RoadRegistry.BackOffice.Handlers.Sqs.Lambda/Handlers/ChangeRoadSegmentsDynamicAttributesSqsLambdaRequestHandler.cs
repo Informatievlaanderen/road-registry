@@ -1,15 +1,21 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Handlers;
 
+using BackOffice.Extracts.Dbase.RoadSegments;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
+using Editor.Projections;
+using Editor.Schema;
+using Editor.Schema.Extensions;
 using Exceptions;
 using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
+using Microsoft.IO;
 using Requests;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
+using RoadRegistry.BackOffice.Extensions;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
 
@@ -17,6 +23,9 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
 {
     private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
+    private readonly EditorContext _editorContext;
+    private readonly RecyclableMemoryStreamManager _manager;
+    private readonly FileEncoding _fileEncoding;
 
     public ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -25,6 +34,9 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
+        EditorContext editorContext,
+        RecyclableMemoryStreamManager manager,
+        FileEncoding fileEncoding,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler> logger)
         : base(
@@ -36,6 +48,9 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
             logger)
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
+        _editorContext = editorContext;
+        _manager = manager;
+        _fileEncoding = fileEncoding;
         _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
@@ -43,45 +58,58 @@ public sealed class ChangeRoadSegmentsDynamicAttributesSqsLambdaRequestHandler :
     {
         await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
         {
-            await _changeRoadNetworkDispatcher.DispatchAsync(request, "Wegsegmenten wijzigen", async translatedChanges =>
+            await _changeRoadNetworkDispatcher.DispatchAsync(request, "Dynamische attributen wijzigen", async translatedChanges =>
             {
-                var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
-
                 var recordNumber = RecordNumber.Initial;
+                var attributeId = AttributeId.Initial;
+                AttributeId GetNextAttributeId()
+                {
+                    attributeId = attributeId.Next();
+                    return attributeId;
+                }
+
                 var problems = Problems.None;
 
                 foreach (var change in request.Request.ChangeRequests)
                 {
                     var roadSegmentId = new RoadSegmentId(change.Id);
-                    var roadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
-                    if (roadSegment is null)
+
+                    var editorRoadSegment = await _editorContext.RoadSegments.SingleOrDefaultIncludingLocalAsync(x => x.Id == change.Id, cancellationToken);
+                    if (editorRoadSegment is null)
                     {
                         problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
                         continue;
                     }
 
-                    var geometryDrawMethod = roadSegment.AttributeHash.GeometryDrawMethod;
+                    var roadSegmentDbaseRecord = new RoadSegmentDbaseRecord().FromBytes(editorRoadSegment.DbaseRecord, _manager, _fileEncoding);
+                    var geometryDrawMethod = RoadSegmentGeometryDrawMethod.ByIdentifier[roadSegmentDbaseRecord.METHODE.Value];
+                    var streamName = RoadNetworkStreamNameProvider.Get(roadSegmentId, geometryDrawMethod);
 
-                    var laneAttributeId = roadNetwork.ProvidesNextRoadSegmentLaneAttributeId()(roadSegmentId);
-                    var surfaceAttributeId = roadNetwork.ProvidesNextRoadSegmentSurfaceAttributeId()(roadSegmentId);
-                    var widthAttributeId = roadNetwork.ProvidesNextRoadSegmentWidthAttributeId()(roadSegmentId);
+                    var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(streamName, cancellationToken);
+
+                    var networkRoadSegment = roadNetwork.FindRoadSegment(roadSegmentId);
+                    if (networkRoadSegment is null)
+                    {
+                        problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
+                        continue;
+                    }
 
                     var modifyChange = new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
                     {
                         Lanes = change.Lanes?
-                            .Select(lane => new BackOffice.Uploads.RoadSegmentLaneAttribute(laneAttributeId(), lane.Count, lane.Direction, lane.FromPosition, lane.ToPosition))
+                            .Select(lane => new BackOffice.Uploads.RoadSegmentLaneAttribute(GetNextAttributeId(), lane.Count, lane.Direction, lane.FromPosition, lane.ToPosition))
                             .ToArray(),
                         Surfaces = change.Surfaces?
-                            .Select(surface => new BackOffice.Uploads.RoadSegmentSurfaceAttribute(surfaceAttributeId(), surface.Type, surface.FromPosition, surface.ToPosition))
+                            .Select(surface => new BackOffice.Uploads.RoadSegmentSurfaceAttribute(GetNextAttributeId(), surface.Type, surface.FromPosition, surface.ToPosition))
                             .ToArray(),
                         Widths = change.Widths?
-                            .Select(width => new BackOffice.Uploads.RoadSegmentWidthAttribute(widthAttributeId(), width.Width, width.FromPosition, width.ToPosition))
+                            .Select(width => new BackOffice.Uploads.RoadSegmentWidthAttribute(GetNextAttributeId(), width.Width, width.FromPosition, width.ToPosition))
                             .ToArray()
                     };
 
-                    problems += GetProblemsForLanes(roadSegment, modifyChange.Lanes);
-                    problems += GetProblemsForSurfaces(roadSegment, modifyChange.Surfaces);
-                    problems += GetProblemsForWidths(roadSegment, modifyChange.Widths);
+                    problems += GetProblemsForLanes(networkRoadSegment, modifyChange.Lanes);
+                    problems += GetProblemsForSurfaces(networkRoadSegment, modifyChange.Surfaces);
+                    problems += GetProblemsForWidths(networkRoadSegment, modifyChange.Widths);
                     
                     translatedChanges = translatedChanges.AppendChange(modifyChange);
 

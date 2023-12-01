@@ -22,5 +22,6 @@ public sealed record UnlinkStreetNameSqsLambdaRequest :
     }
 
     public UnlinkStreetNameRequest Request { get; init; }
-    public int RoadSegmentId => Request.WegsegmentId;
+    public RoadSegmentId RoadSegmentId => new(Request.WegsegmentId);
+    public RoadSegmentGeometryDrawMethod GeometryDrawMethod => RoadSegmentGeometryDrawMethod.Parse(Request.Methode);
 }

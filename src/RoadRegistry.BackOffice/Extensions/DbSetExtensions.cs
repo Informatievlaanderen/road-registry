@@ -3,6 +3,7 @@ namespace RoadRegistry.BackOffice.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -14,5 +15,12 @@ public static class DbSetExtensions
     {
         await queryBuilder(dbSet.Local.AsQueryable()).ForEachBatchAsync(batchSize, action, cancellationToken);
         await queryBuilder(dbSet).ForEachBatchAsync(batchSize, action, cancellationToken);
+    }
+
+    public static async Task<T> SingleOrDefaultIncludingLocalAsync<T>(this DbSet<T> dbSet, Expression<Func<T, bool>> predicate, CancellationToken cancellationToken)
+        where T : class
+    {
+        return dbSet.Local.SingleOrDefault(predicate.Compile())
+               ?? await dbSet.SingleOrDefaultAsync(predicate, cancellationToken);
     }
 }
