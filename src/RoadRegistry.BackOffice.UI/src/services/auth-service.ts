@@ -42,9 +42,6 @@ export const AuthService = {
     sessionStorage.setItem(WR_AUTH_APIKEY, key);
     const isAuthenticated = await this.checkAuthentication();
     if (isAuthenticated) {
-      const userInfo = await this.getCurrentUser();
-      this.loadUserFromUserInfo(userInfo);
-      
       router.push(url || "/");
       return true;
     }
@@ -68,8 +65,6 @@ export const AuthService = {
     sessionStorage.setItem(WR_AUTH_OIDC_TOKEN, token);
 
     try {
-      this.loadUserFromToken(token);
-
       const isAuthenticated = await this.checkAuthentication();
       if (!isAuthenticated) {
         throw new Error("Er is een fout gebeurd bij het inloggen.");
@@ -90,7 +85,10 @@ export const AuthService = {
     router.push({ name: "login" });
   },
   async checkAuthentication(): Promise<boolean> {
-    isAuthenticated.state = (await this.getCurrentUser()).claims.length > 0;
+    const userInfo = await this.getCurrentUser();
+    this.loadUserFromUserInfo(userInfo);
+
+    isAuthenticated.state = userInfo.claims.length > 0;
     return isAuthenticated.state;
   },
   async getCurrentUser(): Promise<RoadRegistry.UserInfo> {
@@ -98,19 +96,6 @@ export const AuthService = {
       return await PublicApi.Security.getAuthenticatedUser();
     } catch (err) {
       return { claims: [] };
-    }
-  },
-  loadUserFromToken(token: string): void {
-    try {
-      const userToken = UserTokenResult.fromJwt(token);
-      if (userToken.isExpired) {
-        throw new Error("Token session expired");
-      }
-
-      user.state = userToken;
-    } catch (e) {
-      console.error("Could not decode provided jwt", e);
-      throw e;
     }
   },
   loadUserFromUserInfo(userInfo: RoadRegistry.UserInfo): void {
