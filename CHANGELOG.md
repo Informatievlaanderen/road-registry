@@ -1,3 +1,10 @@
+# [3.63.0](https://github.com/informatievlaanderen/road-registry/compare/v3.62.11...v3.63.0) (2023-12-01)
+
+
+### Features
+
+* WR-886 use separate store aggregate for outlined roadsegments ([#1314](https://github.com/informatievlaanderen/road-registry/issues/1314)) ([dc18b90](https://github.com/informatievlaanderen/road-registry/commit/dc18b908f3907bf71f6158c4d1c1b755be068919))
+
 ## [3.62.11](https://github.com/informatievlaanderen/road-registry/compare/v3.62.10...v3.62.11) (2023-11-29)
 
 
