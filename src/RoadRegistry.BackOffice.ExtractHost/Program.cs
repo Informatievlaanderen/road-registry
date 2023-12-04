@@ -26,7 +26,7 @@ using ZipArchiveWriters.ExtractHost;
 
 public class Program
 {
-    public const int HostingPort = 10011;
+    public const int HostingPort = 10003;
 
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 

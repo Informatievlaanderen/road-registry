@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 public class Program
 {
-    public const int HostingPort = 10017;
+    public const int HostingPort = 10008;
 
     protected Program()
     {

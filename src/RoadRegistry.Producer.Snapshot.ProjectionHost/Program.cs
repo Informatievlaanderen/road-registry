@@ -25,7 +25,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost
 
     public class Program
     {
-        public const int HostingPort = 10015;
+        public const int HostingPort = 10016;
 
         protected Program()
         {
