@@ -23,7 +23,7 @@ using Schema;
 
 public class Program
 {
-    public const int HostingPort = 10018;
+    public const int HostingPort = 10009;
 
     protected Program()
     {

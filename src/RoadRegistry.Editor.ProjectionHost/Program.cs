@@ -22,11 +22,10 @@ using Projections;
 using Schema;
 using System.Threading;
 using System.Threading.Tasks;
-using Hosts.Infrastructure.Extensions;
 
 public class Program
 {
-    public const int HostingPort = 10014;
+    public const int HostingPort = 10004;
 
     protected Program()
     {

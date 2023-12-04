@@ -141,7 +141,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                         var url = context.Configuration.GetValue<string>("Kestrel:Endpoints:Https:Url");
                         if (string.IsNullOrEmpty(url))
                         {
-                            builder.ListenLocalhost(5000);
+                            builder.ListenLocalhost(hostingPort);
                         }
                     }
                 })
