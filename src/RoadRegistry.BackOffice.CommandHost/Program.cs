@@ -29,7 +29,7 @@ using ZipArchiveWriters.Validation;
 
 public class Program
 {
-    public const int HostingPort = 10010;
+    public const int HostingPort = 10000;
 
     protected Program()
     {

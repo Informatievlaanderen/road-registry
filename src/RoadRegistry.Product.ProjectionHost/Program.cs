@@ -20,7 +20,7 @@ using Schema;
 
 public class Program
 {
-    public const int HostingPort = 10016;
+    public const int HostingPort = 10005;
 
     protected Program()
     {

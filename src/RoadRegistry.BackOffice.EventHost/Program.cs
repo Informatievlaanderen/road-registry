@@ -29,7 +29,7 @@ using Uploads;
 
 public class Program
 {
-    public const int HostingPort = 10013;
+    public const int HostingPort = 10001;
 
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 
