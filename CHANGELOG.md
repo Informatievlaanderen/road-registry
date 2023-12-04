@@ -1,3 +1,10 @@
+## [3.63.2](https://github.com/informatievlaanderen/road-registry/compare/v3.63.1...v3.63.2) (2023-12-04)
+
+
+### Bug Fixes
+
+* ports for backoffice healthchecks ([#1318](https://github.com/informatievlaanderen/road-registry/issues/1318)) ([caa2a92](https://github.com/informatievlaanderen/road-registry/commit/caa2a92461d8234fae5091ed55431d1539fb5f4e))
+
 ## [3.63.1](https://github.com/informatievlaanderen/road-registry/compare/v3.63.0...v3.63.1) (2023-12-01)
 
 
