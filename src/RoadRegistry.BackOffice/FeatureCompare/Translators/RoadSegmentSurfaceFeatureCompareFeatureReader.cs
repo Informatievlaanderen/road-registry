@@ -49,7 +49,7 @@ public class RoadSegmentSurfaceFeatureCompareFeatureReader : VersionedZipArchive
         {
             var roadSegmentId = roadSegmentGroup.Key;
 
-            if (context.KnownRoadSegments.TryGetValue(roadSegmentId, out var roadSegmentFeature)
+            if (context.ChangedRoadSegments.TryGetValue(roadSegmentId, out var roadSegmentFeature)
                 && roadSegmentFeature.Attributes.Geometry is not null)
             {
                 var surfaces = roadSegmentGroup

@@ -12,9 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Projections\TestData\expected.4.csv" />
-    <None Remove="Projections\TestData\expected.458.csv" />
-    <None Remove="Projections\TestData\expected.904.csv" />
+    <None Remove="Projections\TestData\expected.4.json" />
+    <None Remove="Projections\TestData\expected.458.json" />
+    <None Remove="Projections\TestData\expected.904.json" />
     <None Remove="Projections\TestData\importedRoadSegment.4.json" />
     <None Remove="Projections\TestData\importedRoadSegment.458.json" />
     <None Remove="Projections\TestData\importedRoadSegment.904.json" />
@@ -23,13 +23,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Projections\TestData\expected.4.csv">
+    <Content Include="Projections\TestData\expected.4.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Projections\TestData\expected.458.csv">
+    <Content Include="Projections\TestData\expected.458.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Projections\TestData\expected.904.csv">
+    <Content Include="Projections\TestData\expected.904.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Projections\TestData\importedRoadSegment.4.json">

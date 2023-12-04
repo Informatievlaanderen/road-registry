@@ -8,9 +8,12 @@ public struct StreamName : IEquatable<StreamName>
 {
     private readonly string _value;
 
+    public bool SupportsSnapshot { get; init; }
+
     public StreamName(string value)
     {
         _value = value ?? throw new ArgumentNullException(nameof(value));
+        SupportsSnapshot = false;
     }
 
     [Pure]
@@ -55,7 +58,7 @@ public struct StreamName : IEquatable<StreamName>
     {
         return string.Equals(_value, other._value, StringComparison.Ordinal);
     }
-
+    
     public override bool Equals(object obj)
     {
         if (ReferenceEquals(null, obj)) return false;

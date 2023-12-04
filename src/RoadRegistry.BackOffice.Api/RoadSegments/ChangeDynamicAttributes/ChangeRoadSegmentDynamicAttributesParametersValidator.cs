@@ -76,7 +76,7 @@ public class ChangeRoadSegmentDynamicAttributesParametersValidator : AbstractVal
 
         var vanPos = attributes.First().VanPositie;
         if (vanPos is null
-            || vanPos.Value.IsReasonablyEqualTo(0, (decimal)DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+            || vanPos.Value.IsReasonablyEqualTo(0, (decimal)DefaultTolerances.MeasurementTolerance))
         {
             return true;
         }
@@ -107,7 +107,7 @@ public class ChangeRoadSegmentDynamicAttributesParametersValidator : AbstractVal
                     return false;
                 }
 
-                if (!totPos.Value.IsReasonablyEqualTo(nextVanPos.Value, (decimal)DefaultTolerances.DynamicRoadSegmentAttributePositionTolerance))
+                if (!totPos.Value.IsReasonablyEqualTo(nextVanPos.Value, (decimal)DefaultTolerances.MeasurementTolerance))
                 {
                     return false;
                 }

@@ -29,16 +29,13 @@ using FeatureToggles;
 using FluentValidation;
 using Framework;
 using Handlers.Extensions;
-using HealthChecks.UI.Client;
 using Hosts.Infrastructure.Extensions;
 using Hosts.Infrastructure.HealthChecks;
 using Hosts.Infrastructure.Modules;
 using IdentityModel.AspNetCore.OAuth2Introspection;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Data.SqlClient;
@@ -55,6 +52,7 @@ using NetTopologySuite.IO;
 using NodaTime;
 using Options;
 using Product.Schema;
+using RoadRegistry.BackOffice.Api.RoadSegments;
 using Serilog.Extensions.Logging;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
@@ -153,17 +151,7 @@ public class Startup
                     AfterMiddleware = x =>
                     {
                         x.UseMiddleware<AddNoCacheHeadersMiddleware>();
-                        x.UseHealthChecks(new PathString("/health"), Program.HostingPort, new HealthCheckOptions
-                        {
-                            AllowCachingResponses = false,
-                            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
-                            ResultStatusCodes =
-                            {
-                                [HealthStatus.Healthy] = StatusCodes.Status200OK,
-                                [HealthStatus.Degraded] = StatusCodes.Status200OK,
-                                [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
-                            },
-                        });
+                        x.UseHealthChecks();
                     }
                 }
             })
@@ -194,6 +182,9 @@ public class Startup
         var openIdConnectOptions = _configuration.GetOptions<OpenIdConnectOptions>();
 
         var baseUrl = _configuration.GetValue<string>("BaseUrl")?.TrimEnd('/') ?? string.Empty;
+
+        var featureToggles = _configuration.GetFeatureToggles<ApplicationFeatureToggle>();
+        var useHealthChecksFeatureToggle = featureToggles.OfType<UseHealthChecksFeatureToggle>().Single();
 
         services
             .ConfigureDefaultForApi<Startup>(new StartupConfigureOptions
@@ -233,31 +224,36 @@ public class Startup
                         AfterSwaggerGen = options =>
                         {
                             options.AddRoadRegistrySchemaFilters();
+                            options.CustomSchemaIds(t => SwashbuckleHelpers.GetCustomSchemaId(t)
+                                                         ?? SwashbuckleHelpers.PublicApiDefaultSchemaIdSelector(t));
                         }
                     }
                 },
                 MiddlewareHooks =
                 {
-                    AfterHealthChecks = builder => HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment.IsDevelopment())
-                        .AddSqlServer()
-                        .AddS3(x => x
-                            .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read, Permission.Write)
-                            .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read)
-                            .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Write)
-                            .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
-                        )
-                        .AddSqs(x => x
-                            .CheckPermission(WellknownQueues.AdminQueue, Permission.Write)
-                            .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
-                            .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
-                        )
-                        .AddLambda(x => x
-                            .Check("lam-vbr-test-basisregisters-rr-sqsbackofficefunction")
-                            .Check("lam-vbr-test-basisregisters-rr-sqssnapshotfunction")
-                        )
-                        .AddTicketing()
-                        .AddAcmIdm()
-                    ,
+                    AfterHealthChecks = builder =>
+                    {
+                        var healthCheckInitializer = HealthCheckInitializer.Configure(builder, _configuration, _webHostEnvironment)
+                            .AddSqlServer();
+
+                        if (useHealthChecksFeatureToggle.FeatureEnabled)
+                        {
+                            healthCheckInitializer
+                                .AddS3(x => x
+                                    .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read, Permission.Write)
+                                    .CheckPermission(WellknownBuckets.ExtractDownloadsBucket, Permission.Read)
+                                    .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Write)
+                                    .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
+                                )
+                                .AddSqs(x => x
+                                    .CheckPermission(WellknownQueues.AdminQueue, Permission.Write)
+                                    .CheckPermission(WellknownQueues.BackOfficeQueue, Permission.Write)
+                                    .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Write)
+                                )
+                                .AddTicketing()
+                                ;
+                        }
+                    },
                     FluentValidation = _ =>
                     {
                         // Do not remove this handler!
@@ -357,18 +353,19 @@ public class Startup
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
                     sp.GetRequiredService<TraceDbConnection<ProductContext>>()))
+            .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<Handlers.DomainAssemblyMarker>()
             .AddValidatorsFromAssemblyContaining<DomainAssemblyMarker>()
-            .AddFeatureToggles<ApplicationFeatureToggle>(_configuration)
+            .AddFeatureToggles(featureToggles)
             .AddTicketing()
             .AddRoadRegistrySnapshot()
             .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
             .AddRoadNetworkCommandQueue()
             .AddRoadNetworkSnapshotStrategyOptions()
             .Configure<ResponseOptions>(_configuration)
-            .AddAcmIdmAuth(oAuth2IntrospectionOptions, openIdConnectOptions)
+            .AddAcmIdmAuthentication(oAuth2IntrospectionOptions, openIdConnectOptions)
             .AddApiKeyAuth()
             ;
 

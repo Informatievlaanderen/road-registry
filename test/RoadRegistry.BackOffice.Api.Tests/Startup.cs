@@ -25,6 +25,7 @@ using Api.Changes;
 using Api.Downloads;
 using Api.Extracts;
 using Api.Information;
+using Api.RoadSegments;
 using Api.Uploads;
 using FeatureToggles;
 using MediatorModule = BackOffice.MediatorModule;
@@ -104,6 +105,7 @@ public class Startup : TestStartup
             .AddScoped<InformationController>()
             .AddScoped<OrganizationsController>()
             .AddScoped<UploadController>()
+            .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             ;
     }
 

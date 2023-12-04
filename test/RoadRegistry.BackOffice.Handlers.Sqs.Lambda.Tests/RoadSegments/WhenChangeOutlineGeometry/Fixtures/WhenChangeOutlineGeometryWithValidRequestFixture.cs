@@ -39,7 +39,7 @@ public class WhenChangeOutlineGeometryWithValidRequestFixture : WhenChangeOutlin
             When = InstantPattern.ExtendedIso.Format(Clock.GetCurrentInstant())
         });
 
-        await Given(RoadNetworks.Stream, new RoadNetworkChangesAccepted
+        await Given(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(TestData.Segment1Added.Id)), new RoadNetworkChangesAccepted
         {
             RequestId = TestData.RequestId,
             Reason = TestData.ReasonForChange,

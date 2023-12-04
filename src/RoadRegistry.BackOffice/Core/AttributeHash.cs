@@ -14,9 +14,6 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     public CrabStreetnameId? RightStreetNameId { get; }
     public OrganizationId OrganizationId { get; }
     public RoadSegmentGeometryDrawMethod GeometryDrawMethod { get; }
-    public IReadOnlyCollection<BackOffice.RoadSegmentLaneAttribute> Lanes { get; }
-    public IReadOnlyCollection<BackOffice.RoadSegmentSurfaceAttribute> Surfaces { get; }
-    public IReadOnlyCollection<BackOffice.RoadSegmentWidthAttribute> Widths { get; }
 
     public AttributeHash(
         RoadSegmentAccessRestriction accessRestriction,
@@ -26,10 +23,7 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
         CrabStreetnameId? leftStreetNameId,
         CrabStreetnameId? rightStreetNameId,
         OrganizationId organizationId,
-        RoadSegmentGeometryDrawMethod geometryDrawMethod,
-        IReadOnlyCollection<BackOffice.RoadSegmentLaneAttribute> lanes,
-        IReadOnlyCollection<BackOffice.RoadSegmentSurfaceAttribute> surfaces,
-        IReadOnlyCollection<BackOffice.RoadSegmentWidthAttribute> widths)
+        RoadSegmentGeometryDrawMethod geometryDrawMethod)
     {
         AccessRestriction = accessRestriction;
         Category = category;
@@ -39,75 +33,54 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
         RightStreetNameId = rightStreetNameId;
         OrganizationId = organizationId;
         GeometryDrawMethod = geometryDrawMethod;
-        Lanes = lanes;
-        Surfaces = surfaces;
-        Widths = widths;
     }
 
     [Pure]
     public AttributeHash With(RoadSegmentAccessRestriction value)
     {
-        return new AttributeHash(value, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
+        return new AttributeHash(value, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash With(RoadSegmentCategory value)
     {
-        return new AttributeHash(AccessRestriction, value, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
+        return new AttributeHash(AccessRestriction, value, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash With(RoadSegmentMorphology value)
     {
-        return new AttributeHash(AccessRestriction, Category, value, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
+        return new AttributeHash(AccessRestriction, Category, value, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash With(RoadSegmentStatus value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, value, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
+        return new AttributeHash(AccessRestriction, Category, Morphology, value, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash With(OrganizationId value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, value, GeometryDrawMethod, Lanes, Surfaces, Widths);
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, value, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash With(RoadSegmentGeometryDrawMethod value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, value, Lanes, Surfaces, Widths);
-    }
-    
-    [Pure]
-    public AttributeHash With(IReadOnlyCollection<BackOffice.RoadSegmentLaneAttribute> lanes)
-    {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, lanes, Surfaces, Widths);
-    }
-
-    [Pure]
-    public AttributeHash With(IReadOnlyCollection<BackOffice.RoadSegmentSurfaceAttribute> surfaces)
-    {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, surfaces, Widths);
-    }
-
-    [Pure]
-    public AttributeHash With(IReadOnlyCollection<BackOffice.RoadSegmentWidthAttribute> widths)
-    {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, widths);
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, RightStreetNameId, OrganizationId, value);
     }
 
     [Pure]
     public AttributeHash WithLeftSide(CrabStreetnameId? value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, value, RightStreetNameId, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]
     public AttributeHash WithRightSide(CrabStreetnameId? value)
     {
-        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId, GeometryDrawMethod, Lanes, Surfaces, Widths);
+        return new AttributeHash(AccessRestriction, Category, Morphology, Status, LeftStreetNameId, value, OrganizationId, GeometryDrawMethod);
     }
 
     [Pure]
@@ -121,9 +94,6 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
                && RightStreetNameId.Equals(other.RightStreetNameId)
                && OrganizationId.Equals(other.OrganizationId)
                && GeometryDrawMethod.Equals(other.GeometryDrawMethod)
-               && Lanes.Equals(other.Lanes)
-               && Surfaces.Equals(other.Surfaces)
-               && Widths.Equals(other.Widths)
                ;
     }
 
@@ -135,21 +105,14 @@ public readonly struct AttributeHash : IEquatable<AttributeHash>
     public override int GetHashCode()
     {
         return HashCode.Combine(
-            HashCode.Combine(
-                AccessRestriction,
-                Category,
-                Morphology,
-                Status,
-                HashCode.Combine(LeftStreetNameId, 'L'),
-                HashCode.Combine(RightStreetNameId, 'R'),
-                OrganizationId,
-                GeometryDrawMethod
-            ),
-            HashCode.Combine(
-                Lanes,
-                Surfaces,
-                Widths
-            )
+            AccessRestriction,
+            Category,
+            Morphology,
+            Status,
+            HashCode.Combine(LeftStreetNameId, 'L'),
+            HashCode.Combine(RightStreetNameId, 'R'),
+            OrganizationId,
+            GeometryDrawMethod
         );
     }
 

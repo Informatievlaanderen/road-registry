@@ -31,7 +31,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         CrabStreetnameId? rightSideStreetNameId,
         IReadOnlyList<RoadSegmentLaneAttribute> lanes,
         IReadOnlyList<RoadSegmentWidthAttribute> widths,
-        IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces)
+        IReadOnlyList<RoadSegmentSurfaceAttribute> surfaces,
+        bool convertedFromOutlined)
     {
         Id = id;
         Version = version;
@@ -53,6 +54,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
         Lanes = lanes ?? throw new ArgumentNullException(nameof(lanes));
         Widths = widths ?? throw new ArgumentNullException(nameof(widths));
         Surfaces = surfaces ?? throw new ArgumentNullException(nameof(surfaces));
+        ConvertedFromOutlined = convertedFromOutlined;
     }
 
     public RoadSegmentAccessRestriction AccessRestriction { get; }
@@ -75,6 +77,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
     public RoadNodeId? TemporaryEndNodeId { get; }
     public RoadNodeId? TemporaryStartNodeId { get; }
     public IReadOnlyList<RoadSegmentWidthAttribute> Widths { get; }
+    public bool ConvertedFromOutlined { get; }
 
     public void TranslateTo(Messages.AcceptedChange message)
     {
@@ -136,7 +139,8 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                     FromPosition = item.From,
                     ToPosition = item.To
                 })
-                .ToArray()
+                .ToArray(),
+            ConvertedFromOutlined = ConvertedFromOutlined
         };
     }
 
@@ -185,13 +189,14 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                     FromPosition = item.From,
                     ToPosition = item.To
                 })
-                .ToArray()
+                .ToArray(),
+            ConvertedFromOutlined = ConvertedFromOutlined
         };
     }
 
     public Problems VerifyAfter(AfterVerificationContext context)
     {
-        if (context == null) throw new ArgumentNullException(nameof(context));
+        ArgumentNullException.ThrowIfNull(context);
 
         var problems = Problems.None;
         
@@ -213,17 +218,26 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
                 context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
             ));
 
-        var segmentBefore = context.BeforeView.Segments[Id];
+        var checkSegmentBefore = true;
+        if (ConvertedFromOutlined && !context.BeforeView.Segments.ContainsKey(Id))
+        {
+            checkSegmentBefore = false;
+        }
 
-        if (segmentBefore.Start != StartNodeId && segmentBefore.Start != EndNodeId &&
-            context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
-            problems = problems.AddRange(
-                beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+        if (checkSegmentBefore)
+        {
+            var segmentBefore = context.BeforeView.Segments[Id];
 
-        if (segmentBefore.End != StartNodeId && segmentBefore.End != EndNodeId &&
-            context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
-            problems = problems.AddRange(
-                beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+            if (segmentBefore.Start != StartNodeId && segmentBefore.Start != EndNodeId &&
+                context.AfterView.Nodes.TryGetValue(segmentBefore.Start, out var beforeStartNode))
+                problems = problems.AddRange(
+                    beforeStartNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+
+            if (segmentBefore.End != StartNodeId && segmentBefore.End != EndNodeId &&
+                context.AfterView.Nodes.TryGetValue(segmentBefore.End, out var beforeEndNode))
+                problems = problems.AddRange(
+                    beforeEndNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
+        }
 
         if (!context.AfterView.View.Nodes.TryGetValue(StartNodeId, out var startNode))
         {
@@ -263,7 +277,7 @@ public class ModifyRoadSegment : IRequestedChange, IHaveHash
 
         var problems = Problems.None;
 
-        if (!context.BeforeView.Segments.ContainsKey(Id))
+        if (!context.BeforeView.Segments.ContainsKey(Id) && !ConvertedFromOutlined)
         {
             problems = problems.Add(new RoadSegmentNotFound());
         }

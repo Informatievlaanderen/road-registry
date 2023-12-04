@@ -1,7 +1,5 @@
 namespace RoadRegistry.BackOffice.ExtractHost;
 
-using System;
-using System.Threading.Tasks;
 using Abstractions;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
@@ -21,11 +19,15 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using RoadRegistry.BackOffice.FeatureToggles;
 using SqlStreamStore;
+using System;
+using System.Threading.Tasks;
 using Uploads;
 using ZipArchiveWriters.ExtractHost;
 
 public class Program
 {
+    public const int HostingPort = 10011;
+
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 
     protected Program()
@@ -84,7 +86,8 @@ public class Program
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
                             new ZipArchiveFeatureCompareTranslator(
                                 sp.GetRequiredService<FileEncoding>(),
-                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()
+                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>(),
+                                sp.GetRequiredService<UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle>()
                             ),
                             sp.GetService<IStreamStore>(),
                             ApplicationMetadata,
@@ -95,8 +98,9 @@ public class Program
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
             })
-            .ConfigureHealthChecks(builder => builder
+            .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
+                .AddHostedServicesStatus()
                 .AddS3(x => x
                     .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
                     .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
@@ -106,7 +110,6 @@ public class Program
                 .AddSqs(x => x
                     .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
                 )
-                .AddTicketing()
             )
             .Build();
 

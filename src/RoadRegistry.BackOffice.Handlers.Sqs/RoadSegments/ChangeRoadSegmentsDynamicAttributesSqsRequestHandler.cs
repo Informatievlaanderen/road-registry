@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments;
 
 using Be.Vlaanderen.Basisregisters.Sqs.Handlers;
+using Core;
 using TicketingService.Abstractions;
 
 public class ChangeRoadSegmentsDynamicAttributesSqsRequestHandler : SqsHandler<ChangeRoadSegmentsDynamicAttributesSqsRequest>
@@ -13,7 +14,7 @@ public class ChangeRoadSegmentsDynamicAttributesSqsRequestHandler : SqsHandler<C
 
     protected override string WithAggregateId(ChangeRoadSegmentsDynamicAttributesSqsRequest request)
     {
-        return Guid.NewGuid().ToString();
+        return RoadNetworkStreamNameProvider.Default;
     }
 
     protected override IDictionary<string, string> WithTicketMetadata(string aggregateId, ChangeRoadSegmentsDynamicAttributesSqsRequest sqsRequest)

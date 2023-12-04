@@ -8,6 +8,7 @@ using Editor.Schema;
 using KellermanSoftware.CompareNetObjects;
 using KellermanSoftware.CompareNetObjects.TypeComparers;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.BackOffice.Core;
 using Xunit.Sdk;
 
 public class MemoryEditorContext : EditorContext
@@ -162,7 +163,11 @@ public static class EditorContextScenarioExtensions
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object>
+                {
+                    { "Position", position },
+                    { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+                }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }
@@ -275,7 +280,11 @@ public static class EditorContextScenarioExtensions
             var position = 0L;
             foreach (var message in specification.Messages)
             {
-                var envelope = new Envelope(message, new Dictionary<string, object> { { "Position", position } }).ToGenericEnvelope();
+                var envelope = new Envelope(message, new Dictionary<string, object>
+                {
+                    { "Position", position },
+                    { "StreamId", RoadNetworkStreamNameProvider.Default.ToString() }
+                }).ToGenericEnvelope();
                 await projector.ProjectAsync(context, envelope);
                 position++;
             }

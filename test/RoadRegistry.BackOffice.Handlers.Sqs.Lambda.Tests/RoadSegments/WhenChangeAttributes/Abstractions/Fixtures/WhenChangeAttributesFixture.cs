@@ -3,14 +3,17 @@ namespace RoadRegistry.BackOffice.Handlers.Sqs.Lambda.Tests.RoadSegments.WhenCha
 using AutoFixture;
 using BackOffice.Abstractions.RoadSegments;
 using BackOffice.Framework;
+using Be.Vlaanderen.Basisregisters.GrAr.Contracts.BuildingRegistry;
 using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Infrastructure;
 using Core;
+using Editor.Schema;
 using Framework;
 using Handlers;
 using Hosts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.IO;
 using NodaTime;
 using Requests;
 using RoadRegistry.BackOffice.FeatureToggles;
@@ -53,6 +56,9 @@ public abstract class WhenChangeAttributesFixture : SqsLambdaHandlerFixture<Chan
         IdempotentCommandHandler,
         RoadRegistryContext,
         ChangeRoadNetworkDispatcher,
+        EditorContext,
+        new RecyclableMemoryStreamManager(),
+        FileEncoding.UTF8,
         new NullLogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler>()
     );
 

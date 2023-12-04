@@ -124,59 +124,56 @@ export default Vue.extend({
         return status;
       }
 
-      if (this.uploadResult.uploadResponseCode == 200 || this.uploadResult.uploadResponseCode == 202) {
-        status.success = true;
-        status.title = "Gelukt!";
-        status.text =
-          "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen. U kan de vooruitgang volgen via Activiteit.";
-        return status;
-      }
-
-      if (this.uploadResult.uploadResponseCode == 400) {
-        status.warning = true;
-        status.title = "Technische storing";
-        status.text = "Door een technische storing is dit loket tijdelijk niet beschikbaar.";
-
-        return status;
-      }
-
-      if (this.uploadResult.uploadResponseCode == 404) {
-        status.error = true;
-        status.title = "Opgelet!";
-        status.text = "Het extractaanvraag werd niet gevonden.";
-
-        return status;
-      }
-
-      if (this.uploadResult.uploadResponseCode == 408) {
-        status.warning = true;
-        status.title = "Technische storing";
-        status.text = "Er was een probleem bij het opladen - de operatie nam teveel tijd in beslag.";
-        return status;
-      }
-
-      if (this.uploadResult.uploadResponseCode == 1) {
-        status.error = true;
-        status.title = "Opgelet!";
-        status.text = "Het max. toegelaten bestand groote is 28MB";
-        return status;
-      }
-
-      if (this.uploadResult.uploadResponseCode == 2 || this.uploadResult.uploadResponseCode == 415) {
-        status.error = true;
-        status.title = "Opgelet!";
-        status.text = "Enkel .zip bestanden zijn toegelaten.";
-        return status;
-      }
-
-      status.error = true;
-      status.title = "Technische storing";
-
-      if (this.uploadResult.uploadResponseCode == 503) {
-        status.text =
-          "Opladen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw.";
-      } else {
-        status.text = "Er was een probleem bij het opladen - dit kan duiden op een probleem met de website.";
+      switch (this.uploadResult.uploadResponseCode) {
+        case 1:
+          status.error = true;
+          status.title = "Opgelet!";
+          status.text = "Het max. toegelaten bestand groote is 28MB";
+          break;
+        case 2:
+        case 415:
+          status.error = true;
+          status.title = "Opgelet!";
+          status.text = "Enkel .zip bestanden zijn toegelaten.";
+          break;
+        case 200:
+        case 202:
+          status.success = true;
+          status.title = "Gelukt!";
+          status.text =
+            "Oplading is gelukt. We gaan nu het bestand inhoudelijk controleren en daarna de wijzigingen toepassen. U kan de vooruitgang volgen via Activiteit.";
+          break;
+        case 400:
+          status.warning = true;
+          status.title = "Technische storing";
+          status.text = "Door een technische storing is dit loket tijdelijk niet beschikbaar.";
+          break;
+        case 404:
+          status.error = true;
+          status.title = "Opgelet!";
+          status.text = "Het extractaanvraag werd niet gevonden.";
+          break;
+        case 408:
+          status.warning = true;
+          status.title = "Technische storing";
+          status.text = "Er was een probleem bij het opladen - de operatie nam teveel tijd in beslag.";
+          break;
+        case 500:
+          status.error = true;
+          status.title = "Technische storing";
+          status.text = "Er was een probleem bij het opladen - er is een onbekende fout gebeurd.";
+          break;
+        case 503:
+          status.error = true;
+          status.title = "Technische storing";
+          status.text =
+            "Opladen is momenteel niet mogelijk omdat we bezig zijn met importeren. Probeer het later nog eens opnieuw.";
+          break;
+        default:
+          status.error = true;
+          status.title = "Technische storing";
+          status.text = "Er was een probleem bij het opladen - dit kan duiden op een probleem met de website.";
+          break;
       }
 
       return status;
@@ -227,7 +224,7 @@ export default Vue.extend({
           } else if (err?.response?.status === 404) {
             this.uploadResult = { uploadResponseCode: 404, fileProblems: undefined };
           } else {
-            console.error('Upload failed', err);
+            console.error("Upload failed", err);
             this.uploadResult = { uploadResponseCode: 500, fileProblems: undefined };
           }
         }

@@ -15,9 +15,14 @@ using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.Editor.Projections;
 using RoadRegistry.Editor.Schema;
+using System;
 using System.Diagnostics;
+using Editor.Schema.Extensions;
 using ModifyRoadSegment = BackOffice.Uploads.ModifyRoadSegment;
 using Reason = BackOffice.Reason;
+using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
+using RoadSegmentSurfaceAttribute = BackOffice.Uploads.RoadSegmentSurfaceAttribute;
+using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 
 public sealed class CorrectRoadSegmentStatusDutchTranslationsRequestHandler : IRequestHandler<CorrectRoadSegmentStatusDutchTranslationsRequest, CorrectRoadSegmentStatusDutchTranslationsResponse>
 {
@@ -62,16 +67,17 @@ public sealed class CorrectRoadSegmentStatusDutchTranslationsRequestHandler : IR
         var roadSegments = network.FindRoadSegments(roadSegmentIdsWithRequestedStatus.Select(x => new RoadSegmentId(x)));
 
         var recordNumber = RecordNumber.Initial;
+        var attributeId = AttributeId.Initial;
 
         foreach (var roadSegment in roadSegments)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegment(
+            var modifyRoadSegment = new ModifyRoadSegment(
                 recordNumber,
                 roadSegment.Id,
-                roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.Start,
-                roadSegment.AttributeHash.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined ? new RoadNodeId(0) : roadSegment.End,
+                roadSegment.Start,
+                roadSegment.End,
                 roadSegment.AttributeHash.OrganizationId,
                 roadSegment.AttributeHash.GeometryDrawMethod,
                 roadSegment.AttributeHash.Morphology,
@@ -80,7 +86,25 @@ public sealed class CorrectRoadSegmentStatusDutchTranslationsRequestHandler : IR
                 roadSegment.AttributeHash.AccessRestriction,
                 roadSegment.AttributeHash.LeftStreetNameId,
                 roadSegment.AttributeHash.RightStreetNameId
-            ).WithGeometry(roadSegment.Geometry));
+            ).WithGeometry(roadSegment.Geometry);
+
+            foreach (var lane in roadSegment.Lanes)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithLane(new RoadSegmentLaneAttribute(attributeId, lane.Count, lane.Direction, lane.From, lane.To));
+                attributeId = attributeId.Next();
+            }
+            foreach (var surface in roadSegment.Surfaces)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithSurface(new RoadSegmentSurfaceAttribute(attributeId, surface.Type, surface.From, surface.To));
+                attributeId = attributeId.Next();
+            }
+            foreach (var width in roadSegment.Widths)
+            {
+                modifyRoadSegment = modifyRoadSegment.WithWidth(new RoadSegmentWidthAttribute(attributeId, width.Width, width.From, width.To));
+                attributeId = attributeId.Next();
+            }
+
+            translatedChanges = translatedChanges.AppendChange(modifyRoadSegment);
 
             recordNumber = recordNumber.Next();
         }

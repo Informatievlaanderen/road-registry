@@ -8,8 +8,11 @@ using Framework.Testing;
 using KellermanSoftware.CompareNetObjects;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
+using RoadRegistry.BackOffice.Uploads;
+using FileProblem = RoadRegistry.BackOffice.Messages.FileProblem;
 
 public class ExtractScenarios : RoadRegistryTestBase
 {

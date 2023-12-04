@@ -3,6 +3,7 @@ import Vue from "vue";
 import PublicApi from "./public-api";
 import UserTokenResult from "@/auth/userTokenResult";
 import OidcClient from "@/auth/roadRegistryOidcClient";
+import RoadRegistry from "@/types/road-registry";
 
 const WR_AUTH_APIKEY = "RoadRegistry.BackOffice.UI.Authentication.ApiKey";
 const WR_AUTH_OIDC_VERIFIER = "RoadRegistry.BackOffice.UI.Authentication.OidcVerifier";
@@ -37,7 +38,7 @@ export const AuthService = {
     await OidcClient.initialize();
     await this.checkAuthentication();
   },
-  async login(key: string, url: string): Promise<boolean> {
+  async loginApiKey(key: string, url: string): Promise<boolean> {
     sessionStorage.setItem(WR_AUTH_APIKEY, key);
     const isAuthenticated = await this.checkAuthentication();
     if (isAuthenticated) {
@@ -64,8 +65,6 @@ export const AuthService = {
     sessionStorage.setItem(WR_AUTH_OIDC_TOKEN, token);
 
     try {
-      await this.loadUserFromToken(token);
-
       const isAuthenticated = await this.checkAuthentication();
       if (!isAuthenticated) {
         throw new Error("Er is een fout gebeurd bij het inloggen.");
@@ -86,20 +85,40 @@ export const AuthService = {
     router.push({ name: "login" });
   },
   async checkAuthentication(): Promise<boolean> {
-    isAuthenticated.state = await PublicApi.Security.userIsAuthenticated();
+    const userInfo = await this.getCurrentUser();
+    this.loadUserFromUserInfo(userInfo);
+
+    isAuthenticated.state = userInfo.claims.length > 0;
     return isAuthenticated.state;
   },
-  async loadUserFromToken(token: string): Promise<void> {
+  async getCurrentUser(): Promise<RoadRegistry.UserInfo> {
     try {
-      const userToken = UserTokenResult.fromJwt(token);
-      if (userToken.isExpired) {
-        throw new Error("Token session expired");
-      }
-
-      user.state = userToken;
-    } catch (e) {
-      console.error("Could not decode provided jwt", e);
-      throw e;
+      return await PublicApi.Security.getAuthenticatedUser();
+    } catch (err) {
+      return { claims: [] };
     }
+  },
+  loadUserFromUserInfo(userInfo: RoadRegistry.UserInfo): void {
+    const userToken = UserTokenResult.fromUserInfo(userInfo);
+    if (userToken.isExpired) {
+      throw new Error("Token session expired");
+    }
+
+    user.state = userToken;
+  },
+  userHasAnyContext(contexts: string[]): boolean {
+    if (!contexts || contexts.length === 0) {
+      return true;
+    }
+
+    let hasAccess = false;
+
+    contexts.forEach((context: string) => {
+      if (~user.state.contexts.indexOf(context)) {
+        hasAccess = true;
+      }
+    });
+
+    return hasAccess;
   },
 };

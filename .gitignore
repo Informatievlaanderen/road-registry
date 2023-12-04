@@ -89,3 +89,4 @@ override.tf.json
 *.tfstate
 *.tfstate.*
 **/.terraform/*
+healthcheck.bin

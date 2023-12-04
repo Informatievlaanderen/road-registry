@@ -15,7 +15,7 @@ using NisCodeService.Proxy.HttpProxy;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddAcmIdmAuth(
+    public static IServiceCollection AddAcmIdmAuthentication(
         this IServiceCollection services,
         OAuth2IntrospectionOptions oAuth2IntrospectionOptions,
         OpenIdConnectOptions openIdConnectOptions)

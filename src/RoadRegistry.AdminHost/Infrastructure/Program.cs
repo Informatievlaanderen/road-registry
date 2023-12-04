@@ -18,13 +18,14 @@ using Microsoft.Extensions.Logging;
 using NodaTime;
 using SqlStreamStore;
 using System.Threading.Tasks;
+using Options;
 
 public class Program
 {
     protected Program()
     {
     }
-    
+
     public static async Task Main(string[] args)
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
@@ -45,6 +46,7 @@ public class Program
                             sp.GetService<ILoggerFactory>()
                         )
                     })))
+                .RegisterOptions<AdminHostOptions>()
                 .AddSingleton<AdminMessageConsumer>()
                 .AddSingleton<ExtractRequestCleanup>()
                 .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
@@ -60,7 +62,6 @@ public class Program
                 .AddEditorContext()
                 .AddProductContext()
             )
-            .ConfigureHealthChecks(builder => { })
             .ConfigureContainer((hostContext, builder) =>
             {
                 builder.RegisterModule<MediatorModule>();
@@ -76,11 +77,10 @@ public class Program
                 var adminMessageConsumer = sp.GetRequiredService<AdminMessageConsumer>();
                 var extractRequestCleanup = sp.GetRequiredService<ExtractRequestCleanup>();
 
-                Task.WaitAll(new[]
-                {
+                await Task.WhenAll(
                     adminMessageConsumer.ExecuteAsync(stoppingToken),
                     extractRequestCleanup.ExecuteAsync(stoppingToken)
-                });
+                );
             })
             .Build();
 
@@ -91,6 +91,16 @@ public class Program
                 var blobClientOptions = sp.GetRequiredService<BlobClientOptions>();
                 logger.LogBlobClientCredentials(blobClientOptions);
             })
-            .RunAsync();
+            .RunAsync((sp, _, _) =>
+            {
+                var adminHostOptions = sp.GetRequiredService<AdminHostOptions>();
+                if (adminHostOptions.AlwaysRunning)
+                {
+                    var logger = sp.GetRequiredService<ILogger<Program>>();
+                    logger.LogInformation("Host is configured to be always running.");
+                }
+
+                return Task.CompletedTask;
+            });
     }
 }

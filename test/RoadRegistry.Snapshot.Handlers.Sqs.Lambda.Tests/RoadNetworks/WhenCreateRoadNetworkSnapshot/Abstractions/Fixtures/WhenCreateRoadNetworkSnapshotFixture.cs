@@ -52,7 +52,7 @@ public abstract class WhenCreateRoadNetworkSnapshotFixture : SqsLambdaHandlerFix
         ProvenanceData = ObjectProvider.Create<ProvenanceData>()
     };
 
-    protected override CreateRoadNetworkSnapshotSqsLambdaRequest SqsLambdaRequest => new(RoadNetwork.Identifier.ToString(), SqsRequest);
+    protected override CreateRoadNetworkSnapshotSqsLambdaRequest SqsLambdaRequest => new(RoadNetworkStreamNameProvider.Default, SqsRequest);
 
     protected override CreateRoadNetworkSnapshotSqsLambdaRequestHandler SqsLambdaRequestHandler => new(
         Options,

@@ -194,13 +194,17 @@ public class RoadNetworkExtract : EventSourcedEntity
             Apply);
     }
 
-    public void Close(RoadNetworkExtractCloseReason reason)
+    public void Close(RoadNetworkExtractCloseReason reason, DownloadId? downloadId = null)
     {
+        var closeDownloadIds = downloadId is not null
+            ? new[] { downloadId.Value }
+            : _requestedDownloads.ToArray();
+
         Apply(new RoadNetworkExtractClosed
         {
             RequestId = Id,
             ExternalRequestId = _externalExtractRequestId,
-            DownloadIds = _requestedDownloads.Select(requestedDownload => requestedDownload.ToString()).ToArray(),
+            DownloadIds = closeDownloadIds.Select(x => x.ToString()).ToArray(),
             DateRequested = DateRequested,
             Reason = reason
         });

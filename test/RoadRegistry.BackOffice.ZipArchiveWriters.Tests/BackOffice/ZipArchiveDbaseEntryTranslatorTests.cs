@@ -100,8 +100,8 @@ public class ZipArchiveDbaseEntryTranslatorTests
     public void TranslateReturnsExpectedResultWhenDbaseRecordTranslatorReturnsChanges()
     {
         var changes = TranslatedChanges.Empty
-            .AppendChange(new AddRoadNode(new RecordNumber(1), new RoadNodeId(1), RoadNodeType.FakeNode))
-            .AppendChange(new AddRoadNode(new RecordNumber(2), new RoadNodeId(2), RoadNodeType.FakeNode));
+            .AppendChange(new AddRoadNode(new RecordNumber(1), new RoadNodeId(1), new RoadNodeId(1), RoadNodeType.FakeNode))
+            .AppendChange(new AddRoadNode(new RecordNumber(2), new RoadNodeId(2), new RoadNodeId(2), RoadNodeType.FakeNode));
         var sut = new ZipArchiveDbaseEntryTranslator<FakeDbaseRecord>(
             Encoding.UTF8, DbaseFileHeaderReadBehavior.Default,
             new FakeDbaseRecordTranslator(ignored => changes));

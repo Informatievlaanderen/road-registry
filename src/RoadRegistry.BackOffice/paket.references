@@ -18,6 +18,7 @@ FeatureToggle.Common
 FluentValidation
 MediatR
 MessagePack
+Microsoft.EntityFrameworkCore
 Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.Abstractions
 Microsoft.Extensions.Configuration.Binder

@@ -6,6 +6,7 @@ using Abstractions.RoadSegments;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using Editor.Projections;
 using Editor.Schema;
+using Editor.Schema.Extensions;
 using Framework;
 using Messages;
 using Microsoft.EntityFrameworkCore;
@@ -100,8 +101,8 @@ public class RoadSegmentDetailRequestHandler : EndpointRequestHandler<RoadSegmen
             AccessRestriction = RoadSegmentAccessRestriction.ByIdentifier[dbfRecord.TGBEP.Value],
             MaintenanceAuthority = new MaintenanceAuthority
             {
-                Code = dbfRecord.BEHEERDER.Value,
-                Name = dbfRecord.BEHEERDER.Value
+                Code = dbfRecord.BEHEER.Value,
+                Name = dbfRecord.LBLBEHEER.Value
             },
             Category = RoadSegmentCategory.ByIdentifier[dbfRecord.CATEGORIE.Value],
             SurfaceTypes = surfaceTypes.Select(x => new RoadSegmentSurfaceTypeDetailResponse

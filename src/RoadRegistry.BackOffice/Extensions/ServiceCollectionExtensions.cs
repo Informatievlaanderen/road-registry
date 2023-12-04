@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.Extensions;
 
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Amazon.SimpleEmailV2;
@@ -23,28 +24,29 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddEmailClient(this IServiceCollection services, IConfiguration configuration)
     {
-        var emailClientOptions = configuration.GetOptions<EmailClientOptions>();
+        var emailClientOptions = configuration.GetOptions<EmailClientOptions>() ?? new EmailClientOptions();
 
-        if (emailClientOptions is not null && emailClientOptions.FromEmailAddress is not null)
-        {
-            services.AddSingleton(emailClientOptions);
-            services.AddSingleton(new AmazonSimpleEmailServiceV2Client());
-            services.AddSingleton<IExtractUploadFailedEmailClient>(sp => new ExtractUploadFailedEmailClient(
+        services.AddSingleton(emailClientOptions);
+        services.AddSingleton(_ => new AmazonSimpleEmailServiceV2Client());
+        services.AddSingleton<IExtractUploadFailedEmailClient>(sp => !string.IsNullOrEmpty(emailClientOptions.FromEmailAddress)
+            ? new ExtractUploadFailedEmailClient(
                 sp.GetService<AmazonSimpleEmailServiceV2Client>(),
                 sp.GetService<EmailClientOptions>(),
-                sp.GetService<ILogger<ExtractUploadFailedEmailClient>>()));
-        }
+                sp.GetService<ILogger<ExtractUploadFailedEmailClient>>())
+            : new NotConfiguredExtractUploadFailedEmailClient(sp.GetService<ILogger<NotConfiguredExtractUploadFailedEmailClient>>()));
 
         return services;
     }
 
-    public static IServiceCollection AddFeatureToggles<TFeatureToggle>(this IServiceCollection services, IConfiguration configuration)
+    public static ICollection<TFeatureToggle> GetFeatureToggles<TFeatureToggle>(this IConfiguration configuration)
         where TFeatureToggle : IFeatureToggle
     {
+        ArgumentNullException.ThrowIfNull(configuration);
+
         var featureTogglesConfiguration = configuration.GetSection("FeatureToggles");
 
         var applicationFeatureToggleType = typeof(TFeatureToggle);
-        var featureToggles = applicationFeatureToggleType.Assembly
+        return applicationFeatureToggleType.Assembly
             .GetTypes()
             .Where(type => !type.IsAbstract && applicationFeatureToggleType.IsAssignableFrom(type))
             .Select(type =>
@@ -56,10 +58,23 @@ public static class ServiceCollectionExtensions
                 }
 
                 var featureEnabled = featureTogglesConfiguration.GetValue<bool>(configurationKey);
-                var featureToggle = Activator.CreateInstance(type, new object[] { featureEnabled });
+                var featureToggle = (TFeatureToggle)Activator.CreateInstance(type, new object[] { featureEnabled });
                 return featureToggle;
             })
             .ToList();
+    }
+
+    public static IServiceCollection AddFeatureToggles<TFeatureToggle>(this IServiceCollection services, IConfiguration configuration)
+        where TFeatureToggle : IFeatureToggle
+    {
+        return services.AddFeatureToggles(configuration.GetFeatureToggles<TFeatureToggle>());
+    }
+
+    public static IServiceCollection AddFeatureToggles<TFeatureToggle>(this IServiceCollection services, IEnumerable<TFeatureToggle> featureToggles)
+        where TFeatureToggle : IFeatureToggle
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(featureToggles);
 
         foreach (var featureToggle in featureToggles)
         {

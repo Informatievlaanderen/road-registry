@@ -26,7 +26,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Infrastructure.HealthChecks;
 using Environments = Be.Vlaanderen.Basisregisters.Aws.Lambda.Environments;
 
 public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
@@ -41,7 +40,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         : base(messageAssemblies, SqsJsonSerializerSettingsProvider.CreateSerializerSettings())
     {
     }
-    
+
     protected virtual IConfiguration BuildConfiguration(IHostEnvironment hostEnvironment)
     {
         var configurationBuilder = new ConfigurationBuilder()
@@ -81,10 +80,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
 
         ConfigureDefaultServices(context, services);
         ConfigureServices(context, services);
-
-        var healthCheckBuilder = services.AddHealthChecks();
-        ConfigureHealthChecks(HealthCheckInitializer.Configure(healthCheckBuilder, context.Configuration, context.HostingEnvironment.IsDevelopment()));
-
+        
         var builder = new ContainerBuilder();
         builder.RegisterConfiguration(configuration);
         builder.Populate(services);
@@ -103,15 +99,11 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
     {
     }
 
-    protected virtual void ConfigureHealthChecks(HealthCheckInitializer builder)
-    {
-    }
-
     protected virtual void ConfigureContainer(HostBuilderContext context, ContainerBuilder builder)
     {
     }
 
-    private void ConfigureDefaultServices(HostBuilderContext context, IServiceCollection services)
+    private void ConfigureDefaultServices(HostBuilderContext hostContext, IServiceCollection services)
     {
         services
             .AddTicketing()
@@ -120,10 +112,14 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             .AddSingleton(FileEncoding.WindowsAnsi)
             .AddEditorContext()
             .AddStreamStore()
-            .AddLogging(configure => { configure.AddRoadRegistryLambdaLogger(); })
+            .AddLogging(builder =>
+            {
+                builder.AddRoadRegistryLambdaLogger();
+                builder.AddSerilog<TMessageHandler>(hostContext.Configuration);
+            })
             .AddSqsLambdaHandlerOptions()
             .AddRoadRegistrySnapshot()
-            .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
+            .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration)
             ;
     }
 

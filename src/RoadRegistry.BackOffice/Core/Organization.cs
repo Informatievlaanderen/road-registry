@@ -67,7 +67,9 @@ public class Organization : EventSourcedEntity
         {
             Code = Translation.Identifier,
             Name = name ?? Translation.Name,
-            OvoCode = ovoCode ?? OvoCode
+            NameModified = name is not null && name != Translation.Name,
+            OvoCode = ovoCode ?? OvoCode,
+            OvoCodeModified = ovoCode is not null && ovoCode != OvoCode
         });
     }
     

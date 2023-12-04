@@ -7,6 +7,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
     using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Abstractions;
+    using BackOffice.Extensions;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
     using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -22,6 +23,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
         public RoadSegmentRecordProjection(IKafkaProducer kafkaProducer, IStreetNameCache streetNameCache)
         {
             _kafkaProducer = kafkaProducer;
+
             When<Envelope<ImportedRoadSegment>>(async (context, envelope, token) =>
             {
                 var method = RoadSegmentGeometryDrawMethod.Parse(envelope.Message.GeometryDrawMethod);
@@ -116,6 +118,19 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
                             await RemoveRoadSegment(roadSegmentRemoved, context, envelope, token);
                             break;
                     }
+            });
+
+            When<Envelope<RenameOrganizationAccepted>>(async (context, envelope, token) =>
+            {
+                await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+            });
+
+            When<Envelope<ChangeOrganizationAccepted>>(async (context, envelope, token) =>
+            {
+                if (envelope.Message.NameModified)
+                {
+                    await RenameOrganization(context, new OrganizationId(envelope.Message.Code), new OrganizationName(envelope.Message.Name), token);
+                }
             });
         }
 
@@ -390,6 +405,28 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegment
             roadSegmentRecord.IsRemoved = true;
 
             await Produce(roadSegmentRecord.Id, roadSegmentRecord.ToContract(), token);
+        }
+
+        private async Task RenameOrganization(
+            RoadSegmentProducerSnapshotContext context,
+            OrganizationId organizationId,
+            OrganizationName organizationName,
+            CancellationToken cancellationToken)
+        {
+            await context.RoadSegments
+                .ForEachBatchAsync(q => q
+                    .Where(x => x.MaintainerId == organizationId), 5000, async dbRecords =>
+                {
+                    foreach (var dbRecord in dbRecords)
+                    {
+                        if (dbRecord.MaintainerId == organizationId)
+                        {
+                            dbRecord.MaintainerName = organizationName;
+                        }
+
+                        await Produce(dbRecord.Id, dbRecord.ToContract(), cancellationToken);
+                    }
+                }, cancellationToken);
         }
 
         private async Task Produce(int roadSegmentId, RoadSegmentSnapshot snapshot, CancellationToken cancellationToken)

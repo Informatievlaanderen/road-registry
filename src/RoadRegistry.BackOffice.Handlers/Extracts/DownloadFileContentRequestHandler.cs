@@ -32,48 +32,46 @@ public class DownloadFileContentRequestHandler : EndpointRetryableRequestHandler
 
     public override async Task<DownloadFileContentResponse> HandleAsync(DownloadFileContentRequest request, CancellationToken cancellationToken)
     {
-        if (request.DownloadId is null) throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
-
-        if (Guid.TryParseExact(request.DownloadId, "N", out var parsedDownloadId))
+        if (request.DownloadId is null)
         {
-            var record = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken);
-
-            if (record is null || record is not { Available: true })
-            {
-                var retryAfterSeconds = await CalculateRetryAfterAsync(request, cancellationToken);
-                throw new DownloadExtractNotFoundException(retryAfterSeconds);
-            }
-
-            var blobName = new BlobName(record.ArchiveId);
-
-            if (!await _client.BlobExistsAsync(blobName, cancellationToken))
-                throw new BlobNotFoundException(blobName);
-
-            var blob = await _client.GetBlobAsync(blobName, cancellationToken);
-            var filename = request.DownloadId + ".zip";
-
-            var command = new Command(new DownloadRoadNetworkExtract
-            {
-                DownloadId = new DownloadId(parsedDownloadId),
-                ExternalRequestId = record.ExternalRequestId
-            });
-            await Dispatch(command, cancellationToken);
-
-            return new DownloadFileContentResponse(
-                filename,
-                new MediaTypeHeaderValue("application/zip"),
-                async (stream, actionContext) =>
-                {
-                    await using var blobStream = await blob.OpenAsync(cancellationToken);
-                    await blobStream.CopyToAsync(stream, cancellationToken);
-                });
+            throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
         }
 
-        throw new ValidationException(new[]
+        if (!DownloadId.TryParse(request.DownloadId, out var downloadId))
         {
-            new ValidationFailure(
-                nameof(request.DownloadId),
-                $"'{nameof(request.DownloadId)}' path parameter is not a global unique identifier without dashes.")
+            throw new InvalidGuidValidationException(nameof(request.DownloadId));
+        }
+
+        var record = await Context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
+
+        if (record is null || record is not { Available: true })
+        {
+            var retryAfter = await CalculateRetryAfterAsync(request, cancellationToken);
+            throw new DownloadExtractNotFoundException(Convert.ToInt32(retryAfter.TotalSeconds));
+        }
+
+        var blobName = new BlobName(record.ArchiveId);
+
+        if (!await _client.BlobExistsAsync(blobName, cancellationToken))
+            throw new BlobNotFoundException(blobName);
+
+        var blob = await _client.GetBlobAsync(blobName, cancellationToken);
+        var filename = request.DownloadId + ".zip";
+
+        var command = new Command(new DownloadRoadNetworkExtract
+        {
+            DownloadId = downloadId,
+            ExternalRequestId = new ExternalExtractRequestId(record.ExternalRequestId)
         });
+        await Dispatch(command, cancellationToken);
+
+        return new DownloadFileContentResponse(
+            filename,
+            new MediaTypeHeaderValue("application/zip"),
+            async (stream, actionContext) =>
+            {
+                await using var blobStream = await blob.OpenAsync(cancellationToken);
+                await blobStream.CopyToAsync(stream, cancellationToken);
+            });
     }
 }

@@ -38,7 +38,7 @@ public abstract class WhenChangeOutlineGeometryFixture : SqsLambdaHandlerFixture
         ProvenanceData = ObjectProvider.Create<ProvenanceData>()
     };
 
-    protected override ChangeRoadSegmentOutlineGeometrySqsLambdaRequest SqsLambdaRequest => new(RoadNetwork.Identifier.ToString(), SqsRequest);
+    protected override ChangeRoadSegmentOutlineGeometrySqsLambdaRequest SqsLambdaRequest => new(RoadNetworkStreamNameProvider.ForOutlinedRoadSegment(new RoadSegmentId(TestData.Segment1Added.Id)).ToString(), SqsRequest);
 
     protected override ChangeRoadSegmentOutlineGeometrySqsLambdaRequestHandler SqsLambdaRequestHandler => new(
         Options,

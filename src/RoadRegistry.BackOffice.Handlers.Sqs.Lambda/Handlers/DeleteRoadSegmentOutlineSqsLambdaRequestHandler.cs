@@ -9,14 +9,12 @@ using Hosts;
 using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
-using RoadRegistry.BackOffice.Core;
 using TicketingService.Abstractions;
 using RemoveRoadSegment = BackOffice.Uploads.RemoveRoadSegment;
 
 public sealed class DeleteRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaHandler<DeleteRoadSegmentOutlineSqsLambdaRequest>
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
-    private readonly DistributedStreamStoreLock _distributedStreamStoreLock;
 
     public DeleteRoadSegmentOutlineSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -25,7 +23,6 @@ public sealed class DeleteRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
-        DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<DeleteRoadSegmentOutlineSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -36,35 +33,32 @@ public sealed class DeleteRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             logger)
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
-        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, RoadNetworks.Stream, Logger);
     }
 
     protected override async Task<object> InnerHandle(DeleteRoadSegmentOutlineSqsLambdaRequest request, CancellationToken cancellationToken)
     {
-        return await _distributedStreamStoreLock.RetryRunUntilLockAcquiredAsync(async () =>
+        var roadSegmentId = new RoadSegmentId(request.Request.WegsegmentId);
+
+        await _changeRoadNetworkDispatcher.DispatchAsync(request, "Verwijder ingeschetst wegsegment", async translatedChanges =>
         {
-            var roadSegmentId = new RoadSegmentId(request.Request.WegsegmentId);
+            var network = await RoadRegistryContext.RoadNetworks.ForOutlinedRoadSegment(roadSegmentId, cancellationToken);
 
-            await _changeRoadNetworkDispatcher.DispatchAsync(request, "Verwijder ingeschetst wegsegment", async translatedChanges =>
+            var roadSegment = network.FindRoadSegment(roadSegmentId);
+            if (roadSegment == null || roadSegment.AttributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
             {
-                var network = await RoadRegistryContext.RoadNetworks.Get(cancellationToken);
+                throw new RoadSegmentOutlinedNotFoundException();
+            }
 
-                var roadSegment = network.FindRoadSegment(roadSegmentId);
-                if (roadSegment == null || roadSegment.AttributeHash.GeometryDrawMethod != RoadSegmentGeometryDrawMethod.Outlined)
-                {
-                    throw new RoadSegmentOutlinedNotFoundException();
-                }
+            var recordNumber = RecordNumber.Initial;
 
-                var recordNumber = RecordNumber.Initial;
-
-                return translatedChanges.AppendChange(new RemoveRoadSegment(
-                    recordNumber,
-                    roadSegment.Id
-                ));
-            }, cancellationToken);
-
-            return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), string.Empty);
+            return translatedChanges.AppendChange(new RemoveRoadSegment(
+                recordNumber,
+                roadSegment.Id,
+                roadSegment.AttributeHash.GeometryDrawMethod
+            ));
         }, cancellationToken);
+
+        return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), string.Empty);
     }
 
     protected override Task ValidateIfMatchHeaderValue(DeleteRoadSegmentOutlineSqsLambdaRequest request, CancellationToken cancellationToken)

@@ -1,31 +1,36 @@
 namespace RoadRegistry.BackOffice.CommandHost;
 
-using System;
 using Abstractions;
 using Autofac;
+using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner.MigrationExtensions;
 using Core;
 using Extensions;
 using Extracts;
+using FeatureToggles;
 using Framework;
 using Handlers.Sqs;
 using Hosts;
 using MediatR;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using RoadNetwork.Schema;
 using RoadRegistry.Hosts.Infrastructure.Extensions;
 using RoadRegistry.Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
+using System.Threading;
 using System.Threading.Tasks;
-using FeatureToggles;
 using Uploads;
 using ZipArchiveWriters.Validation;
 
 public class Program
 {
+    public const int HostingPort = 10010;
+
     protected Program()
     {
     }
@@ -47,9 +52,12 @@ public class Program
                             sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.CommandHost)
                         ),
                         WellknownSchemas.CommandHostSchema))
-                .AddDistributedStreamStoreLockOptions())
-            .ConfigureHealthChecks(builder => builder
+                .AddDistributedStreamStoreLockOptions()
+                .AddRoadNetworkDbIdGenerator()
+            )
+            .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
+                .AddHostedServicesStatus()
                 .AddS3(x => x
                     .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
                     .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)
@@ -125,6 +133,11 @@ public class Program
                         new SqlConnectionStringBuilder(
                             configuration.GetConnectionString(WellknownConnectionNames.CommandHostAdmin))
                     ).CreateSchemaIfNotExists(WellknownSchemas.CommandHostSchema).ConfigureAwait(false);
+
+                using (var dbContext = sp.GetRequiredService<RoadNetworkDbContext>())
+                {
+                    await dbContext.MigrateAsync(CancellationToken.None);
+                }
             });
     }
 }

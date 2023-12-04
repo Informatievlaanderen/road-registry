@@ -12,7 +12,7 @@ public class RoadSegmentPositionConverter : JsonConverter<RoadSegmentPosition>
             return RoadSegmentPosition.Zero;
         }
         
-        return RoadSegmentPosition.FromDouble((double)reader.Value);
+        return RoadSegmentPosition.FromDouble(Convert.ToDouble(reader.Value));
     }
 
     public override void WriteJson(JsonWriter writer, RoadSegmentPosition value, JsonSerializer serializer)

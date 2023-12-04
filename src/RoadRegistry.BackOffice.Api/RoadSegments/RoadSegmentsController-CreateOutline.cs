@@ -148,15 +148,15 @@ public record PostRoadSegmentOutlineParameters
     [JsonProperty(Required = Required.Always)]
     public string Wegbreedte { get; set; }
 
-    /// <summary>
-    ///     Aantal rijstroken van het wegsegment, en hun richting t.o.v. de richting van het wegsegment (begin- naar
-    ///     eindknoop).
-    /// </summary>
     [DataMember(Name = "AantalRijstroken", Order = 8)]
     [JsonProperty(Required = Required.Always)]
     public RoadSegmentLaneParameters AantalRijstroken { get; set; }
 }
 
+/// <summary>
+///     Aantal rijstroken van het wegsegment, en hun richting t.o.v. de richting van het wegsegment (begin- naar
+///     eindknoop).
+/// </summary>
 public class RoadSegmentLaneParameters
 {
     /// <summary>Aantal rijstroken van de wegsegmentschets (geheel getal tussen 1 en 10 of "niet gekend" of "niet van toepassing").</summary>

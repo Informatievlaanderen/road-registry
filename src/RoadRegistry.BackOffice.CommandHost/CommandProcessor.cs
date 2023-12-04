@@ -1,26 +1,24 @@
 namespace RoadRegistry.BackOffice.CommandHost;
 
+using Abstractions;
+using Be.Vlaanderen.Basisregisters.EventHandling;
+using Framework;
+using Hosts;
+using Messages;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using SqlStreamStore;
+using SqlStreamStore.Streams;
+using SqlStreamStore.Subscriptions;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using Abstractions;
-using Be.Vlaanderen.Basisregisters.Aws.DistributedMutex;
-using Be.Vlaanderen.Basisregisters.EventHandling;
-using Framework;
-using Hosts;
-using Messages;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using SqlStreamStore;
-using SqlStreamStore.Streams;
-using SqlStreamStore.Subscriptions;
 
-public class CommandProcessor : IHostedService
+public class CommandProcessor : RoadRegistryHostedService
 {
     private static readonly EventMapping CommandMapping = new EventMapping(RoadNetworkCommands.All.ToDictionary(command => command.Name));
 
@@ -29,7 +27,6 @@ public class CommandProcessor : IHostedService
     private static readonly JsonSerializerSettings SerializerSettings =
         EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
 
-    private readonly ILogger<CommandProcessor> _logger;
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
@@ -46,6 +43,7 @@ public class CommandProcessor : IHostedService
         RoadRegistryApplication applicationProcessor,
         DistributedStreamStoreLockOptions distributedStreamStoreLockOptions,
         ILogger<CommandProcessor> logger)
+        : base(logger)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
         ArgumentNullException.ThrowIfNull(positionStore);
@@ -53,8 +51,7 @@ public class CommandProcessor : IHostedService
 
         _scheduler = scheduler.ThrowIfNull();
         _applicationProcessor = applicationProcessor;
-        _logger = logger.ThrowIfNull();
-        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, queue, _logger);
+        _distributedStreamStoreLock = new DistributedStreamStoreLock(distributedStreamStoreLockOptions, queue, Logger);
 
         _messagePumpCancellation = new CancellationTokenSource();
         _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
@@ -214,6 +211,7 @@ public class CommandProcessor : IHostedService
             catch (Exception exception)
             {
                 logger.LogError(exception, "CommandProcessor message pump is exiting due to a bug.");
+                await StopAsync(_messagePumpCancellation.Token);
                 throw;
             }
             finally
@@ -223,23 +221,19 @@ public class CommandProcessor : IHostedService
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    protected override async Task StartingAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Starting command processor ...");
         await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
         await _messageChannel.Writer.WriteAsync(new Subscribe(), cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Started command processor.");
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken)
+    protected override async Task StoppingAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Stopping command processor ...");
         _messageChannel.Writer.Complete();
         _messagePumpCancellation.Cancel();
         await _messagePump.ConfigureAwait(false);
         _messagePumpCancellation.Dispose();
         await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("Stopped command processor.");
     }
 
     private static bool CanResumeFrom(SubscriptionDropped dropped)

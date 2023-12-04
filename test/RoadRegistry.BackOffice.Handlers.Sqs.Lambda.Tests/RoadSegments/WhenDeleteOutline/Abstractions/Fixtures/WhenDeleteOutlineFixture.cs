@@ -53,7 +53,6 @@ public abstract class WhenDeleteOutlineFixture : SqsLambdaHandlerFixture<DeleteR
         IdempotentCommandHandler,
         RoadRegistryContext,
         ChangeRoadNetworkDispatcher,
-        new FakeDistributedStreamStoreLockOptions(),
         new NullLogger<DeleteRoadSegmentOutlineSqsLambdaRequestHandler>()
     );
 

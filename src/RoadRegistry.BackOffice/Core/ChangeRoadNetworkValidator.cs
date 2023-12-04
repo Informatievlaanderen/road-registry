@@ -82,6 +82,7 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
                     change.ModifyRoadSegmentAttributes,
                     change.ModifyRoadSegmentGeometry,
                     change.RemoveRoadSegment,
+                    change.RemoveOutlinedRoadSegment,
                     change.AddRoadSegmentToEuropeanRoad,
                     change.RemoveRoadSegmentFromEuropeanRoad,
                     change.AddRoadSegmentToNationalRoad,

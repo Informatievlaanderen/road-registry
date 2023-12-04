@@ -41,13 +41,15 @@ internal class ApiKeyAuthenticator : IApiKeyAuthenticator
             return new ClaimsIdentity();
         }
 
-        var scopes = RoadRegistryRoles.GetScopes(RoadRegistryRoles.Admin);
+        var role = RoadRegistryRoles.Admin;
+        var scopes = RoadRegistryRoles.GetScopes(role);
 
         return new ClaimsIdentity(new Claim[]
             {
                 new("sub", apiKey),
                 new("active", true.ToString()),
-                new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName)
+                new(AcmIdmClaimTypes.VoApplicatieNaam, token.ClientName),
+                new(RoadRegistryClaim.ClaimType, RoadRegistryClaim.ConvertRoleToClaimValue(role))
             }.Concat(
                 scopes.Select(scope => new Claim(AcmIdmClaimTypes.Scope, scope))
             ), AuthenticationSchemes.ApiKey);

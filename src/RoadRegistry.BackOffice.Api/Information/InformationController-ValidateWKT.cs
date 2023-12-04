@@ -1,14 +1,13 @@
 namespace RoadRegistry.BackOffice.Api.Information;
 
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.Information;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Infrastructure.Authentication;
-using Infrastructure.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class InformationController
 {
@@ -26,10 +25,17 @@ public partial class InformationController
     [SwaggerOperation(OperationId = nameof(ValidateWKT), Description = "")]
     public async Task<ValidateWktContourResponse> ValidateWKT([FromBody] ValidateWktContourRequestBody model, CancellationToken cancellationToken)
     {
-        var request = new ValidateWktContourRequest(model.Contour ?? "");
-        var response = await _mediator.Send(request, cancellationToken);
+        try
+        {
+            var request = new ValidateWktContourRequest(model.Contour ?? string.Empty);
+            var response = await _mediator.Send(request, cancellationToken);
 
-        return response;
+            return response;
+        }
+        catch
+        {
+            return new ValidateWktContourResponse { IsValid = false };
+        }
     }
 }
 

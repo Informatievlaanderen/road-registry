@@ -8,7 +8,8 @@ using RoadRegistry.Tests.BackOffice;
 
 public class WhenChangeOutlineGeometryWithValidRequestFixture : WhenChangeOutlineGeometryFixture
 {
-    public WhenChangeOutlineGeometryWithValidRequestFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
+    public WhenChangeOutlineGeometryWithValidRequestFixture(IMediator mediator, EditorContext editorContext, IRoadSegmentRepository roadSegmentRepository)
+    	: base(mediator, editorContext, roadSegmentRepository)
     {
     }
 

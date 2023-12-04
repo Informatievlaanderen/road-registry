@@ -37,8 +37,7 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
         Assert.StartsWith(ExpectedErrorMessagePrefix, errMessage);
     }
 
-    [Fact]
-    public ICollection<ValidationFailure> ItShouldHaveValidationException()
+    private ICollection<ValidationFailure> ItShouldHaveValidationException()
     {
         var ex = Assert.IsType<ValidationException>(Fixture.Exception);
         var err = Assert.IsAssignableFrom<IEnumerable<ValidationFailure>>(ex.Errors);

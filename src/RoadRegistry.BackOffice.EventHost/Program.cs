@@ -1,11 +1,13 @@
 namespace RoadRegistry.BackOffice.EventHost;
 
-using System;
 using Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Core;
+using Extensions;
+using FeatureCompare;
+using FeatureCompare.Translators;
 using FeatureToggles;
 using Framework;
 using Handlers;
@@ -22,15 +24,13 @@ using NodaTime;
 using Snapshot.Handlers;
 using Snapshot.Handlers.Sqs;
 using SqlStreamStore;
-using System.Text;
 using System.Threading.Tasks;
-using Extensions;
-using FeatureCompare;
-using FeatureCompare.Translators;
 using Uploads;
 
 public class Program
 {
+    public const int HostingPort = 10013;
+
     private static readonly ApplicationMetadata ApplicationMetadata = new(RoadRegistryApplication.BackOffice);
 
     protected Program()
@@ -62,7 +62,8 @@ public class Program
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
                             new ZipArchiveFeatureCompareTranslator(
                                 sp.GetRequiredService<FileEncoding>(),
-                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>()
+                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>(),
+                                sp.GetRequiredService<UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle>()
                             ),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
@@ -91,8 +92,9 @@ public class Program
                     .AddSingleton(sp => AcceptStreamMessage.WhenEqualToMessageType(sp.GetRequiredService<EventHandlerModule[]>(), EventProcessor.EventMapping))
                     .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(sp.GetRequiredService<EventHandlerModule[]>())));
             })
-            .ConfigureHealthChecks(builder => builder
+            .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
+                .AddHostedServicesStatus()
                 .AddS3(x => x
                     .CheckPermission(WellknownBuckets.SnapshotsBucket, Permission.Read)
                     .CheckPermission(WellknownBuckets.SqsMessagesBucket, Permission.Read)

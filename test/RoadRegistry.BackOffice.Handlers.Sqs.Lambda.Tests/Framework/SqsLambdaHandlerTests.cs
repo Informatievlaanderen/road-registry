@@ -35,7 +35,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         var sqsLambdaRequest = new LinkStreetNameSqsLambdaRequest(Guid.NewGuid().ToString(), new LinkStreetNameSqsRequest
         {
-            Request = new LinkStreetNameRequest(1, null, null),
+            Request = new LinkStreetNameRequest(1, null, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()
@@ -76,10 +76,10 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
             new NullLogger<FakeLambdaHandler>());
 
         // Act
-        await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetwork.Identifier.ToString(), new LinkStreetNameSqsRequest
+        await sut.Handle(new LinkStreetNameSqsLambdaRequest(RoadNetworkStreamNameProvider.Default, new LinkStreetNameSqsRequest
         {
             IfMatchHeaderValue = "Outdated",
-            Request = new LinkStreetNameRequest(roadSegmentId, null, null),
+            Request = new LinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()
@@ -100,7 +100,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         var sqsLambdaRequest = new LinkStreetNameSqsLambdaRequest(Guid.NewGuid().ToString(), new LinkStreetNameSqsRequest
         {
-            Request = new LinkStreetNameRequest(0, null, null),
+            Request = new LinkStreetNameRequest(0, null, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()
@@ -130,7 +130,7 @@ public sealed class SqsLambdaHandlerTests : BackOfficeLambdaTest
 
         var sqsLambdaRequest = new LinkStreetNameSqsLambdaRequest(Guid.NewGuid().ToString(), new LinkStreetNameSqsRequest
         {
-            Request = new LinkStreetNameRequest(0, null, null),
+            Request = new LinkStreetNameRequest(0, null, null, null),
             TicketId = Guid.NewGuid(),
             Metadata = new Dictionary<string, object?>(),
             ProvenanceData = ObjectProvider.Create<ProvenanceData>()

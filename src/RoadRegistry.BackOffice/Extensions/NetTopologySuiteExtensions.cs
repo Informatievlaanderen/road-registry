@@ -142,7 +142,7 @@ public static class NetTopologySuiteExtensions
         }
 
         if (previousLane != null
-            && !previousLane.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.DynamicRoadSegmentAttributePositionTolerance))
+            && !previousLane.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.MeasurementTolerance))
         {
             problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(
                 previousLane.TemporaryId,
@@ -197,7 +197,7 @@ public static class NetTopologySuiteExtensions
         }
 
         if (previousWidth != null
-            && !previousWidth.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.DynamicRoadSegmentAttributePositionTolerance))
+            && !previousWidth.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.MeasurementTolerance))
         {
             problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(
                 previousWidth.TemporaryId,
@@ -252,7 +252,7 @@ public static class NetTopologySuiteExtensions
         }
 
         if (previousSurface != null
-            && !previousSurface.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.DynamicRoadSegmentAttributePositionTolerance))
+            && !previousSurface.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.MeasurementTolerance))
         {
             problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
                 previousSurface.TemporaryId, previousSurface.To, line.Length));

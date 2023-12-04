@@ -5,13 +5,17 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.EventHandling;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoadRegistry.BackOffice;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
+using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using Xunit.Sdk;
 
 public class FeatureCompareZipArchiveTranslatorTests
@@ -23,7 +27,7 @@ public class FeatureCompareZipArchiveTranslatorTests
     public FeatureCompareZipArchiveTranslatorTests(ITestOutputHelper outputHelper, ILogger<FeatureCompareZipArchiveTranslatorTests> logger)
     {
         _outputHelper = outputHelper;
-        _sut = new ZipArchiveFeatureCompareTranslator(Encoding.UTF8, logger);
+        _sut = new ZipArchiveFeatureCompareTranslator(Encoding.UTF8, logger, new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true));
         _zipArchiveTranslator = new ZipArchiveTranslator(Encoding.UTF8);
     }
 
@@ -31,6 +35,56 @@ public class FeatureCompareZipArchiveTranslatorTests
     public void ArchiveCanNotBeNull()
     {
         Assert.ThrowsAsync<ArgumentNullException>(() => _sut.Translate(null, CancellationToken.None));
+    }
+
+    [Fact(Skip = "For debugging purposes, local feature compare testing")]
+    //[Fact]
+    public async Task RunZipArchiveFeatureCompareTranslator()
+    {
+        var pathArchive = @"upload.zip";
+
+        try
+        {
+            using (var archiveStream = File.OpenRead(pathArchive))
+            using (var archive = new ZipArchive(archiveStream))
+            {
+                var archiveValidationProblems = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8)
+                    .Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+
+                var sw = Stopwatch.StartNew();
+                _outputHelper.WriteLine("Started translate Before-FC");
+                var translatedChanges = await _sut.Translate(archive, CancellationToken.None);
+                _outputHelper.WriteLine($"Finished translate Before-FC at {sw.Elapsed}");
+
+                await ValidateTranslatedChanges(translatedChanges);
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    private async Task ValidateTranslatedChanges(TranslatedChanges translatedChanges)
+    {
+        var requestedChanges = new List<RequestedChange>();
+        foreach (var change in translatedChanges)
+        {
+            var requestedChange = new RequestedChange();
+            change.TranslateTo(requestedChange);
+            requestedChanges.Add(requestedChange);
+        }
+
+        var changeRoadNetwork = new ChangeRoadNetwork
+        {
+            RequestId = ChangeRequestId.FromUploadId(new UploadId(Guid.NewGuid())),
+            DownloadId = new DownloadId(),
+            Changes = requestedChanges.ToArray(),
+            Reason = translatedChanges.Reason,
+            Operator = translatedChanges.Operator,
+            OrganizationId = translatedChanges.Organization
+        };
+        await new ChangeRoadNetworkValidator().ValidateAndThrowAsync(changeRoadNetwork, CancellationToken.None);
     }
 
     [Fact(Skip = "For debugging purposes, local feature compare testing only due to big archive files")]

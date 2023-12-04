@@ -34,7 +34,7 @@ internal static class LineStringExtensions
                             new Coordinate(Math.Round(fromPoint.X, Precisions.MeasurementPrecision), Math.Round(fromPoint.Y, Precisions.MeasurementPrecision)),
                             new Coordinate(Math.Round(toPoint.X, Precisions.MeasurementPrecision), Math.Round(toPoint.Y, Precisions.MeasurementPrecision))
                         })
-                    , GeometryConfiguration.GeometryFactory);
+                    , WellKnownGeometryFactories.Default);
             fromPoint = toPoint;
         }
 

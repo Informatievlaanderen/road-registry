@@ -1,11 +1,5 @@
 namespace RoadRegistry.Hosts;
 
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
@@ -13,14 +7,19 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.Runner;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SqlStreamStore;
 using SqlStreamStore.Streams;
 using SqlStreamStore.Subscriptions;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 
-public abstract class DbContextEventProcessor<TDbContext> : IHostedService
+public abstract class DbContextEventProcessor<TDbContext> : RoadRegistryHostedService
     where TDbContext : RunnerDbContext<TDbContext>
 {
     private const int CatchUpBatchSize = 500;
@@ -29,7 +28,6 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
     public static readonly EventMapping EventMapping = new(EventMapping.DiscoverEventNamesInAssembly(typeof(RoadNetworkEvents).Assembly));
     private static readonly TimeSpan ResubscribeAfter = TimeSpan.FromSeconds(5);
     public static readonly JsonSerializerSettings SerializerSettings = EventsJsonSerializerSettingsProvider.CreateSerializerSettings();
-    private readonly ILogger<DbContextEventProcessor<TDbContext>> _logger;
     private readonly Channel<object> _messageChannel;
     private readonly Task _messagePump;
     private readonly CancellationTokenSource _messagePumpCancellation;
@@ -62,6 +60,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         ILogger<DbContextEventProcessor<TDbContext>> logger,
         int catchUpBatchSize = CatchUpBatchSize,
         int catchUpThreshold = CatchUpThreshold)
+        : base(logger)
     {
         ArgumentNullException.ThrowIfNull(streamStore);
         ArgumentNullException.ThrowIfNull(filter);
@@ -69,10 +68,8 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(dbContextFactory);
         ArgumentNullException.ThrowIfNull(scheduler);
-        ArgumentNullException.ThrowIfNull(logger);
 
         _scheduler = scheduler;
-        _logger = logger;
 
         _messagePumpCancellation = new CancellationTokenSource();
         _messageChannel = Channel.CreateUnbounded<object>(new UnboundedChannelOptions
@@ -287,6 +284,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                 {
                                     logger.LogInformation("{EventProcessor} Processing {MessageType} at {Position}",
                                         GetType().Name, process.Message.Type, process.Message.Position);
+                                    sw.Restart();
 
                                     var envelope = envelopeFactory.Create(process.Message);
                                     var handlers = resolver(envelope);
@@ -306,8 +304,7 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
                                             process.Message.Position,
                                             _messagePumpCancellation.Token).ConfigureAwait(false);
                                         await UpdateEventProcessorMetricsAsync(processContext, process.Message.Position, process.Message.Position, sw.ElapsedMilliseconds, _messagePumpCancellation.Token);
-                                        sw.Restart();
-
+                                        
                                         processContext.ChangeTracker.DetectChanges();
                                         await processContext.SaveChangesAsync(_messagePumpCancellation.Token).ConfigureAwait(false);
                                     }
@@ -380,23 +377,19 @@ public abstract class DbContextEventProcessor<TDbContext> : IHostedService
         }, _messagePumpCancellation.Token, TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach, TaskScheduler.Default);
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    protected override async Task StartingAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("{EventProcessor} Starting ...", GetType().Name);
         await _scheduler.StartAsync(cancellationToken).ConfigureAwait(false);
         await _messageChannel.Writer.WriteAsync(new Resume(), cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("{EventProcessor} Started.", GetType().Name);
     }
 
-    public async Task StopAsync(CancellationToken cancellationToken)
+    protected override async Task StoppingAsync(CancellationToken cancellationToken)
     {
-        _logger.LogInformation("{EventProcessor} Stopping ...", GetType().Name);
         _messageChannel.Writer.Complete();
         _messagePumpCancellation.Cancel();
         await _messagePump.ConfigureAwait(false);
         _messagePumpCancellation.Dispose();
         await _scheduler.StopAsync(cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("{EventProcessor} Stopped.", GetType().Name);
     }
 
     private static bool CanResumeFrom(SubscriptionDropped dropped)

@@ -1,8 +1,10 @@
 namespace RoadRegistry.Hosts.Infrastructure.Extensions;
 
 using System;
+using System.Configuration;
 using Amazon;
 using BackOffice;
+using BackOffice.Core;
 using BackOffice.FeatureToggles;
 using Be.Vlaanderen.Basisregisters.DataDog.Tracing.Sql.EntityFrameworkCore;
 using Editor.Schema;
@@ -11,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RoadRegistry.RoadNetwork.Schema;
 using SqlStreamStore;
 using StreetNameConsumer.Schema;
 using Syndication.Schema;
@@ -67,13 +70,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddDistributedStreamStoreLockOptions(this IServiceCollection services)
     {
         services.AddSingleton<DistributedStreamStoreLockOptionsValidator>();
-
+        
         return services.AddSingleton(sp =>
         {
             var configuration = sp.GetRequiredService<IConfiguration>();
-
-            var config = new DistributedStreamStoreLockConfiguration();
-            configuration.GetSection(DistributedStreamStoreLockConfiguration.SectionName).Bind(config);
+            var config = configuration.GetOptions<DistributedStreamStoreLockConfiguration>();
 
             return new DistributedStreamStoreLockOptions
             {
@@ -86,7 +87,8 @@ public static class ServiceCollectionExtensions
                 TerminateApplicationOnFailedRenew = config.TerminateApplicationOnFailedRenew,
                 ThrowOnFailedAcquire = config.ThrowOnFailedAcquire,
                 TerminateApplicationOnFailedAcquire = config.TerminateApplicationOnFailedAcquire,
-                Enabled = config.Enabled
+                Enabled = config.Enabled,
+                AcquireLockRetryDelaySeconds = config.AcquireLockRetryDelaySeconds
             };
         });
     }
@@ -153,6 +155,25 @@ public static class ServiceCollectionExtensions
             ;
 
         return services;
+    }
+
+    public static IServiceCollection AddRoadNetworkDbIdGenerator(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton(sp => new TraceDbConnection<RoadNetworkDbContext>(
+                new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.Events)),
+                sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
+            .AddDbContext<RoadNetworkDbContext>((sp, options) => options
+                .UseLoggerFactory(sp.GetService<ILoggerFactory>())
+                .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                .UseSqlServer(
+                    sp.GetRequiredService<TraceDbConnection<RoadNetworkDbContext>>(),
+                    sqlOptions => sqlOptions
+                        .UseNetTopologySuite()
+                        .MigrationsHistoryTable("__EFMigrationsHistory", RoadNetworkDbContext.Schema)
+                )
+            )
+            .AddScoped<IRoadNetworkIdGenerator, RoadNetworkDbIdGenerator>();
     }
 }
 

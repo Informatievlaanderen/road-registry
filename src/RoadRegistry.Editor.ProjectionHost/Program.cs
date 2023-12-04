@@ -22,9 +22,12 @@ using Projections;
 using Schema;
 using System.Threading;
 using System.Threading.Tasks;
+using Hosts.Infrastructure.Extensions;
 
 public class Program
 {
+    public const int HostingPort = 10014;
+
     protected Program()
     {
     }
@@ -111,8 +114,9 @@ public class Program
                 new ExtractUploadRecordProjection()
             })
         )
-        .ConfigureHealthChecks(builder => builder
+        .ConfigureHealthChecks(HostingPort, builder => builder
             .AddSqlServer()
+            .AddHostedServicesStatus()
             .AddS3(x => x
                 .CheckPermission(WellknownBuckets.UploadsBucket, Permission.Read)
             )

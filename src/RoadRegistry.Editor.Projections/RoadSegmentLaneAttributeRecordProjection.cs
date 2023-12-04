@@ -1,10 +1,5 @@
 namespace RoadRegistry.Editor.Projections;
 
-using System;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using BackOffice;
 using BackOffice.Extracts.Dbase.RoadSegments;
 using BackOffice.Messages;
@@ -13,6 +8,12 @@ using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IO;
 using Schema;
+using System;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Schema.Extensions;
 
 public class RoadSegmentLaneAttributeRecordProjection : ConnectedProjection<EditorContext>
 {

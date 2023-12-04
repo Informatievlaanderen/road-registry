@@ -1,7 +1,7 @@
 namespace RoadRegistry.BackOffice.DutchTranslations;
 
-using System;
 using Core;
+using System;
 using Uploads;
 using Uploads.Dbase.AfterFeatureCompare.V2.Schema;
 using FileProblem = Messages.FileProblem;
@@ -25,11 +25,15 @@ public static class FileProblemTranslator
             nameof(DbaseFileProblems.RequiredFieldIsNull) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft geen waarde voor veld {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.IdentifierNotUnique) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat dezelfde identifier {problem.Parameters[1].Value} als dbase record {problem.Parameters[2].Value}." },
             nameof(DbaseFileProblems.IdentifierNotUniqueButAllowed) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} ({problem.Parameters[1].Value}) bevat dezelfde identifier {problem.Parameters[2].Value} als dbase record {problem.Parameters[3].Value} ({problem.Parameters[4].Value})." },
+            nameof(DbaseFileProblems.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} (iWegsegment.dbf) bevat dezelfde identifier {problem.Parameters[1].Value} als dbase record {problem.Parameters[2].Value} (Wegsegment.dbf)." },
+            nameof(DbaseFileProblems.RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} (iWegknoop.dbf) bevat dezelfde identifier {problem.Parameters[1].Value} als dbase record {problem.Parameters[2].Value} (Wegknoop.dbf)." },
             nameof(DbaseFileProblems.RoadSegmentIdOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft een ongeldige wegsegment identificator: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.RoadNodeIdOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft een ongeldige wegknoop identificator: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.NotNumberedRoadNumber) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een nummer {problem.Parameters[1].Value} dat geen genummerd wegnummer is." },
             nameof(DbaseFileProblems.NotEuropeanRoadNumber) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een nummer {problem.Parameters[1].Value} dat geen europees wegnummer is." },
+            nameof(DbaseFileProblems.EuropeanRoadNotUnique) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} met EU_OIDN {problem.Parameters[1].Value} heeft hetzelfde WS_OIDN en EUNUMMER als de dbase record {problem.Parameters[2].Value} met EU_OIDN {problem.Parameters[3].Value}." },
             nameof(DbaseFileProblems.NotNationalRoadNumber) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een nummer {problem.Parameters[1].Value} dat geen nationaal wegnummer is." },
+            nameof(DbaseFileProblems.NationalRoadNotUnique) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} met NW_OIDN {problem.Parameters[1].Value} heeft hetzelfde WS_OIDN en IDENT2 als de dbase record {problem.Parameters[2].Value} met NW_OIDN {problem.Parameters[3].Value}." },
             nameof(DbaseFileProblems.FromPositionOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige van positie: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.ToPositionOutOfRange) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} bevat een ongeldige tot positie: {problem.Parameters[1].Value}." },
             nameof(DbaseFileProblems.FromPositionEqualToOrGreaterThanToPosition) => translation with { Message = $"De dbase record {problem.Parameters[0].Value} heeft een van positie ({problem.Parameters[1].Value}) die gelijk aan of groter dan de tot positie ({problem.Parameters[2].Value}) is." },

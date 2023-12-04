@@ -50,7 +50,6 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
             _logger.LogInformation("Received email request for destination {Destination} and subject {Subject}", string.Join(", ", emailRequest.Destination.ToAddresses), emailRequest.Content.Simple.Subject.Data);
             await _emailClient.SendEmailAsync(emailRequest, cancellationToken);
             _logger.LogInformation("Sent email request for destination {Destination} and subject {Subject} with body {Body}", string.Join(", ", emailRequest.Destination.ToAddresses), emailRequest.Content.Simple.Subject.Data, emailRequest.Content.Simple.Body.Text.Data);
-
         }
         catch (Exception) when (emailRequest is null)
         {
@@ -106,6 +105,22 @@ internal class ExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
     }
 }
 
+public class NotConfiguredExtractUploadFailedEmailClient : IExtractUploadFailedEmailClient
+{
+    private readonly ILogger<NotConfiguredExtractUploadFailedEmailClient> _logger;
+
+    public NotConfiguredExtractUploadFailedEmailClient(ILogger<NotConfiguredExtractUploadFailedEmailClient> logger)
+    {
+        _logger = logger;
+    }
+
+    public Task SendAsync(string extractDescription, Exception ex, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Received email request, but client is not configured so not doing anything");
+
+        return Task.CompletedTask;
+    }
+}
 public interface IExtractUploadFailedEmailClient
 {
     Task SendAsync(string extractDescription, Exception ex, CancellationToken cancellationToken);

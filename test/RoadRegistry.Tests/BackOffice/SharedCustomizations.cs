@@ -49,15 +49,12 @@ public static class SharedCustomizations
                         fixture.Create<CrabStreetnameId?>(),
                         fixture.Create<CrabStreetnameId?>(),
                         fixture.Create<OrganizationId>(),
-                        fixture.Create<RoadSegmentGeometryDrawMethod>(),
-                        fixture.CreateMany<RoadSegmentLaneAttribute>(generator.Next(1, 5)).ToArray(),
-                        fixture.CreateMany<RoadSegmentSurfaceAttribute>(generator.Next(1, 5)).ToArray(),
-                        fixture.CreateMany<RoadSegmentWidthAttribute>(generator.Next(1, 5)).ToArray()
+                        fixture.Create<RoadSegmentGeometryDrawMethod>()
                     );
                     var times = generator.Next(0, 10);
                     for (var index = 0; index < times; index++)
                     {
-                        switch (generator.Next(0, 11))
+                        switch (generator.Next(0, 8))
                         {
                             case 0:
                                 result = result.With(fixture.Create<RoadSegmentCategory>());
@@ -83,24 +80,7 @@ public static class SharedCustomizations
                             case 7:
                                 result = result.With(fixture.Create<RoadSegmentGeometryDrawMethod>());
                                 break;
-                            case 8:
-                                result = result.With(fixture.CreateMany<RoadSegmentLaneAttribute>(generator.Next(1, 5)).ToArray());
-                                break;
-                            case 9:
-                                result = result.With(fixture.CreateMany<RoadSegmentSurfaceAttribute>(generator.Next(1, 5)).ToArray());
-                                break;
-                            case 10:
-                                result = result.With(fixture.CreateMany<RoadSegmentWidthAttribute>(generator.Next(1, 5)).ToArray());
-                                break;
                         }
-                    }
-
-                    if (result.GeometryDrawMethod == RoadSegmentGeometryDrawMethod.Outlined)
-                    {
-                        result = result
-                            .With(result.Lanes.Take(1).ToArray())
-                            .With(result.Surfaces.Take(1).ToArray())
-                            .With(result.Widths.Take(1).ToArray());
                     }
 
                     return result;

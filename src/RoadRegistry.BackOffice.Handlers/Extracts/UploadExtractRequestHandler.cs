@@ -56,29 +56,29 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             throw new DownloadExtractNotFoundException("Could not find extract with empty download identifier");
         }
 
-        if (!Guid.TryParseExact(request.DownloadId, "N", out var parsedDownloadId))
+        if (!DownloadId.TryParse(request.DownloadId, out var downloadId))
         {
-            throw new UploadExtractNotFoundException($"Could not upload the extract with filename {request.Archive.FileName}");
+            throw new InvalidGuidValidationException(nameof(request.DownloadId));
         }
 
-        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { parsedDownloadId }, cancellationToken);
+        var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
         if (extractRequest is null)
         {
-            var ex = new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+            var ex = new ExtractDownloadNotFoundException(downloadId);
             await _emailClient.SendAsync(null, ex, cancellationToken);
             throw ex;
         }
         if (extractRequest.IsInformative)
         {
-            var ex = new ExtractRequestMarkedInformativeException(new DownloadId(parsedDownloadId));
+            var ex = new ExtractRequestMarkedInformativeException(downloadId);
             await _emailClient.SendAsync(extractRequest.Description, ex, cancellationToken);
             throw ex;
         }
 
-        var download = await _context.ExtractDownloads.FindAsync(new object[] { parsedDownloadId }, cancellationToken);
+        var download = await _context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
         if (download is null)
         {
-            var ex = new ExtractDownloadNotFoundException(new DownloadId(parsedDownloadId));
+            var ex = new ExtractDownloadNotFoundException(downloadId);
             await _emailClient.SendAsync(null, ex, cancellationToken);
             throw ex;
         }
@@ -102,8 +102,8 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             {
                 RequestId = download.RequestId,
                 DownloadId = download.DownloadId,
-                UploadId = uploadId.ToGuid(),
-                ArchiveId = archiveId.ToString(),
+                UploadId = uploadId,
+                ArchiveId = archiveId,
                 UseZipArchiveFeatureCompareTranslator = request.UseZipArchiveFeatureCompareTranslator
             });
 

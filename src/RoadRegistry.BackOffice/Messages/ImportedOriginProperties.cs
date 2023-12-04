@@ -1,8 +1,8 @@
-﻿namespace RoadRegistry.BackOffice.Messages;
+namespace RoadRegistry.BackOffice.Messages;
 
 using System;
 
-public class ImportedOriginProperties
+public class ImportedOriginProperties: IHaveTransactionId
 {
     public string Application { get; set; }
     public string Operator { get; set; }

@@ -27,4 +27,13 @@ public class RoadRegistryClaimTests
 
         Assert.Null(sut);
     }
+
+    [Theory]
+    [InlineData("admin", "DVWegenregister-admin")]
+    [InlineData("editeerder", "DVWegenregister-editeerder")]
+    [InlineData("lezer", "DVWegenregister-lezer")]
+    public void CanCreateClaimValueCorrectly(string role, string expected)
+    {
+        Assert.Equal(expected, RoadRegistryClaim.ConvertRoleToClaimValue(role));
+    }
 }

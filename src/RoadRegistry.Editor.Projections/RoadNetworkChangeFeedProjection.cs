@@ -5,9 +5,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BackOffice;
+using BackOffice.Core;
 using BackOffice.DutchTranslations;
 using BackOffice.Messages;
 using Be.Vlaanderen.Basisregisters.BlobStore;
+using Be.Vlaanderen.Basisregisters.EventHandling;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.Connector;
 using Be.Vlaanderen.Basisregisters.ProjectionHandling.SqlStreamStore;
 using DutchTranslations;
@@ -93,6 +95,11 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractDownloadTimeoutOccurred>>(async (context, envelope, ct) =>
         {
+            if (!MessageIsFromDefaultRoadNetwork(envelope))
+            {
+                return;
+            }
+
             var content = new RoadNetworkExtractDownloadTimeoutOccurredEntry
             {
                 RequestId = envelope.Message.RequestId,
@@ -112,6 +119,11 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkChangesArchiveUploaded>>(async (context, envelope, ct) =>
         {
+            if (!MessageIsFromDefaultRoadNetwork(envelope))
+            {
+                return;
+            }
+
             var content = new RoadNetworkChangesArchiveUploadedEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId }
@@ -144,6 +156,11 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
         {
+            if (!MessageIsFromDefaultRoadNetwork(envelope))
+            {
+                return;
+            }
+
             var content = new RoadNetworkExtractChangesArchiveUploadedEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
@@ -176,6 +193,11 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkChangesArchiveRejected>>(async (context, envelope, ct) =>
         {
+            if (!MessageIsFromDefaultRoadNetwork(envelope))
+            {
+                return;
+            }
+
             var content = new RoadNetworkChangesArchiveRejectedEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
@@ -214,6 +236,11 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractChangesArchiveRejected>>(async (context, envelope, ct) =>
         {
+            if (!MessageIsFromDefaultRoadNetwork(envelope))
+            {
+                return;
+            }
+
             var content = new RoadNetworkExtractChangesArchiveRejectedEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
@@ -252,12 +279,19 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkChangesAccepted>>(async (context, envelope, ct) =>
         {
+            if (!MessageIsFromDefaultRoadNetwork(envelope))
+            {
+                return;
+            }
+
+            var changeRequestId = ChangeRequestId.FromString(envelope.Message.RequestId);
+
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
                               .FirstOrDefault(r =>
-                                  r.ChangeRequestId == ChangeRequestId.FromString(envelope.Message.RequestId).ToBytes()
+                                  r.ChangeRequestId == changeRequestId.ToBytes()
                                       .ToArray())
-                          ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(ChangeRequestId
-                              .FromString(envelope.Message.RequestId).ToBytes().ToArray());
+                          ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(changeRequestId.ToBytes().ToArray());
+            
             var content = new RoadNetworkChangesBasedOnArchiveAcceptedEntry
             {
                 Archive = new ArchiveInfo { Id = request?.ArchiveId },
@@ -284,7 +318,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             }
 
             var description = envelope.Message.Reason;
-            var changeRequestId = envelope.Message.RequestId;
 
             await context.RoadNetworkChanges.AddAsync(
                 new RoadNetworkChange
@@ -299,12 +332,18 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkChangesRejected>>(async (context, envelope, ct) =>
         {
+            if (!MessageIsFromDefaultRoadNetwork(envelope))
+            {
+                return;
+            }
+
+            var changeRequestId = ChangeRequestId.FromString(envelope.Message.RequestId);
+            
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
                               .FirstOrDefault(r =>
-                                  r.ChangeRequestId == ChangeRequestId.FromString(envelope.Message.RequestId).ToBytes()
+                                  r.ChangeRequestId == changeRequestId.ToBytes()
                                       .ToArray())
-                          ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(ChangeRequestId
-                              .FromString(envelope.Message.RequestId).ToBytes().ToArray());
+                          ?? context.RoadNetworkChangeRequestsBasedOnArchive.Find(changeRequestId.ToBytes().ToArray());
             var content = new RoadNetworkChangesBasedOnArchiveRejectedEntry
             {
                 Archive = new ArchiveInfo { Id = request?.ArchiveId },
@@ -316,7 +355,7 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                             .Select(problem => new ProblemWithChange
                             {
                                 Severity = problem.Severity.ToString(),
-                                Text = BackOffice.DutchTranslations.ProblemTranslator.Dutch(problem).Message
+                                Text = ProblemTranslator.Dutch(problem).Message
                             })
                             .ToArray()
                     })
@@ -329,7 +368,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
             }
 
             var description = envelope.Message.Reason;
-            var changeRequestId = envelope.Message.RequestId;
 
             await context.RoadNetworkChanges.AddAsync(
                 new RoadNetworkChange
@@ -344,6 +382,11 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<NoRoadNetworkChanges>>(async (context, envelope, ct) =>
         {
+            if (!MessageIsFromDefaultRoadNetwork(envelope))
+            {
+                return;
+            }
+
             var request = context.RoadNetworkChangeRequestsBasedOnArchive.Local
                               .FirstOrDefault(r =>
                                   r.ChangeRequestId == ChangeRequestId.FromString(envelope.Message.RequestId).ToBytes()
@@ -374,6 +417,12 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
                     When = envelope.Message.When
                 }, ct);
         });
+    }
+
+    private static bool MessageIsFromDefaultRoadNetwork<T>(Envelope<T> envelope)
+        where T : IMessage
+    {
+        return envelope.StreamId == RoadNetworkStreamNameProvider.Default;
     }
 
     private static async Task EnrichWithArchiveInformation(string archiveId, ArchiveInfo archiveInfo, IBlobClient client, CancellationToken ct)

@@ -34,11 +34,27 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         problems += ReadShapeFile(features, archive, featureType, fileName, context);
         problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
 
-        if (featureType == FeatureType.Change)
+        switch (featureType)
         {
-            problems += archive.ValidateMissingRoadNodes(features, fileName, context);
+            case FeatureType.Change:
+                problems += archive.ValidateMissingRoadNodes(features, fileName, context);
 
-            AddToContext(features, featureType, context);
+                AddToContext(features, featureType, context);
+                break;
+            case FeatureType.Integration:
+                problems = ZipArchiveProblems.None + problems
+                    .GetMissingOrInvalidFileProblems()
+                    .Where(x => !x.File.Equals(featureType.GetProjectionFileName(fileName), StringComparison.InvariantCultureIgnoreCase));
+
+                foreach (var feature in features)
+                {
+                    if (context.ChangedRoadSegments.TryGetValue(feature.Attributes.Id, out var knownRoadSegment))
+                    {
+                        var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                        problems += recordContext.RoadSegmentIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.Id, knownRoadSegment.RecordNumber);
+                    }
+                }
+                break;
         }
 
         return (features, problems);
@@ -153,15 +169,15 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
         {
             throw new NotSupportedException($"Only {FeatureType.Change} features can be added to the context");
         }
-        
+
         foreach (var feature in features)
         {
-            if (context.KnownRoadSegments.ContainsKey(feature.Attributes.Id))
+            if (context.ChangedRoadSegments.ContainsKey(feature.Attributes.Id))
             {
                 continue;
             }
 
-            context.KnownRoadSegments.Add(feature.Attributes.Id, feature);
+            context.ChangedRoadSegments.Add(feature.Attributes.Id, feature);
         }
     }
 

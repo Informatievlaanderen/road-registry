@@ -1,0 +1,17 @@
+{
+  "Records": [
+    {
+      "messageId": "19dd0b57-b21e-4ac1-bd88-01bbb068cb78",
+      "receiptHandle": "MessageReceiptHandle",
+      "body": "{\"type\":\"RoadRegistry.BackOffice.Handlers.Sqs.RoadSegments.ChangeRoadSegmentsDynamicAttributesSqsRequest\",\"data\":\"{\\\"request\\\":{\\\"changeRequests\\\":[{\\\"id\\\":481109,\\\"widths\\\":[{\\\"fromPosition\\\":0,\\\"toPosition\\\":99999,\\\"width\\\":3}]}]},\\\"ticketId\\\":\\\"0187093e-3147-4f12-b2a8-f7b664cf1faf\\\",\\\"provenanceData\\\":{\\\"timestamp\\\":\\\"2023-03-22T12:14:43.4565945Z\\\",\\\"application\\\":\\\"roadRegistry\\\",\\\"modification\\\":\\\"insert\\\",\\\"operator\\\":\\\"-8\\\",\\\"organisation\\\":\\\"agiv\\\",\\\"reason\\\":\\\"\\\"},\\\"metadata\\\":{\\\"userId\\\":null,\\\"correlationId\\\":\\\"0HMPAPS1TG0TI:00000002\\\"}}\"}",
+      "attributes": {
+        "MessageGroupId": ""
+      },
+      "messageAttributes": {},
+      "md5OfBody": "7b270e59b47ff90a553787216d55d91d",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:{partition}:sqs:euwest1:123456789012:MyQueue",
+      "awsRegion": "euwest1"
+    }
+  ]
+}

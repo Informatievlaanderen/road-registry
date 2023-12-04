@@ -7,13 +7,16 @@ using Microsoft.IO;
 
 public static class DbaseRecordExtensions
 {
-    public static void FromBytes(this DbaseRecord record, byte[] bytes, RecyclableMemoryStreamManager manager, Encoding encoding)
+    public static T FromBytes<T>(this T record, byte[] bytes, RecyclableMemoryStreamManager manager, Encoding encoding)
+        where T : DbaseRecord
     {
         using (var input = manager.GetStream(bytes))
         using (var reader = new BinaryReader(input, encoding))
         {
             record.Read(reader);
         }
+
+        return record;
     }
 
     public static byte[] ToBytes(this DbaseRecord record, RecyclableMemoryStreamManager manager, Encoding encoding)

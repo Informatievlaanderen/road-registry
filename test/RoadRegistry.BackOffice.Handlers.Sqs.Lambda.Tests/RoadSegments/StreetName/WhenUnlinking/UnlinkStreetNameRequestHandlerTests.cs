@@ -73,7 +73,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await GivenSegment1Added();
 
         //Act
-        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, StreetNamePuri(WellKnownStreetNameIds.Proposed), StreetNamePuri(WellKnownStreetNameIds.Proposed)));
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, StreetNamePuri(WellKnownStreetNameIds.Proposed), StreetNamePuri(WellKnownStreetNameIds.Proposed)));
 
         //Assert
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
@@ -82,6 +82,10 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         var command = await Store.GetLastCommand<RoadNetworkChangesAccepted>();
         var roadSegmentModified = command!.Changes.Single().RoadSegmentModified;
+
+        Xunit.Assert.NotEmpty(roadSegmentModified.Lanes);
+        Xunit.Assert.NotEmpty(roadSegmentModified.Surfaces);
+        Xunit.Assert.NotEmpty(roadSegmentModified.Widths);
         Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.LeftSide.StreetNameId);
         Xunit.Assert.Equal(CrabStreetnameId.NotApplicable, roadSegmentModified.RightSide.StreetNameId);
     }
@@ -91,7 +95,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
     {
         var validator = new UnlinkStreetNameRequestValidator();
 
-        var validationResult = validator.Validate(new UnlinkStreetNameRequest(new RoadSegmentId(1), null, null));
+        var validationResult = validator.Validate(new UnlinkStreetNameRequest(new RoadSegmentId(1), RoadSegmentGeometryDrawMethod.Measured, null, null));
 
         var error = validationResult.Errors.TranslateToDutch().Single();
         Xunit.Assert.Equal("request", error.PropertyName);
@@ -112,7 +116,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         //Act
         var linkerstraatnaamPuri = StreetNamePuri(WellKnownStreetNameIds.Proposed);
-        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, linkerstraatnaamPuri, null));
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, linkerstraatnaamPuri, null));
 
         //Assert
         VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
@@ -131,7 +135,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         //Act
         var linkerstraatnaamPuri = StreetNamePuri(WellKnownStreetNameIds.Current);
-        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, linkerstraatnaamPuri, null));
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, linkerstraatnaamPuri, null));
 
         //Assert
         VerifyThatTicketHasError(ticketing, "LinkerstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de linkerstraatnaam '{linkerstraatnaamPuri}'");
@@ -149,7 +153,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await GivenSegment1Added();
 
         //Act
-        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, StreetNamePuri(WellKnownStreetNameIds.Proposed), null));
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, StreetNamePuri(WellKnownStreetNameIds.Proposed), null));
 
         //Assert
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
@@ -173,7 +177,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         //Act
         var rechterstraatnaamPuri = StreetNamePuri(WellKnownStreetNameIds.Proposed);
-        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, null, rechterstraatnaamPuri));
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, rechterstraatnaamPuri));
 
         //Assert
         VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
@@ -192,7 +196,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
 
         //Act
         var rechterstraatnaamPuri = StreetNamePuri(WellKnownStreetNameIds.Current);
-        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, null, rechterstraatnaamPuri));
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, rechterstraatnaamPuri));
 
         //Assert
         VerifyThatTicketHasError(ticketing, "RechterstraatnaamNietGekoppeld", $"Het wegsegment '{roadSegmentId}' is niet gekoppeld aan de rechterstraatnaam '{rechterstraatnaamPuri}'");
@@ -210,7 +214,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await GivenSegment1Added();
 
         //Act
-        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, null, StreetNamePuri(WellKnownStreetNameIds.Proposed)));
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, null, StreetNamePuri(WellKnownStreetNameIds.Proposed)));
 
         //Assert
         var roadNetwork = await RoadRegistryContext.RoadNetworks.Get(CancellationToken.None);
@@ -231,7 +235,7 @@ public class UnlinkStreetNameRequestHandlerTests : LinkUnlinkStreetNameTestsBase
         await GivenSegment1Added();
 
         //Act
-        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, StreetNamePuri(99999), null));
+        await HandleRequest(ticketing.Object, new UnlinkStreetNameRequest(roadSegmentId, RoadSegmentGeometryDrawMethod.Measured, StreetNamePuri(99999), null));
 
         //Assert
         VerifyThatTicketHasError(ticketing, "NotFound", $"Het wegsegment met id {roadSegmentId} bestaat niet.");

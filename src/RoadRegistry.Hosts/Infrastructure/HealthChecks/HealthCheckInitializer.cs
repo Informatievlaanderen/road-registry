@@ -1,6 +1,9 @@
 namespace RoadRegistry.Hosts.Infrastructure.HealthChecks;
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Amazon.Runtime;
 using BackOffice.Configuration;
 using Microsoft.Extensions.Configuration;
@@ -15,49 +18,15 @@ public class HealthCheckInitializer
 {
     private readonly IHealthChecksBuilder _builder;
     private readonly IConfiguration _configuration;
-    private readonly bool _isDevelopment;
+    private readonly IHostEnvironment _hostEnvironment;
 
-    private HealthCheckInitializer(IHealthChecksBuilder builder, IConfiguration configuration, bool isDevelopment)
+    private HealthCheckInitializer(IHealthChecksBuilder builder, IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
         _builder = builder;
         _configuration = configuration;
-        _isDevelopment = isDevelopment;
+        _hostEnvironment = hostEnvironment;
     }
-
-    public HealthCheckInitializer AddAcmIdm()
-    {
-        var optionsBuilder = new AcmIdmHealthCheckOptionsBuilder();
-        if (optionsBuilder.IsValid)
-        {
-            _builder.Add(new HealthCheckRegistration(
-                "auth-acm-idm".ToLowerInvariant(),
-                sp => new AcmIdmHealthCheck(optionsBuilder.Build()),
-                default,
-                new[] { "auth", "acm", "idm" },
-                default));
-        }
-        return this;
-    }
-
-    public HealthCheckInitializer AddLambda(Action<LambdaHealthCheckOptionsBuilder> setup)
-    {
-        var optionsBuilder = new LambdaHealthCheckOptionsBuilder();
-        setup?.Invoke(optionsBuilder);
-
-        if (optionsBuilder.IsValid)
-        {
-            var options = optionsBuilder.Build();
-
-            _builder.Add(new HealthCheckRegistration(
-                $"lambda-healthcheck".ToLowerInvariant(),
-                sp => new LambdaHealthCheck(options),
-                default,
-                new[] { "aws", "lamda" },
-                default));
-        }
-        return this;
-    }
-
+    
     public HealthCheckInitializer AddS3(Action<S3HealthCheckOptionsBuilder> setup)
     {
         var optionsBuilder = new S3HealthCheckOptionsBuilder(_configuration);
@@ -65,25 +34,32 @@ public class HealthCheckInitializer
 
         if (optionsBuilder.IsValid)
         {
-            var s3BlobClientOptions = _configuration.GetOptions<S3BlobClientOptions>();
-            if (s3BlobClientOptions?.Buckets is not null)
+            if (!File.Exists(S3HealthCheck.DummyFilePath))
             {
-                var s3Options = _isDevelopment
-                    ? _configuration.GetOptions<DevelopmentS3Options>()
-                    : _configuration.GetOptions<S3Options>();
+                File.WriteAllText(S3HealthCheck.DummyFilePath, string.Empty);
+            }
 
-                foreach (var bucketName in s3BlobClientOptions.Buckets)
+            var s3BlobClientOptions = _configuration.GetOptions<S3BlobClientOptions>()
+                                      ?? new S3BlobClientOptions();
+            var s3Options = _hostEnvironment.IsDevelopment()
+                ? _configuration.GetOptions<DevelopmentS3Options>()
+                : _configuration.GetOptions<S3Options>();
+
+            foreach (var bucketPermissions in optionsBuilder.GetPermissions())
+            {
+                var bucketKey = bucketPermissions.Item1;
+                var permissions = bucketPermissions.Item2;
+
+                var bucketName = s3BlobClientOptions.FindBucketName(bucketKey) ?? bucketKey;
+
+                foreach (var permission in permissions)
                 {
-                    var permissions = optionsBuilder.GetPermissions(bucketName.Key);
-                    foreach (var permission in permissions)
-                    {
-                        _builder.Add(new HealthCheckRegistration(
-                            $"s3-{bucketName.Key}-{permission.ToString()}".ToLowerInvariant(),
-                            sp => new S3HealthCheck(s3Options, bucketName.Value, permission),
-                            default,
-                            new[] { "aws", "s3" },
-                            default));
-                    }
+                    _builder.Add(new HealthCheckRegistration(
+                        $"s3-{bucketKey}-{permission}".ToLowerInvariant(),
+                        sp => new S3HealthCheck(s3Options, bucketName, permission, _hostEnvironment.ApplicationName),
+                        default,
+                        new[] { "aws", "s3" },
+                        default));
                 }
             }
         }
@@ -95,10 +71,10 @@ public class HealthCheckInitializer
         var connectionStrings = _configuration.GetSection("ConnectionStrings").GetChildren();
         if (connectionStrings is not null)
         {
-            foreach (var connectionString in connectionStrings)
+            foreach (var connectionString in connectionStrings.Where(x => x.Value is not null))
             {
                 _builder.AddSqlServer(
-                    connectionString.Value,
+                    connectionString.Value!,
                     name: $"sqlserver-{connectionString.Key.ToLowerInvariant()}",
                     tags: new[] { "db", "sql", "sqlserver" });
             }
@@ -114,34 +90,32 @@ public class HealthCheckInitializer
 
         if (optionsBuilder.IsValid)
         {
-            var sqsOptions = _configuration.GetOptions<SqsConfiguration>();
-            var sqsQueueUrlOptions = _configuration.GetOptions<SqsQueueUrlOptions>();
+            var sqsOptions = _configuration.GetOptions<SqsConfiguration>()
+                ?? new SqsConfiguration();
+            var sqsQueueUrlOptions = _configuration.GetOptions<SqsQueueUrlOptions>()
+                ?? new SqsQueueUrlOptions();
 
-            if (sqsQueueUrlOptions is not null)
+            foreach (var bucketPermissions in optionsBuilder.GetPermissions())
             {
-                var sqsQueueUrlOptionsType = sqsQueueUrlOptions.GetType();
-                var sqsQueueUrlOptionsProps = sqsQueueUrlOptionsType.GetProperties();
+                var queueName = bucketPermissions.Item1;
+                var permissions = bucketPermissions.Item2;
 
-                foreach (var propertyInfo in sqsQueueUrlOptionsProps)
+                var healthCheckOptions = new SqsHealthCheckOptions
                 {
-                    var healthCheckOptions = new SqsHealthCheckOptions
-                    {
-                        //RegionEndpoint = RegionEndpoint.EUWest1,
-                        ServiceUrl = sqsOptions?.ServiceUrl,
-                        Credentials = _isDevelopment ? new BasicAWSCredentials("dummy", "dummy") : null,
-                        QueueUrl = sqsQueueUrlOptions.TryGetPropertyValue<string>(propertyInfo.Name)
-                    };
+                    //RegionEndpoint = RegionEndpoint.EUWest1,
+                    ServiceUrl = sqsOptions.ServiceUrl,
+                    Credentials = _hostEnvironment.IsDevelopment() ? new BasicAWSCredentials("dummy", "dummy") : null,
+                    QueueUrl = sqsQueueUrlOptions.TryGetPropertyValue<string>(queueName) ?? queueName
+                };
 
-                    var permissions = optionsBuilder.GetPermissions(propertyInfo.Name);
-                    foreach (var permission in permissions)
-                    {
-                        _builder.Add(new HealthCheckRegistration(
-                            $"sqs-{propertyInfo.Name}-{permission.ToString()}".ToLowerInvariant(),
-                            sp => new SqsHealthCheck(healthCheckOptions, permission),
-                            default,
-                            new[] { "aws", "sqs" },
-                            default));
-                    }
+                foreach (var permission in permissions)
+                {
+                    _builder.Add(new HealthCheckRegistration(
+                        $"sqs-{queueName}-{permission}".ToLowerInvariant(),
+                        sp => new SqsHealthCheck(healthCheckOptions, permission),
+                        default,
+                        new[] { "aws", "sqs" },
+                        default));
                 }
             }
         }
@@ -156,9 +130,27 @@ public class HealthCheckInitializer
         {
             _builder.Add(new HealthCheckRegistration(
                 "ticketing-service".ToLowerInvariant(),
-                sp => new TicketingHealthCheck(optionsBuilder.With(sp.GetService<ITicketing>()).Build()),
+                sp => new TicketingHealthCheck(optionsBuilder.With(sp.GetRequiredService<ITicketing>()).Build()),
                 default,
                 new[] { "ticketing" },
+                default));
+        }
+        return this;
+    }
+
+    public HealthCheckInitializer AddHostedServicesStatus(Action<HostedServicesStatusHealthCheckOptionsBuilder> setup = null)
+    {
+        var optionsBuilder = new HostedServicesStatusHealthCheckOptionsBuilder();
+        setup?.Invoke(optionsBuilder);
+
+        if (optionsBuilder.IsValid)
+        {
+            _builder.Add(new HealthCheckRegistration(
+                "hosted-services-status".ToLowerInvariant(),
+                sp => new HostedServicesStatusHealthCheck(optionsBuilder.With(sp.GetService<IEnumerable<IHostedService>>()
+                ).Build()),
+                default,
+                new[] { "hosts" },
                 default));
         }
         return this;
@@ -169,8 +161,8 @@ public class HealthCheckInitializer
         return this;
     }
 
-    public static HealthCheckInitializer Configure(IHealthChecksBuilder builder, IConfiguration configuration, bool isDevelopment)
+    public static HealthCheckInitializer Configure(IHealthChecksBuilder builder, IConfiguration configuration, IHostEnvironment hostEnvironment)
     {
-        return new HealthCheckInitializer(builder, configuration, isDevelopment);
+        return new HealthCheckInitializer(builder, configuration, hostEnvironment);
     }
 }

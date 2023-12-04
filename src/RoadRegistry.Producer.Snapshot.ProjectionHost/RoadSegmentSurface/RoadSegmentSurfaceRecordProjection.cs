@@ -1,11 +1,5 @@
 namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
     using BackOffice;
     using BackOffice.Messages;
     using Be.Vlaanderen.Basisregisters.GrAr.Contracts.RoadRegistry;
@@ -14,6 +8,11 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
     using Extensions;
     using Microsoft.EntityFrameworkCore;
     using Projections;
+    using System;
+    using System.Globalization;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public class RoadSegmentSurfaceRecordProjection : ConnectedProjection<RoadSegmentSurfaceProducerSnapshotContext>
     {
@@ -85,7 +84,7 @@ namespace RoadRegistry.Producer.Snapshot.ProjectionHost.RoadSegmentSurface
                 }
             }
         }
-
+        
         private async Task RoadSegmentAdded(RoadSegmentSurfaceProducerSnapshotContext context, Envelope<RoadNetworkChangesAccepted> envelope,
             RoadSegmentAdded roadSegmentAdded,
             CancellationToken token)

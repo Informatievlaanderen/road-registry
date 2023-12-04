@@ -3,7 +3,6 @@ namespace RoadRegistry.BackOffice.Handlers.Extracts;
 using Abstractions.Extracts;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
-using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Core;
 using Exceptions;
 using FluentValidation;
@@ -11,7 +10,7 @@ using FluentValidation.Results;
 using Messages;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
-using NetTopologySuite.IO.Streams;
+using RoadRegistry.BackOffice.ShapeFile;
 using System.Text;
 using GeometryTranslator = BackOffice.GeometryTranslator;
 using Polygon = NetTopologySuite.Geometries.Polygon;
@@ -69,7 +68,6 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
                                     {
                                         problems.Add(new ShapeFileInvalidPolygonShellOrientation());
                                     }
-
                                     break;
 
                                 default:
@@ -81,7 +79,10 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
                     if (polygons.Any())
                     {
                         var srids = polygons.Select(x => x.SRID).Distinct().ToArray();
-                        if (srids.Length > 1) problems.Add(new ShapeFileGeometrySridMustBeEqual());
+                        if (srids.Length > 1)
+                        {
+                            problems.Add(new ShapeFileGeometrySridMustBeEqual());
+                        }
                     }
                     else
                     {
@@ -103,8 +104,9 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
                         return new ValidationFailure
                         {
                             PropertyName = nameof(DownloadExtractByFileRequest.ShpFile),
-                            ErrorMessage = problem.TranslateToDutch().Message,
-                            ErrorCode = problemTranslation.Code
+                            ErrorMessage = problemTranslation.Message,
+                            ErrorCode = problemTranslation.Code,
+                            CustomState = problem.Parameters.ToArray()
                         };
                     }));
             }
@@ -114,6 +116,7 @@ public class DownloadExtractByFileRequestItemTranslator : IDownloadExtractByFile
         }
     }
 }
+
 
 public class DownloadExtractByFileRequestItemTranslatorNetTopologySuite : IDownloadExtractByFileRequestItemTranslator
 {
@@ -125,7 +128,7 @@ public class DownloadExtractByFileRequestItemTranslatorNetTopologySuite : IDownl
         Geometry geometry = null;
         try
         {
-            (header, geometry) = ReadHeaderAndFirstGeometry(shapeFile.ReadStream);
+            (header, geometry) = new ExtractGeometryShapeFileReader().Read(shapeFile.ReadStream);
         }
         catch (Exception ex)
         {
@@ -181,18 +184,5 @@ public class DownloadExtractByFileRequestItemTranslatorNetTopologySuite : IDownl
 
         var srid = polygons.First().SRID;
         return GeometryTranslator.TranslateToRoadNetworkExtractGeometry(new MultiPolygon(polygons.ToArray()) { SRID = srid }, buffer);
-    }
-
-    private (ShapefileHeader, Geometry) ReadHeaderAndFirstGeometry(Stream stream)
-    {
-        stream.Position = 0;
-
-        var streamProvider = new ExternallyManagedStreamProvider(StreamTypes.Shape, stream);
-        var streamProviderRegistry = new ShapefileStreamProviderRegistry(streamProvider, null);
-
-        var shpReader = new NetTopologySuite.IO.ShapeFile.Extended.ShapeReader(streamProviderRegistry);
-        var geometry = shpReader.ReadAllShapes(GeometryConfiguration.GeometryFactory).FirstOrDefault();
-
-        return (shpReader.ShapefileHeader, geometry);
     }
 }

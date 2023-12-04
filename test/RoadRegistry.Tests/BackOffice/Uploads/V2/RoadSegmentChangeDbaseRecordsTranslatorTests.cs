@@ -228,7 +228,8 @@ public class RoadSegmentChangeDbaseRecordsTranslatorTests : IDisposable
                         nextChanges = previousChanges.AppendChange(
                             new RemoveRoadSegment(
                                 new RecordNumber(Array.IndexOf(records, current) + 1),
-                                new RoadSegmentId(current.WS_OIDN.Value)
+                                new RoadSegmentId(current.WS_OIDN.Value),
+                                RoadSegmentGeometryDrawMethod.ByIdentifier[current.METHODE.Value]
                             )
                         );
                         break;

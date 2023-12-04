@@ -34,9 +34,25 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
         problems += ReadShapeFile(features, archive, featureType, fileName);
         problems += archive.ValidateUniqueIdentifiers(features, featureType, fileName, feature => feature.Attributes.Id);
 
-        if (featureType == FeatureType.Change)
+        switch (featureType)
         {
-            AddToContext(features, featureType, context);
+            case FeatureType.Change:
+                AddToContext(features, featureType, context);
+                break;
+            case FeatureType.Integration:
+                problems = ZipArchiveProblems.None + problems
+                    .GetMissingOrInvalidFileProblems()
+                    .Where(x => !x.File.Equals(featureType.GetProjectionFileName(fileName), StringComparison.InvariantCultureIgnoreCase));
+
+                foreach (var feature in features)
+                {
+                    if (context.ChangedRoadNodes.TryGetValue(feature.Attributes.Id, out var knownRoadNode))
+                    {
+                        var recordContext = fileName.AtDbaseRecord(featureType, feature.RecordNumber);
+                        problems += recordContext.RoadNodeIdentifierNotUniqueAcrossIntegrationAndChange(feature.Attributes.Id, knownRoadNode.RecordNumber);
+                    }
+                }
+                break;
         }
 
         return (features, problems);
@@ -127,12 +143,12 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
 
         foreach (var feature in features)
         {
-            if (context.KnownRoadNodes.ContainsKey(feature.Attributes.Id))
+            if (context.ChangedRoadNodes.ContainsKey(feature.Attributes.Id))
             {
                 continue;
             }
 
-            context.KnownRoadNodes.Add(feature.Attributes.Id, feature);
+            context.ChangedRoadNodes.Add(feature.Attributes.Id, feature);
         }
     }
 

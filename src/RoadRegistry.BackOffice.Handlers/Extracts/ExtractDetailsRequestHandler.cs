@@ -23,12 +23,12 @@ public class ExtractDetailsRequestHandler : EndpointRetryableRequestHandler<Extr
 
     public override async Task<ExtractDetailsResponse> HandleAsync(ExtractDetailsRequest request, CancellationToken cancellationToken)
     {
-        var record = await _context.ExtractRequests.FindAsync(new object[] { request.DownloadId.ToGuid() }, cancellationToken);
+        var record = await Context.ExtractRequests.FindAsync(new object[] { request.DownloadId.ToGuid() }, cancellationToken);
 
         if (record is null)
         {
-            var retryAfterSeconds = await CalculateRetryAfterAsync(request, cancellationToken);
-            throw new ExtractRequestNotFoundException(request.DownloadId, retryAfterSeconds);
+            var retryAfter = await CalculateRetryAfterAsync(request, cancellationToken);
+            throw new ExtractRequestNotFoundException(request.DownloadId, Convert.ToInt32(retryAfter.TotalSeconds));
         }
 
         return new ExtractDetailsResponse
@@ -36,7 +36,7 @@ public class ExtractDetailsRequestHandler : EndpointRetryableRequestHandler<Extr
             DownloadId = new DownloadId(record.DownloadId),
             Description = record.Description,
             Contour = record.Contour.ToMultiPolygon(),
-            ExtractRequestId = ExtractRequestId.FromExternalRequestId(record.ExternalRequestId),
+            ExtractRequestId = ExtractRequestId.FromExternalRequestId(new ExternalExtractRequestId(record.ExternalRequestId)),
             RequestedOn = record.RequestedOn,
             IsInformative = record.IsInformative
         };
