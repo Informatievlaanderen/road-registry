@@ -29,18 +29,15 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     };
 
     private readonly RoadNetworkExtractUploadsBlobClient _client;
-    private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly EditorContext _context;
 
     public UploadExtractRequestHandler(
         CommandHandlerDispatcher dispatcher,
         RoadNetworkExtractUploadsBlobClient client,
-        IExtractUploadFailedEmailClient emailClient,
         EditorContext context,
         ILogger<UploadExtractRequestHandler> logger) : base(dispatcher, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
-        _emailClient = emailClient;
         _context = context ?? throw new EditorContextNotFoundException(nameof(context));
     }
 
@@ -64,23 +61,17 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         var extractRequest = await _context.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
         if (extractRequest is null)
         {
-            var ex = new ExtractDownloadNotFoundException(downloadId);
-            await _emailClient.SendAsync(null, ex, cancellationToken);
-            throw ex;
+            throw new ExtractDownloadNotFoundException(downloadId);
         }
         if (extractRequest.IsInformative)
         {
-            var ex = new ExtractRequestMarkedInformativeException(downloadId);
-            await _emailClient.SendAsync(extractRequest.Description, ex, cancellationToken);
-            throw ex;
+            throw new ExtractRequestMarkedInformativeException(downloadId);
         }
 
         var download = await _context.ExtractDownloads.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
         if (download is null)
         {
-            var ex = new ExtractDownloadNotFoundException(downloadId);
-            await _emailClient.SendAsync(null, ex, cancellationToken);
-            throw ex;
+            throw new ExtractDownloadNotFoundException(downloadId);
         }
 
         await using var readStream = request.Archive.ReadStream;
