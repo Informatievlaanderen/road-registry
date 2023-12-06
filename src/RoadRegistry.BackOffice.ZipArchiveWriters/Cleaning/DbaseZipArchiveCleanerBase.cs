@@ -1,21 +1,20 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 
-using System.IO.Compression;
-using System.Text;
 using BackOffice.Extensions;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
 using FeatureCompare;
+using System.IO.Compression;
 
 public abstract class DbaseZipArchiveCleanerBase<TDbaseRecord> : IZipArchiveCleaner
     where TDbaseRecord : DbaseRecord, new()
 {
-    protected Encoding Encoding { get; }
+    protected FileEncoding Encoding { get; }
 
     private readonly DbaseSchema _dbaseSchema;
     private readonly ExtractFileName _fileName;
 
-    protected DbaseZipArchiveCleanerBase(DbaseSchema dbaseSchema, Encoding encoding, ExtractFileName fileName)
+    protected DbaseZipArchiveCleanerBase(DbaseSchema dbaseSchema, FileEncoding encoding, ExtractFileName fileName)
     {
         _dbaseSchema = dbaseSchema;
         Encoding = encoding;
