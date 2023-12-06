@@ -2,6 +2,7 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using Extracts;
 using NetTopologySuite.Geometries;
+using RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -53,11 +54,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             var maintenanceAuthority = await _organizationRepository.FindByIdOrOvoCodeAsync(changeFeature.Attributes.MaintenanceAuthority, cancellationToken);
             if (maintenanceAuthority is null)
             {
-                //TODO-rik add problem
-                //ProblemCode.RoadSegment.MaintenanceAuthorityCode.NotValid
-                //var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
+                //TODO-rik add unit test
+                var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
 
-                //problems += recordContext.IdentifierNotUnique(record.Id, record.RecordNumber);
+                problems += recordContext.RoadSegmentMaintenanceAuthorityCodeNotValid(changeFeature.Attributes.MaintenanceAuthority);
                 continue;
             }
 

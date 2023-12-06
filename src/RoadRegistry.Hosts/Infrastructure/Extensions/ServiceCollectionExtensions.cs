@@ -175,6 +175,12 @@ public static class ServiceCollectionExtensions
             )
             .AddScoped<IRoadNetworkIdGenerator, RoadNetworkDbIdGenerator>();
     }
+
+    public static IServiceCollection AddOrganizationRepository(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<IOrganizationRepository, OrganizationRepository>();
+    }
 }
 
 

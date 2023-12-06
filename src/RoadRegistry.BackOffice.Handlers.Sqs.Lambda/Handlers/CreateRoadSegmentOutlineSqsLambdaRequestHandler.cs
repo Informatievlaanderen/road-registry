@@ -9,7 +9,8 @@ using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
 using System.Diagnostics;
-using Abstractions.Organizations;
+using Core;
+using Exceptions;
 using TicketingService.Abstractions;
 using AddRoadSegment = BackOffice.Uploads.AddRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
@@ -42,29 +43,41 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         _organizationRepository = organizationRepository;
     }
 
-    protected override async Task<object> InnerHandle(CreateRoadSegmentOutlineSqsLambdaRequest request, CancellationToken cancellationToken)
+    protected override async Task<object> InnerHandle(CreateRoadSegmentOutlineSqsLambdaRequest sqsLambdaRequest, CancellationToken cancellationToken)
     {
         var startSw = Stopwatch.StartNew();
 
         var sw = Stopwatch.StartNew();
-        var changeRoadNetworkCommand = await _changeRoadNetworkDispatcher.DispatchAsync(request, "Wegsegment schetsen", async translatedChanges =>
+        var changeRoadNetworkCommand = await _changeRoadNetworkDispatcher.DispatchAsync(sqsLambdaRequest, "Wegsegment schetsen", async translatedChanges =>
         {
             sw.Restart();
 
             Logger.LogInformation("TIMETRACKING handler: loading RoadNetwork took {Elapsed}", sw.Elapsed);
             sw.Restart();
 
-            var r = request.Request;
+            var request = sqsLambdaRequest.Request;
             var recordNumber = RecordNumber.Initial;
+            var problems = Problems.None;
 
-            var geometry = GeometryTranslator.Translate(r.Geometry);
+            var geometry = GeometryTranslator.Translate(request.Geometry);
 
             var fromPosition = new RoadSegmentPosition(0);
             var toPosition = new RoadSegmentPosition((decimal)geometry.Length);
 
-            var maintenanceAuthority = (await _organizationRepository.FindByIdOrOvoCodeAsync(r.MaintenanceAuthority, cancellationToken))?.Code
-                                       ?? r.MaintenanceAuthority;
-
+            var maintenanceAuthority = request.MaintenanceAuthority;
+            {
+                var maintenanceAuthorityOrganization = await _organizationRepository.FindByIdOrOvoCodeAsync(maintenanceAuthority, cancellationToken);
+                if (maintenanceAuthorityOrganization is not null)
+                {
+                    maintenanceAuthority = maintenanceAuthorityOrganization.Code;
+                }
+                else if (OrganizationOvoCode.AcceptsValue(maintenanceAuthority))
+                {
+                    //TODO-rik add unit test
+                    problems = problems.Add(new MaintenanceAuthorityCodeNotValid(maintenanceAuthority));
+                }
+            }
+            
             translatedChanges = translatedChanges.AppendChange(
                 new AddRoadSegment(
                         recordNumber,
@@ -72,15 +85,20 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                         new RoadSegmentId(1),
                         maintenanceAuthority,
                         RoadSegmentGeometryDrawMethod.Outlined,
-                        r.Morphology,
-                        r.Status,
+                        request.Morphology,
+                        request.Status,
                         RoadSegmentCategory.Unknown,
-                        r.AccessRestriction)
+                        request.AccessRestriction)
                     .WithGeometry(geometry)
-                    .WithSurface(new RoadSegmentSurfaceAttribute(AttributeId.Initial, r.SurfaceType, fromPosition, toPosition))
-                    .WithWidth(new RoadSegmentWidthAttribute(AttributeId.Initial, r.Width, fromPosition, toPosition))
-                    .WithLane(new RoadSegmentLaneAttribute(AttributeId.Initial, r.LaneCount, r.LaneDirection, fromPosition, toPosition))
+                    .WithSurface(new RoadSegmentSurfaceAttribute(AttributeId.Initial, request.SurfaceType, fromPosition, toPosition))
+                    .WithWidth(new RoadSegmentWidthAttribute(AttributeId.Initial, request.Width, fromPosition, toPosition))
+                    .WithLane(new RoadSegmentLaneAttribute(AttributeId.Initial, request.LaneCount, request.LaneDirection, fromPosition, toPosition))
             );
+
+            if (problems.Any())
+            {
+                throw new RoadRegistryProblemsException(problems);
+            }
 
             Logger.LogInformation("TIMETRACKING handler: converting request to TranslatedChanges took {Elapsed}", sw.Elapsed);
             return translatedChanges;

@@ -58,7 +58,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     protected override async Task<object> InnerHandle(ChangeRoadSegmentAttributesSqsLambdaRequest request, CancellationToken cancellationToken)
     {
         // Do NOT lock the stream store for stream RoadNetworks.Stream
-        
+
         await _changeRoadNetworkDispatcher.DispatchAsync(request, "Attributen wijzigen", async translatedChanges =>
         {
             var recordNumber = RecordNumber.Initial;
@@ -87,10 +87,22 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                     problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
                     continue;
                 }
-                
-                var maintenanceAuthority = change.MaintenanceAuthority is not null
-                    ? (await _organizationRepository.FindByIdOrOvoCodeAsync(change.MaintenanceAuthority.Value, cancellationToken))?.Code ?? change.MaintenanceAuthority
-                    : null;
+
+                var maintenanceAuthority = change.MaintenanceAuthority;
+                if (maintenanceAuthority is not null)
+                {
+                    var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(maintenanceAuthority.Value, cancellationToken);
+                    if (organization is not null)
+                    {
+                        maintenanceAuthority = organization.Code;
+                    }
+                    else if (OrganizationOvoCode.AcceptsValue(maintenanceAuthority.Value))
+                    {
+                        //TODO-rik add unit test
+                        problems = problems.Add(new MaintenanceAuthorityCodeNotValid(maintenanceAuthority.Value));
+                        continue;
+                    }
+                }
 
                 translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
                 {

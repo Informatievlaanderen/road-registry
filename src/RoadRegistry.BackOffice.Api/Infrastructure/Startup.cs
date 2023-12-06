@@ -335,6 +335,7 @@ public class Startup
                 new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections)),
                 sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
             .AddStreetNameCache()
+            .AddOrganizationRepository()
             .AddFeatureCompareTranslator()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())

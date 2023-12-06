@@ -120,6 +120,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             .AddSqsLambdaHandlerOptions()
             .AddRoadRegistrySnapshot()
             .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration)
+            .AddOrganizationRepository()
             ;
     }
 

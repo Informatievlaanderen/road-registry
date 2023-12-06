@@ -8,12 +8,10 @@ namespace RoadRegistry.Hosts
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Logging;
     using Microsoft.IO;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
-    //TODO-rik register as scoped
     public class OrganizationRepository : IOrganizationRepository
     {
         private readonly EditorContext _editorContext;
@@ -37,7 +35,7 @@ namespace RoadRegistry.Hosts
             _roadRegistryContext = roadRegistryContext;
             _logger = logger;
         }
-
+        
         public async Task<OrganizationDetail?> FindByIdOrOvoCodeAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
             if (_cache.TryGetValue(organizationId, out var cachedOrganization))
@@ -49,6 +47,7 @@ namespace RoadRegistry.Hosts
             return _cache.GetOrAdd(organizationId, organization);
         }
 
+        //TODO-rik add unit test
         private async Task<OrganizationDetail> FindOrganizationAsync(string code, CancellationToken cancellationToken)
         {
             if (OrganizationOvoCode.AcceptsValue(code))
