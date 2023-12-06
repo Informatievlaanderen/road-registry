@@ -28,7 +28,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
     };
 
     private readonly RoadNetworkUploadsBlobClient _client;
-    private readonly IExtractUploadFailedEmailClient _emailClient;
     private readonly EditorContext _editorContext;
     private readonly IZipArchiveBeforeFeatureCompareValidator _beforeFeatureCompareValidator;
     private readonly UseUploadZipArchiveValidationFeatureToggle _uploadZipArchiveValidationFeatureToggle;
@@ -38,7 +37,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
 
     public UploadExtractRequestHandler(
         RoadNetworkUploadsBlobClient client,
-        IExtractUploadFailedEmailClient emailClient,
         TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
         EditorContext editorContext,
         IZipArchiveBeforeFeatureCompareValidator beforeFeatureCompareValidator,
@@ -50,7 +48,6 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
         ILogger<UploadExtractRequestHandler> logger) : base(roadNetworkCommandQueue, logger)
     {
         _client = client ?? throw new BlobClientNotFoundException(nameof(client));
-        _emailClient = emailClient;
         _editorContext = editorContext ?? throw new EditorContextNotFoundException(nameof(editorContext));
         _beforeFeatureCompareValidator = beforeFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(beforeFeatureCompareValidator));
         _afterFeatureCompareValidator = afterFeatureCompareValidator ?? throw new ValidatorNotFoundException(nameof(afterFeatureCompareValidator));
@@ -124,15 +121,11 @@ public class UploadExtractRequestHandler : EndpointRequestHandler<UploadExtractR
             var extractRequest = await _editorContext.ExtractRequests.FindAsync(new object[] { downloadId.ToGuid() }, cancellationToken);
             if (extractRequest is null)
             {
-                var ex = new ExtractDownloadNotFoundException(new DownloadId(downloadId));
-                await _emailClient.SendAsync(null, ex, cancellationToken);
-                throw ex;
+                throw new ExtractDownloadNotFoundException(new DownloadId(downloadId));
             }
             if (extractRequest.IsInformative)
             {
-                var ex = new ExtractRequestMarkedInformativeException(downloadId);
-                await _emailClient.SendAsync(extractRequest.Description, ex, cancellationToken);
-                throw ex;
+                throw new ExtractRequestMarkedInformativeException(downloadId);
             }
 
             await UploadAndQueueCommand(request, readStream, archiveId, metadata, cancellationToken);
