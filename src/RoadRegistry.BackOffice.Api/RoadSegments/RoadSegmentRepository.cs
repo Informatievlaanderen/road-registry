@@ -9,7 +9,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments
 
     public interface IRoadSegmentRepository
     {
-        Task<RoadSegmentRecord> Find(RoadSegmentId id, CancellationToken cancellationToken);
+        Task<RoadSegmentRecord> FindAsync(RoadSegmentId id, CancellationToken cancellationToken);
     }
 
     public class RoadSegmentRepository: IRoadSegmentRepository
@@ -31,7 +31,7 @@ namespace RoadRegistry.BackOffice.Api.RoadSegments
             _fileEncoding = fileEncoding;
         }
 
-        public async Task<RoadSegmentRecord> Find(RoadSegmentId id, CancellationToken cancellationToken)
+        public async Task<RoadSegmentRecord> FindAsync(RoadSegmentId id, CancellationToken cancellationToken)
         {
             {
                 var roadNetwork = await _roadRegistryContext.RoadNetworks.ForOutlinedRoadSegment(id, cancellationToken);

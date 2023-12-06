@@ -5,15 +5,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uploads;
 
-internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadNodeFeatureCompareAttributes>
+public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadNodeFeatureCompareAttributes>
 {
-    public RoadNodeFeatureCompareTranslator(Encoding encoding)
-        : base(encoding)
+    public RoadNodeFeatureCompareTranslator(RoadNodeFeatureCompareFeatureReader featureReader)
+        : base(featureReader)
     {
     }
 
@@ -60,13 +59,7 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
 
         return processedRecords;
     }
-
-    protected override (List<Feature<RoadNodeFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
-    {
-        var featureReader = new RoadNodeFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(archive, featureType, fileName, context);
-    }
-
+    
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, ExtractFileName.Wegknoop, context);

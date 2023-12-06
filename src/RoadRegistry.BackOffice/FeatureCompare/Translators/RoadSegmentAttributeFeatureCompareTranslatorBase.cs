@@ -1,20 +1,19 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
+using Extracts;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Extracts;
 using Uploads;
 
-internal abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttributes> : FeatureCompareTranslatorBase<TAttributes>
+public abstract class RoadSegmentAttributeFeatureCompareTranslatorBase<TAttributes> : FeatureCompareTranslatorBase<TAttributes>
     where TAttributes : RoadSegmentAttributeFeatureCompareAttributes, new()
 {
     private readonly ExtractFileName _fileName;
 
-    protected RoadSegmentAttributeFeatureCompareTranslatorBase(Encoding encoding, ExtractFileName fileName)
-        : base(encoding)
+    protected RoadSegmentAttributeFeatureCompareTranslatorBase(IZipArchiveFeatureReader<Feature<TAttributes>> featureReader, ExtractFileName fileName)
+        : base(featureReader)
     {
         _fileName = fileName;
     }

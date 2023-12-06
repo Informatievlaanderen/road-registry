@@ -6,9 +6,9 @@ using FeatureCompare.Translators;
 
 public class TransactionZoneZipArchiveValidator : FeatureReaderZipArchiveValidator<TransactionZoneFeatureCompareAttributes>
 {
-    public TransactionZoneZipArchiveValidator(FileEncoding encoding)
+    public TransactionZoneZipArchiveValidator(TransactionZoneFeatureCompareFeatureReader featureReader)
         : base(ExtractFileName.Transactiezones, new[] { FeatureType.Change },
-            new TransactionZoneFeatureCompareFeatureReader(encoding))
+            featureReader)
     {
     }
 }

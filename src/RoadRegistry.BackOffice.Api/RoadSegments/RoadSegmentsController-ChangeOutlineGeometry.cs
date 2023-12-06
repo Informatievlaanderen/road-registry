@@ -66,7 +66,7 @@ public partial class RoadSegmentsController
         {
             await idValidator.ValidateRoadSegmentIdAndThrowAsync(id, cancellationToken);
 
-            var roadSegment = await roadSegmentRepository.Find(new RoadSegmentId(id), cancellationToken);
+            var roadSegment = await roadSegmentRepository.FindAsync(new RoadSegmentId(id), cancellationToken);
             if (roadSegment is null)
             {
                 throw new RoadSegmentNotFoundException();

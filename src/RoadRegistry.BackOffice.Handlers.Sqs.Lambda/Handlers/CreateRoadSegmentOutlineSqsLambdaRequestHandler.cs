@@ -9,6 +9,7 @@ using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Requests;
 using System.Diagnostics;
+using Abstractions.Organizations;
 using TicketingService.Abstractions;
 using AddRoadSegment = BackOffice.Uploads.AddRoadSegment;
 using RoadSegmentLaneAttribute = BackOffice.Uploads.RoadSegmentLaneAttribute;
@@ -18,6 +19,7 @@ using RoadSegmentWidthAttribute = BackOffice.Uploads.RoadSegmentWidthAttribute;
 public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaHandler<CreateRoadSegmentOutlineSqsLambdaRequest>
 {
     private readonly IChangeRoadNetworkDispatcher _changeRoadNetworkDispatcher;
+    private readonly IOrganizationRepository _organizationRepository;
 
     public CreateRoadSegmentOutlineSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -26,6 +28,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         IIdempotentCommandHandler idempotentCommandHandler,
         IRoadRegistryContext roadRegistryContext,
         IChangeRoadNetworkDispatcher changeRoadNetworkDispatcher,
+        IOrganizationRepository organizationRepository,
         ILogger<CreateRoadSegmentOutlineSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -36,6 +39,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             logger)
     {
         _changeRoadNetworkDispatcher = changeRoadNetworkDispatcher;
+        _organizationRepository = organizationRepository;
     }
 
     protected override async Task<object> InnerHandle(CreateRoadSegmentOutlineSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -54,16 +58,19 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             var recordNumber = RecordNumber.Initial;
 
             var geometry = GeometryTranslator.Translate(r.Geometry);
-                //TODO-rik #797 use orgreader to find OrgId
+
             var fromPosition = new RoadSegmentPosition(0);
             var toPosition = new RoadSegmentPosition((decimal)geometry.Length);
+
+            var maintenanceAuthority = (await _organizationRepository.FindByIdOrOvoCodeAsync(r.MaintenanceAuthority, cancellationToken))?.Code
+                                       ?? r.MaintenanceAuthority;
 
             translatedChanges = translatedChanges.AppendChange(
                 new AddRoadSegment(
                         recordNumber,
                         new RoadSegmentId(1),
                         new RoadSegmentId(1),
-                        r.MaintenanceAuthority,
+                        maintenanceAuthority,
                         RoadSegmentGeometryDrawMethod.Outlined,
                         r.Morphology,
                         r.Status,

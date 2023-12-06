@@ -15,6 +15,7 @@ using Infrastructure;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using Requests;
+using RoadRegistry.BackOffice.Abstractions.Organizations;
 using RoadRegistry.BackOffice.Abstractions.RoadSegments;
 using TicketingService.Abstractions;
 using ModifyRoadSegmentAttributes = BackOffice.Uploads.ModifyRoadSegmentAttributes;
@@ -25,6 +26,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
     private readonly EditorContext _editorContext;
     private readonly RecyclableMemoryStreamManager _manager;
     private readonly FileEncoding _fileEncoding;
+    private readonly IOrganizationRepository _organizationRepository;
 
     public ChangeRoadSegmentAttributesSqsLambdaRequestHandler(
         SqsLambdaHandlerOptions options,
@@ -36,6 +38,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         EditorContext editorContext,
         RecyclableMemoryStreamManager manager,
         FileEncoding fileEncoding,
+        IOrganizationRepository organizationRepository,
         ILogger<ChangeRoadSegmentAttributesSqsLambdaRequestHandler> logger)
         : base(
             options,
@@ -49,6 +52,7 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
         _editorContext = editorContext;
         _manager = manager;
         _fileEncoding = fileEncoding;
+        _organizationRepository = organizationRepository;
     }
 
     protected override async Task<object> InnerHandle(ChangeRoadSegmentAttributesSqsLambdaRequest request, CancellationToken cancellationToken)
@@ -83,10 +87,14 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                     problems = problems.Add(new RoadSegmentNotFound(roadSegmentId));
                     continue;
                 }
-                //TODO-rik #797 use orgreader to find OrgId
+                
+                var maintenanceAuthority = change.MaintenanceAuthority is not null
+                    ? (await _organizationRepository.FindByIdOrOvoCodeAsync(change.MaintenanceAuthority.Value, cancellationToken))?.Code ?? change.MaintenanceAuthority
+                    : null;
+
                 translatedChanges = translatedChanges.AppendChange(new ModifyRoadSegmentAttributes(recordNumber, roadSegmentId, geometryDrawMethod)
                 {
-                    MaintenanceAuthority = change.MaintenanceAuthority,
+                    MaintenanceAuthority = maintenanceAuthority,
                     Morphology = change.Morphology,
                     Status = change.Status,
                     Category = change.Category,

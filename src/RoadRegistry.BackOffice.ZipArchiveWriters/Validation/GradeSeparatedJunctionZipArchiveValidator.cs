@@ -6,9 +6,9 @@ using FeatureCompare.Translators;
 
 public class GradeSeparatedJunctionZipArchiveValidator : FeatureReaderZipArchiveValidator<GradeSeparatedJunctionFeatureCompareAttributes>
 {
-    public GradeSeparatedJunctionZipArchiveValidator(FileEncoding encoding)
+    public GradeSeparatedJunctionZipArchiveValidator(GradeSeparatedJunctionFeatureCompareFeatureReader featureReader)
         : base(ExtractFileName.RltOgkruising, new[] { FeatureType.Extract, FeatureType.Change },
-            new GradeSeparatedJunctionFeatureCompareFeatureReader(encoding))
+            featureReader)
     {
     }
 }

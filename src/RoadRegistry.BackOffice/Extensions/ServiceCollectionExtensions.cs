@@ -18,6 +18,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.FeatureCompare.Translators;
 using SqlStreamStore;
 
 public static class ServiceCollectionExtensions
@@ -181,5 +183,34 @@ public static class ServiceCollectionExtensions
                     throw new ConfigurationErrorsException($"{nameof(options.EventCount)} must be greater than zero");
                 }
             });
+    }
+
+    public static IServiceCollection AddFeatureCompareTranslator(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
+            .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentLaneFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentWidthFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentSurfaceFeatureCompareFeatureReader>()
+            .AddSingleton<EuropeanRoadFeatureCompareFeatureReader>()
+            .AddSingleton<NationalRoadFeatureCompareFeatureReader>()
+            .AddSingleton<NumberedRoadFeatureCompareFeatureReader>()
+            .AddSingleton<GradeSeparatedJunctionFeatureCompareFeatureReader>()
+
+            .AddScoped<TransactionZoneFeatureCompareTranslator>()
+            .AddScoped<RoadNodeFeatureCompareTranslator>()
+            .AddScoped<RoadSegmentFeatureCompareTranslator>()
+            .AddScoped<RoadSegmentLaneFeatureCompareTranslator>()
+            .AddScoped<RoadSegmentWidthFeatureCompareTranslator>()
+            .AddScoped<RoadSegmentSurfaceFeatureCompareTranslator>()
+            .AddScoped<EuropeanRoadFeatureCompareTranslator>()
+            .AddScoped<NationalRoadFeatureCompareTranslator>()
+            .AddScoped<NumberedRoadFeatureCompareTranslator>()
+            .AddScoped<GradeSeparatedJunctionFeatureCompareTranslator>()
+
+            .AddScoped<IZipArchiveFeatureCompareTranslator, ZipArchiveFeatureCompareTranslator>()
+            ;
     }
 }

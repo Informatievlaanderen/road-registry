@@ -6,9 +6,9 @@ using FeatureCompare.Translators;
 
 public class NumberedRoadZipArchiveValidator : FeatureReaderZipArchiveValidator<NumberedRoadFeatureCompareAttributes>
 {
-    public NumberedRoadZipArchiveValidator(FileEncoding encoding)
+    public NumberedRoadZipArchiveValidator(NumberedRoadFeatureCompareFeatureReader featureReader)
         : base(ExtractFileName.AttGenumweg, new[] { FeatureType.Extract, FeatureType.Change },
-            new NumberedRoadFeatureCompareFeatureReader(encoding))
+            featureReader)
     {
     }
 }

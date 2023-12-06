@@ -11,7 +11,7 @@ using Uploads;
 
 public class GradeSeparatedJunctionFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<GradeSeparatedJunctionFeatureCompareAttributes>>
 {
-    public GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding encoding)
+    public GradeSeparatedJunctionFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding),
             new UploadsV1FeatureReader(encoding))

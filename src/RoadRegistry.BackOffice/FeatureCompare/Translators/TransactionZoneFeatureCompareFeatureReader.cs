@@ -11,7 +11,7 @@ using Uploads;
 
 public class TransactionZoneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<TransactionZoneFeatureCompareAttributes>>
 {
-    public TransactionZoneFeatureCompareFeatureReader(Encoding encoding)
+    public TransactionZoneFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding))
     {
     }

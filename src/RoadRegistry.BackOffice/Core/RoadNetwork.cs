@@ -65,7 +65,6 @@ public class RoadNetwork : EventSourcedEntity
         }
 
         var verifiedChanges = verifiableChanges.ConvertAll(change => change.AsVerifiedChange());
-
         if (verifiedChanges.Count == 0)
         {
             var @event = new NoRoadNetworkChanges
@@ -80,7 +79,8 @@ public class RoadNetwork : EventSourcedEntity
             Apply(@event);
             return @event;
         }
-        else if (verifiedChanges.OfType<RejectedChange>().Any())
+
+        if (verifiedChanges.OfType<RejectedChange>().Any())
         {
             var @event = new RoadNetworkChangesRejected
             {

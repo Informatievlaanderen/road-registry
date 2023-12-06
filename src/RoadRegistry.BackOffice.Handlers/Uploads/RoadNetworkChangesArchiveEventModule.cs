@@ -13,15 +13,16 @@ using SqlStreamStore;
 using System;
 using System.Collections.Generic;
 using System.IO.Compression;
+using Autofac;
 using FluentValidation;
 using Newtonsoft.Json;
 
 public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
 {
     public RoadNetworkChangesArchiveEventModule(
+        ILifetimeScope lifetimeScope,
         RoadNetworkUploadsBlobClient client,
         IZipArchiveTranslator translator,
-        IZipArchiveFeatureCompareTranslator featureCompareTranslator,
         IStreamStore store,
         ApplicationMetadata applicationMetadata,
         TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
@@ -29,9 +30,9 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
         IExtractUploadFailedEmailClient extractUploadFailedEmailClient,
         ILogger<RoadNetworkChangesArchiveEventModule> logger)
     {
+        ArgumentNullException.ThrowIfNull(lifetimeScope);
         ArgumentNullException.ThrowIfNull(client);
         ArgumentNullException.ThrowIfNull(translator);
-        ArgumentNullException.ThrowIfNull(featureCompareTranslator);
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(applicationMetadata);
         ArgumentNullException.ThrowIfNull(transactionZoneFeatureReader);
@@ -42,15 +43,19 @@ public class RoadNetworkChangesArchiveEventModule : EventHandlerModule
             .UseRoadNetworkCommandQueue(store, applicationMetadata)
             .Handle(async (queue, message, ct) =>
             {
+                await using var container = lifetimeScope.BeginLifetimeScope();
+
                 logger.LogInformation("Event handler started for {EventName}", message.Body.GetType().Name);
 
                 var archiveId = new ArchiveId(message.Body.ArchiveId);
                 var requestId = ChangeRequestId.FromArchiveId(archiveId);
-                
+
                 var archiveBlob = await client.GetBlobAsync(new BlobName(archiveId), ct);
 
                 try
                 {
+                    var featureCompareTranslator = container.Resolve<IZipArchiveFeatureCompareTranslator>();
+
                     await using (var archiveBlobStream = await archiveBlob.OpenAsync(ct))
                     using (var archive = new ZipArchive(archiveBlobStream, ZipArchiveMode.Read, false))
                     {

@@ -6,9 +6,9 @@ using FeatureCompare.Translators;
 
 public class RoadSegmentSurfaceZipArchiveValidator : FeatureReaderZipArchiveValidator<RoadSegmentSurfaceFeatureCompareAttributes>
 {
-    public RoadSegmentSurfaceZipArchiveValidator(FileEncoding encoding)
+    public RoadSegmentSurfaceZipArchiveValidator(RoadSegmentSurfaceFeatureCompareFeatureReader featureReader)
         : base(ExtractFileName.AttWegverharding, new[] { FeatureType.Extract, FeatureType.Change },
-            new RoadSegmentSurfaceFeatureCompareFeatureReader(encoding))
+            featureReader)
     {
     }
 }

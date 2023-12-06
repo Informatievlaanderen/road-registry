@@ -1,6 +1,7 @@
 namespace RoadRegistry.BackOffice.ExtractHost;
 
 using Abstractions;
+using Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Editor.Schema;
@@ -77,18 +78,15 @@ public class Program
                             sp.GetService<RecyclableMemoryStreamManager>(),
                             sp.GetService<Func<EditorContext>>(),
                             sp.GetService<IZipArchiveWriter<EditorContext>>()))
+                    .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkExtractEventModule(
+                            sp.GetService<ILifetimeScope>(),
                             sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
                             sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
-                            new ZipArchiveFeatureCompareTranslator(
-                                sp.GetRequiredService<FileEncoding>(),
-                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>(),
-                                sp.GetRequiredService<UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle>()
-                            ),
                             sp.GetService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetService<IRoadNetworkEventWriter>(),

@@ -24,7 +24,6 @@ using Controllers.Attributes;
 using Core;
 using Editor.Schema;
 using Extensions;
-using FeatureCompare.Translators;
 using FeatureToggles;
 using FluentValidation;
 using Framework;
@@ -336,7 +335,7 @@ public class Startup
                 new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections)),
                 sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
             .AddStreetNameCache()
-            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
+            .AddFeatureCompareTranslator()
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)

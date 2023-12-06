@@ -1,13 +1,10 @@
 namespace RoadRegistry.BackOffice.FeatureCompare;
 
-using Exceptions;
-using FeatureToggles;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Compression;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Translators;
@@ -22,8 +19,20 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
     private readonly ILogger _logger;
     private readonly IReadOnlyCollection<IZipArchiveEntryFeatureCompareTranslator> _translators;
 
-    public ZipArchiveFeatureCompareTranslator(Encoding encoding, ILogger logger,
-        UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle useGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle)
+    public ZipArchiveFeatureCompareTranslator(
+        FileEncoding encoding,
+        ILogger logger,
+        TransactionZoneFeatureCompareTranslator transactionZoneTranslator,
+        RoadNodeFeatureCompareTranslator roadNodeTranslator,
+        RoadSegmentFeatureCompareTranslator roadSegmentTranslator,
+        RoadSegmentLaneFeatureCompareTranslator roadSegmentLaneTranslator,
+        RoadSegmentWidthFeatureCompareTranslator roadSegmentWidthTranslator,
+        RoadSegmentSurfaceFeatureCompareTranslator roadSegmentSurfaceTranslator,
+        EuropeanRoadFeatureCompareTranslator europeanRoadTranslator,
+        NationalRoadFeatureCompareTranslator nationalRoadTranslator,
+        NumberedRoadFeatureCompareTranslator numberedRoadTranslator,
+        GradeSeparatedJunctionFeatureCompareTranslator gradeSeparatedJunctionTranslator
+    )
     {
         ArgumentNullException.ThrowIfNull(encoding);
 
@@ -31,16 +40,16 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
 
         _translators = new IZipArchiveEntryFeatureCompareTranslator[]
         {
-            new TransactionZoneFeatureCompareTranslator(encoding),
-            new RoadNodeFeatureCompareTranslator(encoding),
-            new RoadSegmentFeatureCompareTranslator(encoding),
-            new RoadSegmentLaneFeatureCompareTranslator(encoding),
-            new RoadSegmentWidthFeatureCompareTranslator(encoding),
-            new RoadSegmentSurfaceFeatureCompareTranslator(encoding),
-            new EuropeanRoadFeatureCompareTranslator(encoding),
-            new NationalRoadFeatureCompareTranslator(encoding),
-            new NumberedRoadFeatureCompareTranslator(encoding),
-            new GradeSeparatedJunctionFeatureCompareTranslator(encoding, useGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle)
+            transactionZoneTranslator,
+            roadNodeTranslator,
+            roadSegmentTranslator,
+            roadSegmentLaneTranslator,
+            roadSegmentWidthTranslator,
+            roadSegmentSurfaceTranslator,
+            europeanRoadTranslator,
+            nationalRoadTranslator,
+            numberedRoadTranslator,
+            gradeSeparatedJunctionTranslator
         };
     }
 

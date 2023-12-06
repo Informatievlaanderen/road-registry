@@ -4,7 +4,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extracts;
 using System.Collections.Generic;
 using System.IO.Compression;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uploads;
@@ -20,17 +19,20 @@ public static class Feature
 
 public record Feature<TAttributes>(RecordNumber RecordNumber, TAttributes Attributes) where TAttributes : class;
 
-internal abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEntryFeatureCompareTranslator
+public abstract class FeatureCompareTranslatorBase<TAttributes> : IZipArchiveEntryFeatureCompareTranslator
     where TAttributes : class
 {
-    protected FeatureCompareTranslatorBase(Encoding encoding)
+    private readonly IZipArchiveFeatureReader<Feature<TAttributes>> _featureReader;
+
+    protected FeatureCompareTranslatorBase(IZipArchiveFeatureReader<Feature<TAttributes>> featureReader)
     {
-        Encoding = encoding;
+        _featureReader = featureReader;
     }
 
-    protected Encoding Encoding { get; }
-    
-    protected abstract (List<Feature<TAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context);
+    protected (List<Feature<TAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
+    {
+        return _featureReader.Read(archive, featureType, fileName, context);
+    }
 
     protected (List<Feature<TAttributes>>, List<Feature<TAttributes>>, ZipArchiveProblems) ReadExtractAndChangeFeatures(ZipArchive archive, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
     {

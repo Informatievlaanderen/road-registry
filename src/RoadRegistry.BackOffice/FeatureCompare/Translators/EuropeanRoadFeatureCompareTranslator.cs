@@ -1,16 +1,14 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
 using Extracts;
+using System.Collections.Generic;
+using System.Linq;
 using Uploads;
 
-internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<EuropeanRoadFeatureCompareAttributes>
+public class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompareTranslatorBase<EuropeanRoadFeatureCompareAttributes>
 {
-    public EuropeanRoadFeatureCompareTranslator(Encoding encoding)
-        : base(encoding, ExtractFileName.AttEuropweg)
+    public EuropeanRoadFeatureCompareTranslator(EuropeanRoadFeatureCompareFeatureReader featureReader)
+        : base(featureReader, ExtractFileName.AttEuropweg)
     {
     }
 
@@ -90,13 +88,7 @@ internal class EuropeanRoadFeatureCompareTranslator : RoadNumberingFeatureCompar
             }
         }
     }
-
-    protected override (List<Feature<EuropeanRoadFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
-    {
-        var featureReader = new EuropeanRoadFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(archive, featureType, fileName, context);
-    }
-
+    
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)

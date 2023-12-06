@@ -338,6 +338,7 @@ public class RoadNetworkCommandModule : CommandHandlerModule
                 ? Organization.PredefinedTranslations.Other
                 : Organization.PredefinedTranslations.Unknown;
         }
+
         if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled && organization.OvoCode is not null)
         {
             return new Organization.DutchTranslation(new OrganizationId(organization.OvoCode.Value), organization.Translation.Name);
