@@ -97,7 +97,6 @@ public class Startup : TestStartup
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseInMemoryDatabase(Guid.NewGuid().ToString("N")))
-            .AddFeatureCompareTranslator()
             .AddSingleton<TicketingOptions>(new FakeTicketingOptions())
             .AddScoped<ChangeFeedController>()
             .AddScoped<DownloadController>()

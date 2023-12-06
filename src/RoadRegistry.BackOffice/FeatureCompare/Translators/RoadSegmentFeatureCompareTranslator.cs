@@ -54,6 +54,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             if (maintenanceAuthority is null)
             {
                 //TODO-rik add problem
+                //ProblemCode.RoadSegment.MaintenanceAuthorityCode.NotValid
                 //var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
 
                 //problems += recordContext.IdentifierNotUnique(record.Id, record.RecordNumber);

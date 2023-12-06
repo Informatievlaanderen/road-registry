@@ -12,6 +12,7 @@ using RoadRegistry.BackOffice.Extracts.Dbase;
 using RoadRegistry.BackOffice.Extracts.Dbase.GradeSeparatedJuntions;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadNodes;
 using RoadRegistry.BackOffice.Extracts.Dbase.RoadSegments;
+using RoadRegistry.BackOffice.FeatureCompare.Translators;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 using GeometryTranslator = Be.Vlaanderen.Basisregisters.Shaperon.Geometries.GeometryTranslator;
@@ -622,7 +623,7 @@ public class ExtractsZipArchiveTestData : IDisposable
     [Fact]
     public void ExtractsZipArchiveTestDataIsValid()
     {
-        var sut = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8);
+        var sut = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
         var result = sut.Validate(ZipArchive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
 
         Assert.Equal(ZipArchiveProblems.None, result);

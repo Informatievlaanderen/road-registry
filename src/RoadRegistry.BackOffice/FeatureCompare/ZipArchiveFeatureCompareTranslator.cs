@@ -20,8 +20,6 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
     private readonly IReadOnlyCollection<IZipArchiveEntryFeatureCompareTranslator> _translators;
 
     public ZipArchiveFeatureCompareTranslator(
-        FileEncoding encoding,
-        ILogger logger,
         TransactionZoneFeatureCompareTranslator transactionZoneTranslator,
         RoadNodeFeatureCompareTranslator roadNodeTranslator,
         RoadSegmentFeatureCompareTranslator roadSegmentTranslator,
@@ -31,25 +29,24 @@ public class ZipArchiveFeatureCompareTranslator : IZipArchiveFeatureCompareTrans
         EuropeanRoadFeatureCompareTranslator europeanRoadTranslator,
         NationalRoadFeatureCompareTranslator nationalRoadTranslator,
         NumberedRoadFeatureCompareTranslator numberedRoadTranslator,
-        GradeSeparatedJunctionFeatureCompareTranslator gradeSeparatedJunctionTranslator
+        GradeSeparatedJunctionFeatureCompareTranslator gradeSeparatedJunctionTranslator,
+        ILogger<ZipArchiveFeatureCompareTranslator> logger
     )
     {
-        ArgumentNullException.ThrowIfNull(encoding);
-
         _logger = logger.ThrowIfNull();
 
         _translators = new IZipArchiveEntryFeatureCompareTranslator[]
         {
-            transactionZoneTranslator,
-            roadNodeTranslator,
-            roadSegmentTranslator,
-            roadSegmentLaneTranslator,
-            roadSegmentWidthTranslator,
-            roadSegmentSurfaceTranslator,
-            europeanRoadTranslator,
-            nationalRoadTranslator,
-            numberedRoadTranslator,
-            gradeSeparatedJunctionTranslator
+            transactionZoneTranslator.ThrowIfNull(),
+            roadNodeTranslator.ThrowIfNull(),
+            roadSegmentTranslator.ThrowIfNull(),
+            roadSegmentLaneTranslator.ThrowIfNull(),
+            roadSegmentWidthTranslator.ThrowIfNull(),
+            roadSegmentSurfaceTranslator.ThrowIfNull(),
+            europeanRoadTranslator.ThrowIfNull(),
+            nationalRoadTranslator.ThrowIfNull(),
+            numberedRoadTranslator.ThrowIfNull(),
+            gradeSeparatedJunctionTranslator.ThrowIfNull()
         };
     }
 

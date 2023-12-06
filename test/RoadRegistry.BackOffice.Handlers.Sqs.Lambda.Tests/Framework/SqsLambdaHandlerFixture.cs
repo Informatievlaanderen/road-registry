@@ -11,10 +11,8 @@ using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Requests;
 using Be.Vlaanderen.Basisregisters.Sqs.Responses;
 using Core;
-using Editor.Projections;
 using Editor.Schema;
 using Editor.Schema.Extensions;
-using FeatureToggles;
 using Hosts;
 using Infrastructure;
 using Messages;
@@ -92,11 +90,8 @@ public abstract class SqsLambdaHandlerFixture<TSqsLambdaRequestHandler, TSqsLamb
         ChangeRoadNetworkDispatcher = new ChangeRoadNetworkDispatcher(
             new RoadNetworkCommandQueue(Store, new ApplicationMetadata(RoadRegistryApplication.Lambda)),
             IdempotentCommandHandler,
-            EditorContext,
-            RecyclableMemoryStreamManager,
-            FileEncoding,
             LifetimeScope.Resolve<EventSourcedEntityMap>(),
-            new UseOvoCodeInChangeRoadNetworkFeatureToggle(true),
+            new FakeOrganizationRepository(),
             LoggerFactory.CreateLogger<ChangeRoadNetworkDispatcher>());
 
         Exception = null;

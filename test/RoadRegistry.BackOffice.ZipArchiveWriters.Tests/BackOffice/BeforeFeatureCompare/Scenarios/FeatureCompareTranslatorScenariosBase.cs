@@ -2,12 +2,10 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 
 using Exceptions;
 using FeatureCompare;
-using FeatureToggles;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.Tests.BackOffice.Uploads;
 using System.IO.Compression;
 using Uploads;
-using Validation;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -27,8 +25,8 @@ public abstract class FeatureCompareTranslatorScenariosBase
     {
         using (archive)
         {
-            var validator = new ZipArchiveBeforeFeatureCompareValidator(Encoding);
-            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger, new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true));
+            var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
+            var sut = ZipArchiveFeatureCompareTranslatorFactory.Create(Logger);
 
             try
             {

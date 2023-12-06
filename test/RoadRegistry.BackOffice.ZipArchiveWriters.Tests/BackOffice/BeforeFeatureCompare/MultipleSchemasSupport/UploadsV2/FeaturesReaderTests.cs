@@ -1,15 +1,14 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatureCompare.MultipleSchemasSupport.UploadsV2;
 
-using System.Text;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Microsoft.Extensions.Logging;
 using RoadRegistry.BackOffice.FeatureCompare;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Uploads;
 using RoadRegistry.BackOffice.Uploads.Dbase.BeforeFeatureCompare.V2.Schema;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Uploads;
+using System.Text;
 
 public class FeaturesReaderTests
 {
@@ -242,7 +241,7 @@ public class FeaturesReaderTests
 
         using (zipArchive)
         {
-            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger, new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true));
+            var sut = ZipArchiveFeatureCompareTranslatorFactory.Create(_logger);
 
             var result = await sut.Translate(zipArchive, CancellationToken.None);
 
