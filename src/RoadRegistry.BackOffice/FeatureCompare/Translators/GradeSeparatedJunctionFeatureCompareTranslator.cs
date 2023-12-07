@@ -77,20 +77,20 @@ internal class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTr
             }
         }
 
-        RoadSegmentFeatureCompareRecord FindRoadSegmentByOriginalId(RoadSegmentId originalRoadSegmentId)
+        RoadSegmentFeatureCompareRecord FindRoadSegmentByOriginalId(RoadSegmentId originalId)
         {
-            var wegsegmentFeatures = context
+            var matchingFeatures = context
                 .GetNonRemovedRoadSegmentRecords()
-                .Where(x => x.GetOriginalId() == originalRoadSegmentId)
+                .Where(x => x.GetOriginalId() == originalId)
                 .ToList();
 
-            if (wegsegmentFeatures.Count > 1)
+            if (matchingFeatures.Count > 1)
             {
-                var roadSegmentsInfo = string.Join("\n", wegsegmentFeatures.Select(roadSegment => $"RoadSegment #{roadSegment.RecordNumber}, ID: {roadSegment.Id}, FeatureType: {roadSegment.FeatureType}, RecordType: {roadSegment.RecordType}"));
-                throw new InvalidOperationException($"Found {wegsegmentFeatures.Count} processed road segments with original ID {originalRoadSegmentId} while only 1 is expected.\n{roadSegmentsInfo}");
+                var matchingFeaturesInfo = string.Join("\n", matchingFeatures.Select(feature => $"RoadSegment #{feature.RecordNumber}, ID: {feature.Id}, FeatureType: {feature.FeatureType}, RecordType: {feature.RecordType}"));
+                throw new InvalidOperationException($"Found {matchingFeatures.Count} processed road segments with original ID {originalId} while only 1 is expected.\n{matchingFeaturesInfo}");
             }
 
-            return wegsegmentFeatures.SingleOrDefault();
+            return matchingFeatures.SingleOrDefault();
         }
 
         foreach (var changeFeature in changeFeatures)

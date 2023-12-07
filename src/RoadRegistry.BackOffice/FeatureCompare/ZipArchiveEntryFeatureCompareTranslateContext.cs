@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Linq;
 using Uploads;
 
-public class ZipArchiveEntryFeatureCompareTranslateContext: ZipArchiveFeatureReaderContext
+public class ZipArchiveEntryFeatureCompareTranslateContext : ZipArchiveFeatureReaderContext
 {
     public ZipArchive Archive { get; }
     public List<RoadNodeFeatureCompareRecord> RoadNodeRecords { get; }
@@ -28,5 +28,10 @@ public class ZipArchiveEntryFeatureCompareTranslateContext: ZipArchiveFeatureRea
     public IEnumerable<RoadSegmentFeatureCompareRecord> GetNonRemovedRoadSegmentRecords()
     {
         return RoadSegmentRecords.Where(x => x.RecordType != RecordType.Removed);
+    }
+
+    public IEnumerable<RoadNodeFeatureCompareRecord> GetNonRemovedRoadNodeRecords()
+    {
+        return RoadNodeRecords.Where(x => x.RecordType != RecordType.Removed);
     }
 }
