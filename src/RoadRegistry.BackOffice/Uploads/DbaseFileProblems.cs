@@ -247,6 +247,15 @@ public static class DbaseFileProblems
             .Build();
     }
 
+    public static FileError RoadNodeIsAlreadyProcessed(this IDbaseFileRecordProblemBuilder builder, RoadNodeId identifier, RoadNodeId processedId)
+    {
+        return builder
+            .Error(nameof(RoadNodeIsAlreadyProcessed))
+            .WithParameter(new ProblemParameter("Identifier", identifier.ToString()))
+            .WithParameter(new ProblemParameter("ProcessedId", processedId.ToString()))
+            .Build();
+    }
+
     // road segment
 
     public static FileError IdentifierNotUnique(this IDbaseFileRecordProblemBuilder builder,

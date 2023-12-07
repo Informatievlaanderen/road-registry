@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.DutchTranslations;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.FeatureToggles;
@@ -59,8 +60,15 @@ public class FeatureCompareZipArchiveTranslatorTests
                 await ValidateTranslatedChanges(translatedChanges);
             }
         }
-        catch (Exception ex)
+        catch (ZipArchiveValidationException ex)
         {
+            _outputHelper.WriteLine($"{ex.Problems.Count} problems found:");
+            foreach (var problem in ex.Problems)
+            {
+                var translation = FileProblemTranslator.Dutch(problem.Translate());
+                _outputHelper.WriteLine(problem.Describe());
+                _outputHelper.WriteLine($"-> {translation.Code}: {translation.Message}");
+            }
             throw;
         }
     }
