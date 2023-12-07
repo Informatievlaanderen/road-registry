@@ -91,7 +91,7 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
 
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
-        var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndChangeAndIntegrationFeatures(context.Archive, ExtractFileName.Wegknoop, context);
+        var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, ExtractFileName.Wegknoop, context);
 
         problems.ThrowIfError();
 
@@ -105,12 +105,7 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
                         ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, cancellationToken), cancellationToken)
                     ));
 
-            var maxId = integrationFeatures.Select(x => x.Attributes.Id)
-                .Concat(extractFeatures.Select(x => x.Attributes.Id))
-                .Concat(changeFeatures.Select(x => x.Attributes.Id))
-                .Max();
-
-            problems += AddProcessedRecordsToContext(maxId, processedLeveringRecords.SelectMany(x => x).ToList(), context, cancellationToken);
+            problems += AddProcessedRecordsToContext(processedLeveringRecords.SelectMany(x => x).ToList(), context, cancellationToken);
         }
 
         AddRemovedRecordsToContext(extractFeatures, context, cancellationToken);
@@ -163,41 +158,36 @@ internal class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<R
         return changes;
     }
 
-    private ZipArchiveProblems AddProcessedRecordsToContext(RoadNodeId maxId, ICollection<RoadNodeFeatureCompareRecord> processedRecords, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private ZipArchiveProblems AddProcessedRecordsToContext(ICollection<RoadNodeFeatureCompareRecord> processedRecords, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var problems = ZipArchiveProblems.None;
-
-        var nextId = maxId.Next();
-        foreach (var record in processedRecords
-                     .Where(x => x.RecordType.Equals(RecordType.Added)))
-        {
-            record.Id = nextId;
-            nextId = nextId.Next();
-        }
 
         foreach (var record in processedRecords)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var existingRecords = context.RoadNodeRecords
-                .Where(x => x.GetActualId() == record.GetActualId())
-                .ToArray();
-
-            if (existingRecords.Length > 1)
+            if (record.RecordType != RecordType.Removed)
             {
-                var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
+                var existingRecords = context.RoadNodeRecords
+                    .Where(x => x.RecordType != RecordType.Removed && x.GetActualId() == record.GetActualId())
+                    .ToArray();
 
-                problems += recordContext.IdentifierNotUnique(record.GetActualId(), record.RecordNumber);
-                continue;
-            }
+                if (existingRecords.Length > 1)
+                {
+                    var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
 
-            var existingRecord = existingRecords.SingleOrDefault();
-            if (existingRecord is not null)
-            {
-                var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
+                    problems += recordContext.IdentifierNotUnique(record.GetActualId(), record.RecordNumber);
+                    continue;
+                }
 
-                problems += recordContext.RoadNodeIsAlreadyProcessed(record.GetOriginalId(), existingRecord.GetOriginalId());
-                continue;
+                var existingRecord = existingRecords.SingleOrDefault();
+                if (existingRecord is not null)
+                {
+                    var recordContext = FileName.AtDbaseRecord(FeatureType.Change, record.RecordNumber);
+
+                    problems += recordContext.RoadNodeIsAlreadyProcessed(record.GetOriginalId(), existingRecord.GetOriginalId());
+                    continue;
+                }
             }
 
             context.RoadNodeRecords.Add(record);
