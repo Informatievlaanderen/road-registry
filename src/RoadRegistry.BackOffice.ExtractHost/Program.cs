@@ -7,7 +7,6 @@ using Configuration;
 using Editor.Schema;
 using Extensions;
 using Extracts;
-using FeatureCompare;
 using Framework;
 using Handlers.Extracts;
 using Hosts;

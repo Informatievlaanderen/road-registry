@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 public abstract class WhenChangeAttributesWithInvalidRequest<TFixture> : IClassFixture<TFixture>
     where TFixture : WhenChangeAttributesFixture
 {
-    public readonly TFixture Fixture;
+    protected readonly TFixture Fixture;
     protected readonly ITestOutputHelper OutputHelper;
 
     protected WhenChangeAttributesWithInvalidRequest(TFixture fixture, ITestOutputHelper outputHelper)
