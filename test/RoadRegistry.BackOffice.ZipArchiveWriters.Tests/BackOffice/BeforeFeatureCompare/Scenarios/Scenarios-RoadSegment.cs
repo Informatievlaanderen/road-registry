@@ -31,7 +31,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
             })
             .BuildWithResult(context => TranslatedChanges.Empty);
 
-        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(Logger, organizationRepository);
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(organizationRepository);
         var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateSucceeds(zipArchive, translator));
         Assert.NotEmpty(ex.Problems);
         Assert.True(ex.Problems.All(x => x.Reason == "RoadSegmentMaintenanceAuthorityNotKnown"));

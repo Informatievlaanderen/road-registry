@@ -1,6 +1,6 @@
 namespace RoadRegistry.Tests
 {
-    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
     using RoadRegistry.BackOffice;
     using RoadRegistry.BackOffice.FeatureCompare;
     using RoadRegistry.BackOffice.FeatureCompare.Translators;
@@ -10,7 +10,7 @@ namespace RoadRegistry.Tests
     {
         private static readonly FileEncoding Encoding = FileEncoding.UTF8;
 
-        public static IZipArchiveFeatureCompareTranslator Create(ILogger<ZipArchiveFeatureCompareTranslator> logger, IOrganizationRepository organizationRepository = null)
+        public static IZipArchiveFeatureCompareTranslator Create(IOrganizationRepository organizationRepository = null)
         {
             return new ZipArchiveFeatureCompareTranslator(
                 new TransactionZoneFeatureCompareTranslator(new TransactionZoneFeatureCompareFeatureReader(Encoding)),
@@ -26,7 +26,7 @@ namespace RoadRegistry.Tests
                     new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding),
                     new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true)
                 ),
-                logger
+                new NullLogger<ZipArchiveFeatureCompareTranslator>()
             );
         }
     }

@@ -22,7 +22,7 @@ public class FeatureCompareZipArchiveTranslatorTests
     public FeatureCompareZipArchiveTranslatorTests(ITestOutputHelper outputHelper, ILogger<ZipArchiveFeatureCompareTranslator> logger, FileEncoding encoding)
     {
         _outputHelper = outputHelper;
-        _sut = ZipArchiveFeatureCompareTranslatorFactory.Create(logger);
+        _sut = ZipArchiveFeatureCompareTranslatorFactory.Create();
         _zipArchiveTranslator = new ZipArchiveTranslator(encoding);
     }
 

@@ -18,7 +18,7 @@ namespace RoadRegistry.Hosts
         private readonly OrganizationDbaseRecordReader _organizationRecordReader;
         private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
         private readonly IRoadRegistryContext _roadRegistryContext;
-        private readonly ConcurrentDictionary<OrganizationId, OrganizationDetail> _cache = new ();
+        private readonly ConcurrentDictionary<OrganizationId, OrganizationDetail> _cache = new();
         private readonly ILogger _logger;
 
         public OrganizationRepository(
@@ -36,7 +36,6 @@ namespace RoadRegistry.Hosts
             _logger = logger;
         }
 
-        //TODO-rik add unit test
         public async Task<OrganizationDetail?> FindByIdOrOvoCodeAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
             if (_cache.TryGetValue(organizationId, out var cachedOrganization))
@@ -50,6 +49,21 @@ namespace RoadRegistry.Hosts
 
         private async Task<OrganizationDetail> FindOrganizationAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
+            if (OrganizationOvoCode.AcceptsValue(organizationId))
+            {
+                if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled)
+                {
+                    return await GetById(organizationId, cancellationToken);
+                }
+
+                return await FindByMappedOvoCode(new OrganizationOvoCode(organizationId), cancellationToken);
+            }
+
+            return await GetById(organizationId, cancellationToken);
+        }
+
+        private async Task<OrganizationDetail> GetById(OrganizationId organizationId, CancellationToken cancellationToken)
+        {
             var organization = await _roadRegistryContext.Organizations.FindAsync(organizationId, cancellationToken);
             if (organization is not null)
             {
@@ -61,33 +75,22 @@ namespace RoadRegistry.Hosts
                 };
             }
 
-            if (OrganizationOvoCode.AcceptsValue(organizationId))
+            return null;
+        }
+
+        private async Task<OrganizationDetail> FindByMappedOvoCode(OrganizationOvoCode ovoCode, CancellationToken cancellationToken)
+        {
+            var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
+            var organizationDetail = organizationRecords
+                .Select(organizationRecord => _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion))
+                .SingleOrDefault(sod => sod.OvoCode == ovoCode);
+
+            if (organizationDetail is not null)
             {
-                if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled)
-                {
-                    var organizationRecord = await _editorContext.Organizations.SingleOrDefaultAsync(x => x.Code == organizationId.ToString(), cancellationToken);
-                    if (organizationRecord is not null)
-                    {
-                        return _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion);
-                    }
-
-                    return null;
-                }
-
-                var ovoCode = new OrganizationOvoCode(organizationId);
-                var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
-                var organizationDetail = organizationRecords
-                    .Select(organizationRecord => _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion))
-                    .SingleOrDefault(sod => sod.OvoCode == ovoCode);
-
-                if (organizationDetail is not null)
-                {
-                    return organizationDetail;
-                }
-
-                _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");
+                return organizationDetail;
             }
 
+            _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");
             return null;
         }
     }
