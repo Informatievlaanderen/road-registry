@@ -50,12 +50,6 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
             .WithMessage("One or more temporary national road attribute identifiers are not unique.")
             .Must(OnlyHaveUniquePermanentNumberedRoadAttributeIdentifiers)
             .WithMessage("One or more permanent national road attribute identifiers are not unique.")
-            .Must(HaveAtLeastOneLaneAttribute)
-            .WithMessage("At least 1 lane attribute is required.")
-            .Must(HaveAtLeastOneWidthAttribute)
-            .WithMessage("At least 1 width attribute is required.")
-            .Must(HaveAtLeastOneSurfaceAttribute)
-            .WithMessage("At least 1 surface attribute is required.")
             .Must(OnlyHaveUniqueLaneAttributeIdentifiers)
             .WithMessage("One or more lane attribute identifiers are not unique.")
             .Must(OnlyHaveUniqueWidthAttributeIdentifiers)
@@ -100,37 +94,7 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
                     change.ModifyGradeSeparatedJunction,
                     change.RemoveGradeSeparatedJunction
                 }
-                .Count(_ => !ReferenceEquals(_, null)) == 1;
-    }
-
-    private static bool HaveAtLeastOneLaneAttribute(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        return changes
-            .Any(change => change?.AddRoadSegment?.Lanes?.Any()
-                           ?? change?.ModifyRoadSegment?.Lanes?.Any()
-                           ?? false);
-    }
-
-    private static bool HaveAtLeastOneSurfaceAttribute(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        return changes
-            .Any(change => change?.AddRoadSegment?.Surfaces?.Any()
-                           ?? change?.ModifyRoadSegment?.Surfaces?.Any()
-                           ?? false);
-    }
-
-    private static bool HaveAtLeastOneWidthAttribute(RequestedChange[] changes)
-    {
-        if (changes == null) return true;
-
-        return changes
-            .Any(change => change?.AddRoadSegment?.Widths?.Any()
-                           ?? change?.ModifyRoadSegment?.Widths?.Any()
-                           ?? false);
+                .Count(changeEvent => !ReferenceEquals(changeEvent, null)) == 1;
     }
 
     private static bool OnlyHaveUniqueLaneAttributeIdentifiers(RequestedChange[] changes)
