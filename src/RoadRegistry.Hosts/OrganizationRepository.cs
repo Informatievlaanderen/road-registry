@@ -35,7 +35,8 @@ namespace RoadRegistry.Hosts
             _roadRegistryContext = roadRegistryContext;
             _logger = logger;
         }
-        
+
+        //TODO-rik add unit test
         public async Task<OrganizationDetail?> FindByIdOrOvoCodeAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
             if (_cache.TryGetValue(organizationId, out var cachedOrganization))
@@ -47,7 +48,6 @@ namespace RoadRegistry.Hosts
             return _cache.GetOrAdd(organizationId, organization);
         }
 
-        //TODO-rik add unit test
         private async Task<OrganizationDetail> FindOrganizationAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
             var organization = await _roadRegistryContext.Organizations.FindAsync(organizationId, cancellationToken);

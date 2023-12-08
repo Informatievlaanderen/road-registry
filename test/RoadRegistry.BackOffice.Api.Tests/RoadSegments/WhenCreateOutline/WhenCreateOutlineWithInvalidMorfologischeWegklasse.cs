@@ -4,9 +4,9 @@ using Abstractions;
 using Fixtures;
 using Xunit.Abstractions;
 
-public class WhenCreateOutlineWithInvalidMorphology : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidMorphologyFixture>
+public class WhenCreateOutlineWithInvalidMorfologischeWegklasse : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidMorphologyFixture>
 {
-    public WhenCreateOutlineWithInvalidMorphology(WhenCreateOutlineWithInvalidMorphologyFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenCreateOutlineWithInvalidMorfologischeWegklasse(WhenCreateOutlineWithInvalidMorphologyFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
     }
 

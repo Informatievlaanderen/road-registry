@@ -4,9 +4,9 @@ using Abstractions;
 using Fixtures;
 using Xunit.Abstractions;
 
-public class WhenCreateOutlineWithInvalidLaneCount : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidLaneCountFixture>
+public class WhenCreateOutlineWithInvalidAantalRijstroken : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidLaneCountFixture>
 {
-    public WhenCreateOutlineWithInvalidLaneCount(WhenCreateOutlineWithInvalidLaneCountFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenCreateOutlineWithInvalidAantalRijstroken(WhenCreateOutlineWithInvalidLaneCountFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
     }
 

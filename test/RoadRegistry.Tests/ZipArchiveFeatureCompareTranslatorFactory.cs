@@ -10,21 +10,24 @@ namespace RoadRegistry.Tests
     {
         private static readonly FileEncoding Encoding = FileEncoding.UTF8;
 
-        public static IZipArchiveFeatureCompareTranslator Create(ILogger<ZipArchiveFeatureCompareTranslator> logger) => new ZipArchiveFeatureCompareTranslator(
-            new TransactionZoneFeatureCompareTranslator(new TransactionZoneFeatureCompareFeatureReader(Encoding)),
-            new RoadNodeFeatureCompareTranslator(new RoadNodeFeatureCompareFeatureReader(Encoding)),
-            new RoadSegmentFeatureCompareTranslator(new RoadSegmentFeatureCompareFeatureReader(Encoding), new FakeOrganizationRepository()),
-            new RoadSegmentLaneFeatureCompareTranslator(new RoadSegmentLaneFeatureCompareFeatureReader(Encoding)),
-            new RoadSegmentWidthFeatureCompareTranslator(new RoadSegmentWidthFeatureCompareFeatureReader(Encoding)),
-            new RoadSegmentSurfaceFeatureCompareTranslator(new RoadSegmentSurfaceFeatureCompareFeatureReader(Encoding)),
-            new EuropeanRoadFeatureCompareTranslator(new EuropeanRoadFeatureCompareFeatureReader(Encoding)),
-            new NationalRoadFeatureCompareTranslator(new NationalRoadFeatureCompareFeatureReader(Encoding)),
-            new NumberedRoadFeatureCompareTranslator(new NumberedRoadFeatureCompareFeatureReader(Encoding)),
-            new GradeSeparatedJunctionFeatureCompareTranslator(
-                new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding),
-                new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true)
-            ),
-            logger
-        );
+        public static IZipArchiveFeatureCompareTranslator Create(ILogger<ZipArchiveFeatureCompareTranslator> logger, IOrganizationRepository organizationRepository = null)
+        {
+            return new ZipArchiveFeatureCompareTranslator(
+                new TransactionZoneFeatureCompareTranslator(new TransactionZoneFeatureCompareFeatureReader(Encoding)),
+                new RoadNodeFeatureCompareTranslator(new RoadNodeFeatureCompareFeatureReader(Encoding)),
+                new RoadSegmentFeatureCompareTranslator(new RoadSegmentFeatureCompareFeatureReader(Encoding), organizationRepository ?? new FakeOrganizationRepository()),
+                new RoadSegmentLaneFeatureCompareTranslator(new RoadSegmentLaneFeatureCompareFeatureReader(Encoding)),
+                new RoadSegmentWidthFeatureCompareTranslator(new RoadSegmentWidthFeatureCompareFeatureReader(Encoding)),
+                new RoadSegmentSurfaceFeatureCompareTranslator(new RoadSegmentSurfaceFeatureCompareFeatureReader(Encoding)),
+                new EuropeanRoadFeatureCompareTranslator(new EuropeanRoadFeatureCompareFeatureReader(Encoding)),
+                new NationalRoadFeatureCompareTranslator(new NationalRoadFeatureCompareFeatureReader(Encoding)),
+                new NumberedRoadFeatureCompareTranslator(new NumberedRoadFeatureCompareFeatureReader(Encoding)),
+                new GradeSeparatedJunctionFeatureCompareTranslator(
+                    new GradeSeparatedJunctionFeatureCompareFeatureReader(Encoding),
+                    new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true)
+                ),
+                logger
+            );
+        }
     }
 }

@@ -4,9 +4,9 @@ using Abstractions;
 using Fixtures;
 using Xunit.Abstractions;
 
-public class WhenCreateOutlineWithInvalidSurfaceType : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidSurfaceTypeFixture>
+public class WhenCreateOutlineWithInvalidWegverharding : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidSurfaceTypeFixture>
 {
-    public WhenCreateOutlineWithInvalidSurfaceType(WhenCreateOutlineWithInvalidSurfaceTypeFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenCreateOutlineWithInvalidWegverharding(WhenCreateOutlineWithInvalidSurfaceTypeFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
     }
 

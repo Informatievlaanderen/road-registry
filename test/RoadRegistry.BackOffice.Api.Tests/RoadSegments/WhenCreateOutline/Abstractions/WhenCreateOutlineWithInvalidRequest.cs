@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenCreateOutline.Abstractions;
 
+using Api.RoadSegments;
 using Extensions;
 using Fixtures;
 using FluentValidation;
@@ -36,12 +37,29 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
 
         Assert.StartsWith(ExpectedErrorMessagePrefix, errMessage);
     }
+    
+    protected async Task ItShouldHaveExpectedError(PostRoadSegmentOutlineParameters request, string expectedErrorCode, string expectedErrorMessagePrefix)
+    {
+        await Fixture.ExecuteAsync(request);
 
-    private ICollection<ValidationFailure> ItShouldHaveValidationException()
+        var errors = ItShouldHaveValidationException().ToArray();
+
+        if (expectedErrorCode is not null)
+        {
+            Assert.Contains(expectedErrorCode, errors.Select(x => x.ErrorCode));
+        }
+
+        if (expectedErrorMessagePrefix is not null)
+        {
+            Assert.True(errors != null && errors.Any(x => x.ErrorMessage.StartsWith(expectedErrorMessagePrefix)));
+        }
+    }
+
+    private IEnumerable<ValidationFailure> ItShouldHaveValidationException()
     {
         var ex = Assert.IsType<ValidationException>(Fixture.Exception);
         var err = Assert.IsAssignableFrom<IEnumerable<ValidationFailure>>(ex.Errors);
-        return err.TranslateToDutch().ToArray();
+        return err.TranslateToDutch();
     }
 
     [Fact]
@@ -54,8 +72,8 @@ public abstract class WhenCreateOutlineWithInvalidRequest<TFixture> : IClassFixt
 
     private ValidationFailure ItShouldHaveSingleError()
     {
-        var err = ItShouldHaveValidationException();
-        if (err.Count > 1)
+        var err = ItShouldHaveValidationException().ToArray();
+        if (err.Length > 1)
         {
             foreach (var error in err)
             {

@@ -99,10 +99,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
             var maintenanceAuthority = await _organizationRepository.FindByIdOrOvoCodeAsync(changeFeature.Attributes.MaintenanceAuthority, cancellationToken);
             if (maintenanceAuthority is null)
             {
-                //TODO-rik add unit test
                 var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
 
-                problems += recordContext.RoadSegmentMaintenanceAuthorityCodeNotValid(changeFeature.Attributes.MaintenanceAuthority);
+                problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(changeFeature.Attributes.MaintenanceAuthority);
                 continue;
             }
 

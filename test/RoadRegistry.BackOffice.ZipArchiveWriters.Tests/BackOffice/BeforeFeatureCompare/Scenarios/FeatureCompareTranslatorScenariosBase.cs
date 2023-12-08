@@ -21,12 +21,12 @@ public abstract class FeatureCompareTranslatorScenariosBase
         Logger = logger;
     }
 
-    protected async Task<TranslatedChanges> TranslateSucceeds(ZipArchive archive)
+    protected async Task<TranslatedChanges> TranslateSucceeds(ZipArchive archive, IZipArchiveFeatureCompareTranslator translator = null)
     {
         using (archive)
         {
             var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
-            var sut = ZipArchiveFeatureCompareTranslatorFactory.Create(Logger);
+            var sut = translator ?? ZipArchiveFeatureCompareTranslatorFactory.Create(Logger);
 
             try
             {
@@ -46,12 +46,12 @@ public abstract class FeatureCompareTranslatorScenariosBase
         }
     }
 
-    protected async Task TranslateReturnsExpectedResult(ZipArchive archive, TranslatedChanges expected)
+    protected async Task TranslateReturnsExpectedResult(ZipArchive archive, TranslatedChanges expected, IZipArchiveFeatureCompareTranslator translator = null)
     {
         TranslatedChanges result = null;
         try
         {
-            result = await TranslateSucceeds(archive);
+            result = await TranslateSucceeds(archive, translator);
 
             Assert.Equal(expected, result, new TranslatedChangeEqualityComparer());
         }

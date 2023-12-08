@@ -650,10 +650,10 @@ public static class DbaseFileProblems
             .Build();
     }
 
-    public static FileError RoadSegmentMaintenanceAuthorityCodeNotValid(this IDbaseFileRecordProblemBuilder builder, OrganizationId organizationId)
+    public static FileError RoadSegmentMaintenanceAuthorityNotKnown(this IDbaseFileRecordProblemBuilder builder, OrganizationId organizationId)
     {
         return builder
-            .Error(nameof(RoadSegmentMaintenanceAuthorityCodeNotValid))
+            .Error(nameof(RoadSegmentMaintenanceAuthorityNotKnown))
             .WithParameter(new ProblemParameter(MaintenanceAuthorityNotKnown.ParameterName.OrganizationId, organizationId.ToString()))
             .Build();
     }
