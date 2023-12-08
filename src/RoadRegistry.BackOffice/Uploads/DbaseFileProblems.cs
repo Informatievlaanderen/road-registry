@@ -654,7 +654,7 @@ public static class DbaseFileProblems
     {
         return builder
             .Error(nameof(RoadSegmentMaintenanceAuthorityCodeNotValid))
-            .WithParameter(new ProblemParameter(MaintenanceAuthorityCodeNotValid.ParameterName.OrganizationId, organizationId.ToString()))
+            .WithParameter(new ProblemParameter(MaintenanceAuthorityNotKnown.ParameterName.OrganizationId, organizationId.ToString()))
             .Build();
     }
 

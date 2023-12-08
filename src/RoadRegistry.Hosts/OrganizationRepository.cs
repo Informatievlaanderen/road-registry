@@ -48,13 +48,24 @@ namespace RoadRegistry.Hosts
         }
 
         //TODO-rik add unit test
-        private async Task<OrganizationDetail> FindOrganizationAsync(string code, CancellationToken cancellationToken)
+        private async Task<OrganizationDetail> FindOrganizationAsync(OrganizationId organizationId, CancellationToken cancellationToken)
         {
-            if (OrganizationOvoCode.AcceptsValue(code))
+            var organization = await _roadRegistryContext.Organizations.FindAsync(organizationId, cancellationToken);
+            if (organization is not null)
+            {
+                return new OrganizationDetail
+                {
+                    Code = organizationId,
+                    Name = organization.Translation.Name,
+                    OvoCode = organization.OvoCode
+                };
+            }
+
+            if (OrganizationOvoCode.AcceptsValue(organizationId))
             {
                 if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled)
                 {
-                    var organizationRecord = await _editorContext.Organizations.SingleOrDefaultAsync(x => x.Code == code, cancellationToken);
+                    var organizationRecord = await _editorContext.Organizations.SingleOrDefaultAsync(x => x.Code == organizationId.ToString(), cancellationToken);
                     if (organizationRecord is not null)
                     {
                         return _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion);
@@ -63,30 +74,21 @@ namespace RoadRegistry.Hosts
                     return null;
                 }
 
+                var ovoCode = new OrganizationOvoCode(organizationId);
                 var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
-                var organizationDetails = organizationRecords.Select(organization => _organizationRecordReader.Read(organization.DbaseRecord, organization.DbaseSchemaVersion)).ToList();
+                var organizationDetail = organizationRecords
+                    .Select(organizationRecord => _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion))
+                    .SingleOrDefault(sod => sod.OvoCode == ovoCode);
 
-                var ovoCode = new OrganizationOvoCode(code);
-                var organizationDetail = organizationDetails.SingleOrDefault(sod => sod.OvoCode == ovoCode);
                 if (organizationDetail is not null)
                 {
                     return organizationDetail;
                 }
 
                 _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");
-                return null;
             }
 
-            var organizationId = new OrganizationId(code);
-            var organization = await _roadRegistryContext.Organizations.FindAsync(organizationId, cancellationToken);
-            return organization is not null
-                ? new OrganizationDetail
-                {
-                    Code = organizationId,
-                    Name = organization.Translation.Name,
-                    OvoCode = organization.OvoCode
-                }
-                : null;
+            return null;
         }
     }
 }

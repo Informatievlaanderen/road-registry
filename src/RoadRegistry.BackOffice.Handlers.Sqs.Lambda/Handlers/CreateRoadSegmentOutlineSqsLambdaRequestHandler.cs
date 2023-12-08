@@ -74,7 +74,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                 else if (OrganizationOvoCode.AcceptsValue(maintenanceAuthority))
                 {
                     //TODO-rik add unit test
-                    problems = problems.Add(new MaintenanceAuthorityCodeNotValid(maintenanceAuthority));
+                    problems = problems.Add(new MaintenanceAuthorityNotKnown(maintenanceAuthority));
                 }
             }
             
@@ -94,7 +94,7 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                     .WithWidth(new RoadSegmentWidthAttribute(AttributeId.Initial, request.Width, fromPosition, toPosition))
                     .WithLane(new RoadSegmentLaneAttribute(AttributeId.Initial, request.LaneCount, request.LaneDirection, fromPosition, toPosition))
             );
-
+            
             if (problems.Any())
             {
                 throw new RoadRegistryProblemsException(problems);

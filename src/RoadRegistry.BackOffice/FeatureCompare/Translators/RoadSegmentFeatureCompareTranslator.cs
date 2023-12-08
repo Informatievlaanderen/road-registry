@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
 using Extracts;
 using NetTopologySuite.Geometries;
-using RoadRegistry.BackOffice.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +12,7 @@ using Uploads;
 using AddRoadSegment = Uploads.AddRoadSegment;
 using ModifyRoadSegment = Uploads.ModifyRoadSegment;
 using RemoveRoadSegment = Uploads.RemoveRoadSegment;
+using RemoveOutlinedRoadSegment = Uploads.RemoveOutlinedRoadSegment;
 
 public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {

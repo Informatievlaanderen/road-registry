@@ -61,7 +61,7 @@ public class Organization : EventSourcedEntity
         });
     }
 
-    public void Change(OrganizationName? name, OrganizationOvoCode? ovoCode)
+    public void Change( OrganizationName? name, OrganizationOvoCode? ovoCode)
     {
         Apply(new ChangeOrganizationAccepted
         {

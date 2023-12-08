@@ -54,6 +54,7 @@ public class Program
                         WellknownSchemas.CommandHostSchema))
                 .AddDistributedStreamStoreLockOptions()
                 .AddRoadNetworkDbIdGenerator()
+                .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
             )
             .ConfigureHealthChecks(HostingPort, builder => builder

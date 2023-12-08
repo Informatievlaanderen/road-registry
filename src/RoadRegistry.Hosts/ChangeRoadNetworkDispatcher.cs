@@ -1,7 +1,6 @@
 namespace RoadRegistry.Hosts;
 
 using BackOffice;
-using BackOffice.Abstractions.Organizations;
 using BackOffice.Core;
 using BackOffice.Framework;
 using BackOffice.Messages;
