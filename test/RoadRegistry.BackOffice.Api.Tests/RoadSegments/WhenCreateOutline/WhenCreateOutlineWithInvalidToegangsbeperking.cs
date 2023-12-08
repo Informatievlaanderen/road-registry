@@ -4,9 +4,9 @@ using Abstractions;
 using Fixtures;
 using Xunit.Abstractions;
 
-public class WhenCreateOutlineWithInvalidToegangsbeperking : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidAccessRestrictionFixture>
+public class WhenCreateOutlineWithInvalidToegangsbeperking : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidToegangsbeperkingFixture>
 {
-    public WhenCreateOutlineWithInvalidToegangsbeperking(WhenCreateOutlineWithInvalidAccessRestrictionFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenCreateOutlineWithInvalidToegangsbeperking(WhenCreateOutlineWithInvalidToegangsbeperkingFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
     }
 

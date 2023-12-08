@@ -4,9 +4,9 @@ using Abstractions;
 using Fixtures;
 using Xunit.Abstractions;
 
-public class WhenCreateOutlineWithInvalidAantalRijstrokenRichting : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidLaneDirectionFixture>
+public class WhenCreateOutlineWithInvalidAantalRijstrokenRichting : WhenCreateOutlineWithInvalidRequest<WhenCreateOutlineWithInvalidAantalRijstrokenRichtingFixture>
 {
-    public WhenCreateOutlineWithInvalidAantalRijstrokenRichting(WhenCreateOutlineWithInvalidLaneDirectionFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
+    public WhenCreateOutlineWithInvalidAantalRijstrokenRichting(WhenCreateOutlineWithInvalidAantalRijstrokenRichtingFixture fixture, ITestOutputHelper outputHelper) : base(fixture, outputHelper)
     {
     }
 

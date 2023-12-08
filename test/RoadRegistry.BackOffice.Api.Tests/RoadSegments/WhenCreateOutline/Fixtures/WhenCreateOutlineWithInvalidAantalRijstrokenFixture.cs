@@ -4,9 +4,9 @@ using Api.RoadSegments;
 using Editor.Schema;
 using MediatR;
 
-public class WhenCreateOutlineWithInvalidLaneCountFixture : WhenCreateOutlineWithValidRequestFixture
+public class WhenCreateOutlineWithInvalidAantalRijstrokenFixture : WhenCreateOutlineWithValidRequestFixture
 {
-    public WhenCreateOutlineWithInvalidLaneCountFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
+    public WhenCreateOutlineWithInvalidAantalRijstrokenFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
     {
     }
 

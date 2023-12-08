@@ -4,9 +4,9 @@ using Api.RoadSegments;
 using Editor.Schema;
 using MediatR;
 
-public class WhenCreateOutlineWithInvalidMorphologyFixture : WhenCreateOutlineWithValidRequestFixture
+public class WhenCreateOutlineWithInvalidMorfologischeWegklasseFixture : WhenCreateOutlineWithValidRequestFixture
 {
-    public WhenCreateOutlineWithInvalidMorphologyFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
+    public WhenCreateOutlineWithInvalidMorfologischeWegklasseFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
     {
     }
 

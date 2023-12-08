@@ -73,7 +73,6 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
                 }
                 else if (OrganizationOvoCode.AcceptsValue(maintenanceAuthority))
                 {
-                    //TODO-rik add unit test
                     problems = problems.Add(new MaintenanceAuthorityNotKnown(maintenanceAuthority));
                 }
             }

@@ -98,7 +98,6 @@ public sealed class ChangeRoadSegmentAttributesSqsLambdaRequestHandler : SqsLamb
                     }
                     else if (OrganizationOvoCode.AcceptsValue(maintenanceAuthority.Value))
                     {
-                        //TODO-rik add unit test
                         problems = problems.Add(new MaintenanceAuthorityNotKnown(maintenanceAuthority.Value));
                         continue;
                     }

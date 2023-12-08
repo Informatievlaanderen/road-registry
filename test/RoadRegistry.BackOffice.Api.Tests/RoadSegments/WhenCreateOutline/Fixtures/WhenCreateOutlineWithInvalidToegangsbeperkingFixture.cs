@@ -4,9 +4,9 @@ using Api.RoadSegments;
 using Editor.Schema;
 using MediatR;
 
-public class WhenCreateOutlineWithInvalidAccessRestrictionFixture : WhenCreateOutlineWithValidRequestFixture
+public class WhenCreateOutlineWithInvalidToegangsbeperkingFixture : WhenCreateOutlineWithValidRequestFixture
 {
-    public WhenCreateOutlineWithInvalidAccessRestrictionFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
+    public WhenCreateOutlineWithInvalidToegangsbeperkingFixture(IMediator mediator, EditorContext editorContext) : base(mediator, editorContext)
     {
     }
 
