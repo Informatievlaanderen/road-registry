@@ -27,7 +27,7 @@ public class ChangeRoadNetworkValidator : AbstractValidator<ChangeRoadNetwork>
             .NotNull()
             .NotEmpty()
             .MaximumLength(OrganizationId.MaxLength);
-        //TODO-rik missing validation dat elk wegsegment minstens 1 lane/surface/width moet hebben -> add unit test
+
         RuleFor(c => c.Changes)
             .NotNull()
             .Must(OnlyHaveUniqueTemporaryRoadNodeIdentifiers)

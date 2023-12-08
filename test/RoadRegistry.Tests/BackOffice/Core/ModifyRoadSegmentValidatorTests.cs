@@ -6,11 +6,11 @@ using NetTopologySuite.Geometries;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Messages;
-using AddRoadSegment = RoadRegistry.BackOffice.Messages.AddRoadSegment;
+using ModifyRoadSegment = RoadRegistry.BackOffice.Messages.ModifyRoadSegment;
 
-public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoadSegmentValidator>
+public class ModifyRoadSegmentValidatorTests : ValidatorTest<ModifyRoadSegment, ModifyRoadSegmentValidator>
 {
-    public AddRoadSegmentValidatorTests()
+    public ModifyRoadSegmentValidatorTests()
     {
         Fixture.CustomizeRoadNodeId();
         Fixture.CustomizeRoadSegmentId();
@@ -81,9 +81,8 @@ public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoa
             }).OmitAutoProperties());
         Fixture.CustomizePolylineM();
 
-        Model = new AddRoadSegment
+        Model = new ModifyRoadSegment
         {
-            TemporaryId = Fixture.Create<RoadSegmentId>(),
             StartNodeId = Fixture.Create<RoadNodeId>(),
             EndNodeId = Fixture.Create<RoadNodeId>(),
             Geometry = GeometryTranslator.Translate(Fixture.Create<MultiLineString>()),
@@ -174,7 +173,7 @@ public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoa
 //        [Fact]
 //        public void PartOfEuropeanRoadsHasExpectedValidator()
 //        {
-//            Validator.ShouldHaveChildValidator(c => c.PartOfEuropeanRoads, typeof(AddRoadSegmentToEuropeanRoadValidator));
+//            Validator.ShouldHaveChildValidator(c => c.PartOfEuropeanRoads, typeof(ModifyRoadSegmentToEuropeanRoadValidator));
 //        }
 //
 //        [Fact]
@@ -196,7 +195,7 @@ public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoa
 //        [Fact]
 //        public void PartOfNationalRoadsHasExpectedValidator()
 //        {
-//            Validator.ShouldHaveChildValidator(c => c.PartOfNationalRoads, typeof(AddRoadSegmentToNationalRoadValidator));
+//            Validator.ShouldHaveChildValidator(c => c.PartOfNationalRoads, typeof(ModifyRoadSegmentToNationalRoadValidator));
 //        }
 //
 //        [Fact]
@@ -218,7 +217,7 @@ public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoa
 //        [Fact]
 //        public void PartOfNumberedRoadsHasExpectedValidator()
 //        {
-//            Validator.ShouldHaveChildValidator(c => c.PartOfNumberedRoads, typeof(AddRoadSegmentToNumberedRoadValidator));
+//            Validator.ShouldHaveChildValidator(c => c.PartOfNumberedRoads, typeof(ModifyRoadSegmentToNumberedRoadValidator));
 //        }
 
     [Fact]
@@ -286,15 +285,7 @@ public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoa
     {
         ShouldHaveValidationErrorFor(c => c.Surfaces, Array.Empty<RequestedRoadSegmentSurfaceAttribute>());
     }
-
-    [Theory]
-    [InlineData(int.MinValue)]
-    [InlineData(-1)]
-    public void TemporaryIdMustBeGreaterThan(int value)
-    {
-        ShouldHaveValidationErrorFor(c => c.TemporaryId, value);
-    }
-
+    
     [Fact]
     public void WidthMustNotBeNull()
     {

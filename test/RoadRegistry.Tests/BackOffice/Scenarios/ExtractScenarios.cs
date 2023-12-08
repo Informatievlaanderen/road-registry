@@ -1,6 +1,5 @@
 namespace RoadRegistry.Tests.BackOffice.Scenarios;
 
-using System.IO.Compression;
 using AutoFixture;
 using Be.Vlaanderen.Basisregisters.BlobStore;
 using Framework.Projections;
@@ -8,10 +7,9 @@ using Framework.Testing;
 using KellermanSoftware.CompareNetObjects;
 using NodaTime.Text;
 using RoadRegistry.BackOffice;
-using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.Extracts;
 using RoadRegistry.BackOffice.Messages;
-using RoadRegistry.BackOffice.Uploads;
+using System.IO.Compression;
 using FileProblem = RoadRegistry.BackOffice.Messages.FileProblem;
 
 public class ExtractScenarios : RoadRegistryTestBase
