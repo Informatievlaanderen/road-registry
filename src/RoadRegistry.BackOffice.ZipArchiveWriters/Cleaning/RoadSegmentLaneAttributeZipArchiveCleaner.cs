@@ -1,15 +1,14 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Cleaning;
 
-using System.IO.Compression;
-using System.Text;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
+using System.IO.Compression;
 
 public class RoadSegmentLaneAttributeZipArchiveCleaner : VersionedZipArchiveCleaner
 {
     private static readonly ExtractFileName FileName = ExtractFileName.AttRijstroken;
 
-    public RoadSegmentLaneAttributeZipArchiveCleaner(Encoding encoding)
+    public RoadSegmentLaneAttributeZipArchiveCleaner(FileEncoding encoding)
         : base(
             new ExtractsDbaseZipArchiveCleaner(encoding, FileName),
             new UploadsV2DbaseZipArchiveCleaner(encoding, FileName),
@@ -20,7 +19,7 @@ public class RoadSegmentLaneAttributeZipArchiveCleaner : VersionedZipArchiveClea
 
     private sealed class ExtractsDbaseZipArchiveCleaner : DbaseZipArchiveCleanerBase<RoadSegmentLaneAttributeDbaseRecord>
     {
-        public ExtractsDbaseZipArchiveCleaner(Encoding encoding, ExtractFileName fileName)
+        public ExtractsDbaseZipArchiveCleaner(FileEncoding encoding, ExtractFileName fileName)
             : base(RoadSegmentLaneAttributeDbaseRecord.Schema, encoding, fileName)
         {
         }
@@ -40,7 +39,7 @@ public class RoadSegmentLaneAttributeZipArchiveCleaner : VersionedZipArchiveClea
 
     private sealed class UploadsV2DbaseZipArchiveCleaner : DbaseZipArchiveCleanerBase<Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord>
     {
-        public UploadsV2DbaseZipArchiveCleaner(Encoding encoding, ExtractFileName fileName)
+        public UploadsV2DbaseZipArchiveCleaner(FileEncoding encoding, ExtractFileName fileName)
             : base(Uploads.Dbase.BeforeFeatureCompare.V2.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema, encoding, fileName)
         {
         }
@@ -60,7 +59,7 @@ public class RoadSegmentLaneAttributeZipArchiveCleaner : VersionedZipArchiveClea
 
     private sealed class UploadsV1DbaseZipArchiveCleaner : DbaseZipArchiveCleanerBase<Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord>
     {
-        public UploadsV1DbaseZipArchiveCleaner(Encoding encoding, ExtractFileName fileName)
+        public UploadsV1DbaseZipArchiveCleaner(FileEncoding encoding, ExtractFileName fileName)
             : base(Uploads.Dbase.BeforeFeatureCompare.V1.Schema.RoadSegmentLaneAttributeDbaseRecord.Schema, encoding, fileName)
         {
         }

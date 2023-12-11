@@ -1,12 +1,12 @@
 namespace RoadRegistry.BackOffice.ExtractHost;
 
 using Abstractions;
+using Autofac;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
 using Configuration;
 using Editor.Schema;
 using Extensions;
 using Extracts;
-using FeatureCompare;
 using Framework;
 using Handlers.Extracts;
 using Hosts;
@@ -42,7 +42,7 @@ public class Program
                 services
                     .AddHostedService<EventProcessor>()
                     .RegisterOptions<ZipArchiveWriterOptions>()
-                    .AddEmailClient(hostContext.Configuration)
+                    .AddEmailClient()
                     .AddRoadRegistrySnapshot()
                     .AddRoadNetworkEventWriter()
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
@@ -60,35 +60,22 @@ public class Program
                             sp.GetRequiredService<FileEncoding>(),
                             sp.GetRequiredService<UseNetTopologySuiteShapeReaderWriterFeatureToggle>()
                         ))
-                    .AddSingleton<Func<EditorContext>>(sp =>
-                        () =>
-                            new EditorContext(
-                                new DbContextOptionsBuilder<EditorContext>()
-                                    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                                    .UseLoggerFactory(sp.GetService<ILoggerFactory>())
-                                    .UseSqlServer(
-                                        hostContext.Configuration.GetConnectionString(WellknownConnectionNames.EditorProjections),
-                                        options => options
-                                            .UseNetTopologySuite()
-                                    ).Options)
-                    )
                     .AddSingleton<IRoadNetworkExtractArchiveAssembler>(sp =>
                         new RoadNetworkExtractArchiveAssembler(
                             sp.GetService<RecyclableMemoryStreamManager>(),
                             sp.GetService<Func<EditorContext>>(),
                             sp.GetService<IZipArchiveWriter<EditorContext>>()))
+                    .AddEditorContext()
+                    .AddOrganizationRepository()
+                    .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkExtractEventModule(
+                            sp.GetService<ILifetimeScope>(),
                             sp.GetService<RoadNetworkExtractDownloadsBlobClient>(),
                             sp.GetService<RoadNetworkExtractUploadsBlobClient>(),
                             sp.GetService<IRoadNetworkExtractArchiveAssembler>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>()),
-                            new ZipArchiveFeatureCompareTranslator(
-                                sp.GetRequiredService<FileEncoding>(),
-                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>(),
-                                sp.GetRequiredService<UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle>()
-                            ),
                             sp.GetService<IStreamStore>(),
                             ApplicationMetadata,
                             sp.GetService<IRoadNetworkEventWriter>(),

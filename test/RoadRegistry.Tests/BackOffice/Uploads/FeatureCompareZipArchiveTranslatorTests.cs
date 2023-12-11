@@ -1,35 +1,29 @@
 namespace RoadRegistry.Tests.BackOffice.Uploads;
 
-using System.Diagnostics;
-using System.IO.Compression;
-using System.Reflection;
-using System.Text;
-using Be.Vlaanderen.Basisregisters.EventHandling;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.DutchTranslations;
 using RoadRegistry.BackOffice.Exceptions;
 using RoadRegistry.BackOffice.FeatureCompare;
-using RoadRegistry.BackOffice.FeatureToggles;
 using RoadRegistry.BackOffice.Messages;
 using RoadRegistry.BackOffice.Uploads;
-using RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
-using Xunit.Sdk;
+using System.Diagnostics;
+using System.IO.Compression;
+using System.Text;
 
 public class FeatureCompareZipArchiveTranslatorTests
 {
     private readonly ITestOutputHelper _outputHelper;
-    private readonly ZipArchiveFeatureCompareTranslator _sut;
+    private readonly IZipArchiveFeatureCompareTranslator _sut;
     private readonly ZipArchiveTranslator _zipArchiveTranslator;
 
-    public FeatureCompareZipArchiveTranslatorTests(ITestOutputHelper outputHelper, ILogger<FeatureCompareZipArchiveTranslatorTests> logger)
+    public FeatureCompareZipArchiveTranslatorTests(ITestOutputHelper outputHelper, ILogger<ZipArchiveFeatureCompareTranslator> logger, FileEncoding encoding)
     {
         _outputHelper = outputHelper;
-        _sut = new ZipArchiveFeatureCompareTranslator(Encoding.UTF8, logger, new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true));
-        _zipArchiveTranslator = new ZipArchiveTranslator(Encoding.UTF8);
+        _sut = ZipArchiveFeatureCompareTranslatorFactory.Create();
+        _zipArchiveTranslator = new ZipArchiveTranslator(encoding);
     }
 
     [Fact]
@@ -49,8 +43,8 @@ public class FeatureCompareZipArchiveTranslatorTests
             using (var archiveStream = File.OpenRead(pathArchive))
             using (var archive = new ZipArchive(archiveStream))
             {
-                var archiveValidationProblems = new ZipArchiveBeforeFeatureCompareValidator(FileEncoding.UTF8)
-                    .Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
+                var validator = ZipArchiveBeforeFeatureCompareValidatorFactory.Create();
+                var archiveValidationProblems = validator.Validate(archive, new ZipArchiveValidatorContext(ZipArchiveMetadata.Empty));
 
                 var sw = Stopwatch.StartNew();
                 _outputHelper.WriteLine("Started translate Before-FC");

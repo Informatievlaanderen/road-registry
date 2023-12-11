@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice.Extensions;
 
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using Amazon.SimpleEmailV2;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
@@ -18,22 +14,31 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
 using NodaTime;
+using RoadRegistry.BackOffice.FeatureCompare;
+using RoadRegistry.BackOffice.FeatureCompare.Translators;
 using SqlStreamStore;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddEmailClient(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddEmailClient(this IServiceCollection services)
     {
-        var emailClientOptions = configuration.GetOptions<EmailClientOptions>() ?? new EmailClientOptions();
-
-        services.AddSingleton(emailClientOptions);
+        services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<EmailClientOptions>() ?? new EmailClientOptions());
         services.AddSingleton(_ => new AmazonSimpleEmailServiceV2Client());
-        services.AddSingleton<IExtractUploadFailedEmailClient>(sp => !string.IsNullOrEmpty(emailClientOptions.FromEmailAddress)
-            ? new ExtractUploadFailedEmailClient(
-                sp.GetService<AmazonSimpleEmailServiceV2Client>(),
-                sp.GetService<EmailClientOptions>(),
-                sp.GetService<ILogger<ExtractUploadFailedEmailClient>>())
-            : new NotConfiguredExtractUploadFailedEmailClient(sp.GetService<ILogger<NotConfiguredExtractUploadFailedEmailClient>>()));
+        services.AddSingleton<IExtractUploadFailedEmailClient>(sp =>
+        {
+            var emailClientOptions = sp.GetRequiredService<EmailClientOptions>();
+
+            return !string.IsNullOrEmpty(emailClientOptions.FromEmailAddress)
+                ? new ExtractUploadFailedEmailClient(
+                    sp.GetService<AmazonSimpleEmailServiceV2Client>(),
+                    sp.GetService<EmailClientOptions>(),
+                    sp.GetService<ILogger<ExtractUploadFailedEmailClient>>())
+                : new NotConfiguredExtractUploadFailedEmailClient(sp.GetService<ILogger<NotConfiguredExtractUploadFailedEmailClient>>());
+        });
 
         return services;
     }
@@ -181,5 +186,34 @@ public static class ServiceCollectionExtensions
                     throw new ConfigurationErrorsException($"{nameof(options.EventCount)} must be greater than zero");
                 }
             });
+    }
+
+    public static IServiceCollection AddFeatureCompareTranslator(this IServiceCollection services)
+    {
+        return services
+            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>()
+            .AddSingleton<RoadNodeFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentLaneFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentWidthFeatureCompareFeatureReader>()
+            .AddSingleton<RoadSegmentSurfaceFeatureCompareFeatureReader>()
+            .AddSingleton<EuropeanRoadFeatureCompareFeatureReader>()
+            .AddSingleton<NationalRoadFeatureCompareFeatureReader>()
+            .AddSingleton<NumberedRoadFeatureCompareFeatureReader>()
+            .AddSingleton<GradeSeparatedJunctionFeatureCompareFeatureReader>()
+
+            .AddScoped<TransactionZoneFeatureCompareTranslator>()
+            .AddScoped<RoadNodeFeatureCompareTranslator>()
+            .AddScoped<RoadSegmentFeatureCompareTranslator>()
+            .AddScoped<RoadSegmentLaneFeatureCompareTranslator>()
+            .AddScoped<RoadSegmentWidthFeatureCompareTranslator>()
+            .AddScoped<RoadSegmentSurfaceFeatureCompareTranslator>()
+            .AddScoped<EuropeanRoadFeatureCompareTranslator>()
+            .AddScoped<NationalRoadFeatureCompareTranslator>()
+            .AddScoped<NumberedRoadFeatureCompareTranslator>()
+            .AddScoped<GradeSeparatedJunctionFeatureCompareTranslator>()
+
+            .AddScoped<IZipArchiveFeatureCompareTranslator, ZipArchiveFeatureCompareTranslator>()
+            ;
     }
 }

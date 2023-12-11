@@ -1,23 +1,17 @@
 namespace RoadRegistry.Hosts;
 
 using BackOffice;
-using BackOffice.Abstractions.Organizations;
 using BackOffice.Core;
-using BackOffice.FeatureToggles;
 using BackOffice.Framework;
 using BackOffice.Messages;
 using BackOffice.Uploads;
-using Be.Vlaanderen.Basisregisters.GrAr.Provenance;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Handlers;
 using Be.Vlaanderen.Basisregisters.Sqs.Lambda.Requests;
-using Editor.Schema;
 using FluentValidation;
 using FluentValidation.Results;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.IO;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -34,35 +28,30 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
 {
     private readonly IRoadNetworkCommandQueue _commandQueue;
     private readonly IIdempotentCommandHandler _idempotentCommandHandler;
-    private readonly EditorContext _editorContext;
     private readonly EventSourcedEntityMap _eventSourcedEntityMap;
-    private readonly UseOvoCodeInChangeRoadNetworkFeatureToggle _useOvoCodeInChangeRoadNetworkFeatureToggle;
+    private readonly IOrganizationRepository _organizationRepository;
     private readonly ILogger<ChangeRoadNetworkDispatcher> _logger;
-    private readonly OrganizationDbaseRecordReader _organizationRecordReader;
 
     public ChangeRoadNetworkDispatcher(
         IRoadNetworkCommandQueue commandQueue,
         IIdempotentCommandHandler idempotentCommandHandler,
-        EditorContext editorContext,
-        RecyclableMemoryStreamManager manager,
-        FileEncoding fileEncoding,
         EventSourcedEntityMap eventSourcedEntityMap,
-        UseOvoCodeInChangeRoadNetworkFeatureToggle useOvoCodeInChangeRoadNetworkFeatureToggle,
+        IOrganizationRepository organizationRepository,
         ILogger<ChangeRoadNetworkDispatcher> logger)
     {
         _commandQueue = commandQueue;
         _idempotentCommandHandler = idempotentCommandHandler;
-        _editorContext = editorContext;
         _eventSourcedEntityMap = eventSourcedEntityMap;
-        _useOvoCodeInChangeRoadNetworkFeatureToggle = useOvoCodeInChangeRoadNetworkFeatureToggle;
+        _organizationRepository = organizationRepository;
         _logger = logger;
-        _organizationRecordReader = new OrganizationDbaseRecordReader(manager, fileEncoding);
     }
 
     public async Task<ChangeRoadNetwork> DispatchAsync(SqsLambdaRequest lambdaRequest, string reason, Func<TranslatedChanges, Task<TranslatedChanges>> translatedChangesBuilder, CancellationToken cancellationToken)
     {
         var sw = Stopwatch.StartNew();
-        var organization = await GetOrganization(lambdaRequest.Provenance.Operator, cancellationToken);
+        var organizationId = new OrganizationId(lambdaRequest.Provenance.Operator);
+        var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(organizationId, cancellationToken)
+                           ?? OrganizationDetail.FromCode(organizationId);
         _logger.LogInformation("TIMETRACKING dispatcher: finding organization by '{Operator}' took {Elapsed}", lambdaRequest.Provenance.Operator, sw.Elapsed);
         sw.Restart();
 
@@ -142,41 +131,6 @@ public class ChangeRoadNetworkDispatcher : IChangeRoadNetworkDispatcher
         }
 
         return changeRoadNetwork;
-    }
-
-    private async Task<OrganizationDetail> GetOrganization(Operator @operator, CancellationToken cancellationToken)
-    {
-        if (OrganizationOvoCode.AcceptsValue(@operator))
-        {
-            if (_useOvoCodeInChangeRoadNetworkFeatureToggle.FeatureEnabled)
-            {
-                var organizationRecord = await _editorContext.Organizations.SingleOrDefaultAsync(x => x.Code == @operator, cancellationToken);
-                if (organizationRecord is not null)
-                {
-                    return _organizationRecordReader.Read(organizationRecord.DbaseRecord, organizationRecord.DbaseSchemaVersion);
-                }
-            }
-            else
-            {
-                var organizationRecords = await _editorContext.Organizations.ToListAsync(cancellationToken);
-                var organizationDetails = organizationRecords.Select(organization => _organizationRecordReader.Read(organization.DbaseRecord, organization.DbaseSchemaVersion)).ToList();
-
-                var ovoCode = new OrganizationOvoCode(@operator.ToString());
-                var organizationDetail = organizationDetails.SingleOrDefault(sod => sod.OvoCode == ovoCode);
-                if (organizationDetail is not null)
-                {
-                    return organizationDetail;
-                }
-
-                _logger.LogError($"Could not find a mapping to an organization for OVO-code {ovoCode}");
-            }
-        }
-
-        return new OrganizationDetail
-        {
-            Code = new OrganizationId(@operator),
-            Name = new OrganizationName(@operator)
-        };
     }
 }
 

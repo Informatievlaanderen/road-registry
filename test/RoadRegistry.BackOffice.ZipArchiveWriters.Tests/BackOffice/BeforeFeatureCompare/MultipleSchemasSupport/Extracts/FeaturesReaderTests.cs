@@ -261,7 +261,7 @@ public class FeaturesReaderTests
 
         using (zipArchive)
         {
-            var sut = new ZipArchiveFeatureCompareTranslator(Encoding, _logger, new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true));
+            var sut = ZipArchiveFeatureCompareTranslatorFactory.Create();
 
             try
             {

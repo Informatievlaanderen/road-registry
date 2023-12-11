@@ -1,20 +1,19 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using System;
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Extensions;
 using Extracts;
 using Extracts.Dbase.RoadSegments;
 using NetTopologySuite.Geometries;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Linq;
+using System.Text;
 using Uploads;
 
 public class RoadSegmentLaneFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentLaneFeatureCompareAttributes>>
 {
-    public RoadSegmentLaneFeatureCompareFeatureReader(Encoding encoding)
+    public RoadSegmentLaneFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding),
             new UploadsV1FeatureReader(encoding))

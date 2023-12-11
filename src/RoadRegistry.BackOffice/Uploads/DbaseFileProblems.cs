@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Be.Vlaanderen.Basisregisters.Shaperon;
 using Core;
+using Core.ProblemCodes;
 using Extensions;
 
 public static class DbaseFileProblems
@@ -646,6 +647,14 @@ public static class DbaseFileProblems
                 )
             )
             .WithParameter(new ProblemParameter("Actual", actual.ToString()))
+            .Build();
+    }
+
+    public static FileError RoadSegmentMaintenanceAuthorityNotKnown(this IDbaseFileRecordProblemBuilder builder, OrganizationId organizationId)
+    {
+        return builder
+            .Error(nameof(RoadSegmentMaintenanceAuthorityNotKnown))
+            .WithParameter(new ProblemParameter(MaintenanceAuthorityNotKnown.ParameterName.OrganizationId, organizationId.ToString()))
             .Build();
     }
 

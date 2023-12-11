@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
+using RoadRegistry.BackOffice.Core;
 using RoadRegistry.BackOffice.Core.ProblemCodes;
 using RoadRegistry.BackOffice.Extensions;
 using RoadRegistry.Editor.Schema;
 
 public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttributeParameters>
 {
+    private readonly IOrganizationRepository _organizationRepository;
     private readonly EditorContext _editorContext;
 
     protected override bool PreValidate(ValidationContext<ChangeAttributeParameters> context, ValidationResult result)
@@ -38,9 +40,10 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         return true;
     }
 
-    public ChangeAttributeParametersValidator(EditorContext editorContext)
+    public ChangeAttributeParametersValidator(EditorContext editorContext, IOrganizationRepository organizationRepository)
     {
         _editorContext = editorContext.ThrowIfNull();
+        _organizationRepository = organizationRepository.ThrowIfNull();
 
         RuleFor(x => x.Wegsegmenten)
             .Cascade(CascadeMode.Stop)
@@ -55,8 +58,10 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         {
             RuleFor(x => x.Wegbeheerder)
                 .Cascade(CascadeMode.Stop)
+                .Must(OrganizationId.AcceptsValue)
+                .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid)
                 .MustAsync(BeKnownOrganization)
-                .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid);
+                .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, value => new MaintenanceAuthorityNotKnown(new OrganizationId(value)));
         });
 
         When(x => x.Wegsegmentstatus is not null, () =>
@@ -97,9 +102,15 @@ public class ChangeAttributeParametersValidator : AbstractValidator<ChangeAttrib
         return Task.FromResult(!FindNonExistingOrRemovedRoadSegmentIds(ids).Any());
     }
 
-    private Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
+    private async Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
     {
-        return _editorContext.Organizations.AnyAsync(x => x.Code == code, cancellationToken);
+        if (!OrganizationId.AcceptsValue(code))
+        {
+            return false;
+        }
+
+        var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(new OrganizationId(code), cancellationToken);
+        return organization is not null;
     }
 
     private IEnumerable<int> FindExistingAndNonRemovedRoadSegmentIds(IEnumerable<int> ids)

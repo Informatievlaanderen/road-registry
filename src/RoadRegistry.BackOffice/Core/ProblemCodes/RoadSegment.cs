@@ -77,8 +77,9 @@ public sealed partial record ProblemCode
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentMaintenanceAuthorityNotValid");
             public static readonly ProblemCode IsRequired = new("RoadSegmentMaintenanceAuthorityIsRequired");
+            public static readonly ProblemCode NotKnown = new("RoadSegmentMaintenanceAuthorityNotKnown");
         }
-
+        
         public static class Morphology
         {
             public static readonly ProblemCode NotValid = new("RoadSegmentMorphologyNotValid");

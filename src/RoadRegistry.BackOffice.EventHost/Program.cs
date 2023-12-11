@@ -44,7 +44,7 @@ public class Program
             {
                 services
                     .AddHostedService<EventProcessor>()
-                    .AddEmailClient(hostContext.Configuration)
+                    .AddEmailClient()
                     .AddTicketing()
                     .AddRoadRegistrySnapshot()
                     .AddRoadNetworkEventWriter()
@@ -55,19 +55,18 @@ public class Program
                                 sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EventHost)
                             ),
                             WellknownSchemas.EventHostSchema))
+                    .AddEditorContext()
+                    .AddOrganizationRepository()
+                    .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {
                         new RoadNetworkChangesArchiveEventModule(
+                            sp.GetService<ILifetimeScope>(),
                             sp.GetRequiredService<RoadNetworkUploadsBlobClient>(),
                             new ZipArchiveTranslator(sp.GetRequiredService<FileEncoding>(), sp.GetRequiredService<ILogger<ZipArchiveTranslator>>()),
-                            new ZipArchiveFeatureCompareTranslator(
-                                sp.GetRequiredService<FileEncoding>(),
-                                sp.GetRequiredService<ILogger<ZipArchiveFeatureCompareTranslator>>(),
-                                sp.GetRequiredService<UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle>()
-                            ),
                             sp.GetRequiredService<IStreamStore>(),
                             ApplicationMetadata,
-                            new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()),
+                            sp.GetRequiredService<TransactionZoneFeatureCompareFeatureReader>(),
                             sp.GetRequiredService<IRoadNetworkEventWriter>(),
                             sp.GetService<IExtractUploadFailedEmailClient>(),
                             sp.GetRequiredService<ILogger<RoadNetworkChangesArchiveEventModule>>()
@@ -108,6 +107,7 @@ public class Program
             .ConfigureContainer((context, builder) =>
             {
                 builder
+                    .RegisterModule<ContextModule>()
                     .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();

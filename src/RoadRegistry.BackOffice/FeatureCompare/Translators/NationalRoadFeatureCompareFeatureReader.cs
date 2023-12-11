@@ -11,7 +11,7 @@ using Uploads;
 
 public class NationalRoadFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<NationalRoadFeatureCompareAttributes>>
 {
-    public NationalRoadFeatureCompareFeatureReader(Encoding encoding)
+    public NationalRoadFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding),
             new UploadsV1FeatureReader(encoding))

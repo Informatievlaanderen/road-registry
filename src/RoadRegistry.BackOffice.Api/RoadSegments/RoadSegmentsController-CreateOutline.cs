@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice.Api.RoadSegments;
 
-using System;
-using System.Runtime.Serialization;
-using System.Threading;
-using System.Threading.Tasks;
 using Abstractions.RoadSegmentsOutline;
 using Be.Vlaanderen.Basisregisters.AcmIdm;
 using Be.Vlaanderen.Basisregisters.Api.Exceptions;
@@ -11,7 +7,6 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Be.Vlaanderen.Basisregisters.Sqs.Exceptions;
 using Core;
 using Core.ProblemCodes;
-using Editor.Schema;
 using Extensions;
 using FeatureToggles;
 using FluentValidation;
@@ -21,10 +16,13 @@ using Infrastructure.Controllers.Attributes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.Filters;
+using System;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 public partial class RoadSegmentsController
 {
@@ -173,11 +171,11 @@ public class RoadSegmentLaneParameters
 
 public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostRoadSegmentOutlineParameters>
 {
-    private readonly EditorContext _editorContext;
+    private readonly IOrganizationRepository _organizationRepository;
 
-    public PostRoadSegmentOutlineParametersValidator(EditorContext editorContext)
+    public PostRoadSegmentOutlineParametersValidator(IOrganizationRepository organizationRepository)
     {
-        _editorContext = editorContext ?? throw new ArgumentNullException(nameof(editorContext));
+        _organizationRepository = organizationRepository.ThrowIfNull();
 
         RuleFor(x => x.MiddellijnGeometrie)
             .Cascade(CascadeMode.Stop)
@@ -215,8 +213,10 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .Cascade(CascadeMode.Stop)
             .NotNull()
             .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.IsRequired)
+            .Must(OrganizationId.AcceptsValue)
+            .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid)
             .MustAsync(BeKnownOrganization)
-            .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotValid);
+            .WithProblemCode(ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, value => new MaintenanceAuthorityNotKnown(new OrganizationId(value)));
         
         RuleFor(x => x.Wegverharding)
             .Cascade(CascadeMode.Stop)
@@ -239,9 +239,15 @@ public class PostRoadSegmentOutlineParametersValidator : AbstractValidator<PostR
             .SetValidator(new RoadSegmentLaneParametersValidator());
     }
 
-    private Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
+    private async Task<bool> BeKnownOrganization(string code, CancellationToken cancellationToken)
     {
-        return _editorContext.Organizations.AnyAsync(x => x.Code == code, cancellationToken);
+        if (!OrganizationId.AcceptsValue(code))
+        {
+            return false;
+        }
+
+        var organization = await _organizationRepository.FindByIdOrOvoCodeAsync(new OrganizationId(code), cancellationToken);
+        return organization is not null;
     }
 }
 

@@ -228,6 +228,12 @@ public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoa
     }
 
     [Fact]
+    public void LanesMustNotBeEmpty()
+    {
+        ShouldHaveValidationErrorFor(c => c.Lanes, Array.Empty<RequestedRoadSegmentLaneAttribute>());
+    }
+
+    [Fact]
     public void MorphologyMustBeWithinDomain()
     {
         ShouldHaveValidationErrorFor(c => c.Morphology, Fixture.Create<string>());
@@ -275,6 +281,12 @@ public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoa
         ShouldHaveValidationErrorFor(c => c.Surfaces, null);
     }
 
+    [Fact]
+    public void SurfacesMustNotBeEmpty()
+    {
+        ShouldHaveValidationErrorFor(c => c.Surfaces, Array.Empty<RequestedRoadSegmentSurfaceAttribute>());
+    }
+
     [Theory]
     [InlineData(int.MinValue)]
     [InlineData(-1)]
@@ -303,5 +315,11 @@ public class AddRoadSegmentValidatorTests : ValidatorTest<AddRoadSegment, AddRoa
     public void WidthsMustNotBeNull()
     {
         ShouldHaveValidationErrorFor(c => c.Widths, null);
+    }
+
+    [Fact]
+    public void WidthsMustNotBeEmpty()
+    {
+        ShouldHaveValidationErrorFor(c => c.Widths, Array.Empty<RequestedRoadSegmentWidthAttribute>());
     }
 }

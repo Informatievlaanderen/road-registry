@@ -1,24 +1,16 @@
 namespace RoadRegistry.BackOffice.Api.Tests.RoadSegments.WhenChangeAttributes.Abstractions.Fixtures;
 
-using System.Text;
 using Api.RoadSegments;
 using Api.RoadSegments.ChangeAttributes;
 using AutoFixture;
 using BackOffice.Extracts.Dbase.Organizations;
-using BackOffice.Extracts.Dbase.RoadSegments;
-using Be.Vlaanderen.Basisregisters.Shaperon;
-using Editor.Projections;
 using Editor.Schema;
-using Editor.Schema.Extensions;
-using Editor.Schema.RoadSegments;
 using FeatureToggles;
-using Hosts.Infrastructure.Options;
 using Infrastructure;
 using MediatR;
 using Messages;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IO;
 using RoadRegistry.Tests.BackOffice;
 using RoadRegistry.Tests.BackOffice.Extracts;
 using RoadRegistry.Tests.BackOffice.Scenarios;
@@ -29,6 +21,8 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
     private readonly IMediator _mediator;
     public readonly RoadNetworkTestData TestData = new();
 
+    private IOrganizationRepository _organizationRepository;
+
     protected WhenChangeAttributesFixture(IMediator mediator, EditorContext editorContext)
     {
         _mediator = mediator;
@@ -38,6 +32,7 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
 
         ObjectProvider.CustomizeRoadSegmentOutlineMorphology();
         ObjectProvider.CustomizeRoadSegmentOutlineStatus();
+        _organizationRepository = new FakeOrganizationRepository();
     }
 
     protected override async Task<IActionResult> GetResultAsync(ChangeRoadSegmentAttributesParameters parameters)
@@ -54,9 +49,14 @@ public abstract class WhenChangeAttributesFixture : ControllerActionFixture<Chan
             new UseRoadSegmentChangeAttributesFeatureToggle(true),
             parameters,
             new ChangeRoadSegmentAttributesParametersValidator(),
-            new ChangeRoadSegmentAttributesParametersWrapperValidator(_editorContext),
+            new ChangeRoadSegmentAttributesParametersWrapperValidator(_editorContext, _organizationRepository),
             CancellationToken.None
         );
+    }
+
+    public void CustomizeOrganizationRepository(IOrganizationRepository organizationRepository)
+    {
+        _organizationRepository = organizationRepository.ThrowIfNull();
     }
 
     protected override async Task SetupAsync()

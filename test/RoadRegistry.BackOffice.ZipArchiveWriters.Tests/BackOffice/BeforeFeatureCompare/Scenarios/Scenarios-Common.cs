@@ -2,7 +2,6 @@ namespace RoadRegistry.BackOffice.ZipArchiveWriters.Tests.BackOffice.BeforeFeatu
 
 using FeatureCompare;
 using Microsoft.Extensions.Logging;
-using RoadRegistry.BackOffice.FeatureToggles;
 using Xunit.Abstractions;
 
 public class CommonScenarios: FeatureCompareTranslatorScenariosBase
@@ -13,15 +12,9 @@ public class CommonScenarios: FeatureCompareTranslatorScenariosBase
     }
     
     [Fact]
-    public void EncodingCanNotBeNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => new ZipArchiveFeatureCompareTranslator(null, null, null));
-    }
-    
-    [Fact]
     public void IsZipArchiveFeatureCompareTranslator()
     {
-        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger, new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true));
+        var sut = ZipArchiveFeatureCompareTranslatorFactory.Create();
 
         Assert.IsAssignableFrom<IZipArchiveFeatureCompareTranslator>(sut);
     }
@@ -29,7 +22,7 @@ public class CommonScenarios: FeatureCompareTranslatorScenariosBase
     [Fact]
     public async Task TranslateArchiveCanNotBeNull()
     {
-        var sut = new ZipArchiveFeatureCompareTranslator(Encoding, Logger, new UseGradeSeparatedJunctionLowerRoadSegmentEqualsUpperRoadSegmentValidationFeatureToggle(true));
+        var sut = ZipArchiveFeatureCompareTranslatorFactory.Create();
 
         await Assert.ThrowsAsync<ArgumentNullException>(() => sut.Translate(null, CancellationToken.None));
     }

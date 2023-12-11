@@ -45,7 +45,7 @@ public partial class UploadController
         {
             return NotFound();
         }
-
+        
         return await PostUpload(archive, async () =>
         {
             if (GetFeatureToggleValue(useZipArchiveFeatureCompareTranslatorFeatureToggle))

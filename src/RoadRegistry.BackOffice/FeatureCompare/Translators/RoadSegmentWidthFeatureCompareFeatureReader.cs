@@ -13,7 +13,7 @@ using Uploads;
 
 public class RoadSegmentWidthFeatureCompareFeatureReader : VersionedZipArchiveFeatureReader<Feature<RoadSegmentWidthFeatureCompareAttributes>>
 {
-    public RoadSegmentWidthFeatureCompareFeatureReader(Encoding encoding)
+    public RoadSegmentWidthFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding),
             new UploadsV1FeatureReader(encoding))

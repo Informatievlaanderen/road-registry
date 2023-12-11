@@ -1,30 +1,31 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using System;
 using Extracts;
 using NetTopologySuite.Geometries;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uploads;
 using AddRoadSegment = Uploads.AddRoadSegment;
 using ModifyRoadSegment = Uploads.ModifyRoadSegment;
 using RemoveRoadSegment = Uploads.RemoveRoadSegment;
+using RemoveOutlinedRoadSegment = Uploads.RemoveOutlinedRoadSegment;
 
-internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
+public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadSegmentFeatureCompareAttributes>
 {
+    private readonly IOrganizationRepository _organizationRepository;
     private const ExtractFileName FileName = ExtractFileName.Wegsegment;
 
-    public RoadSegmentFeatureCompareTranslator(Encoding encoding)
-        : base(encoding)
+    public RoadSegmentFeatureCompareTranslator(RoadSegmentFeatureCompareFeatureReader featureReader, IOrganizationRepository organizationRepository)
+        : base(featureReader)
     {
+        _organizationRepository = organizationRepository;
     }
 
-    private (List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems) ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
+    private async Task<(List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)> ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var problems = ZipArchiveProblems.None;
 
@@ -94,6 +95,20 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
                     EndNodeId = endNodeFeature.GetActualId()
                 };
             }
+
+            var maintenanceAuthority = await _organizationRepository.FindByIdOrOvoCodeAsync(changeFeature.Attributes.MaintenanceAuthority, cancellationToken);
+            if (maintenanceAuthority is null)
+            {
+                var recordContext = FileName.AtDbaseRecord(FeatureType.Change, changeFeature.RecordNumber);
+
+                problems += recordContext.RoadSegmentMaintenanceAuthorityNotKnown(changeFeature.Attributes.MaintenanceAuthority);
+                continue;
+            }
+
+            changeFeatureAttributes = changeFeatureAttributes with
+            {
+                MaintenanceAuthority = maintenanceAuthority.Code
+            };
 
             var matchingExtractFeatures = FindMatchingExtractFeatures(changeFeatureAttributes);
             if (matchingExtractFeatures.Any())
@@ -172,13 +187,7 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
         return (processedRecords, problems);
     }
-
-    protected override (List<Feature<RoadSegmentFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
-    {
-        var featureReader = new RoadSegmentFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(archive, featureType, fileName, context);
-    }
-
+    
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
         var (extractFeatures, changeFeatures, integrationFeatures, problems) = ReadExtractAndChangeAndIntegrationFeatures(context.Archive, FileName, context);
@@ -195,9 +204,8 @@ internal class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBas
 
             var processedLeveringRecords = await Task.WhenAll(
                 changeFeatures.SplitIntoBatches(batchCount)
-                    .Select(changeFeaturesBatch => Task.Run(() =>
-                        ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken), cancellationToken)
-                    ));
+                    .Select(changeFeaturesBatch => ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken))
+                );
 
             foreach (var processedProblems in processedLeveringRecords.Select(x => x.Item2))
             {

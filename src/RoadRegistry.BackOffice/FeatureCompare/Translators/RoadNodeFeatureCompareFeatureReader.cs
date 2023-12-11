@@ -18,7 +18,7 @@ public class RoadNodeFeatureCompareFeatureReader : VersionedZipArchiveFeatureRea
 {
     private readonly Encoding _encoding;
 
-    public RoadNodeFeatureCompareFeatureReader(Encoding encoding)
+    public RoadNodeFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding),
             new UploadsV1FeatureReader(encoding))

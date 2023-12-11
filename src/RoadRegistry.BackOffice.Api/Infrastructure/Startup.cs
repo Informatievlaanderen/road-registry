@@ -24,7 +24,6 @@ using Controllers.Attributes;
 using Core;
 using Editor.Schema;
 using Extensions;
-using FeatureCompare.Translators;
 using FeatureToggles;
 using FluentValidation;
 using Framework;
@@ -271,6 +270,7 @@ public class Startup
             .AddAcmIdmAuthorizationHandlers()
             .AddSingleton(new AmazonDynamoDBClient(RegionEndpoint.EUWest1))
             .AddSingleton(FileEncoding.WindowsAnsi)
+            .AddFeatureCompareTranslator()
             .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
             .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
             .AddSingleton<ProblemDetailsHelper>()
@@ -295,7 +295,7 @@ public class Startup
             .AddRoadRegistrySnapshot()
             .AddRoadNetworkEventWriter()
             .AddScoped(_ => new EventSourcedEntityMap())
-            .AddEmailClient(_configuration)
+            .AddEmailClient()
             .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                 new CommandHandlerModule[]
                 {
@@ -336,7 +336,6 @@ public class Startup
                 new SqlConnection(sp.GetRequiredService<IConfiguration>().GetConnectionString(WellknownConnectionNames.SyndicationProjections)),
                 sp.GetRequiredService<IConfiguration>()["DataDog:ServiceName"]))
             .AddStreetNameCache()
-            .AddSingleton<TransactionZoneFeatureCompareFeatureReader>(sp => new TransactionZoneFeatureCompareFeatureReader(sp.GetRequiredService<FileEncoding>()))
             .AddDbContext<EditorContext>((sp, options) => options
                 .UseLoggerFactory(sp.GetService<ILoggerFactory>())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
@@ -353,6 +352,7 @@ public class Startup
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 .UseSqlServer(
                     sp.GetRequiredService<TraceDbConnection<ProductContext>>()))
+            .AddOrganizationRepository()
             .AddScoped<IRoadSegmentRepository, RoadSegmentRepository>()
             .AddValidatorsAsScopedFromAssemblyContaining<Startup>()
             .AddValidatorsFromAssemblyContaining<BackOffice.DomainAssemblyMarker>()

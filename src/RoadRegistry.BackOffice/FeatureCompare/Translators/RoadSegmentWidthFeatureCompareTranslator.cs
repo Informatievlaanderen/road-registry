@@ -1,15 +1,13 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
-using System.Collections.Generic;
-using System.IO.Compression;
-using System.Text;
 using Extracts;
+using System.Collections.Generic;
 using Uploads;
 
-internal class RoadSegmentWidthFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentWidthFeatureCompareAttributes>
+public class RoadSegmentWidthFeatureCompareTranslator : RoadSegmentAttributeFeatureCompareTranslatorBase<RoadSegmentWidthFeatureCompareAttributes>
 {
-    public RoadSegmentWidthFeatureCompareTranslator(Encoding encoding)
-        : base(encoding, ExtractFileName.AttWegbreedte)
+    public RoadSegmentWidthFeatureCompareTranslator(RoadSegmentWidthFeatureCompareFeatureReader featureReader)
+        : base(featureReader, ExtractFileName.AttWegbreedte)
     {
     }
 
@@ -19,13 +17,7 @@ internal class RoadSegmentWidthFeatureCompareTranslator : RoadSegmentAttributeFe
                && feature1.Attributes.ToPosition == feature2.Attributes.ToPosition
                && feature1.Attributes.Width == feature2.Attributes.Width;
     }
-
-    protected override (List<Feature<RoadSegmentWidthFeatureCompareAttributes>>, ZipArchiveProblems) ReadFeatures(ZipArchive archive, FeatureType featureType, ExtractFileName fileName, ZipArchiveFeatureReaderContext context)
-    {
-        var featureReader = new RoadSegmentWidthFeatureCompareFeatureReader(Encoding);
-        return featureReader.Read(archive, featureType, fileName, context);
-    }
-
+    
     protected override TranslatedChanges TranslateProcessedRecords(TranslatedChanges changes, List<Record> records)
     {
         foreach (var record in records)

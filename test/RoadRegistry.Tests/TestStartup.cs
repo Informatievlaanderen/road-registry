@@ -97,6 +97,7 @@ public abstract class TestStartup
                     .AddSingleton<IRoadNetworkIdGenerator>(new FakeRoadNetworkIdGenerator())
                     .AddTransient<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                     .AddTransient<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
+                    .AddFeatureCompareTranslator()
                     .AddValidatorsFromAssemblies(availableModuleAssemblyCollection)
                     .AddFeatureToggles<ApplicationFeatureToggle>(context.Configuration)
                     .AddLogging();

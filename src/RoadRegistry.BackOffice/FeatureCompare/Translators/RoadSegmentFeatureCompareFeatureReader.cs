@@ -18,7 +18,7 @@ public class RoadSegmentFeatureCompareFeatureReader : VersionedZipArchiveFeature
 {
     private readonly Encoding _encoding;
 
-    public RoadSegmentFeatureCompareFeatureReader(Encoding encoding)
+    public RoadSegmentFeatureCompareFeatureReader(FileEncoding encoding)
         : base(new ExtractsFeatureReader(encoding),
             new UploadsV2FeatureReader(encoding),
             new UploadsV1FeatureReader(encoding))

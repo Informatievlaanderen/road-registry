@@ -12,7 +12,7 @@ public static class ZipArchiveCleanerExtensions
 {
     public static bool UpdateRoadSegmentAttributeMissingFromOrToPositions<TDbaseRecord>(this ZipArchive archive,
         IReadOnlyCollection<TDbaseRecord> dbfRecords,
-        Encoding encoding,
+        FileEncoding encoding,
         Func<TDbaseRecord, int?> getRoadSegmentId = null,
         Func<TDbaseRecord, double?> getFromPosition = null,
         Action<TDbaseRecord, double> setFromPosition = null,

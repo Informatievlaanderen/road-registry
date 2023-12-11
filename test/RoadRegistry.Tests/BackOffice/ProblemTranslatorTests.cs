@@ -25,7 +25,13 @@ public class ProblemTranslatorTests
             {
                 ProblemCode.StreetName.RegistryUnexpectedError, new[]
                 {
-                    new ProblemParameter { Name = "StatusCode", Value = "500" },
+                    new ProblemParameter { Name = "StatusCode", Value = "500" }
+                }
+            },
+            {
+                ProblemCode.RoadSegment.MaintenanceAuthority.NotKnown, new[]
+                {
+                    new ProblemParameter { Name = "OrganizationId", Value = "ABC" }
                 }
             },
         };

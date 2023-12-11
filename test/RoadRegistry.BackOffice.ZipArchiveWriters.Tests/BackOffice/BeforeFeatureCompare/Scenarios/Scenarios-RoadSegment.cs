@@ -4,6 +4,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon;
 using Exceptions;
 using FeatureCompare;
 using Microsoft.Extensions.Logging;
+using Moq;
 using NetTopologySuite.Geometries;
 using RoadRegistry.Tests.BackOffice;
 using Uploads;
@@ -14,6 +15,26 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
     public RoadSegmentScenarios(ITestOutputHelper testOutputHelper, ILogger<ZipArchiveFeatureCompareTranslator> logger)
         : base(testOutputHelper, logger)
     {
+    }
+
+    [Fact]
+    public async Task SegmentWithUnknownMaintenanceAuthorityShouldGiveProblem()
+    {
+        var orgId = new OrganizationId("OVO999999");
+        var organizationRepository = new FakeOrganizationRepository()
+            .Seed(orgId, null);
+
+        var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
+            .WithChange((builder, context) =>
+            {
+                builder.TestData.RoadSegment1DbaseRecord.BEHEER.Value = orgId;
+            })
+            .BuildWithResult(context => TranslatedChanges.Empty);
+
+        var translator = ZipArchiveFeatureCompareTranslatorFactory.Create(organizationRepository);
+        var ex = await Assert.ThrowsAsync<ZipArchiveValidationException>(() => TranslateSucceeds(zipArchive, translator));
+        Assert.NotEmpty(ex.Problems);
+        Assert.True(ex.Problems.All(x => x.Reason == "RoadSegmentMaintenanceAuthorityNotKnown"));
     }
 
     [Fact]
@@ -75,7 +96,7 @@ public class RoadSegmentScenarios : FeatureCompareTranslatorScenariosBase
                         new RoadSegmentPosition(Convert.ToDecimal(context.Change.TestData.RoadSegment1SurfaceDbaseRecord.TOTPOS.Value))
                     )
                 )));
-        
+
         await TranslateReturnsExpectedResult(zipArchive, expected);
     }
 

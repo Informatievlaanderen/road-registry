@@ -42,7 +42,7 @@ public class Program
                 .AddHostedService<RoadNetworkCommandProcessor>()
                 .AddHostedService<RoadNetworkExtractCommandProcessor>()
                 .AddTicketing()
-                .AddEmailClient(hostContext.Configuration)
+                .AddEmailClient()
                 .AddRoadRegistrySnapshot()
                 .AddRoadNetworkEventWriter()
                 .AddScoped(_ => new EventSourcedEntityMap())
@@ -54,6 +54,10 @@ public class Program
                         WellknownSchemas.CommandHostSchema))
                 .AddDistributedStreamStoreLockOptions()
                 .AddRoadNetworkDbIdGenerator()
+                .AddEditorContext()
+                .AddOrganizationRepository()
+                .AddFeatureCompareTranslator()
+                .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
             )
             .ConfigureHealthChecks(HostingPort, builder => builder
                 .AddSqlServer()
@@ -74,7 +78,7 @@ public class Program
                     sp.GetRequiredService<IStreamStore>(),
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                    new ZipArchiveBeforeFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
+                    sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
                     new ZipArchiveAfterFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
                     sp.GetRequiredService<IClock>(),
                     sp.GetRequiredService<ILoggerFactory>()
@@ -93,7 +97,7 @@ public class Program
                     sp.GetRequiredService<IStreamStore>(),
                     sp.GetRequiredService<ILifetimeScope>(),
                     sp.GetRequiredService<IRoadNetworkSnapshotReader>(),
-                    new ZipArchiveBeforeFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
+                    sp.GetRequiredService<IZipArchiveBeforeFeatureCompareValidator>(),
                     new ZipArchiveAfterFeatureCompareValidator(sp.GetRequiredService<FileEncoding>()),
                     sp.GetService<IExtractUploadFailedEmailClient>(),
                     sp.GetRequiredService<IClock>(),

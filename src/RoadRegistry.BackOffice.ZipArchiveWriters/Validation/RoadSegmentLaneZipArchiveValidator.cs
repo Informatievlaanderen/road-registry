@@ -6,9 +6,9 @@ using FeatureCompare.Translators;
 
 public class RoadSegmentLaneZipArchiveValidator : FeatureReaderZipArchiveValidator<RoadSegmentLaneFeatureCompareAttributes>
 {
-    public RoadSegmentLaneZipArchiveValidator(FileEncoding encoding)
+    public RoadSegmentLaneZipArchiveValidator(RoadSegmentLaneFeatureCompareFeatureReader featureReader)
         : base(ExtractFileName.AttRijstroken, new[] { FeatureType.Extract, FeatureType.Change },
-            new RoadSegmentLaneFeatureCompareFeatureReader(encoding))
+            featureReader)
     {
     }
 }

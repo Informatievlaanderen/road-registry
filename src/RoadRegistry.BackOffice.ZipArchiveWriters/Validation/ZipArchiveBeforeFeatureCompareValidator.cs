@@ -1,28 +1,38 @@
 namespace RoadRegistry.BackOffice.ZipArchiveWriters.Validation;
 
 using System.IO.Compression;
+using FeatureCompare.Translators;
 using Uploads;
 
 public class ZipArchiveBeforeFeatureCompareValidator : IZipArchiveBeforeFeatureCompareValidator
 {
     private readonly IZipArchiveValidator[] _validators;
 
-    public ZipArchiveBeforeFeatureCompareValidator(FileEncoding encoding)
+    public ZipArchiveBeforeFeatureCompareValidator(
+        TransactionZoneFeatureCompareFeatureReader transactionZoneFeatureReader,
+        RoadNodeFeatureCompareFeatureReader roadNodeFeatureReader,
+        RoadSegmentFeatureCompareFeatureReader roadSegmentFeatureReader,
+        RoadSegmentLaneFeatureCompareFeatureReader roadSegmentLaneFeatureReader,
+        RoadSegmentWidthFeatureCompareFeatureReader roadSegmentWidthFeatureReader,
+        RoadSegmentSurfaceFeatureCompareFeatureReader roadSegmentSurfaceFeatureReader,
+        EuropeanRoadFeatureCompareFeatureReader europeanRoadFeatureReader,
+        NationalRoadFeatureCompareFeatureReader nationalRoadFeatureReader,
+        NumberedRoadFeatureCompareFeatureReader numberedRoadFeatureReader,
+        GradeSeparatedJunctionFeatureCompareFeatureReader gradeSeparatedJunctionFeatureReader
+    )
     {
-        ArgumentNullException.ThrowIfNull(encoding);
-
         _validators = new IZipArchiveValidator[]
         {
-            new TransactionZoneZipArchiveValidator(encoding),
-            new RoadNodeZipArchiveValidator(encoding),
-            new RoadSegmentZipArchiveValidator(encoding),
-            new RoadSegmentLaneZipArchiveValidator(encoding),
-            new RoadSegmentWidthZipArchiveValidator(encoding),
-            new RoadSegmentSurfaceZipArchiveValidator(encoding),
-            new EuropeanRoadZipArchiveValidator(encoding),
-            new NationalRoadZipArchiveValidator(encoding),
-            new NumberedRoadZipArchiveValidator(encoding),
-            new GradeSeparatedJunctionZipArchiveValidator(encoding)
+            new TransactionZoneZipArchiveValidator(transactionZoneFeatureReader.ThrowIfNull()),
+            new RoadNodeZipArchiveValidator(roadNodeFeatureReader.ThrowIfNull()),
+            new RoadSegmentZipArchiveValidator(roadSegmentFeatureReader.ThrowIfNull()),
+            new RoadSegmentLaneZipArchiveValidator(roadSegmentLaneFeatureReader.ThrowIfNull()),
+            new RoadSegmentWidthZipArchiveValidator(roadSegmentWidthFeatureReader.ThrowIfNull()),
+            new RoadSegmentSurfaceZipArchiveValidator(roadSegmentSurfaceFeatureReader.ThrowIfNull()),
+            new EuropeanRoadZipArchiveValidator(europeanRoadFeatureReader.ThrowIfNull()),
+            new NationalRoadZipArchiveValidator(nationalRoadFeatureReader.ThrowIfNull()),
+            new NumberedRoadZipArchiveValidator(numberedRoadFeatureReader.ThrowIfNull()),
+            new GradeSeparatedJunctionZipArchiveValidator(gradeSeparatedJunctionFeatureReader.ThrowIfNull())
         };
     }
 

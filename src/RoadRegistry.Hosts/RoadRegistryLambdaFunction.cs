@@ -70,7 +70,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
         services.AddSingleton<IHostEnvironment>(hostEnvironment);
 
         var configuration = BuildConfiguration(hostEnvironment);
-        services.AddEmailClient(configuration);
+        services.AddEmailClient();
 
         var context = new HostBuilderContext(new Dictionary<object, object>())
         {
@@ -120,6 +120,7 @@ public abstract class RoadRegistryLambdaFunction<TMessageHandler> : FunctionBase
             .AddSqsLambdaHandlerOptions()
             .AddRoadRegistrySnapshot()
             .AddFeatureToggles<ApplicationFeatureToggle>(hostContext.Configuration)
+            .AddOrganizationRepository()
             ;
     }
 
