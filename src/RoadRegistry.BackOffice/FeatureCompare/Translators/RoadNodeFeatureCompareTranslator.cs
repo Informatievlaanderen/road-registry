@@ -1,5 +1,6 @@
 namespace RoadRegistry.BackOffice.FeatureCompare.Translators;
 
+using Core;
 using Extracts;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,6 +8,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Uploads;
+using AddRoadNode = Uploads.AddRoadNode;
+using ModifyRoadNode = Uploads.ModifyRoadNode;
+using RemoveRoadNode = Uploads.RemoveRoadNode;
 
 public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<RoadNodeFeatureCompareAttributes>
 {
@@ -17,7 +21,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
     {
     }
 
-    private List<RoadNodeFeatureCompareRecord> ProcessLeveringRecords(ICollection<Feature<RoadNodeFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadNodeFeatureCompareAttributes>> extractFeatures, CancellationToken cancellationToken)
+    private List<RoadNodeFeatureCompareRecord> ProcessLeveringRecords(ICollection<Feature<RoadNodeFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadNodeFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
         var clusterTolerance = 0.05; // cfr WVB in GRB
 
@@ -34,16 +38,14 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
 
             if (intersectingGeometries.Any())
             {
-                var intersectingGeometriesWithSameType = intersectingGeometries.FindAll(extractFeature =>
-                    extractFeature.Attributes.Type == changeFeature.Attributes.Type
-                );
-                if (intersectingGeometriesWithSameType.Any())
+                var identicalFeatures = intersectingGeometries.FindAll(extractFeature => AttributesEquals(extractFeature, changeFeature, context));
+                if (identicalFeatures.Any())
                 {
                     processedRecords.Add(new RoadNodeFeatureCompareRecord(
                         FeatureType.Change,
                         changeFeature.RecordNumber,
                         changeFeature.Attributes,
-                        intersectingGeometriesWithSameType.First().Attributes.Id,
+                        identicalFeatures.First().Attributes.Id,
                         RecordType.Identical));
                 }
                 else
@@ -81,6 +83,12 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
         return processedRecords;
     }
     
+    private bool AttributesEquals(Feature<RoadNodeFeatureCompareAttributes> feature1, Feature<RoadNodeFeatureCompareAttributes> feature2, ZipArchiveEntryFeatureCompareTranslateContext context)
+    {
+        return feature1.Attributes.Type == feature2.Attributes.Type
+               && feature1.Attributes.Geometry.EqualsWithinTolerance(feature2.Attributes.Geometry, context.Tolerances);
+    }
+
     public override async Task<(TranslatedChanges, ZipArchiveProblems)> TranslateAsync(ZipArchiveEntryFeatureCompareTranslateContext context, TranslatedChanges changes, CancellationToken cancellationToken)
     {
         var (extractFeatures, changeFeatures, problems) = ReadExtractAndChangeFeatures(context.Archive, ExtractFileName.Wegknoop, context);
@@ -94,7 +102,7 @@ public class RoadNodeFeatureCompareTranslator : FeatureCompareTranslatorBase<Roa
             var processedLeveringRecords = await Task.WhenAll(
                 changeFeatures.SplitIntoBatches(batchCount)
                     .Select(changeFeaturesBatch => Task.Run(() =>
-                        ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, cancellationToken), cancellationToken)
+                        ProcessLeveringRecords(changeFeaturesBatch, extractFeatures, context, cancellationToken), cancellationToken)
                     ));
 
             problems += AddProcessedRecordsToContext(processedLeveringRecords.SelectMany(x => x).ToList(), context, cancellationToken);

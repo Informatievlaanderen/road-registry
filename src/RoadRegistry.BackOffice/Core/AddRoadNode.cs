@@ -68,7 +68,7 @@ public class AddRoadNode : IRequestedChange
         var byOtherNode =
             context.AfterView.Nodes.Values.FirstOrDefault(n =>
                 n.Id != Id &&
-                n.Geometry.EqualsWithinTolerance(Geometry, context.Tolerances.GeometryTolerance));
+                n.Geometry.EqualsWithinTolerance(Geometry, context.Tolerances));
         if (byOtherNode != null)
             problems = problems.Add(new RoadNodeGeometryTaken(
                 context.Translator.TranslateToTemporaryOrId(byOtherNode.Id)

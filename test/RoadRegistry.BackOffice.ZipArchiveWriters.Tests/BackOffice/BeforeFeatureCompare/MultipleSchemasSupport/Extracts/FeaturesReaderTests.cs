@@ -49,7 +49,7 @@ public class FeaturesReaderTests
 
         var roadSegmentLineString1 = fixture.Create<MultiLineString>();
         var roadSegmentLineString2 = fixture.CreateWhichIsDifferentThan((g1, g2) =>
-            g1.RoadSegmentOverlapsWith(g2), roadSegmentLineString1);
+            g1.RoadSegmentOverlapsWith(g2, 1.0), roadSegmentLineString1);
         var roadSegmentShapeContent1 = roadSegmentLineString1.ToShapeContent();
         var roadSegmentShapeContent2 = roadSegmentLineString2.ToShapeContent();
 

@@ -258,7 +258,7 @@ public class GradeSeparatedJunctionFeatureCompareTranslator : FeatureCompareTran
                 let r1Geometry = combination.RoadSegment1.Attributes.Geometry.GetSingleLineString()
                 let r2Geometry = combination.RoadSegment2.Attributes.Geometry.GetSingleLineString()
                 from intersection in intersections.OfType<Point>()
-                let intersectionIsFarAwayFromStartEndPoints = intersection.IsFarEnoughAwayFrom(new[] { r1Geometry.StartPoint, r1Geometry.EndPoint, r2Geometry.StartPoint, r2Geometry.EndPoint }, context.Tolerances.MeasurementTolerance)
+                let intersectionIsFarAwayFromStartEndPoints = intersection.IsFarEnoughAwayFrom(new[] { r1Geometry.StartPoint, r1Geometry.EndPoint, r2Geometry.StartPoint, r2Geometry.EndPoint }, context.Tolerances.GeometryTolerance)
                 where intersectionIsFarAwayFromStartEndPoints
                 select new
                 {

@@ -7,6 +7,7 @@ using Be.Vlaanderen.Basisregisters.Shaperon.Geometries;
 using Polly;
 using RoadRegistry.BackOffice;
 using RoadRegistry.BackOffice.Core;
+using RoadRegistry.BackOffice.Messages;
 
 public static class NetTopologySuiteExtensions
 {
@@ -36,12 +37,12 @@ public static class NetTopologySuiteExtensions
 
         return problems;
     }
-
+    //TODO-rik unit tests voor op en onder de tolerance
     public static Problems GetProblemsForRoadSegmentGeometry(this LineString line, VerificationContextTolerances contextTolerances)
     {
         var problems = Problems.None;
         
-        if (Math.Abs(line.Length) <= contextTolerances.GeometryTolerance)
+        if (Math.Abs(line.Length) < contextTolerances.GeometryTolerance)
         {
             problems = problems.Add(new RoadSegmentGeometryLengthIsZero());
         }
@@ -63,18 +64,18 @@ public static class NetTopologySuiteExtensions
                 var measure = line.CoordinateSequence.GetOrdinate(index, Ordinate.M);
                 var x = line.CoordinateSequence.GetX(index);
                 var y = line.CoordinateSequence.GetY(index);
-                if (index == 0 && Math.Abs(measure) > contextTolerances.MeasurementTolerance)
+                if (index == 0 && Math.Abs(measure) > contextTolerances.GeometryTolerance)
                 {
                     problems =
                         problems.Add(new RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure));
                 }
                 else if (index == line.CoordinateSequence.Count - 1 &&
-                         Math.Abs(measure - line.Length) > contextTolerances.MeasurementTolerance)
+                         Math.Abs(measure - line.Length) > contextTolerances.GeometryTolerance)
                 {
                     problems =
                         problems.Add(new RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length));
                 }
-                else if (measure < 0.0 || measure - line.Length > contextTolerances.MeasurementTolerance)
+                else if (measure < 0.0 || measure - line.Length > contextTolerances.GeometryTolerance)
                 {
                     problems =
                         problems.Add(new RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length));
@@ -142,7 +143,7 @@ public static class NetTopologySuiteExtensions
         }
 
         if (previousLane != null
-            && !previousLane.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.MeasurementTolerance))
+            && !previousLane.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.GeometryTolerance))
         {
             problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(
                 previousLane.TemporaryId,
@@ -197,7 +198,7 @@ public static class NetTopologySuiteExtensions
         }
 
         if (previousWidth != null
-            && !previousWidth.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.MeasurementTolerance))
+            && !previousWidth.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.GeometryTolerance))
         {
             problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(
                 previousWidth.TemporaryId,
@@ -252,7 +253,7 @@ public static class NetTopologySuiteExtensions
         }
 
         if (previousSurface != null
-            && !previousSurface.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.MeasurementTolerance))
+            && !previousSurface.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.GeometryTolerance))
         {
             problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
                 previousSurface.TemporaryId, previousSurface.To, line.Length));
@@ -261,13 +262,12 @@ public static class NetTopologySuiteExtensions
         return problems;
     }
 
-    public static bool RoadSegmentOverlapsWith(this MultiLineString g0, MultiLineString g1)
+    public static bool RoadSegmentOverlapsWith(this MultiLineString g0, MultiLineString g1, double clusterTolerance)
     {
         var openGisGeometryType = OgcGeometryType.LineString;
         var criticalOverlapPercentage = 0.7;
-        var bufferSize = DefaultTolerances.IntersectionBuffer;
 
-        return OverlapsWith(g0, g1, criticalOverlapPercentage, openGisGeometryType, bufferSize);
+        return OverlapsWith(g0, g1, criticalOverlapPercentage, openGisGeometryType, clusterTolerance);
     }
     public static bool OverlapsWith(this Geometry g0, Geometry g1, double threshold, OgcGeometryType oGisGeometryType, double clusterTolerance)
     {
@@ -326,32 +326,7 @@ public static class NetTopologySuiteExtensions
 
         throw new NotSupportedException($"{nameof(OgcGeometryType)}.{oGisGeometryType} is not supported");
     }
-
-    public static bool IsReasonablyEqualTo(this Geometry g0, Geometry g1, double clusterTolerance)
-    {
-        //Catch weird comparisons...
-        if (g0 is null && g1 is null)
-        {
-            return true;
-        }
-
-        if (g0 is null || g1 is null)
-        {
-            return false;
-        }
-
-        // check if geometries are reasonably equal by checking if they fit within eachother's buffer
-        var g0Buf = g0.Buffer(clusterTolerance);
-        var g1Buf = g1.Buffer(clusterTolerance);
-
-        if (!g0.Within(g1Buf))
-            return false;
-        if (!g1.Within(g0Buf))
-            return false;
-
-        return true;
-    }
-
+    
     private static bool CheckOverlapViceVersa(Geometry g0, Geometry g1, OgcGeometryType oGisGeometryType, double threshold, double compareTolerance)
     {
         if (oGisGeometryType == OgcGeometryType.LineString)

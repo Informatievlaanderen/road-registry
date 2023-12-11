@@ -30,7 +30,7 @@ public class ChangeWidthAttributeParametersValidator : AbstractValidator<ChangeW
                 && item.TotPositie is not null
                 && RoadSegmentPosition.Accepts(item.TotPositie.Value)
                 && new RoadSegmentPosition(item.VanPositie.Value).ToDecimal()
-                    .IsReasonablyLessThan(new RoadSegmentPosition(item.TotPositie.Value), (decimal)DefaultTolerances.MeasurementTolerance
+                    .IsReasonablyLessThan(new RoadSegmentPosition(item.TotPositie.Value), (decimal)DefaultTolerances.GeometryTolerance
                 )
             )
             .WithProblemCode(ProblemCode.ToPosition.LessThanOrEqualFromPosition)
