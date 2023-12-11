@@ -64,19 +64,9 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
             var fromPosition = new RoadSegmentPosition(0);
             var toPosition = new RoadSegmentPosition((decimal)geometry.Length);
 
-            var maintenanceAuthority = request.MaintenanceAuthority;
-            {
-                var maintenanceAuthorityOrganization = await _organizationRepository.FindByIdOrOvoCodeAsync(maintenanceAuthority, cancellationToken);
-                if (maintenanceAuthorityOrganization is not null)
-                {
-                    maintenanceAuthority = maintenanceAuthorityOrganization.Code;
-                }
-                else if (OrganizationOvoCode.AcceptsValue(maintenanceAuthority))
-                {
-                    problems = problems.Add(new MaintenanceAuthorityNotKnown(maintenanceAuthority));
-                }
-            }
-            
+            var (maintenanceAuthority, maintenanceAuthorityProblems) = await FindOrganizationId(request.MaintenanceAuthority, cancellationToken);
+            problems += maintenanceAuthorityProblems;
+
             translatedChanges = translatedChanges.AppendChange(
                 new AddRoadSegment(
                         recordNumber,
@@ -112,5 +102,23 @@ public sealed class CreateRoadSegmentOutlineSqsLambdaRequestHandler : SqsLambdaH
         Logger.LogInformation("TIMETRACKING handler: entire handler took {Elapsed}", startSw.Elapsed);
 
         return new ETagResponse(string.Format(DetailUrlFormat, roadSegmentId), lastHash);
+    }
+
+    private async Task<(OrganizationId, Problems)> FindOrganizationId(OrganizationId organizationId, CancellationToken cancellationToken)
+    {
+        var problems = Problems.None;
+
+        var maintenanceAuthorityOrganization = await _organizationRepository.FindByIdOrOvoCodeAsync(organizationId, cancellationToken);
+        if (maintenanceAuthorityOrganization is not null)
+        {
+            return (maintenanceAuthorityOrganization.Code, problems);
+        }
+
+        if (OrganizationOvoCode.AcceptsValue(organizationId))
+        {
+            problems = problems.Add(new MaintenanceAuthorityNotKnown(organizationId));
+        }
+
+        return (organizationId, problems);
     }
 }
