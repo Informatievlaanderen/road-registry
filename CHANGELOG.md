@@ -1,3 +1,16 @@
+# [3.64.0](https://github.com/informatievlaanderen/road-registry/compare/v3.63.2...v3.64.0) (2023-12-11)
+
+
+### Bug Fixes
+
+* WR-887 don't send failure upload email when extract is missing/informative ([#1320](https://github.com/informatievlaanderen/road-registry/issues/1320)) ([50e1777](https://github.com/informatievlaanderen/road-registry/commit/50e17776438947cb2c927e7c6e64f188537b7be3))
+* WR-902 roadnodes too close to each other can't both reuse the same id ([#1321](https://github.com/informatievlaanderen/road-registry/issues/1321)) ([b41aaa3](https://github.com/informatievlaanderen/road-registry/commit/b41aaa303b3a0ac296e883f60b19071bfaf4940a))
+
+
+### Features
+
+* WR-797 map MaintenanceAuthority as OVO-code to internal OrganizationId ([#1322](https://github.com/informatievlaanderen/road-registry/issues/1322)) ([b159871](https://github.com/informatievlaanderen/road-registry/commit/b159871b824bb34293ad55b47f1fe241848535e0))
+
 ## [3.63.2](https://github.com/informatievlaanderen/road-registry/compare/v3.63.1...v3.63.2) (2023-12-04)
 
 
