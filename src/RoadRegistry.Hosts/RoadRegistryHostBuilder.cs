@@ -210,8 +210,7 @@ public sealed class RoadRegistryHostBuilder<T> : HostBuilder
                         GeometryConfiguration.GeometryFactory.SRID
                     )
                 ))
-                .AddSingleton(FileEncoding.WindowsAnsi)
-                .AddOrganizationRepository();
+                .AddSingleton(FileEncoding.WindowsAnsi);
         });
     }
 

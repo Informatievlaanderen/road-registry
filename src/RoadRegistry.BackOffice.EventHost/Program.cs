@@ -44,7 +44,7 @@ public class Program
             {
                 services
                     .AddHostedService<EventProcessor>()
-                    .AddEmailClient(hostContext.Configuration)
+                    .AddEmailClient()
                     .AddTicketing()
                     .AddRoadRegistrySnapshot()
                     .AddRoadNetworkEventWriter()
@@ -55,6 +55,8 @@ public class Program
                                 sp.GetService<IConfiguration>().GetConnectionString(WellknownConnectionNames.EventHost)
                             ),
                             WellknownSchemas.EventHostSchema))
+                    .AddEditorContext()
+                    .AddOrganizationRepository()
                     .AddFeatureCompareTranslator()
                     .AddSingleton(sp => new EventHandlerModule[]
                     {

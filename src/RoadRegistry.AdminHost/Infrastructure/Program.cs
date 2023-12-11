@@ -30,7 +30,7 @@ public class Program
     {
         var roadRegistryHost = new RoadRegistryHostBuilder<Program>(args)
             .ConfigureServices((hostContext, services) => services
-                .AddEmailClient(hostContext.Configuration)
+                .AddEmailClient()
                 .AddSingleton(sp => Dispatch.Using(Resolve.WhenEqualToMessage(
                     new CommandHandlerModule[]
                     {
@@ -50,6 +50,8 @@ public class Program
                 .AddSingleton<AdminMessageConsumer>()
                 .AddSingleton<ExtractRequestCleanup>()
                 .AddSingleton(new ApplicationMetadata(RoadRegistryApplication.BackOffice))
+                .AddOrganizationRepository()
+                .AddFeatureCompareTranslator()
                 .AddSingleton<IZipArchiveBeforeFeatureCompareValidator, ZipArchiveBeforeFeatureCompareValidator>()
                 .AddSingleton<IZipArchiveAfterFeatureCompareValidator, ZipArchiveAfterFeatureCompareValidator>()
                 .AddScoped(_ => new EventSourcedEntityMap())

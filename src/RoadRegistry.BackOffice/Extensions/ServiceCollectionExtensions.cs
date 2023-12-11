@@ -1,9 +1,5 @@
 namespace RoadRegistry.BackOffice.Extensions;
 
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using Amazon.SimpleEmailV2;
 using Be.Vlaanderen.Basisregisters.Aws.DistributedS3Cache;
 using Be.Vlaanderen.Basisregisters.BlobStore.Sql;
@@ -21,21 +17,28 @@ using NodaTime;
 using RoadRegistry.BackOffice.FeatureCompare;
 using RoadRegistry.BackOffice.FeatureCompare.Translators;
 using SqlStreamStore;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddEmailClient(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddEmailClient(this IServiceCollection services)
     {
-        var emailClientOptions = configuration.GetOptions<EmailClientOptions>() ?? new EmailClientOptions();
-
-        services.AddSingleton(emailClientOptions);
+        services.AddSingleton(sp => sp.GetRequiredService<IConfiguration>().GetOptions<EmailClientOptions>() ?? new EmailClientOptions());
         services.AddSingleton(_ => new AmazonSimpleEmailServiceV2Client());
-        services.AddSingleton<IExtractUploadFailedEmailClient>(sp => !string.IsNullOrEmpty(emailClientOptions.FromEmailAddress)
-            ? new ExtractUploadFailedEmailClient(
-                sp.GetService<AmazonSimpleEmailServiceV2Client>(),
-                sp.GetService<EmailClientOptions>(),
-                sp.GetService<ILogger<ExtractUploadFailedEmailClient>>())
-            : new NotConfiguredExtractUploadFailedEmailClient(sp.GetService<ILogger<NotConfiguredExtractUploadFailedEmailClient>>()));
+        services.AddSingleton<IExtractUploadFailedEmailClient>(sp =>
+        {
+            var emailClientOptions = sp.GetRequiredService<EmailClientOptions>();
+
+            return !string.IsNullOrEmpty(emailClientOptions.FromEmailAddress)
+                ? new ExtractUploadFailedEmailClient(
+                    sp.GetService<AmazonSimpleEmailServiceV2Client>(),
+                    sp.GetService<EmailClientOptions>(),
+                    sp.GetService<ILogger<ExtractUploadFailedEmailClient>>())
+                : new NotConfiguredExtractUploadFailedEmailClient(sp.GetService<ILogger<NotConfiguredExtractUploadFailedEmailClient>>());
+        });
 
         return services;
     }
