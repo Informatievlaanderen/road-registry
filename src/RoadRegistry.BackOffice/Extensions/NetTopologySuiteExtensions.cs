@@ -37,12 +37,12 @@ public static class NetTopologySuiteExtensions
 
         return problems;
     }
-    //TODO-rik unit tests voor op en onder de tolerance
+    
     public static Problems GetProblemsForRoadSegmentGeometry(this LineString line, VerificationContextTolerances contextTolerances)
     {
         var problems = Problems.None;
         
-        if (Math.Abs(line.Length) < contextTolerances.GeometryTolerance)
+        if (line.Length.IsReasonablyEqualTo(0, contextTolerances))
         {
             problems = problems.Add(new RoadSegmentGeometryLengthIsZero());
         }
@@ -64,25 +64,25 @@ public static class NetTopologySuiteExtensions
                 var measure = line.CoordinateSequence.GetOrdinate(index, Ordinate.M);
                 var x = line.CoordinateSequence.GetX(index);
                 var y = line.CoordinateSequence.GetY(index);
-                if (index == 0 && Math.Abs(measure) > contextTolerances.GeometryTolerance)
+                if (index == 0 && !measure.IsReasonablyEqualTo(0, contextTolerances))
                 {
                     problems =
                         problems.Add(new RoadSegmentStartPointMeasureValueNotEqualToZero(x, y, measure));
                 }
                 else if (index == line.CoordinateSequence.Count - 1 &&
-                         Math.Abs(measure - line.Length) > contextTolerances.GeometryTolerance)
+                         !measure.IsReasonablyEqualTo(line.Length, contextTolerances))
                 {
                     problems =
                         problems.Add(new RoadSegmentEndPointMeasureValueNotEqualToLength(x, y, measure, line.Length));
                 }
-                else if (measure < 0.0 || measure - line.Length > contextTolerances.GeometryTolerance)
+                else if (measure < 0.0 || measure.IsReasonablyGreaterThan(line.Length, contextTolerances))
                 {
                     problems =
                         problems.Add(new RoadSegmentPointMeasureValueOutOfRange(x, y, measure, 0.0, line.Length));
                 }
                 else
                 {
-                    if (index != 0 && Math.Sign(measure - previousPointMeasure) <= 0)
+                    if (index != 0 && measure <= previousPointMeasure)
                     {
                         problems =
                             problems.Add(new RoadSegmentPointMeasureValueDoesNotIncrease(x, y, measure,
@@ -143,7 +143,7 @@ public static class NetTopologySuiteExtensions
         }
 
         if (previousLane != null
-            && !previousLane.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.GeometryTolerance))
+            && !previousLane.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances))
         {
             problems = problems.Add(new RoadSegmentLaneAttributeToPositionNotEqualToLength(
                 previousLane.TemporaryId,
@@ -198,7 +198,7 @@ public static class NetTopologySuiteExtensions
         }
 
         if (previousWidth != null
-            && !previousWidth.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.GeometryTolerance))
+            && !previousWidth.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances))
         {
             problems = problems.Add(new RoadSegmentWidthAttributeToPositionNotEqualToLength(
                 previousWidth.TemporaryId,
@@ -253,7 +253,7 @@ public static class NetTopologySuiteExtensions
         }
 
         if (previousSurface != null
-            && !previousSurface.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances.GeometryTolerance))
+            && !previousSurface.To.ToDouble().IsReasonablyEqualTo(line.Length, contextTolerances))
         {
             problems = problems.Add(new RoadSegmentSurfaceAttributeToPositionNotEqualToLength(
                 previousSurface.TemporaryId, previousSurface.To, line.Length));

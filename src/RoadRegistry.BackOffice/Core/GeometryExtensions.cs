@@ -1,11 +1,11 @@
 namespace RoadRegistry.BackOffice.Core;
 
+using System;
 using NetTopologySuite.Geometries;
 
-//TODO-rik unit tests voor op en onder de tolerance van 0.001
-internal static class GeometryExtensions
+public static class GeometryExtensions
 {
-    public static bool EqualsWithinTolerance(this MultiLineString @this, MultiLineString other, VerificationContextTolerances tolerances)
+    public static bool IsReasonablyEqualTo(this MultiLineString @this, MultiLineString other, VerificationContextTolerances tolerances)
     {
         if (ReferenceEquals(@this, other)) return true;
         if (@this.NumGeometries != other.NumGeometries) return false;
@@ -13,13 +13,13 @@ internal static class GeometryExtensions
         {
             var thisLineString = (LineString)@this.GetGeometryN(i);
             var otherLineString = (LineString)other.GetGeometryN(i);
-            if (!thisLineString.EqualsWithinTolerance(otherLineString, tolerances)) return false;
+            if (!thisLineString.IsReasonablyEqualTo(otherLineString, tolerances)) return false;
         }
 
         return true;
     }
 
-    private static bool EqualsWithinTolerance(this LineString @this, LineString other, VerificationContextTolerances tolerances)
+    private static bool IsReasonablyEqualTo(this LineString @this, LineString other, VerificationContextTolerances tolerances)
     {
         if (ReferenceEquals(@this, other)) return true;
         if (@this.NumPoints != other.NumPoints) return false;
@@ -27,23 +27,53 @@ internal static class GeometryExtensions
         {
             var thisPoint = @this.GetCoordinateN(i);
             var otherPoint = other.GetCoordinateN(i);
-            if (!thisPoint.EqualsWithinTolerance(otherPoint, tolerances)) return false;
+            if (!thisPoint.IsReasonablyEqualTo(otherPoint, tolerances)) return false;
         }
 
         return true;
     }
 
-    public static bool EqualsWithinTolerance(this Point @this, Point other, VerificationContextTolerances tolerances)
+    public static bool IsReasonablyEqualTo(this Point @this, Point other, VerificationContextTolerances tolerances)
     {
         if (ReferenceEquals(@this, other)) return true;
         if (@this.IsEmpty && other.IsEmpty) return true;
         if (@this.IsEmpty != other.IsEmpty) return false;
-        return @this.Distance(other) < tolerances.GeometryTolerance;
+        return @this.EqualsExact(other, tolerances.GeometryTolerance);
     }
 
-    public static bool EqualsWithinTolerance(this Coordinate @this, Coordinate other, VerificationContextTolerances tolerances)
+    public static bool IsReasonablyEqualTo(this Coordinate @this, Coordinate other, VerificationContextTolerances tolerances)
     {
         if (ReferenceEquals(@this, other)) return true;
-        return @this.Distance(other) < tolerances.GeometryTolerance;
+        return @this.Equals2D(other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyEqualTo(this double value, double other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyEqualTo(other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyEqualTo(this decimal value, decimal other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyEqualTo(other, (decimal)tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyLessThan(this double value, double other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyLessThan(other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyLessThan(this decimal value, decimal other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyLessThan(other, (decimal)tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyGreaterThan(this double value, double other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyGreaterThan(other, tolerances.GeometryTolerance);
+    }
+
+    public static bool IsReasonablyGreaterThan(this decimal value, decimal other, VerificationContextTolerances tolerances)
+    {
+        return value.IsReasonablyGreaterThan(other, (decimal)tolerances.GeometryTolerance);
     }
 }

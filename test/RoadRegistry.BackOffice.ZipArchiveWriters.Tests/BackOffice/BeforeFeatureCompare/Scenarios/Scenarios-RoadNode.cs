@@ -34,12 +34,14 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
+                var lengthIncrease = 0.01;
+
                 var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
-                var endPointGeometry = new Point(lineString.Coordinates[1].X + 0.01, lineString.Coordinates[1].Y);
+                var endPointGeometry = new Point(lineString.Coordinates[1].X + lengthIncrease, lineString.Coordinates[1].Y);
                 lineString = new LineString(new[]
                 {
                     lineString.Coordinates[0],
-                    new CoordinateM(endPointGeometry.X, endPointGeometry.Y, lineString.Coordinates[1].M + 0.01)
+                    new CoordinateM(endPointGeometry.X, endPointGeometry.Y, lineString.Coordinates[1].M + lengthIncrease)
                 });
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
 
@@ -50,6 +52,11 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 builder.TestData.RoadNode2ShapeRecord.Geometry = endPointGeometry;
             })
             .BuildWithResult(context => TranslatedChanges.Empty
+                .AppendChange(new ModifyRoadNode(
+                    new RecordNumber(2),
+                    new RoadNodeId(context.Change.TestData.RoadNode2DbaseRecord.WK_OIDN.Value),
+                    RoadNodeType.ByIdentifier[context.Change.TestData.RoadNode2DbaseRecord.TYPE.Value]
+                ).WithGeometry(context.Change.TestData.RoadNode2ShapeRecord.Geometry))
                 .AppendChange(new ModifyRoadSegment(
                     new RecordNumber(1),
                     new RoadSegmentId(context.Change.TestData.RoadSegment1DbaseRecord.WS_OIDN.Value),
@@ -100,12 +107,14 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
         var (zipArchive, expected) = new ExtractsZipArchiveBuilder()
             .WithChange((builder, context) =>
             {
+                var lengthIncrease = 0.06;
+
                 var lineString = builder.TestData.RoadSegment1ShapeRecord.Geometry.GetSingleLineString();
-                var endPointGeometry = new Point(lineString.Coordinates[1].X + 0.06, lineString.Coordinates[1].Y);
+                var endPointGeometry = new Point(lineString.Coordinates[1].X + lengthIncrease, lineString.Coordinates[1].Y);
                 lineString = new LineString(new[]
                 {
                     lineString.Coordinates[0],
-                    new CoordinateM(endPointGeometry.X, endPointGeometry.Y, lineString.Coordinates[1].M + 0.06)
+                    new CoordinateM(endPointGeometry.X, endPointGeometry.Y, lineString.Coordinates[1].M + lengthIncrease)
                 });
                 builder.TestData.RoadSegment1ShapeRecord.Geometry = lineString.ToMultiLineString();
 
@@ -289,7 +298,7 @@ public class RoadNodeScenarios : FeatureCompareTranslatorScenariosBase
                 dbaseRecord.WK_OIDN.Value = maxId.Next();
                 builder.TestData.RoadSegment1DbaseRecord.B_WK_OIDN.Value = dbaseRecord.WK_OIDN.Value;
 
-                var distanceXIncrement = DefaultTolerances.GeometryTolerance;
+                var distanceXIncrement = 0.01;
                 shapeRecord.Geometry = new Point(shapeRecord.Geometry.X + distanceXIncrement, shapeRecord.Geometry.Y)
                     .WithSrid(shapeRecord.Geometry.SRID);
 

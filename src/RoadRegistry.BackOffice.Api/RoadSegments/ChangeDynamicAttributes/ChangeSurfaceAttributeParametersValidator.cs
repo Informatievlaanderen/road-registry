@@ -8,6 +8,8 @@ using RoadRegistry.BackOffice.Extensions;
 
 public class ChangeSurfaceAttributeParametersValidator : AbstractValidator<ChangeSurfaceAttributeParameters>
 {
+    private readonly VerificationContextTolerances _tolerances = VerificationContextTolerances.Default;
+
     public ChangeSurfaceAttributeParametersValidator()
     {
         RuleFor(x => x.VanPositie)
@@ -30,7 +32,7 @@ public class ChangeSurfaceAttributeParametersValidator : AbstractValidator<Chang
                 && item.TotPositie is not null
                 && RoadSegmentPosition.Accepts(item.TotPositie.Value)
                 && new RoadSegmentPosition(item.VanPositie.Value).ToDecimal()
-                    .IsReasonablyLessThan(new RoadSegmentPosition(item.TotPositie.Value), (decimal)DefaultTolerances.GeometryTolerance
+                    .IsReasonablyLessThan(new RoadSegmentPosition(item.TotPositie.Value), _tolerances
                 )
             )
             .WithProblemCode(ProblemCode.ToPosition.LessThanOrEqualFromPosition)

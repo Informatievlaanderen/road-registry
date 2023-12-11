@@ -132,7 +132,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 if (nonCriticalAttributesUnchanged.Any())
                 {
                     var identicalFeatures = nonCriticalAttributesUnchanged.FindAll(extractFeature =>
-                        changeFeatureAttributes.Geometry.EqualsWithinTolerance(extractFeature.Attributes.Geometry, context.Tolerances)
+                        changeFeatureAttributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, context.Tolerances)
                     );
                     if (identicalFeatures.Any())
                     {
@@ -165,7 +165,7 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 {
                     //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
                     var identicalGeometries = matchingExtractFeatures.FindAll(f =>
-                        changeFeatureAttributes.Geometry.EqualsWithinTolerance(f.Attributes.Geometry, context.Tolerances)
+                        changeFeatureAttributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances)
                     );
                     var extractFeature = matchingExtractFeatures.First();
 
