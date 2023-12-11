@@ -8,7 +8,7 @@ namespace RoadRegistry.BackOffice.Extensions
     {
         public static string ToRoundedMeasurementString(this double value)
         {
-            return Math.Round(value, Precisions.MeasurementPrecision).ToString(CultureInfo.InvariantCulture);
+            return Math.Round(value, Precisions.GeometryPrecision).ToString(CultureInfo.InvariantCulture);
         }
     }
 }

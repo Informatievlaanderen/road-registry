@@ -8,6 +8,8 @@ using RoadRegistry.BackOffice.Extensions;
 
 public class ChangeLaneAttributeParametersValidator : AbstractValidator<ChangeLaneAttributeParameters>
 {
+    private readonly VerificationContextTolerances _tolerances = VerificationContextTolerances.Default;
+
     public ChangeLaneAttributeParametersValidator()
     {
         RuleFor(x => x.VanPositie)
@@ -30,7 +32,7 @@ public class ChangeLaneAttributeParametersValidator : AbstractValidator<ChangeLa
                 && item.TotPositie is not null
                 && RoadSegmentPosition.Accepts(item.TotPositie.Value)
                 && new RoadSegmentPosition(item.VanPositie.Value).ToDecimal()
-                    .IsReasonablyLessThan(new RoadSegmentPosition(item.TotPositie.Value), (decimal)DefaultTolerances.MeasurementTolerance
+                    .IsReasonablyLessThan(new RoadSegmentPosition(item.TotPositie.Value), _tolerances
                 )
             )
             .WithProblemCode(ProblemCode.ToPosition.LessThanOrEqualFromPosition)

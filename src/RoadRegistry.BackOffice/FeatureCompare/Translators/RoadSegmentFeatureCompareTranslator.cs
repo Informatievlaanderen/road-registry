@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Core;
 using Uploads;
 using AddRoadSegment = Uploads.AddRoadSegment;
 using ModifyRoadSegment = Uploads.ModifyRoadSegment;
@@ -27,10 +28,12 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
 
     private async Task<(List<RoadSegmentFeatureCompareRecord>, ZipArchiveProblems)> ProcessLeveringRecords(ICollection<Feature<RoadSegmentFeatureCompareAttributes>> changeFeatures, ICollection<Feature<RoadSegmentFeatureCompareAttributes>> extractFeatures, ZipArchiveEntryFeatureCompareTranslateContext context, CancellationToken cancellationToken)
     {
+        var clusterTolerance = 1.0;
+
         var problems = ZipArchiveProblems.None;
 
         var processedRecords = new List<RoadSegmentFeatureCompareRecord>();
-
+        
         List<Feature<RoadSegmentFeatureCompareAttributes>> FindMatchingExtractFeatures(RoadSegmentFeatureCompareAttributes changeFeatureAttributes)
         {
             if (changeFeatureAttributes.Method == RoadSegmentGeometryDrawMethod.Outlined)
@@ -40,10 +43,10 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                     .ToList();
             }
 
-            var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(context.Tolerances.IntersectionBuffer);
+            var bufferedGeometry = changeFeatureAttributes.Geometry.Buffer(clusterTolerance);
             return extractFeatures
                 .Where(x => x.Attributes.Geometry.Intersects(bufferedGeometry))
-                .Where(x => changeFeatureAttributes.Geometry.RoadSegmentOverlapsWith(x.Attributes.Geometry))
+                .Where(x => changeFeatureAttributes.Geometry.RoadSegmentOverlapsWith(x.Attributes.Geometry, clusterTolerance))
                 .ToList();
         }
 
@@ -128,7 +131,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 );
                 if (nonCriticalAttributesUnchanged.Any())
                 {
-                    var identicalFeatures = nonCriticalAttributesUnchanged.FindAll(extractFeature => changeFeatureAttributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, context.Tolerances.ClusterTolerance));
+                    var identicalFeatures = nonCriticalAttributesUnchanged.FindAll(extractFeature =>
+                        changeFeatureAttributes.Geometry.IsReasonablyEqualTo(extractFeature.Attributes.Geometry, context.Tolerances)
+                    );
                     if (identicalFeatures.Any())
                     {
                         processedRecords.Add(new RoadSegmentFeatureCompareRecord(
@@ -159,7 +164,9 @@ public class RoadSegmentFeatureCompareTranslator : FeatureCompareTranslatorBase<
                 else
                 {
                     //no features with with unchanged non-critical attributes in criticalAttributesUnchanged
-                    var identicalGeometries = matchingExtractFeatures.FindAll(f => changeFeatureAttributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances.ClusterTolerance));
+                    var identicalGeometries = matchingExtractFeatures.FindAll(f =>
+                        changeFeatureAttributes.Geometry.IsReasonablyEqualTo(f.Attributes.Geometry, context.Tolerances)
+                    );
                     var extractFeature = matchingExtractFeatures.First();
 
                     processedRecords.Add(new RoadSegmentFeatureCompareRecord(

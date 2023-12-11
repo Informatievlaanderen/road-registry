@@ -9,6 +9,8 @@ using RoadRegistry.BackOffice.Extensions;
 
 public class ChangeRoadSegmentDynamicAttributesParametersValidator : AbstractValidator<ChangeRoadSegmentDynamicAttributesParameters>
 {
+    private readonly VerificationContextTolerances _tolerances = VerificationContextTolerances.Default;
+
     public ChangeRoadSegmentDynamicAttributesParametersValidator(ChangeRoadSegmentsParametersValidatorContext validatorContext)
     {
         ArgumentNullException.ThrowIfNull(validatorContext);
@@ -76,7 +78,7 @@ public class ChangeRoadSegmentDynamicAttributesParametersValidator : AbstractVal
 
         var vanPos = attributes.First().VanPositie;
         if (vanPos is null
-            || vanPos.Value.IsReasonablyEqualTo(0, (decimal)DefaultTolerances.MeasurementTolerance))
+            || vanPos.Value.IsReasonablyEqualTo(0, _tolerances))
         {
             return true;
         }
@@ -107,7 +109,7 @@ public class ChangeRoadSegmentDynamicAttributesParametersValidator : AbstractVal
                     return false;
                 }
 
-                if (!totPos.Value.IsReasonablyEqualTo(nextVanPos.Value, (decimal)DefaultTolerances.MeasurementTolerance))
+                if (!totPos.Value.IsReasonablyEqualTo(nextVanPos.Value, _tolerances))
                 {
                     return false;
                 }

@@ -1,6 +1,6 @@
 namespace System;
 
-public static class NumericExtensions
+internal static class NumericExtensions
 {
     public static bool IsReasonablyEqualTo(this double value, double other, double tolerance)
     {
@@ -20,5 +20,15 @@ public static class NumericExtensions
     public static bool IsReasonablyLessThan(this decimal value, decimal other, decimal tolerance)
     {
         return other - value > tolerance;
+    }
+
+    public static bool IsReasonablyGreaterThan(this double value, double other, double tolerance)
+    {
+        return value - other > tolerance;
+    }
+
+    public static bool IsReasonablyGreaterThan(this decimal value, decimal other, decimal tolerance)
+    {
+        return value - other > tolerance;
     }
 }

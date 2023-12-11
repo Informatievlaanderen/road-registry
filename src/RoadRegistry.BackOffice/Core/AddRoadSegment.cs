@@ -214,7 +214,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         var byOtherSegment =
             context.AfterView.Segments.Values.FirstOrDefault(segment =>
                 segment.Id != Id &&
-                segment.Geometry.EqualsWithinTolerance(Geometry, context.Tolerances.GeometryTolerance));
+                segment.Geometry.IsReasonablyEqualTo(Geometry, context.Tolerances));
         if (byOtherSegment != null)
             problems = problems.Add(new RoadSegmentGeometryTaken(
                 context.Translator.TranslateToTemporaryOrId(byOtherSegment.Id)
@@ -227,7 +227,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         else
         {
             problems = problems.AddRange(startNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-            if (line.StartPoint != null && !line.StartPoint.EqualsWithinTolerance(startNode.Geometry, context.Tolerances.GeometryTolerance)) problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
+            if (line.StartPoint != null && !line.StartPoint.IsReasonablyEqualTo(startNode.Geometry, context.Tolerances)) problems = problems.Add(new RoadSegmentStartPointDoesNotMatchNodeGeometry());
         }
 
         if (!context.AfterView.View.Nodes.TryGetValue(EndNodeId, out var endNode))
@@ -237,7 +237,7 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         else
         {
             problems = problems.AddRange(endNode.VerifyTypeMatchesConnectedSegmentCount(context.AfterView.View, context.Translator));
-            if (line.EndPoint != null && !line.EndPoint.EqualsWithinTolerance(endNode.Geometry, context.Tolerances.GeometryTolerance)) problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());
+            if (line.EndPoint != null && !line.EndPoint.IsReasonablyEqualTo(endNode.Geometry, context.Tolerances)) problems = problems.Add(new RoadSegmentEndPointDoesNotMatchNodeGeometry());
         }
 
         if (!problems.Any())
@@ -273,6 +273,6 @@ public class AddRoadSegment : IRequestedChange, IHaveHash
         return problems;
     }
 
-    public System.Collections.Generic.IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
+    public IEnumerable<string> GetHashFields() => ObjectHasher.GetHashFields(this);
     public string GetHash() => this.ToEventHash(EventName);
 }
