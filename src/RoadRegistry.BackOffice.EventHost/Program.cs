@@ -107,6 +107,7 @@ public class Program
             .ConfigureContainer((context, builder) =>
             {
                 builder
+                    .RegisterModule<ContextModule>()
                     .RegisterModule<RoadRegistry.Snapshot.Handlers.Sqs.MediatorModule>()
                     .RegisterModule<SqsHandlersModule>()
                     .RegisterModule<SnapshotSqsHandlersModule>();
