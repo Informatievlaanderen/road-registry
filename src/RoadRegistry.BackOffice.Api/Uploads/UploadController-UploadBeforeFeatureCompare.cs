@@ -45,7 +45,7 @@ public partial class UploadController
         {
             return NotFound();
         }
-        //TODO-rik end2end test voor een wegbeheerder via OvoCode aan te passen
+        
         return await PostUpload(archive, async () =>
         {
             if (GetFeatureToggleValue(useZipArchiveFeatureCompareTranslatorFeatureToggle))
