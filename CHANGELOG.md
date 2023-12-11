@@ -1,3 +1,15 @@
+# [3.65.0](https://github.com/informatievlaanderen/road-registry/compare/v3.64.0...v3.65.0) (2023-12-11)
+
+
+### Bug Fixes
+
+* WR-903 use same tolerance for all geometry/measurement related checks ([#1325](https://github.com/informatievlaanderen/road-registry/issues/1325)) ([d93377c](https://github.com/informatievlaanderen/road-registry/commit/d93377c6e2b6ac0c4f08197fad552b8aa9cb1ad6))
+
+
+### Features
+
+* add integrationdb ksql scripts ([#1317](https://github.com/informatievlaanderen/road-registry/issues/1317)) ([a043ba4](https://github.com/informatievlaanderen/road-registry/commit/a043ba4fc9f7b22cf0c16cde955473e08df40df3))
+
 # [3.64.0](https://github.com/informatievlaanderen/road-registry/compare/v3.63.2...v3.64.0) (2023-12-11)
 
 
