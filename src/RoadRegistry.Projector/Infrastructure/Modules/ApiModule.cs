@@ -193,14 +193,6 @@ public class ApiModule : Module
             WellKnownConnectionName = WellknownConnectionNames.SyndicationProjections,
             IsSyndication = true
         });
-
-        RegisterProjection<SyndicationContext>(new ProjectionDetail
-        {
-            Id = "roadregistry-syndication-projectionhost-StraatNaam",
-            Name = "streetName",
-            WellKnownConnectionName = WellknownConnectionNames.SyndicationProjections,
-            IsSyndication = true
-        });
     }
 
     private void RegisterProjection<TContext>(ProjectionDetail projectionDetail) where TContext : DbContext
