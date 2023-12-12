@@ -1,3 +1,10 @@
+## [3.65.2](https://github.com/informatievlaanderen/road-registry/compare/v3.65.1...v3.65.2) (2023-12-12)
+
+
+### Bug Fixes
+
+* WR-797 extracthost dependencies for IOrganizationRepository ([#1328](https://github.com/informatievlaanderen/road-registry/issues/1328)) ([83edd1d](https://github.com/informatievlaanderen/road-registry/commit/83edd1dea2429244ee8dd6c6e066aa44f7bcdc75))
+
 ## [3.65.1](https://github.com/informatievlaanderen/road-registry/compare/v3.65.0...v3.65.1) (2023-12-12)
 
 
