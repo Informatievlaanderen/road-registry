@@ -45,6 +45,7 @@ public class Program
                     .AddEmailClient()
                     .AddRoadRegistrySnapshot()
                     .AddRoadNetworkEventWriter()
+                    .AddScoped(_ => new EventSourcedEntityMap())
                     .AddSingleton<IEventProcessorPositionStore>(sp =>
                         new SqlEventProcessorPositionStore(
                             new SqlConnectionStringBuilder(
@@ -98,6 +99,11 @@ public class Program
                     .CheckPermission(WellknownQueues.SnapshotQueue, Permission.Read)
                 )
             )
+            .ConfigureContainer((context, builder) =>
+            {
+                builder
+                    .RegisterModule<ContextModule>();
+            })
             .Build();
 
         await roadRegistryHost
