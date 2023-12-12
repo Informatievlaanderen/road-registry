@@ -119,11 +119,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkChangesArchiveUploaded>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var content = new RoadNetworkChangesArchiveUploadedEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId }
@@ -156,11 +151,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractChangesArchiveUploaded>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var content = new RoadNetworkExtractChangesArchiveUploadedEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
@@ -193,11 +183,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkChangesArchiveRejected>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var content = new RoadNetworkChangesArchiveRejectedEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
@@ -236,11 +221,6 @@ public class RoadNetworkChangeFeedProjection : ConnectedProjection<EditorContext
 
         When<Envelope<RoadNetworkExtractChangesArchiveRejected>>(async (context, envelope, ct) =>
         {
-            if (!MessageIsFromDefaultRoadNetwork(envelope))
-            {
-                return;
-            }
-
             var content = new RoadNetworkExtractChangesArchiveRejectedEntry
             {
                 Archive = new ArchiveInfo { Id = envelope.Message.ArchiveId },
