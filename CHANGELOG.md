@@ -1,3 +1,11 @@
+## [3.65.1](https://github.com/informatievlaanderen/road-registry/compare/v3.65.0...v3.65.1) (2023-12-12)
+
+
+### Bug Fixes
+
+* WR-905 only filter streams for changefeed on final accepted/rejected event ([#1326](https://github.com/informatievlaanderen/road-registry/issues/1326)) ([3802fac](https://github.com/informatievlaanderen/road-registry/commit/3802fac1ce4ffa8f432a87699dce43dac104008d))
+* WR-906 remove streetname atom feed from statuspage ([#1327](https://github.com/informatievlaanderen/road-registry/issues/1327)) ([698c7c0](https://github.com/informatievlaanderen/road-registry/commit/698c7c09ef9632f47fb37827d728b5ae98f9c167))
+
 # [3.65.0](https://github.com/informatievlaanderen/road-registry/compare/v3.64.0...v3.65.0) (2023-12-11)
 
 
