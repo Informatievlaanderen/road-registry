@@ -36,7 +36,6 @@ public static class DbSetExtensions
     {
         return dbSet.Local
             .Where(predicate.Compile())
-            .ToList()
             .Concat(await dbSet
                 .Where(predicate)
                 .ToListAsync(cancellationToken))
