@@ -198,7 +198,8 @@ public class RoadNetworkExtractEventModule : EventHandlerModule
                 await queue.Write(new Command(
                         new AnnounceRoadNetworkExtractDownloadTimeoutOccurred
                         {
-                            RequestId = message.Body.RequestId
+                            RequestId = message.Body.RequestId,
+                            DownloadId = message.Body.DownloadId
                         })
                     .WithMessageId(message.MessageId), ct);
             }
