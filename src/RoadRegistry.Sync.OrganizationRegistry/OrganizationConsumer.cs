@@ -61,6 +61,8 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
 
     protected override async Task ExecutingAsync(CancellationToken cancellationToken)
     {
+        var consecutiveExceptionsCount = 0;
+
         while (!cancellationToken.IsCancellationRequested)
         {
             ILookup<OrganizationOvoCode, OrganizationId>? orgIdMapping = null;
@@ -118,6 +120,8 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
                 {
                     await context.SaveChangesAsync(cancellationToken);
                 }
+
+                consecutiveExceptionsCount = 0;
             }
             catch (ConfigurationErrorsException ex)
             {
@@ -126,7 +130,13 @@ public class OrganizationConsumer : RoadRegistryBackgroundService
             }
             catch (Exception ex)
             {
-                Logger.LogCritical(ex, "Error consuming organizations, trying again in {seconds} seconds", _options.ConsumerDelaySeconds);
+                consecutiveExceptionsCount++;
+
+                if (consecutiveExceptionsCount > 3)
+                {
+                    Logger.LogCritical(ex, "Error consuming organizations, trying again in {seconds} seconds (attempt #{ConsecutiveExceptionsCount})", _options.ConsumerDelaySeconds, consecutiveExceptionsCount);
+                }
+
                 projectionState.ErrorMessage = ex.Message;
                 await context.SaveChangesAsync(cancellationToken);
             }
